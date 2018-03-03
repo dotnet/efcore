@@ -7,7 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         {
                             foreach (var converterInfo in Dependencies
                                 .ValueConverterSelector
-                                .ForTypes(sourceType, mappingInfo.ConfiguredProviderClrType))
+                                .Select(sourceType, mappingInfo.ConfiguredProviderClrType))
                             {
                                 mappingInfoUsed = mappingInfo.WithBuiltInConverter(converterInfo);
                                 mapping = FindMapping(mappingInfoUsed);
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 {
                                     foreach (var secondConverterInfo in Dependencies
                                         .ValueConverterSelector
-                                        .ForTypes(mappingInfo.ConfiguredProviderClrType))
+                                        .Select(mappingInfo.ConfiguredProviderClrType))
                                     {
                                         var secondMappingInfoUsed = mappingInfoUsed.WithBuiltInConverter(secondConverterInfo);
                                         mapping = FindMapping(secondMappingInfoUsed);

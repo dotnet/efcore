@@ -2187,7 +2187,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     using Microsoft.EntityFrameworkCore;
                     using Microsoft.EntityFrameworkCore.Metadata;
                     using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-                    using Microsoft.EntityFrameworkCore.Storage.Converters;
+                    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
                     public static class ModelSnapshot
                     {

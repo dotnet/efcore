@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
-using Microsoft.EntityFrameworkCore.Storage.Converters.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_int_enums()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Queen)).ToList(),
+                _selector.Select(typeof(Queen)).ToList(),
                 (typeof(EnumToNumberConverter<Queen, int>), default),
                 (typeof(EnumToNumberConverter<Queen, long>), default),
                 (typeof(EnumToNumberConverter<Queen, decimal>), default),
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_ulong_enums()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Gnr)).ToList(),
+                _selector.Select(typeof(Gnr)).ToList(),
                 (typeof(EnumToNumberConverter<Gnr, ulong>), default),
                 (typeof(EnumToNumberConverter<Gnr, decimal>), new ConverterMappingHints(precision: 20, scale: 0)),
                 (typeof(EnumToStringConverter<Gnr>), default),
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_long_enums()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Velvets)).ToList(),
+                _selector.Select(typeof(Velvets)).ToList(),
                 (typeof(EnumToNumberConverter<Velvets, long>), default),
                 (typeof(EnumToNumberConverter<Velvets, decimal>), new ConverterMappingHints(precision: 20, scale: 0)),
                 (typeof(EnumToStringConverter<Velvets>), default),
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_byte_enums()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Nwa)).ToList(),
+                _selector.Select(typeof(Nwa)).ToList(),
                 (typeof(EnumToNumberConverter<Nwa, byte>), default),
                 (typeof(EnumToNumberConverter<Nwa, short>), default),
                 (typeof(EnumToNumberConverter<Nwa, ushort>), default),
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_enum_to_string()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Queen), typeof(string)).ToList(),
+                _selector.Select(typeof(Queen), typeof(string)).ToList(),
                 (typeof(EnumToStringConverter<Queen>), default));
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_enum_to_underlying_enum_type()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Queen), typeof(int)).ToList(),
+                _selector.Select(typeof(Queen), typeof(int)).ToList(),
                 (typeof(EnumToNumberConverter<Queen, int>), default));
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_enum_to_other_integer_type()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Queen), typeof(sbyte)).ToList(),
+                _selector.Select(typeof(Queen), typeof(sbyte)).ToList(),
                 (typeof(EnumToNumberConverter<Queen, sbyte>), default));
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_enum_to_bytes()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Queen), typeof(byte[])).ToList(),
+                _selector.Select(typeof(Queen), typeof(byte[])).ToList(),
                 (typeof(CompositeValueConverter<Queen, int, byte[]>), new ConverterMappingHints(size: 4)));
         }
 
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_int()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(int)).ToList(),
+                _selector.Select(typeof(int)).ToList(),
                 (typeof(CastingConverter<int, long>), default),
                 (typeof(CastingConverter<int, decimal>), default),
                 (typeof(NumberToStringConverter<int>), new ConverterMappingHints(size: 64)),
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_uint()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(uint)).ToList(),
+                _selector.Select(typeof(uint)).ToList(),
                 (typeof(CastingConverter<uint, long>), default),
                 (typeof(CastingConverter<uint, ulong>), default),
                 (typeof(CastingConverter<uint, decimal>), default),
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_sbyte()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(sbyte)).ToList(),
+                _selector.Select(typeof(sbyte)).ToList(),
                 (typeof(CastingConverter<sbyte, short>), default),
                 (typeof(CastingConverter<sbyte, int>), default),
                 (typeof(CastingConverter<sbyte, long>), default),
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_byte()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(byte)).ToList(),
+                _selector.Select(typeof(byte)).ToList(),
                 (typeof(CastingConverter<byte, short>), default),
                 (typeof(CastingConverter<byte, ushort>), default),
                 (typeof(CastingConverter<byte, int>), default),
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_double()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(double)).ToList(),
+                _selector.Select(typeof(double)).ToList(),
                 (typeof(CastingConverter<double, decimal>), new ConverterMappingHints(precision: 38, scale: 17)),
                 (typeof(NumberToStringConverter<double>), new ConverterMappingHints(size: 64)),
                 (typeof(NumberToBytesConverter<double>), new ConverterMappingHints(size: 8)),
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_float()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(float)).ToList(),
+                _selector.Select(typeof(float)).ToList(),
                 (typeof(CastingConverter<float, double>), default),
                 (typeof(CastingConverter<float, decimal>), new ConverterMappingHints(precision: 38, scale: 17)),
                 (typeof(NumberToStringConverter<float>), new ConverterMappingHints(size: 64)),
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_decimal()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(decimal)).ToList(),
+                _selector.Select(typeof(decimal)).ToList(),
                 (typeof(NumberToStringConverter<decimal>), new ConverterMappingHints(size: 64)),
                 (typeof(NumberToBytesConverter<decimal>), new ConverterMappingHints(size: 16)),
                 (typeof(CastingConverter<decimal, int>), default),
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_double_to_float()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(double), typeof(float)).ToList(),
+                _selector.Select(typeof(double), typeof(float)).ToList(),
                 (typeof(CastingConverter<double, float>), default));
         }
 
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_float_to_double()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(float), typeof(double)).ToList(),
+                _selector.Select(typeof(float), typeof(double)).ToList(),
                 (typeof(CastingConverter<float, double>), default));
         }
 
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 foreach (var toType in types)
                 {
-                    var converterInfos = _selector.ForTypes(fromType, toType).ToList();
+                    var converterInfos = _selector.Select(fromType, toType).ToList();
 
                     if (fromType == toType)
                     {
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_char()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(char)).ToList(),
+                _selector.Select(typeof(char)).ToList(),
                 (typeof(CharToStringConverter), new ConverterMappingHints(size: 1)),
                 (typeof(CastingConverter<char, int>), default),
                 (typeof(CastingConverter<char, ushort>), default),
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_char_to_string()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(char), typeof(string)).ToList(),
+                _selector.Select(typeof(char), typeof(string)).ToList(),
                 (typeof(CharToStringConverter), new ConverterMappingHints(size: 1)));
         }
 
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_char_to_bytes()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(char), typeof(byte[])).ToList(),
+                _selector.Select(typeof(char), typeof(byte[])).ToList(),
                 (typeof(NumberToBytesConverter<char>), new ConverterMappingHints(size: 2)));
         }
 
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_char_to_specific_numeric()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(char), typeof(ushort)).ToList(),
+                _selector.Select(typeof(char), typeof(ushort)).ToList(),
                 (typeof(CastingConverter<char, ushort>), default));
         }
 
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_bool()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(bool)).ToList(),
+                _selector.Select(typeof(bool)).ToList(),
                 (typeof(BoolToZeroOneConverter<int>), default),
                 (typeof(BoolToZeroOneConverter<long>), default),
                 (typeof(BoolToZeroOneConverter<short>), default),
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_GUID()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Guid)).ToList(),
+                _selector.Select(typeof(Guid)).ToList(),
                 (typeof(GuidToBytesConverter), new ConverterMappingHints(size: 16)),
                 (typeof(GuidToStringConverter), new ConverterMappingHints(size: 36)));
         }
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_GUID_to_string()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Guid), typeof(string)).ToList(),
+                _selector.Select(typeof(Guid), typeof(string)).ToList(),
                 (typeof(GuidToStringConverter), new ConverterMappingHints(size: 36)));
         }
 
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_GUID_to_bytes()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(Guid), typeof(byte[])).ToList(),
+                _selector.Select(typeof(Guid), typeof(byte[])).ToList(),
                 (typeof(GuidToBytesConverter), new ConverterMappingHints(size: 16)));
         }
 
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_strings()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(string)).ToList(),
+                _selector.Select(typeof(string)).ToList(),
                 (typeof(StringToBytesConverter), default));
         }
 
@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_string_to_bytes()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(string), typeof(byte[])).ToList(),
+                _selector.Select(typeof(string), typeof(byte[])).ToList(),
                 (typeof(StringToBytesConverter), default));
         }
 
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_bytes()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(byte[])).ToList(),
+                _selector.Select(typeof(byte[])).ToList(),
                 (typeof(BytesToStringConverter), default));
         }
 
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_bytes_to_strings()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(byte[]), typeof(string)).ToList(),
+                _selector.Select(typeof(byte[]), typeof(string)).ToList(),
                 (typeof(BytesToStringConverter), default));
         }
 
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_DateTime()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(DateTime)).ToList(),
+                _selector.Select(typeof(DateTime)).ToList(),
                 (typeof(DateTimeToStringConverter), new ConverterMappingHints(size: 48)),
                 (typeof(DateTimeToBinaryConverter), default),
                 (typeof(CompositeValueConverter<DateTime, long, byte[]>), new ConverterMappingHints(size: 8)));
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_DateTime_to_bytes()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(DateTime), typeof(byte[])).ToList(),
+                _selector.Select(typeof(DateTime), typeof(byte[])).ToList(),
                 (typeof(CompositeValueConverter<DateTime, long, byte[]>), new ConverterMappingHints(size: 8)));
         }
 
@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_DateTime_to_string()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(DateTime), typeof(string)).ToList(),
+                _selector.Select(typeof(DateTime), typeof(string)).ToList(),
                 (typeof(DateTimeToStringConverter), new ConverterMappingHints(size: 48)));
         }
 
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_DateTime_to_long()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(DateTime), typeof(long)).ToList(),
+                _selector.Select(typeof(DateTime), typeof(long)).ToList(),
                 (typeof(DateTimeToBinaryConverter), default));
         }
 
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_DateTimeOffset()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(DateTimeOffset)).ToList(),
+                _selector.Select(typeof(DateTimeOffset)).ToList(),
                 (typeof(DateTimeOffsetToStringConverter), new ConverterMappingHints(size: 48)),
                 (typeof(DateTimeOffsetToBinaryConverter), default),
                 (typeof(DateTimeOffsetToBytesConverter), new ConverterMappingHints(size: 12)));
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_DateTimeOffset_to_bytes()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(DateTimeOffset), typeof(byte[])).ToList(),
+                _selector.Select(typeof(DateTimeOffset), typeof(byte[])).ToList(),
                 (typeof(DateTimeOffsetToBytesConverter), new ConverterMappingHints(size: 12)));
         }
 
@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_DateTimeOffset_to_string()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(DateTimeOffset), typeof(string)).ToList(),
+                _selector.Select(typeof(DateTimeOffset), typeof(string)).ToList(),
                 (typeof(DateTimeOffsetToStringConverter), new ConverterMappingHints(size: 48)));
         }
 
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_DateTimeOffset_to_long()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(DateTimeOffset), typeof(long)).ToList(),
+                _selector.Select(typeof(DateTimeOffset), typeof(long)).ToList(),
                 (typeof(DateTimeOffsetToBinaryConverter), default));
         }
 
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_TimeSpan()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(TimeSpan)).ToList(),
+                _selector.Select(typeof(TimeSpan)).ToList(),
                 (typeof(TimeSpanToStringConverter), new ConverterMappingHints(size: 48)),
                 (typeof(TimeSpanToTicksConverter), default),
                 (typeof(CompositeValueConverter<TimeSpan, long, byte[]>), new ConverterMappingHints(size: 8)));
@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_TimeSpan_to_bytes()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(TimeSpan), typeof(byte[])).ToList(),
+                _selector.Select(typeof(TimeSpan), typeof(byte[])).ToList(),
                 (typeof(CompositeValueConverter<TimeSpan, long, byte[]>), new ConverterMappingHints(size: 8)));
         }
 
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_TimeSpan_to_string()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(TimeSpan), typeof(string)).ToList(),
+                _selector.Select(typeof(TimeSpan), typeof(string)).ToList(),
                 (typeof(TimeSpanToStringConverter), new ConverterMappingHints(size: 48)));
         }
 
@@ -525,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_get_converters_for_TimeSpan_to_long()
         {
             AssertConverters(
-                _selector.ForTypes(typeof(TimeSpan), typeof(long)).ToList(),
+                _selector.Select(typeof(TimeSpan), typeof(long)).ToList(),
                 (typeof(TimeSpanToTicksConverter), default));
         }
 
@@ -546,12 +546,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private static void AssertHints(ConverterMappingHints expected, ConverterMappingHints actual)
         {
-            Assert.NotNull(actual);
-            Assert.Equal(actual.IsFixedLength, expected.IsFixedLength);
-            Assert.Equal(actual.IsUnicode, expected.IsUnicode);
-            Assert.Equal(actual.Precision, expected.Precision);
-            Assert.Equal(actual.Scale, expected.Scale);
-            Assert.Equal(actual.Size, expected.Size);
+            Assert.Equal(actual?.IsUnicode, expected?.IsUnicode);
+            Assert.Equal(actual?.Precision, expected?.Precision);
+            Assert.Equal(actual?.Scale, expected?.Scale);
+            Assert.Equal(actual?.Size, expected?.Size);
         }
 
         private enum Queen

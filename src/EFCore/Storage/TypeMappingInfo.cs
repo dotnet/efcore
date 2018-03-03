@@ -7,7 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 .Select(p => p.GetValueConverter())
                 .FirstOrDefault(c => c != null);
 
-            var mappingHints = _customConverter?.MappingHints ?? default;
+            var mappingHints = _customConverter?.MappingHints;
 
             if (_customConverter != null)
             {
@@ -62,16 +62,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             IsKeyOrIndex = property.IsKeyOrForeignKey() || property.IsIndex();
 
-            Size = principals.Select(p => p.GetMaxLength()).FirstOrDefault(t => t != null) ?? mappingHints.Size;
+            Size = principals.Select(p => p.GetMaxLength()).FirstOrDefault(t => t != null) ?? mappingHints?.Size;
 
             IsUnicode = principals.Select(p => p.IsUnicode()).FirstOrDefault(t => t != null)
-                        ?? mappingHints.IsUnicode;
+                        ?? mappingHints?.IsUnicode;
 
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
 
-            Precision = mappingHints.Precision;
+            Precision = mappingHints?.Precision;
 
-            Scale = mappingHints.Scale;
+            Scale = mappingHints?.Scale;
 
             ModelClrType = property.ClrType.UnwrapNullableType();
 
@@ -159,7 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _customConverter.ModelClrType,
                     builtInConverter.ProviderClrType,
                     i => _customConverter.ComposeWith(builtInConverter.Create()),
-                    _customConverter.MappingHints.With(builtInConverter.MappingHints));
+                    builtInConverter.MappingHints == null
+                        ? _customConverter.MappingHints
+                        : builtInConverter.MappingHints.With(_customConverter.MappingHints));
             }
             else
             {
@@ -167,12 +169,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             // ReSharper disable once VirtualMemberCallInConstructor
-            var mappingHints = ValueConverterInfo?.MappingHints ?? default;
+            var mappingHints = ValueConverterInfo?.MappingHints;
 
-            Size = source.Size ?? mappingHints.Size;
-            IsUnicode = source.IsUnicode ?? mappingHints.IsUnicode;
-            Scale = source.Scale ?? mappingHints.Scale;
-            Precision = source.Precision ?? mappingHints.Precision;
+            Size = source.Size ?? mappingHints?.Size;
+            IsUnicode = source.IsUnicode ?? mappingHints?.IsUnicode;
+            Scale = source.Scale ?? mappingHints?.Scale;
+            Precision = source.Precision ?? mappingHints?.Precision;
             ProviderClrType = CreateProviderClrType();
         }
 

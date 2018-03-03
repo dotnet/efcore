@@ -10,7 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -109,19 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             DbType = dbType;
             IsUnicode = unicode;
-
-            if (converter != null)
-            {
-                size = size ?? converter.MappingHints.Size;
-
-                if (converter.MappingHints.SizeFunction != null
-                    && size != null)
-                {
-                    size = converter.MappingHints.SizeFunction(size.Value);
-                }
-            }
-
-            Size = size;
+            Size = size ?? converter?.MappingHints?.Size;
             StoreType = storeType;
 
             IsFixedLength = fixedLength;
@@ -196,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (Converter != null)
             {
-                value = Converter.ConvertToStore(value);
+                value = Converter.ConvertToProvider(value);
             }
 
             parameter.Value = value ?? DBNull.Value;
@@ -241,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (Converter != null)
             {
-                value = Converter.ConvertToStore(value);
+                value = Converter.ConvertToProvider(value);
             }
 
             return value == null

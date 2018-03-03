@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -454,21 +454,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 var hints = valueConverter.MappingHints;
 
-                if (!hints.IsEmpty)
+                if (hints != null)
                 {
                     var nonNulls = new List<string>();
 
                     if (hints.Size != null)
                     {
                         nonNulls.Add("size: " + Code.Literal(hints.Size.Value));
-                    }
-                    else if (hints.SizeFunction != null)
-                    {
-                        var maxLength = property.GetMaxLength();
-                        if (maxLength != null)
-                        {
-                            nonNulls.Add("size: " + Code.Literal(hints.SizeFunction(maxLength.Value)));
-                        }
                     }
 
                     if (hints.Precision != null)
@@ -486,9 +478,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         nonNulls.Add("unicode: " + Code.Literal(hints.IsUnicode.Value));
                     }
 
-                    if (hints.IsFixedLength != null)
+                    if (hints is RelationalConverterMappingHints relationalHints
+                        && relationalHints.IsFixedLength != null)
                     {
-                        nonNulls.Add("fixedLength: " + Code.Literal(hints.IsFixedLength.Value));
+                        nonNulls.Add("fixedLength: " + Code.Literal(relationalHints.IsFixedLength.Value));
                     }
 
                     stringBuilder
@@ -519,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(
                 ref annotations,
                 RelationalAnnotationNames.DefaultValue,
-                a => valueConverter == null ? a?.Value : valueConverter.ConvertToStore(a?.Value),
+                a => valueConverter == null ? a?.Value : valueConverter.ConvertToProvider(a?.Value),
                 nameof(RelationalPropertyBuilderExtensions.HasDefaultValue),
                 stringBuilder);
 

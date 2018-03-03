@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
@@ -307,14 +307,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
             public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
-            public abstract TestPropertyBuilder<TProperty> HasConversion<TStore>();
+            public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>();
             public abstract TestPropertyBuilder<TProperty> HasConversion(Type storeType);
 
-            public abstract TestPropertyBuilder<TProperty> HasConversion<TStore>(
-                Expression<Func<TProperty, TStore>> convertToStoreExpression,
-                Expression<Func<TStore, TProperty>> convertFromStoreExpression);
+            public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+                Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+                Expression<Func<TProvider, TProperty>> convertFromProviderExpression);
 
-            public abstract TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter);
+            public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter);
             public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter);
         }
 

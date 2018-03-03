@@ -136,9 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     valueExpression
                         = Expression.Convert(
                             ReplacingExpressionVisitor.Replace(
-                                converter.ConvertFromStoreExpression.Parameters.Single(),
+                                converter.ConvertFromProviderExpression.Parameters.Single(),
                                 valueExpression,
-                                converter.ConvertFromStoreExpression.Body),
+                                converter.ConvertFromProviderExpression.Body),
                             typeof(object));
 
                     valueExpression

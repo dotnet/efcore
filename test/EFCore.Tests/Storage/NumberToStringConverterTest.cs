@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_ulongs_to_natural_strings()
         {
-            var converter = _ulongToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _ulongToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("18446744073709551615", converter(ulong.MaxValue));
             Assert.Equal("77", converter(77));
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_ulongs_to_natural_strings_object()
         {
-            var converter = _ulongToNaturalString.ConvertToStore;
+            var converter = _ulongToNaturalString.ConvertToProvider;
 
             Assert.Equal("18446744073709551615", converter(ulong.MaxValue));
             Assert.Equal("77", converter(77));
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_ulongs()
         {
-            var converter = _ulongToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _ulongToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(ulong.MaxValue, converter("18446744073709551615"));
             Assert.Equal((ulong)77, converter("77"));
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_ulongs_object()
         {
-            var converter = _ulongToNaturalString.ConvertFromStore;
+            var converter = _ulongToNaturalString.ConvertFromProvider;
 
             Assert.Equal(ulong.MaxValue, converter("18446744073709551615"));
             Assert.Equal((ulong)77, converter("77"));
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_longs_to_natural_strings()
         {
-            var converter = _longToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _longToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("9223372036854775807", converter(long.MaxValue));
             Assert.Equal("-9223372036854775808", converter(long.MinValue));
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_longs_to_natural_strings_object()
         {
-            var converter = _longToNaturalString.ConvertToStore;
+            var converter = _longToNaturalString.ConvertToProvider;
 
             Assert.Equal("9223372036854775807", converter(long.MaxValue));
             Assert.Equal("-9223372036854775808", converter(long.MinValue));
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_longs()
         {
-            var converter = _longToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _longToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(long.MaxValue, converter("9223372036854775807"));
             Assert.Equal(long.MinValue, converter("-9223372036854775808"));
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_longs_object()
         {
-            var converter = _longToNaturalString.ConvertFromStore;
+            var converter = _longToNaturalString.ConvertFromProvider;
 
             Assert.Equal(long.MaxValue, converter("9223372036854775807"));
             Assert.Equal(long.MinValue, converter("-9223372036854775808"));
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_uints_to_natural_strings()
         {
-            var converter = _uintToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _uintToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("4294967295", converter(uint.MaxValue));
             Assert.Equal("77", converter(77));
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_uints_to_natural_strings_object()
         {
-            var converter = _uintToNaturalString.ConvertToStore;
+            var converter = _uintToNaturalString.ConvertToProvider;
 
             Assert.Equal("4294967295", converter(uint.MaxValue));
             Assert.Equal("77", converter(77));
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_uints()
         {
-            var converter = _uintToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _uintToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(uint.MaxValue, converter("4294967295"));
             Assert.Equal((uint)77, converter("77"));
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_uints_object()
         {
-            var converter = _uintToNaturalString.ConvertFromStore;
+            var converter = _uintToNaturalString.ConvertFromProvider;
 
             Assert.Equal(uint.MaxValue, converter("4294967295"));
             Assert.Equal((uint)77, converter("77"));
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_ints_to_natural_strings()
         {
-            var converter = _intToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _intToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("2147483647", converter(int.MaxValue));
             Assert.Equal("-2147483648", converter(int.MinValue));
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_ints_to_natural_strings_object()
         {
-            var converter = _intToNaturalString.ConvertToStore;
+            var converter = _intToNaturalString.ConvertToProvider;
 
             Assert.Equal("2147483647", converter(int.MaxValue));
             Assert.Equal("-2147483648", converter(int.MinValue));
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_ints()
         {
-            var converter = _intToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _intToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(int.MaxValue, converter("2147483647"));
             Assert.Equal(int.MinValue, converter("-2147483648"));
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_ints_object()
         {
-            var converter = _intToNaturalString.ConvertFromStore;
+            var converter = _intToNaturalString.ConvertFromProvider;
 
             Assert.Equal(int.MaxValue, converter("2147483647"));
             Assert.Equal(int.MinValue, converter("-2147483648"));
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_ushorts_to_natural_strings()
         {
-            var converter = _ushortToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _ushortToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("65535", converter(ushort.MaxValue));
             Assert.Equal("77", converter(77));
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_ushorts_to_natural_strings_object()
         {
-            var converter = _ushortToNaturalString.ConvertToStore;
+            var converter = _ushortToNaturalString.ConvertToProvider;
 
             Assert.Equal("65535", converter(ushort.MaxValue));
             Assert.Equal("77", converter(77));
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_ushorts()
         {
-            var converter = _ushortToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _ushortToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(ushort.MaxValue, converter("65535"));
             Assert.Equal((ushort)77, converter("77"));
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_ushorts_object()
         {
-            var converter = _ushortToNaturalString.ConvertFromStore;
+            var converter = _ushortToNaturalString.ConvertFromProvider;
 
             Assert.Equal(ushort.MaxValue, converter("65535"));
             Assert.Equal((ushort)77, converter("77"));
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_shorts_to_natural_strings()
         {
-            var converter = _shortToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _shortToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("32767", converter(short.MaxValue));
             Assert.Equal("-32768", converter(short.MinValue));
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_shorts_to_natural_strings_object()
         {
-            var converter = _shortToNaturalString.ConvertToStore;
+            var converter = _shortToNaturalString.ConvertToProvider;
 
             Assert.Equal("32767", converter(short.MaxValue));
             Assert.Equal("-32768", converter(short.MinValue));
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_shorts()
         {
-            var converter = _shortToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _shortToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(short.MaxValue, converter("32767"));
             Assert.Equal(short.MinValue, converter("-32768"));
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_shorts_object()
         {
-            var converter = _shortToNaturalString.ConvertFromStore;
+            var converter = _shortToNaturalString.ConvertFromProvider;
 
             Assert.Equal(short.MaxValue, converter("32767"));
             Assert.Equal(short.MinValue, converter("-32768"));
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bytes_to_natural_strings()
         {
-            var converter = _byteToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _byteToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("255", converter(byte.MaxValue));
             Assert.Equal("77", converter(77));
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bytes_to_natural_strings_object()
         {
-            var converter = _byteToNaturalString.ConvertToStore;
+            var converter = _byteToNaturalString.ConvertToProvider;
 
             Assert.Equal("255", converter(byte.MaxValue));
             Assert.Equal("77", converter(77));
@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_bytes()
         {
-            var converter = _byteToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _byteToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(byte.MaxValue, converter("255"));
             Assert.Equal((byte)77, converter("77"));
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_bytes_object()
         {
-            var converter = _byteToNaturalString.ConvertFromStore;
+            var converter = _byteToNaturalString.ConvertFromProvider;
 
             Assert.Equal(byte.MaxValue, converter("255"));
             Assert.Equal((byte)77, converter("77"));
@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_sbytes_to_natural_strings()
         {
-            var converter = _sbyteToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _sbyteToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("127", converter(sbyte.MaxValue));
             Assert.Equal("-128", converter(sbyte.MinValue));
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_sbytes_to_natural_strings_object()
         {
-            var converter = _sbyteToNaturalString.ConvertToStore;
+            var converter = _sbyteToNaturalString.ConvertToProvider;
 
             Assert.Equal("127", converter(sbyte.MaxValue));
             Assert.Equal("-128", converter(sbyte.MinValue));
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_sbytes()
         {
-            var converter = _sbyteToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _sbyteToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(sbyte.MaxValue, converter("127"));
             Assert.Equal(sbyte.MinValue, converter("-128"));
@@ -416,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_sbytes_object()
         {
-            var converter = _sbyteToNaturalString.ConvertFromStore;
+            var converter = _sbyteToNaturalString.ConvertFromProvider;
 
             Assert.Equal(sbyte.MaxValue, converter("127"));
             Assert.Equal(sbyte.MinValue, converter("-128"));
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_decimals_to_natural_strings()
         {
-            var converter = _decimalToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _decimalToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("79228162514264337593543950335", converter(decimal.MaxValue));
             Assert.Equal("-79228162514264337593543950335", converter(decimal.MinValue));
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_decimals()
         {
-            var converter = _decimalToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _decimalToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(decimal.MaxValue, converter("79228162514264337593543950335"));
             Assert.Equal(decimal.MinValue, converter("-79228162514264337593543950335"));
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_doubles_to_natural_strings()
         {
-            var converter = _doubleToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _doubleToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("1.7976931348623157E+308", converter(double.MaxValue));
             Assert.Equal("-1.7976931348623157E+308", converter(double.MinValue));
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_doubles()
         {
-            var converter = _doubleToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _doubleToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(double.MaxValue, converter("1.7976931348623157E+308"));
             Assert.Equal(double.MinValue, converter("-1.7976931348623157E+308"));
@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_floats_to_natural_strings()
         {
-            var converter = _floatToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _floatToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("3.40282347E+38", converter(float.MaxValue));
             Assert.Equal("-3.40282347E+38", converter(float.MinValue));
@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_floats()
         {
-            var converter = _floatToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _floatToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(float.MaxValue, converter("3.40282347E+38"));
             Assert.Equal(float.MinValue, converter("-3.40282347E+38"));
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_nullable_sbytes_to_natural_strings()
         {
-            var converter = _nullableSbyteToNaturalString.ConvertToStoreExpression.Compile();
+            var converter = _nullableSbyteToNaturalString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("127", converter(sbyte.MaxValue));
             Assert.Equal("-128", converter(sbyte.MinValue));
@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_nullable_sbytes_to_natural_strings_object()
         {
-            var converter = _nullableSbyteToNaturalString.ConvertToStore;
+            var converter = _nullableSbyteToNaturalString.ConvertToProvider;
 
             Assert.Equal("127", converter((sbyte?)sbyte.MaxValue));
             Assert.Equal("-128", converter((sbyte?)sbyte.MinValue));
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_nullable_sbytes()
         {
-            var converter = _nullableSbyteToNaturalString.ConvertFromStoreExpression.Compile();
+            var converter = _nullableSbyteToNaturalString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(sbyte.MaxValue, converter("127"));
             Assert.Equal(sbyte.MinValue, converter("-128"));
@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_natural_strings_to_nullable_sbytes_object()
         {
-            var converter = _nullableSbyteToNaturalString.ConvertFromStore;
+            var converter = _nullableSbyteToNaturalString.ConvertFromProvider;
 
             Assert.Equal(sbyte.MaxValue, converter("127"));
             Assert.Equal(sbyte.MinValue, converter("-128"));

@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -21,67 +21,67 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_access_raw_converters()
         {
-            Assert.Same(_uIntToInt.ConvertFromStoreExpression, ((ValueConverter)_uIntToInt).ConvertFromStoreExpression);
-            Assert.Same(_uIntToInt.ConvertToStoreExpression, ((ValueConverter)_uIntToInt).ConvertToStoreExpression);
+            Assert.Same(_uIntToInt.ConvertFromProviderExpression, ((ValueConverter)_uIntToInt).ConvertFromProviderExpression);
+            Assert.Same(_uIntToInt.ConvertToProviderExpression, ((ValueConverter)_uIntToInt).ConvertToProviderExpression);
 
-            Assert.Equal(1, _uIntToInt.ConvertToStoreExpression.Compile()(1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStoreExpression.Compile()(1));
+            Assert.Equal(1, _uIntToInt.ConvertToProviderExpression.Compile()(1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProviderExpression.Compile()(1));
 
-            Assert.Equal(-1, _uIntToInt.ConvertToStoreExpression.Compile()(uint.MaxValue));
-            Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromStoreExpression.Compile()(-1));
+            Assert.Equal(-1, _uIntToInt.ConvertToProviderExpression.Compile()(uint.MaxValue));
+            Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProviderExpression.Compile()(-1));
         }
 
         [Fact]
         public void Can_convert_exact_types_with_non_nullable_converter()
         {
-            Assert.Equal(1, _uIntToInt.ConvertToStore((uint)1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStore(1));
+            Assert.Equal(1, _uIntToInt.ConvertToProvider((uint)1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider(1));
 
-            Assert.Equal(-1, _uIntToInt.ConvertToStore(uint.MaxValue));
-            Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromStore(-1));
+            Assert.Equal(-1, _uIntToInt.ConvertToProvider(uint.MaxValue));
+            Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProvider(-1));
         }
 
         [Fact]
         public void Can_convert_nullable_types_with_non_nullable_converter()
         {
-            Assert.Equal(1, _uIntToInt.ConvertToStore((uint?)1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStore((int?)1));
+            Assert.Equal(1, _uIntToInt.ConvertToProvider((uint?)1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider((int?)1));
 
-            Assert.Equal(-1, _uIntToInt.ConvertToStore((uint?)uint.MaxValue));
-            Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromStore((int?)-1));
+            Assert.Equal(-1, _uIntToInt.ConvertToProvider((uint?)uint.MaxValue));
+            Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProvider((int?)-1));
         }
 
         [Fact]
         public void Can_convert_non_exact_types_with_non_nullable_converter()
         {
-            Assert.Equal(1, _uIntToInt.ConvertToStore((ushort)1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStore((short)1));
+            Assert.Equal(1, _uIntToInt.ConvertToProvider((ushort)1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider((short)1));
 
-            Assert.Equal(1, _uIntToInt.ConvertToStore((ulong)1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStore((long)1));
+            Assert.Equal(1, _uIntToInt.ConvertToProvider((ulong)1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider((long)1));
 
-            Assert.Equal(1, _uIntToInt.ConvertToStore(1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStore(1));
+            Assert.Equal(1, _uIntToInt.ConvertToProvider(1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider(1));
         }
 
         [Fact]
         public void Can_convert_non_exact_nullable_types_with_non_nullable_converter()
         {
-            Assert.Equal(1, _uIntToInt.ConvertToStore((ushort?)1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStore((short?)1));
+            Assert.Equal(1, _uIntToInt.ConvertToProvider((ushort?)1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider((short?)1));
 
-            Assert.Equal(1, _uIntToInt.ConvertToStore((ulong?)1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStore((long?)1));
+            Assert.Equal(1, _uIntToInt.ConvertToProvider((ulong?)1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider((long?)1));
 
-            Assert.Equal(1, _uIntToInt.ConvertToStore((int?)1));
-            Assert.Equal((uint)1, _uIntToInt.ConvertFromStore((int?)1));
+            Assert.Equal(1, _uIntToInt.ConvertToProvider((int?)1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider((int?)1));
         }
 
         [Fact]
         public void Can_handle_nulls_with_non_nullable_converter()
         {
-            Assert.Null(_uIntToInt.ConvertToStore(null));
-            Assert.Null(_uIntToInt.ConvertFromStore(null));
+            Assert.Null(_uIntToInt.ConvertToProvider(null));
+            Assert.Null(_uIntToInt.ConvertFromProvider(null));
         }
 
         private static readonly ValueConverter<uint?, int?> _nullableUIntToNullableInt
@@ -90,54 +90,54 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_exact_types_with_nullable_converter()
         {
-            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((uint?)1));
-            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((int?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((uint?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((int?)1));
 
-            Assert.Equal((int?)-1, _nullableUIntToNullableInt.ConvertToStore((uint?)uint.MaxValue));
-            Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromStore((int?)-1));
+            Assert.Equal((int?)-1, _nullableUIntToNullableInt.ConvertToProvider((uint?)uint.MaxValue));
+            Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromProvider((int?)-1));
         }
 
         [Fact]
         public void Can_convert_non_nullable_types_with_nullable_converter()
         {
-            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((uint?)1));
-            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((int?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((uint?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((int?)1));
 
-            Assert.Equal((int?)-1, _nullableUIntToNullableInt.ConvertToStore((uint?)uint.MaxValue));
-            Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromStore((int?)-1));
+            Assert.Equal((int?)-1, _nullableUIntToNullableInt.ConvertToProvider((uint?)uint.MaxValue));
+            Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromProvider((int?)-1));
         }
 
         [Fact]
         public void Can_convert_non_exact_types_with_nullable_converter()
         {
-            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((ushort?)1));
-            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((short?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((ushort?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((short?)1));
 
-            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((ulong?)1));
-            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((long?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((ulong?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((long?)1));
 
-            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((int?)1));
-            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((int?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((int?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((int?)1));
         }
 
         [Fact]
         public void Can_convert_non_exact_nullable_types_with_nullable_converter()
         {
-            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((ushort)1));
-            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((short)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((ushort)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((short)1));
 
-            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((ulong)1));
-            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((long)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((ulong)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((long)1));
 
-            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore(1));
-            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore(1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider(1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider(1));
         }
 
         [Fact]
         public void Can_handle_nulls_with_nullable_converter()
         {
-            Assert.Null(_nullableUIntToNullableInt.ConvertToStore(null));
-            Assert.Null(_nullableUIntToNullableInt.ConvertFromStore(null));
+            Assert.Null(_nullableUIntToNullableInt.ConvertToProvider(null));
+            Assert.Null(_nullableUIntToNullableInt.ConvertFromProvider(null));
         }
 
         [Fact]
@@ -161,27 +161,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         typeof(CastingConverter<,>).MakeGenericType(fromType, toType),
                         new object[] { null });
 
-                    var resultToStore = Expression.Lambda<Func<object>>(
+                    var resultToProvider = Expression.Lambda<Func<object>>(
                             Expression.Convert(
                                 Expression.Invoke(
-                                    converter.ConvertToStoreExpression,
+                                    converter.ConvertToProviderExpression,
                                     Expression.Convert(
                                         Expression.Constant(1), fromType)),
                                 typeof(object)))
                         .Compile()();
 
-                    Assert.Same(toType.UnwrapNullableType(), resultToStore.GetType());
+                    Assert.Same(toType.UnwrapNullableType(), resultToProvider.GetType());
 
-                    var resultFromStore = Expression.Lambda<Func<object>>(
+                    var resultFromProvider = Expression.Lambda<Func<object>>(
                             Expression.Convert(
                                 Expression.Invoke(
-                                    converter.ConvertFromStoreExpression,
+                                    converter.ConvertFromProviderExpression,
                                     Expression.Convert(
                                         Expression.Constant(1), toType)),
                                 typeof(object)))
                         .Compile()();
 
-                    Assert.Same(fromType.UnwrapNullableType(), resultFromStore.GetType());
+                    Assert.Same(fromType.UnwrapNullableType(), resultFromProvider.GetType());
                 }
             }
         }
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var converter
                 = ((ValueConverter<Beatles, string>)_enumToNumber.ComposeWith(_intToString))
-                .ConvertToStoreExpression.Compile();
+                .ConvertToProviderExpression.Compile();
 
             Assert.Equal("7", converter(Beatles.John));
             Assert.Equal("4", converter(Beatles.Paul));
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_compose_to_strings_object()
         {
-            var converter = _enumToNumber.ComposeWith(_intToString).ConvertToStore;
+            var converter = _enumToNumber.ComposeWith(_intToString).ConvertToProvider;
 
             Assert.Equal("7", converter(Beatles.John));
             Assert.Equal("4", converter(Beatles.Paul));
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var converter
                 = ((ValueConverter<Beatles, string>)_enumToNumber.ComposeWith(_intToString))
-                .ConvertFromStoreExpression.Compile();
+                .ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter("7"));
             Assert.Equal(Beatles.Paul, converter("4"));
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_compose_to_enums_object()
         {
-            var converter = _enumToNumber.ComposeWith(_intToString).ConvertFromStore;
+            var converter = _enumToNumber.ComposeWith(_intToString).ConvertFromProvider;
 
             Assert.Equal(Beatles.John, converter("7"));
             Assert.Equal(Beatles.Paul, converter("4"));
@@ -272,18 +272,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => _enumToNumber.ComposeWith(_uIntToInt)).Message);
         }
 
-        public static void OrderingTest<TModel, TStore>(
-            ValueConverter<TModel, TStore> converter,
+        public static void OrderingTest<TModel, TProvider>(
+            ValueConverter<TModel, TProvider> converter,
             params TModel[] values)
         {
-            var convertToStore = converter.ConvertToStoreExpression.Compile();
-            var convertFromStore = converter.ConvertFromStoreExpression.Compile();
+            var convertToProvider = converter.ConvertToProviderExpression.Compile();
+            var convertFromProvider = converter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(
                 values,
-                values.Select(v => convertToStore(v))
+                values.Select(v => convertToProvider(v))
                     .OrderBy(v => v).ToList()
-                    .Select(v => convertFromStore(v))
+                    .Select(v => convertFromProvider(v))
                     .ToArray());
         }
 
@@ -291,14 +291,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ValueConverter<TModel, byte[]> converter,
             params TModel[] values)
         {
-            var convertToStore = converter.ConvertToStoreExpression.Compile();
-            var convertFromStore = converter.ConvertFromStoreExpression.Compile();
+            var convertToProvider = converter.ConvertToProviderExpression.Compile();
+            var convertFromProvider = converter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(
                 values,
-                values.Select(v => convertToStore(v))
+                values.Select(v => convertToProvider(v))
                     .OrderBy(v => v, new BytesComparer()).ToList()
-                    .Select(v => convertFromStore(v))
+                    .Select(v => convertFromProvider(v))
                     .ToArray());
         }
 

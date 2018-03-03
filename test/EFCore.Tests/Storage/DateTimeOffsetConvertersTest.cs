@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTimeOffset_to_string()
         {
-            var converter = _dateTimeOffsetToString.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeOffsetToString.ConvertToProviderExpression.Compile();
 
             Assert.Equal(
                 "1973-09-03 00:10:15+07:30",
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_string_to_DateTimeOffset()
         {
-            var converter = _dateTimeOffsetToString.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeOffsetToString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(
                 new DateTimeOffset(1973, 9, 3, 0, 10, 15, new TimeSpan(7, 30, 0)),
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTimeOffset_to_bytes()
         {
-            var converter = _dateTimeOffsetToBytes.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeOffsetToBytes.ConvertToProviderExpression.Compile();
 
             Assert.Equal(
                 new byte[] { 8, 163, 157, 186, 146, 57, 205, 128, 1, 194 },
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bytes_to_DateTimeOffset()
         {
-            var converter = _dateTimeOffsetToBytes.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeOffsetToBytes.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(
                 new DateTimeOffset(1973, 9, 3, 0, 10, 15, new TimeSpan(7, 30, 0)),
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTimeOffset_to_binary()
         {
-            var converter = _dateTimeOffsetToBinary.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeOffsetToBinary.ConvertToProviderExpression.Compile();
 
             Assert.Equal(
                 1274909897011200450,
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_binary_to_DateTimeOffset()
         {
-            var converter = _dateTimeOffsetToBinary.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeOffsetToBinary.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(
                 new DateTimeOffset(1973, 9, 3, 0, 10, 15, new TimeSpan(7, 30, 0)),

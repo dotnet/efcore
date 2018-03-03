@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bools_to_true_false_strings()
         {
-            var converter = _boolToTrueFalse.ConvertToStoreExpression.Compile();
+            var converter = _boolToTrueFalse.ConvertToProviderExpression.Compile();
 
             Assert.Equal("True", converter(true));
             Assert.Equal("False", converter(false));
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_true_false_strings_to_bool()
         {
-            var converter = _boolToTrueFalse.ConvertFromStoreExpression.Compile();
+            var converter = _boolToTrueFalse.ConvertFromProviderExpression.Compile();
 
             Assert.False(converter("False"));
             Assert.True(converter("True"));
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bools_to_Y_N_strings()
         {
-            var converter = _boolToYn.ConvertToStoreExpression.Compile();
+            var converter = _boolToYn.ConvertToProviderExpression.Compile();
 
             Assert.Equal("Y", converter(true));
             Assert.Equal("N", converter(false));
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_Y_N_strings_to_bool()
         {
-            var converter = _boolToYn.ConvertFromStoreExpression.Compile();
+            var converter = _boolToYn.ConvertFromProviderExpression.Compile();
 
             Assert.False(converter("N"));
             Assert.True(converter("Y"));

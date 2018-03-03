@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -269,16 +269,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 commonPrefix + ", new ConverterMappingHints(unicode: true)))");
 
             AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(fixedLength: false)),
+                new ValueConverter<int, long>(v => v, v => (int)v, new RelationalConverterMappingHints(fixedLength: false)),
                 commonPrefix + ", new ConverterMappingHints(fixedLength: false)))");
 
             AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(fixedLength: false, size: 77, scale: -1)),
+                new ValueConverter<int, long>(v => v, v => (int)v, new RelationalConverterMappingHints(fixedLength: false, size: 77, scale: -1)),
                 commonPrefix + ", new ConverterMappingHints(size: 77, scale: -1, fixedLength: false)))");
-
-            AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(sizeFunction: s => s / 10)),
-                commonPrefix + ", new ConverterMappingHints(size: 100)))");
         }
 
         private static void AssertConverter(ValueConverter valueConverter, string expected)
@@ -492,7 +488,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MyNamespace
 {

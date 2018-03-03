@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
-using Microsoft.EntityFrameworkCore.Storage.Converters.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTime_to_ticks()
         {
-            var converter = _dateTimeToTicks.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeToTicks.ConvertToProviderExpression.Compile();
 
             Assert.Equal(622514598150000000, converter(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc)));
             Assert.Equal(622514598150000000, converter(new DateTime(1973, 9, 3, 0, 10, 15)));
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_ticks_to_DateTime()
         {
-            var converter = _dateTimeToTicks.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeToTicks.ConvertFromProviderExpression.Compile();
 
             // Kind is not preserved, but value is ticks
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Unspecified), converter(622514598150000000));
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTime_to_binary()
         {
-            var converter = _dateTimeToBinary.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeToBinary.ConvertToProviderExpression.Compile();
 
             Assert.Equal(5234200616577387904, converter(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc)));
             Assert.Equal(622514598150000000, converter(new DateTime(1973, 9, 3, 0, 10, 15)));
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_binary_to_DateTime()
         {
-            var converter = _dateTimeToBinary.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeToBinary.ConvertFromProviderExpression.Compile();
 
             // Kind is preserved, but value is not ticks, however value is ticks if kind is unspecified
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc), converter(5234200616577387904));
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTime_to_unsigned_ticks()
         {
-            var converter = _dateTimeToUTicks.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeToUTicks.ConvertToProviderExpression.Compile();
 
             Assert.Equal((ulong)622514598150000000, converter(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc)));
             Assert.Equal((ulong)622514598150000000, converter(new DateTime(1973, 9, 3, 0, 10, 15)));
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_unsigned_ticks_to_DateTime()
         {
-            var converter = _dateTimeToUTicks.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeToUTicks.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Unspecified), converter(622514598150000000));
             Assert.Equal(new DateTime(), converter(0));
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTime_to_unsigned_binary()
         {
-            var converter = _dateTimeToUBinary.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeToUBinary.ConvertToProviderExpression.Compile();
 
             Assert.Equal((ulong)5234200616577387904, converter(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc)));
             Assert.Equal((ulong)622514598150000000, converter(new DateTime(1973, 9, 3, 0, 10, 15)));
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_unsigned_binary_to_DateTime()
         {
-            var converter = _dateTimeToUBinary.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeToUBinary.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc), converter(5234200616577387904));
             Assert.Equal(DateTimeKind.Utc, converter(5234200616577387904).Kind);
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTime_to_string()
         {
-            var converter = _dateTimeToString.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeToString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("1973-09-03 00:10:15", converter(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc)));
             Assert.Equal("1973-09-03 00:10:15", converter(new DateTime(1973, 9, 3, 0, 10, 15)));
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_string_to_DateTime()
         {
-            var converter = _dateTimeToString.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeToString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15), converter("1973-09-03 00:10:15"));
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15), converter("1973-09-03 00:10:15"));
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_DateTime_to_bytes()
         {
-            var converter = _dateTimeToBytes.ConvertToStoreExpression.Compile();
+            var converter = _dateTimeToBytes.ConvertToProviderExpression.Compile();
 
             Assert.Equal(
                 new byte[] { 72, 163, 157, 186, 146, 57, 205, 128 },
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bytes_to_DateTime()
         {
-            var converter = _dateTimeToBytes.ConvertFromStoreExpression.Compile();
+            var converter = _dateTimeToBytes.ConvertFromProviderExpression.Compile();
 
             var utcKind = converter(new byte[] { 72, 163, 157, 186, 146, 57, 205, 128 });
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc), utcKind);

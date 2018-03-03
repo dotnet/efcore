@@ -162,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 expression = ReplacingExpressionVisitor.Replace(
-                    converter.ConvertFromStoreExpression.Parameters.Single(),
+                    converter.ConvertFromProviderExpression.Parameters.Single(),
                     expression,
-                    converter.ConvertFromStoreExpression.Body);
+                    converter.ConvertFromProviderExpression.Body);
             }
 
             if (expression.Type != materializationInfo.ModelClrType)

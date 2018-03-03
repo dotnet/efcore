@@ -49,12 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                        ?? mapping.Size
                        ?? hints?.Size;
 
-                if (size != null
-                    && hints?.SizeFunction != null)
-                {
-                    size = hints.Value.SizeFunction(size.Value);
-                }
-
                 if (size != mapping.Size)
                 {
                     var typeNameBase = GetTypeNameBase(mappingInfo, storeTypeName, out var isMax);

@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_GUIDs_to_bytes()
         {
-            var converter = _guidToBytes.ConvertToStoreExpression.Compile();
+            var converter = _guidToBytes.ConvertToProviderExpression.Compile();
 
             Assert.Equal(
                 new byte[] { 180, 39, 238, 150, 139, 134, 73, 64, 186, 103, 203, 184, 60, 229, 180, 98 },
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_GUIDs_to_bytes_object()
         {
-            var converter = _guidToBytes.ConvertToStore;
+            var converter = _guidToBytes.ConvertToProvider;
 
             Assert.Equal(
                 new byte[] { 180, 39, 238, 150, 139, 134, 73, 64, 186, 103, 203, 184, 60, 229, 180, 98 },
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bytes_to_GUIDs()
         {
-            var converter = _guidToBytes.ConvertFromStoreExpression.Compile();
+            var converter = _guidToBytes.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(
                 new Guid("96EE27B4-868B-4049-BA67-CBB83CE5B462"),
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bytes_to_GUIDs_object()
         {
-            var converter = _guidToBytes.ConvertFromStore;
+            var converter = _guidToBytes.ConvertFromProvider;
 
             Assert.Equal(
                 new Guid("96EE27B4-868B-4049-BA67-CBB83CE5B462"),

@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_numbers()
         {
-            var converter = _enumToNumber.ConvertToStoreExpression.Compile();
+            var converter = _enumToNumber.ConvertToProviderExpression.Compile();
 
             Assert.Equal(7, converter(Beatles.John));
             Assert.Equal(4, converter(Beatles.Paul));
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_numbers_object()
         {
-            var converter = _enumToNumber.ConvertToStore;
+            var converter = _enumToNumber.ConvertToProvider;
 
             Assert.Equal(7, converter(Beatles.John));
             Assert.Equal(4, converter(Beatles.Paul));
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_numbers_to_enums()
         {
-            var converter = _enumToNumber.ConvertFromStoreExpression.Compile();
+            var converter = _enumToNumber.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_numbers_to_enums_object()
         {
-            var converter = _enumToNumber.ConvertFromStore;
+            var converter = _enumToNumber.ConvertFromProvider;
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_doubles()
         {
-            var converter = _enumToDouble.ConvertToStoreExpression.Compile();
+            var converter = _enumToDouble.ConvertToProviderExpression.Compile();
 
             Assert.Equal(7, converter(Beatles.John));
             Assert.Equal(4, converter(Beatles.Paul));
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_doubles_to_enums()
         {
-            var converter = _enumToDouble.ConvertFromStoreExpression.Compile();
+            var converter = _enumToDouble.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_decimals()
         {
-            var converter = _enumToDecimal.ConvertToStoreExpression.Compile();
+            var converter = _enumToDecimal.ConvertToProviderExpression.Compile();
 
             Assert.Equal(7, converter(Beatles.John));
             Assert.Equal(4, converter(Beatles.Paul));
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_decimals_to_enums()
         {
-            var converter = _enumToDecimal.ConvertFromStoreExpression.Compile();
+            var converter = _enumToDecimal.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_floats()
         {
-            var converter = _enumToFloat.ConvertToStoreExpression.Compile();
+            var converter = _enumToFloat.ConvertToProviderExpression.Compile();
 
             Assert.Equal(7, converter(Beatles.John));
             Assert.Equal(4, converter(Beatles.Paul));
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_floats_to_enums()
         {
-            var converter = _enumToFloat.ConvertFromStoreExpression.Compile();
+            var converter = _enumToFloat.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_bytes()
         {
-            var converter = _enumToByte.ConvertToStoreExpression.Compile();
+            var converter = _enumToByte.ConvertToProviderExpression.Compile();
 
             Assert.Equal(7, converter(Beatles.John));
             Assert.Equal(4, converter(Beatles.Paul));
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bytes_to_enums()
         {
-            var converter = _enumToByte.ConvertFromStoreExpression.Compile();
+            var converter = _enumToByte.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_sbytes()
         {
-            var converter = _enumToSByte.ConvertToStoreExpression.Compile();
+            var converter = _enumToSByte.ConvertToProviderExpression.Compile();
 
             Assert.Equal(7, converter(Beatles.John));
             Assert.Equal(4, converter(Beatles.Paul));
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_sbytes_to_enums()
         {
-            var converter = _enumToSByte.ConvertFromStoreExpression.Compile();
+            var converter = _enumToSByte.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_longs()
         {
-            var converter = _enumToLong.ConvertToStoreExpression.Compile();
+            var converter = _enumToLong.ConvertToProviderExpression.Compile();
 
             Assert.Equal(7, converter(Beatles.John));
             Assert.Equal(4, converter(Beatles.Paul));
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_longs_to_enums()
         {
-            var converter = _enumToLong.ConvertFromStoreExpression.Compile();
+            var converter = _enumToLong.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_ulongs()
         {
-            var converter = _enumToULong.ConvertToStoreExpression.Compile();
+            var converter = _enumToULong.ConvertToProviderExpression.Compile();
 
             Assert.Equal((ulong)7, converter(Beatles.John));
             Assert.Equal((ulong)4, converter(Beatles.Paul));
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_ulongs_to_enums()
         {
-            var converter = _enumToULong.ConvertFromStoreExpression.Compile();
+            var converter = _enumToULong.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter(7));
             Assert.Equal(Beatles.Paul, converter(4));

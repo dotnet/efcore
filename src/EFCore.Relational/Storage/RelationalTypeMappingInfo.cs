@@ -8,7 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -45,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     .Select(p => p.GetValueConverter())
                     .FirstOrDefault(c => c != null);
 
-                var mappingHints = customConverter?.MappingHints ?? default;
+                var mappingHints = customConverter?.MappingHints;
 
-                fixedLength = mappingHints.IsFixedLength == true;
+                fixedLength = (mappingHints as RelationalConverterMappingHints)?.IsFixedLength == true;
             }
 
             IsFixedLength = fixedLength;
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             StoreTypeName = source.StoreTypeName;
             StoreTypeNameBase = ParseStoreTypeName(source.StoreTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
-            IsFixedLength = source.IsFixedLength ?? mappingHints.IsFixedLength;
+            IsFixedLength = source.IsFixedLength ?? (mappingHints as RelationalConverterMappingHints)?.IsFixedLength;
         }
 
         /// <summary>

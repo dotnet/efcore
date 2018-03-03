@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_strings()
         {
-            var converter = _enumToString.ConvertToStoreExpression.Compile();
+            var converter = _enumToString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("John", converter(Beatles.John));
             Assert.Equal("Paul", converter(Beatles.Paul));
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_enums_to_strings_object()
         {
-            var converter = _enumToString.ConvertToStore;
+            var converter = _enumToString.ConvertToProvider;
 
             Assert.Equal("John", converter(Beatles.John));
             Assert.Equal("Paul", converter(Beatles.Paul));
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_strings_to_enums()
         {
-            var converter = _enumToString.ConvertFromStoreExpression.Compile();
+            var converter = _enumToString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter("John"));
             Assert.Equal(Beatles.Paul, converter("Paul"));
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_strings_to_enums_object()
         {
-            var converter = _enumToString.ConvertFromStore;
+            var converter = _enumToString.ConvertFromProvider;
 
             Assert.Equal(Beatles.John, converter("John"));
             Assert.Equal(Beatles.Paul, converter("Paul"));

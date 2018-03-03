@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bools_to_zero_one()
         {
-            var converter = _boolToZeroOne.ConvertToStoreExpression.Compile();
+            var converter = _boolToZeroOne.ConvertToProviderExpression.Compile();
 
             Assert.Equal(1, converter(true));
             Assert.Equal(0, converter(false));
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_bools_to_zero_one_object()
         {
-            var converter = _boolToZeroOne.ConvertToStore;
+            var converter = _boolToZeroOne.ConvertToProvider;
 
             Assert.Equal((decimal)1, converter(true));
             Assert.Equal((decimal)0, converter(false));
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_zero_one_to_bool()
         {
-            var converter = _boolToZeroOne.ConvertFromStoreExpression.Compile();
+            var converter = _boolToZeroOne.ConvertFromProviderExpression.Compile();
 
             Assert.False(converter(0));
             Assert.True(converter(1));
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_zero_one_to_bool_object()
         {
-            var converter = _boolToZeroOne.ConvertFromStore;
+            var converter = _boolToZeroOne.ConvertFromProvider;
 
             Assert.Equal(false, converter(0));
             Assert.Equal(true, converter(1));
@@ -77,17 +77,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             GenericConvertTest<float>(0, 1);
         }
 
-        private static void GenericConvertTest<TStore>(TStore zero, TStore one)
+        private static void GenericConvertTest<TProvider>(TProvider zero, TProvider one)
         {
-            var converter = new BoolToZeroOneConverter<TStore>();
+            var converter = new BoolToZeroOneConverter<TProvider>();
 
-            var toStore = converter.ConvertToStoreExpression.Compile();
-            Assert.Equal(one, toStore(true));
-            Assert.Equal(zero, toStore(false));
+            var toProvider = converter.ConvertToProviderExpression.Compile();
+            Assert.Equal(one, toProvider(true));
+            Assert.Equal(zero, toProvider(false));
 
-            var fromStore = converter.ConvertFromStoreExpression.Compile();
-            Assert.True(fromStore(one));
-            Assert.False(fromStore(zero));
+            var fromProvider = converter.ConvertFromProviderExpression.Compile();
+            Assert.True(fromProvider(one));
+            Assert.False(fromProvider(zero));
         }
     }
 }

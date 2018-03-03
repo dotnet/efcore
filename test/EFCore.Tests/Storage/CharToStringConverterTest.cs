@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_chars_to_strings()
         {
-            var converter = _charToString.ConvertToStoreExpression.Compile();
+            var converter = _charToString.ConvertToProviderExpression.Compile();
 
             Assert.Equal("A", converter('A'));
             Assert.Equal("!", converter('!'));
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_chars_to_strings_object()
         {
-            var converter = _charToString.ConvertToStore;
+            var converter = _charToString.ConvertToProvider;
 
             Assert.Equal("A", converter('A'));
             Assert.Equal("!", converter('!'));
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_strings_to_chars()
         {
-            var converter = _charToString.ConvertFromStoreExpression.Compile();
+            var converter = _charToString.ConvertFromProviderExpression.Compile();
 
             Assert.Equal('A', converter("A"));
             Assert.Equal('z', converter("z"));
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_strings_to_chars_object()
         {
-            var converter = _charToString.ConvertFromStore;
+            var converter = _charToString.ConvertFromProvider;
 
             Assert.Equal('A', converter("A"));
             Assert.Equal('z', converter("z"));

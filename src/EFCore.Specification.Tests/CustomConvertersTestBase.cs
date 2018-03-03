@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -295,19 +295,21 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<MaxLengthDataTypes>(
                     b =>
                     {
-                        b.Property(e => e.String3).HasConversion(
-                            new ValueConverter<string, string>(
-                                v => "KeyValue=" + v, v => v.Substring(9),
-                                new ConverterMappingHints(sizeFunction: s => s + 9)));
+                        b.Property(e => e.String3)
+                            .HasConversion(
+                                new ValueConverter<string, string>(
+                                    v => "KeyValue=" + v, v => v.Substring(9)))
+                            .HasMaxLength(12);
 
                         b.Property(e => e.String9000).HasConversion(
                             StringToBytesConverter.DefaultInfo.Create());
 
-                        b.Property(e => e.ByteArray5).HasConversion(
-                            new ValueConverter<byte[], byte[]>(
-                                v => v.Reverse().Concat(new byte[] { 4, 20 }).ToArray(),
-                                v => v.Reverse().Skip(2).ToArray(),
-                                new ConverterMappingHints(sizeFunction: s => s + 2)));
+                        b.Property(e => e.ByteArray5)
+                            .HasConversion(
+                                new ValueConverter<byte[], byte[]>(
+                                    v => v.Reverse().Concat(new byte[] { 4, 20 }).ToArray(),
+                                    v => v.Reverse().Skip(2).ToArray()))
+                            .HasMaxLength(7);
 
                         b.Property(e => e.ByteArray9000).HasConversion(
                             BytesToStringConverter.DefaultInfo.Create());

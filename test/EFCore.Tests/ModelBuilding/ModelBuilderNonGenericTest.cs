@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -229,17 +229,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
 
-            public override TestPropertyBuilder<TProperty> HasConversion<TStore>()
-                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TStore>());
+            public override TestPropertyBuilder<TProperty> HasConversion<TProvider>()
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TProvider>());
 
             public override TestPropertyBuilder<TProperty> HasConversion(Type storeType)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(storeType));
 
-            public override TestPropertyBuilder<TProperty> HasConversion<TStore>(
-                Expression<Func<TProperty, TStore>> convertToStoreExpression,
-                Expression<Func<TStore, TProperty>> convertFromStoreExpression)
+            public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+                Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+                Expression<Func<TProvider, TProperty>> convertFromProviderExpression)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(
-                    new ValueConverter<TProperty, TStore>(convertToStoreExpression, convertFromStoreExpression)));
+                    new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression)));
 
             public override TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));

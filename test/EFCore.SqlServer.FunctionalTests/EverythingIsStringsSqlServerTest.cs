@@ -5,9 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 632]
+            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
-BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 632]
+BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
 BuiltInDataTypes.Enum16 ---> [nvarchar] [MaxLength = -1]
 BuiltInDataTypes.Enum32 ---> [nvarchar] [MaxLength = -1]
 BuiltInDataTypes.Enum64 ---> [nvarchar] [MaxLength = -1]
@@ -182,6 +184,13 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     .ConfigureWarnings(
                         c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
                             .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Entity<MaxLengthDataTypes>().Property(e => e.ByteArray5).HasMaxLength(8);
+            }
         }
 
         public class SqlServerStringsTestStoreFactory : SqlServerTestStoreFactory
