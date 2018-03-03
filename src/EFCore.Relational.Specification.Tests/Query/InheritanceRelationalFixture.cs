@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
             modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
 
-            modelBuilder.Query<AnimalQuery>().ToTable("Animal");
+            modelBuilder.Query<AnimalQuery>().ToView("Animal");
             modelBuilder.Query<KiwiQuery>().HasDiscriminator().HasValue("Kiwi");
             modelBuilder.Query<EagleQuery>().HasDiscriminator().HasValue("Eagle");
         }

@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalReferenceOwnershipBuilderExtensions
     {
         /// <summary>
-        ///     Configures the table that the entity maps to when targeting a relational database.
+        ///     Configures the view or table that the entity maps to when targeting a relational database.
         /// </summary>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
+        /// <param name="name"> The name of the view or table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ReferenceOwnershipBuilder ToTable(
             [NotNull] this ReferenceOwnershipBuilder referenceOwnershipBuilder,
@@ -36,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the table that the entity maps to when targeting a relational database.
+        ///     Configures the view or table that the entity maps to when targeting a relational database.
         /// </summary>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
+        /// <param name="name"> The name of the view or table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ReferenceOwnershipBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
             [NotNull] this ReferenceOwnershipBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
@@ -51,11 +51,11 @@ namespace Microsoft.EntityFrameworkCore
             => (ReferenceOwnershipBuilder<TEntity, TRelatedEntity>)ToTable((ReferenceOwnershipBuilder)referenceOwnershipBuilder, name);
 
         /// <summary>
-        ///     Configures the table that the entity maps to when targeting a relational database.
+        ///     Configures the view or table that the entity maps to when targeting a relational database.
         /// </summary>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="name"> The name of the view or table. </param>
+        /// <param name="schema"> The schema of the view or table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ReferenceOwnershipBuilder ToTable(
             [NotNull] this ReferenceOwnershipBuilder referenceOwnershipBuilder,
@@ -74,13 +74,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the table that the entity maps to when targeting a relational database.
+        ///     Configures the view or table that the entity maps to when targeting a relational database.
         /// </summary>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="name"> The name of the view or table. </param>
+        /// <param name="schema"> The schema of the view or table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ReferenceOwnershipBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
             [NotNull] this ReferenceOwnershipBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,

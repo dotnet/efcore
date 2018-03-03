@@ -19,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalQueryTypeBuilderExtensions
     {
         /// <summary>
-        ///     Configures the table that the view maps to when targeting a relational database.
+        ///     Configures the view or table that the view maps to when targeting a relational database.
         /// </summary>
         /// <param name="queryTypeBuilder"> The builder for the query type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
+        /// <param name="name"> The name of the view or table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static QueryTypeBuilder ToTable(
+        public static QueryTypeBuilder ToView(
             [NotNull] this QueryTypeBuilder queryTypeBuilder,
             [CanBeNull] string name)
         {
@@ -39,26 +39,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the table that the view maps to when targeting a relational database.
+        ///     Configures the view or table that the view maps to when targeting a relational database.
         /// </summary>
         /// <typeparam name="TQuery"> The query type being configured. </typeparam>
         /// <param name="queryTypeBuilder"> The builder for the query type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
+        /// <param name="name"> The name of the view or table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static QueryTypeBuilder<TQuery> ToTable<TQuery>(
+        public static QueryTypeBuilder<TQuery> ToView<TQuery>(
             [NotNull] this QueryTypeBuilder<TQuery> queryTypeBuilder,
             [CanBeNull] string name)
             where TQuery : class
-            => (QueryTypeBuilder<TQuery>)ToTable((QueryTypeBuilder)queryTypeBuilder, name);
+            => (QueryTypeBuilder<TQuery>)ToView((QueryTypeBuilder)queryTypeBuilder, name);
 
         /// <summary>
-        ///     Configures the table that the view maps to when targeting a relational database.
+        ///     Configures the view or table that the view maps to when targeting a relational database.
         /// </summary>
         /// <param name="queryTypeBuilder"> The builder for the query type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="name"> The name of the view or table. </param>
+        /// <param name="schema"> The schema of the view or table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static QueryTypeBuilder ToTable(
+        public static QueryTypeBuilder ToView(
             [NotNull] this QueryTypeBuilder queryTypeBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema)
@@ -75,19 +75,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the table that the view maps to when targeting a relational database.
+        ///     Configures the view or table that the view maps to when targeting a relational database.
         /// </summary>
         /// <typeparam name="TQuery"> The query type being configured. </typeparam>
         /// <param name="queryTypeBuilder"> The builder for the query type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="name"> The name of the view or table. </param>
+        /// <param name="schema"> The schema of the view or table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static QueryTypeBuilder<TQuery> ToTable<TQuery>(
+        public static QueryTypeBuilder<TQuery> ToView<TQuery>(
             [NotNull] this QueryTypeBuilder<TQuery> queryTypeBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema)
             where TQuery : class
-            => (QueryTypeBuilder<TQuery>)ToTable((QueryTypeBuilder)queryTypeBuilder, name, schema);
+            => (QueryTypeBuilder<TQuery>)ToView((QueryTypeBuilder)queryTypeBuilder, name, schema);
 
         /// <summary>
         ///     Configures the discriminator column used to identify which query type each row in a table represents

@@ -87,14 +87,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(constructorArguments, nameof(constructorArguments));
 
-            var options = context.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
-
-            if (options?.UseLazyLoadingProxies != true)
-            {
-                throw new InvalidOperationException(ProxiesStrings.ProxiesNotEnabled(entityType.ShortDisplayName()));
-            }
-
-            return context.GetService<IProxyFactory>().Create(context, entityType, constructorArguments);
+            return context.GetInfrastructure().CreateProxy(entityType, constructorArguments);
         }
 
         /// <summary>
@@ -108,5 +101,41 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DbContext context,
             [NotNull] params object[] constructorArguments)
             => (TEntity)context.CreateProxy(typeof(TEntity), constructorArguments);
+
+        /// <summary>
+        ///     Creates a proxy instance for an entity type if proxy creation has been turned on.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type for which a proxy is needed. </typeparam>
+        /// <param name="set"> The <see cref="DbSet{TEntity}" />. </param>
+        /// <param name="constructorArguments"> Arguments to pass to the entity type constructor. </param>
+        /// <returns> The proxy instance. </returns>
+        public static TEntity CreateProxy<TEntity>(
+            [NotNull] this DbSet<TEntity> set,
+            [NotNull] params object[] constructorArguments)
+            where TEntity : class
+        {
+            Check.NotNull(set, nameof(set));
+            Check.NotNull(constructorArguments, nameof(constructorArguments));
+
+            return (TEntity)set.GetInfrastructure().CreateProxy(typeof(TEntity), constructorArguments);
+        }
+
+        private static object CreateProxy(
+            this IServiceProvider serviceProvider,
+            Type entityType,
+            params object[] constructorArguments)
+        {
+            var options = serviceProvider.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
+
+            if (options?.UseLazyLoadingProxies != true)
+            {
+                throw new InvalidOperationException(ProxiesStrings.ProxiesNotEnabled(entityType.ShortDisplayName()));
+            }
+
+            return serviceProvider.GetService<IProxyFactory>().Create(
+                serviceProvider.GetService<ICurrentDbContext>().Context,
+                entityType,
+                constructorArguments);
+        }
     }
 }

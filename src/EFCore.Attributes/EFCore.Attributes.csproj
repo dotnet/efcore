@@ -9,6 +9,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
+    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
 
 </Project>
