@@ -1153,7 +1153,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.Property<long>(""Day"")
             .ValueGeneratedOnAdd()
-            .HasConversion(new ValueConverter<long, long>(v => default(long), v => default(long)))
             .HasDefaultValue(3L);
 
         b.HasKey(""Id"");
@@ -1162,6 +1161,42 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
     });
 ",
                 o => { Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]); });
+        }
+
+        [Fact]
+        public virtual void Property_enum_type_is_stored_in_snapshot_with_custom_conversion_and_seed_data()
+        {
+            Test(
+                builder => builder.Entity<EntityWithEnumType>(eb =>
+                {
+                    eb.Property(e => e.Day).HasDefaultValue(Days.Wed)
+                        .HasConversion(v => v.ToString(), v => (Days)Enum.Parse(typeof(Days), v));
+                    eb.SeedData(new
+                    {
+                        Id = 1,
+                        Day = Days.Fri
+                    });
+                }),
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Day"")
+            .ValueGeneratedOnAdd()
+            .HasDefaultValue(""Wed"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithEnumType"");
+
+        b.SeedData(
+            new { Id = 1, Day = ""Fri"" }
+        );
+    });
+",
+                o => { Assert.Equal(Days.Wed.ToString(), o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]); });
         }
 
         [Fact]

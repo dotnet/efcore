@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -63,9 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         protected void AssertMultidimensionalArray<T>(T[,] values, params Action<T>[] assertions)
-        {
-            Assert.Collection(ToOnedimensionalArray(values), assertions);
-        }
+            => Assert.Collection(ToOnedimensionalArray(values), assertions);
 
         protected static T[] ToOnedimensionalArray<T>(T[,] values, bool firstDimension = false)
         {
@@ -113,7 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(IModel model)
         {
-            var ctx = TestHelpers.CreateContext(model);
+            var ctx = TestHelpers.CreateContext(TestHelpers.AddProviderOptions(new DbContextOptionsBuilder())
+                .UseModel(model).EnableSensitiveDataLogging().Options);
             return new MigrationsModelDiffer(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

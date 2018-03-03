@@ -81,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         // ReSharper disable once ClassNeverInstantiated.Local
         private class FakeCurrentDbContext : ICurrentDbContext
         {
+            // ReSharper disable once UnassignedGetOnlyAutoProperty
             public DbContext Context { get; }
         }
 
@@ -126,6 +127,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public abstract IServiceCollection AddProviderServices(IServiceCollection services);
+
+        public DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        {
+            UseProviderOptions(optionsBuilder);
+            return optionsBuilder;
+        }
 
         protected abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
 
@@ -194,11 +201,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var contextServices = CreateContextServices();
 
-            var conventionSetBuilder = new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList());
+            var conventionSetBuilder = new CompositeConventionSetBuilder(
+                contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList());
             var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
-            conventionSet = conventionSetBuilder == null
-                ? conventionSet
-                : conventionSetBuilder.AddConventions(conventionSet);
+            conventionSet = conventionSetBuilder.AddConventions(conventionSet);
             return new ModelBuilder(conventionSet);
         }
 

@@ -1244,7 +1244,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private enum SomeEnum
         {
-            Default
+            Default,
+            NonDefault
         }
 
         [Fact]
@@ -5974,6 +5975,81 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void SeedData_update_enum_values()
+        {
+            Execute(
+                common => common.Entity(
+                    "EntityWithEnumProperty",
+                    x =>
+                    {
+                        x.ToTable("EntityWithEnumProperty", "schema");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<SomeEnum?>("Enum");
+                    }),
+                source => source.Entity(
+                    "EntityWithEnumProperty",
+                    x =>
+                    {
+                        x.Property<SomeEnum?>("Enum").HasDefaultValue(SomeEnum.Default);
+                        x.SeedData(new
+                        {
+                            Id = 1,
+                            Enum = SomeEnum.NonDefault
+                        });
+                    }),
+                target => target.Entity(
+                    "EntityWithEnumProperty",
+                    x =>
+                    {
+                        x.Property<SomeEnum?>("Enum").HasDefaultValue(SomeEnum.NonDefault);
+                        x.SeedData(new
+                        {
+                            Id = 1,
+                            Enum = SomeEnum.Default
+                        });
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<AlterColumnOperation>(o);
+                        Assert.Equal("Enum", operation.Name);
+                        Assert.Equal("EntityWithEnumProperty", operation.Table);
+                        Assert.Equal("schema", operation.Schema);
+                        Assert.Equal(SomeEnum.NonDefault, operation.DefaultValue);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("EntityWithEnumProperty", m.Table);
+                        Assert.Equal("schema", m.Schema);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(1, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(SomeEnum.Default, v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<AlterColumnOperation>(o);
+                        Assert.Equal("Enum", operation.Name);
+                        Assert.Equal("EntityWithEnumProperty", operation.Table);
+                        Assert.Equal("schema", operation.Schema);
+                        Assert.Equal(SomeEnum.Default, operation.DefaultValue);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("EntityWithEnumProperty", m.Table);
+                        Assert.Equal("schema", m.Schema);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(1, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(SomeEnum.NonDefault, v));
+                    }));
+        }
+
+        [Fact]
         public void SeedData_all_operations()
         {
             Execute(
@@ -6301,6 +6377,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private class Order
         {
+            private int _secretId;
+
+            public Order()
+            {
+            }
+
+            public Order(int secretId)
+            {
+                _secretId = secretId;
+            }
+
             public int Id { get; set; }
 
             public Address Billing { get; set; }
@@ -6404,6 +6491,58 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
                     Assert.Equal("Order", operation.Name);
                 });
+        }
+
+        [Fact]
+        public void Add_type_with_ownership_SeedData()
+        {
+            Execute(
+                common => common.Ignore<Customer>(),
+                _ => { },
+                target => target
+                    .Entity<Order>(
+                        x =>
+                        {
+                            x.Property<int>("_secretId");
+                            x.SeedData(new Order(42)
+                            {
+                                Id = 1
+                            });
+                            x.OwnsOne(y => y.Billing).SeedData(new
+                            {
+                                OrderId = 1,
+                                AddressLine1 = "billing"
+                            });
+                            x.OwnsOne(y => y.Shipping).SeedData(new
+                            {
+                                OrderId = 1,
+                                AddressLine2 = "shipping"
+                            });
+                        }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<CreateTableOperation>(o);
+                        Assert.Equal("Order", m.Name);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Order", m.Table);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(1, v),
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal("billing", v),
+                            Assert.Null,
+                            Assert.Null,
+                            v => Assert.Equal("shipping", v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DropTableOperation>(o);
+                        Assert.Equal("Order", m.Name);
+                    }));
         }
 
         [Fact]

@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : Metadata.FindEntityType(clrType);
 
                 IConventionBatch batch = null;
-                EntityTypeSnapshot entityTypeSnapshot = null;
+                EntityType.Snapshot entityTypeSnapshot = null;
                 if (entityType != null)
                 {
                     if (!configurationSource.Overrides(entityType.GetConfigurationSource()))

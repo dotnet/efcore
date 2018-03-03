@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable NotAccessedField.Local
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertPropertyToExpressionBody
@@ -301,6 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
             }
 
+            // ReSharper disable once MemberCanBePrivate.Local
             public SomeEntity(int id, Guid? goo)
             {
                 _hiddenId = id;

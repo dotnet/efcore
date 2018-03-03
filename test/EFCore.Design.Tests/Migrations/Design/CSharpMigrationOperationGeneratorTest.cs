@@ -10,14 +10,15 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class CSharpMigrationOperationGeneratorTest
     {
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         [Fact]
-        public void Generate_seperates_operations_by_a_blank_line()
+        public void Generate_separates_operations_by_a_blank_line()
         {
             var generator = new CSharpMigrationOperationGenerator(
                 new CSharpMigrationOperationGeneratorDependencies(new CSharpHelper()));
@@ -33,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 builder);
 
             Assert.Equal(
-                "mb.Sql(\"-- Don't stand so\");" + EOL +
-                EOL +
+                "mb.Sql(\"-- Don't stand so\");" + _eol +
+                _eol +
                 "mb.Sql(\"-- close to me\");",
                 builder.ToString());
         }
@@ -49,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     ClrType = typeof(int)
                 },
-                "mb.AddColumn<int>(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.AddColumn<int>(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    nullable: false);",
                 o =>
                     {
@@ -79,16 +80,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     DefaultValue = 1,
                     IsFixedLength = true
                 },
-                "mb.AddColumn<int>(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    type: \"int\"," + EOL +
-                "    unicode: false," + EOL +
-                "    fixedLength: true," + EOL +
-                "    maxLength: 30," + EOL +
-                "    rowVersion: true," + EOL +
-                "    nullable: true," + EOL +
+                "mb.AddColumn<int>(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    type: \"int\"," + _eol +
+                "    unicode: false," + _eol +
+                "    fixedLength: true," + _eol +
+                "    maxLength: 30," + _eol +
+                "    rowVersion: true," + _eol +
+                "    nullable: true," + _eol +
                 "    defaultValue: 1);",
                 o =>
                     {
@@ -115,10 +116,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ClrType = typeof(int),
                     DefaultValueSql = "1"
                 },
-                "mb.AddColumn<int>(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    nullable: false," + EOL +
+                "mb.AddColumn<int>(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    nullable: false," + _eol +
                 "    defaultValueSql: \"1\");",
                 o =>
                     {
@@ -140,10 +141,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ClrType = typeof(int),
                     ComputedColumnSql = "1"
                 },
-                "mb.AddColumn<int>(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    nullable: false," + EOL +
+                "mb.AddColumn<int>(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    nullable: false," + _eol +
                 "    computedColumnSql: \"1\");",
                 o =>
                     {
@@ -166,11 +167,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     PrincipalTable = "Blog",
                     PrincipalColumns = new[] { "Id" }
                 },
-                "mb.AddForeignKey(" + EOL +
-                "    name: \"FK_Post_Blog_BlogId\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    column: \"BlogId\"," + EOL +
-                "    principalTable: \"Blog\"," + EOL +
+                "mb.AddForeignKey(" + _eol +
+                "    name: \"FK_Post_Blog_BlogId\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    column: \"BlogId\"," + _eol +
+                "    principalTable: \"Blog\"," + _eol +
                 "    principalColumn: \"Id\");",
                 o =>
                     {
@@ -197,15 +198,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     OnUpdate = ReferentialAction.Restrict,
                     OnDelete = ReferentialAction.Cascade
                 },
-                "mb.AddForeignKey(" + EOL +
-                "    name: \"FK_Post_Blog_BlogId\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    column: \"BlogId\"," + EOL +
-                "    principalSchema: \"my\"," + EOL +
-                "    principalTable: \"Blog\"," + EOL +
-                "    principalColumn: \"Id\"," + EOL +
-                "    onUpdate: ReferentialAction.Restrict," + EOL +
+                "mb.AddForeignKey(" + _eol +
+                "    name: \"FK_Post_Blog_BlogId\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    column: \"BlogId\"," + _eol +
+                "    principalSchema: \"my\"," + _eol +
+                "    principalTable: \"Blog\"," + _eol +
+                "    principalColumn: \"Id\"," + _eol +
+                "    onUpdate: ReferentialAction.Restrict," + _eol +
                 "    onDelete: ReferentialAction.Cascade);",
                 o =>
                     {
@@ -232,11 +233,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     PrincipalTable = "Blog",
                     PrincipalColumns = new[] { "Id1", "Id2" }
                 },
-                "mb.AddForeignKey(" + EOL +
-                "    name: \"FK_Post_Blog_BlogId1_BlogId2\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    columns: new[] { \"BlogId1\", \"BlogId2\" }," + EOL +
-                "    principalTable: \"Blog\"," + EOL +
+                "mb.AddForeignKey(" + _eol +
+                "    name: \"FK_Post_Blog_BlogId1_BlogId2\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    columns: new[] { \"BlogId1\", \"BlogId2\" }," + _eol +
+                "    principalTable: \"Blog\"," + _eol +
                 "    principalColumns: new[] { \"Id1\", \"Id2\" });",
                 o =>
                     {
@@ -258,9 +259,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     Columns = new[] { "Id" }
                 },
-                "mb.AddPrimaryKey(" + EOL +
-                "    name: \"PK_Post\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.AddPrimaryKey(" + _eol +
+                "    name: \"PK_Post\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    column: \"Id\");",
                 o =>
                     {
@@ -281,10 +282,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     Columns = new[] { "Id" }
                 },
-                "mb.AddPrimaryKey(" + EOL +
-                "    name: \"PK_Post\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.AddPrimaryKey(" + _eol +
+                "    name: \"PK_Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    column: \"Id\");",
                 o =>
                     {
@@ -305,9 +306,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     Columns = new[] { "Id1", "Id2" }
                 },
-                "mb.AddPrimaryKey(" + EOL +
-                "    name: \"PK_Post\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.AddPrimaryKey(" + _eol +
+                "    name: \"PK_Post\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    columns: new[] { \"Id1\", \"Id2\" });",
                 o =>
                     {
@@ -327,9 +328,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     Columns = new[] { "AltId" }
                 },
-                "mb.AddUniqueConstraint(" + EOL +
-                "    name: \"AK_Post_AltId\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.AddUniqueConstraint(" + _eol +
+                "    name: \"AK_Post_AltId\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    column: \"AltId\");",
                 o =>
                     {
@@ -350,10 +351,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     Columns = new[] { "AltId" }
                 },
-                "mb.AddUniqueConstraint(" + EOL +
-                "    name: \"AK_Post_AltId\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.AddUniqueConstraint(" + _eol +
+                "    name: \"AK_Post_AltId\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    column: \"AltId\");",
                 o =>
                     {
@@ -374,9 +375,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     Columns = new[] { "AltId1", "AltId2" }
                 },
-                "mb.AddUniqueConstraint(" + EOL +
-                "    name: \"AK_Post_AltId1_AltId2\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.AddUniqueConstraint(" + _eol +
+                "    name: \"AK_Post_AltId1_AltId2\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    columns: new[] { \"AltId1\", \"AltId2\" });",
                 o =>
                     {
@@ -396,9 +397,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     ClrType = typeof(int)
                 },
-                "mb.AlterColumn<int>(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.AlterColumn<int>(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    nullable: false);",
                 o =>
                     {
@@ -456,24 +457,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         IsFixedLength = true
                     }
                 },
-                "mb.AlterColumn<int>(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    type: \"int\"," + EOL +
-                "    unicode: false," + EOL +
-                "    fixedLength: true," + EOL +
-                "    maxLength: 30," + EOL +
-                "    rowVersion: true," + EOL +
-                "    nullable: true," + EOL +
-                "    defaultValue: 1," + EOL +
-                "    oldClrType: typeof(string)," + EOL +
-                "    oldType: \"string\"," + EOL +
-                "    oldUnicode: false," + EOL +
-                "    oldFixedLength: true," + EOL +
-                "    oldMaxLength: 20," + EOL +
-                "    oldRowVersion: true," + EOL +
-                "    oldNullable: true," + EOL +
+                "mb.AlterColumn<int>(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    type: \"int\"," + _eol +
+                "    unicode: false," + _eol +
+                "    fixedLength: true," + _eol +
+                "    maxLength: 30," + _eol +
+                "    rowVersion: true," + _eol +
+                "    nullable: true," + _eol +
+                "    defaultValue: 1," + _eol +
+                "    oldClrType: typeof(string)," + _eol +
+                "    oldType: \"string\"," + _eol +
+                "    oldUnicode: false," + _eol +
+                "    oldFixedLength: true," + _eol +
+                "    oldMaxLength: 20," + _eol +
+                "    oldRowVersion: true," + _eol +
+                "    oldNullable: true," + _eol +
                 "    oldDefaultValue: 0);",
                 o =>
                     {
@@ -514,10 +515,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ClrType = typeof(int),
                     DefaultValueSql = "1"
                 },
-                "mb.AlterColumn<int>(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    nullable: false," + EOL +
+                "mb.AlterColumn<int>(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    nullable: false," + _eol +
                 "    defaultValueSql: \"1\");",
                 o =>
                     {
@@ -557,10 +558,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ClrType = typeof(int),
                     ComputedColumnSql = "1"
                 },
-                "mb.AlterColumn<int>(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    nullable: false," + EOL +
+                "mb.AlterColumn<int>(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    nullable: false," + _eol +
                 "    computedColumnSql: \"1\");",
                 o =>
                     {
@@ -601,8 +602,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         ["bar"] = "foo"
                     }
                 },
-                "mb.AlterDatabase()" + EOL +
-                "    .Annotation(\"foo\", \"bar\")" + EOL +
+                "mb.AlterDatabase()" + _eol +
+                "    .Annotation(\"foo\", \"bar\")" + _eol +
                 "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
                     {
@@ -616,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-                "mb.AlterSequence(" + EOL +
+                "mb.AlterSequence(" + _eol +
                 "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
                     {
@@ -653,16 +654,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         IsCyclic = true
                     }
                 },
-                "mb.AlterSequence(" + EOL +
-                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    incrementBy: 3," + EOL +
-                "    minValue: 2L," + EOL +
-                "    maxValue: 4L," + EOL +
-                "    cyclic: true," + EOL +
-                "    oldIncrementBy: 4," + EOL +
-                "    oldMinValue: 3L," + EOL +
-                "    oldMaxValue: 5L," + EOL +
+                "mb.AlterSequence(" + _eol +
+                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    incrementBy: 3," + _eol +
+                "    minValue: 2L," + _eol +
+                "    maxValue: 4L," + _eol +
+                "    cyclic: true," + _eol +
+                "    oldIncrementBy: 4," + _eol +
+                "    oldMinValue: 3L," + _eol +
+                "    oldMaxValue: 5L," + _eol +
                 "    oldCyclic: true);",
                 o =>
                     {
@@ -688,8 +689,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "Customer",
                     Schema = "dbo"
                 },
-                "mb.AlterTable(" + EOL +
-                "    name: \"Customer\"," + EOL +
+                "mb.AlterTable(" + _eol +
+                "    name: \"Customer\"," + _eol +
                 "    schema: \"dbo\");",
                 o =>
                     {
@@ -708,9 +709,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     Columns = new[] { "Title" }
                 },
-                "mb.CreateIndex(" + EOL +
-                "    name: \"IX_Post_Title\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.CreateIndex(" + _eol +
+                "    name: \"IX_Post_Title\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    column: \"Title\");",
                 o =>
                     {
@@ -733,12 +734,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     IsUnique = true,
                     Filter = "[Title] IS NOT NULL"
                 },
-                "mb.CreateIndex(" + EOL +
-                "    name: \"IX_Post_Title\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"Post\"," + EOL +
-                "    column: \"Title\"," + EOL +
-                "    unique: true," + EOL +
+                "mb.CreateIndex(" + _eol +
+                "    name: \"IX_Post_Title\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    column: \"Title\"," + _eol +
+                "    unique: true," + _eol +
                 "    filter: \"[Title] IS NOT NULL\");",
                 o =>
                     {
@@ -760,9 +761,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     Columns = new[] { "Title", "Subtitle" }
                 },
-                "mb.CreateIndex(" + EOL +
-                "    name: \"IX_Post_Title_Subtitle\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.CreateIndex(" + _eol +
+                "    name: \"IX_Post_Title_Subtitle\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    columns: new[] { \"Title\", \"Subtitle\" });",
                 o =>
                     {
@@ -777,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new EnsureSchemaOperation { Name = "my" },
-                "mb.EnsureSchema(" + EOL +
+                "mb.EnsureSchema(" + _eol +
                 "    name: \"my\");",
                 o => Assert.Equal("my", o.Name));
         }
@@ -791,7 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "EntityFrameworkHiLoSequence",
                     ClrType = typeof(long)
                 },
-                "mb.CreateSequence(" + EOL +
+                "mb.CreateSequence(" + _eol +
                 "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
                     {
@@ -809,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "EntityFrameworkHiLoSequence",
                     ClrType = typeof(int)
                 },
-                "mb.CreateSequence<int>(" + EOL +
+                "mb.CreateSequence<int>(" + _eol +
                 "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
                     {
@@ -833,13 +834,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     MaxValue = 4,
                     IsCyclic = true
                 },
-                "mb.CreateSequence(" + EOL +
-                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    startValue: 3L," + EOL +
-                "    incrementBy: 5," + EOL +
-                "    minValue: 2L," + EOL +
-                "    maxValue: 4L," + EOL +
+                "mb.CreateSequence(" + _eol +
+                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    startValue: 3L," + _eol +
+                "    incrementBy: 5," + _eol +
+                "    minValue: 2L," + _eol +
+                "    maxValue: 4L," + _eol +
                 "    cyclic: true);",
                 o =>
                     {
@@ -869,13 +870,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     MaxValue = 4,
                     IsCyclic = true
                 },
-                "mb.CreateSequence<int>(" + EOL +
-                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    startValue: 3L," + EOL +
-                "    incrementBy: 5," + EOL +
-                "    minValue: 2L," + EOL +
-                "    maxValue: 4L," + EOL +
+                "mb.CreateSequence<int>(" + _eol +
+                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    startValue: 3L," + _eol +
+                "    incrementBy: 5," + _eol +
+                "    minValue: 2L," + _eol +
+                "    maxValue: 4L," + _eol +
                 "    cyclic: true);",
                 o =>
                     {
@@ -907,14 +908,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        Id = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        Id = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
                 "    });",
                 o =>
                     {
@@ -953,15 +954,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
                 "    });",
                 o =>
                     {
@@ -999,14 +1000,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        Id = table.Column<int>(nullable: false, defaultValueSql: \"1\")" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        Id = table.Column<int>(nullable: false, defaultValueSql: \"1\")" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
                 "    });",
                 o =>
                     {
@@ -1037,14 +1038,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\")" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\")" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
                 "    });",
                 o =>
                     {
@@ -1080,19 +1081,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        BlogId = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.ForeignKey(" + EOL +
-                "            name: \"FK_Post_Blog_BlogId\"," + EOL +
-                "            column: x => x.BlogId," + EOL +
-                "            principalTable: \"Blog\"," + EOL +
-                "            principalColumn: \"Id\");" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        BlogId = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.ForeignKey(" + _eol +
+                "            name: \"FK_Post_Blog_BlogId\"," + _eol +
+                "            column: x => x.BlogId," + _eol +
+                "            principalTable: \"Blog\"," + _eol +
+                "            principalColumn: \"Id\");" + _eol +
                 "    });",
                 o =>
                     {
@@ -1134,23 +1135,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        BlogId = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.ForeignKey(" + EOL +
-                "            name: \"FK_Post_Blog_BlogId\"," + EOL +
-                "            column: x => x.BlogId," + EOL +
-                "            principalSchema: \"my\"," + EOL +
-                "            principalTable: \"Blog\"," + EOL +
-                "            principalColumn: \"Id\"," + EOL +
-                "            onUpdate: ReferentialAction.SetNull," + EOL +
-                "            onDelete: ReferentialAction.SetDefault);" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        BlogId = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.ForeignKey(" + _eol +
+                "            name: \"FK_Post_Blog_BlogId\"," + _eol +
+                "            column: x => x.BlogId," + _eol +
+                "            principalSchema: \"my\"," + _eol +
+                "            principalTable: \"Blog\"," + _eol +
+                "            principalColumn: \"Id\"," + _eol +
+                "            onUpdate: ReferentialAction.SetNull," + _eol +
+                "            onDelete: ReferentialAction.SetDefault);" + _eol +
                 "    });",
                 o =>
                     {
@@ -1193,20 +1194,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        BlogId1 = table.Column<int>(nullable: false)," + EOL +
-                "        BlogId2 = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.ForeignKey(" + EOL +
-                "            name: \"FK_Post_Blog_BlogId1_BlogId2\"," + EOL +
-                "            columns: x => new { x.BlogId1, x.BlogId2 }," + EOL +
-                "            principalTable: \"Blog\"," + EOL +
-                "            principalColumns: new[] { \"Id1\", \"Id2\" });" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        BlogId1 = table.Column<int>(nullable: false)," + _eol +
+                "        BlogId2 = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.ForeignKey(" + _eol +
+                "            name: \"FK_Post_Blog_BlogId1_BlogId2\"," + _eol +
+                "            columns: x => new { x.BlogId1, x.BlogId2 }," + _eol +
+                "            principalTable: \"Blog\"," + _eol +
+                "            principalColumns: new[] { \"Id1\", \"Id2\" });" + _eol +
                 "    });",
                 o =>
                     {
@@ -1238,15 +1239,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Columns = new[] { "Id" }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        Id = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.PrimaryKey(\"PK_Post\", x => x.Id);" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        Id = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.PrimaryKey(\"PK_Post\", x => x.Id);" + _eol +
                 "    });",
                 o =>
                     {
@@ -1278,16 +1279,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Columns = new[] { "Id" }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        Id = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.PrimaryKey(\"PK_Post\", x => x.Id);" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        Id = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.PrimaryKey(\"PK_Post\", x => x.Id);" + _eol +
                 "    });",
                 o =>
                     {
@@ -1319,16 +1320,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Columns = new[] { "Id1", "Id2" }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        Id1 = table.Column<int>(nullable: false)," + EOL +
-                "        Id2 = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.PrimaryKey(\"PK_Post\", x => new { x.Id1, x.Id2 });" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        Id1 = table.Column<int>(nullable: false)," + _eol +
+                "        Id2 = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.PrimaryKey(\"PK_Post\", x => new { x.Id1, x.Id2 });" + _eol +
                 "    });",
                 o =>
                     {
@@ -1361,15 +1362,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        AltId = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        AltId = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);" + _eol +
                 "    });",
                 o =>
                     {
@@ -1404,16 +1405,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        AltId = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        AltId = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);" + _eol +
                 "    });",
                 o =>
                     {
@@ -1448,16 +1449,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    columns: table => new" + EOL +
-                "    {" + EOL +
-                "        AltId1 = table.Column<int>(nullable: false)," + EOL +
-                "        AltId2 = table.Column<int>(nullable: false)" + EOL +
-                "    }," + EOL +
-                "    constraints: table =>" + EOL +
-                "    {" + EOL +
-                "        table.UniqueConstraint(\"AK_Post_AltId1_AltId2\", x => new { x.AltId1, x.AltId2 });" + EOL +
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        AltId1 = table.Column<int>(nullable: false)," + _eol +
+                "        AltId2 = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.UniqueConstraint(\"AK_Post_AltId1_AltId2\", x => new { x.AltId1, x.AltId2 });" + _eol +
                 "    });",
                 o =>
                     {
@@ -1478,8 +1479,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "Id",
                     Table = "Post"
                 },
-                "mb.DropColumn(" + EOL +
-                "    name: \"Id\"," + EOL +
+                "mb.DropColumn(" + _eol +
+                "    name: \"Id\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1498,9 +1499,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Schema = "dbo",
                     Table = "Post"
                 },
-                "mb.DropColumn(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
+                "mb.DropColumn(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1519,8 +1520,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "FK_Post_BlogId",
                     Table = "Post"
                 },
-                "mb.DropForeignKey(" + EOL +
-                "    name: \"FK_Post_BlogId\"," + EOL +
+                "mb.DropForeignKey(" + _eol +
+                "    name: \"FK_Post_BlogId\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1539,9 +1540,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Schema = "dbo",
                     Table = "Post"
                 },
-                "mb.DropForeignKey(" + EOL +
-                "    name: \"FK_Post_BlogId\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
+                "mb.DropForeignKey(" + _eol +
+                "    name: \"FK_Post_BlogId\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1560,8 +1561,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "IX_Post_Title",
                     Table = "Post"
                 },
-                "mb.DropIndex(" + EOL +
-                "    name: \"IX_Post_Title\"," + EOL +
+                "mb.DropIndex(" + _eol +
+                "    name: \"IX_Post_Title\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1580,9 +1581,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Schema = "dbo",
                     Table = "Post"
                 },
-                "mb.DropIndex(" + EOL +
-                "    name: \"IX_Post_Title\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
+                "mb.DropIndex(" + _eol +
+                "    name: \"IX_Post_Title\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1601,8 +1602,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "PK_Post",
                     Table = "Post"
                 },
-                "mb.DropPrimaryKey(" + EOL +
-                "    name: \"PK_Post\"," + EOL +
+                "mb.DropPrimaryKey(" + _eol +
+                "    name: \"PK_Post\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1621,9 +1622,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Schema = "dbo",
                     Table = "Post"
                 },
-                "mb.DropPrimaryKey(" + EOL +
-                "    name: \"PK_Post\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
+                "mb.DropPrimaryKey(" + _eol +
+                "    name: \"PK_Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1638,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropSchemaOperation { Name = "my" },
-                "mb.DropSchema(" + EOL +
+                "mb.DropSchema(" + _eol +
                 "    name: \"my\");",
                 o => Assert.Equal("my", o.Name));
         }
@@ -1648,7 +1649,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-                "mb.DropSequence(" + EOL +
+                "mb.DropSequence(" + _eol +
                 "    name: \"EntityFrameworkHiLoSequence\");",
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
@@ -1662,8 +1663,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo"
                 },
-                "mb.DropSequence(" + EOL +
-                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
+                "mb.DropSequence(" + _eol +
+                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
                 "    schema: \"dbo\");",
                 o =>
                     {
@@ -1677,7 +1678,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropTableOperation { Name = "Post" },
-                "mb.DropTable(" + EOL +
+                "mb.DropTable(" + _eol +
                 "    name: \"Post\");",
                 o => Assert.Equal("Post", o.Name));
         }
@@ -1691,8 +1692,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "Post",
                     Schema = "dbo"
                 },
-                "mb.DropTable(" + EOL +
-                "    name: \"Post\"," + EOL +
+                "mb.DropTable(" + _eol +
+                "    name: \"Post\"," + _eol +
                 "    schema: \"dbo\");",
                 o =>
                     {
@@ -1710,8 +1711,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "AK_Post_AltId",
                     Table = "Post"
                 },
-                "mb.DropUniqueConstraint(" + EOL +
-                "    name: \"AK_Post_AltId\"," + EOL +
+                "mb.DropUniqueConstraint(" + _eol +
+                "    name: \"AK_Post_AltId\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1730,9 +1731,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Schema = "dbo",
                     Table = "Post"
                 },
-                "mb.DropUniqueConstraint(" + EOL +
-                "    name: \"AK_Post_AltId\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
+                "mb.DropUniqueConstraint(" + _eol +
+                "    name: \"AK_Post_AltId\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
                 "    table: \"Post\");",
                 o =>
                     {
@@ -1752,9 +1753,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     NewName = "PostId"
                 },
-                "mb.RenameColumn(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.RenameColumn(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    newName: \"PostId\");",
                 o =>
                     {
@@ -1775,10 +1776,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     NewName = "PostId"
                 },
-                "mb.RenameColumn(" + EOL +
-                "    name: \"Id\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.RenameColumn(" + _eol +
+                "    name: \"Id\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    newName: \"PostId\");",
                 o =>
                     {
@@ -1799,9 +1800,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     NewName = "IX_Post_PostTitle"
                 },
-                "mb.RenameIndex(" + EOL +
-                "    name: \"IX_Post_Title\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.RenameIndex(" + _eol +
+                "    name: \"IX_Post_Title\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    newName: \"IX_Post_PostTitle\");",
                 o =>
                     {
@@ -1822,10 +1823,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     NewName = "IX_dbo.Post_PostTitle"
                 },
-                "mb.RenameIndex(" + EOL +
-                "    name: \"IX_dbo.Post_Title\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"Post\"," + EOL +
+                "mb.RenameIndex(" + _eol +
+                "    name: \"IX_dbo.Post_Title\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
                 "    newName: \"IX_dbo.Post_PostTitle\");",
                 o =>
                     {
@@ -1841,7 +1842,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new RenameSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-                "mb.RenameSequence(" + EOL +
+                "mb.RenameSequence(" + _eol +
                 "    name: \"EntityFrameworkHiLoSequence\");",
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
@@ -1857,10 +1858,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     NewName = "MySequence",
                     NewSchema = "my"
                 },
-                "mb.RenameSequence(" + EOL +
-                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    newName: \"MySequence\"," + EOL +
+                "mb.RenameSequence(" + _eol +
+                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    newName: \"MySequence\"," + _eol +
                 "    newSchema: \"my\");",
                 o =>
                     {
@@ -1876,7 +1877,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new RenameTableOperation { Name = "Post" },
-                "mb.RenameTable(" + EOL +
+                "mb.RenameTable(" + _eol +
                 "    name: \"Post\");",
                 o => Assert.Equal("Post", o.Name));
         }
@@ -1892,10 +1893,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     NewName = "Posts",
                     NewSchema = "my"
                 },
-                "mb.RenameTable(" + EOL +
-                "    name: \"Post\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    newName: \"Posts\"," + EOL +
+                "mb.RenameTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    newName: \"Posts\"," + _eol +
                 "    newSchema: \"my\");",
                 o =>
                     {
@@ -1915,8 +1916,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "EntityFrameworkHiLoSequence",
                     StartValue = 1
                 },
-                "mb.RestartSequence(" + EOL +
-                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
+                "mb.RestartSequence(" + _eol +
+                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
                 "    startValue: 1L);",
                 o =>
                     {
@@ -1935,9 +1936,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Schema = "dbo",
                     StartValue = 1
                 },
-                "mb.RestartSequence(" + EOL +
-                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
-                "    schema: \"dbo\"," + EOL +
+                "mb.RestartSequence(" + _eol +
+                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
                 "    startValue: 1L);",
                 o =>
                     {
@@ -1974,17 +1975,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { 4, "Harry Strickland" }
                     }
                 },
-                "mb.InsertData(" + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"People\"," + EOL +
-                "    columns: new[] { \"Id\", \"Full Name\" }," + EOL +
-                "    values: new object[,]" + EOL +
-                "    {" + EOL +
-                "        { 0, null }," + EOL +
-                "        { 1, \"Daenerys Targaryen\" }," + EOL +
-                "        { 2, \"John Snow\" }," + EOL +
-                "        { 3, \"Arya Stark\" }," + EOL +
-                "        { 4, \"Harry Strickland\" }" + EOL +
+                "mb.InsertData(" + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"People\"," + _eol +
+                "    columns: new[] { \"Id\", \"Full Name\" }," + _eol +
+                "    values: new object[,]" + _eol +
+                "    {" + _eol +
+                "        { 0, null }," + _eol +
+                "        { 1, \"Daenerys Targaryen\" }," + _eol +
+                "        { 2, \"John Snow\" }," + _eol +
+                "        { 3, \"Arya Stark\" }," + _eol +
+                "        { 4, \"Harry Strickland\" }" + _eol +
                 "    });",
                 o =>
                     {
@@ -2010,9 +2011,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "John Snow" }
                     }
                 },
-                "mb.InsertData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    column: \"Full Name\"," + EOL +
+                "mb.InsertData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    column: \"Full Name\"," + _eol +
                 "    value: \"John Snow\");",
                 o =>
                     {
@@ -2037,9 +2038,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "John", "Snow" }
                     }
                 },
-                "mb.InsertData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    columns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "mb.InsertData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    columns: new[] { \"First Name\", \"Last Name\" }," + _eol +
                 "    values: new object[] { \"John\", \"Snow\" });",
                 o =>
                     {
@@ -2065,13 +2066,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Daenerys Targaryen" }
                     }
                 },
-                "mb.InsertData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    column: \"Full Name\"," + EOL +
-                "    values: new object[]" + EOL +
-                "    {" + EOL +
-                "        \"John Snow\"," + EOL +
-                "        \"Daenerys Targaryen\"" + EOL +
+                "mb.InsertData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    column: \"Full Name\"," + _eol +
+                "    values: new object[]" + _eol +
+                "    {" + _eol +
+                "        \"John Snow\"," + _eol +
+                "        \"Daenerys Targaryen\"" + _eol +
                 "    });",
                 o =>
                     {
@@ -2101,17 +2102,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Harry" }
                     }
                 },
-                "mb.DeleteData(" + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumn: \"First Name\"," + EOL +
-                "    keyValues: new object[]" + EOL +
-                "    {" + EOL +
-                "        \"Hodor\"," + EOL +
-                "        \"Daenerys\"," + EOL +
-                "        \"John\"," + EOL +
-                "        \"Arya\"," + EOL +
-                "        \"Harry\"" + EOL +
+                "mb.DeleteData(" + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumn: \"First Name\"," + _eol +
+                "    keyValues: new object[]" + _eol +
+                "    {" + _eol +
+                "        \"Hodor\"," + _eol +
+                "        \"Daenerys\"," + _eol +
+                "        \"John\"," + _eol +
+                "        \"Arya\"," + _eol +
+                "        \"Harry\"" + _eol +
                 "    });",
                 o =>
                     {
@@ -2141,16 +2142,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Harry", "Strickland" }
                     }
                 },
-                "mb.DeleteData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
-                "    keyValues: new object[,]" + EOL +
-                "    {" + EOL +
-                "        { \"Hodor\", null }," + EOL +
-                "        { \"Daenerys\", \"Targaryen\" }," + EOL +
-                "        { \"John\", \"Snow\" }," + EOL +
-                "        { \"Arya\", \"Stark\" }," + EOL +
-                "        { \"Harry\", \"Strickland\" }" + EOL +
+                "mb.DeleteData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
+                "    keyValues: new object[,]" + _eol +
+                "    {" + _eol +
+                "        { \"Hodor\", null }," + _eol +
+                "        { \"Daenerys\", \"Targaryen\" }," + _eol +
+                "        { \"John\", \"Snow\" }," + _eol +
+                "        { \"Arya\", \"Stark\" }," + _eol +
+                "        { \"Harry\", \"Strickland\" }" + _eol +
                 "    });",
                 o =>
                     {
@@ -2175,9 +2176,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Snow" }
                     }
                 },
-                "mb.DeleteData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumn: \"Last Name\"," + EOL +
+                "mb.DeleteData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumn: \"Last Name\"," + _eol +
                 "    keyValue: \"Snow\");",
                 o =>
                     {
@@ -2202,9 +2203,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "John", "Snow" }
                     }
                 },
-                "mb.DeleteData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
+                "mb.DeleteData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
                 "    keyValues: new object[] { \"John\", \"Snow\" });",
                 o =>
                     {
@@ -2237,20 +2238,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Dragonstone", "Targaryen", "Valyrian" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumn: \"First Name\"," + EOL +
-                "    keyValues: new object[]" + EOL +
-                "    {" + EOL +
-                "        \"Hodor\"," + EOL +
-                "        \"Daenerys\"" + EOL +
-                "    }," + EOL +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
-                "    values: new object[,]" + EOL +
-                "    {" + EOL +
-                "        { \"Winterfell\", \"Stark\", \"Northmen\" }," + EOL +
-                "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + EOL +
+                "mb.UpdateData(" + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumn: \"First Name\"," + _eol +
+                "    keyValues: new object[]" + _eol +
+                "    {" + _eol +
+                "        \"Hodor\"," + _eol +
+                "        \"Daenerys\"" + _eol +
+                "    }," + _eol +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
+                "    values: new object[,]" + _eol +
+                "    {" + _eol +
+                "        { \"Winterfell\", \"Stark\", \"Northmen\" }," + _eol +
+                "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + _eol +
                 "    });",
                 o =>
                     {
@@ -2287,19 +2288,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Targaryen" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
-                "    keyValues: new object[,]" + EOL +
-                "    {" + EOL +
-                "        { \"Hodor\", null }," + EOL +
-                "        { \"Daenerys\", \"Targaryen\" }" + EOL +
-                "    }," + EOL +
-                "    column: \"House Allegiance\"," + EOL +
-                "    values: new object[]" + EOL +
-                "    {" + EOL +
-                "        \"Stark\"," + EOL +
-                "        \"Targaryen\"" + EOL +
+                "mb.UpdateData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
+                "    keyValues: new object[,]" + _eol +
+                "    {" + _eol +
+                "        { \"Hodor\", null }," + _eol +
+                "        { \"Daenerys\", \"Targaryen\" }" + _eol +
+                "    }," + _eol +
+                "    column: \"House Allegiance\"," + _eol +
+                "    values: new object[]" + _eol +
+                "    {" + _eol +
+                "        \"Stark\"," + _eol +
+                "        \"Targaryen\"" + _eol +
                 "    });",
                 o =>
                     {
@@ -2335,19 +2336,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Dragonstone", "Targaryen", "Valyrian" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
-                "    keyValues: new object[,]" + EOL +
-                "    {" + EOL +
-                "        { \"Hodor\", null }," + EOL +
-                "        { \"Daenerys\", \"Targaryen\" }" + EOL +
-                "    }," + EOL +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
-                "    values: new object[,]" + EOL +
-                "    {" + EOL +
-                "        { \"Winterfell\", \"Stark\", \"Northmen\" }," + EOL +
-                "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + EOL +
+                "mb.UpdateData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
+                "    keyValues: new object[,]" + _eol +
+                "    {" + _eol +
+                "        { \"Hodor\", null }," + _eol +
+                "        { \"Daenerys\", \"Targaryen\" }" + _eol +
+                "    }," + _eol +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
+                "    values: new object[,]" + _eol +
+                "    {" + _eol +
+                "        { \"Winterfell\", \"Stark\", \"Northmen\" }," + _eol +
+                "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + _eol +
                 "    });",
                 o =>
                     {
@@ -2383,12 +2384,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Dragonstone", "Targaryen", "Valyrian" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    schema: \"dbo\"," + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumn: \"Full Name\"," + EOL +
-                "    keyValue: \"Daenerys Targaryen\"," + EOL +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
+                "mb.UpdateData(" + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumn: \"Full Name\"," + _eol +
+                "    keyValue: \"Daenerys Targaryen\"," + _eol +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
                 "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
                 o =>
                 {
@@ -2423,11 +2424,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Targaryen" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumn: \"First Name\"," + EOL +
-                "    keyValue: \"Daenerys\"," + EOL +
-                "    column: \"House Allegiance\"," + EOL +
+                "mb.UpdateData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumn: \"First Name\"," + _eol +
+                "    keyValue: \"Daenerys\"," + _eol +
+                "    column: \"House Allegiance\"," + _eol +
                 "    value: \"Targaryen\");",
                 o =>
                     {
@@ -2463,19 +2464,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Targaryen" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumn: \"First Name\"," + EOL +
-                "    keyValues: new object[]" + EOL +
-                "    {" + EOL +
-                "        \"Hodor\"," + EOL +
-                "        \"Daenerys\"" + EOL +
-                "    }," + EOL +
-                "    column: \"House Allegiance\"," + EOL +
-                "    values: new object[]" + EOL +
-                "    {" + EOL +
-                "        \"Stark\"," + EOL +
-                "        \"Targaryen\"" + EOL +
+                "mb.UpdateData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumn: \"First Name\"," + _eol +
+                "    keyValues: new object[]" + _eol +
+                "    {" + _eol +
+                "        \"Hodor\"," + _eol +
+                "        \"Daenerys\"" + _eol +
+                "    }," + _eol +
+                "    column: \"House Allegiance\"," + _eol +
+                "    values: new object[]" + _eol +
+                "    {" + _eol +
+                "        \"Stark\"," + _eol +
+                "        \"Targaryen\"" + _eol +
                 "    });",
                 o =>
                     {
@@ -2509,11 +2510,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Targaryen" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
-                "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" }," + EOL +
-                "    column: \"House Allegiance\"," + EOL +
+                "mb.UpdateData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
+                "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" }," + _eol +
+                "    column: \"House Allegiance\"," + _eol +
                 "    value: \"Targaryen\");",
                 o =>
                     {
@@ -2547,11 +2548,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Dragonstone", "Targaryen", "Valyrian" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
-                "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" }," + EOL +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
+                "mb.UpdateData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
+                "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" }," + _eol +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
                 "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
                 o =>
                     {
@@ -2585,11 +2586,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { "Dragonstone", "Targaryen", "Valyrian" }
                     }
                 },
-                "mb.UpdateData(" + EOL +
-                "    table: \"People\"," + EOL +
-                "    keyColumn: \"Full Name\"," + EOL +
-                "    keyValue: \"Daenerys Targaryen\"," + EOL +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
+                "mb.UpdateData(" + _eol +
+                "    table: \"People\"," + _eol +
+                "    keyColumn: \"Full Name\"," + _eol +
+                "    keyValue: \"Daenerys Targaryen\"," + _eol +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
                 "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
                 o =>
                     {

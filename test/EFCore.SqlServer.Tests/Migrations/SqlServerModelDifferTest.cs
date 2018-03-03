@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             x.ToTable("Ram", "bah");
                             x.Property<int>("Id");
-                            x.HasKey("Id").ForSqlServerIsClustered(true);
+                            x.HasKey("Id").ForSqlServerIsClustered();
                         }),
                 operations =>
                     {
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.ToTable("Ewe", "bah");
                             x.Property<int>("Id");
                             x.Property<int>("AlternateId");
-                            x.HasAlternateKey("AlternateId").ForSqlServerIsClustered(true);
+                            x.HasAlternateKey("AlternateId").ForSqlServerIsClustered();
                         }),
                 operations =>
                     {
@@ -333,9 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             x.ToTable("Firefly", "dbo");
                             x.Property<int>("SequenceId").ForSqlServerUseSequenceHiLo(schema: "dbo");
-                            x.SeedData(
-                                new { Id = 42 },
-                                new { Id = 43 });
+                            x.SeedData(new { Id = 43 });
                         }),
                 upOps => Assert.Collection(upOps,
                     o =>
@@ -567,7 +565,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected override MigrationsModelDiffer CreateModelDiffer(IModel model)
         {
-            var ctx = SqlServerTestHelpers.Instance.CreateContext(model);
+            var ctx = TestHelpers.CreateContext(
+                TestHelpers.AddProviderOptions(new DbContextOptionsBuilder())
+                .UseModel(model).EnableSensitiveDataLogging().Options);
             return new MigrationsModelDiffer(
                 new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

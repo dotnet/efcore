@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -36,8 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
             = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
 
-        private readonly HashSet<object> _seedData
-            = new HashSet<object>();
+        private List<object> _seedData;
 
         private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
             = new SortedDictionary<string, ServiceProperty>(StringComparer.Ordinal);
@@ -628,7 +628,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (property.Keys == null)
                 {
-                    property.Keys = new List<IKey> { key };
+                    property.Keys = new List<IKey>
+                    {
+                        key
+                    };
                 }
                 else
                 {
@@ -847,7 +850,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (property.ForeignKeys == null)
                 {
-                    property.ForeignKeys = new List<IForeignKey> { foreignKey };
+                    property.ForeignKeys = new List<IForeignKey>
+                    {
+                        foreignKey
+                    };
                 }
                 else
                 {
@@ -859,7 +865,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (principalKey.ReferencingForeignKeys == null)
                 {
-                    principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+                    principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
+                    {
+                        foreignKey
+                    };
                 }
                 else
                 {
@@ -869,7 +878,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (principalEntityType.DeclaredReferencingForeignKeys == null)
                 {
-                    principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+                    principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
+                    {
+                        foreignKey
+                    };
                 }
                 else
                 {
@@ -1398,7 +1410,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (property.Indexes == null)
                 {
-                    property.Indexes = new List<IIndex> { index };
+                    property.Indexes = new List<IIndex>
+                    {
+                        index
+                    };
                 }
                 else
                 {
@@ -2018,18 +2033,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<IDictionary<string, object>> GetSeedData()
-            => _seedData.Select(seed =>
-                this.GetPropertiesAndNavigations() // we'll ignore unmapped properties on the seeds
-                    .Select(p => seed.GetType().GetRuntimeProperty(p.Name))
-                    .Where(p => p != null)
-                    .ToDictionary(p => p.Name, p => p.GetValue(seed)));
+        public virtual IEnumerable<IDictionary<string, object>> GetSeedData(bool providerValues = false)
+        {
+            if (_seedData == null
+                || _seedData.Count == 0)
+            {
+                return Enumerable.Empty<IDictionary<string, object>>();
+            }
+
+            var seedData = new List<Dictionary<string, object>>();
+            var valueConverters = new Dictionary<string, ValueConverter>();
+            var properties = this.GetPropertiesAndNavigations().ToDictionary(p => p.Name);
+            foreach (var rawSeed in _seedData)
+            {
+                var seed = new Dictionary<string, object>();
+                seedData.Add(seed);
+                var type = rawSeed.GetType();
+                foreach (var memberInfo in type.GetMembersInHierarchy())
+                {
+                    ValueConverter valueConverter = null;
+                    if (providerValues)
+                    {
+                        if (!properties.TryGetValue(memberInfo.Name, out var propertyBase))
+                        {
+                            continue;
+                        }
+
+                        if (!valueConverters.TryGetValue(memberInfo.Name, out valueConverter))
+                        {
+                            if (propertyBase is IProperty property)
+                            {
+                                valueConverter = property.FindMapping()?.Converter
+                                                 ?? property.GetValueConverter();
+                            }
+                            valueConverters[memberInfo.Name] = valueConverter;
+                        }
+                    }
+
+                    object value = null;
+                    switch (memberInfo)
+                    {
+                        case PropertyInfo propertyInfo:
+                            value = propertyInfo.GetValue(rawSeed);
+                            break;
+                        case FieldInfo fieldInfo:
+                            value = fieldInfo.GetValue(rawSeed);
+                            break;
+                    }
+
+                    seed[memberInfo.Name] = valueConverter == null
+                        ? value
+                        : valueConverter.ConvertToProvider(value);
+                }
+            }
+
+            return seedData;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void AddSeedData([NotNull] params object[] data)
+        public virtual void AddSeedData([NotNull] object[] data)
         {
             foreach (var entity in data)
             {
@@ -2041,15 +2106,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         this.DisplayName(), entity.GetType().ShortDisplayName()));
                 }
             }
-            _seedData.UnionWith(data);
+
+            if (_seedData == null)
+            {
+                _seedData = new List<object>();
+            }
+            _seedData.AddRange(data);
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual IReadOnlyCollection<object> GetRawSeedData()
-            => _seedData;
 
         #endregion
 
@@ -2181,6 +2245,65 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return xIndex > yIndex
                     ? -1
                     : 1;
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public class Snapshot
+        {
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public Snapshot(
+                [CanBeNull] EntityType entityType,
+                [CanBeNull] PropertiesSnapshot properties,
+                [CanBeNull] List<InternalIndexBuilder> indexes,
+                [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys,
+                [CanBeNull] List<(InternalRelationshipBuilder, Snapshot)> relationships)
+            {
+                EntityType = entityType;
+                Properties = properties ?? new PropertiesSnapshot(null, null, null, null);
+                if (indexes != null)
+                {
+                    Properties.Add(indexes);
+                }
+                if (keys != null)
+                {
+                    Properties.Add(keys);
+                }
+                if (relationships != null)
+                {
+                    Properties.Add(relationships);
+                }
+            }
+
+            private EntityType EntityType { [DebuggerStepThrough] get; }
+            private PropertiesSnapshot Properties { [DebuggerStepThrough] get; }
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public virtual void Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
+            {
+                entityTypeBuilder.MergeAnnotationsFrom(EntityType);
+
+                foreach (var ignoredMember in EntityType.GetIgnoredMembers())
+                {
+                    entityTypeBuilder.Ignore(ignoredMember, EntityType.FindDeclaredIgnoredMemberConfigurationSource(ignoredMember).Value);
+                }
+
+                Properties.Attach(entityTypeBuilder);
+
+                var rawSeedData = EntityType._seedData;
+                if (rawSeedData != null)
+                {
+                    entityTypeBuilder.Metadata.AddSeedData(Enumerable.ToArray(rawSeedData));
+                }
             }
         }
 

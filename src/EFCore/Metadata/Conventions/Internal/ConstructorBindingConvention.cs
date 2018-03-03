@@ -104,58 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            //foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
-            //{
-            //    if (entityType.ClrType != null
-            //        && !entityType.ClrType.IsAbstract)
-            //    {
-            //        var foundBinding = (ConstructorBinding)null;
-            //        var bindingFailures = new List<IEnumerable<ParameterInfo>>();
-
-            //        foreach (var constructor in entityType.ClrType.GetTypeInfo()
-            //            .DeclaredConstructors
-            //            .Where(c => !c.IsStatic)
-            //            .OrderByDescending(c => c.GetParameters().Length))
-            //        {
-            //            var parameterCount = constructor.GetParameters().Length;
-
-            //            if (foundBinding != null
-            //                && foundBinding.ParameterBindings.Count != parameterCount)
-            //            {
-            //                break;
-            //            }
-
-            //            if (_bindingFactory.TryBindConstructor(entityType, constructor, out var binding, out var failures))
-            //            {
-            //                if (foundBinding?.ParameterBindings.Count == parameterCount)
-            //                {
-            //                    throw new InvalidOperationException(
-            //                        CoreStrings.ConstructorConflict(
-            //                            FormatConstructorString(entityType, foundBinding),
-            //                            FormatConstructorString(entityType, binding)));
-            //                }
-
-            //                foundBinding = binding;
-            //            }
-
-            //            bindingFailures.Add(failures);
-            //        }
-
-            //        if (foundBinding == null)
-            //        {
-            //            throw new InvalidOperationException(
-            //                CoreStrings.ConstructorNotFound(
-            //                    entityType.DisplayName(),
-            //                    string.Join("', '", bindingFailures.SelectMany(f => f).Select(f => f.Name))));
-            //        }
-
-            //        entityType.Builder.HasAnnotation(
-            //            CoreAnnotationNames.ConstructorBinding,
-            //            foundBinding,
-            //            ConfigurationSource.Convention);
-            //    }
-            //}
-
             return modelBuilder;
         }
 

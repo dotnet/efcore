@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
@@ -133,8 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 {
                     CoreAnnotationNames.ValueConverter,
-                    (new ValueConverter<int, long>(v => v, v => (int)v),
-                    _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<long, long>(v => default(long), v => default(long)))")
+                    (new ValueConverter<int, long>(v => v, v => (int)v), "")
                 },
                 {
                     CoreAnnotationNames.ProviderClrType,
@@ -209,20 +209,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.False(true, $"Annotation '{annotationName}' was not handled by the code generator: {e.Message}");
                     }
 
-                    if (validAnnotations.ContainsKey(annotationName))
-                    {
-                        Assert.Equal(validAnnotations[annotationName].Expected, sb.ToString());
-                    }
-                    else
-                    {
-                        Assert.Equal(generationDefault, sb.ToString());
-                    }
+                    Assert.Equal(validAnnotations.ContainsKey(annotationName)
+                        ? validAnnotations[annotationName].Expected
+                        : generationDefault,
+                        sb.ToString());
 
                     metadataItem[annotationName] = null;
                 }
             }
         }
 
+        // ReSharper disable once ClassWithVirtualMembersNeverInherited.Local
         private class TestCSharpSnapshotGenerator : CSharpSnapshotGenerator
         {
             public TestCSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies)
@@ -237,6 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 => GeneratePropertyAnnotations(property, stringBuilder);
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class WithAnnotations
         {
             public int Id { get; set; }
@@ -249,8 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 = _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<long, long>(v => default(long), v => default(long)";
 
             AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v),
-                commonPrefix + "))");
+                new ValueConverter<int, long>(v => v, v => (int)v), "");
 
             AssertConverter(
                 new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(size: 10)),

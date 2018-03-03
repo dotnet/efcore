@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         GenerateRelationships(builderName, entityType, stringBuilder);
                     }
 
-                    GenerateSeedData(entityType.GetProperties(), entityType.GetSeedData(), stringBuilder);
+                    GenerateSeedData(entityType.GetProperties(), entityType.GetSeedData(providerValues: true), stringBuilder);
                 }
 
                 stringBuilder
@@ -435,27 +435,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             if (valueConverter != null)
             {
-                var storeType = Code.Reference(valueConverter.ProviderClrType);
-
-                stringBuilder
-                    .AppendLine()
-                    .Append(".")
-                    .Append(nameof(PropertyBuilder.HasConversion))
-                    .Append("(new ")
-                    .Append(nameof(ValueConverter))
-                    .Append("<")
-                    .Append(storeType)
-                    .Append(", ")
-                    .Append(storeType)
-                    .Append(">(v => default(")
-                    .Append(storeType)
-                    .Append("), v => default(")
-                    .Append(storeType);
-
                 var hints = valueConverter.MappingHints;
 
                 if (hints != null)
                 {
+                    var storeType = Code.Reference(valueConverter.ProviderClrType);
+
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".")
+                        .Append(nameof(PropertyBuilder.HasConversion))
+                        .Append("(new ")
+                        .Append(nameof(ValueConverter))
+                        .Append("<")
+                        .Append(storeType)
+                        .Append(", ")
+                        .Append(storeType)
+                        .Append(">(v => default(")
+                        .Append(storeType)
+                        .Append("), v => default(")
+                        .Append(storeType);
+
                     var nonNulls = new List<string>();
 
                     if (hints.Size != null)
@@ -486,12 +486,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     stringBuilder
                         .Append("), new ConverterMappingHints(")
-                        .Append(string.Join(", ", nonNulls));
+                        .Append(string.Join(", ", nonNulls))
+                        .Append(")))");
                 }
-
-                stringBuilder
-                    .Append(")))");
-
             }
 
             foreach (var consumed in annotations.Where(

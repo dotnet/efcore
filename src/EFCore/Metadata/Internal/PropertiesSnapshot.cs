@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] List<InternalPropertyBuilder> properties,
             [CanBeNull] List<InternalIndexBuilder> indexes,
             [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys,
-            [CanBeNull] List<(InternalRelationshipBuilder, EntityTypeSnapshot)> relationships)
+            [CanBeNull] List<(InternalRelationshipBuilder, EntityType.Snapshot)> relationships)
         {
             Properties = properties;
             Indexes = indexes;
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private List<InternalPropertyBuilder> Properties { [DebuggerStepThrough] get; }
-        private List<(InternalRelationshipBuilder, EntityTypeSnapshot)> Relationships { [DebuggerStepThrough] get; set; }
+        private List<(InternalRelationshipBuilder, EntityType.Snapshot)> Relationships { [DebuggerStepThrough] get; set; }
         private List<InternalIndexBuilder> Indexes { [DebuggerStepThrough] get; set; }
         private List<(InternalKeyBuilder, ConfigurationSource?)> Keys { [DebuggerStepThrough] get; set; }
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Add([NotNull] List<(InternalRelationshipBuilder, EntityTypeSnapshot)> relationships)
+        public virtual void Add([NotNull] List<(InternalRelationshipBuilder, EntityType.Snapshot)> relationships)
         {
             if (Relationships == null)
             {
