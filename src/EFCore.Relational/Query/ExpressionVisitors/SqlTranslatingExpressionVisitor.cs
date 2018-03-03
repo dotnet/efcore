@@ -1082,13 +1082,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     return new NullableExpression(newAccessOperation);
                 }
-                case NullConditionalEqualExpression nullConditionalEqualExpression:
+                case NullSafeEqualExpression nullSafeEqualExpression:
                 {
                     var equalityExpression
-                        = new NullCompensatedExpression(
-                            Expression.Equal(
-                                nullConditionalEqualExpression.OuterKey,
-                                nullConditionalEqualExpression.InnerKey));
+                        = new NullCompensatedExpression(nullSafeEqualExpression.EqualExpression);
 
                     return Visit(equalityExpression);
                 }

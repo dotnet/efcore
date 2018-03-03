@@ -30,9 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly IEntityMaterializerSource _entityMaterializerSource;
         private readonly IQuerySource _querySource;
+        private readonly SelectExpression _selectExpression;
         private bool _topLevelProjection;
-        private SelectExpression _selectExpression;
-
 
         private readonly Dictionary<Expression, Expression> _sourceExpressionProjectionMapping
             = new Dictionary<Expression, Expression>();
@@ -173,14 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             _topLevelProjection = false;
 
-            if (expression == null)
+            if (expression == null || _selectExpression == null)
             {
-                return expression;
-            }
-
-            if (_selectExpression == null)
-            {
-                // Short circuit if no SelectExpression
                 return expression;
             }
 

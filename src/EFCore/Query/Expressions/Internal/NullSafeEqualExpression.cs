@@ -13,43 +13,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class NullConditionalEqualExpression : Expression, IPrintable
+    public class NullSafeEqualExpression : Expression, IPrintable
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public NullConditionalEqualExpression(
-            [NotNull] Expression outerNullProtection,
-            [NotNull] Expression outerKey,
-            [NotNull] Expression innerKey)
+        public NullSafeEqualExpression(
+            [NotNull] Expression outerKeyNullCheck,
+            [NotNull] BinaryExpression equalExpression)
         {
-            Check.NotNull(outerNullProtection, nameof(outerNullProtection));
-            Check.NotNull(outerKey, nameof(outerKey));
-            Check.NotNull(innerKey, nameof(innerKey));
+            Check.NotNull(outerKeyNullCheck, nameof(outerKeyNullCheck));
+            Check.NotNull(equalExpression, nameof(equalExpression));
 
-            OuterNullProtection = outerNullProtection;
-            OuterKey = outerKey;
-            InnerKey = innerKey;
+            OuterKeyNullCheck = outerKeyNullCheck;
+            EqualExpression = equalExpression;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression OuterNullProtection { get; }
+        public virtual Expression OuterKeyNullCheck { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression OuterKey { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Expression InnerKey { get; }
+        public virtual BinaryExpression EqualExpression { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -75,10 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         /// </summary>
         public override Expression Reduce()
             => AndAlso(
-                OuterNullProtection,
-                Equal(
-                    OuterKey,
-                    InnerKey));
+                OuterKeyNullCheck,
+                EqualExpression);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -86,26 +75,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var newOuterCaller = visitor.Visit(OuterNullProtection);
-            var newOuterKey = visitor.Visit(OuterKey);
-            var newInnerKey = visitor.Visit(InnerKey);
+            var newNullCheck = visitor.Visit(OuterKeyNullCheck);
+            var newLeft = visitor.Visit(EqualExpression.Left);
+            var newRight = visitor.Visit(EqualExpression.Right);
 
-            if (newOuterKey.Type != newInnerKey.Type
-                && newOuterKey.Type.UnwrapNullableType() == newInnerKey.Type.UnwrapNullableType())
+            if (newLeft.Type != newRight.Type
+                && newLeft.Type.UnwrapNullableType() == newRight.Type.UnwrapNullableType())
             {
-                if (!newOuterKey.Type.IsNullableType())
+                if (!newLeft.Type.IsNullableType())
                 {
-                    newOuterKey = Convert(newOuterKey, newInnerKey.Type);
+                    newLeft = Convert(newLeft, newRight.Type);
                 }
                 else
                 {
-                    newInnerKey = Convert(newInnerKey, newOuterKey.Type);
+                    newRight = Convert(newRight, newLeft.Type);
                 }
             }
 
-            return newOuterCaller != OuterNullProtection || newOuterKey != OuterKey || newInnerKey != InnerKey
-                ? new NullConditionalEqualExpression(newOuterCaller, newOuterKey, newInnerKey)
-                : this;
+            return newNullCheck != OuterKeyNullCheck
+                || EqualExpression.Left != newLeft
+                || EqualExpression.Right != newRight
+                    ? new NullSafeEqualExpression(newNullCheck, Equal(newLeft, newRight))
+                    : this;
         }
 
         /// <summary>
@@ -114,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         /// </summary>
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.Visit(OuterKey);
             expressionPrinter.StringBuilder.Append(" ?= ");
-            expressionPrinter.Visit(InnerKey);
+            expressionPrinter.Visit(EqualExpression);
+            expressionPrinter.StringBuilder.Append(" =? ");
         }
 
         /// <summary>
@@ -124,6 +115,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override string ToString()
-            => OuterKey + " ?= " + InnerKey;
+            => $" ?= {EqualExpression} =?";
     }
 }

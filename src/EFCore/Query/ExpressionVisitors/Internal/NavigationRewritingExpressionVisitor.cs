@@ -977,7 +977,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     leftQsre,
                     Expression.Constant(null, leftQsre.Type));
 
-            return new NullConditionalEqualExpression(outerNullProtection, leftExpression, rightExpression);
+            return new NullSafeEqualExpression(outerNullProtection, Expression.Equal(leftExpression, rightExpression));
         }
 
         private Expression RewriteNavigationsIntoJoins(

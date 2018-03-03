@@ -271,11 +271,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalExpression.AccessOperation);
                         }
-                        else if (obj is NullConditionalEqualExpression nullConditionalEqualExpression)
+                        else if (obj is NullSafeEqualExpression nullConditionalEqualExpression)
                         {
-                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.OuterNullProtection);
-                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.OuterKey);
-                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.InnerKey);
+                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.OuterKeyNullCheck);
+                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.EqualExpression);
                         }
                         else
                         {
@@ -589,18 +588,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         nullConditionalExpressionB.AccessOperation);
                 }
 
-                if (a is NullConditionalEqualExpression nullConditionalEqualExpressionA
-                    && b is NullConditionalEqualExpression nullConditionalEqualExpressionB)
+                if (a is NullSafeEqualExpression nullConditionalEqualExpressionA
+                    && b is NullSafeEqualExpression nullConditionalEqualExpressionB)
                 {
                     return Compare(
-                               nullConditionalEqualExpressionA.OuterNullProtection,
-                               nullConditionalEqualExpressionB.OuterNullProtection)
+                               nullConditionalEqualExpressionA.OuterKeyNullCheck,
+                               nullConditionalEqualExpressionB.OuterKeyNullCheck)
                            && Compare(
-                               nullConditionalEqualExpressionA.OuterKey,
-                               nullConditionalEqualExpressionB.OuterKey)
-                           && Compare(
-                               nullConditionalEqualExpressionA.InnerKey,
-                               nullConditionalEqualExpressionB.InnerKey);
+                               nullConditionalEqualExpressionA.EqualExpression,
+                               nullConditionalEqualExpressionB.EqualExpression);
                 }
 
                 return a.Equals(b);

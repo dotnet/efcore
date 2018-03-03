@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             = typeof(Metadata.Internal.NavigationExtensions).GetTypeInfo().GetDeclaredMethod(nameof(Metadata.Internal.NavigationExtensions.GetCollectionAccessor));
 
         private static readonly MethodInfo _createCollectionMethodInfo
-            = typeof(IClrCollectionAccessor).GetRuntimeMethod(nameof(IClrCollectionAccessor.Create), new Type[] { });
+            = typeof(IClrCollectionAccessor).GetRuntimeMethod(nameof(IClrCollectionAccessor.Create), Array.Empty<Type>());
 
         private static readonly MethodInfo _toListMethodInfo
             = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.ToList));
@@ -148,14 +148,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var querySourceReferenceFindingExpressionTreeVisitor
                 = new QuerySourceReferenceFindingExpressionTreeVisitor();
 
-            var originalCorrelationPredicate = collectionQueryModel.BodyClauses.OfType<WhereClause>().Single(c => c.Predicate is NullConditionalEqualExpression);
+            var originalCorrelationPredicate = collectionQueryModel.BodyClauses.OfType<WhereClause>()
+                .Single(c => c.Predicate is NullSafeEqualExpression);
             collectionQueryModel.BodyClauses.Remove(originalCorrelationPredicate);
 
-            originalCorrelationPredicate.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
+            var keyEquality = ((NullSafeEqualExpression)originalCorrelationPredicate.Predicate).EqualExpression;
+            querySourceReferenceFindingExpressionTreeVisitor.Visit(keyEquality.Left);
             var parentQuerySourceReferenceExpression = querySourceReferenceFindingExpressionTreeVisitor.QuerySourceReferenceExpression;
 
             querySourceReferenceFindingExpressionTreeVisitor = new QuerySourceReferenceFindingExpressionTreeVisitor();
-            querySourceReferenceFindingExpressionTreeVisitor.Visit(((NullConditionalEqualExpression)originalCorrelationPredicate.Predicate).InnerKey);
+            querySourceReferenceFindingExpressionTreeVisitor.Visit(keyEquality.Right);
 
             var currentKey = BuildKeyAccess(navigation.ForeignKey.Properties, querySourceReferenceFindingExpressionTreeVisitor.QuerySourceReferenceExpression);
 
@@ -287,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 || navigation.ForeignKey.DeclaringEntityType.ClrType != collectionQueryModel.SelectClause.Selector.Type)
             {
                 var resultCollectionType = typeof(List<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type);
-                var resultCollectionCtor = resultCollectionType.GetTypeInfo().GetDeclaredConstructor(new Type[] { });
+                var resultCollectionCtor = resultCollectionType.GetTypeInfo().GetDeclaredConstructor(Array.Empty<Type>());
 
                 correlateSubqueryMethod = correlateSubqueryMethod.MakeGenericMethod(
                         collectionQueryModel.SelectClause.Selector.Type,
@@ -298,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 trackingQuery = false;
             }
             else
-            { 
+            {
                 correlateSubqueryMethod = correlateSubqueryMethod.MakeGenericMethod(
                         collectionQueryModel.SelectClause.Selector.Type,
                         navigation.GetCollectionAccessor().CollectionType);
@@ -460,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 innerKeyParameter);
         }
 
-        private void TryAddPropertyToOrderings(
+        private static void TryAddPropertyToOrderings(
             IProperty property,
             QuerySourceReferenceExpression propertyQsre,
             ICollection<Ordering> orderings)
@@ -525,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                && propertyName1 == propertyName2;
         }
 
-        private bool ProcessResultOperators(QueryModel queryModel)
+        private static bool ProcessResultOperators(QueryModel queryModel)
         {
             var lastResultOperator = false;
 
