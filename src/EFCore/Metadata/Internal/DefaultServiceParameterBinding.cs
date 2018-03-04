@@ -7,6 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -36,11 +37,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Expression BindToParameter(
-            Expression contextExpression,
+            Expression materializationExpression,
             Expression entityTypeExpression,
             Expression entityExpression)
             => Expression.Call(
                 _getServiceMethod.MakeGenericMethod(ServiceType),
-                Expression.Convert(contextExpression, typeof(IInfrastructure<IServiceProvider>)));
+                Expression.Convert(
+                    Expression.Call(
+                        materializationExpression,
+                        MaterializationContext.GetContextMethod),
+                    typeof(IInfrastructure<IServiceProvider>)));
     }
 }

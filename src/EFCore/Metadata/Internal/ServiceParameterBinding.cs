@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public abstract class ServiceParameterBinding : ParameterBinding
     {
-        private Func<DbContext, IEntityType, object, object> _serviceDelegate;
+        private Func<MaterializationContext, IEntityType, object, object> _serviceDelegate;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
             => BindToParameter(
-                bindingInfo.ContextExpression,
+                bindingInfo.MaterializationContextExpression,
                 Expression.Constant(bindingInfo.EntityType),
                 null);
 
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract Expression BindToParameter(
-            [NotNull] Expression contextExpression,
+            [NotNull] Expression materializationExpression,
             [NotNull] Expression entityTypeExpression,
             [CanBeNull] Expression entityExpression);
 
@@ -58,17 +59,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Func<DbContext, IEntityType, object, object> ServiceDelegate
+        public virtual Func<MaterializationContext, IEntityType, object, object> ServiceDelegate
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _serviceDelegate, this, b =>
                 {
-                    var contextParam = Expression.Parameter(typeof(DbContext));
+                    var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
                     var entityTypeParam = Expression.Parameter(typeof(IEntityType));
                     var entityParam = Expression.Parameter(typeof(object));
 
-                    return Expression.Lambda<Func<DbContext, IEntityType, object, object>>(
-                        b.BindToParameter(contextParam, entityTypeParam, entityParam),
-                        contextParam,
+                    return Expression.Lambda<Func<MaterializationContext, IEntityType, object, object>>(
+                        b.BindToParameter(materializationContextParam, entityTypeParam, entityParam),
+                        materializationContextParam,
                         entityTypeParam,
                         entityParam).Compile();
                 });

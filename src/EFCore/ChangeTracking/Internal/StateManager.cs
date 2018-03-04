@@ -217,7 +217,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             var valueBuffer = new ValueBuffer(valuesArray);
 
-            var entity = entityType.HasClrType() ? EntityMaterializerSource.GetMaterializer(entityType)(valueBuffer, Context) : null;
+            var entity = entityType.HasClrType()
+                ? EntityMaterializerSource.GetMaterializer(entityType)(
+                    new MaterializationContext(valueBuffer, Context))
+                : null;
+
             var entry = _internalEntityEntryFactory.Create(this, entityType, entity, valueBuffer);
 
             AddToReferenceMap(entry);

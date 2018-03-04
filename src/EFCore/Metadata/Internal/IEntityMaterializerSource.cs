@@ -37,24 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         Expression CreateMaterializeExpression(
             [NotNull] IEntityType entityType,
-            [NotNull] Expression valueBufferExpression,
-            [NotNull] Expression contextExpression,
+            [NotNull] Expression materializationExpression,
             [CanBeNull] int[] indexMap = null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Obsolete("Use CreateMaterializeExpression taking a contextExpression.")]
-        Expression CreateMaterializeExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] Expression valueBufferExpression,
-            [CanBeNull] int[] indexMap = null);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        Func<ValueBuffer, DbContext, object> GetMaterializer([NotNull] IEntityType entityType);
+        Func<MaterializationContext, object> GetMaterializer([NotNull] IEntityType entityType);
     }
 }

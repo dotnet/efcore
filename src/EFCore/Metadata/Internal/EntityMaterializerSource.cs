@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
     {
-        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, DbContext, object>> _materializers;
+        private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> _materializers;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -117,25 +117,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Obsolete("Use CreateMaterializeExpression taking a contextExpression.")]
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
-            Expression valueBufferExpression,
-            int[] indexMap = null) =>
-            CreateMaterializeExpression(
-                entityType,
-                valueBufferExpression,
-                Expression.Constant(null, typeof(DbContext)),
-                indexMap);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Expression CreateMaterializeExpression(
-            IEntityType entityType,
-            Expression valueBufferExpression,
-            Expression contextExpression,
+            Expression materializationExpression,
             int[] indexMap = null)
         {
             if (!entityType.HasClrType())
@@ -162,10 +146,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 constructorBinding = new DirectConstructorBinding(constructorInfo, new ParameterBinding[0]);
             }
 
+            // This is to avoid breaks because this method used to expect ValueBuffer but now expects MaterializationContext
+            var valueBufferExpression = materializationExpression;
+            if (valueBufferExpression.Type == typeof(MaterializationContext))
+            {
+                valueBufferExpression = Expression.Call(materializationExpression, MaterializationContext.GetValueBufferMethod);
+            }
+            else
+            {
+                materializationExpression = Expression.New(MaterializationContext.ObsoleteConstructor, materializationExpression);
+            }
+
             var bindingInfo = new ParameterBindingInfo(
                 entityType,
-                valueBufferExpression,
-                contextExpression,
+                materializationExpression,
                 indexMap);
 
             var properties = new HashSet<IPropertyBase>(
@@ -221,26 +215,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return Expression.Block(new[] { instanceVariable }, blockExpressions);
         }
 
-        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, DbContext, object>> Materializers
+        private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers
             => LazyInitializer.EnsureInitialized(
                 ref _materializers,
-                () => new ConcurrentDictionary<IEntityType, Func<ValueBuffer, DbContext, object>>());
+                () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Func<ValueBuffer, DbContext, object> GetMaterializer(IEntityType entityType)
+        public virtual Func<MaterializationContext, object> GetMaterializer(IEntityType entityType)
             => Materializers.GetOrAdd(
                 entityType, e =>
                     {
-                        var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "values");
-                        var contextParameter = Expression.Parameter(typeof(DbContext), "context");
+                        var materializationContextParameter
+                            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
-                        return Expression.Lambda<Func<ValueBuffer, DbContext, object>>(
-                                CreateMaterializeExpression(e, valueBufferParameter, contextParameter),
-                                valueBufferParameter,
-                                contextParameter)
+                        return Expression.Lambda<Func<MaterializationContext, object>>(
+                                CreateMaterializeExpression(e, materializationContextParameter),
+                                materializationContextParameter)
                             .Compile();
                     });
     }

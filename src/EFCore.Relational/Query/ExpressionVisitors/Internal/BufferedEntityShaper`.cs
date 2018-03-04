@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             bool trackingQuery,
             [NotNull] IKey key,
-            [NotNull] Func<ValueBuffer, DbContext, object> materializer,
+            [NotNull] Func<MaterializationContext, object> materializer,
             [CanBeNull] Dictionary<Type, int[]> typeIndexMap)
             : base(querySource, trackingQuery, key, materializer)
         {
@@ -53,7 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = (TEntity)queryContext.QueryBuffer
                     .GetEntity(
                         Key,
-                        new EntityLoadInfo(valueBuffer, queryContext.Context, Materializer, _typeIndexMap),
+                        new EntityLoadInfo(
+                            new MaterializationContext(valueBuffer, queryContext.Context),
+                            Materializer,
+                            _typeIndexMap),
                         queryStateManager: IsTrackingQuery,
                         throwOnNullKey: !AllowNullResult);
 

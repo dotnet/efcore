@@ -14,6 +14,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -293,7 +294,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var serviceProperty in EntityType.GetServiceProperties())
                 {
-                    this[serviceProperty] = serviceProperty.GetParameterBinding().ServiceDelegate(StateManager.Context, EntityType, Entity);
+                    this[serviceProperty]
+                        = serviceProperty
+                            .GetParameterBinding()
+                            .ServiceDelegate(
+                                new MaterializationContext(
+                                    ValueBuffer.Empty,
+                                    StateManager.Context),
+                                EntityType,
+                                Entity);
                 }
             }
             else if (newState == EntityState.Detached)

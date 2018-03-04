@@ -24,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
+        private static readonly MethodInfo _getValueBufferMethod
+            = typeof(MaterializationContext).GetProperty(nameof(MaterializationContext.ValueBuffer)).GetMethod;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -40,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression<Func<ValueBuffer, DbContext, object>> CreateMaterializer(
+        public virtual Expression<Func<MaterializationContext, object>> CreateMaterializer(
             IEntityType entityType,
             SelectExpression selectExpression,
             Func<IProperty, SelectExpression, int> projectionAdder,
@@ -52,11 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             typeIndexMap = null;
 
-            var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
+            var materializationContextParameter
+                = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+
             var concreteEntityTypes = entityType.GetConcreteTypesInHierarchy().ToList();
             var rootEntityType = concreteEntityTypes[0];
             var indexMap = new int[rootEntityType.PropertyCount()];
-            var contextParameter = Expression.Parameter(typeof(DbContext), "context");
 
             foreach (var property in rootEntityType.GetProperties())
             {
@@ -66,12 +70,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var materializer
                 = _entityMaterializerSource
                     .CreateMaterializeExpression(
-                        rootEntityType, valueBufferParameter, contextParameter, indexMap);
+                        rootEntityType, materializationContextParameter, indexMap);
 
             if (concreteEntityTypes.Count == 1)
             {
-                return Expression.Lambda<Func<ValueBuffer, DbContext, object>>(
-                    materializer, valueBufferParameter, contextParameter);
+                return Expression.Lambda<Func<MaterializationContext, object>>(
+                    materializer, materializationContextParameter);
             }
 
             var discriminatorProperty = rootEntityType.Relational().DiscriminatorProperty;
@@ -93,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         discriminatorValueVariable,
                         _entityMaterializerSource
                             .CreateReadValueExpression(
-                                valueBufferParameter,
+                                Expression.Call(materializationContextParameter, _getValueBufferMethod),
                                 discriminatorProperty.ClrType,
                                 indexMap[discriminatorProperty.GetIndex()],
                                 discriminatorProperty)),
@@ -140,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 materializer
                     = _entityMaterializerSource
                         .CreateMaterializeExpression(
-                            concreteEntityType, valueBufferParameter, contextParameter, indexMap);
+                            concreteEntityType, materializationContextParameter, indexMap);
 
                 blockExpressions[1]
                     = Expression.IfThenElse(
@@ -149,10 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         blockExpressions[1]);
             }
 
-            return Expression.Lambda<Func<ValueBuffer, DbContext, object>>(
+            return Expression.Lambda<Func<MaterializationContext, object>>(
                 Expression.Block(new[] { discriminatorValueVariable }, blockExpressions),
-                valueBufferParameter,
-                contextParameter);
+                materializationContextParameter);
         }
 
         private static readonly MethodInfo _createUnableToDiscriminateException

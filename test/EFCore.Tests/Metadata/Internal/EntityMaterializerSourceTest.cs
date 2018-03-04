@@ -18,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class EntityMaterializerSourceTest
     {
+        private readonly DbContext _fakeContext = new DbContext(new DbContextOptions<DbContext>());
+
         [Fact]
         public void Can_create_materializer_for_entity_with_constructor_properties()
         {
@@ -36,7 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }), null);
+            var entity = (SomeEntity)factory(
+                new MaterializationContext(
+                    new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
+                    null));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -68,7 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }), null);
+            var entity = (SomeEntity)factory(
+                new MaterializationContext(
+                    new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
+                    null));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -104,7 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }), null);
+            var entity = (SomeEntity)factory(
+                new MaterializationContext(
+                    new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
+                    null));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -136,7 +147,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }), null);
+            var entity = (SomeEntity)factory(
+                new MaterializationContext(
+                    new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
+                    null));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -177,7 +191,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }), null);
+            var entity = (SomeEntity)factory(
+                new MaterializationContext(
+                    new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
+                    null));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -199,7 +216,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntityWithFields)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, null }), null);
+            var entity = (SomeEntityWithFields)factory(
+                new MaterializationContext(
+                    new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, null }),
+                    null));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -218,7 +238,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
-            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { null, null, 77 }), null);
+            var entity = (SomeEntity)factory(
+                new MaterializationContext(
+                    new ValueBuffer(new object[] { null, null, 77 }),
+                    null));
 
             Assert.Equal(77, entity.Id);
             Assert.Null(entity.Foo);
@@ -239,7 +262,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 }), null);
+            var entity = (SomeEntity)factory(
+                new MaterializationContext(
+                    new ValueBuffer(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 }),
+                    null));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -257,16 +283,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => GetMaterializer(new EntityMaterializerSource(), entityType)).Message);
         }
 
-        private static readonly ParameterExpression _readerParameter
-            = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
-
         private static readonly ParameterExpression _contextParameter
-            = Expression.Parameter(typeof(DbContext), "context");
+            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
-        public virtual Func<ValueBuffer, DbContext, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
-            => Expression.Lambda<Func<ValueBuffer, DbContext, object>>(
-                    source.CreateMaterializeExpression(entityType, _readerParameter, _contextParameter),
-                    _readerParameter,
+        public virtual Func<MaterializationContext, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
+            => Expression.Lambda<Func<MaterializationContext, object>>(
+                    source.CreateMaterializeExpression(entityType, _contextParameter),
                     _contextParameter)
                 .Compile();
 

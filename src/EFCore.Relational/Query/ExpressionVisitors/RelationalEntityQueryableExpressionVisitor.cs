@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             IQuerySource querySource,
             bool trackingQuery,
             IKey key,
-            Func<ValueBuffer, DbContext, object> materializer,
+            Func<MaterializationContext, object> materializer,
             Dictionary<Type, int[]> typeIndexMap,
             bool useQueryBuffer)
             where TEntity : class

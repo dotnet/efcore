@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return Expression.Call(
                 EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(property.ClrType),
-                bindingInfo.ValueBufferExpression,
+                Expression.Call(bindingInfo.MaterializationContextExpression, MaterializationContext.GetValueBufferMethod),
                 Expression.Constant(bindingInfo.GetValueBufferIndex(property)),
                 Expression.Constant(property, typeof(IPropertyBase)));
         }

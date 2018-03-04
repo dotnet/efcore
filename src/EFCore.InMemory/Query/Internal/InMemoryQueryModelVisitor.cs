@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             IEntityType entityType,
             IKey key,
-            Func<IEntityType, ValueBuffer, DbContext, object> materializer,
+            Func<IEntityType, MaterializationContext, object> materializer,
             bool queryStateManager)
             where TEntity : class
             => ((InMemoryQueryContext)queryContext).Store
@@ -58,20 +58,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     t =>
                         t.Rows.Select(
                             vs =>
-                                {
-                                    var valueBuffer = new ValueBuffer(vs);
+                            {
+                                var valueBuffer = new ValueBuffer(vs);
 
-                                    return (TEntity)queryContext
-                                        .QueryBuffer
-                                        .GetEntity(
-                                            key,
-                                            new EntityLoadInfo(
+                                return (TEntity)queryContext
+                                    .QueryBuffer
+                                    .GetEntity(
+                                        key,
+                                        new EntityLoadInfo(
+                                            new MaterializationContext(
                                                 valueBuffer,
-                                                queryContext.Context,
-                                                (vr, c) => materializer(t.EntityType, vr, c)),
-                                            queryStateManager,
-                                            throwOnNullKey: false);
-                                }));
+                                                queryContext.Context),
+                                            c => materializer(t.EntityType, c)),
+                                        queryStateManager,
+                                        throwOnNullKey: false);
+                            }));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

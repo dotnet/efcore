@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -29,9 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Expression BindToParameter(
-            Expression contextExpression,
+            Expression materializationExpression,
             Expression entityTypeExpression,
             Expression entityExpression)
-            => Expression.TypeAs(contextExpression, ServiceType);
+            => Expression.TypeAs(
+                Expression.Call(
+                    materializationExpression,
+                    MaterializationContext.GetContextMethod),
+                ServiceType);
     }
 }

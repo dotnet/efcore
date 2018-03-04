@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Expression BindToParameter(
-            Expression contextExpression,
+            Expression materializationExpression,
             Expression entityTypeExpression,
             Expression entityExpression)
             => entityTypeExpression;
