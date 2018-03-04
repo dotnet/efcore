@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new OracleContainsOptimizedTranslator(),
             new OracleConvertTranslator(),
             new OracleDateAddTranslator(),
+            new OracleDateDiffTranslator(),
             new OracleEndsWithOptimizedTranslator(),
             new OracleMathTranslator(),
             new OracleNewGuidTranslator(),
