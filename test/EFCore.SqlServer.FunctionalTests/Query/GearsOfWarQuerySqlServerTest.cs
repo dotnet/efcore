@@ -2394,6 +2394,23 @@ LEFT JOIN (
 WHERE ([t0].[HasSoulPatch] = 1) OR (CHARINDEX(N'Cole', [t].[Note]) > 0)");
         }
 
+        public override void Optional_navigation_type_compensation_works_with_binary_and_expression()
+        {
+            base.Optional_navigation_type_compensation_works_with_binary_and_expression();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ([t0].[HasSoulPatch] = 1) AND (CHARINDEX(N'Cole', [t].[Note]) > 0)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [t.Gear].*
+    FROM [Gears] AS [t.Gear]
+    WHERE [t.Gear].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])");
+        }
+
         public override void Optional_navigation_type_compensation_works_with_projection()
         {
             base.Optional_navigation_type_compensation_works_with_projection();

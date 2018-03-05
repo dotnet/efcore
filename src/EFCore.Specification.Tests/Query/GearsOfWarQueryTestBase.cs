@@ -1667,6 +1667,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_binary_and_expression()
+        {
+            AssertQueryScalar<CogTag>(
+                ts => ts.Select(t => t.Gear.HasSoulPatch && t.Note.Contains("Cole")),
+                ts => ts.Select(t => MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true && t.Note.Contains("Cole")));
+        }
+
+        [ConditionalFact]
         public virtual void Optional_navigation_type_compensation_works_with_projection()
         {
             AssertQueryScalar<CogTag>(

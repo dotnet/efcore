@@ -1969,7 +1969,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             private static Expression ConvertToValue(Expression expression)
                 => IsSearchCondition(expression)
                     ? Expression.Condition(
-                        expression,
+                        expression.Type == typeof(bool)
+                            ? expression
+                            : Expression.Convert(expression, typeof(bool)),
                         Expression.Constant(true, expression.Type),
                         Expression.Constant(false, expression.Type))
                     : expression;
