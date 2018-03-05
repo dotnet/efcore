@@ -130,10 +130,10 @@
     <value>The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.</value>
   </data>
   <data name="InvalidPropertiesExpression" xml:space="preserve">
-    <value>The properties expression '{expression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
+    <value>The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
   </data>
   <data name="InvalidPropertyExpression" xml:space="preserve">
-    <value>The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.</value>
+    <value>The expression '{expression}' is not a valid property expression. The expression should represent a simple property access: 't =&gt; t.MyProperty'.</value>
   </data>
   <data name="IdentityConflict" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
@@ -750,7 +750,7 @@
     <value>Both relationships between '{firstDependentToPrincipalNavigationSpecification}' and '{firstPrincipalToDependentNavigationSpecification}' and between '{secondDependentToPrincipalNavigationSpecification}' and '{secondPrincipalToDependentNavigationSpecification}' could use {foreignKeyProperties} as the foreign key. To resolve this configure the foreign key properties explicitly on at least one of the relationships.</value>
   </data>
   <data name="InvalidIncludeLambdaExpression" xml:space="preserve">
-    <value>The {methodName} property lambda expression '{includeLambdaExpression}' is invalid.The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, specify an explicitly typed lambda parameter of the target type, E.g. '(Derived d) =&gt; d.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
+    <value>The {methodName} property lambda expression '{includeLambdaExpression}' is invalid. The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, specify an explicitly typed lambda parameter of the target type, E.g. '(Derived d) =&gt; d.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>

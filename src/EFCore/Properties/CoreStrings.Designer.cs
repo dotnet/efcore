@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("StillUsingTypeMapper");
 
         /// <summary>
-        ///     The properties expression '{expression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
+        ///     The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
         public static string InvalidPropertiesExpression([CanBeNull] object expression)
             => string.Format(
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 expression);
 
         /// <summary>
-        ///     The expression '{expression}' is not a valid property expression. The expression should represent a property access: 't =&gt; t.MyProperty'.
+        ///     The expression '{expression}' is not a valid property expression. The expression should represent a simple property access: 't =&gt; t.MyProperty'.
         /// </summary>
         public static string InvalidPropertyExpression([CanBeNull] object expression)
             => string.Format(
@@ -1758,7 +1758,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 firstDependentToPrincipalNavigationSpecification, firstPrincipalToDependentNavigationSpecification, secondDependentToPrincipalNavigationSpecification, secondPrincipalToDependentNavigationSpecification, foreignKeyProperties);
 
         /// <summary>
-        ///     The {methodName} property lambda expression '{includeLambdaExpression}' is invalid.The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, specify an explicitly typed lambda parameter of the target type, E.g. '(Derived d) =&gt; d.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        ///     The {methodName} property lambda expression '{includeLambdaExpression}' is invalid. The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, specify an explicitly typed lambda parameter of the target type, E.g. '(Derived d) =&gt; d.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
         public static string InvalidIncludeLambdaExpression([CanBeNull] object methodName, [CanBeNull] object includeLambdaExpression)
             => string.Format(

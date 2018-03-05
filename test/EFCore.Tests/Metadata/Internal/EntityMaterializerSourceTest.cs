@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
                     new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
-                    null));
+                    _fakeContext));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
                     new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
-                    null));
+                    _fakeContext));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
                     new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
-                    null));
+                    _fakeContext));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
                     new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
-                    null));
+                    _fakeContext));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
                     new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }),
-                    null));
+                    _fakeContext));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entity = (SomeEntityWithFields)factory(
                 new MaterializationContext(
                     new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, null }),
-                    null));
+                    _fakeContext));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
                     new ValueBuffer(new object[] { null, null, 77 }),
-                    null));
+                    _fakeContext));
 
             Assert.Equal(77, entity.Id);
             Assert.Null(entity.Foo);
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
                     new ValueBuffer(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 }),
-                    null));
+                    _fakeContext));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
