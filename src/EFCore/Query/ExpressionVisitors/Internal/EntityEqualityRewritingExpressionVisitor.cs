@@ -2,12 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -20,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class EntityEqualityRewritingExpressionVisitor : ExpressionVisitorBase
     {
         private readonly QueryCompilationContext _queryCompilationContext;
+        private readonly IModel _model;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -29,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] QueryCompilationContext queryCompilationContext)
         {
             _queryCompilationContext = queryCompilationContext;
+            _model = _queryCompilationContext.Model;
         }
 
         /// <summary>
@@ -41,99 +45,32 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var newBinaryExpression = (BinaryExpression)base.VisitBinary(binaryExpression);
 
-            if (binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+            if (newBinaryExpression.NodeType == ExpressionType.Equal
+                || newBinaryExpression.NodeType == ExpressionType.NotEqual)
             {
-                var isLeftNullConstant = newBinaryExpression.Left.IsNullConstantExpression();
-                var isRightNullConstant = newBinaryExpression.Right.IsNullConstantExpression();
+                var newLeft = newBinaryExpression.Left;
+                var newRight = newBinaryExpression.Right;
+
+                var isLeftNullConstant = newLeft.IsNullConstantExpression();
+                var isRightNullConstant = newRight.IsNullConstantExpression();
 
                 if (isLeftNullConstant && isRightNullConstant)
                 {
                     return newBinaryExpression;
                 }
 
-                var isNullComparison = isLeftNullConstant || isRightNullConstant;
-                var nonNullExpression = isLeftNullConstant ? newBinaryExpression.Right : newBinaryExpression.Left;
+                var result = isLeftNullConstant || isRightNullConstant
+                    ? RewriteNullEquality(newBinaryExpression.NodeType, isLeftNullConstant ? newRight : newLeft)
+                    : RewriteEntityEquality(newBinaryExpression.NodeType, newLeft, newRight);
 
-                var qsre = nonNullExpression as QuerySourceReferenceExpression;
-
-                var leftProperties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                    newBinaryExpression.Left, _queryCompilationContext, out var leftNavigationQsre);
-
-                var rightProperties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                    newBinaryExpression.Right, _queryCompilationContext, out var rightNavigationQsre);
-
-                if (isNullComparison)
+                if (result != null)
                 {
-                    var nonNullNavigationQsre = isLeftNullConstant ? rightNavigationQsre : leftNavigationQsre;
-                    var nonNullproperties = isLeftNullConstant ? rightProperties : leftProperties;
-
-                    if (IsCollectionNavigation(nonNullNavigationQsre, nonNullproperties))
-                    {
-                        // collection navigation is only null if its parent entity is null (null propagation thru navigation)
-                        // it is probable that user wanted to see if the collection is (not) empty, log warning suggesting to use Any() instead.
-                        _queryCompilationContext.Logger
-                            .PossibleUnintendedCollectionNavigationNullComparisonWarning(nonNullproperties);
-
-                        var callerExpression = CreateCollectionCallerExpression(nonNullNavigationQsre, nonNullproperties);
-
-                        return Visit(Expression.MakeBinary(newBinaryExpression.NodeType, callerExpression, Expression.Constant(null)));
-                    }
-                }
-
-                var collectionNavigationComparison = TryRewriteCollectionNavigationComparison(
-                    newBinaryExpression.Left,
-                    newBinaryExpression.Right,
-                    newBinaryExpression.NodeType,
-                    leftNavigationQsre,
-                    rightNavigationQsre,
-                    leftProperties,
-                    rightProperties);
-
-                if (collectionNavigationComparison != null)
-                {
-                    return collectionNavigationComparison;
-                }
-
-                // If a reference navigation is being compared to null then don't rewrite
-                if (isNullComparison
-                    && qsre == null)
-                {
-                    return newBinaryExpression;
-                }
-
-                var entityType = _queryCompilationContext.Model.FindEntityType(nonNullExpression.Type);
-                if (entityType == null)
-                {
-                    if (qsre != null)
-                    {
-                        entityType = _queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
-                    }
-                    else
-                    {
-                        entityType = MemberAccessBindingExpressionVisitor.GetEntityType(
-                            nonNullExpression, _queryCompilationContext);
-                    }
-                }
-
-                if (entityType != null)
-                {
-                    return CreateKeyComparison(
-                        entityType,
-                        newBinaryExpression.Left,
-                        newBinaryExpression.Right,
-                        newBinaryExpression.NodeType,
-                        isLeftNullConstant,
-                        isRightNullConstant,
-                        isNullComparison);
+                    return result;
                 }
             }
 
             return newBinaryExpression;
         }
-
-        private static readonly MethodInfo _objectEqualsMethodInfo
-            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -163,71 +100,202 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (newLeftExpression != null
                 && newRightExpression != null)
             {
-                var leftRootEntityType = _queryCompilationContext.Model.FindEntityType(newLeftExpression.Type)?.RootType();
-                var rightRootEntityType = _queryCompilationContext.Model.FindEntityType(newRightExpression.Type)?.RootType();
-                if (leftRootEntityType != null
-                    && leftRootEntityType == rightRootEntityType)
-                {
-                    return Visit(Expression.Equal(newLeftExpression, newRightExpression));
-                }
-
                 var isLeftNullConstant = newLeftExpression.IsNullConstantExpression();
                 var isRightNullConstant = newRightExpression.IsNullConstantExpression();
 
-                var leftProperties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                    newLeftExpression, _queryCompilationContext, out var leftNavigationQsre);
-
-                var rightProperties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                    newRightExpression, _queryCompilationContext, out var rightNavigationQsre);
-
-                if ((isLeftNullConstant || IsCollectionNavigation(leftNavigationQsre, leftProperties))
-                    && (isRightNullConstant || IsCollectionNavigation(rightNavigationQsre, rightProperties)))
+                if (isLeftNullConstant && isRightNullConstant)
                 {
-                    return Visit(Expression.Equal(newLeftExpression, newRightExpression));
+                    return newMethodCallExpression;
+                }
+
+                if (isLeftNullConstant || isRightNullConstant)
+                {
+                    var result = RewriteNullEquality(
+                        ExpressionType.Equal, isLeftNullConstant ? newRightExpression : newLeftExpression);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+
+                var leftEntityType = _model.FindEntityType(newLeftExpression.Type)
+                    ?? MemberAccessBindingExpressionVisitor.GetEntityType(newLeftExpression, _queryCompilationContext);
+                var rightEntityType = _model.FindEntityType(newRightExpression.Type)
+                    ?? MemberAccessBindingExpressionVisitor.GetEntityType(newRightExpression, _queryCompilationContext);
+                if (leftEntityType != null && rightEntityType != null)
+                {
+                    if (leftEntityType.RootType() == rightEntityType.RootType())
+                    {
+                        var result = RewriteEntityEquality(ExpressionType.Equal, newLeftExpression, newRightExpression);
+                        if (result != null)
+                        {
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        return Expression.Constant(false);
+                    }
                 }
             }
 
             return newMethodCallExpression;
         }
 
-        private Expression TryRewriteCollectionNavigationComparison(
-            Expression leftExpression,
-            Expression rightExpression,
-            ExpressionType expressionType,
-            QuerySourceReferenceExpression leftNavigationQsre,
-            QuerySourceReferenceExpression rightNavigationQsre,
-            IList<IPropertyBase> leftProperties,
-            IList<IPropertyBase> rightProperties)
+        private static readonly MethodInfo _objectEqualsMethodInfo
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+
+        private Expression RewriteNullEquality(ExpressionType nodeType, Expression nonNullExpression)
         {
-            // if both collections are the same navigations, compare their parent entities (by key)
-            // otherwise we assume they are different references and return false
-            if (IsCollectionNavigation(leftNavigationQsre, leftProperties)
-                && IsCollectionNavigation(rightNavigationQsre, rightProperties))
+            var properties = MemberAccessBindingExpressionVisitor
+                .GetPropertyPath(nonNullExpression, _queryCompilationContext, out var qsre);
+
+            if (properties.Count > 0
+                && properties[properties.Count - 1] is INavigation lastNavigation
+                && lastNavigation.IsCollection())
             {
-                _queryCompilationContext.Logger.PossibleUnintendedReferenceComparisonWarning(leftExpression, rightExpression);
+                // collection navigation is only null if its parent entity is null (null propagation thru navigation)
+                // it is probable that user wanted to see if the collection is (not) empty
+                // log warning suggesting to use Any() instead.
+                _queryCompilationContext.Logger
+                    .PossibleUnintendedCollectionNavigationNullComparisonWarning(properties);
 
-                if (leftProperties[leftProperties.Count - 1].Equals(rightProperties[rightProperties.Count - 1]))
+                return Visit(Expression.MakeBinary(
+                    nodeType,
+                    CreateNavigationCaller(qsre, properties),
+                    Expression.Constant(null)));
+            }
+
+            var entityType = _model.FindEntityType(nonNullExpression.Type)
+                ?? GetEntityType(properties, qsre);
+
+            if (entityType == null
+                || entityType.IsOwned())
+            {
+                return null;
+            }
+
+            var keyProperties = entityType.FindPrimaryKey().Properties;
+            var nullCount = keyProperties.Count;
+            Expression keyAccessExpression = null;
+
+            // Skipping composite key with subquery since it requires to copy subquery
+            // which would cause same subquery to be visited twice
+            if (nullCount > 1
+                && nonNullExpression.RemoveConvert() is SubQueryExpression)
+            {
+                return null;
+            }
+
+            if (properties.Count > 0
+                && properties[properties.Count - 1] is INavigation navigation2
+                && navigation2.IsDependentToPrincipal())
+            {
+                keyAccessExpression = CreateKeyAccessExpression(
+                            CreateNavigationCaller(qsre, properties),
+                            navigation2.ForeignKey.Properties,
+                            nullComparison: false);
+                nullCount = navigation2.ForeignKey.Properties.Count;
+            }
+            else
+            {
+                keyAccessExpression = CreateKeyAccessExpression(
+                    nonNullExpression,
+                    keyProperties,
+                    nullComparison: true);
+            }
+
+            var nullConstantExpression
+                = keyAccessExpression.Type == typeof(AnonymousObject)
+                    ? Expression.New(
+                        AnonymousObject.AnonymousObjectCtor,
+                        Expression.NewArrayInit(
+                            typeof(object),
+                            Enumerable.Repeat(
+                                Expression.Constant(null),
+                                nullCount)))
+                    : (Expression)Expression.Constant(null);
+
+            return Expression.MakeBinary(nodeType, keyAccessExpression, nullConstantExpression);
+        }
+
+        private Expression RewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right)
+        {
+            var leftProperties = MemberAccessBindingExpressionVisitor
+                    .GetPropertyPath(left, _queryCompilationContext, out var leftQsre);
+            var rightProperties = MemberAccessBindingExpressionVisitor
+                .GetPropertyPath(right, _queryCompilationContext, out var rightQsre);
+
+            // Collection navigations on both sides
+            if (leftProperties.Count > 0
+                && rightProperties.Count > 0
+                && leftProperties[leftProperties.Count - 1] is INavigation leftNavigation
+                && rightProperties[rightProperties.Count - 1] is INavigation rightNavigation
+                && leftNavigation.IsCollection())
+            {
+                if (leftNavigation.Equals(rightNavigation))
                 {
-                    var newLeft = CreateCollectionCallerExpression(leftNavigationQsre, leftProperties);
-                    var newRight = CreateCollectionCallerExpression(rightNavigationQsre, rightProperties);
+                    // Log a warning that comparing 2 collections causes reference comparison
+                    _queryCompilationContext.Logger.PossibleUnintendedReferenceComparisonWarning(left, right);
 
-                    return CreateKeyComparison(
-                        ((INavigation)leftProperties[leftProperties.Count - 1]).DeclaringEntityType,
-                        newLeft,
-                        newRight,
-                        expressionType,
-                        isLeftNullConstant: false,
-                        isRightNullConstant: false,
-                        isNullComparison: false);
+                    return Visit(Expression.MakeBinary(
+                        nodeType,
+                        CreateNavigationCaller(leftQsre, leftProperties),
+                        CreateNavigationCaller(rightQsre, rightProperties)));
                 }
+                else
+                {
+                    return Expression.Constant(false);
+                }
+            }
 
-                return Expression.Constant(false);
+            var entityType = _model.FindEntityType(left.Type)
+                ?? _model.FindEntityType(right.Type)
+                ?? GetEntityType(leftProperties, leftQsre)
+                ?? GetEntityType(rightProperties, rightQsre);
+
+            if (entityType == null
+                || entityType.IsOwned())
+            {
+                return null;
+            }
+
+            var keyProperties = entityType.FindPrimaryKey().Properties;
+
+            // Skipping composite key with subquery since it requires to copy subquery
+            // which would cause same subquery to be visited twice
+            if (keyProperties.Count > 1
+                && (left.RemoveConvert() is SubQueryExpression
+                    || right.RemoveConvert() is SubQueryExpression))
+            {
+                return null;
+            }
+
+            return Expression.MakeBinary(
+                nodeType,
+                CreateKeyAccessExpression(left, keyProperties, nullComparison: false),
+                CreateKeyAccessExpression(right, keyProperties, nullComparison: false));
+        }
+
+        private IEntityType GetEntityType(
+            List<IPropertyBase> properties, QuerySourceReferenceExpression querySourceReferenceExpression)
+        {
+            if (properties.Count > 0)
+            {
+                if (properties[properties.Count - 1] is INavigation navigation)
+                {
+                    return navigation.GetTargetType();
+                }
+            }
+            else if (querySourceReferenceExpression != null)
+            {
+                return _queryCompilationContext.FindEntityType(querySourceReferenceExpression.ReferencedQuerySource);
             }
 
             return null;
         }
 
-        private static Expression CreateCollectionCallerExpression(
+        private static Expression CreateNavigationCaller(
             QuerySourceReferenceExpression qsre,
             IList<IPropertyBase> properties)
         {
@@ -238,86 +306,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return result;
-        }
-
-        private static bool IsCollectionNavigation(QuerySourceReferenceExpression qsre, IList<IPropertyBase> properties)
-            => qsre != null
-               && properties.Count > 0
-               && properties[properties.Count - 1] is INavigation navigation
-               && navigation.IsCollection();
-
-        private static Expression CreateKeyComparison(
-            IEntityType entityType,
-            Expression left,
-            Expression right,
-            ExpressionType nodeType,
-            bool isLeftNullConstant,
-            bool isRightNullConstant,
-            bool isNullComparison)
-        {
-            var primaryKeyProperties = entityType.FindPrimaryKey().Properties;
-
-            var newLeftExpression = isLeftNullConstant
-                ? Expression.Constant(null, typeof(object))
-                : CreateKeyAccessExpression(left, primaryKeyProperties, isNullComparison);
-
-            var newRightExpression = isRightNullConstant
-                ? Expression.Constant(null, typeof(object))
-                : CreateKeyAccessExpression(right, primaryKeyProperties, isNullComparison);
-
-            return Expression.MakeBinary(nodeType, newLeftExpression, newRightExpression);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
-        {
-            if (conditionalExpression.Test is BinaryExpression binaryExpression)
-            {
-                // Converts '[q] != null ? [q] : [s]' into '[q] ?? [s]'
-
-                if (binaryExpression.NodeType == ExpressionType.NotEqual
-                    && binaryExpression.Left is QuerySourceReferenceExpression querySourceReferenceExpression1
-                    && binaryExpression.Right.IsNullConstantExpression()
-                    && ReferenceEquals(conditionalExpression.IfTrue, querySourceReferenceExpression1))
-                {
-                    return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
-                }
-
-                // Converts 'null != [q] ? [q] : [s]' into '[q] ?? [s]'
-
-                if (binaryExpression.NodeType == ExpressionType.NotEqual
-                    && binaryExpression.Right is QuerySourceReferenceExpression querySourceReferenceExpression2
-                    && binaryExpression.Left.IsNullConstantExpression()
-                    && ReferenceEquals(conditionalExpression.IfTrue, querySourceReferenceExpression2))
-                {
-                    return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
-                }
-
-                // Converts '[q] == null ? [s] : [q]' into '[s] ?? [q]'
-
-                if (binaryExpression.NodeType == ExpressionType.Equal
-                    && binaryExpression.Left is QuerySourceReferenceExpression querySourceReferenceExpression3
-                    && binaryExpression.Right.IsNullConstantExpression()
-                    && ReferenceEquals(conditionalExpression.IfFalse, querySourceReferenceExpression3))
-                {
-                    return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
-                }
-
-                // Converts 'null == [q] ? [s] : [q]' into '[s] ?? [q]'
-
-                if (binaryExpression.NodeType == ExpressionType.Equal
-                    && binaryExpression.Right is QuerySourceReferenceExpression querySourceReferenceExpression4
-                    && binaryExpression.Left.IsNullConstantExpression()
-                    && ReferenceEquals(conditionalExpression.IfFalse, querySourceReferenceExpression4))
-                {
-                    return Expression.Coalesce(conditionalExpression.IfTrue, conditionalExpression.IfFalse);
-                }
-            }
-
-            return base.VisitConditional(conditionalExpression);
         }
 
         private static Expression CreateKeyAccessExpression(
