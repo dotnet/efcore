@@ -3207,7 +3207,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      from o1 in os.Where(o => o.OrderID > 11000).DefaultIfEmpty()
                      from o2 in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                      where o1 != null && o2 != null
-                     orderby o1.OrderID,o2.OrderDate
+                     orderby o1.OrderID, o2.OrderDate
                      select new { c.CustomerID, o1.OrderID, o2.OrderDate }),
                 e => e.CustomerID + " " + e.OrderID);
         }
@@ -4121,6 +4121,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             var list = new List<string>();
             AssertQuery<Customer>(cs => cs.OrderBy(c => !list.Contains(c.CustomerID)),
                 entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void Manual_expression_tree_typed_null_equality()
+        {
+            using (var context = CreateContext())
+            {
+                var orderParameter = Expression.Parameter(typeof(Order), "o");
+                var orderCustomer = Expression.MakeMemberAccess(
+                    orderParameter, typeof(Order).GetMember(nameof(Order.Customer))[0]);
+
+                var selector = Expression.Lambda<Func<Order, string>>(
+                    Expression.Condition(
+                        Expression.Equal(
+                            orderCustomer,
+                            Expression.Constant(null, typeof(Customer))),
+                        Expression.MakeMemberAccess(
+                            orderCustomer,
+                            typeof(Customer).GetMember(nameof(Customer.City))[0]),
+                        Expression.Constant(null, typeof(string))),
+                    orderParameter);
+
+                var query = context.Orders
+                    .Where(o => o.OrderID < 10300)
+                    .Select(selector).ToList();
+
+                // No verification. Query Compilation check.
+            }
         }
     }
 }
