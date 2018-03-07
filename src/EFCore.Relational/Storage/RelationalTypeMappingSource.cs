@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
-        /// <param name="unicode"> Specifies Unicode or Ansi mapping, or <c>null</c> for default. </param>
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
         /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
         /// <param name="rowVersion"> Specifies a row-version, or <c>null</c> for default. </param>
         /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
             }
 
-            public override TypeMappingInfo WithBuiltInConverter(ValueConverterInfo converterInfo)
+            public override TypeMappingInfo WithConverter(ValueConverterInfo converterInfo)
                 => new ConcreteRelationalTypeMappingInfo(this, converterInfo);
         }
     }

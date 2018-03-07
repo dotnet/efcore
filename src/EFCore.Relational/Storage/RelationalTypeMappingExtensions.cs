@@ -40,14 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 storeTypeName = mapping.StoreType;
             }
 
-            var hints = mappingInfo.ValueConverterInfo?.MappingHints;
-
             var size = mapping.Size == -1 ? -1 : (int?)null;
             if (size != -1)
             {
                 size = mappingInfo.Size
-                       ?? mapping.Size
-                       ?? hints?.Size;
+                       ?? mapping.Size;
 
                 if (size != mapping.Size)
                 {

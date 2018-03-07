@@ -238,7 +238,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
             private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
             {
-                var clrType = mappingInfo.ProviderClrType;
+                var clrType = mappingInfo.ClrType;
                 var storeTypeName = mappingInfo.StoreTypeName;
                 var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
 

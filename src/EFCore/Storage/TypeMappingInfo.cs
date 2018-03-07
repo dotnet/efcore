@@ -17,8 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class TypeMappingInfo
     {
-        private readonly ValueConverter _customConverter;
-
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
@@ -34,52 +32,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
-            Property = property;
-
-            MemberInfo = property.GetIdentifyingMemberInfo();
-
             var principals = property.FindPrincipals().ToList();
 
-            ConfiguredProviderClrType = principals
-                .Select(p => p.GetProviderClrType())
-                .FirstOrDefault(t => t != null)
-                ?.UnwrapNullableType();
-
-            _customConverter = principals
-                .Select(p => p.GetValueConverter())
-                .FirstOrDefault(c => c != null);
-
-            var mappingHints = _customConverter?.MappingHints;
-
-            if (_customConverter != null)
-            {
-                ValueConverterInfo = new ValueConverterInfo(
-                    _customConverter.ModelClrType,
-                    _customConverter.ProviderClrType,
-                    i => _customConverter,
-                    mappingHints);
-            }
-
+            Property = property;
+            MemberInfo = property.GetIdentifyingMemberInfo();
             IsKeyOrIndex = property.IsKeyOrForeignKey() || property.IsIndex();
-
-            Size = principals.Select(p => p.GetMaxLength()).FirstOrDefault(t => t != null) ?? mappingHints?.Size;
-
-            IsUnicode = principals.Select(p => p.IsUnicode()).FirstOrDefault(t => t != null)
-                        ?? mappingHints?.IsUnicode;
-
+            Size = principals.Select(p => p.GetMaxLength()).FirstOrDefault(t => t != null);
+            IsUnicode = principals.Select(p => p.IsUnicode()).FirstOrDefault(t => t != null);
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
-
-            Precision = mappingHints?.Precision;
-
-            Scale = mappingHints?.Scale;
-
-            ModelClrType = property.ClrType.UnwrapNullableType();
-
-            ProviderClrType = CreateProviderClrType();
+            ClrType = property.ClrType.UnwrapNullableType();
         }
-
-        private Type CreateProviderClrType()
-            => ValueConverterInfo?.ProviderClrType.UnwrapNullableType() ?? ConfiguredProviderClrType ?? ModelClrType;
 
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
@@ -89,8 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(type, nameof(type));
 
-            ModelClrType = type.UnwrapNullableType();
-            ProviderClrType = CreateProviderClrType();
+            ClrType = type.UnwrapNullableType();
         }
 
         /// <summary>
@@ -101,9 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(member, nameof(member));
 
-            ModelClrType = member.GetMemberType().UnwrapNullableType();
+            ClrType = member.GetMemberType().UnwrapNullableType();
             MemberInfo = member;
-            ProviderClrType = CreateProviderClrType();
         }
 
         /// <summary>
@@ -138,44 +98,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="TypeMappingInfo" /> with the given <see cref="ValueConverterInfo" />.
         /// </summary>
         /// <param name="source"> The source info. </param>
-        /// <param name="builtInConverter"> The converter to apply. </param>
+        /// <param name="converter"> The converter to apply. </param>
         protected TypeMappingInfo(
             [NotNull] TypeMappingInfo source,
-            ValueConverterInfo builtInConverter)
+            ValueConverterInfo converter)
         {
             Check.NotNull(source, nameof(source));
 
             Property = source.Property;
-            ModelClrType = source.ModelClrType;
-            ConfiguredProviderClrType = source.ConfiguredProviderClrType;
             IsRowVersion = source.IsRowVersion;
             IsKeyOrIndex = source.IsKeyOrIndex;
+            MemberInfo = source.MemberInfo;
 
-            if (source._customConverter != null)
-            {
-                _customConverter = source._customConverter;
-
-                ValueConverterInfo = new ValueConverterInfo(
-                    _customConverter.ModelClrType,
-                    builtInConverter.ProviderClrType,
-                    i => _customConverter.ComposeWith(builtInConverter.Create()),
-                    builtInConverter.MappingHints == null
-                        ? _customConverter.MappingHints
-                        : builtInConverter.MappingHints.With(_customConverter.MappingHints));
-            }
-            else
-            {
-                ValueConverterInfo = builtInConverter;
-            }
-
-            // ReSharper disable once VirtualMemberCallInConstructor
-            var mappingHints = ValueConverterInfo?.MappingHints;
+            var mappingHints = converter.MappingHints;
 
             Size = source.Size ?? mappingHints?.Size;
             IsUnicode = source.IsUnicode ?? mappingHints?.IsUnicode;
             Scale = source.Scale ?? mappingHints?.Scale;
             Precision = source.Precision ?? mappingHints?.Precision;
-            ProviderClrType = CreateProviderClrType();
+
+            ClrType = converter.ProviderClrType.UnwrapNullableType();
         }
 
         /// <summary>
@@ -183,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
-        public abstract TypeMappingInfo WithBuiltInConverter(ValueConverterInfo converterInfo);
+        public abstract TypeMappingInfo WithConverter(ValueConverterInfo converterInfo);
 
         /// <summary>
         ///     The property for which mapping is needed.
@@ -221,29 +163,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual int? Scale { get; }
 
         /// <summary>
-        ///     The CLR type set to use when reading/writing to/from the store.
-        /// </summary>
-        public virtual Type ConfiguredProviderClrType { get; }
-
-        /// <summary>
         ///     The field or property info for the property.
         /// </summary>
         public virtual MemberInfo MemberInfo { get; }
 
         /// <summary>
-        ///     The <see cref="ValueConverter" /> to use when reading/writing to/from the database provider.
-        /// </summary>
-        public virtual ValueConverterInfo? ValueConverterInfo { get; }
-
-        /// <summary>
         ///     The CLR type in the model.
         /// </summary>
-        public virtual Type ModelClrType { get; }
-
-        /// <summary>
-        ///     The CLR type targeted by the type mapping when reading/writing to/from the databaseProvider.
-        /// </summary>
-        public virtual Type ProviderClrType { get; }
+        public virtual Type ClrType { get; }
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -251,16 +178,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="other"> The other object. </param>
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         protected virtual bool Equals([NotNull] TypeMappingInfo other)
-            => ModelClrType == other.ModelClrType
+            => ClrType == other.ClrType
                && MemberInfo == other.MemberInfo
-               && ConfiguredProviderClrType == other.ConfiguredProviderClrType
                && IsKeyOrIndex == other.IsKeyOrIndex
                && Size == other.Size
                && IsUnicode == other.IsUnicode
                && IsRowVersion == other.IsRowVersion
                && Precision == other.Precision
-               && Scale == other.Scale
-               && Equals(_customConverter, other._customConverter);
+               && Scale == other.Scale;
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -279,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
         {
-            var hashCode = (ConfiguredProviderClrType != null ? ConfiguredProviderClrType.GetHashCode() : 0);
+            var hashCode = ClrType?.GetHashCode() ?? 0;
             hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
             hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (MemberInfo?.GetHashCode() ?? 0);
@@ -287,8 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             hashCode = (hashCode * 397) ^ (IsRowVersion?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (Scale?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (Precision?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (_customConverter?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (ModelClrType?.GetHashCode() ?? 0);
             return hashCode;
         }
     }

@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
         {
-            var clrType = mappingInfo.ProviderClrType;
+            var clrType = mappingInfo.ClrType;
             var storeTypeName = mappingInfo.StoreTypeName;
 
             if (clrType != null)

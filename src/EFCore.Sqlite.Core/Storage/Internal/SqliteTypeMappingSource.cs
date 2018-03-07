@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
         {
-            var clrType = mappingInfo.ProviderClrType;
+            var clrType = mappingInfo.ClrType;
             if (clrType != null
                 && _clrTypeMappings.TryGetValue(clrType, out var mapping))
             {

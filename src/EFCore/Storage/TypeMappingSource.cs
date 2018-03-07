@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -75,39 +76,57 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 mappingInfo,
                 k =>
                 {
-                    var mappingInfoUsed = mappingInfo;
+                    var principals = mappingInfo.Property?.FindPrincipals().ToList();
 
-                    var mapping = mappingInfoUsed.ConfiguredProviderClrType == null
-                                  || mappingInfoUsed.ConfiguredProviderClrType == mappingInfoUsed.ModelClrType
-                        ? FindMapping(mappingInfoUsed)
+                    var customConverter = principals
+                        ?.Select(p => p.GetValueConverter())
+                        .FirstOrDefault(c => c != null);
+
+                    if (customConverter != null)
+                    {
+                        mappingInfo = mappingInfo.WithConverter(
+                            new ValueConverterInfo(
+                                customConverter.ModelClrType,
+                                customConverter.ProviderClrType,
+                                i => customConverter,
+                                customConverter.MappingHints));
+                    }
+
+                    var providerClrType = principals
+                        ?.Select(p => p.GetProviderClrType())
+                        .FirstOrDefault(t => t != null)
+                        ?.UnwrapNullableType();
+
+                    var mapping = providerClrType == null
+                                  || providerClrType == mappingInfo.ClrType
+                        ? FindMapping(mappingInfo)
                         : null;
 
                     if (mapping == null)
                     {
-                        var sourceType = mappingInfo.ValueConverterInfo?.ProviderClrType ?? mappingInfo.ModelClrType;
+                        var sourceType = mappingInfo.ClrType;
 
                         if (sourceType != null)
                         {
                             foreach (var converterInfo in Dependencies
                                 .ValueConverterSelector
-                                .Select(sourceType, mappingInfo.ConfiguredProviderClrType))
+                                .Select(sourceType, providerClrType))
                             {
-                                mappingInfoUsed = mappingInfo.WithBuiltInConverter(converterInfo);
+                                var mappingInfoUsed = mappingInfo.WithConverter(converterInfo);
                                 mapping = FindMapping(mappingInfoUsed);
 
                                 if (mapping == null
-                                    && mappingInfo.ConfiguredProviderClrType != null)
+                                    && providerClrType != null)
                                 {
                                     foreach (var secondConverterInfo in Dependencies
                                         .ValueConverterSelector
-                                        .Select(mappingInfo.ConfiguredProviderClrType))
+                                        .Select(providerClrType))
                                     {
-                                        var secondMappingInfoUsed = mappingInfoUsed.WithBuiltInConverter(secondConverterInfo);
-                                        mapping = FindMapping(secondMappingInfoUsed);
+                                        mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
                                         if (mapping != null)
                                         {
-                                            mapping = mapping.Clone(secondMappingInfoUsed.ValueConverterInfo?.Create());
+                                            mapping = mapping.Clone(secondConverterInfo.Create());
                                             break;
                                         }
                                     }
@@ -115,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                                 if (mapping != null)
                                 {
+                                    mapping = mapping.Clone(converterInfo.Create());
                                     break;
                                 }
                             }
@@ -122,9 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     }
 
                     if (mapping != null
-                        && mappingInfoUsed.ValueConverterInfo != null)
+                        && customConverter != null)
                     {
-                        mapping = mapping.Clone(mappingInfoUsed.ValueConverterInfo?.Create());
+                        mapping = mapping.Clone(customConverter);
                     }
 
                     return mapping;
@@ -203,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
             }
 
-            public override TypeMappingInfo WithBuiltInConverter(ValueConverterInfo converterInfo)
+            public override TypeMappingInfo WithConverter(ValueConverterInfo converterInfo)
                 => new ConcreteTypeMappingInfo(this, converterInfo);
         }
     }

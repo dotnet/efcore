@@ -37,18 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 .Select(p => (string)p[RelationalAnnotationNames.ColumnType])
                 .FirstOrDefault(t => t != null);
 
-            var fixedLength = principals.Select(p => p.Relational().IsFixedLength).FirstOrDefault(t => t);
-
-            if (!fixedLength)
-            {
-                var customConverter = principals
-                    .Select(p => p.GetValueConverter())
-                    .FirstOrDefault(c => c != null);
-
-                var mappingHints = customConverter?.MappingHints;
-
-                fixedLength = (mappingHints as RelationalConverterMappingHints)?.IsFixedLength == true;
-            }
+            var fixedLength = principals
+                .Select(p => p.Relational().IsFixedLength)
+                .FirstOrDefault(t => t);
 
             IsFixedLength = fixedLength;
             StoreTypeName = storeTypeName;
@@ -97,14 +88,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" /> with the given <see cref="ValueConverterInfo" />.
         /// </summary>
         /// <param name="source"> The source info. </param>
-        /// <param name="builtInConverter"> The converter to apply. </param>
+        /// <param name="converter"> The converter to apply. </param>
         protected RelationalTypeMappingInfo(
             [NotNull] RelationalTypeMappingInfo source,
-            ValueConverterInfo builtInConverter)
-            : base(source, builtInConverter)
+            ValueConverterInfo converter)
+            : base(source, converter)
         {
-            // ReSharper disable once VirtualMemberCallInConstructor
-            var mappingHints = ValueConverterInfo?.MappingHints ?? default;
+            var mappingHints = converter.MappingHints;
 
             StoreTypeName = source.StoreTypeName;
             StoreTypeNameBase = ParseStoreTypeName(source.StoreTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
@@ -116,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
         /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
-        /// <param name="unicode"> Specifies Unicode or Ansi mapping, or <c>null</c> for default. </param>
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
         /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
         /// <param name="rowVersion"> Specifies a row-version, or <c>null</c> for default. </param>
         /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>
@@ -253,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
         {
-            var hashCode = (StoreTypeName != null ? StoreTypeName.GetHashCode() : 0);
+            var hashCode = StoreTypeName?.GetHashCode() ?? 0;
             hashCode = (hashCode * 397) ^ (IsFixedLength?.GetHashCode() ?? 0);
             return hashCode;
         }

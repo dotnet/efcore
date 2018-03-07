@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
 
-            return _typeMapper.IsTypeMapped(mappingInfo.ProviderClrType)
-                ? new CoreTypeMapping(mappingInfo.ProviderClrType)
+            return _typeMapper.IsTypeMapped(mappingInfo.ClrType)
+                ? new CoreTypeMapping(mappingInfo.ClrType)
                 : null;
         }
     }

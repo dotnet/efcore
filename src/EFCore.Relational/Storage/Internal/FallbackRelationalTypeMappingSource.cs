@@ -73,14 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private RelationalTypeMapping FindMappingForClrType(RelationalTypeMappingInfo mappingInfo)
         {
-            if (mappingInfo.ProviderClrType == null
+            if (mappingInfo.ClrType == null
                 || (mappingInfo.StoreTypeName != null
                     && _relationalTypeMapper.FindMapping(mappingInfo.StoreTypeName) != null))
             {
                 return null;
             }
 
-            if (mappingInfo.ProviderClrType == typeof(string)
+            if (mappingInfo.ClrType == typeof(string)
                 && _relationalTypeMapper.StringMapper != null)
             {
                 return _relationalTypeMapper.StringMapper.FindMapping(
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     mappingInfo.Size);
             }
 
-            if (mappingInfo.ProviderClrType == typeof(byte[])
+            if (mappingInfo.ClrType == typeof(byte[])
                 && _relationalTypeMapper.ByteArrayMapper != null)
             {
                 return _relationalTypeMapper.ByteArrayMapper.FindMapping(
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     mappingInfo.Size);
             }
 
-            return _relationalTypeMapper.FindMapping(mappingInfo.ProviderClrType);
+            return _relationalTypeMapper.FindMapping(mappingInfo.ClrType);
         }
 
         private RelationalTypeMapping FindMappingForStoreTypeName(RelationalTypeMappingInfo mappingInfo)
@@ -115,8 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private RelationalTypeMapping FilterByClrType(RelationalTypeMapping mapping, RelationalTypeMappingInfo mappingInfo)
             => mapping != null
-               && (mappingInfo.ProviderClrType == null
-                   || mappingInfo.ProviderClrType == mapping.ClrType)
+               && (mappingInfo.ClrType == null
+                   || mappingInfo.ClrType == mapping.ClrType)
                 ? mapping
                 : null;
     }
