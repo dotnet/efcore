@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class QuerySourceReferenceFindingExpressionTreeVisitor : RelinqExpressionVisitor
+    public class QuerySourceReferenceFindingExpressionVisitor : RelinqExpressionVisitor
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

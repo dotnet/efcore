@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             bool forceListResult)
         {
             var querySourceReferenceFindingExpressionTreeVisitor
-                = new QuerySourceReferenceFindingExpressionTreeVisitor();
+                = new QuerySourceReferenceFindingExpressionVisitor();
 
             var originalCorrelationPredicate = collectionQueryModel.BodyClauses.OfType<WhereClause>()
                 .Single(c => c.Predicate is NullSafeEqualExpression);
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             querySourceReferenceFindingExpressionTreeVisitor.Visit(keyEquality.Left);
             var parentQuerySourceReferenceExpression = querySourceReferenceFindingExpressionTreeVisitor.QuerySourceReferenceExpression;
 
-            querySourceReferenceFindingExpressionTreeVisitor = new QuerySourceReferenceFindingExpressionTreeVisitor();
+            querySourceReferenceFindingExpressionTreeVisitor = new QuerySourceReferenceFindingExpressionVisitor();
             querySourceReferenceFindingExpressionTreeVisitor.Visit(keyEquality.Right);
 
             var currentKey = BuildKeyAccess(navigation.ForeignKey.Properties, querySourceReferenceFindingExpressionTreeVisitor.QuerySourceReferenceExpression);

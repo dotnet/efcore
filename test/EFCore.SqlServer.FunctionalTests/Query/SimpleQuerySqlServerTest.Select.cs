@@ -183,6 +183,15 @@ END AS [IsAvailable]
 FROM [Products] AS [p]");
         }
 
+        public override void Select_constant_int()
+        {
+            base.Select_constant_int();
+
+            AssertSql(
+                @"SELECT 1
+FROM [Customers] AS [c]");
+        }
+
         public override void Select_constant_null_string()
         {
             base.Select_constant_null_string();

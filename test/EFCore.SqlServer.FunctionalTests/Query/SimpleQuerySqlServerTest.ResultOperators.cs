@@ -1037,5 +1037,14 @@ WHERE [o].[ProductID] = 42");
                 CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
                     @"(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"), Fixture.TestSqlLoggerFactory.Log);
         }
+
+        public override void Project_constant_Sum()
+        {
+            base.Project_constant_Sum();
+
+            AssertSql(
+                @"SELECT 1
+FROM [Employees] AS [e]");
+        }
     }
 }

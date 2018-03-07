@@ -55,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientProjection;
         private bool _requiresClientOrderBy;
         private bool _requiresClientResultOperator;
-        private ResultOperatorBase _groupResultOperatorInQueryModel;
 
         private readonly List<GroupJoinClause> _unflattenedGroupJoinClauses = new List<GroupJoinClause>();
         private readonly List<AdditionalFromClause> _flattenedAdditionalFromClauses = new List<AdditionalFromClause>();
@@ -291,11 +290,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             base.VisitQueryModel(queryModel);
 
-            if (RequiresStreamingGroupResultOperator)
-            {
-                WarnClientEval(queryModel, _groupResultOperatorInQueryModel);
-            }
-
             var joinEliminator = new JoinEliminator();
             var compositePredicateVisitor = _compositePredicateExpressionVisitorFactory.Create();
 
@@ -379,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             break;
 
 
-                                        // TODO: Visit sub-query (SelectExpression) here?
+                                            // TODO: Visit sub-query (SelectExpression) here?
                                     }
                                 }
 
@@ -834,7 +828,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || !subSelectExpression.IsCorrelated()
                         || !(querySource is AdditionalFromClause)))
                 {
-                    if (!subSelectExpression.IsIdentityQuery())
+                    if (!subSelectExpression.IsIdentityQuery()
+                        // If the query has GroupBy then we don't need to pushdown since we can compose further.
+                        && subSelectExpression.GroupBy.Count == 0)
                     {
                         subSelectExpression.PushDownSubquery().QuerySource = querySource;
                     }
@@ -1213,7 +1209,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresStreamingGroupResultOperator)
             {
-                _groupResultOperatorInQueryModel = resultOperator;
+                WarnClientEval(queryModel, resultOperator);
             }
 
             if (RequiresClientResultOperator)
@@ -1591,8 +1587,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 foreach (var mapping in previousMapping)
                 {
-                    QueryCompilationContext.QuerySourceMapping
-                        .ReplaceMapping(mapping.Key, mapping.Value);
+                    QueryCompilationContext.AddOrUpdateMapping(mapping.Key, mapping.Value);
                 }
             }
             else
@@ -1792,7 +1787,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return true;
         }
 
-        private bool IsFlattenableGroupJoinDefaultIfEmpty(
+        private static bool IsFlattenableGroupJoinDefaultIfEmpty(
             [NotNull] GroupJoinClause groupJoinClause,
             QueryModel queryModel,
             int index)

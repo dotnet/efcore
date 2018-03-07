@@ -1798,7 +1798,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 22,
-                    ProductName = "Gustaf's Kn„ckebr”d",
+                    ProductName = "Gustaf's Knäckebröd",
                     SupplierID = 9,
                     CategoryID = 5,
                     QuantityPerUnit = "24 - 500 g pkgs.",
@@ -1811,7 +1811,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 23,
-                    ProductName = "Tunnbr”d",
+                    ProductName = "Tunnbröd",
                     SupplierID = 9,
                     CategoryID = 5,
                     QuantityPerUnit = "12 - 250 g pkgs.",
@@ -1824,7 +1824,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 24,
-                    ProductName = "Guaran  Fant stica",
+                    ProductName = "Guaraná Fantástica",
                     SupplierID = 10,
                     CategoryID = 1,
                     QuantityPerUnit = "12 - 355 ml cans",
@@ -1837,7 +1837,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 25,
-                    ProductName = "NuNuCa Nuá-Nougat-Creme",
+                    ProductName = "NuNuCa Nuß-Nougat-Creme",
                     SupplierID = 11,
                     CategoryID = 3,
                     QuantityPerUnit = "20 - 450 g glasses",
@@ -1850,7 +1850,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 26,
-                    ProductName = "Gumb„r Gummib„rchen",
+                    ProductName = "Gumbär Gummibärchen",
                     SupplierID = 11,
                     CategoryID = 3,
                     QuantityPerUnit = "100 - 250 g bags",
@@ -1876,7 +1876,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 28,
-                    ProductName = "R”ssle Sauerkraut",
+                    ProductName = "Rössle Sauerkraut",
                     SupplierID = 12,
                     CategoryID = 7,
                     QuantityPerUnit = "25 - 825 g cans",
@@ -1889,7 +1889,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 29,
-                    ProductName = "Thringer Rostbratwurst",
+                    ProductName = "Thüringer Rostbratwurst",
                     SupplierID = 12,
                     CategoryID = 6,
                     QuantityPerUnit = "50 bags x 30 sausgs.",
@@ -2006,7 +2006,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 38,
-                    ProductName = "C“te de Blaye",
+                    ProductName = "Côte de Blaye",
                     SupplierID = 18,
                     CategoryID = 1,
                     QuantityPerUnit = "12 - 75 cl bottles",
@@ -2214,7 +2214,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 54,
-                    ProductName = "TourtiŠre",
+                    ProductName = "Tourtière",
                     SupplierID = 25,
                     CategoryID = 6,
                     QuantityPerUnit = "16 pies",
@@ -2227,7 +2227,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 55,
-                    ProductName = "Pƒt‚ chinois",
+                    ProductName = "Pâté chinois",
                     SupplierID = 25,
                     CategoryID = 6,
                     QuantityPerUnit = "24 boxes x 2 pies",
@@ -2305,7 +2305,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 61,
-                    ProductName = "Sirop d'‚rable",
+                    ProductName = "Sirop d'érable",
                     SupplierID = 29,
                     CategoryID = 2,
                     QuantityPerUnit = "24 - 500 ml bottles",
@@ -2344,7 +2344,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 64,
-                    ProductName = "Wimmers gute Semmelkn”del",
+                    ProductName = "Wimmers gute Semmelknödel",
                     SupplierID = 12,
                     CategoryID = 5,
                     QuantityPerUnit = "20 bags x 4 pieces",
@@ -2461,7 +2461,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 73,
-                    ProductName = "R”d Kaviar",
+                    ProductName = "Röd Kaviar",
                     SupplierID = 17,
                     CategoryID = 8,
                     QuantityPerUnit = "24 - 150 g jars",
@@ -2487,7 +2487,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 75,
-                    ProductName = "Rh”nbr„u Klosterbier",
+                    ProductName = "Rhönbräu Klosterbier",
                     SupplierID = 12,
                     CategoryID = 1,
                     QuantityPerUnit = "24 - 0.5 l bottles",
@@ -2500,7 +2500,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 76,
-                    ProductName = "Lakkalik””ri",
+                    ProductName = "Lakkalikööri",
                     SupplierID = 23,
                     CategoryID = 1,
                     QuantityPerUnit = "500 ml",
@@ -2513,7 +2513,7 @@ Winchester Way",
                 new Product
                 {
                     ProductID = 77,
-                    ProductName = "Original Frankfurter grne Soáe",
+                    ProductName = "Original Frankfurter grüne Soße",
                     SupplierID = 12,
                     CategoryID = 2,
                     QuantityPerUnit = "12 boxes",

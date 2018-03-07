@@ -32,9 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             SelectExpression targetSelectExpression = null,
             Expression topLevelPredicate = null,
             bool inProjection = false)
-        {
-            return new SqliteSqlTranslatingExpressionVisitor(
+            => new SqliteSqlTranslatingExpressionVisitor(
                 Dependencies, queryModelVisitor, targetSelectExpression, topLevelPredicate, inProjection);
-        }
     }
 }

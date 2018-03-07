@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private void Rewrite(QueryModel collectionQueryModel, INavigation navigation)
             {
                 var querySourceReferenceFindingExpressionTreeVisitor
-                    = new QuerySourceReferenceFindingExpressionTreeVisitor();
+                    = new QuerySourceReferenceFindingExpressionVisitor();
 
                 var whereClause = collectionQueryModel.BodyClauses
                     .OfType<WhereClause>()

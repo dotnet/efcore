@@ -253,6 +253,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 _relationalCommandBuilder.Append("GROUP BY ");
                 GenerateList(selectExpression.GroupBy);
+
+                if (selectExpression.Having != null)
+                {
+                    GenerateHaving(selectExpression.Having);
+                }
             }
 
             if (selectExpression.OrderBy.Count > 0)
@@ -519,6 +524,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _relationalCommandBuilder.AppendLine()
                 .Append("WHERE ");
+
+            Visit(optimizedPredicate);
+        }
+
+        /// <summary>
+        ///     Visit the predicate in SQL HAVING clause
+        /// </summary>
+        /// <param name="predicate"> The having predicate expression. </param>
+        protected virtual void GenerateHaving([NotNull] Expression predicate)
+        {
+            var optimizedPredicate = ApplyOptimizations(predicate, searchCondition: true);
+
+            _relationalCommandBuilder.AppendLine()
+                .Append("HAVING ");
 
             Visit(optimizedPredicate);
         }

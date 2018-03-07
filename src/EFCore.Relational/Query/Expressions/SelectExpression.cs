@@ -94,6 +94,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     Gets or sets the predicate corresponding to the HAVING part of the SELECT expression.
+        /// </summary>
+        /// <value>
+        ///     The predicate.
+        /// </value>
+        public virtual Expression Having { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     Gets or sets the table to be used for star projection.
         /// </summary>
         /// <value>
@@ -302,7 +310,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                && Offset == null
                && Projection.Count == 0
                && OrderBy.Count == 0
-               && GroupBy.Count == 0
+               // GroupBy is intentionally ommitted because GroupBy does not require a pushdown.
+               //&& GroupBy.Count == 0
                && Tables.Count == 1;
 
         /// <summary>
@@ -689,7 +698,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private Expression CreateUniqueProjection(Expression expression, string newAlias = null)
         {
-            var currentProjectionIndex = _projection.FindIndex(e => e.Equals(expression));
+            var currentProjectionIndex
+                = _projection.FindIndex(
+                    e => ExpressionEqualityComparer.Instance.Equals(e, expression)
+                         || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, expression));
 
             if (currentProjectionIndex != -1)
             {
@@ -871,7 +883,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(predicate, nameof(predicate));
 
-            Predicate = Predicate != null ? AndAlso(Predicate, predicate) : predicate;
+            if (_groupBy.Count == 0)
+            {
+                Predicate = Predicate != null ? AndAlso(Predicate, predicate) : predicate;
+            }
+            else
+            {
+                Having = Having != null ? AndAlso(Having, predicate) : predicate;
+            }
         }
 
         /// <summary>
@@ -882,6 +901,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(groupingExpressions, nameof(groupingExpressions));
 
+            // Skip/Take will cause PushDown prior to calling this method so it is safe to clear ordering if any.
+            // Ordering before GroupBy Aggregate has no effect.
+            _orderBy.Clear();
             _groupBy.AddRange(groupingExpressions);
         }
 

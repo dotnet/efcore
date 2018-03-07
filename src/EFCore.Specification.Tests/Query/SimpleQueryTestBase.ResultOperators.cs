@@ -1240,5 +1240,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(91, query.Count);
             }
         }
+
+        [ConditionalFact]
+        public virtual void Project_constant_Sum()
+        {
+            AssertSingleResult<Employee>(es => es.Sum(e => 1));
+        }
     }
 }

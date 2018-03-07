@@ -1396,7 +1396,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     targetExpression,
                     _queryCompilationContext.QuerySourceMapping.GetExpression(querySource));
 
-            _queryCompilationContext.QuerySourceMapping.ReplaceMapping(querySource, memberAccessExpression);
+            _queryCompilationContext.AddOrUpdateMapping(querySource, memberAccessExpression);
         }
 
         private static Expression ShiftMemberAccess(Expression targetExpression, Expression currentExpression)
