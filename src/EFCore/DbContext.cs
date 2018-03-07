@@ -1304,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual object Find([NotNull] Type entityType, [NotNull] params object[] keyValues)
+        public virtual object Find([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
         {
             CheckDisposed();
 
@@ -1321,7 +1321,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] params object[] keyValues)
+        public virtual Task<object> FindAsync([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
         {
             CheckDisposed();
 
@@ -1339,7 +1339,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<object> FindAsync([NotNull] Type entityType, [NotNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual Task<object> FindAsync([NotNull] Type entityType, [CanBeNull] object[] keyValues, CancellationToken cancellationToken)
         {
             CheckDisposed();
 
@@ -1356,7 +1356,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual TEntity Find<TEntity>([NotNull] params object[] keyValues)
+        public virtual TEntity Find<TEntity>([CanBeNull] params object[] keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1374,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] params object[] keyValues)
+        public virtual Task<TEntity> FindAsync<TEntity>([CanBeNull] params object[] keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1393,7 +1393,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual Task<TEntity> FindAsync<TEntity>([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
             CheckDisposed();

@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -53,7 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual TEntity Find(object[] keyValues)
         {
-            Check.NotNull(keyValues, nameof(keyValues));
+            if (keyValues == null
+                || keyValues.Any(v => v == null))
+            {
+                return null;
+            }
 
             return FindTracked(keyValues, out var keyProperties)
                    ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
@@ -72,7 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
-            Check.NotNull(keyValues, nameof(keyValues));
+            if (keyValues == null
+                || keyValues.Any(v => v == null))
+            {
+                return Task.FromResult<TEntity>(null);
+            }
 
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
@@ -86,7 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         Task<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
         {
-            Check.NotNull(keyValues, nameof(keyValues));
+            if (keyValues == null
+                || keyValues.Any(v => v == null))
+            {
+                return Task.FromResult<object>(null);
+            }
 
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
@@ -251,11 +262,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             for (var i = 0; i < keyValues.Length; i++)
             {
-                if (keyValues[i] == null)
-                {
-                    throw new ArgumentNullException(nameof(keyValues));
-                }
-
                 var valueType = keyValues[i].GetType();
                 var propertyType = keyProperties[i].ClrType;
                 if (valueType != propertyType.UnwrapNullableType())

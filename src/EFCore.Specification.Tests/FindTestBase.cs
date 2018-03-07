@@ -273,46 +273,38 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Throws_for_null_key_values_array()
+        public virtual void Returns_null_for_null_key_values_array()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    "keyValues",
-                    Assert.Throws<ArgumentNullException>(() => Find<CompositeKey>(context, null)).ParamName);
+                Assert.Null(Find<CompositeKey>(context, null));
             }
         }
 
         [Fact]
-        public virtual void Throws_for_null_key()
+        public virtual void Returns_null_for_null_key()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    "keyValues",
-                    Assert.Throws<ArgumentNullException>(() => Find<IntKey>(context, new object[] { null })).ParamName);
+                Assert.Null(Find<IntKey>(context, new object[] { null }));
             }
         }
 
         [Fact]
-        public virtual void Throws_for_null_nullable_key()
+        public virtual void Returns_null_for_null_nullable_key()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    "keyValues",
-                    Assert.Throws<ArgumentNullException>(() => Find<NullableIntKey>(context, new object[] { null })).ParamName);
+                Assert.Null(Find<NullableIntKey>(context, new object[] { null }));
             }
         }
 
         [Fact]
-        public virtual void Throws_for_null_in_composite_key()
+        public virtual void Returns_null_for_null_in_composite_key()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    "keyValues",
-                    Assert.Throws<ArgumentNullException>(() => Find<CompositeKey>(context, 77, null)).ParamName);
+                Assert.Null(Find<CompositeKey>(context, 77, null));
             }
         }
 
@@ -621,35 +613,29 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Throws_for_null_key_values_array_async()
+        public virtual async Task Returns_null_for_null_key_values_array_async()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    "keyValues",
-                    (await Assert.ThrowsAsync<ArgumentNullException>(() => FindAsync<CompositeKey>(context, null))).ParamName);
+                Assert.Null(await FindAsync<CompositeKey>(context, null));
             }
         }
 
         [Fact]
-        public virtual async Task Throws_for_null_key_async()
+        public virtual async Task Returns_null_for_null_key_async()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    "keyValues",
-                    (await Assert.ThrowsAsync<ArgumentNullException>(() => FindAsync<IntKey>(context, new object[] { null }))).ParamName);
+                Assert.Null(await FindAsync<IntKey>(context, new object[] { null }));
             }
         }
 
         [Fact]
-        public virtual async Task Throws_for_null_in_composite_key_async()
+        public virtual async Task Returns_null_for_null_in_composite_key_async()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    "keyValues",
-                    (await Assert.ThrowsAsync<ArgumentNullException>(() => FindAsync<CompositeKey>(context, 77, null))).ParamName);
+                Assert.Null(await FindAsync<CompositeKey>(context, 77, null));
             }
         }
 
