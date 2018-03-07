@@ -135,7 +135,7 @@ namespace Samples
     }
     #endregion
 
-    #region Query Type
+    #region QueryType
     public class BlogPostsCount
     {
         public string BlogName { get; set; }
