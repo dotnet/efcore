@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     <para>
     ///         Instances of this class are returned from a call to
     ///         <see
-    ///             cref="OracleDbContextOptionsExtensions.UseOracle(DbContextOptionsBuilder, string, System.Action{OracleDbContextOptionsBuilder}" />
+    ///             cref="OracleDbContextOptionsExtensions.UseOracle(DbContextOptionsBuilder, string, System.Action{OracleDbContextOptionsBuilder})" />
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
