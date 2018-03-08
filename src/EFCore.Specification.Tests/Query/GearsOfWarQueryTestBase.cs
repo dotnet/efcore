@@ -4336,6 +4336,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
         }
 
+        [ConditionalFact]
+        public virtual void Include_with_concat()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.Squad, "Squad"),
+                new ExpectedInclude<Officer>(o => o.Squad, "Squad")
+            };
+
+            AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => g.Squad).Concat(gs),
+                expectedIncludes);
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

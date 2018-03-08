@@ -250,12 +250,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (referencedQuerySource != null)
             {
                 var parentQuerySource = parentQueryModel.SelectClause.Selector.TryGetReferencedQuerySource();
-                var resultSetOperators = GetSetResultOperatorSourceExpressions(parentQueryModel.ResultOperators);
-
-                if (resultSetOperators.Any(r => r.Equals(expression))
-                    && _querySourceReferences[parentQuerySource] > 0)
+                if (parentQuerySource != null)
                 {
-                    PromoteQuerySource(referencedQuerySource);
+                    var resultSetOperators = GetSetResultOperatorSourceExpressions(parentQueryModel.ResultOperators);
+                    if (resultSetOperators.Any(r => r.Equals(expression))
+                        && _querySourceReferences[parentQuerySource] > 0)
+                    {
+                        PromoteQuerySource(referencedQuerySource);
+                    }
                 }
             }
 

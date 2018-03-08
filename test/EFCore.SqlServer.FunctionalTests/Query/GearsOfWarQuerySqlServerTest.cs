@@ -6096,6 +6096,21 @@ LEFT JOIN (
 ) AS [t0] ON @_outer_FullName1 = [t0].[FullName]");
         }
 
+        public override void Include_with_concat()
+        {
+            base.Include_with_concat();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Squad].[Id], [g.Squad].[InternalNumber], [g.Squad].[Name]
+FROM [Gears] AS [g]
+INNER JOIN [Squads] AS [g.Squad] ON [g].[SquadId] = [g.Squad].[Id]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
+                //
+                @"SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+FROM [Gears] AS [g0]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

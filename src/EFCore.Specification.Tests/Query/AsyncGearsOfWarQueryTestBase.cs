@@ -1343,5 +1343,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
         }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_concat()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.Squad, "Squad"),
+                new ExpectedInclude<Officer>(o => o.Squad, "Squad")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => g.Squad).Concat(gs),
+                expectedIncludes);
+        }
     }
 }
