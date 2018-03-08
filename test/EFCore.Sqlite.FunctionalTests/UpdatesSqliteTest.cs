@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+#if !Test20
         public override void Identifiers_are_generated_correctly()
         {
             using (var context = CreateContext())
@@ -26,5 +27,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal("IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly_ProfileId_ProfileId1_ProfileId3_ProfileId4_ProfileId5_ProfileId6_ProfileId7_ProfileId8_ProfileId9_ProfileId10_ProfileId11_ProfileId12_ProfileId13_ProfileId14_ExtraProperty", entityType.GetIndexes().Single().Relational().Name);
             }
         }
+#endif
     }
 }

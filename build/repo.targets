@@ -1,6 +1,6 @@
 ﻿<Project>
 
-  <Target Name="_FilterTestProjects" BeforeTargets="TestProjects">
+  <Target Name="_FilterTestProjects" BeforeTargets="GetTestAssemblies">
     <PropertyGroup Condition="'$(TestFilter)' == '' And '$(FunctionalTests_PackageVersion)' != '0.0.0'">
       <TestFilter>FunctionalTests</TestFilter>
     </PropertyGroup>

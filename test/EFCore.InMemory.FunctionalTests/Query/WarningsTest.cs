@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class WarningsTest
     {
+#if !Test20
         [Fact]
         public void Should_throw_by_default_when_transaction()
         {
@@ -36,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => context.Database.BeginTransaction()).Message);
             }
         }
+#endif
 
         [Fact]
         public void Should_throw_by_default_when_transaction_enlisted()
