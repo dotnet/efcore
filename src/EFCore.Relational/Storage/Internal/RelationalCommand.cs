@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteNonQuery,
                 parameterValues,
-                cancellationToken: cancellationToken).Cast<object, int>();
+                cancellationToken).Cast<object, int>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteScalar,
                 parameterValues,
-                cancellationToken: cancellationToken);
+                cancellationToken);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteReader,
                 parameterValues,
-                cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
+                cancellationToken).Cast<object, RelationalDataReader>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

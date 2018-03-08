@@ -5975,7 +5975,107 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
-        public void SeedData_update_enum_values()
+        public void SeedData_nonkey_refactoring_value_conversion()
+        {
+            Execute(
+                common => common.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                    }),
+                source => source.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<string>("Value1").IsRequired();
+                        x.SeedData(new
+                        {
+                            Id = 42,
+                            Value1 = "32"
+                        });
+                    }),
+                target => target.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<int>("Value1")
+                            .HasConversion(e => e.ToString(), e => int.Parse(e));
+                        x.SeedData(new
+                        {
+                            Id = 42,
+                            Value1 = 32
+                        });
+                    }),
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [Fact]
+        public void SeedData_key_refactoring_value_conversion()
+        {
+            Execute(
+                common => common.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<int>("Value1");
+                    }),
+                source => source.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<string>("Id");
+                        x.SeedData(new
+                        {
+                            Id = "42",
+                            Value1 = 32
+                        });
+                    }),
+                target => target.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<int>("Id")
+                            .HasConversion(e => e.ToString(), e => int.Parse(e));
+                        x.SeedData(new
+                        {
+                            Id = 42,
+                            Value1 = 32
+                        });
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal("42", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal("42", v),
+                            v => Assert.Equal(32, v));
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal("42", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal("42", v),
+                            v => Assert.Equal(32, v));
+                    }));
+        }
+
+        [Fact]
+        public void SeedData_change_enum_conversion()
         {
             Execute(
                 common => common.Entity(
@@ -5985,12 +6085,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("EntityWithEnumProperty", "schema");
                         x.Property<int>("Id");
                         x.HasKey("Id");
-                        x.Property<SomeEnum?>("Enum");
-                    }),
-                source => source.Entity(
-                    "EntityWithEnumProperty",
-                    x =>
-                    {
                         x.Property<SomeEnum?>("Enum").HasDefaultValue(SomeEnum.Default);
                         x.SeedData(new
                         {
@@ -5998,16 +6092,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             Enum = SomeEnum.NonDefault
                         });
                     }),
+                _ => {},
                 target => target.Entity(
                     "EntityWithEnumProperty",
                     x =>
                     {
-                        x.Property<SomeEnum?>("Enum").HasDefaultValue(SomeEnum.NonDefault);
-                        x.SeedData(new
-                        {
-                            Id = 1,
-                            Enum = SomeEnum.Default
-                        });
+                        x.Property<SomeEnum?>("Enum")
+                            .HasConversion(e => e.ToString(), e => (SomeEnum)Enum.Parse(typeof(SomeEnum), e));
                     }),
                 upOps => Assert.Collection(upOps,
                     o =>
@@ -6016,7 +6107,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Enum", operation.Name);
                         Assert.Equal("EntityWithEnumProperty", operation.Table);
                         Assert.Equal("schema", operation.Schema);
-                        Assert.Equal(SomeEnum.NonDefault, operation.DefaultValue);
+                        Assert.Equal(typeof(string), operation.ClrType);
+                        Assert.Equal(SomeEnum.Default.ToString(), operation.DefaultValue);
                     },
                     o =>
                     {
@@ -6026,7 +6118,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         AssertMultidimensionalArray(m.KeyValues,
                             v => Assert.Equal(1, v));
                         AssertMultidimensionalArray(m.Values,
-                            v => Assert.Equal(SomeEnum.Default, v));
+                            v => Assert.Equal(SomeEnum.NonDefault.ToString(), v));
                     }),
                 downOps => Assert.Collection(downOps,
                     o =>
@@ -6035,7 +6127,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Enum", operation.Name);
                         Assert.Equal("EntityWithEnumProperty", operation.Table);
                         Assert.Equal("schema", operation.Schema);
-                        Assert.Equal(SomeEnum.Default, operation.DefaultValue);
+                        Assert.Equal(typeof(int), operation.ClrType);
+                        Assert.Equal((int)SomeEnum.Default, operation.DefaultValue);
                     },
                     o =>
                     {
@@ -6045,7 +6138,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         AssertMultidimensionalArray(m.KeyValues,
                             v => Assert.Equal(1, v));
                         AssertMultidimensionalArray(m.Values,
-                            v => Assert.Equal(SomeEnum.NonDefault, v));
+                            v => Assert.Equal((int)SomeEnum.NonDefault, v));
                     }));
         }
 

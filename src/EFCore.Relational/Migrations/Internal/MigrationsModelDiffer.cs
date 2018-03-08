@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -755,18 +757,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     && PropertyStructureEquals(s, t),
                 (s, t, c) => PropertyStructureEquals(s, t));
 
-        private static bool PropertyStructureEquals(IProperty source, IProperty target)
-            => source.ClrType == target.ClrType
-                && source.IsConcurrencyToken == target.IsConcurrencyToken
-                && source.ValueGenerated == target.ValueGenerated
-                && source.GetMaxLength() == target.GetMaxLength()
-                && source.IsColumnNullable() == target.IsColumnNullable()
-                && source.IsUnicode() == target.IsUnicode()
-                && source.Relational().IsFixedLength == target.Relational().IsFixedLength
-                && source.GetConfiguredColumnType() == target.GetConfiguredColumnType()
-                && source.Relational().ComputedColumnSql == target.Relational().ComputedColumnSql
-                && Equals(source.Relational().DefaultValue, target.Relational().DefaultValue)
-                && source.Relational().DefaultValueSql == target.Relational().DefaultValueSql;
+        private bool PropertyStructureEquals(IProperty source, IProperty target)
+        {
+            var sourceAnnotations = source.Relational();
+            var targetAnnotations = target.Relational();
+            return source.ClrType == target.ClrType
+                   && source.IsConcurrencyToken == target.IsConcurrencyToken
+                   && source.ValueGenerated == target.ValueGenerated
+                   && source.GetMaxLength() == target.GetMaxLength()
+                   && source.IsColumnNullable() == target.IsColumnNullable()
+                   && source.IsUnicode() == target.IsUnicode()
+                   && sourceAnnotations.IsFixedLength == targetAnnotations.IsFixedLength
+                   && source.GetConfiguredColumnType() == target.GetConfiguredColumnType()
+                   && sourceAnnotations.ComputedColumnSql == targetAnnotations.ComputedColumnSql
+                   && Equals(GetDefaultValue(source), GetDefaultValue(target))
+                   && sourceAnnotations.DefaultValueSql == targetAnnotations.DefaultValueSql;
+        }
 
         private static bool EntityTypePathEquals(IEntityType source, IEntityType target, DiffContext diffContext)
         {
@@ -864,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || columnTypeChanged
                 || sourceAnnotations.DefaultValueSql != targetAnnotations.DefaultValueSql
                 || sourceAnnotations.ComputedColumnSql != targetAnnotations.ComputedColumnSql
-                || !Equals(sourceAnnotations.DefaultValue, targetAnnotations.DefaultValue)
+                || !Equals(GetDefaultValue(source), GetDefaultValue(target))
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var isDestructiveChange = isNullableChanged && isSourceColumnNullable
@@ -880,10 +886,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
 
                 Initialize(
-                    alterColumnOperation, target, targetTypeMapping, isTargetColumnNullable, targetAnnotations, targetMigrationsAnnotations, true);
+                    alterColumnOperation, target, targetTypeMapping,
+                    isTargetColumnNullable, targetAnnotations, targetMigrationsAnnotations, inline: true);
 
                 Initialize(
-                    alterColumnOperation.OldColumn, source, sourceTypeMapping, isSourceColumnNullable, sourceAnnotations, sourceMigrationsAnnotations, true);
+                    alterColumnOperation.OldColumn, source, sourceTypeMapping,
+                    isSourceColumnNullable, sourceAnnotations, sourceMigrationsAnnotations, inline: true);
 
                 yield return alterColumnOperation;
             }
@@ -956,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                            && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
             columnOperation.IsNullable = isNullable;
 
-            var defaultValue = annotations.DefaultValue;
+            var defaultValue = GetDefaultValue(property);
             columnOperation.DefaultValue = (defaultValue == DBNull.Value ? null : defaultValue)
                                            ?? (inline || isNullable
                                                ? null
@@ -1518,7 +1526,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     if (!keyMapping.TryGetValue(sourceEntityType, out var targetKeyMap))
                     {
-                        entryMapping.RebuildRequired = true;
+                        entryMapping.RecreateRow = true;
                         continue;
                     }
 
@@ -1543,41 +1551,78 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                         foreach (var targetEntry in targetTableEntryMappingMap.GetOrAddValue(entry))
                         {
-                            if (entryMapping.TargetEntries.Add(targetEntry))
+                            if (!entryMapping.TargetEntries.Add(targetEntry))
                             {
-                                foreach (var targetProperty in targetEntry.EntityType.GetProperties())
-                                {
-                                    if (targetProperty.AfterSaveBehavior == PropertySaveBehavior.Save)
-                                    {
-                                        targetEntry.SetOriginalValue(targetProperty, targetProperty.ClrType.GetDefaultValue());
-                                    }
-                                }
-
-                                targetEntry.SetEntityState(EntityState.Unchanged);
+                                continue;
                             }
+
+                            foreach (var targetProperty in targetEntry.EntityType.GetProperties())
+                            {
+                                if (targetProperty.AfterSaveBehavior == PropertySaveBehavior.Save)
+                                {
+                                    targetEntry.SetOriginalValue(targetProperty, targetProperty.ClrType.GetDefaultValue());
+                                }
+                            }
+
+                            targetEntry.SetEntityState(EntityState.Unchanged);
+                        }
+
+                        if (entryMapping.RecreateRow)
+                        {
+                            continue;
                         }
 
                         foreach (var targetProperty in entry.EntityType.GetProperties())
                         {
                             var sourceProperty = diffContext.FindSource(targetProperty);
-                            if (sourceProperty != null
-                                && !sourceEntityType.GetProperties().Contains(sourceProperty))
+                            if (sourceProperty == null
+                                || !sourceEntityType.GetProperties().Contains(sourceProperty))
                             {
                                 continue;
                             }
 
-                            if (targetProperty.AfterSaveBehavior == PropertySaveBehavior.Save)
+                            var sourceConverter = GetValueConverter(sourceProperty);
+                            var targetConverter = GetValueConverter(targetProperty);
+                            var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
+                            var targetValue = entry.GetCurrentValue(targetProperty);
+                            var comparer = targetProperty.GetValueComparer() ??
+                                           sourceProperty.GetValueComparer() ??
+                                           targetProperty.FindMapping()?.Comparer ??
+                                           sourceProperty.FindMapping()?.Comparer;
+                            if (sourceProperty.ClrType == targetProperty.ClrType
+                                && comparer != null)
                             {
-                                if (sourceProperty?.ClrType == targetProperty.ClrType)
+                                if (comparer.CompareFunc(sourceValue, targetValue))
                                 {
-                                    entry.SetOriginalValue(targetProperty, sourceEntry.GetCurrentValue(sourceProperty));
+                                    entry.SetOriginalValue(targetProperty, entry.GetCurrentValue(targetProperty));
+                                    continue;
                                 }
                             }
-                            else if (sourceProperty?.ClrType != targetProperty.ClrType
-                                     || !Equals(sourceEntry.GetCurrentValue(sourceProperty), entry.GetCurrentValue(targetProperty)))
+                            else
                             {
-                                entryMapping.RebuildRequired = true;
+                                if (sourceConverter != null)
+                                {
+                                    sourceValue = sourceConverter.ConvertToProvider(sourceValue);
+                                }
+                                if (targetConverter != null)
+                                {
+                                    targetValue = targetConverter.ConvertToProvider(targetValue);
+                                }
+                                if (Equals(sourceValue, targetValue))
+                                {
+                                    entry.SetOriginalValue(targetProperty, entry.GetCurrentValue(targetProperty));
+                                    continue;
+                                }
+                            }
+
+                            if (targetProperty.AfterSaveBehavior != PropertySaveBehavior.Save)
+                            {
+                                entryMapping.RecreateRow = true;
                                 break;
+                            }
+                            else
+                            {
+                                entry.SetPropertyModified(targetProperty);
                             }
                         }
                     }
@@ -1586,7 +1631,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var entryMapping in sourceTableEntryMappingMap.Values)
             {
-                if (entryMapping.RebuildRequired
+                if (entryMapping.RecreateRow
                     || entryMapping.TargetEntries.Count == 0)
                 {
                     foreach (var targetEntry in entryMapping.TargetEntries)
@@ -1669,7 +1714,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     && batchInsertOperation.Columns.SequenceEqual(c.ColumnModifications.Select(col => col.ColumnName)))
                                 {
                                     batchInsertOperation.Values =
-                                        AddToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToList(), batchInsertOperation.Values);
+                                        AddToMultidimensionalArray(c.ColumnModifications.Select(GetValue).ToList(), batchInsertOperation.Values);
                                     continue;
                                 }
 
@@ -1681,7 +1726,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 Schema = c.Schema,
                                 Table = c.TableName,
                                 Columns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
-                                Values = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToList())
+                                Values = ToMultidimensionalArray(c.ColumnModifications.Select(GetValue).ToList())
                             };
                         }
                         else if (c.EntityState == EntityState.Modified)
@@ -1697,9 +1742,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 Schema = c.Schema,
                                 Table = c.TableName,
                                 KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
-                                KeyValues = ToMultidimensionalArray(c.ColumnModifications.Where(col => col.IsKey).Select(col => col.Value).ToList()),
+                                KeyValues = ToMultidimensionalArray(c.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToList()),
                                 Columns = c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.ColumnName).ToArray(),
-                                Values = ToMultidimensionalArray(c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.Value).ToList())
+                                Values = ToMultidimensionalArray(c.ColumnModifications.Where(col => !col.IsKey).Select(GetValue).ToList())
                             };
                         }
                         else
@@ -1715,7 +1760,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 Schema = c.Schema,
                                 Table = c.TableName,
                                 KeyColumns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
-                                KeyValues = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToArray())
+                                KeyValues = ToMultidimensionalArray(c.ColumnModifications.Select(GetValue).ToArray())
                             };
                         }
                     }
@@ -1726,6 +1771,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }
                 }
             }
+        }
+
+        private object GetValue(ColumnModification columnModification)
+        {
+            var converter = GetValueConverter(columnModification.Property);
+            return converter != null
+                ? converter.ConvertToProvider(columnModification.Value)
+                : columnModification.Value;
         }
 
         #endregion
@@ -1845,6 +1898,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     ? Array.CreateInstance(type.GetElementType(), 0)
                     : type.UnwrapNullableType().GetDefaultValue();
 
+        private object GetDefaultValue(IProperty property)
+        {
+            var value = property.Relational().DefaultValue;
+            var converter = GetValueConverter(property);
+            return converter != null
+                ? converter.ConvertToProvider(value)
+                : value;
+        }
+
+        private ValueConverter GetValueConverter(IProperty property)
+            => TypeMappingSource.GetMapping(property).Converter;
+
         private static object[,] ToMultidimensionalArray(IReadOnlyList<object> values)
         {
             var result = new object[1, values.Count];
@@ -1880,7 +1945,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             public HashSet<InternalEntityEntry> SourceEntries { get; } = new HashSet<InternalEntityEntry>();
             public HashSet<InternalEntityEntry> TargetEntries { get; } = new HashSet<InternalEntityEntry>();
-            public bool RebuildRequired { get; set; }
+            public bool RecreateRow { get; set; }
         }
 
         /// <summary>
