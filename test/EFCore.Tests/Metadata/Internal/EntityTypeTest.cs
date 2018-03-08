@@ -2569,6 +2569,61 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Can_add_new_properties_using_name_of_property_in_base_class()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(HiddenField));
+
+            var property = entityType.AddProperty("Raisin");
+
+            Assert.False(property.IsShadowProperty);
+            Assert.Equal("Raisin", property.Name);
+            Assert.Same(typeof(string), property.ClrType);
+            Assert.Same(entityType, property.DeclaringEntityType);
+            Assert.Same(HiddenFieldBase.RaisinProperty, property.PropertyInfo);
+            Assert.Null(property.FieldInfo);
+        }
+
+        [Fact]
+        public void Can_add_new_properties_using_name_of_field_in_base_class()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(HiddenField));
+
+            var property = entityType.AddProperty("_date");
+
+            Assert.False(property.IsShadowProperty);
+            Assert.Equal("_date", property.Name);
+            Assert.Same(typeof(string), property.ClrType);
+            Assert.Same(entityType, property.DeclaringEntityType);
+            Assert.Same(HiddenFieldBase.DateField, property.FieldInfo);
+            Assert.Null(property.PropertyInfo);
+        }
+
+        private class HiddenField : HiddenFieldBase
+        {
+            public int Id { get; set; }
+        }
+
+        public class HiddenFieldBase
+        {
+            public static readonly FieldInfo DateField
+                = typeof(HiddenFieldBase).GetRuntimeFields().Single(f => f.Name == nameof(_date));
+
+            public static readonly PropertyInfo RaisinProperty
+                = typeof(HiddenFieldBase).GetRuntimeProperties().Single(p => p.Name == nameof(Raisin));
+
+            private string _date;
+            private string Raisin { get; set; }
+
+            public DateTime Date
+            {
+                get => DateTime.Parse(_date);
+                set => _date = value.ToString();
+            }
+        }
+
+        [Fact]
         public void AddProperty_throws_if_shadow_entity_type()
         {
             var entityType = new Model().AddEntityType("Customer");

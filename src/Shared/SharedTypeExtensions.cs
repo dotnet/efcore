@@ -177,16 +177,22 @@ namespace System
 
         public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type)
         {
-            // Do the whole hierarchy for properties first since looking for fields is slower.
-            foreach (var propertyInfo in type.GetRuntimeProperties().Where(pi => !(pi.GetMethod ?? pi.SetMethod).IsStatic))
+            do
             {
-                yield return propertyInfo;
-            }
+                // Do the whole hierarchy for properties first since looking for fields is slower.
+                foreach (var propertyInfo in type.GetRuntimeProperties().Where(pi => !(pi.GetMethod ?? pi.SetMethod).IsStatic))
+                {
+                    yield return propertyInfo;
+                }
 
-            foreach (var fieldInfo in type.GetRuntimeFields().Where(f => !f.IsStatic))
-            {
-                yield return fieldInfo;
+                foreach (var fieldInfo in type.GetRuntimeFields().Where(f => !f.IsStatic))
+                {
+                    yield return fieldInfo;
+                }
+
+                type = type.BaseType;
             }
+            while (type != null);
         }
 
         public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type, string name)
