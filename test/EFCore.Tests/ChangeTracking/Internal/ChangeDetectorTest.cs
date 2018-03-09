@@ -7,8 +7,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -676,11 +674,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(newCategory, testListener.ReferenceChange.Item4);
 
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.KeyChange);
+
+            Assert.Equal("DependentId", testListener.KeyChange.Item2.Name);
+            Assert.Equal(1, testListener.KeyChange.Item5);
+            Assert.Equal(2, testListener.KeyChange.Item6);
         }
 
-        [Fact]
-        public void Detects_reference_navigation_changing_back_to_original_value()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Detects_reference_navigation_changing_back_to_original_value(bool useNull)
         {
             var contextServices = CreateContextServices();
 
@@ -692,12 +695,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new Category { Id = 99, PrincipalId = 2, TagId = 778 };
+            var newCategory = useNull ? null : new Category { Id = 99, PrincipalId = 2, TagId = 778 };
             product.Category = newCategory;
 
             changeDetector.DetectChanges(entry);
-
-            entry.SetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category"), newCategory);
 
             product.Category = originalCategory;
 
@@ -710,8 +711,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(newCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
-            Assert.Null(testListener.KeyChange);
-            Assert.Null(testListener.CollectionChange);
+            Assert.Equal("DependentId", testListener.KeyChange.Item2.Name);
+            Assert.Equal(useNull ? null : (object)2, testListener.KeyChange.Item5);
+            Assert.Equal(1, testListener.KeyChange.Item6);
         }
 
         [Fact]
@@ -1263,13 +1265,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(newCategory, testListener.ReferenceChange.Item4);
 
-            Assert.Null(testListener.KeyChange);
-            Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.KeyChange);
+
+            Assert.Equal("DependentId", testListener.KeyChange.Item2.Name);
+            Assert.Equal(1, testListener.KeyChange.Item5);
+            Assert.Equal(2, testListener.KeyChange.Item6);
         }
 
-        [Fact]
-        public void Handles_notification_of_reference_navigation_changing_back_to_original_value()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Handles_notification_of_reference_navigation_changing_back_to_original_value(bool useNull)
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
@@ -1280,10 +1285,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new NotifyingCategory { Id = 78, PrincipalId = 2, TagId = 778 };
-
+            var newCategory = useNull ? null : new NotifyingCategory { Id = 78, PrincipalId = 2, TagId = 778 };
+            
             product.Category = newCategory;
-            entry.SetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category"), newCategory);
             product.Category = originalCategory;
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
@@ -1293,8 +1297,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(newCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
-            Assert.Null(testListener.KeyChange);
-            Assert.Null(testListener.CollectionChange);
+            Assert.Equal("DependentId", testListener.KeyChange.Item2.Name);
+            Assert.Equal(useNull ? null : (object)2, testListener.KeyChange.Item5);
+            Assert.Equal(1, testListener.KeyChange.Item6);
         }
 
         [Fact]
@@ -1869,20 +1874,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 model ?? BuildModel());
         }
 
-        private class TestAttacher : IEntityGraphAttacher
+        private class TestAttacher : EntityGraphAttacher
         {
+            public TestAttacher(IEntityEntryGraphIterator graphIterator)
+                : base(graphIterator)
+            {
+            }
+
             public Tuple<InternalEntityEntry, EntityState> Attached { get; set; }
 
-            public void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState, bool forceStateWhenUnknownKey)
-                => Attached = Tuple.Create(rootEntry, entityState);
-
-            public Task AttachGraphAsync(
-                InternalEntityEntry rootEntry,
-                EntityState entityState,
-                bool forceStateWhenUnknownKey,
-                CancellationToken cancellationToken = new CancellationToken())
+            public override void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState, bool forceStateWhenUnknownKey)
             {
-                throw new NotImplementedException();
+                Attached = Tuple.Create(rootEntry, entityState);
+
+                base.AttachGraph(rootEntry, entityState, forceStateWhenUnknownKey);
             }
         }
 
