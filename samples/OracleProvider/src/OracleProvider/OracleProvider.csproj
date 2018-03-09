@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="$(OracleManagedDataAccessPackageVersion)" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="$(OracleManagedDataAccessCorePackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
