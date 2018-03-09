@@ -25,11 +25,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Multi_include_with_groupby_in_subquery();
         }
-
-        [ConditionalFact(Skip = "Issue #10060")]
-        public override void Include_reference_collection_order_by_reference_navigation()
-        {
-            base.Include_reference_collection_order_by_reference_navigation();
-        }
     }
 }

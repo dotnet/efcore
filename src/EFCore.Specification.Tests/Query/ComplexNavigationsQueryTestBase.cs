@@ -3926,7 +3926,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<Level1>(
                 l1s => l1s
                     .Include(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional)
-                    .OrderBy(l1 => l1.OneToOne_Optional_FK.Id),
+                    .OrderBy(l1 => (int?)l1.OneToOne_Optional_FK.Id),
                 l1s => l1s
                     .Include(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional)
                     .OrderBy(l1 => MaybeScalar<int>(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Id)),
