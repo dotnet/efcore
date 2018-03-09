@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GenerateCandidateIdentifier([NotNull] DatabaseTable originalTable)
+        public virtual string GenerateCandidateIdentifier(DatabaseTable originalTable)
         {
             return GenerateCandidateIdentifier(originalTable.Name);
         }
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GenerateCandidateIdentifier([NotNull] DatabaseColumn originalColumn)
+        public virtual string GenerateCandidateIdentifier(DatabaseColumn originalColumn)
         {
             return GenerateCandidateIdentifier(originalColumn.Name);
         }
