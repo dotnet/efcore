@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class ModelSource : IModelSource
     {
-        private readonly ConcurrentDictionary<object, IModel> _models = new ConcurrentDictionary<object, IModel>();
+        private readonly ConcurrentDictionary<object, Lazy<IModel>> _models = new ConcurrentDictionary<object, Lazy<IModel>>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -53,7 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
             => _models.GetOrAdd(
                 Dependencies.ModelCacheKeyFactory.Create(context),
-                k => CreateModel(context, conventionSetBuilder, validator));
+                // Using a Lazy here so that OnModelCreating, etc. really only gets called once, since it may not be thread safe.
+                k => new Lazy<IModel>(
+                    () => CreateModel(context, conventionSetBuilder, validator),
+                    LazyThreadSafetyMode.ExecutionAndPublication)).Value;
 
         /// <summary>
         ///     Creates the model. This method is called when the model was not found in the cache.

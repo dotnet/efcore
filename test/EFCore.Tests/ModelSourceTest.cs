@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -23,6 +26,47 @@ namespace Microsoft.EntityFrameworkCore
 
         private readonly NullConventionSetBuilder _nullConventionSetBuilder
             = new NullConventionSetBuilder();
+
+        [Fact]
+        public void OnModelCreating_is_only_called_once()
+        {
+            const int threadCount = 5;
+
+            var models = new IModel[threadCount];
+
+            Parallel.For(
+                0, threadCount,
+                i =>
+                {
+                    using (var context = new SlowContext())
+                    {
+                        models[i] = context.Model;
+                    }
+                });
+
+            Assert.NotNull(models[0]);
+
+            foreach (var model in models)
+            {
+                Assert.Same(models[0], model);
+            }
+
+            Assert.Equal(1, SlowContext.CallCount);
+        }
+
+        private class SlowContext : DbContext
+        {
+            public static int CallCount { get; private set; }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                CallCount++;
+                Thread.Sleep(200);
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(SlowContext));
+        }
 
         [Fact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
