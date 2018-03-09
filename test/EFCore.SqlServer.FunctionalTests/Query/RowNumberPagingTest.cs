@@ -253,6 +253,30 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
+        public override void OrderBy_skip_skip_take()
+        {
+            base.OrderBy_skip_skip_take();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='8'
+@__p_2='3'
+
+SELECT [t1].*
+FROM (
+    SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [t].[ContactTitle], [t].[ContactName]) AS [__RowNumber__1]
+    FROM (
+        SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+        FROM (
+            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactTitle], [c].[ContactName]) AS [__RowNumber__]
+            FROM [Customers] AS [c]
+        ) AS [t0]
+        WHERE [t0].[__RowNumber__] > @__p_0
+    ) AS [t]
+) AS [t1]
+WHERE ([t1].[__RowNumber__1] > @__p_1) AND ([t1].[__RowNumber__1] <= (@__p_1 + @__p_2))");
+        }
+
         public override void OrderBy_skip_take_take()
         {
             base.OrderBy_skip_take_take();
