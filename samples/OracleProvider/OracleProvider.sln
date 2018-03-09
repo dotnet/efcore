@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleProvider", "src\Oracl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleProvider.FunctionalTests", "test\OracleProvider.FunctionalTests\OracleProvider.FunctionalTests.csproj", "{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Attributes", "..\..\src\EFCore.Attributes\EFCore.Attributes.csproj", "{11B51A41-47CB-4EDB-9D8A-17095A65034A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Abstractions", "..\..\src\EFCore.Abstractions\EFCore.Abstractions.csproj", "{11B51A41-47CB-4EDB-9D8A-17095A65034A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Proxies", "..\..\src\EFCore.Proxies\EFCore.Proxies.csproj", "{467616E6-30EA-4861-B96B-9ABD46BE41EA}"
 EndProject

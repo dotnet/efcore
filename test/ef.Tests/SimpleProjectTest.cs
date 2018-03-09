@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("System.Interactive.Async", true),
                         BuildReference.ByName("System.Data.SqlClient", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Attributes", true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", true),

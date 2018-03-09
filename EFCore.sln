@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ef", "src\ef\ef.csproj", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore", "src\EFCore\EFCore.csproj", "{715C38E9-B2F5-4DB2-8025-0C6492DEBDD4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Attributes", "src\EFCore.Attributes\EFCore.Attributes.csproj", "{11B51A41-47CB-4EDB-9D8A-17095A65034A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Abstractions", "src\EFCore.Abstractions\EFCore.Abstractions.csproj", "{11B51A41-47CB-4EDB-9D8A-17095A65034A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Design", "src\EFCore.Design\EFCore.Design.csproj", "{D3D0A8E8-EC2F-4E01-8650-8554E186A66F}"
 EndProject

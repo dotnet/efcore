@@ -32,7 +32,7 @@ Microsoft.EntityFrameworkCore.DbSet
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.Attributes\EFCore.Attributes.csproj" />
+    <ProjectReference Include="..\EFCore.Abstractions\EFCore.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
