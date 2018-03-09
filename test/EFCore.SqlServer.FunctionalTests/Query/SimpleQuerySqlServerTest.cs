@@ -3182,6 +3182,27 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void OrderBy_skip_skip_take()
+        {
+            base.OrderBy_skip_skip_take();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='8'
+@__p_2='3'
+
+SELECT [t].*
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[ContactTitle], [c].[ContactName]
+    OFFSET @__p_0 ROWS
+) AS [t]
+ORDER BY [t].[ContactTitle], [t].[ContactName]
+OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void OrderBy_skip_take_take()
         {
             base.OrderBy_skip_take_take();

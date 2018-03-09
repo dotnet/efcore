@@ -204,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [param: CanBeNull]
             set
             {
-                if (_limit != null
+                if ((_limit != null
+                        || _offset != null)
                     && value != null)
                 {
                     PushDownSubquery();

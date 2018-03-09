@@ -3229,6 +3229,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void OrderBy_skip_skip_take()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactTitle)
+                    .ThenBy(c => c.ContactName)
+                    .Skip(5)
+                    .Skip(8)
+                    .Take(3),
+                assertOrder: true,
+                entryCount: 3);
+        }
+
+        [ConditionalFact]
         public virtual void OrderBy_skip_take_take()
         {
             AssertQuery<Customer>(
