@@ -1515,5 +1515,41 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__p_0");
         }
+
+        public override void Where_multiple_contains_in_subquery_with_or()
+        {
+            base.Where_multiple_contains_in_subquery_with_or();
+
+            AssertSql(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE [od].[ProductID] IN (
+    SELECT TOP(1) [p].[ProductID]
+    FROM [Products] AS [p]
+    ORDER BY [p].[ProductID]
+) OR [od].[OrderID] IN (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+)");
+        }
+
+        public override void Where_multiple_contains_in_subquery_with_and()
+        {
+            base.Where_multiple_contains_in_subquery_with_and();
+
+            AssertSql(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE [od].[ProductID] IN (
+    SELECT TOP(20) [p].[ProductID]
+    FROM [Products] AS [p]
+    ORDER BY [p].[ProductID]
+) AND [od].[OrderID] IN (
+    SELECT TOP(10) [o].[OrderID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+)");
+        }
     }
 }
