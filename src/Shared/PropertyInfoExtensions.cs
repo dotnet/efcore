@@ -20,8 +20,9 @@ namespace System.Reflection
             => !propertyInfo.IsStatic()
                && propertyInfo.GetIndexParameters().Length == 0
                && propertyInfo.CanRead
-               && (!needsWrite || propertyInfo.CanWrite)
+               && (!needsWrite || propertyInfo.FindSetterProperty() != null)
                && propertyInfo.GetMethod != null && (!publicOnly || propertyInfo.GetMethod.IsPublic);
+
 
         public static Type FindCandidateNavigationPropertyType(
             this PropertyInfo propertyInfo,
