@@ -149,7 +149,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Expression expression,
             ref IReadOnlyList<Expression> values)
         {
-            if (expression is InExpression inExpression)
+            if (expression is InExpression inExpression
+                // We can merge InExpression only when it is from values.
+                && inExpression.Values != null)
             {
                 values = inExpression.Values;
 

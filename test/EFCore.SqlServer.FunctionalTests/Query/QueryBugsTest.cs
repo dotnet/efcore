@@ -20,6 +20,8 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
+#pragma warning disable CA1034 // Nested types should not be visible
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable AccessToDisposedClosure
@@ -1917,7 +1919,9 @@ WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
         }
 
         [Flags]
+#pragma warning disable CA2217 // Do not mark enums with FlagsAttribute
         public enum Permission : long
+#pragma warning restore CA2217 // Do not mark enums with FlagsAttribute
         {
             NONE = 0x01,
             READ_ONLY = 0x02,
@@ -3211,8 +3215,6 @@ WHERE [b].[IsTwo] IN (1, 0)");
                 : base(options)
             {
             }
-
-            public DbSet<Blog10301> Blogs { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

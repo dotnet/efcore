@@ -1406,5 +1406,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == customers[0]),
                 entryCount: 1);
         }
+
+        [ConditionalFact]
+        public virtual void Where_multiple_contains_in_subquery_with_or()
+        {
+            AssertQuery<OrderDetail, Product, Order>(
+                (ods, ps, os) =>
+                    ods.Where(od =>
+                        ps.OrderBy(p => p.ProductID).Take(1).Select(p => p.ProductID).Contains(od.ProductID)
+                        || os.OrderBy(o => o.OrderID).Take(1).Select(o => o.OrderID).Contains(od.OrderID)),
+                entryCount: 41);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_multiple_contains_in_subquery_with_and()
+        {
+            AssertQuery<OrderDetail, Product, Order>(
+                (ods, ps, os) =>
+                    ods.Where(od =>
+                        ps.OrderBy(p => p.ProductID).Take(20).Select(p => p.ProductID).Contains(od.ProductID)
+                        && os.OrderBy(o => o.OrderID).Take(10).Select(o => o.OrderID).Contains(od.OrderID)),
+                entryCount: 5);
+        }
     }
 }
