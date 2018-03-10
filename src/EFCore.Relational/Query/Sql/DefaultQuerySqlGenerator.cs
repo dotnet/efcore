@@ -1942,6 +1942,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 return expression.IsComparisonOperation()
                        || expression.IsLogicalOperation()
+                       || expression.NodeType == ExpressionType.Not
                        || expression is ExistsExpression
                        || expression is InExpression
                        || expression is IsNullExpression

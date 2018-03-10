@@ -6111,6 +6111,26 @@ FROM [Gears] AS [g0]
 WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')");
         }
 
+        public override void Negated_bool_ternary_inside_anonymous_type_in_projection()
+        {
+            base.Negated_bool_ternary_inside_anonymous_type_in_projection();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN NOT (CASE
+        WHEN [t0].[HasSoulPatch] = 1
+        THEN CAST(1 AS BIT) ELSE COALESCE([t0].[HasSoulPatch], 1)
+    END = 1)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END AS [c]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [t.Gear].*
+    FROM [Gears] AS [t.Gear]
+    WHERE [t.Gear].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

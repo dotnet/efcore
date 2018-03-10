@@ -4350,6 +4350,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
+        [ConditionalFact]
+        public virtual void Negated_bool_ternary_inside_anonymous_type_in_projection()
+        {
+            AssertQuery<CogTag>(
+                cts => cts.Select(t => new { c = !(t.Gear.HasSoulPatch ? true : ((bool?)t.Gear.HasSoulPatch ?? true)) }),
+                cts => cts.Select(
+                    t => new
+                    {
+                        c = !(MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) ?? false
+                            ? true
+                            : (MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) ?? true))
+                    }),
+                elementSorter: e => e.c);
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

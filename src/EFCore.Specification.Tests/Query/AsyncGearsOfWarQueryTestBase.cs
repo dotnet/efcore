@@ -1357,5 +1357,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Include(g => g.Squad).Concat(gs),
                 expectedIncludes);
         }
+
+        [ConditionalFact]
+        public virtual async Task Negated_bool_ternary_inside_anonymous_type_in_projection()
+        {
+            await AssertQuery<CogTag>(
+                cts => cts.Select(t => new { c = !(t.Gear.HasSoulPatch ? true : ((bool?)t.Gear.HasSoulPatch ?? true)) }),
+                cts => cts.Select(
+                    t => new
+                    {
+                        c = !(MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) ?? false
+                            ? true
+                            : (MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) ?? true))
+                    }),
+                elementSorter: e => e.c);
+        }
     }
 }
