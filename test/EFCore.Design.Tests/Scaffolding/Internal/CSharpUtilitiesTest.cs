@@ -47,6 +47,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         [Fact]
+        public void Generate_MethodCallCodeFragment_works_with_arrays()
+        {
+            var method = new MethodCallCodeFragment("Test", new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { "foo", "bar" });
+
+            var result = new CSharpUtilities().Generate(method);
+
+            Assert.Equal(".Test(new byte[] { 1, 2 }, new int[] { 3, 4 }, new string[] { \"foo\", \"bar\" })", result);
+        }
+
+        [Fact]
         public void Generate_MethodCallCodeFragment_works_when_niladic()
         {
             var method = new MethodCallCodeFragment("Test");

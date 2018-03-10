@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,7 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Utilities;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -146,11 +148,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string GenerateLiteral(byte[] value)
+        public virtual string GenerateLiteral(Array value)
         {
             Check.NotNull(value, nameof(value));
 
-            return "new byte[] {" + string.Join(", ", value) + "}";
+            var elementType = value.GetType().GetElementType();
+            Debug.Assert(elementType != null);
+
+            return $"new {elementType.ShortDisplayName()}[] {{ {string.Join(", ", value.Cast<object>().Select(e => GenerateLiteral((dynamic)e)))} }}";
         }
 
         /// <summary>
