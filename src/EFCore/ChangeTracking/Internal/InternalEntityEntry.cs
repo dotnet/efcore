@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var currentValue = this[propertyBase];
                 var propertyIndex = property.GetIndex();
-                if (!Equals(currentValue, value)
+                if (!ValuesEqual(property, currentValue, value)
                     && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown))
                 {
                     SetPropertyModified(property);
@@ -804,7 +804,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var propertyIndex = asProperty?.GetIndex();
 
                 var valuesEqual = asProperty != null
-                    ? Equals(currentValue, value)
+                    ? ValuesEqual(asProperty, value, currentValue)
                     : ReferenceEquals(currentValue, value);
 
                 if (!valuesEqual
@@ -865,6 +865,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
         }
+
+        private static bool ValuesEqual(IProperty property, object value, object currentValue)
+            => (property.GetValueComparer()
+                ?? property.FindMapping()?.Comparer)
+               ?.CompareFunc(currentValue, value)
+               ?? Equals(currentValue, value);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

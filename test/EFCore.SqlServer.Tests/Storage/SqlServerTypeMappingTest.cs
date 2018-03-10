@@ -6,7 +6,9 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -15,6 +17,74 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
+        [Theory]
+        [InlineData(nameof(ChangeTracker.DetectChanges), false)]
+        [InlineData(nameof(PropertyEntry.CurrentValue), false)]
+        [InlineData(nameof(PropertyEntry.OriginalValue), false)]
+        [InlineData(nameof(ChangeTracker.DetectChanges), true)]
+        [InlineData(nameof(PropertyEntry.CurrentValue), true)]
+        [InlineData(nameof(PropertyEntry.OriginalValue), true)]
+        public void Row_version_is_marked_as_modified_only_if_it_really_changed(string mode, bool changeValue)
+        {
+            using (var context = new OptimisticContext())
+            {
+                var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+                var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
+
+                var entity = context.Attach(
+                    new WithRowVersion
+                    {
+                        Id = 789,
+                        Version = token.ToArray()
+                    }).Entity;
+
+                var propertyEntry = context.Entry(entity).Property(e => e.Version);
+
+                Assert.Equal(token, propertyEntry.CurrentValue);
+                Assert.Equal(token, propertyEntry.OriginalValue);
+                Assert.False(propertyEntry.IsModified);
+                Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
+
+                switch (mode)
+                {
+                    case nameof(ChangeTracker.DetectChanges):
+                        entity.Version = newToken.ToArray();
+                        context.ChangeTracker.DetectChanges();
+                        break;
+                    case nameof(PropertyEntry.CurrentValue):
+                        propertyEntry.CurrentValue = newToken.ToArray();
+                        break;
+                    case nameof(PropertyEntry.OriginalValue):
+                        propertyEntry.OriginalValue = newToken.ToArray();
+                        break;
+                    default:
+                        throw new NotImplementedException("Unexpected test mode.");
+                }
+
+                Assert.Equal(changeValue, propertyEntry.IsModified);
+                Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
+            }
+        }
+
+        private class WithRowVersion
+        {
+            public int Id { get; set; }
+            public byte[] Version { get; set; }
+        }
+
+        private class OptimisticContext : DbContext
+        {
+            public DbSet<WithRowVersion> _ { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer("Data Source=Branston");
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<WithRowVersion>().Property(e => e.Version).IsRowVersion();
+            }
+        }
+
         protected override DbCommand CreateTestCommand()
             => new SqlCommand();
 

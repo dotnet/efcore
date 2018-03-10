@@ -2,9 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -22,7 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new SqlServerFloatTypeMapping("real");
 
         private readonly SqlServerByteArrayTypeMapping _rowversion
-            = new SqlServerByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
+            = new SqlServerByteArrayTypeMapping(
+                "rowversion",
+                null,
+                new ValueComparer<byte[]>(
+                    (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
+                    v => v == null ? null : v.ToArray()),
+                dbType: DbType.Binary,
+                size: 8);
 
         private readonly IntTypeMapping _int
             = new IntTypeMapping("int", DbType.Int32);
