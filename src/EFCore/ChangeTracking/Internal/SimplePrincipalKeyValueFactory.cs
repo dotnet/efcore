@@ -30,9 +30,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _property = property;
             _propertyAccessors = _property.GetPropertyAccessors();
 
-            EqualityComparer = typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(typeof(TKey).GetTypeInfo())
-                ? (IEqualityComparer<TKey>)new NoNullsStructuralEqualityComparer()
-                : EqualityComparer<TKey>.Default;
+            var comparer = property.GetKeyValueComparer()
+                           ?? property.FindMapping()?.KeyComparer;
+
+            EqualityComparer
+                = comparer != null
+                    ? new NoNullsCustomEqualityComparer(comparer)
+                    : typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(typeof(TKey).GetTypeInfo())
+                        ? (IEqualityComparer<TKey>)new NoNullsStructuralEqualityComparer()
+                        : EqualityComparer<TKey>.Default;
         }
 
         /// <summary>
@@ -97,6 +103,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public bool Equals(TKey x, TKey y) => _comparer.Equals(x, y);
             public int GetHashCode(TKey obj) => _comparer.GetHashCode(obj);
+        }
+
+        private sealed class NoNullsCustomEqualityComparer : IEqualityComparer<TKey>
+        {
+            private readonly Func<TKey, TKey, bool> _equals;
+            private readonly Func<TKey, int> _hashCode;
+
+            public NoNullsCustomEqualityComparer(ValueComparer comparer)
+            {
+                if (comparer.Type != typeof(TKey)
+                    && comparer.Type == typeof(TKey).UnwrapNullableType())
+                {
+                    comparer = comparer.ToNonNullNullableComparer();
+                }
+
+                _equals = (Func<TKey, TKey, bool>)comparer.EqualsExpression.Compile();
+                _hashCode = (Func<TKey, int>)comparer.HashCodeExpression.Compile();
+            }
+
+            public bool Equals(TKey x, TKey y) => _equals(x, y);
+
+            public int GetHashCode(TKey obj) => _hashCode(obj);
         }
     }
 }

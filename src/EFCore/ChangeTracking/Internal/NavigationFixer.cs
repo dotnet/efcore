@@ -791,12 +791,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                var principalValue = principalEntry[principalProperties[i]];
+                var principalProperty = principalProperties[i];
                 var dependentProperty = dependentProperties[i];
+                var principalValue = principalEntry[principalProperty];
+                var dependentValue = dependentEntry[dependentProperty];
 
-                if (!StructuralComparisons.StructuralEqualityComparer.Equals(
-                        dependentEntry[dependentProperty],
-                        principalValue)
+                if (!PrincipalValueEqualsDependentValue(principalProperty, dependentValue, principalValue)
                     || (dependentEntry.IsConceptualNull(dependentProperty)
                         && principalValue != null))
                 {
@@ -806,6 +806,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
         }
+
+        private static bool PrincipalValueEqualsDependentValue(
+            IProperty principalProperty,
+            object dependentValue,
+            object principalValue)
+            => (principalProperty.GetKeyValueComparer()
+                ?? principalProperty.FindMapping()?.KeyComparer)
+               ?.Equals(dependentValue, principalValue)
+               ?? StructuralComparisons.StructuralEqualityComparer.Equals(
+                   dependentValue,
+                   principalValue);
 
         private void ConditionallyNullForeignKeyProperties(
             InternalEntityEntry dependentEntry,
@@ -821,9 +832,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 for (var i = 0; i < foreignKey.Properties.Count; i++)
                 {
-                    if (!StructuralComparisons.StructuralEqualityComparer.Equals(
-                        principalEntry[principalProperties[i]],
-                        dependentEntry[dependentProperties[i]]))
+                    if (!PrincipalValueEqualsDependentValue(
+                        principalProperties[i], 
+                        dependentEntry[dependentProperties[i]],
+                        principalEntry[principalProperties[i]]))
                     {
                         return;
                     }

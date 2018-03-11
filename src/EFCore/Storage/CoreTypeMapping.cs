@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,22 +21,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class CoreTypeMapping
     {
+        private ValueComparer _comparer;
+        private ValueComparer _keyComparer;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="CoreTypeMapping" /> class.
         /// </summary>
         /// <param name="clrType"> The .NET type used in the EF model. </param>
         /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
         /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
+        /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
         public CoreTypeMapping(
             [NotNull] Type clrType,
             [CanBeNull] ValueConverter converter = null,
-            [CanBeNull] ValueComparer comparer = null)
+            [CanBeNull] ValueComparer comparer = null,
+            [CanBeNull] ValueComparer keyComparer = null)
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            ClrType = converter?.ModelClrType ?? clrType;
+            clrType = converter?.ModelClrType ?? clrType;
+            ClrType = clrType;
             Converter = converter;
-            Comparer = comparer;
+
+            if (comparer?.Type == clrType)
+            {
+                _comparer = comparer;
+            }
+
+            if (keyComparer?.Type == clrType)
+            {
+                _keyComparer = keyComparer;
+            }
         }
 
         /// <summary>
@@ -54,7 +70,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     CLR types that cannot be compared with <see cref="object.Equals(object, object)" />
         ///     and/or need a deep copy when taking a snapshot.
         /// </summary>
-        public virtual ValueComparer Comparer { get; }
+        public virtual ValueComparer Comparer
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _comparer,
+                this,
+                c => CreateComparer(c.ClrType, favorStructuralComparisons: false));
+
+        /// <summary>
+        ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
+        ///     comparing key values to each other. For example, when comparing a PK to and FK.
+        /// </summary>
+        public virtual ValueComparer KeyComparer
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _keyComparer,
+                this,
+                c => CreateComparer(c.ClrType, favorStructuralComparisons: true));
+
+        private static ValueComparer CreateComparer(Type clrType, bool favorStructuralComparisons)
+            => (ValueComparer)Activator.CreateInstance(
+                typeof(ValueComparer<>).MakeGenericType(clrType),
+                new object[] { favorStructuralComparisons });
 
         /// <summary>
         ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />

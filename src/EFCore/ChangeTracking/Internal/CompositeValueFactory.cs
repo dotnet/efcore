@@ -112,9 +112,64 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected static IEqualityComparer<object[]> CreateEqualityComparer([NotNull] IReadOnlyList<IProperty> properties)
-            => properties.Any(p => typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(p.ClrType.GetTypeInfo()))
-                ? (IEqualityComparer<object[]>)new StructuralCompositeComparer()
-                : new CompositeComparer();
+        {
+            var comparers = properties.Select(p => p.GetKeyValueComparer() ?? p.FindMapping()?.KeyComparer).ToList();
+
+            return comparers.All(c => c != null)
+                ? new CompositeCustomComparer(comparers)
+                : properties.Any(p => typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(p.ClrType.GetTypeInfo()))
+                    ? (IEqualityComparer<object[]>)new StructuralCompositeComparer()
+                    : new CompositeComparer();
+        }
+
+        private sealed class CompositeCustomComparer : IEqualityComparer<object[]>
+        {
+            private readonly Func<object, object, bool>[] _equals;
+            private readonly Func<object, int>[] _hashCodes;
+
+            public CompositeCustomComparer(IList<ValueComparer> comparers)
+            {
+                _equals = comparers.Select(c => c.Equals).ToArray();
+                _hashCodes = comparers.Select(c => c.HashCode).ToArray();
+            }
+
+            public bool Equals(object[] x, object[] y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x.Length != y.Length)
+                {
+                    return false;
+                }
+
+                for (var i = 0; i < x.Length; i++)
+                {
+                    if (!_equals[i](x[i], y[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public int GetHashCode(object[] obj)
+            {
+                var hashCode = 0;
+
+                // ReSharper disable once ForCanBeConvertedToForeach
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                for (var i = 0; i < obj.Length; i++)
+                {
+                    hashCode = (hashCode * 397) ^ _hashCodes[i](obj[i]);
+                }
+
+                return hashCode;
+            }
+        }
 
         private sealed class CompositeComparer : IEqualityComparer<object[]>
         {

@@ -30,11 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [CanBeNull] string udtTypeName = null,
             [CanBeNull] ValueConverter converter = null,
             [CanBeNull] ValueComparer comparer = null,
+            [CanBeNull] ValueComparer keyComparer = null,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null,
             bool fixedLength = false)
-            : base(storeType, clrType, converter, comparer, dbType, unicode, size, fixedLength)
+            : base(storeType, clrType, converter, comparer, keyComparer, dbType, unicode, size, fixedLength)
         {
             UdtTypeName = udtTypeName ?? storeType;
         }
@@ -50,14 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerUdtTypeMapping(storeType, ClrType, UdtTypeName, Converter, Comparer, DbType, IsUnicode, size, IsFixedLength);
+            => new SqlServerUdtTypeMapping(storeType, ClrType, UdtTypeName, Converter, Comparer, KeyComparer, DbType, IsUnicode, size, IsFixedLength);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerUdtTypeMapping(StoreType, ClrType, UdtTypeName, ComposeConverter(converter), Comparer, DbType, IsUnicode, Size, IsFixedLength);
+            => new SqlServerUdtTypeMapping(StoreType, ClrType, UdtTypeName, ComposeConverter(converter), Comparer, KeyComparer, DbType, IsUnicode, Size, IsFixedLength);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

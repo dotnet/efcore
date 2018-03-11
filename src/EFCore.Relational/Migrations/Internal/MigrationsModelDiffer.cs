@@ -1581,38 +1581,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 continue;
                             }
 
-                            var sourceConverter = GetValueConverter(sourceProperty);
-                            var targetConverter = GetValueConverter(targetProperty);
                             var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
                             var targetValue = entry.GetCurrentValue(targetProperty);
                             var comparer = targetProperty.GetValueComparer() ??
                                            sourceProperty.GetValueComparer() ??
                                            targetProperty.FindMapping()?.Comparer ??
                                            sourceProperty.FindMapping()?.Comparer;
-                            if (sourceProperty.ClrType == targetProperty.ClrType
-                                && comparer != null)
+
+                            var modelValuesChanged
+                                = sourceProperty.ClrType.UnwrapNullableType() == targetProperty.ClrType.UnwrapNullableType()
+                                  && comparer != null
+                                  && !comparer.Equals(sourceValue, targetValue);
+
+                            if (!modelValuesChanged)
                             {
-                                if (comparer.CompareFunc(sourceValue, targetValue))
+                                var sourceConverter = GetValueConverter(sourceProperty);
+                                var targetConverter = GetValueConverter(targetProperty);
+
+                                var convertedSourceValue = sourceConverter == null
+                                    ? sourceValue
+                                    : sourceConverter.ConvertToProvider(sourceValue);
+
+                                var convertedTargetValue = targetConverter == null
+                                    ? targetValue
+                                    : targetConverter.ConvertToProvider(targetValue);
+
+                                var convertedType = sourceConverter?.ProviderClrType
+                                                    ?? targetConverter?.ProviderClrType;
+
+                                var storeValuesChanged = convertedSourceValue?.GetType().UnwrapNullableType() != convertedTargetValue?.GetType().UnwrapNullableType();
+
+                                if (!storeValuesChanged
+                                    && convertedType != null)
+                                {
+                                    comparer = TypeMappingSource.FindMapping(convertedType)?.Comparer;
+
+                                    storeValuesChanged = !comparer?.Equals(convertedSourceValue, convertedTargetValue)
+                                                         ?? !Equals(convertedSourceValue, convertedTargetValue);
+                                }
+
+                                if (!storeValuesChanged)
                                 {
                                     entry.SetOriginalValue(targetProperty, entry.GetCurrentValue(targetProperty));
+
                                     continue;
                                 }
-                            }
-                            else
-                            {
-                                if (sourceConverter != null)
-                                {
-                                    sourceValue = sourceConverter.ConvertToProvider(sourceValue);
-                                }
-                                if (targetConverter != null)
-                                {
-                                    targetValue = targetConverter.ConvertToProvider(targetValue);
-                                }
-                                if (Equals(sourceValue, targetValue))
-                                {
-                                    entry.SetOriginalValue(targetProperty, entry.GetCurrentValue(targetProperty));
-                                    continue;
-                                }
+
                             }
 
                             if (targetProperty.AfterSaveBehavior != PropertySaveBehavior.Save)
@@ -1620,10 +1634,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 entryMapping.RecreateRow = true;
                                 break;
                             }
-                            else
-                            {
-                                entry.SetPropertyModified(targetProperty);
-                            }
+
+                            entry.SetPropertyModified(targetProperty);
                         }
                     }
                 }

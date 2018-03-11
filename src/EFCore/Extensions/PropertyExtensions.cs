@@ -168,5 +168,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
         public static ValueComparer GetValueComparer([NotNull] this IProperty property)
             => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueComparer];
+
+        /// <summary>
+        ///     Gets the <see cref="ValueComparer"/> for this property, or null if none is set.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
+        public static ValueComparer GetKeyValueComparer([NotNull] this IProperty property)
+            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
     }
 }

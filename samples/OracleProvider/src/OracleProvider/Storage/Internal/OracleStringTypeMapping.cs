@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             bool unicode = false,
             int? size = null,
             bool fixedLength = false)
-            : this(storeType, null, null, dbType, unicode, size, fixedLength)
+            : this(storeType, null, null, null, dbType, unicode, size, fixedLength)
         {
         }
 
@@ -28,11 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] string storeType,
             [CanBeNull] ValueConverter converter,
             [CanBeNull] ValueComparer comparer,
+            [CanBeNull] ValueComparer keyComparer,
             [CanBeNull] DbType? dbType,
             bool unicode = false,
             int? size = null,
             bool fixedLength = false)
-            : base(storeType, converter, comparer, dbType, unicode, size, fixedLength)
+            : base(storeType, converter, comparer, keyComparer, dbType, unicode, size, fixedLength)
         {
             _maxSpecificSize = CalculateSize(unicode, size);
         }
@@ -47,10 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     : 4000;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleStringTypeMapping(storeType, Converter, Comparer, DbType, IsUnicode, size, IsFixedLength);
+            => new OracleStringTypeMapping(storeType, Converter, Comparer, KeyComparer, DbType, IsUnicode, size, IsFixedLength);
 
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleStringTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType, IsUnicode, Size, IsFixedLength);
+            => new OracleStringTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer, DbType, IsUnicode, Size, IsFixedLength);
 
         protected override void ConfigureParameter(DbParameter parameter)
         {

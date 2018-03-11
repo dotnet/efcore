@@ -122,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "udtType",
                 new FakeValueConverter(),
                 new FakeValueComparer(),
+                new FakeValueComparer(),
                 DbType.VarNumeric,
                 false,
                 33,
@@ -143,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.NotNull(mapping.Converter);
             Assert.Same(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
+            Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
@@ -163,6 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(clone.IsUnicode);
             Assert.NotSame(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
+            Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);

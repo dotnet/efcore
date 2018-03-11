@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : this(storeType, clrType, null, null, dbType, unicode, size)
+            : this(storeType, clrType, null, null, null, dbType, unicode, size)
         {
         }
 
@@ -90,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="clrType"> The .NET type. </param>
         /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
         /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
+        /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
@@ -99,11 +100,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] Type clrType,
             [CanBeNull] ValueConverter converter,
             [CanBeNull] ValueComparer comparer,
+            [CanBeNull] ValueComparer keyComparer,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null,
             bool fixedLength = false)
-            : base(clrType, converter, comparer)
+            : base(clrType, converter, comparer, keyComparer)
         {
             Check.NotEmpty(storeType, nameof(storeType));
 

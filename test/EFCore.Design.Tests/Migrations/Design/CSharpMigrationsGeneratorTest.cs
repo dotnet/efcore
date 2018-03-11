@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueComparer,
+                CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.ProviderClrType,
                 RelationalAnnotationNames.ColumnName,
                 RelationalAnnotationNames.ColumnType,
@@ -485,6 +486,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MyNamespace

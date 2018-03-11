@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public OracleDoubleTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null)
-            : this(storeType, null, null, dbType)
+            : this(storeType, null, null, null, dbType)
         {
         }
 
@@ -21,16 +21,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] string storeType,
             [CanBeNull] ValueConverter converter,
             [CanBeNull] ValueComparer comparer,
+            [CanBeNull] ValueComparer keyComparer,
             [CanBeNull] DbType? dbType = null)
-            : base(storeType, converter, comparer, dbType)
+            : base(storeType, converter, comparer, keyComparer, dbType)
         {
         }
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleDoubleTypeMapping(storeType, Converter, Comparer, DbType);
+            => new OracleDoubleTypeMapping(storeType, Converter, Comparer, KeyComparer, DbType);
 
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleDoubleTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType);
+            => new OracleDoubleTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer, DbType);
 
         protected override string GenerateNonNullSqlLiteral(object value)
         {

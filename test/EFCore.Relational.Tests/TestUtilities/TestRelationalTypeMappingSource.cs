@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -39,6 +42,41 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private static readonly RelationalTypeMapping _someIntMapping
             = new IntTypeMapping("some_int_mapping");
+
+        private class IntArrayTypeMapping : RelationalTypeMapping
+        {
+            public IntArrayTypeMapping()
+                : base(
+                    "some_int_array_mapping",
+                    typeof(int[]),
+                    null,
+                    new ValueComparer<int[]>(
+                        (v1, v2) => v1.SequenceEqual(v2),
+                        v => v.Aggregate(0, (t, e) => (t * 397) ^ e),
+                        v => v.ToArray()),
+                    null)
+            {
+            }
+
+            private IntArrayTypeMapping(
+                string storeType,
+                ValueConverter converter,
+                ValueComparer comparer,
+                ValueComparer keyComparer,
+                int? size = null)
+                : base(storeType, typeof(int[]), converter, comparer, keyComparer, null, false, size)
+            {
+            }
+
+            public override RelationalTypeMapping Clone(string storeType, int? size)
+                => new IntArrayTypeMapping(storeType, Converter, Comparer, KeyComparer, size);
+
+            public override CoreTypeMapping Clone(ValueConverter converter)
+                => new IntArrayTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer, Size);
+        }
+
+        private static readonly RelationalTypeMapping _intArray
+            = new IntArrayTypeMapping();
 
         private static readonly RelationalTypeMapping _defaultDecimalMapping
             = new DecimalTypeMapping("default_decimal_mapping");
@@ -77,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 { typeof(float), _defaultFloatMapping },
                 { typeof(decimal), _defaultDecimalMapping },
                 { typeof(TimeSpan), _defaultTimeSpanMapping },
-                { typeof(string), _string }
+                { typeof(string), _string },
+                { typeof(int[]), _intArray }
             };
 
         private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings

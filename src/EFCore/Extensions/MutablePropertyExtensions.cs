@@ -144,17 +144,35 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
         public static void SetValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
         {
+            CheckComparerType(property, comparer);
+
+            property[CoreAnnotationNames.ValueComparer] = comparer;
+        }
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueComparer"/> for this property when performing key comparisons..
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        public static void SetKeyValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
+        {
+            CheckComparerType(property, comparer);
+
+            property[CoreAnnotationNames.KeyValueComparer] = comparer;
+        }
+
+        private static void CheckComparerType(IMutableProperty property, ValueComparer comparer)
+        {
             if (comparer != null
                 && comparer.Type != property.ClrType)
             {
-                throw new ArgumentException(CoreStrings.ComparerPropertyMismatch(
-                    comparer.Type.ShortDisplayName(),
-                    property.DeclaringEntityType.DisplayName(),
-                    property.Name,
-                    property.ClrType.ShortDisplayName()));
+                throw new ArgumentException(
+                    CoreStrings.ComparerPropertyMismatch(
+                        comparer.Type.ShortDisplayName(),
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        property.ClrType.ShortDisplayName()));
             }
-
-            property[CoreAnnotationNames.ValueComparer] = comparer;
         }
     }
 }

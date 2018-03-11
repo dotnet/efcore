@@ -30,7 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 null,
                 new ValueComparer<byte[]>(
                     (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
+                    v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
                     v => v == null ? null : v.ToArray()),
+                null,
                 dbType: DbType.Binary,
                 size: 8);
 

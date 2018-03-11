@@ -518,7 +518,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
                 CoreAnnotationNames.PropertyAccessModeAnnotation,
                 CoreAnnotationNames.TypeMapping,
-                CoreAnnotationNames.ValueComparer);
+                CoreAnnotationNames.ValueComparer,
+                CoreAnnotationNames.KeyValueComparer);
 
             GenerateAnnotations(annotations, stringBuilder);
         }

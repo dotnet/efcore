@@ -248,6 +248,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var intArrayComparer = new ValueComparer<int[]>(
                     (l, r) => (l == null || r == null) ? (l == r) : l.SequenceEqual(r),
+                    v => v == null ? 0 : v.Aggregate(0, (t, e) => (t * 397) ^ e),
                     v => v == null ? null : v.ToArray());
 
                 var intArrayConverter = new ValueConverter<int[], string>(

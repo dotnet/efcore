@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                     else
                     {
-                        if (!comparer.CompareFunc(current, original))
+                        if (!comparer.Equals(current, original))
                         {
                             LogChangeDetected(entry, property, original, current);
                             entry.SetPropertyModified(property);
@@ -203,9 +203,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var snapshotValue = entry.GetRelationshipSnapshotValue(property);
                 var currentValue = entry[property];
 
+                var comparer = property.GetKeyValueComparer()
+                    ?? property.FindMapping()?.KeyComparer;
+
                 // Note that mutation of a byte[] key is not supported or detected, but two different instances
                 // of byte[] with the same content must be detected as equal.
-                if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
+                if (!(comparer?.Equals(currentValue, snapshotValue)
+                      ?? StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue)))
                 {
                     var keys = property.GetContainingKeys().ToList();
                     var foreignKeys = property.GetContainingForeignKeys()

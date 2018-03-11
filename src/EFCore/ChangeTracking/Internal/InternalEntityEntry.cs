@@ -869,7 +869,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static bool ValuesEqual(IProperty property, object value, object currentValue)
             => (property.GetValueComparer()
                 ?? property.FindMapping()?.Comparer)
-               ?.CompareFunc(currentValue, value)
+               ?.Equals(currentValue, value)
                ?? Equals(currentValue, value);
 
         /// <summary>

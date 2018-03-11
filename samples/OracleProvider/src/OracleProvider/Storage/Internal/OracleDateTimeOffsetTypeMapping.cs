@@ -30,9 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public OracleDateTimeOffsetTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] ValueConverter converter,
-            [CanBeNull] ValueComparer comparer = null)
+            [CanBeNull] ValueComparer comparer = null,
+            [CanBeNull] ValueComparer keyComparer = null)
 
-            : base(storeType, converter, comparer)
+            : base(storeType, converter, comparer, keyComparer)
         {
         }
 

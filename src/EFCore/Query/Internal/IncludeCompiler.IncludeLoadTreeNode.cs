@@ -258,7 +258,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                                 Expression equalityExpression;
 
-                                if (typeof(IStructuralEquatable).GetTypeInfo()
+                                var comparer
+                                    = pk.GetKeyValueComparer()
+                                      ?? pk.FindMapping()?.KeyComparer;
+
+                                if (comparer != null)
+                                {
+                                    if (comparer.Type != pkMemberAccess.Type
+                                        && comparer.Type == pkMemberAccess.Type.UnwrapNullableType())
+                                    {
+                                        comparer = comparer.ToNonNullNullableComparer();
+                                    }
+
+                                    equalityExpression
+                                        = comparer.ExtractEqualsBody(
+                                            pkMemberAccess,
+                                            fkMemberAccess);
+                                }
+                                else if (typeof(IStructuralEquatable).GetTypeInfo()
                                     .IsAssignableFrom(pkMemberAccess.Type.GetTypeInfo()))
                                 {
                                     equalityExpression

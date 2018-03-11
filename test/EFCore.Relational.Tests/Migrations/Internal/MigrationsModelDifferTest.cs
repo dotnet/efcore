@@ -6012,6 +6012,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void SeedData_nonkey_refactoring_value_conversion_with_structural_provider_type()
+        {
+            Execute(
+                common => common.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                    }),
+                source => source.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<int>("Value1")
+                            .IsRequired()
+                            .HasConversion(e => new int[] { e }, e => e[0]);
+                        x.SeedData(new
+                        {
+                            Id = 42,
+                            Value1 = 32
+                        });
+                    }),
+                target => target.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<string>("Value1")
+                            .IsRequired()
+                            .HasConversion(e => new int[] { int.Parse(e) }, e => e[0].ToString());
+                        x.SeedData(new
+                        {
+                            Id = 42,
+                            Value1 = "32"
+                        });
+                    }),
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [Fact]
         public void SeedData_key_refactoring_value_conversion()
         {
             Execute(

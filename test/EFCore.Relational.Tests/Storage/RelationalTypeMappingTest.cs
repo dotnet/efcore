@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected class FakeValueComparer : ValueComparer<object>
         {
             public FakeValueComparer()
-                : base((_, __) => true, _ => _)
+                : base(false)
             {
             }
 
@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "<original>",
                 new FakeValueConverter(),
                 new FakeValueComparer(),
+                new FakeValueComparer(),
                 DbType.VarNumeric);
 
             var clone = mapping.Clone("<clone>", null);
@@ -73,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.NotNull(mapping.Converter);
             Assert.Same(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
+            Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
 
             var newConverter = new FakeValueConverter();
@@ -85,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(clone.Size);
             Assert.NotSame(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
+            Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
         }
 
@@ -96,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 mappingType,
                 "<original>",
                 new FakeValueConverter(),
+                new FakeValueComparer(),
                 new FakeValueComparer(),
                 DbType.VarNumeric,
                 33,
@@ -113,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.NotNull(mapping.Converter);
             Assert.Same(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
+            Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
@@ -129,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(33, clone.Size);
             Assert.NotSame(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
+            Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
@@ -142,6 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 mappingType,
                 "<original>",
                 new FakeValueConverter(),
+                new FakeValueComparer(),
                 new FakeValueComparer(),
                 DbType.VarNumeric,
                 false,
@@ -162,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.NotNull(mapping.Converter);
             Assert.Same(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
+            Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
@@ -180,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(clone.IsUnicode);
             Assert.NotSame(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
+            Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
