@@ -29,9 +29,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             _property = property;
             _propertyAccessors = _property.GetPropertyAccessors();
+
             EqualityComparer = typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(typeof(TKey).GetTypeInfo())
                 ? (IEqualityComparer<TKey>)new NoNullsStructuralEqualityComparer()
-                : new NoNullsEqualityComparer();
+                : EqualityComparer<TKey>.Default;
         }
 
         /// <summary>
@@ -89,21 +90,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IEqualityComparer<TKey> EqualityComparer { get; }
 
-        private sealed class NoNullsEqualityComparer : IEqualityComparer<TKey>
-        {
-            public bool Equals(TKey x, TKey y) => x.Equals(y);
-
-            public int GetHashCode(TKey obj) => obj.GetHashCode();
-        }
-
         private sealed class NoNullsStructuralEqualityComparer : IEqualityComparer<TKey>
         {
-            private readonly IEqualityComparer _structuralEqualityComparer
+            private readonly IEqualityComparer _comparer
                 = StructuralComparisons.StructuralEqualityComparer;
 
-            public bool Equals(TKey x, TKey y) => _structuralEqualityComparer.Equals(x, y);
-
-            public int GetHashCode(TKey obj) => _structuralEqualityComparer.GetHashCode(obj);
+            public bool Equals(TKey x, TKey y) => _comparer.Equals(x, y);
+            public int GetHashCode(TKey obj) => _comparer.GetHashCode(obj);
         }
     }
 }
