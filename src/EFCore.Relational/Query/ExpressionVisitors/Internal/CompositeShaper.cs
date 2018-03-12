@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 _materializer = materializer;
             }
 
-            public TResult Shape(QueryContext queryContext, ValueBuffer valueBuffer)
+            public TResult Shape(QueryContext queryContext, in ValueBuffer valueBuffer)
                 => _materializer(
                     _outerShaper.Shape(queryContext, valueBuffer),
                     _innerShaper.Shape(queryContext, valueBuffer));

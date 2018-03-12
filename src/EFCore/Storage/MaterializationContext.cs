@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="valueBuffer"> The <see cref="ValueBuffer" /> to use to materialize an entity. </param>
         [Obsolete("Use the constructor with the most parameters.")]
-        public MaterializationContext(ValueBuffer valueBuffer)
+        public MaterializationContext(in ValueBuffer valueBuffer)
         {
             ValueBuffer = valueBuffer;
             Context = null;
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="valueBuffer"> The <see cref="ValueBuffer" /> to use to materialize an entity. </param>
         /// <param name="context"> The current <see cref="DbContext" /> instance being used. </param>
         public MaterializationContext(
-            ValueBuffer valueBuffer,
+            in ValueBuffer valueBuffer,
             [NotNull] DbContext context)
         {
             Debug.Assert(context != null); // Hot path

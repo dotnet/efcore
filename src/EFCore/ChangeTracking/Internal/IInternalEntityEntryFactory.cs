@@ -30,6 +30,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [CanBeNull] object entity,
-            ValueBuffer valueBuffer);
+            in ValueBuffer valueBuffer);
     }
 }

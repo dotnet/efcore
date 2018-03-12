@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public InternalShadowEntityEntry(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
-            ValueBuffer valueBuffer)
+            in ValueBuffer valueBuffer)
             : base(stateManager, entityType)
         {
             _propertyValues = entityType.GetShadowValuesFactory()(valueBuffer);

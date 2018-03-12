@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        WeakReference<object> TryGetEntity(ValueBuffer valueBuffer, bool throwOnNullKey, out bool hasNullKey);
+        WeakReference<object> TryGetEntity(in ValueBuffer valueBuffer, bool throwOnNullKey, out bool hasNullKey);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -37,13 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        void Add(ValueBuffer valueBuffer, [NotNull] object entity);
+        void Add(in ValueBuffer valueBuffer, [NotNull] object entity);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IIncludeKeyComparer CreateIncludeKeyComparer([NotNull] INavigation navigation, ValueBuffer valueBuffer);
+        IIncludeKeyComparer CreateIncludeKeyComparer([NotNull] INavigation navigation, in ValueBuffer valueBuffer);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        bool Contains(ValueBuffer valueBuffer);
+        bool Contains(in ValueBuffer valueBuffer);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        bool Contains([NotNull] IForeignKey foreignKey, ValueBuffer valueBuffer);
+        bool Contains([NotNull] IForeignKey foreignKey, in ValueBuffer valueBuffer);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        InternalEntityEntry TryGetEntry(ValueBuffer valueBuffer, bool throwOnNullKey);
+        InternalEntityEntry TryGetEntry(in ValueBuffer valueBuffer, bool throwOnNullKey);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

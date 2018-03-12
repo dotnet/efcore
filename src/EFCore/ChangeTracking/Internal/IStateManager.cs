@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         InternalEntityEntry StartTrackingFromQuery(
             [NotNull] IEntityType baseEntityType,
             [NotNull] object entity,
-            ValueBuffer valueBuffer,
+            in ValueBuffer valueBuffer,
             [CanBeNull] ISet<IForeignKey> handledForeignKeys);
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        InternalEntityEntry TryGetEntry([NotNull] IKey key, ValueBuffer valueBuffer, bool throwOnNullKey);
+        InternalEntityEntry TryGetEntry([NotNull] IKey key, in ValueBuffer valueBuffer, bool throwOnNullKey);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

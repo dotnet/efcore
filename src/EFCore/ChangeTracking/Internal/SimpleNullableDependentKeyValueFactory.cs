@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool TryCreateFromBuffer(ValueBuffer valueBuffer, out TKey key)
+        public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, out TKey key)
         {
             var value = _propertyAccessors.ValueBufferGetter(valueBuffer);
             if (value == null)

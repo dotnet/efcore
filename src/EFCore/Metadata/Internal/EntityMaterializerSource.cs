@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .GetDeclaredMethod(nameof(TryReadValue));
 
         private static TValue TryReadValue<TValue>(
-            ValueBuffer valueBuffer,
+            in ValueBuffer valueBuffer,
             int index,
             IPropertyBase property = null)
         {

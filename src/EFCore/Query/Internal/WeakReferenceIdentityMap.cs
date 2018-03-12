@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual WeakReference<object> TryGetEntity(
-            ValueBuffer valueBuffer,
+            in ValueBuffer valueBuffer,
             bool throwOnNullKey,
             out bool hasNullKey)
         {
@@ -112,14 +112,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Add(ValueBuffer valueBuffer, object entity)
+        public virtual void Add(in ValueBuffer valueBuffer, object entity)
             => _identityMap[(TKey)PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer)] = new WeakReference<object>(entity);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, ValueBuffer valueBuffer)
+        public virtual IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, in ValueBuffer valueBuffer)
         {
             if (navigation.IsDependentToPrincipal())
             {

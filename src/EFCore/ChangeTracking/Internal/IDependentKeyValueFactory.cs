@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromBuffer(ValueBuffer valueBuffer, out TKey key);
+        bool TryCreateFromBuffer(in ValueBuffer valueBuffer, out TKey key);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

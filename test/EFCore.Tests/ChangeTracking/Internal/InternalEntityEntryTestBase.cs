@@ -1394,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return entry;
         }
 
-        protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, ValueBuffer valueBuffer)
+        protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, in ValueBuffer valueBuffer)
         {
             var entry = new InternalEntityEntryFactory()
                 .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer);

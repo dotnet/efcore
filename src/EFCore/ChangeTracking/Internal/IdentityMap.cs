@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool Contains(ValueBuffer valueBuffer)
+        public virtual bool Contains(in ValueBuffer valueBuffer)
         {
             var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
             return key != null && _identityMap.ContainsKey((TKey)key);
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool Contains(IForeignKey foreignKey, ValueBuffer valueBuffer)
+        public virtual bool Contains(IForeignKey foreignKey, in ValueBuffer valueBuffer)
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out var key)
                && _identityMap.ContainsKey(key);
 
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityEntry TryGetEntry(ValueBuffer valueBuffer, bool throwOnNullKey)
+        public virtual InternalEntityEntry TryGetEntry(in ValueBuffer valueBuffer, bool throwOnNullKey)
         {
             var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
 

@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual void StartTracking(
             [NotNull] IStateManager stateManager,
             [NotNull] object entity,
-            ValueBuffer valueBuffer)
+            in ValueBuffer valueBuffer)
         {
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(entity, nameof(entity));

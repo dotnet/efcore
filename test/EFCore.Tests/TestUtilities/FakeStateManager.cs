@@ -64,10 +64,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public InternalEntityEntry GetOrCreateEntry(object entity) => throw new NotImplementedException();
         public InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType) => throw new NotImplementedException();
         public InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType) => throw new NotImplementedException();
-        public InternalEntityEntry StartTrackingFromQuery(IEntityType baseEntityType,object entity, ValueBuffer valueBuffer, ISet<IForeignKey> handledForeignKeys) => throw new NotImplementedException();
+        public InternalEntityEntry StartTrackingFromQuery(IEntityType baseEntityType,object entity, in ValueBuffer valueBuffer, ISet<IForeignKey> handledForeignKeys) => throw new NotImplementedException();
         public void BeginTrackingQuery() => throw new NotImplementedException();
         public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues) => throw new NotImplementedException();
-        public InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey) => throw new NotImplementedException();
+        public InternalEntityEntry TryGetEntry(IKey key, in ValueBuffer valueBuffer, bool throwOnNullKey) => throw new NotImplementedException();
         public InternalEntityEntry TryGetEntry(object entity, bool throwOnNonUniqueness = true) => throw new NotImplementedException();
         public InternalEntityEntry TryGetEntry(object entity, IEntityType type) => throw new NotImplementedException();
         public IInternalEntityEntryNotifier InternalEntityEntryNotifier => throw new NotImplementedException();

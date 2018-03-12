@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] object entity,
-            ValueBuffer valueBuffer)
+            in ValueBuffer valueBuffer)
             : base(stateManager, entityType)
         {
             Entity = entity;
