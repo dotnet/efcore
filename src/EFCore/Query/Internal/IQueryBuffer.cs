@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         object GetEntity(
             [NotNull] IKey key,
-            EntityLoadInfo entityLoadInfo,
+            in EntityLoadInfo entityLoadInfo,
             bool queryStateManager,
             bool throwOnNullKey);
 
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             int correlatedCollectionId,
             [NotNull] INavigation navigation,
             [NotNull] Func<INavigation, TCollection> resultCollectionFactory,
-            MaterializedAnonymousObject outerKey,
+            in MaterializedAnonymousObject outerKey,
             bool tracking,
             [NotNull] Func<IEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
             [NotNull] Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate) where TCollection : ICollection<TInner>;

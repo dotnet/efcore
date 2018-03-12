@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="materializer"> The method to materialize the data into an entity instance. </param>
         /// <param name="typeIndexMap"> Dictionary containing mapping from property indexes to values in ValueBuffer. </param>
         public EntityLoadInfo(
-            MaterializationContext materializationContext,
+            in MaterializationContext materializationContext,
             [NotNull] Func<MaterializationContext, object> materializer,
             [CanBeNull] Dictionary<Type, int[]> typeIndexMap = null)
         {
