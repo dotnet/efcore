@@ -19,9 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbType DefaultParameterType
             => DbType.String;
 
+        [InlineData(typeof(SqliteCharTypeMapping), typeof(char))]
         [InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
         [InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime))]
+        [InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal))]
         [InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid))]
+        [InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
         public override void Create_and_clone_with_converter(Type mappingType, Type clrType)
         {
             base.Create_and_clone_with_converter(mappingType, clrType);
@@ -55,6 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Type type)
             => CreateTypeMapper().FindMapping(type);
 
+        public override void GenerateSqlLiteral_returns_char_literal()
+        {
+            var literal = new SqliteCharTypeMapping("TEXT").GenerateSqlLiteral('A');
+            Assert.Equal("65", literal);
+        }
+
         public override void GenerateSqlLiteral_returns_DateTime_literal()
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
@@ -76,7 +85,31 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("X'9E3AF4C6E191EF45A320832EA23B7292'", literal);
         }
 
-        protected override DbContextOptions ContextOptions { get; } 
+        public override void GenerateSqlLiteral_for_ULong_works_for_range_limits()
+        {
+            var typeMapping = new SqliteULongTypeMapping("INTEGER");
+            var literal = typeMapping.GenerateSqlLiteral(ulong.MinValue);
+            Assert.Equal("0", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(long.MaxValue + 1ul);
+            Assert.Equal("-9223372036854775808", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(ulong.MaxValue);
+            Assert.Equal("-1", literal);
+        }
+
+        [Fact]
+        public override void GenerateSqlLiteral_for_Decimal_works_for_range_limits()
+        {
+            var typeMapping = new SqliteDecimalTypeMapping("TEXT");
+            var literal = typeMapping.GenerateSqlLiteral(decimal.MinValue);
+            Assert.Equal("'-79228162514264337593543950335.0'", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(decimal.MaxValue);
+            Assert.Equal("'79228162514264337593543950335.0'", literal);
+        }
+
+        protected override DbContextOptions ContextOptions { get; }
             = new DbContextOptionsBuilder().UseSqlite("Filename=dummmy.db").Options;
     }
 }

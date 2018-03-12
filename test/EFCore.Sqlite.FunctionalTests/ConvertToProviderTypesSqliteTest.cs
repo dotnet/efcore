@@ -39,14 +39,6 @@ namespace Microsoft.EntityFrameworkCore
             public override bool SupportsBinaryKeys => true;
 
             public override DateTime DefaultDateTime => new DateTime();
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                base.OnModelCreating(modelBuilder, context);
-
-                // Issue #11036
-                modelBuilder.Entity<BuiltInNullableDataTypes>().Ignore(e => e.TestNullableUnsignedInt64);
-            }
         }
     }
 }

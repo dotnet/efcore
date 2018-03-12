@@ -437,16 +437,6 @@ FROM ""Order Details"" AS ""od""
 WHERE abs(""od"".""Quantity"") > 10");
         }
 
-        public override void Where_math_abs3()
-        {
-            base.Where_math_abs3();
-
-            AssertSql(
-                @"SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
-FROM ""Order Details"" AS ""od""
-WHERE abs(""od"".""UnitPrice"") > 10.0");
-        }
-
         public override void Where_math_abs_uncorrelated()
         {
             base.Where_math_abs_uncorrelated();
@@ -459,16 +449,6 @@ FROM ""Order Details"" AS ""od""
 WHERE @__Abs_0 < ""od"".""ProductID""");
         }
 
-        public override void Where_math_round()
-        {
-            base.Where_math_round();
-
-            AssertSql(
-                @"SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
-FROM ""Order Details"" AS ""od""
-WHERE round(""od"".""UnitPrice"") > 10.0");
-        }
-
         public override void Select_math_round_int()
         {
             base.Select_math_round_int();
@@ -477,16 +457,6 @@ WHERE round(""od"".""UnitPrice"") > 10.0");
                 @"SELECT round(""o"".""OrderID"") AS ""A""
 FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderID"" < 10250");
-        }
-
-        public override void Where_math_round2()
-        {
-            base.Where_math_round2();
-
-            AssertSql(
-                @"SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
-FROM ""Order Details"" AS ""od""
-WHERE round(""od"".""UnitPrice"", 2) > 100.0");
         }
 
         public override void Where_math_min()
@@ -624,7 +594,7 @@ WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
             base.Sum_with_coalesce();
 
             AssertSql(
-                @"SELECT SUM(COALESCE(""p"".""UnitPrice"", 0.0))
+                @"SELECT SUM(COALESCE(""p"".""UnitPrice"", '0.0'))
 FROM ""Products"" AS ""p""
 WHERE ""p"".""ProductID"" < 40");
         }

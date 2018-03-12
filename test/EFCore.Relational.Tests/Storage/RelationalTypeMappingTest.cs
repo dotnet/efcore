@@ -317,6 +317,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [Fact]
+        public virtual void GenerateSqlLiteral_returns_string_literal()
+        {
+            var literal = new StringTypeMapping("string").GenerateSqlLiteral("Text");
+            Assert.Equal("'Text'", literal);
+        }
+
+        [Fact]
         public virtual void GenerateSqlLiteral_returns_char_literal()
         {
             var literal = new CharTypeMapping("char").GenerateSqlLiteral('A');
@@ -456,6 +463,67 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             literal = typeMapping.GenerateSqlLiteral(ulong.MaxValue);
             Assert.Equal("18446744073709551615", literal);
+        }
+
+        [Fact]
+        public virtual void GenerateSqlLiteral_for_Float_works_for_range_limits()
+        {
+            var typeMapping = new FloatTypeMapping("float", DbType.Single);
+            var literal = typeMapping.GenerateSqlLiteral(float.MinValue);
+            Assert.Equal("-3.40282347E+38", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(float.MaxValue);
+            Assert.Equal("3.40282347E+38", literal);
+        }
+
+        [Fact]
+        public virtual void GenerateSqlLiteral_for_Float_works_for_special_values()
+        {
+            var typeMapping = new FloatTypeMapping("float", DbType.Single);
+            var literal = typeMapping.GenerateSqlLiteral(float.NaN);
+            Assert.Equal("NaN", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(float.PositiveInfinity);
+            Assert.Equal("Infinity", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(float.NegativeInfinity);
+            Assert.Equal("-Infinity", literal);
+        }
+
+        [Fact]
+        public virtual void GenerateSqlLiteral_for_Double_works_for_range_limits()
+        {
+            var typeMapping = new DoubleTypeMapping("double", DbType.Double);
+            var literal = typeMapping.GenerateSqlLiteral(double.MinValue);
+            Assert.Equal("-1.7976931348623157E+308", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(double.MaxValue);
+            Assert.Equal("1.7976931348623157E+308", literal);
+        }
+
+        [Fact]
+        public virtual void GenerateSqlLiteral_for_Double_works_for_special_values()
+        {
+            var typeMapping = new DoubleTypeMapping("double", DbType.Double);
+            var literal = typeMapping.GenerateSqlLiteral(double.NaN);
+            Assert.Equal("NaN", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(double.PositiveInfinity);
+            Assert.Equal("Infinity", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(double.NegativeInfinity);
+            Assert.Equal("-Infinity", literal);
+        }
+
+        [Fact]
+        public virtual void GenerateSqlLiteral_for_Decimal_works_for_range_limits()
+        {
+            var typeMapping = new DecimalTypeMapping("decimal", DbType.Decimal);
+            var literal = typeMapping.GenerateSqlLiteral(decimal.MinValue);
+            Assert.Equal("-79228162514264337593543950335.0", literal);
+
+            literal = typeMapping.GenerateSqlLiteral(decimal.MaxValue);
+            Assert.Equal("79228162514264337593543950335.0", literal);
         }
 
         [Fact]
