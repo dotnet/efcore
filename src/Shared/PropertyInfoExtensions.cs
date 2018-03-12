@@ -39,7 +39,7 @@ namespace System.Reflection
             targetType = targetSequenceType ?? targetType;
             targetType = targetType.UnwrapNullableType();
 
-            if (typeMappingSource.FindMapping(propertyInfo) != null
+            if (typeMappingSource.FindMapping(targetType) != null
                 || targetType.GetTypeInfo().IsInterface
                 || targetType.GetTypeInfo().IsValueType
                 || targetType == typeof(object)

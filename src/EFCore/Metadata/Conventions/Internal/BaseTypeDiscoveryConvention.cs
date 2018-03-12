@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var baseEntityType = FindClosestBaseType(entityType);
             if (baseEntityType == null
-                || baseEntityType.FindOwnership() != null)
+                || baseEntityType.DefiningNavigationName != null)
             {
                 return entityTypeBuilder;
             }

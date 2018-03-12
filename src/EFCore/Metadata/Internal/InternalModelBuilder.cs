@@ -267,8 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Type type, ConfigurationSource configurationSource)
             => Owned(new TypeIdentity(type), configurationSource);
 
-        private bool Owned(
-            TypeIdentity type, ConfigurationSource configurationSource)
+        private bool Owned(TypeIdentity type, ConfigurationSource configurationSource)
         {
             if (IsIgnored(type, configurationSource))
             {
@@ -292,12 +291,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
                 }
 
-                var potentialOwnerships = entityType.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null).ToList();
-                foreach (var foreignKey in potentialOwnerships)
-                {
-                    foreignKey.PrincipalEntityType.FindNavigation(foreignKey.PrincipalToDependent.Name).ForeignKey.Builder
-                        .IsOwnership(true, configurationSource);
-                }
+                var ownership = entityType.GetForeignKeys().FirstOrDefault(fk =>
+                    fk.PrincipalToDependent != null
+                    && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
+                    && !fk.PrincipalEntityType.IsInDefinitionPath(clrType));
+                ownership?.Builder.IsOwnership(true, configurationSource);
             }
 
             if (clrType == null)

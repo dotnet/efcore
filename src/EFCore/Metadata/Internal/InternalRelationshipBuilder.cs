@@ -828,8 +828,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? configurationSource,
             bool shouldThrow)
         {
-            if ((isRequired == null)
-                || (properties == null))
+            if (isRequired == null
+                || properties == null)
             {
                 return true;
             }
@@ -883,6 +883,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             otherOwnership.Builder.IsOwnership(false, configurationSource);
                         }
+
+                        Metadata.SetIsOwnership(true, configurationSource);
                     }
                     else if (otherOwnerships.Count > 0)
                     {
@@ -893,6 +895,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         var otherOwnership = otherOwnerships.Single();
+                        Metadata.SetIsOwnership(true, configurationSource);
                         Metadata.DeclaringEntityType.Builder.RemoveForeignKey(Metadata, Metadata.GetConfigurationSource());
 
                         if (otherOwnership.Builder.IsWeakTypeDefinition(configurationSource) == null)
@@ -919,6 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                     else
                     {
+                        Metadata.SetIsOwnership(true, configurationSource);
                         newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
                     }
 
@@ -928,12 +932,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             newRelationshipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
                     }
                 }
-
-                newRelationshipBuilder.Metadata.SetIsOwnership(ownership, configurationSource);
-
-                foreach (var directlyDerivedType in newRelationshipBuilder.Metadata.DeclaringEntityType.GetDirectlyDerivedTypes().ToList())
+                else
                 {
-                    directlyDerivedType.Builder.HasBaseType((string)null, ConfigurationSource.Convention);
+                    newRelationshipBuilder.Metadata.SetIsOwnership(false, configurationSource);
+                }
+
+                foreach (var derivedForeignKey in newRelationshipBuilder.Metadata.DeclaringEntityType.GetDerivedForeignKeys()
+                        .Where(fk => fk.PrincipalToDependent != null)
+                        .Concat(newRelationshipBuilder.Metadata.DeclaringEntityType.GetDerivedReferencingForeignKeys()
+                            .Where(fk => fk.DependentToPrincipal != null)).ToList())
+                {
+                    derivedForeignKey.DeclaringEntityType.Builder
+                        .RemoveForeignKey(derivedForeignKey, configurationSource);
                 }
 
                 return batch.Run(newRelationshipBuilder);
@@ -951,45 +961,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return this;
             }
 
-            if (Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit)
-                || !Metadata.PrincipalEntityType.IsInDefinitionPath(Metadata.DeclaringEntityType.ClrType))
+            EntityType newEntityType;
+            if (Metadata.DeclaringEntityType.ClrType == null)
             {
-                EntityType newEntityType;
-                if (Metadata.DeclaringEntityType.ClrType == null)
-                {
-                    newEntityType = ModelBuilder.Entity(
-                        Metadata.DeclaringEntityType.Name,
-                        Metadata.PrincipalToDependent.Name,
-                        Metadata.PrincipalEntityType,
-                        Metadata.DeclaringEntityType.GetConfigurationSource()).Metadata;
-                }
-                else
-                {
-                    newEntityType = ModelBuilder.Entity(
-                        Metadata.DeclaringEntityType.ClrType,
-                        Metadata.PrincipalToDependent.Name,
-                        Metadata.PrincipalEntityType,
-                        Metadata.DeclaringEntityType.GetConfigurationSource()).Metadata;
-                }
-
-                var newOwnership = newEntityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-                if (newOwnership == null)
-                {
-                    Debug.Assert(Metadata.Builder != null);
-                    return Metadata.Builder;
-                }
-
-                Debug.Assert(Metadata.Builder == null);
-                ModelBuilder.Metadata.ConventionDispatcher.Tracker.Update(Metadata, newOwnership);
-                return newOwnership.Builder;
+                newEntityType = ModelBuilder.Entity(
+                    Metadata.DeclaringEntityType.Name,
+                    Metadata.PrincipalToDependent.Name,
+                    Metadata.PrincipalEntityType,
+                    Metadata.DeclaringEntityType.GetConfigurationSource()).Metadata;
+            }
+            else
+            {
+                newEntityType = ModelBuilder.Entity(
+                    Metadata.DeclaringEntityType.ClrType,
+                    Metadata.PrincipalToDependent.Name,
+                    Metadata.PrincipalEntityType,
+                    Metadata.DeclaringEntityType.GetConfigurationSource()).Metadata;
             }
 
-            if (Metadata.Builder.IsOwnership(false, configurationSource) == null)
+            var newOwnership = newEntityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+            if (newOwnership == null)
             {
-                return null;
+                Debug.Assert(Metadata.Builder != null);
+                return Metadata.Builder;
             }
 
-            return this;
+            Debug.Assert(Metadata.Builder == null);
+            ModelBuilder.Metadata.ConventionDispatcher.Tracker.Update(Metadata, newOwnership);
+            return newOwnership.Builder;
         }
 
         /// <summary>

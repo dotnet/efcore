@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -1004,6 +1005,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             private abstract class BadCustomValueGenerator2 : CustomValueGenerator
             {
+            }
+
+            [Fact]
+            public virtual void Throws_for_collection_of_string()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<StringCollectionEntity>();
+
+                Assert.Equal(
+                    CoreStrings.PropertyNotAdded(
+                        nameof(StringCollectionEntity), nameof(StringCollectionEntity.Property), "ICollection<string>"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+            }
+
+            protected class StringCollectionEntity
+            {
+                public ICollection<string> Property { get; set; }
             }
 
             [Fact]

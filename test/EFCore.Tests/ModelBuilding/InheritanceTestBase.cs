@@ -151,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var dependentEntityBuilder = modelBuilder.Entity<Order>();
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.ShippingAddress));
 
                 Assert.Same(principalEntityBuilder.Metadata, derivedPrincipalEntityBuilder.Metadata.BaseType);
                 Assert.Same(dependentEntityBuilder.Metadata, derivedDependentEntityBuilder.Metadata.BaseType);
@@ -196,6 +197,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.ShippingAddress));
                 var otherDerivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
                 otherDerivedDependentEntityBuilder.Ignore(nameof(BackOrder.SpecialOrder));
 
@@ -244,6 +246,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.ShippingAddress));
                 var otherDerivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
                 otherDerivedDependentEntityBuilder.Ignore(nameof(BackOrder.SpecialOrder));
 
@@ -276,6 +279,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 dependentEntityBuilder.Ignore(nameof(Order.Customer));
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.ShippingAddress));
                 var otherDerivedPrincipalEntityBuilder = modelBuilder.Entity<OtherCustomer>();
 
                 derivedPrincipalEntityBuilder
@@ -305,6 +309,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.ShippingAddress));
 
                 principalEntityBuilder
                     .HasOne(e => (SpecialOrder)e.Order)
@@ -358,6 +363,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.SpecialCustomer));
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.ShippingAddress));
                 var otherDerivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
                 otherDerivedDependentEntityBuilder.Ignore(nameof(BackOrder.SpecialOrder));
 
@@ -391,6 +397,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 dependentEntityBuilder.Ignore(e => e.Customer);
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(e => e.SpecialCustomerId);
+                derivedDependentEntityBuilder.Ignore(e => e.ShippingAddress);
 
                 dependentEntityBuilder
                     .HasOne<SpecialCustomer>()
@@ -418,6 +425,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var dependentEntityBuilder = modelBuilder.Entity<Order>();
                 dependentEntityBuilder.Ignore(nameof(Order.Customer));
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.ShippingAddress));
                 dependentEntityBuilder.Property<int?>("SpecialCustomerId");
 
                 derivedPrincipalEntityBuilder
@@ -446,7 +454,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<BackOrder>();
                 modelBuilder.Ignore<SpecialCustomer>();
-                modelBuilder.Ignore<SpecialOrder>();
 
                 var principalEntityBuilder = modelBuilder.Entity<Customer>();
                 var derivedPrincipalEntityBuilder = modelBuilder.Entity<OtherCustomer>();
@@ -517,7 +524,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<BackOrder>();
                 modelBuilder.Ignore<SpecialCustomer>();
-                modelBuilder.Ignore<SpecialOrder>();
 
                 modelBuilder.Entity<Customer>();
                 var derivedPrincipalEntityBuilder = modelBuilder.Entity<OtherCustomer>();

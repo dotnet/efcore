@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool IsInOwnershipPath([NotNull] this EntityType entityType, [NotNull] EntityType entityTypeToOwn)
+        public static bool IsInOwnershipPath([NotNull] this EntityType entityType, [NotNull] EntityType targetType)
         {
             var owner = entityType;
             while (true)
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 owner = ownOwnership.PrincipalEntityType;
-                if (owner == entityTypeToOwn)
+                if (owner == targetType)
                 {
                     return true;
                 }

@@ -6692,12 +6692,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Rename_property_on_owned_type_and_add_similar_to_owner()
         {
             Execute(
-                source => source.Entity<Order>().OwnsOne(o => o.Billing).Property<int>("OldZip"),
+                source => source.Entity<Order>(
+                    x =>
+                    {
+                        x.OwnsOne(o => o.Billing).Property<int>("OldZip");
+                        x.Ignore(o => o.Shipping);
+                    }),
                 target => target.Entity<Order>(
                     x =>
                     {
                         x.Property<int>("NotZip");
                         x.OwnsOne(o => o.Billing).Property<int>("NewZip");
+                        x.Ignore(o => o.Shipping);
                     }),
                 operations =>
                 {
@@ -6723,12 +6729,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         x.Property<DateTime>("OldDate");
                         x.OwnsOne(o => o.Billing);
+                        x.Ignore(o => o.Shipping);
                     }),
                 target => target.Entity<Order>(
                     x =>
                     {
                         x.Property<DateTime>("NewDate");
                         x.OwnsOne(o => o.Billing).Property<DateTime>("AnotherDate");
+                        x.Ignore(o => o.Shipping);
                     }),
                 operations =>
                 {

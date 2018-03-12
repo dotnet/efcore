@@ -62,6 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType
                 || foreignKey.IsOwnership
                 || foreignKey.DeclaringEntityType.IsQueryType
+                || foreignKey.IsSelfReferencing()
+                || foreignKey.PrincipalToDependent?.IsCollection() == true
                 || foreignKey.DeclaringEntityType.FindOwnership() != null)
             {
                 relationshipBuilder = relationshipBuilder.RelatedEntityTypes(
@@ -180,16 +182,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKey = relationshipBuilder.Metadata;
             if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
                 && foreignKey.DeclaringEntityType.DefiningEntityType != foreignKey.PrincipalEntityType
-                && !foreignKey.DeclaringEntityType.IsQueryType
                 && !foreignKey.IsOwnership
+                && !foreignKey.DeclaringEntityType.IsQueryType
                 && !foreignKey.IsSelfReferencing()
-                && (foreignKey.PrincipalToDependent?.IsCollection() != true))
+                && foreignKey.PrincipalToDependent?.IsCollection() != true
+                && foreignKey.DeclaringEntityType.FindOwnership() == null)
             {
                 var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
                 if (candidatePropertiesOnPrincipal != null
                     && !foreignKey.PrincipalEntityType.FindForeignKeysInHierarchy(candidatePropertiesOnPrincipal).Any())
                 {
-                    // Ambiguous principal end
+                    // Principal end became ambiguous
                     if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() == ConfigurationSource.Convention)
                     {
                         relationshipBuilder.Metadata.SetPrincipalEndConfigurationSource(null);

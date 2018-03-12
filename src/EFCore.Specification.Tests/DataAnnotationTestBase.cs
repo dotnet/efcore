@@ -2089,10 +2089,16 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Book>();
             modelBuilder.Entity<One>();
 
+            Validate(modelBuilder);
+
             Assert.True(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AdditionalDetails)).ForeignKey.IsOwnership);
             var one = model.FindEntityType(typeof(One));
-            Assert.True(one.FindNavigation(nameof(One.Details)).ForeignKey.IsOwnership);
-            Assert.True(one.FindNavigation(nameof(One.AdditionalDetails)).ForeignKey.IsOwnership);
+            var ownership1 = one.FindNavigation(nameof(One.Details)).ForeignKey;
+            Assert.True(ownership1.IsOwnership);
+            Assert.NotNull(ownership1.DeclaringEntityType.FindProperty(nameof(Details.Name)));
+            var ownership2 = one.FindNavigation(nameof(One.AdditionalDetails)).ForeignKey;
+            Assert.True(ownership2.IsOwnership);
+            Assert.NotNull(ownership2.DeclaringEntityType.FindProperty(nameof(Details.Name)));
         }
 
         public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<DbContext>

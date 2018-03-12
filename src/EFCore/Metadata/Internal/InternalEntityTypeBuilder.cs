@@ -782,6 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 List<InternalIndexBuilder> detachedIndexes = null;
                 HashSet<Property> removedInheritedPropertiesToDuplicate = null;
+                List< (string, ConfigurationSource)> membersToIgnore = null;
                 if (Metadata.BaseType != null)
                 {
                     var removedInheritedProperties = new HashSet<Property>(
@@ -843,9 +844,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             }
                         }
                     }
+
+                    foreach (var ignoredMember in Metadata.BaseType.GetIgnoredMembers())
+                    {
+                        if (baseEntityType != null
+                            && (baseEntityType.FindProperty(ignoredMember) != null
+                                || baseEntityType.FindNavigation(ignoredMember) != null))
+                        {
+                            continue;
+                        }
+
+                        if (membersToIgnore == null)
+                        {
+                            membersToIgnore = new List<(string, ConfigurationSource)>();
+                        }
+
+                        membersToIgnore.Add(
+                            (ignoredMember, Metadata.BaseType.FindDeclaredIgnoredMemberConfigurationSource(ignoredMember).Value));
+                    }
                 }
 
                 Metadata.HasBaseType(baseEntityType, configurationSource);
+
+                if (membersToIgnore != null)
+                {
+                    foreach (var ignoreTuple in membersToIgnore)
+                    {
+                        Ignore(ignoreTuple.Item1, ignoreTuple.Item2);
+                    }
+                }
 
                 if (removedInheritedPropertiesToDuplicate != null)
                 {

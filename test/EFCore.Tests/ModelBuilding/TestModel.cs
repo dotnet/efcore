@@ -132,6 +132,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OrderDetails Details { get; set; }
         }
 
+        [Owned]
+        public class StreetAddress
+        {
+            public string Street { get; set; }
+            public string City { get; set; }
+        }
+
         [NotMapped]
         protected class SpecialOrder : Order
         {
@@ -139,6 +146,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public SpecialCustomer SpecialCustomer { get; set; }
             public BackOrder BackOrder { get; set; }
             public OrderCombination SpecialOrderCombination { get; set; }
+            public StreetAddress ShippingAddress { get; set; }
         }
 
         protected class BackOrder : Order

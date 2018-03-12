@@ -16,11 +16,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder, OwnedAttribute attribute)
-            => (entityTypeBuilder.Metadata.HasClrType()
-                ? entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, ConfigurationSource.DataAnnotation)
-                : entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.Name, ConfigurationSource.DataAnnotation))
-               && !entityTypeBuilder.Metadata.HasDefiningNavigation()
-                ? null
-                : entityTypeBuilder;
+        {
+            if (entityTypeBuilder.Metadata.HasClrType())
+            {
+                entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, ConfigurationSource.DataAnnotation);
+            }
+            else
+            {
+                entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.Name, ConfigurationSource.DataAnnotation);
+            }
+            return entityTypeBuilder.Metadata.Builder;
+        }
     }
 }

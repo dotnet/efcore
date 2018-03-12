@@ -983,7 +983,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetDerivedForeignKeysInclusive()
-            => GetDeclaredForeignKeys().Concat(GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys()));
+            => GetDeclaredForeignKeys().Concat(GetDerivedForeignKeys());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1156,8 +1156,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual IEnumerable<ForeignKey> GetDerivedReferencingForeignKeys()
+            => GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingForeignKeys());
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> GetDerivedReferencingForeignKeysInclusive()
-            => GetDeclaredReferencingForeignKeys().Concat(GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingForeignKeys()));
+            => GetDeclaredReferencingForeignKeys().Concat(GetDerivedReferencingForeignKeys());
 
         private SortedSet<ForeignKey> DeclaredReferencingForeignKeys { get; set; }
 
