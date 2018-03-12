@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual RelationalValueBufferFactoryDependencies Dependencies { get; }
 
-        private struct CacheKey
+        private readonly struct CacheKey
         {
             public CacheKey(IReadOnlyList<TypeMaterializationInfo> materializationInfo) 
                 => TypeMaterializationInfo = materializationInfo;

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Contains information on an available <see cref="ValueConverter" /> including a factory to
     ///     create an instance.
     /// </summary>
-    public struct ValueConverterInfo
+    public readonly struct ValueConverterInfo
     {
         private readonly Func<ValueConverterInfo, ValueConverter> _factory;
 

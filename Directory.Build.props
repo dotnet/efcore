@@ -17,7 +17,7 @@
     <RepositoryUrl>https://github.com/aspnet/EntityFramework.git</RepositoryUrl>
     <SignAssembly>True</SignAssembly>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        protected struct CompiledQueryCacheKey
+        protected readonly struct CompiledQueryCacheKey
         {
             private readonly Expression _query;
             private readonly IModel _model;

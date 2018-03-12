@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     the regular and interpolated <see cref="RelationalQueryableExtensions.FromSql{TEntity}(IQueryable{TEntity},RawSqlString,object[])" />
     ///     and <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlCommand(Infrastructure.DatabaseFacade,RawSqlString,object[])" />
     /// </summary>
-    public struct RawSqlString
+    public readonly struct RawSqlString
     {
         /// <summary>
         ///     Implicitly converts a <see cref="string" /> to a <see cref="RawSqlString" />

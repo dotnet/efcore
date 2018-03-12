@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     Represents an asynchronous sequence produced by executing a compiled query.
     /// </summary>
     /// <typeparam name="TResult">The result type.</typeparam>
-    public struct AsyncEnumerable<TResult> : IAsyncEnumerableAccessor<TResult>
+    public readonly struct AsyncEnumerable<TResult> : IAsyncEnumerableAccessor<TResult>
     {
         private readonly IAsyncEnumerable<TResult> _asyncEnumerable;
 

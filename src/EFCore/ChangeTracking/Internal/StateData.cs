@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IsLoaded = 3
         }
 
-        internal struct StateData
+        internal readonly struct StateData
         {
             private const int BitsPerInt = 32;
             private const int BitsForEntityState = 3;

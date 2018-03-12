@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ConcurrentDictionary<CommandCacheKey, IRelationalCommand> _commandCache
             = new ConcurrentDictionary<CommandCacheKey, IRelationalCommand>();
 
-        private struct CommandCacheKey
+        private readonly struct CommandCacheKey
         {
             private readonly IReadOnlyDictionary<string, object> _parameterValues;
 
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     s => QuerySqlGeneratorFactory()
                         .CreateValueBufferFactory(s.Factory, s.Reader));
 
-        private struct FactoryAndReader
+        private readonly struct FactoryAndReader
         {
             public readonly IRelationalValueBufferFactoryFactory Factory;
             public readonly DbDataReader Reader;

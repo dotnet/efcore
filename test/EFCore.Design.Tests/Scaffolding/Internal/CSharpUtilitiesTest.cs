@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Assert.Equal(typeName, new CSharpUtilities().GetTypeName(type));
         }
 
-        private struct SomeGenericStruct<T>
+        private readonly struct SomeGenericStruct<T>
         {
         }
 

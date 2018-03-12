@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 GenerateCacheKeyCore(query, async),
                 RelationalDependencies.ContextOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging ?? false);
 
-        private struct SqlServerCompiledQueryCacheKey
+        private readonly struct SqlServerCompiledQueryCacheKey
         {
             private readonly RelationalCompiledQueryCacheKey _relationalCompiledQueryCacheKey;
             private readonly bool _useRowNumberOffset;

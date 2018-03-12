@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract partial class InternalEntityEntry
     {
-        private struct StoreGeneratedValues
+        private readonly struct StoreGeneratedValues
         {
             private static readonly object _nullSentinel = new object();
 

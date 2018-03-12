@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public struct EntityLoadInfo
+    public readonly struct EntityLoadInfo
     {
         private readonly Func<MaterializationContext, object> _materializer;
         private readonly Dictionary<Type, int[]> _typeIndexMap;

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract partial class InternalEntityEntry
     {
-        private struct RelationshipsSnapshot
+        private readonly struct RelationshipsSnapshot
         {
             private readonly ISnapshot _values;
 

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public struct ValueBuffer
+    public readonly struct ValueBuffer
     {
         /// <summary>
         ///     A buffer with no values in it.

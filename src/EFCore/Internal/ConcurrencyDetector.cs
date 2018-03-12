@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return new AsyncDisposer(EnterCriticalSection(), this);
         }
 
-        private struct AsyncDisposer : IDisposable
+        private readonly struct AsyncDisposer : IDisposable
         {
             private readonly IDisposable _disposable;
             private readonly ConcurrencyDetector _concurrencyDetector;
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private struct Disposer : IDisposable
+        private readonly struct Disposer : IDisposable
         {
             private readonly ConcurrencyDetector _concurrencyDetector;
 

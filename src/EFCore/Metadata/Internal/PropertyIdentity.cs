@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
-    public struct PropertyIdentity
+    public readonly struct PropertyIdentity
     {
         private readonly object _nameOrProperty;
 

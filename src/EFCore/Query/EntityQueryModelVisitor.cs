@@ -1283,7 +1283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private const string CreateTransparentIdentifierMethodName = "CreateTransparentIdentifier";
 
-        private struct TransparentIdentifier<TOuter, TInner>
+        private readonly struct TransparentIdentifier<TOuter, TInner>
         {
             [UsedImplicitly]
             public static TransparentIdentifier<TOuter, TInner> CreateTransparentIdentifier(TOuter outer, TInner inner)
@@ -1296,10 +1296,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             [UsedImplicitly]
-            public TOuter Outer;
+            public readonly TOuter Outer;
 
             [UsedImplicitly]
-            public TInner Inner;
+            public readonly TInner Inner;
         }
 
         /// <summary>

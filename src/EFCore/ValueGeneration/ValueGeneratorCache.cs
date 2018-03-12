@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
             = new ConcurrentDictionary<CacheKey, ValueGenerator>();
 
-        private struct CacheKey
+        private readonly struct CacheKey
         {
             public CacheKey(IProperty property, IEntityType entityType, Func<IProperty, IEntityType, ValueGenerator> factory)
             {
