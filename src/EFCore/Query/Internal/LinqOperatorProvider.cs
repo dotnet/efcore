@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -104,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IEnumerator<T> GetEnumerator() => new EnumeratorExceptionInterceptor(this);
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             [DebuggerStepThrough]
@@ -117,11 +119,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _exceptionInterceptor = exceptionInterceptor;
 
                 }
-
-                public T Current => _innerEnumerator.Current;
+                
+                public T Current
+                {
+                    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                    get => _innerEnumerator.Current;
+                }
 
                 object IEnumerator.Current => _innerEnumerator.Current;
 
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public bool MoveNext()
                 {
                     using (_exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection())

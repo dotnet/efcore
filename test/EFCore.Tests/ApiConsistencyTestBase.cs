@@ -90,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore
                          && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
                          && type.Namespace != null
                          && !type.Namespace.EndsWith(".Compiled")
+                         && ShouldHaveVirtualMethods(type)
                    from method in type.GetMethods(AnyInstance)
                    where method.DeclaringType == type
                          && !(method.IsVirtual && !method.IsFinal)
@@ -104,6 +105,9 @@ namespace Microsoft.EntityFrameworkCore
                 nonVirtualMethods.Any(),
                 "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
         }
+
+        protected virtual bool ShouldHaveVirtualMethods(Type type)
+            => true;
 
         [Fact]
         public virtual void Public_api_arguments_should_have_not_null_annotation()

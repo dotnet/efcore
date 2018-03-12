@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public async virtual Task<TCollection> CorrelateSubqueryAsync<TInner, TCollection>(
+        public virtual async Task<TCollection> CorrelateSubqueryAsync<TInner, TCollection>(
             int correlatedCollectionId,
             INavigation navigation,
             Func<INavigation, TCollection> resultCollectionFactory,

@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -114,7 +115,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly QueryContext _queryContext;
 
             public ExceptionInterceptor(
-                IAsyncEnumerable<T> innerAsyncEnumerable, Type contextType, IDiagnosticsLogger<DbLoggerCategory.Query> logger, QueryContext queryContext)
+                IAsyncEnumerable<T> innerAsyncEnumerable,
+                Type contextType,
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+                QueryContext queryContext)
             {
                 _innerAsyncEnumerable = innerAsyncEnumerable;
                 _contextType = contextType;
@@ -122,6 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryContext = queryContext;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public IAsyncEnumerator<T> GetEnumerator() => new EnumeratorExceptionInterceptor(this);
 
             [DebuggerStepThrough]
@@ -135,8 +140,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _exceptionInterceptor = exceptionInterceptor;
                 }
 
-                public T Current => _innerEnumerator.Current;
+                public T Current
+                {
+                    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                    get => _innerEnumerator.Current;
+                }
 
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
                     using (await _exceptionInterceptor._queryContext.ConcurrencyDetector

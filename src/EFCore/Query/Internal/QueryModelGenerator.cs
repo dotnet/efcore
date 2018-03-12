@@ -51,9 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             bool parameterize = true,
             bool generateContextAccessors = false)
         {
-            Check.NotNull(query, nameof(query));
-            Check.NotNull(parameterValues, nameof(parameterValues));
-
             var visitor
                 = new ParameterExtractingExpressionVisitor(
                     _evaluatableExpressionFilter,

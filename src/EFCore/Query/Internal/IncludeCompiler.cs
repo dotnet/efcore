@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -318,6 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetDeclaredMethod(nameof(_Include));
 
         // ReSharper disable once InconsistentNaming
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TEntity _Include<TEntity>(
             QueryContext queryContext,
             TEntity entity,
@@ -337,6 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetDeclaredMethod(nameof(_IncludeAsync));
 
         // ReSharper disable once InconsistentNaming
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static async Task<TEntity> _IncludeAsync<TEntity>(
             QueryContext queryContext,
             TEntity entity,

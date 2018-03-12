@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The value at the requested index. </returns>
         public object this[int index]
         {
-            get { return _values[_offset + index]; }
-            [param: CanBeNull] set { _values[_offset + index] = value; }
+            get => _values[_offset + index];
+            [param: CanBeNull] set => _values[_offset + index] = value;
         }
 
         internal static readonly MethodInfo GetValueMethod
@@ -108,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return false;
             }
 
-            return obj is ValueBuffer
-                   && Equals((ValueBuffer)obj);
+            return obj is ValueBuffer buffer
+                   && Equals(buffer);
         }
 
         private bool Equals(ValueBuffer other)

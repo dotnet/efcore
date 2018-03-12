@@ -613,7 +613,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="bufferable"> The bufferable query. </param>
         void IRelationalConnection.RegisterBufferable(IBufferable bufferable)
         {
-            Check.NotNull(bufferable, nameof(bufferable));
+            // hot path
+            Debug.Assert(bufferable != null);
 
             if (!IsMultipleActiveResultSetsEnabled)
             {
@@ -638,7 +639,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         async Task IRelationalConnection.RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken)
         {
-            Check.NotNull(bufferable, nameof(bufferable));
+            // hot path
+            Debug.Assert(bufferable != null);
 
             if (!IsMultipleActiveResultSetsEnabled)
             {

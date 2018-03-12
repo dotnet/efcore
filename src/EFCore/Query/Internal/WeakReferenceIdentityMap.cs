@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class WeakReferenceIdentityMap<TKey> : IWeakReferenceIdentityMap
+    public sealed class WeakReferenceIdentityMap<TKey> : IWeakReferenceIdentityMap
     {
         private const int IdentityMapGarbageCollectionThreshold = 500;
         private int _identityMapGarbageCollectionIterations;
@@ -41,24 +41,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IPrincipalKeyValueFactory<TKey> PrincipalKeyValueFactory { get; }
+        private IPrincipalKeyValueFactory<TKey> PrincipalKeyValueFactory
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IKey Key { get; }
+        public IKey Key
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual WeakReference<object> TryGetEntity(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public WeakReference<object> TryGetEntity(
             in ValueBuffer valueBuffer,
             bool throwOnNullKey,
             out bool hasNullKey)
         {
             var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
+
             if (key == null)
             {
                 if (throwOnNullKey)
@@ -89,15 +99,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void CollectGarbage()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void CollectGarbage()
         {
             if (++_identityMapGarbageCollectionIterations == IdentityMapGarbageCollectionThreshold)
             {
-                var deadEntries
-                    = (from entry in _identityMap
-                       where !entry.Value.TryGetTarget(out _)
-                       select entry.Key)
-                    .ToList();
+                var deadEntries = new List<TKey>();
+
+                foreach (var entry in _identityMap)
+                {
+                    if (!entry.Value.TryGetTarget(out _))
+                    {
+                        deadEntries.Add(entry.Key);
+                    }
+                }
 
                 foreach (var keyValue in deadEntries)
                 {
@@ -112,14 +127,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Add(in ValueBuffer valueBuffer, object entity)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(in ValueBuffer valueBuffer, object entity)
             => _identityMap[(TKey)PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer)] = new WeakReference<object>(entity);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, in ValueBuffer valueBuffer)
+        public IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, in ValueBuffer valueBuffer)
         {
             if (navigation.IsDependentToPrincipal())
             {
@@ -138,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, InternalEntityEntry entry)
+        public IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, InternalEntityEntry entry)
         {
             if (navigation.IsDependentToPrincipal())
             {

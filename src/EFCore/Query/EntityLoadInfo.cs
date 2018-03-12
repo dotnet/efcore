@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -67,12 +68,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets the row of data that represents this entity.
         /// </summary>
-        public ValueBuffer ValueBuffer => _materializationContext.ValueBuffer;
+        public ValueBuffer ValueBuffer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _materializationContext.ValueBuffer;
+        }
 
         /// <summary>
         ///     Materializes the data into an entity instance.
         /// </summary>
         /// <returns> The entity instance. </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object Materialize() => _materializer(_materializationContext);
 
         /// <summary>
@@ -80,9 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="clrType"> The type of this entity. </param>
         /// <returns> Updated value buffer. </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ValueBuffer ForType([NotNull] Type clrType)
         {
-            Check.NotNull(clrType, nameof(clrType));
+            // hot path
+            Debug.Assert(clrType != null);
 
             if (_typeIndexMap == null
                 || !_typeIndexMap.ContainsKey(clrType))

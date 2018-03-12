@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -69,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _bufferlessMoveNext = BufferlessMoveNext;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
                 if (_buffer == null)
@@ -91,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return false;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private bool BufferlessMoveNext(DbContext _, bool buffer)
             {
                 if (_dataReader == null)
@@ -139,7 +142,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return hasNext;
             }
 
-            public T Current { get; private set; }
+            public T Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get;
+                private set;
+            }
 
             public void BufferAll()
             {

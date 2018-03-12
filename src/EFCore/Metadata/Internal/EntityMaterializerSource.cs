@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,13 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type type,
             int index,
             IPropertyBase property)
-        {
-            return Expression.Call(
+            => Expression.Call(
                 TryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
                 Expression.Constant(index),
                 Expression.Constant(property, typeof(IPropertyBase)));
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -46,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = typeof(EntityMaterializerSource).GetTypeInfo()
                 .GetDeclaredMethod(nameof(TryReadValue));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue TryReadValue<TValue>(
             in ValueBuffer valueBuffer,
             int index,
@@ -72,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = typeof(EntityMaterializerSource).GetTypeInfo()
                 .GetDeclaredMethod(nameof(ThrowReadValueException));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ThrowReadValueException<TValue>(
             Exception exception, object value, IPropertyBase property = null)
         {

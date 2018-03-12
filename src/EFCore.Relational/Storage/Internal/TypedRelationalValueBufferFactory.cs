@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -12,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class TypedRelationalValueBufferFactory : IRelationalValueBufferFactory
+    public sealed class TypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {
         private readonly Func<DbDataReader, object[]> _valueFactory;
 
@@ -31,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ValueBuffer Create(DbDataReader dataReader)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ValueBuffer Create(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
 

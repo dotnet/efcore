@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -66,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _bufferlessMoveNext = BufferlessMoveNext;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public async Task<bool> MoveNext(CancellationToken cancellationToken)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -100,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private async Task<bool> BufferlessMoveNext(DbContext _, bool buffer, CancellationToken cancellationToken)
             {
                 if (_dataReader == null)
@@ -150,7 +153,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return hasNext;
             }
 
-            public T Current { get; private set; }
+            public T Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get;
+                private set;
+            }
 
             public async Task BufferAllAsync(CancellationToken cancellationToken)
             {

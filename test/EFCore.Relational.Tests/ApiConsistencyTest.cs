@@ -27,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
 
+        protected override bool ShouldHaveVirtualMethods(Type type)
+            => type.Name != "EntityShaper";
+
         protected override void AddServices(ServiceCollection serviceCollection)
         {
             new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
