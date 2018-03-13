@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -513,10 +514,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var setResultOperatorsCompensatingVisitor = new SetResultOperatorsCompensatingVisitor(this);
                 setResultOperatorsCompensatingVisitor.VisitQueryModel(queryModel);
 
+                var subQueryInJoinInnerKeySelectorCompensatingVisitor = new SubQueryInJoinInnerKeySelectorCompensatingVisitor();
+                subQueryInJoinInnerKeySelectorCompensatingVisitor.VisitQueryModel(queryModel);
+
                 _querySourcesRequiringMaterialization.UnionWith(
                     querySourcesRequiringMaterialization
                         .Concat(groupJoinCompensatingVisitor.QuerySources)
-                        .Concat(blockedMemberPushdownCompensatingVisitor.QuerySources));
+                        .Concat(blockedMemberPushdownCompensatingVisitor.QuerySources)
+                        .Concat(subQueryInJoinInnerKeySelectorCompensatingVisitor.QuerySources));
             }
         }
 
@@ -629,6 +634,51 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 }
+            }
+        }
+
+        private class SubQueryInJoinInnerKeySelectorCompensatingVisitor : QueryModelVisitorBase
+        {
+            public ISet<IQuerySource> QuerySources { get; } = new HashSet<IQuerySource>();
+
+            public override void VisitQueryModel(QueryModel queryModel)
+            {
+                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<SubQueryInJoinInnerKeySelectorCompensatingVisitor>(this).Visit);
+
+                base.VisitQueryModel(queryModel);
+            }
+
+            public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
+            {
+                if (joinClause.InnerKeySelector is SubQueryExpression innerKeySubquery
+                    && IsNavigationSubquery(innerKeySubquery))
+                {
+                    MarkForMaterialization(((QuerySourceReferenceExpression)innerKeySubquery.QueryModel.SelectClause.Selector).ReferencedQuerySource);
+                }
+
+                base.VisitJoinClause(joinClause, queryModel, index);
+            }
+
+            public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
+            {
+                VisitJoinClause(groupJoinClause.JoinClause, queryModel, index);
+
+                base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
+            }
+
+            private bool IsNavigationSubquery(SubQueryExpression subQueryExpression)
+                => subQueryExpression != null
+                ? subQueryExpression.QueryModel.BodyClauses.OfType<WhereClause>().Where(c => c.Predicate is NullSafeEqualExpression).Any()
+                    && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression selectorQsre
+                    && subQueryExpression.QueryModel.ResultOperators.Count == 1
+                    && subQueryExpression.QueryModel.ResultOperators[0] is FirstResultOperator firstResultOperator
+                    && firstResultOperator.ReturnDefaultWhenEmpty
+                : false;
+
+            private void MarkForMaterialization(IQuerySource querySource)
+            {
+                RequiresMaterializationExpressionVisitor.HandleUnderlyingQuerySources(querySource, MarkForMaterialization);
+                QuerySources.Add(querySource);
             }
         }
 
