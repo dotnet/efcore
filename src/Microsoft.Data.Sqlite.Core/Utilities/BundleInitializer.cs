@@ -12,9 +12,7 @@ namespace Microsoft.Data.Sqlite.Utilities
             Assembly assembly;
             try
             {
-                assembly = Assembly.Load(
-                    new AssemblyName(
-                        "SQLitePCLRaw.batteries_v2, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8226ea5df37bcae9"));
+                assembly = Assembly.Load(new AssemblyName("SQLitePCLRaw.batteries_v2"));
             }
             catch
             {
