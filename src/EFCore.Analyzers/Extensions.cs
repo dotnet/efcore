@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace EFCore.Analyzers
+namespace Microsoft.EntityFrameworkCore
 {
     internal static class Extensions
     {

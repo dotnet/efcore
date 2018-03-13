@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers.Tests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 

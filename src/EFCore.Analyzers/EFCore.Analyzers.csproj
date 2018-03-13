@@ -11,6 +11,8 @@
         <PackageVersion>$(ExperimentalPackageVersion)</PackageVersion>
         
         <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
+        <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <EnableApiCheck>false</EnableApiCheck>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>

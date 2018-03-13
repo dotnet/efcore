@@ -8,33 +8,26 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace EFCore.Analyzers
+namespace Microsoft.EntityFrameworkCore
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class SqlInjectionDiagnosticAnalyzer : DiagnosticAnalyzer
+    public abstract class SqlInjectionDiagnosticAnalyzerBase : DiagnosticAnalyzer
     {
-        public const string Id = "EF1000";
-
         public const string MessageFormat
             = "The SQL expression passed to '{0}' embeds data that will not be parameterized. Review for potential SQL injection vulnerability.";
 
-        private static readonly DiagnosticDescriptor _descriptor
-            = new DiagnosticDescriptor(
-                Id,
-                title: "Possible SQL injection vulnerability.",
-                messageFormat: MessageFormat,
-                category: "Security",
-                defaultSeverity: DiagnosticSeverity.Warning,
-                isEnabledByDefault: true);
+        protected const string DefaultTitle = "Possible SQL injection vulnerability.";
+        protected const string Category = "Security";
+
+        protected abstract DiagnosticDescriptor DiagnosticDescriptor { get; }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-            => ImmutableArray.Create(_descriptor);
+            => ImmutableArray.Create(DiagnosticDescriptor);
 
         public override void Initialize(AnalysisContext analysisContext)
             => analysisContext.RegisterSyntaxNodeAction(
                 AnalyzeSimpleMemberAccessExpressionSyntaxNode, SyntaxKind.SimpleMemberAccessExpression);
 
-        private static void AnalyzeSimpleMemberAccessExpressionSyntaxNode(SyntaxNodeAnalysisContext analysisContext)
+        private void AnalyzeSimpleMemberAccessExpressionSyntaxNode(SyntaxNodeAnalysisContext analysisContext)
         {
             if (!(analysisContext.Node is MemberAccessExpressionSyntax memberAccessExpressionSyntax))
             {
@@ -43,78 +36,22 @@ namespace EFCore.Analyzers
 
             var identifierValueText = memberAccessExpressionSyntax.Name.Identifier.ValueText;
 
-            if (identifierValueText == "FromSql"
-                || identifierValueText == "ExecuteSqlCommand"
-                || identifierValueText == "ExecuteSqlCommandAsync"
-                || identifierValueText == "CommandText")
-            {
-                var symbol = analysisContext.GetSymbol(memberAccessExpressionSyntax);
-
-                if (symbol == null)
-                {
-                    return;
-                }
-
-                var containingType = symbol.ContainingType;
-                var containingTypeName = containingType.Name;
-
-                if ((containingTypeName == "RelationalQueryableExtensions"
-                     || containingTypeName == "RelationalDatabaseFacadeExtensions")
-                    && containingType.ContainingNamespace.Name == "EntityFrameworkCore"
-                    && memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax invocationExpressionSyntax
-                    && symbol is IMethodSymbol methodSymbol)
-                {
-                    // FromSql, ExecuteSqlCommand/Async
-
-                    // Extension method vs static invocation
-                    var sqlArgumentIndex = methodSymbol.ReducedFrom == null ? 1 : 0;
-
-                    var sqlArgumentExpressionSyntax
-                        = invocationExpressionSyntax.ArgumentList.Arguments[sqlArgumentIndex].Expression;
-
-                    // Skip safe FromSql/ExecuteSqlCommand usage - string literal or interpolated string
-                    switch (sqlArgumentExpressionSyntax)
-                    {
-                        case LiteralExpressionSyntax _:
-                            return;
-                        case InterpolatedStringExpressionSyntax _:
-                            return;
-                    }
-
-                    CheckPossibleInjection(
-                        analysisContext,
-                        sqlArgumentExpressionSyntax,
-                        identifierValueText,
-                        invocationExpressionSyntax.GetLocation());
-                }
-                else if (symbol is IPropertySymbol propertySymbol)
-                {
-                    // DbCommand.CommandText
-
-                    var overriddenPropertyContainingType = propertySymbol.OverriddenProperty.ContainingType;
-
-                    if (overriddenPropertyContainingType.Name == "DbCommand"
-                        && overriddenPropertyContainingType.ContainingNamespace.Name == "Common"
-                        && memberAccessExpressionSyntax.Parent is AssignmentExpressionSyntax assignmentExpressionSyntax)
-                    {
-                        CheckPossibleInjection(
-                            analysisContext,
-                            assignmentExpressionSyntax.Right,
-                            identifierValueText,
-                            assignmentExpressionSyntax.GetLocation());
-                    }
-                }
-            }
+            AnalyzeMember(analysisContext, identifierValueText, memberAccessExpressionSyntax);
         }
 
-        private static bool CheckPossibleInjection(
+        protected abstract void AnalyzeMember(
+            SyntaxNodeAnalysisContext analysisContext,
+            string identifierValueText,
+            MemberAccessExpressionSyntax memberAccessExpressionSyntax);
+
+        protected bool CheckPossibleInjection(
             SyntaxNodeAnalysisContext analysisContext, SyntaxNode syntaxNode, string identifier, Location location)
         {
             if (UsesUnsafeInterpolation(analysisContext, syntaxNode)
                 || UsesUnsafeStringOperation(analysisContext, syntaxNode))
             {
                 analysisContext.ReportDiagnostic(
-                    Diagnostic.Create(_descriptor, location, identifier));
+                    Diagnostic.Create(DiagnosticDescriptor, location, identifier));
 
                 return true;
             }
@@ -122,7 +59,8 @@ namespace EFCore.Analyzers
             var rootSyntaxNode
                 = syntaxNode.Ancestors().First(n => n is MemberDeclarationSyntax);
 
-            foreach (var identifierNameSyntax in syntaxNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
+            foreach (var identifierNameSyntax
+                in syntaxNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
             {
                 var symbol = analysisContext.GetSymbol(identifierNameSyntax);
 
@@ -141,32 +79,32 @@ namespace EFCore.Analyzers
                             case AssignmentExpressionSyntax assignmentExpressionSyntax
                                 when assignmentExpressionSyntax.Left is IdentifierNameSyntax
                                      && Equals(analysisContext.GetSymbol(assignmentExpressionSyntax.Left), symbol):
+                            {
+                                if (CheckPossibleInjection(
+                                    analysisContext,
+                                    assignmentExpressionSyntax.Right,
+                                    identifier,
+                                    location))
                                 {
-                                    if (CheckPossibleInjection(
-                                        analysisContext,
-                                        assignmentExpressionSyntax.Right,
-                                        identifier,
-                                        location))
-                                    {
-                                        return true;
-                                    }
-
-                                    break;
+                                    return true;
                                 }
+
+                                break;
+                            }
                             case VariableDeclaratorSyntax variableDeclaratorSyntax
                                 when Equals(analysisContext.SemanticModel.GetDeclaredSymbol(variableDeclaratorSyntax), symbol):
+                            {
+                                if (CheckPossibleInjection(
+                                    analysisContext,
+                                    variableDeclaratorSyntax.Initializer,
+                                    identifier,
+                                    location))
                                 {
-                                    if (CheckPossibleInjection(
-                                        analysisContext,
-                                        variableDeclaratorSyntax.Initializer,
-                                        identifier,
-                                        location))
-                                    {
-                                        return true;
-                                    }
-
-                                    break;
+                                    return true;
                                 }
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -175,7 +113,7 @@ namespace EFCore.Analyzers
             return false;
         }
 
-        private static bool UsesUnsafeInterpolation(
+        protected static bool UsesUnsafeInterpolation(
             SyntaxNodeAnalysisContext analysisContext, SyntaxNode syntaxNode)
             => syntaxNode
                 .DescendantNodesAndSelf()
@@ -187,7 +125,7 @@ namespace EFCore.Analyzers
                               .SelectMany(i => i.DescendantNodesAndSelf())
                               .Any(n => IsLocalOrParameterSymbol(analysisContext, n)));
 
-        private static bool UsesUnsafeStringOperation(
+        protected static bool UsesUnsafeStringOperation(
             SyntaxNodeAnalysisContext analysisContext, SyntaxNode syntaxNode)
             => syntaxNode
                 .DescendantNodesAndSelf()
