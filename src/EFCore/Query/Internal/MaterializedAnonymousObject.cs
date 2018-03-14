@@ -104,10 +104,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             unchecked
             {
-                return _values.Aggregate(
-                    0,
-                    (current, argument)
-                        => current + ((current * 397) ^ (argument?.GetHashCode() ?? 0)));
+                return _values != null
+                    ? _values.Aggregate(
+                        0,
+                        (current, argument)
+                            => current + ((current * 397) ^ (argument?.GetHashCode() ?? 0)))
+                    : 0;
             }
         }
 
