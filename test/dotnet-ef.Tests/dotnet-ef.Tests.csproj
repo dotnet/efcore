@@ -10,4 +10,8 @@
     <ProjectReference Include="..\..\src\dotnet-ef\dotnet-ef.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
+  </ItemGroup>
+
 </Project>
