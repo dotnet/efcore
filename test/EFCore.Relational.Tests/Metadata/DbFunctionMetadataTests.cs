@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var expectedMessage = CoreStrings.ArgumentIsEmpty("name");
+            var expectedMessage = AbstractionsStrings.ArgumentIsEmpty("name");
 
             Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
         }

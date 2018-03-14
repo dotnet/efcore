@@ -1,0 +1,5 @@
+﻿<#
+    Session["ResourceFile"] = "AbstractionsStrings.resx";
+    Session["NoDiagnostics"] = true;
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

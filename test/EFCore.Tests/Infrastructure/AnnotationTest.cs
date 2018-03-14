@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void Members_check_arguments()
         {
             Assert.Equal(
-                CoreStrings.ArgumentIsEmpty("name"),
+                AbstractionsStrings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
 
             // ReSharper disable once AssignNullToNotNullAttribute

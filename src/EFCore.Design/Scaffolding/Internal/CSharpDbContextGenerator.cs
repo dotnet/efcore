@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!legacyProviderCodeGenerators.Any() && !providerCodeGenerators.Any())
             {
-                throw new ArgumentException(CoreStrings.CollectionArgumentIsEmpty(nameof(providerCodeGenerators)));
+                throw new ArgumentException(AbstractionsStrings.CollectionArgumentIsEmpty(nameof(providerCodeGenerators)));
             }
 
             _legacyProviderCodeGenerator = legacyProviderCodeGenerators.LastOrDefault();
