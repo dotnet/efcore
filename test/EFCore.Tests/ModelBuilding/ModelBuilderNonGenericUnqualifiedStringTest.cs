@@ -27,6 +27,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class NonGenericStringOneToOneType : OneToOneTestBase
         {
+            //Shadow navigations not supported #3864
+            public override void Ignoring_properties_resolves_ambiguity()
+            {
+            }
+
+            public override void Ignoring_properties_on_principal_resolves_ambiguity()
+            {
+            }
+
+            public override void Throws_for_one_to_one_relationship_if_no_side_has_matching_property_anymore()
+            {
+            }
+
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
                 => new NonGenericStringTestModelBuilder(testHelpers);
         }

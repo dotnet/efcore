@@ -2088,6 +2088,7 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<Book>();
             modelBuilder.Entity<One>();
+            modelBuilder.Ignore<SpecialBookLabel>();
 
             Validate(modelBuilder);
 

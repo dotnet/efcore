@@ -220,6 +220,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
                 modelBuilder.Entity<BookDetailsBase>();
+                modelBuilder.Ignore<SpecialBookLabel>();
 
                 modelBuilder.Validate();
 
@@ -240,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<BookDetailsBase>();
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
+                modelBuilder.Ignore<SpecialBookLabel>();
 
                 modelBuilder.Validate();
 

@@ -846,9 +846,9 @@ namespace Microsoft.EntityFrameworkCore
                     x =>
                         {
                             x.Property<string>("AssemblyName");
-                            x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
                             x.HasOne(t => t.Class).WithMany(c => c.Tests)
                                 .HasForeignKey("AssemblyName", "ClassName");
+                            x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
                         });
             }
         }

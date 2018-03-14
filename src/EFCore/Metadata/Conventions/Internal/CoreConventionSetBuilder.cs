@@ -84,12 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.BaseEntityTypeChangedConventions.Add(foreignKeyIndexConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(valueGeneratorConvention);
 
-            // An ambiguity might have been resolved
+            var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention(Dependencies.Logger);
+
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.EntityTypeMemberIgnoredConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             var keyAttributeConvention = new KeyAttributeConvention();
-            var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention(Dependencies.Logger);
             var backingFieldConvention = new BackingFieldConvention();
             var concurrencyCheckAttributeConvention = new ConcurrencyCheckAttributeConvention();
             var databaseGeneratedAttributeConvention = new DatabaseGeneratedAttributeConvention();

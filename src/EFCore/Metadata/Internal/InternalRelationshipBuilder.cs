@@ -1458,7 +1458,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource,
                 dependentEntityTypeBuilder: dependentEntityType.Builder,
                 dependentProperties: properties,
-                principalProperties: resetPrincipalKey ? new Property[0] : null);
+                principalProperties: resetPrincipalKey ? new Property[0] : null,
+                principalEndConfigurationSource: properties == null ? null : configurationSource);
         }
 
         private bool CanSetForeignKey(
@@ -1606,7 +1607,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return ReplaceForeignKey(
                 configurationSource,
                 principalProperties: properties,
-                dependentProperties: resetDependent ? new Property[0] : null);
+                dependentProperties: resetDependent ? new Property[0] : null,
+                principalEndConfigurationSource: properties == null ? (ConfigurationSource?)null : configurationSource);
         }
 
         private bool CanSetPrincipalKey(
@@ -1745,8 +1747,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             principalEndConfigurationSource = principalEndConfigurationSource ??
                                               (principalEntityTypeBuilder.Metadata != dependentEntityTypeBuilder.Metadata
-                                               && (principalProperties != null
-                                                   || dependentProperties != null
+                                               && ((principalProperties != null && principalProperties.Count > 0)
+                                                   || (dependentProperties != null && dependentProperties.Count > 0)
                                                    || (navigationToDependent != null && isUnique == false)
                                                    || isOwnership == true)
                                                   ? configurationSource
