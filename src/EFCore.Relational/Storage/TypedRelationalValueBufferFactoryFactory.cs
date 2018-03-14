@@ -34,12 +34,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class TypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
+        /// <summary>
+        ///     The parameter representing the DbDataReader in generated expressions.
+        /// </summary>
+        public static readonly ParameterExpression DataReaderParameter
+            = Expression.Parameter(typeof(DbDataReader), "dataReader");
+
         private static readonly MethodInfo _getFieldValueMethod
             = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFieldValue));
 
         private static readonly MethodInfo _isDbNullMethod
             = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.IsDBNull));
-
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="TypedRelationalValueBufferFactoryFactory" /> class.
@@ -65,9 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public IReadOnlyList<TypeMaterializationInfo> TypeMaterializationInfo { get; }
 
             public override bool Equals(object obj)
-                => !(obj is null)
-                   && (obj is CacheKey
-                       && Equals((CacheKey)obj));
+                => obj is CacheKey && Equals((CacheKey)obj);
 
             private bool Equals(CacheKey other) 
                 => TypeMaterializationInfo.SequenceEqual(other.TypeMaterializationInfo);
@@ -119,10 +122,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     k => new TypedRelationalValueBufferFactory(Dependencies, CreateArrayInitializer(k)));
         }
 
-        private Func<DbDataReader, object[]> CreateArrayInitializer(CacheKey cacheKey)
+        /// <summary>
+        ///     Creates value buffer assignment expressions for the the given type information.
+        /// </summary>
+        /// <param name="types"> Types and mapping for the values to be read. </param>
+        /// <returns> The value buffer assignment expressions. </returns>
+        public virtual Expression[] CreateAssignmentExpressions(IReadOnlyList<TypeMaterializationInfo> types)
         {
-            var dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
+            Check.NotNull(types, nameof(types));
 
+            return types
+                .Select(
+                    (mi, i) =>
+                        CreateGetValueExpression(
+                            DataReaderParameter,
+                            Expression.Constant(mi.Index == -1 ? i : mi.Index),
+                            mi,
+                            box: false)).ToArray();
+        }
+
+        private static Func<DbDataReader, object[]> CreateArrayInitializer(CacheKey cacheKey)
+        {
             return Expression.Lambda<Func<DbDataReader, object[]>>(
                     Expression.NewArrayInit(
                         typeof(object),
@@ -130,17 +150,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             .Select(
                                 (mi, i) =>
                                     CreateGetValueExpression(
-                                        dataReaderParameter,
+                                        DataReaderParameter,
                                         Expression.Constant(mi.Index == -1 ? i : mi.Index),
                                         mi))),
-                    dataReaderParameter)
+                    DataReaderParameter)
                 .Compile();
         }
 
-        private Expression CreateGetValueExpression(
+        private static Expression CreateGetValueExpression(
             Expression dataReaderExpression,
             Expression indexExpression,
-            TypeMaterializationInfo materializationInfo)
+            TypeMaterializationInfo materializationInfo,
+            bool box = true)
         {
             var getMethod = materializationInfo.Mapping.GetDataReaderMethod();
 
@@ -192,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             expression = Expression.TryCatch(expression, catchBlock);
 
-            if (expression.Type.GetTypeInfo().IsValueType)
+            if (box && expression.Type.GetTypeInfo().IsValueType)
             {
                 expression = Expression.Convert(expression, typeof(object));
             }

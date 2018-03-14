@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -18,6 +20,92 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class QueryMethodProvider : IQueryMethodProvider
     {
+        /// <summary>
+        ///     Gets the fast query method.
+        /// </summary>
+        /// <value>
+        ///     The fast query method.
+        /// </value>
+        public virtual MethodInfo FastQueryMethod => _fastQueryMethodInfo;
+
+        private static readonly MethodInfo _fastQueryMethodInfo
+            = typeof(QueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod(nameof(_FastQuery));
+
+        // ReSharper disable once InconsistentNaming
+        private static IEnumerable<TEntity> _FastQuery<TEntity>(
+            RelationalQueryContext relationalQueryContext,
+            ShaperCommandContext shaperCommandContext,
+            Func<DbDataReader, TEntity> materializer,
+            Type contextType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        {
+            relationalQueryContext.Connection.Open();
+
+            RelationalDataReader dataReader;
+
+            try
+            {
+                var relationalCommand
+                    = shaperCommandContext
+                        .GetRelationalCommand(relationalQueryContext.ParameterValues);
+
+                dataReader
+                    = relationalCommand.ExecuteReader(
+                        relationalQueryContext.Connection,
+                        relationalQueryContext.ParameterValues);
+            }
+            catch
+            {
+                // If failure happens creating the data reader, then it won't be available to
+                // handle closing the connection, so do it explicitly here to preserve ref counting.
+                relationalQueryContext.Connection.Close();
+
+                throw;
+            }
+
+            var dbDataReader = dataReader.DbDataReader;
+
+            try
+            {
+                using (dataReader)
+                {
+                    using (relationalQueryContext.ConcurrencyDetector.EnterCriticalSection()) // TODO: IDisposable box?
+                    {
+                        while (true)
+                        {
+                            bool hasNext;
+
+                            try
+                            {
+                                hasNext = dataReader.Read();
+                            }
+                            catch (Exception exception)
+                            {
+                                logger.QueryIterationFailed(contextType, exception);
+
+                                throw;
+                            }
+
+                            if (hasNext)
+                            {
+                                yield return materializer(dbDataReader);
+                            }
+                            else
+                            {
+                                yield break;
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                relationalQueryContext.Connection?.Close();
+                relationalQueryContext.Dispose();
+            }
+        }
+
         /// <summary>
         ///     Gets the shaped query method.
         /// </summary>

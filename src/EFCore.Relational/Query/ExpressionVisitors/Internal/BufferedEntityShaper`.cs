@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IKey key,
             [NotNull] Func<MaterializationContext, object> materializer,
             [CanBeNull] Dictionary<Type, int[]> typeIndexMap)
-            : base(querySource, trackingQuery, key, materializer)
+            : base(querySource, trackingQuery, key, materializer, materializerExpression: null)
         {
             _typeIndexMap = typeIndexMap;
         }

@@ -74,6 +74,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
+        ///     Whether or not the generated SQL could have out-of-order projection columns.
+        /// </summary>
+        public virtual bool RequiresRuntimeProjectionRemapping => false;
+
+        /// <summary>
         ///     Parameter object containing service dependencies.
         /// </summary>
         protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
@@ -150,6 +155,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return relationalValueBufferFactoryFactory
                 .Create(SelectExpression.GetMappedProjectionTypes().ToArray());
         }
+
+        /// <summary>
+        ///     Information about the types being projected by this query.
+        /// </summary>
+        public virtual TypeMaterializationInfo[] GetTypeMaterializationInfos()
+            => SelectExpression.GetMappedProjectionTypes().ToArray();
 
         /// <summary>
         ///     The generated SQL.
