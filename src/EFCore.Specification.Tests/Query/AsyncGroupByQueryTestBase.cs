@@ -1093,7 +1093,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => new { g.Key, Count = g.Count(), Sum = g.Sum(o => o.OrderID) }));
         }
 
-        [ConditionalFact(Skip = "Issue#10012")]
+        [ConditionalFact]
         public virtual async Task GroupBy_Aggregate_Join()
         {
             await AssertQuery<Order, Customer>(
@@ -1103,7 +1103,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
                     join c in cs on a.CustomerID equals c.CustomerID
                     join o in os on a.LastOrderID equals o.OrderID
-                    select new { c, o });
+                    select new { c, o },
+                entryCount: 126);
         }
 
         [ConditionalFact]
