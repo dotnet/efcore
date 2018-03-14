@@ -1,5 +1,10 @@
   [
     {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.RelationalIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+      "MemberId": "public static System.String GetConfiguredColumnType(this Microsoft.EntityFrameworkCore.Metadata.IProperty property)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGeneratorDependencies",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper)",
       "Kind": "Removal"
@@ -114,4 +119,4 @@
       "MemberId": "System.Reflection.MethodInfo get_FastQueryMethod()",
       "Kind": "Addition"
     }
-]
+  ]

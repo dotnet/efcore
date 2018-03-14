@@ -1,37 +1,510 @@
-﻿[
+[
   {
-    "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
-    "MemberId": "public const System.Int32 CoreBaseId = 100000",
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.ChangeTracking.MemberEntry : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry>",
     "Kind": "Removal"
   },
   {
-    "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
-    "MemberId": "public const System.Int32 ProviderBaseId = 300000",
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.ChangeTracking.NavigationEntry : Microsoft.EntityFrameworkCore.ChangeTracking.MemberEntry",
     "Kind": "Removal"
   },
   {
-    "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
-    "MemberId": "public const System.Int32 ProviderDesignBaseId = 350000",
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
     "Kind": "Removal"
   },
   {
-    "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
-    "MemberId": "public const System.Int32 RelationalBaseId = 200000",
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Diagnostics.LoggerCategory<T0>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.EntityQueryableExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.DefaultQueryExpressionVisitor",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ExpressionVisitorBase : Remotion.Linq.Parsing.RelinqExpressionVisitor",
     "Kind": "Removal"
   },
   {
     "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>",
-    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.DbContext context)",
     "Kind": "Removal"
   },
   {
-    "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateEntry",
-    "MemberId": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry get_SharedIdentityEntry()",
-    "Kind": "Addition"
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.CollectionEntry : Microsoft.EntityFrameworkCore.ChangeTracking.NavigationEntry",
+    "Kind": "Removal"
   },
   {
-    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorDependencies",
-    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer queryOptimizer, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor queryAnnotationExtractor, Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler resultOperatorHandler, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter expressionPrinter)",
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.CollectionEntry<T0, T1> : Microsoft.EntityFrameworkCore.ChangeTracking.CollectionEntry where T0 : class where T1 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<T0> : Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry where T0 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntryGraphNode : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.LocalView<T0> : System.Collections.Generic.ICollection<T0>, System.Collections.Specialized.INotifyCollectionChanged, System.ComponentModel.INotifyPropertyChanged, System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.IListSource where T0 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.ObservableCollectionListSource<T0> : System.Collections.ObjectModel.ObservableCollection<T0>, System.ComponentModel.IListSource where T0 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet<T0> : System.Collections.Generic.ISet<T0>, System.Collections.Generic.IReadOnlyCollection<T0>, System.Collections.Specialized.INotifyCollectionChanged, System.ComponentModel.INotifyPropertyChanged, System.ComponentModel.INotifyPropertyChanging",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.BinaryExpressionEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.ContextInitializedEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.DbContextErrorEventData : Microsoft.EntityFrameworkCore.Diagnostics.DbContextEventData, Microsoft.EntityFrameworkCore.Diagnostics.IErrorEventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.DbContextEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.DbContextTypeErrorEventData : Microsoft.EntityFrameworkCore.Diagnostics.DbContextTypeEventData, Microsoft.EntityFrameworkCore.Diagnostics.IErrorEventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.DbContextTypeEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition : Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition<T0, T1, T2, T3, T4, T5> : Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition<T0, T1, T2, T3, T4> : Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition<T0, T1, T2, T3> : Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition<T0, T1, T2> : Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition<T0, T1> : Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition<T0> : Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.ExpressionEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.FallbackEventDefinition : Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.IncludeEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.NavigationPathEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.PropertyEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.QueryExpressionEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.QueryModelClientEvalEventData : Microsoft.EntityFrameworkCore.Diagnostics.QueryModelEventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.QueryModelEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.SaveChangesEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.ServiceProviderEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.ServiceProvidersEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.SharedDependentEntityEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.WarningsConfiguration",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Diagnostics.WarningsConfigurationBuilder",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.Annotatable : Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.Annotation : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.CoreOptionsExtension : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.DbContextFactoryOptions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKey",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKeyFactory : Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizer : Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelSource : Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ModelValidator : Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.ServiceCollectionMap : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Internal.InternalServiceCollectionMap>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder where T0 : class where T1 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalEntityTypeBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0> : Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder where T0 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalIndexBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalKeyBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalPropertyBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0> : Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder where T0 : class where T1 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder where T0 : class where T1 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilderBase, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalEntityTypeBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder where T0 : class where T1 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilderBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1> : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder where T0 : class where T1 : class",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilderBase : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.SimpleModelFactory",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ProjectionExpressionVisitor : Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.DefaultQueryExpressionVisitor",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public enum Microsoft.EntityFrameworkCore.Metadata.ValueGenerated",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IDesignTimeDbContextFactory<T0> where T0 : Microsoft.EntityFrameworkCore.DbContext",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IDesignTimeServices",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<T0> where T0 : Microsoft.EntityFrameworkCore.Diagnostics.LoggerCategory<T0>, new()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Diagnostics.IErrorEventData",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Diagnostics.ILoggingOptions : Microsoft.EntityFrameworkCore.Infrastructure.ISingletonOptions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextFactory<T0> where T0 : Microsoft.EntityFrameworkCore.DbContext",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsBuilderInfrastructure",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<T0>",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IModelValidator",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.IResettableService",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Infrastructure.ISingletonOptions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IIndex : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IKey : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IModel : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey : Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableIndex : Microsoft.EntityFrameworkCore.Metadata.IIndex, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableKey : Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IKey",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation : Microsoft.EntityFrameworkCore.Metadata.INavigation, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableProperty : Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase where T0 : Microsoft.EntityFrameworkCore.DbContext",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase : Microsoft.EntityFrameworkCore.Metadata.ITypeBase, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.INavigation : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IProperty : Microsoft.EntityFrameworkCore.Metadata.IPropertyBase",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IPropertyBase : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.ITypeBase : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Design.DesignTimeProviderServicesAttribute : System.Attribute",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.DbContextAttribute : System.Attribute",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKeyFactoryDependencies",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizerDependencies",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.ModelSourceDependencies",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.Infrastructure.AnnotatableExtensions",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public static class Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServiceCollectionExtensions",
     "Kind": "Removal"
   },
   {
@@ -40,43 +513,28 @@
     "Kind": "Removal"
   },
   {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.DbContext context)",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies",
     "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Model+Validation> logger)",
     "Kind": "Removal"
   },
   {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorDependencies",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer queryOptimizer, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor queryAnnotationExtractor, Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler resultOperatorHandler, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter expressionPrinter)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet<T0> : System.Collections.Generic.ISet<T0>, System.Collections.Generic.IReadOnlyCollection<T0>, System.Collections.Specialized.INotifyCollectionChanged, System.ComponentModel.INotifyPropertyChanged, System.ComponentModel.INotifyPropertyChanging",
+    "MemberId": "System.Void set_IsConcurrencyToken(System.Boolean value)",
+    "Kind": "Removal"
+  },
+  {
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
     "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType AddQueryType(System.Type type)",
-    "Kind": "Addition"
-  },
-  {
-    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
-    "MemberId": "System.Boolean get_IsQueryType()",
-    "Kind": "Addition"
-  },
-  {
-    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
-    "MemberId": "System.Linq.Expressions.LambdaExpression get_DefiningQuery()",
-    "Kind": "Addition"
-  },
-  {
-    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
-    "MemberId": "System.Boolean get_IsQueryType()",
-    "Kind": "Addition"
-  },
-  {
-    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
-    "MemberId": "System.Linq.Expressions.LambdaExpression get_DefiningQuery()",
-    "Kind": "Addition"
-  },
-  {
-    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
-    "MemberId": "System.Void set_DefiningQuery(System.Linq.Expressions.LambdaExpression value)",
-    "Kind": "Addition"
-  },
-  {
-    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
-    "MemberId": "System.Void set_IsQueryType(System.Boolean value)",
     "Kind": "Addition"
   },
   {
@@ -96,7 +554,27 @@
   },
   {
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Boolean get_IsQueryType()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
     "MemberId": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableServiceProperty> GetServiceProperties()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Linq.Expressions.LambdaExpression get_DefiningQuery()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Void set_DefiningQuery(System.Linq.Expressions.LambdaExpression value)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Void set_IsQueryType(System.Boolean value)",
     "Kind": "Addition"
   },
   {
@@ -106,7 +584,22 @@
   },
   {
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
+    "MemberId": "System.Boolean get_IsQueryType()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
     "MemberId": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IServiceProperty> GetServiceProperties()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
+    "MemberId": "System.Linq.Expressions.LambdaExpression get_DefiningQuery()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateEntry",
+    "MemberId": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry get_SharedIdentityEntry()",
     "Kind": "Addition"
   }
 ]
