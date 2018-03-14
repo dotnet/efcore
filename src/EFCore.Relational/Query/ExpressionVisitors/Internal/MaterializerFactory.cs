@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression<Func<MaterializationContext, object>> CreateMaterializer(
+        public virtual LambdaExpression CreateMaterializer(
             IEntityType entityType,
             SelectExpression selectExpression,
             Func<IProperty, SelectExpression, int> projectionAdder,
@@ -59,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
             var concreteEntityTypes = entityType.GetConcreteTypesInHierarchy().ToList();
-            var rootEntityType = concreteEntityTypes[0];
-            var indexMap = new int[rootEntityType.PropertyCount()];
+            var firstEntityType = concreteEntityTypes[0];
+            var indexMap = new int[firstEntityType.PropertyCount()];
 
-            foreach (var property in rootEntityType.GetProperties())
+            foreach (var property in firstEntityType.GetProperties())
             {
                 indexMap[property.GetIndex()] = projectionAdder(property, selectExpression);
             }
@@ -70,25 +70,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var materializer
                 = _entityMaterializerSource
                     .CreateMaterializeExpression(
-                        rootEntityType, materializationContextParameter, indexMap);
+                        firstEntityType, materializationContextParameter, indexMap);
 
             if (concreteEntityTypes.Count == 1)
             {
-                return Expression.Lambda<Func<MaterializationContext, object>>(
-                    materializer, materializationContextParameter);
+                return Expression.Lambda(materializer, materializationContextParameter);
             }
 
-            var discriminatorProperty = rootEntityType.Relational().DiscriminatorProperty;
+            var discriminatorProperty = firstEntityType.Relational().DiscriminatorProperty;
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    rootEntityType.Relational().DiscriminatorValue,
+                    firstEntityType.Relational().DiscriminatorValue,
                     discriminatorProperty.ClrType);
 
             var discriminatorValueVariable
                 = Expression.Variable(discriminatorProperty.ClrType);
 
-            var returnLabelTarget = Expression.Label(typeof(object));
+            var returnLabelTarget = Expression.Label(entityType.ClrType);
 
             var blockExpressions
                 = new Expression[]
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         Expression.Throw(
                             Expression.Call(
                                 _createUnableToDiscriminateException,
-                                Expression.Constant(rootEntityType)))),
+                                Expression.Constant(firstEntityType)))),
                     Expression.Label(
                         returnLabelTarget,
                         Expression.Default(returnLabelTarget.Type))
@@ -153,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         blockExpressions[1]);
             }
 
-            return Expression.Lambda<Func<MaterializationContext, object>>(
+            return Expression.Lambda(
                 Expression.Block(new[] { discriminatorValueVariable }, blockExpressions),
                 materializationContextParameter);
         }

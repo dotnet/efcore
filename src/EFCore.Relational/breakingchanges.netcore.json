@@ -118,5 +118,10 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations",
       "MemberId": "System.Boolean get_IsFixedLength()",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
+      "MemberId": "System.Reflection.MethodInfo get_FastQueryMethod()",
+      "Kind": "Addition"
     }
-  ]
+]

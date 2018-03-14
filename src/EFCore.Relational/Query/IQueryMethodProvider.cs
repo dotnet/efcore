@@ -65,5 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The pre execute method.
         /// </value>
         MethodInfo InjectParametersMethod { get; }
+
+        /// <summary>
+        ///     Gets the fast query method.
+        /// </summary>
+        /// <value>
+        ///     The fast query method.
+        /// </value>
+        MethodInfo FastQueryMethod { get; }
     }
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -19,12 +20,14 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -81,6 +84,79 @@ namespace Microsoft.EntityFrameworkCore.Query
             ParentQueryModelVisitor = parentQueryModelVisitor;
         }
 
+        /// <summary>
+        ///     Creates an action to execute this query.
+        /// </summary>
+        /// <typeparam name="TResults"> The type of results that the query returns. </typeparam>
+        /// <returns> An action that returns the results of the query. </returns>
+        protected override Func<QueryContext, TResults> CreateExecutorLambda<TResults>()
+        {
+            if (Expression is MethodCallExpression interceptExceptions
+                && interceptExceptions.Method.MethodIsClosedFormOf(LinqOperatorProvider.InterceptExceptions)
+                && interceptExceptions.Arguments[0] is MethodCallExpression shapedQuery
+                && shapedQuery.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+            {
+                var shaper = ((ConstantExpression)shapedQuery.Arguments[2]).Value;
+                var shaperType = shaper.GetType();
+
+                if (shaper is EntityShaper entityShaper
+                    && shaperType.GetGenericTypeDefinition() == typeof(UnbufferedEntityShaper<>))
+                {
+                    var shaperCommandContext
+                        = (ShaperCommandContext)((ConstantExpression)shapedQuery.Arguments[1]).Value;
+
+                    if (shaperCommandContext.QuerySqlGeneratorFactory() is DefaultQuerySqlGenerator defaultQuerySqlGenerator
+                        && !defaultQuerySqlGenerator.RequiresRuntimeProjectionRemapping
+                        && shaperCommandContext.ValueBufferFactoryFactory
+                            is TypedRelationalValueBufferFactoryFactory typedRelationalValueBufferFactoryFactory)
+                    {
+                        var valueBufferAssignmentExpressions
+                            = typedRelationalValueBufferFactoryFactory
+                                .CreateAssignmentExpressions(defaultQuerySqlGenerator.GetTypeMaterializationInfos());
+
+                        var materializer = (LambdaExpression)entityShaper.MaterializerExpression;
+
+                        var fastQueryMaterializerCreatingVisitor
+                            = new FastQueryMaterializerCreatingVisitor(valueBufferAssignmentExpressions);
+
+                        var newBody = fastQueryMaterializerCreatingVisitor.Visit(materializer.Body);
+
+                        Expression
+                            = Expression.Call(
+                                QueryCompilationContext.QueryMethodProvider.FastQueryMethod
+                                    .MakeGenericMethod(shapedQuery.Method.GetGenericArguments()[0]),
+                                Expression.Convert(QueryContextParameter, typeof(RelationalQueryContext)),
+                                shapedQuery.Arguments[1],
+                                Expression.Lambda(newBody, TypedRelationalValueBufferFactoryFactory.DataReaderParameter),
+                                Expression.Constant(QueryCompilationContext.ContextType),
+                                Expression.Constant(QueryCompilationContext.Logger));
+                    }
+                }
+            }
+
+            return base.CreateExecutorLambda<TResults>();
+        }
+
+        private sealed class FastQueryMaterializerCreatingVisitor : ExpressionVisitor
+        {
+            private readonly Expression[] _valueBufferAssignmentExpressions;
+
+            public FastQueryMaterializerCreatingVisitor(Expression[] valueBufferAssignmentExpressions)
+                => _valueBufferAssignmentExpressions = valueBufferAssignmentExpressions;
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (node.Method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueMethod))
+                {
+                    var index = (int)((ConstantExpression)node.Arguments[1]).Value;
+
+                    return _valueBufferAssignmentExpressions[index];
+                }
+
+                return base.VisitMethodCall(node);
+            }
+        }
+        
         /// <summary>
         ///     Gets the options for the target context.
         /// </summary>
