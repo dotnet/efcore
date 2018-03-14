@@ -245,10 +245,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            _queryModelStack.Push(expression.QueryModel);
-
             if (!IsGroupByAggregateSubQuery(expression.QueryModel))
             {
+                _queryModelStack.Push(expression.QueryModel);
+
                 expression.QueryModel.TransformExpressions(Visit);
 
                 _queryModelStack.Pop();
@@ -277,13 +277,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return expression;
         }
 
-        private static bool IsGroupByAggregateSubQuery(QueryModel queryModel)
+        private bool IsGroupByAggregateSubQuery(QueryModel queryModel)
         {
             if (queryModel.MainFromClause.FromExpression.Type.IsGrouping()
                 && queryModel.BodyClauses.Count == 0
                 && queryModel.ResultOperators.Count == 1
                 && !(queryModel.SelectClause.Selector is ConstantExpression)
-                && _aggregateResultOperators.Contains(queryModel.ResultOperators[0].GetType()))
+                && _aggregateResultOperators.Contains(queryModel.ResultOperators[0].GetType())
+                && _queryModelStack.Count == 1
+                && !_queryModelStack.Peek().BodyClauses.OfType<IQuerySource>().Any())
             {
                 return true;
             }
