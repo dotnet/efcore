@@ -1049,16 +1049,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalFact(Skip = "Issue#11251")]
-        public virtual async Task GroupBy_OrderBy_count_Select_sum_over_unmapped_property()
+        [ConditionalFact]
+        public virtual async Task GroupBy_Select_sum_over_unmapped_property()
         {
-            await AssertQuery<Order>(
-                os =>
-                    os.GroupBy(o => o.CustomerID)
-                        .OrderBy(o => o.Count())
-                        .ThenBy(o => o.Key)
-                        .Select(g => new { g.Key, Sum = g.Sum(o => o.Freight) }),
-                assertOrder: true);
+            using (var context = CreateContext())
+            {
+                var query = await context.Orders
+                        .GroupBy(o => o.CustomerID)
+                        .Select(g => new { g.Key, Sum = g.Sum(o => o.Freight) })
+                        .ToListAsync();
+
+                // Do not do deep assertion of result. We don't have data for unmapped property in EF model
+                Assert.Equal(89, query.Count);
+            }
         }
 
         [ConditionalFact]

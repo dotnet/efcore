@@ -287,7 +287,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 && _queryModelStack.Count == 1
                 && !_queryModelStack.Peek().BodyClauses.OfType<IQuerySource>().Any())
             {
-                return true;
+                var groupResultOperator
+                    = (GroupResultOperator)
+                        ((SubQueryExpression)
+                            ((FromClauseBase)queryModel.MainFromClause.FromExpression.TryGetReferencedQuerySource())
+                        .FromExpression)
+                        .QueryModel.ResultOperators.Last();
+
+                if (MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                    queryModel.SelectClause.Selector, _queryModelVisitor.QueryCompilationContext, out var qsre).Count > 0
+                    || groupResultOperator.ElementSelector is MemberInitExpression
+                    || groupResultOperator.ElementSelector is NewExpression)
+                {
+                    return true;
+                }
             }
 
             return false;
