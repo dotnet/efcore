@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite</AssemblyName>
     <PackageId>Microsoft.EntityFrameworkCore.Sqlite.Core</PackageId>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Sqlite</RootNamespace>
     <Description>SQLite database provider for Entity Framework Core.</Description>
     <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
@@ -46,7 +46,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\SqliteStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Sqlite.Internal</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
 
