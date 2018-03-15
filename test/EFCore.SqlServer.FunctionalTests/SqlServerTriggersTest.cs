@@ -154,9 +154,9 @@ CREATE TRIGGER TRG_InsertProduct
 ON Products
 AFTER INSERT AS
 BEGIN
-	IF @@ROWCOUNT = 0
-		return
-	SET nocount on;
+    IF @@ROWCOUNT = 0
+        return
+    SET nocount on;
 
     INSERT INTO ProductBackups
     SELECT * FROM INSERTED;
@@ -168,9 +168,9 @@ CREATE TRIGGER TRG_UpdateProduct
 ON Products
 AFTER UPDATE AS
 BEGIN
-	IF @@ROWCOUNT = 0
-		return
-	SET nocount on;
+    IF @@ROWCOUNT = 0
+        return
+    SET nocount on;
 
     UPDATE b
     SET b.Name = p.Name, b.Version = p.Version
@@ -186,9 +186,9 @@ CREATE TRIGGER TRG_DeleteProduct
 ON Products
 AFTER DELETE AS
 BEGIN
-	IF @@ROWCOUNT = 0
-		return
-	SET nocount on;
+    IF @@ROWCOUNT = 0
+        return
+    SET nocount on;
 
     DELETE FROM ProductBackups
     WHERE Id IN(SELECT DELETED.Id FROM DELETED);

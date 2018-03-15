@@ -3,7 +3,7 @@
 
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore

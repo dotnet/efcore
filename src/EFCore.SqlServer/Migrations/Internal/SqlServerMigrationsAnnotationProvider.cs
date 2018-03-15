@@ -7,8 +7,10 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

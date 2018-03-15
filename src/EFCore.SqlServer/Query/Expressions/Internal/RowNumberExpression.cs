@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

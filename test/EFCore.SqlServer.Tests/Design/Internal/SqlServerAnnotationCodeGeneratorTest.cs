@@ -3,7 +3,8 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal

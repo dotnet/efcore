@@ -3,9 +3,11 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore
 {

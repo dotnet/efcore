@@ -4,8 +4,8 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore

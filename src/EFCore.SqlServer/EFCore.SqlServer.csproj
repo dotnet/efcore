@@ -5,7 +5,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQL Server</PackageTags>
     <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
@@ -45,7 +45,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\SqlServerStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.SqlServer.Internal</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
 
