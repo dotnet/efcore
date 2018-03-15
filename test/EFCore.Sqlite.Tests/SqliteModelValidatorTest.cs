@@ -5,9 +5,9 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
 #pragma warning disable 618
-                    new ObsoleteRelationalTypeMapper(), 
+                    new ObsoleteRelationalTypeMapper(),
 #pragma warning restore 618
                     TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()));
 

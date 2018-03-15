@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming

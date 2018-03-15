@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming

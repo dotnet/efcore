@@ -3,7 +3,7 @@
 
 using System.Linq;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore

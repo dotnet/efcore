@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -17,6 +16,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Scaffolding

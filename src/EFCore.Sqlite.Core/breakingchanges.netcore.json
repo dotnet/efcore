@@ -1,0 +1,6 @@
+﻿[
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqliteOptionsExtension>",
+    "Kind": "Removal"
+  }
+]

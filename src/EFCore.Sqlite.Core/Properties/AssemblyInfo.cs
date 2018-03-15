@@ -3,4 +3,4 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 
-[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Design.Internal.SqliteDesignTimeServices")]
+[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Sqlite.Design.Internal.SqliteDesignTimeServices")]
