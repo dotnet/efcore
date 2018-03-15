@@ -940,11 +940,14 @@ GROUP BY [o].[CustomerID]
 ORDER BY COUNT(*), [Key]");
         }
 
-        public override void GroupBy_OrderBy_count_Select_sum_over_unmapped_property()
+        public override void GroupBy_Select_sum_over_unmapped_property()
         {
-            base.GroupBy_OrderBy_count_Select_sum_over_unmapped_property();
+            base.GroupBy_Select_sum_over_unmapped_property();
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_filter_key()
