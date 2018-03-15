@@ -2250,7 +2250,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, value, property, type);
 
         /// <summary>
-        ///     The seed entity for entity type '{entityType}' cannot be added because the was no value provided for the required property '{property}'.
+        ///     The seed entity for entity type '{entityType}' cannot be added because there was no value provided for the required property '{property}'.
         /// </summary>
         public static string SeedDatumMissingValue([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
