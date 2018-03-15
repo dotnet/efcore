@@ -1286,7 +1286,7 @@ WHERE [c].[CustomerID] = N'ANATR'");
             base.Static_equals_nullable_datetime_compared_to_non_nullable();
 
             AssertSql(
-                @"@__arg_0='1996-07-04T00:00:00'
+                @"@__arg_0='1996-07-04T00:00:00' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

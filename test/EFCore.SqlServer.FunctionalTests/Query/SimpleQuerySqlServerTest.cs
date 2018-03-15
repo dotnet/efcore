@@ -2568,7 +2568,7 @@ ORDER BY COALESCE([c].[Region], N'ZZ')");
             base.DateTime_parse_is_parameterized();
 
             AssertSql(
-                @"@__Parse_0='1998-01-01T12:00:00'
+                @"@__Parse_0='1998-01-01T12:00:00' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

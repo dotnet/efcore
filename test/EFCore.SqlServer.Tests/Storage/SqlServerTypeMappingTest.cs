@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
             var literal = GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
 
-            Assert.Equal("'2015-03-12T13:36:37.371'", literal);
+            Assert.Equal("'2015-03-12T13:36:37.3710000'", literal);
         }
 
         public override void GenerateSqlLiteral_returns_DateTimeOffset_literal()

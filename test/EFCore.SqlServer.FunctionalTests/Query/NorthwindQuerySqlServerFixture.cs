@@ -27,9 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         b.Property(c => c.ReportsTo).HasColumnType("int");
                     });
 
-            modelBuilder.Entity<Order>()
-                .Property(o => o.EmployeeID)
-                .HasColumnType("int");
+            modelBuilder.Entity<Order>(
+                b =>
+                {
+                    b.Property(o => o.EmployeeID).HasColumnType("int");
+                    b.Property(o => o.OrderDate).HasColumnType("datetime");
+                });
 
             modelBuilder.Entity<OrderDetail>()
                 .Property(od => od.UnitPrice)

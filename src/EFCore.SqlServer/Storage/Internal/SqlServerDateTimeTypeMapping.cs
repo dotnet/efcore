@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     {
+        private const string DateFormatConst = "{0:yyyy-MM-dd}";
         private const string DateTimeFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffK}";
+        private const string DateTime2FormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffffffK}";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -76,6 +78,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override string SqlLiteralFormatString => "'" + DateTimeFormatConst + "'";
+        protected override string SqlLiteralFormatString
+            => StoreType == "date"
+                ? "'" + DateFormatConst + "'"
+                : (StoreType == "datetime"
+                    ? "'" + DateTimeFormatConst + "'"
+                    : "'" + DateTime2FormatConst + "'");
     }
 }
