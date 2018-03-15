@@ -6131,6 +6131,264 @@ LEFT JOIN (
 ) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])");
         }
 
+        public override void Order_by_entity_qsre()
+        {
+            base.Order_by_entity_qsre();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gears] AS [g]
+LEFT JOIN [Cities] AS [g.AssignedCity] ON [g].[AssignedCityName] = [g.AssignedCity].[Name]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g.AssignedCity].[Name], [g].[Nickname] DESC");
+        }
+
+        public override void Order_by_entity_qsre_with_inheritance()
+        {
+            base.Order_by_entity_qsre_with_inheritance();
+
+            AssertSql(
+                @"SELECT [lc].[Name]
+FROM [LocustLeaders] AS [lc]
+INNER JOIN [LocustHighCommands] AS [lc.HighCommand] ON [lc].[HighCommandId] = [lc.HighCommand].[Id]
+WHERE [lc].[Discriminator] = N'LocustCommander'
+ORDER BY [lc.HighCommand].[Id], [lc].[Name]");
+        }
+
+        public override void Order_by_entity_qsre_composite_key()
+        {
+            base.Order_by_entity_qsre_composite_key();
+
+            AssertSql(
+                @"SELECT [w].[Name]
+FROM [Weapons] AS [w]
+LEFT JOIN (
+    SELECT [w.Owner].*
+    FROM [Gears] AS [w.Owner]
+    WHERE [w.Owner].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
+ORDER BY [t].[Nickname], [t].[SquadId]");
+        }
+
+        public override void Order_by_entity_qsre_with_other_orderbys()
+        {
+            base.Order_by_entity_qsre_with_other_orderbys();
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+LEFT JOIN (
+    SELECT [w.Owner].*
+    FROM [Gears] AS [w.Owner]
+    WHERE [w.Owner].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
+ORDER BY [w].[IsAutomatic], [t].[Nickname] DESC, [t].[SquadId] DESC, [w.SynergyWith].[Id], [w].[Name]");
+        }
+
+        public override void Join_on_entity_qsre_keys()
+        {
+            base.Join_on_entity_qsre_keys();
+
+            AssertSql(
+                @"SELECT [w1].[Name] AS [Name1], [w2].[Name] AS [Name2]
+FROM [Weapons] AS [w1]
+INNER JOIN [Weapons] AS [w2] ON [w1].[Id] = [w2].[Id]");
+        }
+
+        public override void Join_on_entity_qsre_keys_composite_key()
+        {
+            base.Join_on_entity_qsre_keys_composite_key();
+
+            AssertSql(
+                @"SELECT [g1].[FullName] AS [GearName1], [g2].[FullName] AS [GearName2]
+FROM [Gears] AS [g1]
+INNER JOIN [Gears] AS [g2] ON ([g1].[Nickname] = [g2].[Nickname]) AND ([g1].[SquadId] = [g2].[SquadId])
+WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND [g2].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Join_on_entity_qsre_keys_inheritance()
+        {
+            base.Join_on_entity_qsre_keys_inheritance();
+
+            AssertSql(
+                @"SELECT [g].[FullName] AS [GearName], [o].[FullName] AS [OfficerName]
+FROM [Gears] AS [g]
+INNER JOIN [Gears] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([o].[Discriminator] = N'Officer')");
+        }
+
+        public override void Join_on_entity_qsre_keys_outer_key_is_navigation()
+        {
+            base.Join_on_entity_qsre_keys_outer_key_is_navigation();
+
+            AssertSql(
+                @"SELECT [w1].[Name] AS [Name1], [w2].[Name] AS [Name2]
+FROM [Weapons] AS [w1]
+LEFT JOIN [Weapons] AS [w1.SynergyWith] ON [w1].[SynergyWithId] = [w1.SynergyWith].[Id]
+INNER JOIN [Weapons] AS [w2] ON [w1.SynergyWith].[Id] = [w2].[Id]");
+        }
+
+        public override void Join_on_entity_qsre_keys_inner_key_is_navigation()
+        {
+            base.Join_on_entity_qsre_keys_inner_key_is_navigation();
+
+            AssertSql(
+                @"SELECT [c].[Name] AS [CityName], [g].[Nickname] AS [GearNickname]
+FROM [Cities] AS [c]
+INNER JOIN [Gears] AS [g] ON [c].[Name] = (
+    SELECT TOP(1) [subQuery0].[Name]
+    FROM [Cities] AS [subQuery0]
+    WHERE [subQuery0].[Name] = [g].[AssignedCityName]
+)
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Join_on_entity_qsre_keys_inner_key_is_navigation_composite_key()
+        {
+            base.Join_on_entity_qsre_keys_inner_key_is_navigation_composite_key();
+
+            AssertContainsSql(
+                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Note]
+FROM (
+    SELECT [tt].*
+    FROM [Tags] AS [tt]
+    WHERE [tt].[Note] IN (N'Cole''s Tag', N'Dom''s Tag')
+) AS [t]",
+                //
+                @"@_outer_GearNickName='Dom' (Size = 450)
+@_outer_GearSquadId='1' (Nullable = true)
+
+SELECT TOP(1) [subQuery].[Nickname], [subQuery].[SquadId], [subQuery].[AssignedCityName], [subQuery].[CityOrBirthName], [subQuery].[Discriminator], [subQuery].[FullName], [subQuery].[HasSoulPatch], [subQuery].[LeaderNickname], [subQuery].[LeaderSquadId], [subQuery].[Rank]
+FROM [Gears] AS [subQuery]
+WHERE [subQuery].[Discriminator] IN (N'Officer', N'Gear') AND (([subQuery].[Nickname] = @_outer_GearNickName) AND ([subQuery].[SquadId] = @_outer_GearSquadId))",
+                //
+                @"@_outer_GearNickName='Cole Train' (Size = 450)
+@_outer_GearSquadId='1' (Nullable = true)
+
+SELECT TOP(1) [subQuery].[Nickname], [subQuery].[SquadId], [subQuery].[AssignedCityName], [subQuery].[CityOrBirthName], [subQuery].[Discriminator], [subQuery].[FullName], [subQuery].[HasSoulPatch], [subQuery].[LeaderNickname], [subQuery].[LeaderSquadId], [subQuery].[Rank]
+FROM [Gears] AS [subQuery]
+WHERE [subQuery].[Discriminator] IN (N'Officer', N'Gear') AND (([subQuery].[Nickname] = @_outer_GearNickName) AND ([subQuery].[SquadId] = @_outer_GearSquadId))",
+                //
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Join_on_entity_qsre_keys_inner_key_is_nested_navigation()
+        {
+            base.Join_on_entity_qsre_keys_inner_key_is_nested_navigation();
+
+            AssertSql(
+                @"SELECT [s].[Name] AS [SquadName], [t].[Name] AS [WeaponName]
+FROM [Squads] AS [s]
+INNER JOIN (
+    SELECT [ww].*
+    FROM [Weapons] AS [ww]
+    WHERE [ww].[IsAutomatic] = 1
+) AS [t] ON [s].[Id] = (
+    SELECT TOP(1) [subQuery.Squad0].[Id]
+    FROM [Gears] AS [subQuery0]
+    INNER JOIN [Squads] AS [subQuery.Squad0] ON [subQuery0].[SquadId] = [subQuery.Squad0].[Id]
+    WHERE [subQuery0].[Discriminator] IN (N'Officer', N'Gear') AND ([subQuery0].[FullName] = [t].[OwnerFullName])
+)");
+        }
+
+        public override void GroupJoin_on_entity_qsre_keys_inner_key_is_nested_navigation()
+        {
+            base.GroupJoin_on_entity_qsre_keys_inner_key_is_nested_navigation();
+
+            AssertSql(
+                @"SELECT [s].[Name] AS [SquadName], [w].[Name] AS [WeaponName]
+FROM [Squads] AS [s]
+LEFT JOIN [Weapons] AS [w] ON [s].[Id] = (
+    SELECT TOP(1) [subQuery.Squad0].[Id]
+    FROM [Gears] AS [subQuery0]
+    INNER JOIN [Squads] AS [subQuery.Squad0] ON [subQuery0].[SquadId] = [subQuery.Squad0].[Id]
+    WHERE [subQuery0].[Discriminator] IN (N'Officer', N'Gear') AND ([subQuery0].[FullName] = [w].[OwnerFullName])
+)");
+        }
+
+        public override void Include_with_group_by_on_entity_qsre()
+        {
+            base.Include_with_group_by_on_entity_qsre();
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+ORDER BY [s].[Id]",
+                //
+                @"SELECT [s.Members].[Nickname], [s.Members].[SquadId], [s.Members].[AssignedCityName], [s.Members].[CityOrBirthName], [s.Members].[Discriminator], [s.Members].[FullName], [s.Members].[HasSoulPatch], [s.Members].[LeaderNickname], [s.Members].[LeaderSquadId], [s.Members].[Rank]
+FROM [Gears] AS [s.Members]
+INNER JOIN (
+    SELECT [s0].[Id]
+    FROM [Squads] AS [s0]
+) AS [t] ON [s.Members].[SquadId] = [t].[Id]
+WHERE [s.Members].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[Id]");
+        }
+
+        public override void Include_with_group_by_on_entity_qsre_with_composite_key()
+        {
+            base.Include_with_group_by_on_entity_qsre_with_composite_key();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Nickname], [g].[SquadId], [g].[FullName]",
+                //
+                @"SELECT [g.Weapons].[Id], [g.Weapons].[AmmunitionType], [g.Weapons].[IsAutomatic], [g.Weapons].[Name], [g.Weapons].[OwnerFullName], [g.Weapons].[SynergyWithId]
+FROM [Weapons] AS [g.Weapons]
+INNER JOIN (
+    SELECT [g0].[FullName], [g0].[Nickname], [g0].[SquadId]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
+ORDER BY [t].[Nickname], [t].[SquadId], [t].[FullName]");
+        }
+
+        public override void Include_with_group_by_on_entity_navigation()
+        {
+            base.Include_with_group_by_on_entity_navigation();
+
+            AssertSql(
+                @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
+FROM [Factions] AS [f]
+LEFT JOIN (
+    SELECT [l.Commander].*
+    FROM [LocustLeaders] AS [l.Commander]
+    WHERE [l.Commander].[Discriminator] = N'LocustCommander'
+) AS [t] ON [f].[CommanderName] = [t].[Name]
+LEFT JOIN (
+    SELECT [l.Commander.DefeatedBy].*
+    FROM [Gears] AS [l.Commander.DefeatedBy]
+    WHERE [l.Commander.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[DefeatedByNickname] = [t0].[Nickname]) AND ([t].[DefeatedBySquadId] = [t0].[SquadId])
+WHERE [f].[Discriminator] = N'LocustHorde'
+ORDER BY [t0].[Nickname], [t0].[SquadId], [f].[Id]",
+                //
+                @"SELECT [l.Leaders].[Name], [l.Leaders].[Discriminator], [l.Leaders].[LocustHordeId], [l.Leaders].[ThreatLevel], [l.Leaders].[DefeatedByNickname], [l.Leaders].[DefeatedBySquadId], [l.Leaders].[HighCommandId]
+FROM [LocustLeaders] AS [l.Leaders]
+INNER JOIN (
+    SELECT DISTINCT [f0].[Id], [t2].[Nickname], [t2].[SquadId]
+    FROM [Factions] AS [f0]
+    LEFT JOIN (
+        SELECT [l.Commander0].*
+        FROM [LocustLeaders] AS [l.Commander0]
+        WHERE [l.Commander0].[Discriminator] = N'LocustCommander'
+    ) AS [t1] ON [f0].[CommanderName] = [t1].[Name]
+    LEFT JOIN (
+        SELECT [l.Commander.DefeatedBy0].*
+        FROM [Gears] AS [l.Commander.DefeatedBy0]
+        WHERE [l.Commander.DefeatedBy0].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t2] ON ([t1].[DefeatedByNickname] = [t2].[Nickname]) AND ([t1].[DefeatedBySquadId] = [t2].[SquadId])
+    WHERE [f0].[Discriminator] = N'LocustHorde'
+) AS [t3] ON [l.Leaders].[LocustHordeId] = [t3].[Id]
+WHERE [l.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
+ORDER BY [t3].[Nickname], [t3].[SquadId], [t3].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
