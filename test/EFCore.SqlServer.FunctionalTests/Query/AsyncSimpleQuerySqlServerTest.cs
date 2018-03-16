@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await Task.WhenAll(tasks);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#11309")]
         public async Task Race_when_context_disposed_before_query_termination()
         {
             DbSet<Customer> task;

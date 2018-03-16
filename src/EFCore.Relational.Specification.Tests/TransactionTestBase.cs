@@ -1187,7 +1187,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             public List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
             protected override string StoreName { get; } = "TransactionTest";
-            protected override bool UsePooling => false;
 
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                 => base.AddServices(serviceCollection).AddSingleton<ILoggerFactory>(

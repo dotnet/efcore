@@ -1385,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent.Single);
             }
         }
-        
+
         [Fact]
         public virtual void Lazy_load_collection_for_no_tracking_throws()
         {
