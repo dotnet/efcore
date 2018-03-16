@@ -5,7 +5,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.InMemory</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.InMemory</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);In-Memory</PackageTags>
     <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
@@ -40,7 +40,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\InMemoryStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.InMemory.Internal</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
 
