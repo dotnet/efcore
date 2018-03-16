@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Oracle.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Oracle.ManagedDataAccess.Client;
 
 namespace Microsoft.EntityFrameworkCore
