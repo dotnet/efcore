@@ -3,9 +3,9 @@
 
 using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
