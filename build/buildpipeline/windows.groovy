@@ -7,6 +7,7 @@ simpleNode('Windows_NT','latest') {
         checkout scm
     }
     stage ('Build') {
-        bat '.\\run.cmd -CI default-build'
+        def environment = 'set Test__SqlServer__DefaultConnection: Server=(local)\\SQL2016;Database=master;User ID=sa;Password=Password12! & set Test__SqlServer__SupportsMemoryOptimized: true'
+        bat "${environment} & .\\run.cmd -CI default-build"
     }
 }
