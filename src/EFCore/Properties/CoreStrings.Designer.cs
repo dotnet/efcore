@@ -19,6 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        ///     The string argument '{argumentName}' cannot be empty.
+        /// </summary>
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("ArgumentIsEmpty", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
         /// </summary>
         public static string CircularDependency([CanBeNull] object cycle)
@@ -143,6 +151,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("CannotLoadDetached", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
+
+        /// <summary>
+        ///     The collection argument '{argumentName}' must contain at least one element.
+        /// </summary>
+        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
+                argumentName);
 
         /// <summary>
         ///     The entity type '{entityType}' requires a primary key to be defined.

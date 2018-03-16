@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ArgumentIsEmpty" xml:space="preserve">
+    <value>The string argument '{argumentName}' cannot be empty.</value>
+  </data>
   <data name="CircularDependency" xml:space="preserve">
     <value>Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.</value>
   </data>
@@ -164,6 +167,9 @@
   </data>
   <data name="CannotLoadDetached" xml:space="preserve">
     <value>Navigation property '{navigation}' on entity of type '{entityType}' cannot be loaded because the entity is not being tracked. Navigation properties can only be loaded for tracked entities.</value>
+  </data>
+  <data name="CollectionArgumentIsEmpty" xml:space="preserve">
+    <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
   <data name="EntityRequiresKey" xml:space="preserve">
     <value>The entity type '{entityType}' requires a primary key to be defined.</value>
