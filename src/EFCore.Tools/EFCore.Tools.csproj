@@ -7,7 +7,6 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <PackageId>Microsoft.EntityFrameworkCore.Tools</PackageId>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSource>false</IncludeSource>
