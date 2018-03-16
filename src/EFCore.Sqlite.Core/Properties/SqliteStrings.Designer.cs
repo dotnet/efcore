@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
     public static class SqliteStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.SqliteStrings", typeof(SqliteStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         ///     SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
