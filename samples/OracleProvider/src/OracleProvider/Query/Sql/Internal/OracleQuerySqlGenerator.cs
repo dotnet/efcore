@@ -7,11 +7,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
 {
     public class OracleQuerySqlGenerator : DefaultQuerySqlGenerator
     {

@@ -5,7 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Oracle.ManagedDataAccess.Client;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     /// <summary>
     ///     Detects the exceptions caused by SQL Server transient failures.

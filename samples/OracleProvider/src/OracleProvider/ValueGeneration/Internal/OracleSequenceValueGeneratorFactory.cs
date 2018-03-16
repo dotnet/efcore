@@ -6,12 +6,13 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Oracle.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.ValueGeneration.Internal
 {
     public class OracleSequenceValueGeneratorFactory : IOracleSequenceValueGeneratorFactory
     {
