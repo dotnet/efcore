@@ -5,9 +5,10 @@ using System;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     public class OracleSqlGenerationHelper : RelationalSqlGenerationHelper
     {

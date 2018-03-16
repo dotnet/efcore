@@ -3,4 +3,4 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 
-[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Design.Internal.OracleDesignTimeServices")]
+[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Oracle.Design.Internal.OracleDesignTimeServices")]

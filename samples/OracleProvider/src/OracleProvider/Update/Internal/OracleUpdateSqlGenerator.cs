@@ -8,9 +8,10 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Update.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Update.Internal
 {
     public class OracleUpdateSqlGenerator : UpdateSqlGenerator, IOracleUpdateSqlGenerator
     {
