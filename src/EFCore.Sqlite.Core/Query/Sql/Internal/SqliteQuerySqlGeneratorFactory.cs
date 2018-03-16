@@ -3,9 +3,10 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Sql.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

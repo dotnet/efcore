@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Oracle.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     public class OracleTypeMappingSource : RelationalTypeMappingSource
     {

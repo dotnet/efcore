@@ -3,8 +3,9 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.ValueGeneration.Internal
 {
     public interface IOracleValueGeneratorCache : IValueGeneratorCache
     {

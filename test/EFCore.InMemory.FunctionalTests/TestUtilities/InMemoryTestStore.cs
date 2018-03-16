@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -3,9 +3,10 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
 {
     public class OracleQuerySqlGeneratorFactory : QuerySqlGeneratorFactoryBase
     {

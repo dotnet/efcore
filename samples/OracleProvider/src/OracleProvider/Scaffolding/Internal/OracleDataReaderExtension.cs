@@ -5,7 +5,7 @@ using System;
 using System.Data.Common;
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Scaffolding.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

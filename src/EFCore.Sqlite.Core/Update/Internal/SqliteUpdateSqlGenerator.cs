@@ -4,10 +4,11 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Update.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

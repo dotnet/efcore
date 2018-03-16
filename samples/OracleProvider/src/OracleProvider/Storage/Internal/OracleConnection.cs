@@ -3,9 +3,10 @@
 
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Oracle.ManagedDataAccess.Client;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     public class OracleRelationalConnection : RelationalConnection, IOracleConnection
     {

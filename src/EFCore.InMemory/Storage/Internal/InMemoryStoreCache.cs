@@ -5,9 +5,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryStoreCache(
-            [NotNull] IInMemoryTableFactory tableFactory, 
+            [NotNull] IInMemoryTableFactory tableFactory,
             [CanBeNull] IInMemorySingletonOptions options)
         {
             _tableFactory = tableFactory;

@@ -3,20 +3,21 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
-using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.Sql.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;

@@ -6,8 +6,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

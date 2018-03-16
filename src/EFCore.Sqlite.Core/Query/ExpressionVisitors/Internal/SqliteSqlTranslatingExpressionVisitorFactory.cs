@@ -3,9 +3,11 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 
-namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionVisitors.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

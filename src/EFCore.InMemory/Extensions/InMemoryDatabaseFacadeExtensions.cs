@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore

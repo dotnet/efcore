@@ -11,9 +11,10 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Oracle.ManagedDataAccess.Client;
 
-namespace Microsoft.EntityFrameworkCore.Update.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Update.Internal
 {
     public class OracleModificationCommandBatch : ReaderModificationCommandBatch
     {

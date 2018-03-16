@@ -3,8 +3,9 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

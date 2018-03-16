@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

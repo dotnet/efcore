@@ -8,9 +8,10 @@ using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     public class OracleByteArrayTypeMapping : ByteArrayTypeMapping
     {
