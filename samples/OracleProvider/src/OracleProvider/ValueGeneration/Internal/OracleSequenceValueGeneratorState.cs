@@ -4,8 +4,9 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.ValueGeneration.Internal
 {
     public class OracleSequenceValueGeneratorState : HiLoValueGeneratorState
     {

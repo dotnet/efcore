@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Update;
 
-namespace Microsoft.EntityFrameworkCore.Update.Internal
+namespace Microsoft.EntityFrameworkCore.Oracle.Update.Internal
 {
     public interface IOracleUpdateSqlGenerator : IUpdateSqlGenerator
     {
