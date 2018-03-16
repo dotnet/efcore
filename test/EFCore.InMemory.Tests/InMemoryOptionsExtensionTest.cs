@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

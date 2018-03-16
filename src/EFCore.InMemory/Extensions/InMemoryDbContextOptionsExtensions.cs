@@ -5,7 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the context to connect to an in-memory database.
-        ///     The in-memory database is shared anywhere the same name is used, but only for a given 
-        ///     service provider. To use the same in-memory database across service providers, call 
-        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" /> 
-        ///     passing a shared <see cref="InMemoryDatabaseRoot"/> on which to root the database. 
+        ///     The in-memory database is shared anywhere the same name is used, but only for a given
+        ///     service provider. To use the same in-memory database across service providers, call
+        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
+        ///     passing a shared <see cref="InMemoryDatabaseRoot"/> on which to root the database.
         /// </summary>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
@@ -44,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the context to connect to a named in-memory database.
-        ///     The in-memory database is shared anywhere the same name is used, but only for a given 
-        ///     service provider. To use the same in-memory database across service providers, call 
+        ///     The in-memory database is shared anywhere the same name is used, but only for a given
+        ///     service provider. To use the same in-memory database across service providers, call
         ///     <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
-        ///     passing a shared <see cref="InMemoryDatabaseRoot"/> on which to root the database. 
+        ///     passing a shared <see cref="InMemoryDatabaseRoot"/> on which to root the database.
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="databaseName">
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 extension = extension.WithDatabaseRoot(databaseRoot);
             }
-            
+
             ConfigureWarnings(optionsBuilder);
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
