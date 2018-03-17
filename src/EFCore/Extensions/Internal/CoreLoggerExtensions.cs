@@ -950,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IForeignKey foreignKey)
         {
-            var definition = CoreStrings.LogConflictingShadowForeignKeysWarning;
+            var definition = CoreStrings.LogConflictingShadowForeignKeys;
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1081,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void MultipleInversePropertiesSameTarget(
+        public static void MultipleInversePropertiesSameTargetWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IEnumerable<Tuple<MemberInfo, Type>> conflictingNavigations,
             [NotNull] MemberInfo inverseNavigation,
@@ -1105,13 +1105,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     definition.EventId.Name,
                     new TwoUnmappedPropertyCollectionsEventData(
                         definition,
-                        MultipleInversePropertiesSameTarget,
+                        MultipleInversePropertiesSameTargetWarning,
                         conflictingNavigations,
                         new[] { new Tuple<MemberInfo, Type>(inverseNavigation, targetType) }));
             }
         }
 
-        private static string MultipleInversePropertiesSameTarget(EventDefinitionBase definition, EventData payload)
+        private static string MultipleInversePropertiesSameTargetWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
@@ -1132,7 +1132,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] MemberInfo inverseNavigation,
             [NotNull] MemberInfo definingNavigation)
         {
-            var definition = CoreStrings.LogNonDefiningInverseNavigationWarning;
+            var definition = CoreStrings.LogNonDefiningInverseNavigation;
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1190,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] MemberInfo inverseNavigation,
             [NotNull] MemberInfo ownershipNavigation)
         {
-            var definition = CoreStrings.LogNonOwnershipInverseNavigationWarning;
+            var definition = CoreStrings.LogNonOwnershipInverseNavigation;
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1240,7 +1240,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void ForeignKeyAttributesOnBothProperties(
+        public static void ForeignKeyAttributesOnBothPropertiesWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation firstNavigation,
             [NotNull] INavigation secondNavigation,
@@ -1269,7 +1269,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     definition.EventId.Name,
                     new TwoUnmappedPropertyCollectionsEventData(
                         definition,
-                        ForeignKeyAttributesOnBothProperties,
+                        ForeignKeyAttributesOnBothPropertiesWarning,
                         new[]
                         {
                             new Tuple<MemberInfo, Type>(firstNavigation.GetIdentifyingMemberInfo(), firstNavigation.DeclaringEntityType.ClrType),
@@ -1283,7 +1283,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string ForeignKeyAttributesOnBothProperties(EventDefinitionBase definition, EventData payload)
+        private static string ForeignKeyAttributesOnBothPropertiesWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string, string, string>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
@@ -1304,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void ForeignKeyAttributesOnBothNavigations(
+        public static void ForeignKeyAttributesOnBothNavigationsWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation firstNavigation,
             [NotNull] INavigation secondNavigation)
@@ -1329,13 +1329,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     definition.EventId.Name,
                     new TwoPropertyBaseCollectionsEventData(
                         definition,
-                        ForeignKeyAttributesOnBothNavigations,
+                        ForeignKeyAttributesOnBothNavigationsWarning,
                         new[] { firstNavigation },
                         new[] { secondNavigation }));
             }
         }
 
-        private static string ForeignKeyAttributesOnBothNavigations(EventDefinitionBase definition, EventData payload)
+        private static string ForeignKeyAttributesOnBothNavigationsWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
             var p = (TwoPropertyBaseCollectionsEventData)payload;
@@ -1352,7 +1352,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void ConflictingForeignKeyAttributesOnNavigationAndProperty(
+        public static void ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation navigation,
             [NotNull] MemberInfo property)
@@ -1377,13 +1377,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     definition.EventId.Name,
                     new TwoUnmappedPropertyCollectionsEventData(
                         definition,
-                        ConflictingForeignKeyAttributesOnNavigationAndProperty,
+                        ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
                         new[] { new Tuple<MemberInfo, Type>(navigation.GetIdentifyingMemberInfo(), navigation.DeclaringEntityType.ClrType) },
                         new[] { new Tuple<MemberInfo, Type>(property, property.DeclaringType) }));
             }
         }
 
-        private static string ConflictingForeignKeyAttributesOnNavigationAndProperty(EventDefinitionBase definition, EventData payload)
+        private static string ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;

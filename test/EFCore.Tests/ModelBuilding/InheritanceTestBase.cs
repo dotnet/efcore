@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
                 Assert.Equal(1, modelBuilder.Log.Count);
-                Assert.Equal(LogLevel.Information, modelBuilder.Log[0].Level);
+                Assert.Equal(LogLevel.Debug, modelBuilder.Log[0].Level);
                 Assert.Equal(CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", "{'CustomerId', 'AnotherCustomerId'}"), modelBuilder.Log[0].Message);
 
                 principalEntityBuilder.HasOne<Order>().WithOne()

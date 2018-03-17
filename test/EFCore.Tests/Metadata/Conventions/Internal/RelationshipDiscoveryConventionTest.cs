@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilderSecond.Metadata.GetNavigations());
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
 
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Debug, Log[0].Level);
             Assert.Equal(CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
                 nameof(MultipleNavigationsSecond),
                 nameof(MultipleNavigationsFirst),
@@ -839,7 +839,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetNavigations());
             Assert.Empty(entityBuilder.Metadata.GetProperties());
 
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Debug, Log[0].Level);
             Assert.Equal(CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
                 nameof(SelfRef), nameof(SelfRef), "{'SelfRef1'}", "{'SelfRef2', 'SelfRef3', 'SelfRef4'}"), Log[0].Message);
         }

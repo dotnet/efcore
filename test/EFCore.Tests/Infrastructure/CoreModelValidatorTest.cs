@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Debug, Log[0].Level);
             Assert.Equal(CoreStrings.LogShadowPropertyCreated.GenerateMessage("Key", "A"), Log[0].Message);
         }
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Debug, Log[0].Level);
             Assert.Equal(CoreStrings.LogShadowPropertyCreated.GenerateMessage("Key", "A"), Log[0].Message);
         }
 

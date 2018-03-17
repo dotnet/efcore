@@ -2317,10 +2317,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string> LogShadowPropertyCreated
             = new EventDefinition<string, string>(
                 CoreEventId.ShadowPropertyCreated,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "CoreEventId.ShadowPropertyCreated",
                 LoggerMessage.Define<string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     CoreEventId.ShadowPropertyCreated,
                     _resourceManager.GetString("LogShadowPropertyCreated")));
 
@@ -2343,10 +2343,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string> LogNavigationLazyLoading
             = new EventDefinition<string, string>(
                 CoreEventId.NavigationLazyLoading,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "CoreEventId.NavigationLazyLoading",
                 LoggerMessage.Define<string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     CoreEventId.NavigationLazyLoading,
                     _resourceManager.GetString("LogNavigationLazyLoading")));
 
@@ -2433,10 +2433,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string> LogRedundantIndexRemoved
             = new EventDefinition<string, string>(
                 CoreEventId.RedundantIndexRemoved,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "CoreEventId.RedundantIndexRemoved",
                 LoggerMessage.Define<string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     CoreEventId.RedundantIndexRemoved,
                     _resourceManager.GetString("LogRedundantIndexRemoved")));
 
@@ -2446,10 +2446,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string> LogIncompatibleMatchingForeignKeyProperties
             = new EventDefinition<string, string>(
                 CoreEventId.IncompatibleMatchingForeignKeyProperties,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "CoreEventId.IncompatibleMatchingForeignKeyProperties",
                 LoggerMessage.Define<string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     CoreEventId.IncompatibleMatchingForeignKeyProperties,
                     _resourceManager.GetString("LogIncompatibleMatchingForeignKeyProperties")));
 
@@ -2459,10 +2459,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string> LogRequiredAttributeOnDependent
             = new EventDefinition<string, string>(
                 CoreEventId.RequiredAttributeOnDependent,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "CoreEventId.RequiredAttributeOnDependent",
                 LoggerMessage.Define<string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     CoreEventId.RequiredAttributeOnDependent,
                     _resourceManager.GetString("LogRequiredAttributeOnDependent")));
 
@@ -2472,10 +2472,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations
             = new EventDefinition<string, string, string, string>(
                 CoreEventId.RequiredAttributeOnBothNavigations,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "CoreEventId.RequiredAttributeOnBothNavigations",
                 LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     CoreEventId.RequiredAttributeOnBothNavigations,
                     _resourceManager.GetString("LogRequiredAttributeOnBothNavigations")));
 
@@ -2484,12 +2484,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static readonly EventDefinition<string, string, string, string> LogForeignKeyAttributesOnBothNavigations
             = new EventDefinition<string, string, string, string>(
-                CoreEventId.ForeignKeyAttributesOnBothNavigations,
-                LogLevel.Information,
-                "CoreEventId.ForeignKeyAttributesOnBothNavigations",
+                CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning,
+                LogLevel.Warning,
+                "CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning",
                 LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Information,
-                    CoreEventId.ForeignKeyAttributesOnBothNavigations,
+                    LogLevel.Warning,
+                    CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning,
                     _resourceManager.GetString("LogForeignKeyAttributesOnBothNavigations")));
 
         /// <summary>
@@ -2497,12 +2497,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static readonly EventDefinition<string, string, string, string, string, string> LogForeignKeyAttributesOnBothProperties
             = new EventDefinition<string, string, string, string, string, string>(
-                CoreEventId.ForeignKeyAttributesOnBothProperties,
-                LogLevel.Information,
-                "CoreEventId.ForeignKeyAttributesOnBothProperties",
+                CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning,
+                LogLevel.Warning,
+                "CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning",
                 LoggerMessage.Define<string, string, string, string, string, string>(
-                    LogLevel.Information,
-                    CoreEventId.ForeignKeyAttributesOnBothProperties,
+                    LogLevel.Warning,
+                    CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning,
                     _resourceManager.GetString("LogForeignKeyAttributesOnBothProperties")));
 
         /// <summary>
@@ -2510,12 +2510,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static readonly EventDefinition<string, string, string, string> LogConflictingForeignKeyAttributesOnNavigationAndProperty
             = new EventDefinition<string, string, string, string>(
-                CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty,
-                LogLevel.Information,
-                "CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty",
+                CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
+                LogLevel.Warning,
+                "CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning",
                 LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Information,
-                    CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty,
+                    LogLevel.Warning,
+                    CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
                     _resourceManager.GetString("LogConflictingForeignKeyAttributesOnNavigationAndProperty")));
 
         /// <summary>
@@ -2523,18 +2523,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static readonly EventDefinition<string, string> LogMultipleInversePropertiesSameTarget
             = new EventDefinition<string, string>(
-                CoreEventId.MultipleInversePropertiesSameTarget,
-                LogLevel.Information,
-                "CoreEventId.MultipleInversePropertiesSameTarget",
+                CoreEventId.MultipleInversePropertiesSameTargetWarning,
+                LogLevel.Warning,
+                "CoreEventId.MultipleInversePropertiesSameTargetWarning",
                 LoggerMessage.Define<string, string>(
-                    LogLevel.Information,
-                    CoreEventId.MultipleInversePropertiesSameTarget,
+                    LogLevel.Warning,
+                    CoreEventId.MultipleInversePropertiesSameTargetWarning,
                     _resourceManager.GetString("LogMultipleInversePropertiesSameTarget")));
 
         /// <summary>
         ///     There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing EF to create shadow properties on '{dependentType}' with names dependent on the discovery order.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogConflictingShadowForeignKeysWarning
+        public static readonly EventDefinition<string, string, string> LogConflictingShadowForeignKeys
             = new EventDefinition<string, string, string>(
                 CoreEventId.ConflictingShadowForeignKeysWarning,
                 LogLevel.Warning,
@@ -2542,7 +2542,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Warning,
                     CoreEventId.ConflictingShadowForeignKeysWarning,
-                    _resourceManager.GetString("LogConflictingShadowForeignKeysWarning")));
+                    _resourceManager.GetString("LogConflictingShadowForeignKeys")));
 
         /// <summary>
         ///     Relationship from '{firstEntityType}' to '{secondEntityType}' not configured because there are multiple properties on one entity type {navigationProperties} that could be matched with the properties on the other entity type {inverseNavigations}.
@@ -2550,10 +2550,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string, string, string> LogMultipleNavigationProperties
             = new EventDefinition<string, string, string, string>(
                 CoreEventId.MultipleNavigationProperties,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "CoreEventId.MultipleNavigationProperties",
                 LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     CoreEventId.MultipleNavigationProperties,
                     _resourceManager.GetString("LogMultipleNavigationProperties")));
 
@@ -2563,10 +2563,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string, string> LogMultiplePrimaryKeyCandidates
             = new EventDefinition<string, string, string>(
                 CoreEventId.MultiplePrimaryKeyCandidates,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "CoreEventId.MultiplePrimaryKeyCandidates",
                 LoggerMessage.Define<string, string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     CoreEventId.MultiplePrimaryKeyCandidates,
                     _resourceManager.GetString("LogMultiplePrimaryKeyCandidates")));
 
@@ -2589,7 +2589,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigationWarning
+        public static readonly EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigation
             = new EventDefinition<string, string, string, string, string>(
                 CoreEventId.NonDefiningInverseNavigationWarning,
                 LogLevel.Warning,
@@ -2597,12 +2597,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 LoggerMessage.Define<string, string, string, string, string>(
                     LogLevel.Warning,
                     CoreEventId.NonDefiningInverseNavigationWarning,
-                    _resourceManager.GetString("LogNonDefiningInverseNavigationWarning")));
+                    _resourceManager.GetString("LogNonDefiningInverseNavigation")));
 
         /// <summary>
         ///     The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigationWarning
+        public static readonly EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigation
             = new EventDefinition<string, string, string, string, string>(
                 CoreEventId.NonOwnershipInverseNavigationWarning,
                 LogLevel.Warning,
@@ -2610,7 +2610,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 LoggerMessage.Define<string, string, string, string, string>(
                     LogLevel.Warning,
                     CoreEventId.NonOwnershipInverseNavigationWarning,
-                    _resourceManager.GetString("LogNonOwnershipInverseNavigationWarning")));
+                    _resourceManager.GetString("LogNonOwnershipInverseNavigation")));
 
         /// <summary>
         ///     The property '{property}'  is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.

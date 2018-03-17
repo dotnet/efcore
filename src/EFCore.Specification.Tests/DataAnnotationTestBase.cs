@@ -1807,7 +1807,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("PostId", model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Warning, Log[0].Level);
             Assert.Equal(CoreStrings.LogForeignKeyAttributesOnBothProperties.GenerateMessage(
                 nameof(PostDetails), nameof(PostDetails.Post),
                 nameof(Post), nameof(Post.PostDetails),
@@ -1832,7 +1832,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("PostId", model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Warning, Log[0].Level);
             Assert.Equal(CoreStrings.LogForeignKeyAttributesOnBothNavigations.GenerateMessage(
                 nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), Log[0].Message);
         }
@@ -1860,7 +1860,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(new[] { "Id", "AuthorDetailsIdByAttribute" }, author.GetProperties().Select(p => p.Name));
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Warning, Log[0].Level);
             Assert.Equal(CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty.GenerateMessage(
                 nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)), Log[0].Message);
         }

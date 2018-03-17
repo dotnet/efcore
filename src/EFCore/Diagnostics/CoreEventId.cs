@@ -84,12 +84,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ConflictingShadowForeignKeysWarning,
             MultiplePrimaryKeyCandidates,
             MultipleNavigationProperties,
-            MultipleInversePropertiesSameTarget,
+            MultipleInversePropertiesSameTargetWarning,
             NonDefiningInverseNavigationWarning,
             NonOwnershipInverseNavigationWarning,
-            ForeignKeyAttributesOnBothProperties,
-            ForeignKeyAttributesOnBothNavigations,
-            ConflictingForeignKeyAttributesOnNavigationAndProperty,
+            ForeignKeyAttributesOnBothPropertiesWarning,
+            ForeignKeyAttributesOnBothNavigationsWarning,
+            ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId MultipleInversePropertiesSameTarget = MakeModelId(Id.MultipleInversePropertiesSameTarget);
+        public static readonly EventId MultipleInversePropertiesSameTargetWarning = MakeModelId(Id.MultipleInversePropertiesSameTargetWarning);
 
         /// <summary>
         ///     <para>
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ForeignKeyAttributesOnBothProperties = MakeModelId(Id.ForeignKeyAttributesOnBothProperties);
+        public static readonly EventId ForeignKeyAttributesOnBothPropertiesWarning = MakeModelId(Id.ForeignKeyAttributesOnBothPropertiesWarning);
 
         /// <summary>
         ///     <para>
@@ -537,7 +537,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ForeignKeyAttributesOnBothNavigations = MakeModelId(Id.ForeignKeyAttributesOnBothNavigations);
+        public static readonly EventId ForeignKeyAttributesOnBothNavigationsWarning =
+            MakeModelId(Id.ForeignKeyAttributesOnBothNavigationsWarning);
 
         /// <summary>
         ///     <para>
@@ -552,7 +553,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ConflictingForeignKeyAttributesOnNavigationAndProperty = MakeModelId(Id.ConflictingForeignKeyAttributesOnNavigationAndProperty);
+        public static readonly EventId ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning =
+            MakeModelId(Id.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning);
 
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
         private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);

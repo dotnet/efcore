@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (fkPropertyOnDependent != null
                 && fkPropertyOnPrincipal != null)
             {
-                _logger.ForeignKeyAttributesOnBothProperties(
+                _logger.ForeignKeyAttributesOnBothPropertiesWarning(
                     foreignKey.PrincipalToDependent,
                     foreignKey.DependentToPrincipal,
                     fkPropertyOnPrincipal,
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (fkPropertiesOnDependentToPrincipal != null
                 && fkPropertiesOnPrincipalToDependent != null)
             {
-                _logger.ForeignKeyAttributesOnBothNavigations(
+                _logger.ForeignKeyAttributesOnBothNavigationsWarning(
                     relationshipBuilder.Metadata.DependentToPrincipal, relationshipBuilder.Metadata.PrincipalToDependent);
 
                 relationshipBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (fkPropertiesOnNavigation.Count != 1
                         || !Equals(fkPropertiesOnNavigation.First(), fkProperty.Name))
                     {
-                        _logger.ConflictingForeignKeyAttributesOnNavigationAndProperty(
+                        _logger.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
                             fkPropertiesOnDependentToPrincipal != null
                                 ? relationshipBuilder.Metadata.DependentToPrincipal
                                 : relationshipBuilder.Metadata.PrincipalToDependent,
