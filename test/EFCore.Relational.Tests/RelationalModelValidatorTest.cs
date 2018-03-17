@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -464,10 +466,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
-                .HasConstraintName("FK_Animal_Person_Name");
-            modelBuilder.Entity<Dog>().HasOne<Person>().WithOne().HasForeignKey<Dog>(d => d.Name).HasPrincipalKey<Person>(p => p.Name)
-                .HasConstraintName("FK_Animal_Person_Name");
+            var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+                .HasConstraintName("FK_Animal_Person_Name").Metadata;
+            var fk2 = modelBuilder.Entity<Dog>().HasOne<Person>().WithOne().HasForeignKey<Dog>(d => d.Name).HasPrincipalKey<Person>(p => p.Name)
+                .HasConstraintName("FK_Animal_Person_Name").Metadata;
 
             VerifyError(
                 RelationalStrings.DuplicateForeignKeyUniquenessMismatch(
@@ -475,6 +477,11 @@ namespace Microsoft.EntityFrameworkCore
                     "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
                     nameof(Animal), "FK_Animal_Person_Name"),
                 modelBuilder.Model);
+
+            var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
+            var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
+            Assert.NotSame(index1, index2);
+            Assert.NotEqual(index1.Relational().Name, index2.Relational().Name);
         }
 
         [Fact]
@@ -497,6 +504,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+                .OnDelete(DeleteBehavior.Cascade).Metadata;
+            var fk2 = modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+                .OnDelete(DeleteBehavior.SetNull).Metadata;
+
+            Validate(modelBuilder.Model);
+
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().Name);
+
+            var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
+            var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
+            Assert.NotSame(index1, index2);
+            Assert.NotEqual(index1.Relational().Name, index2.Relational().Name);
+        }
+
+        [Fact]
         public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -510,6 +538,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
             Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().Name);
+
+            var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
+            var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
+            Assert.NotSame(index1, index2);
+            Assert.NotEqual(index1.Relational().Name, index2.Relational().Name);
         }
 
         [Fact]
@@ -524,22 +557,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk1 = et
-                        .HasOne<Person>()
+                        .HasOne(a => a.FavoritePerson)
                         .WithMany()
                         .HasForeignKey(c => new { c.Name, c.Breed })
                         .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
-                        .HasConstraintName("FK")
                         .Metadata;
                 });
             modelBuilder.Entity<Dog>(et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk2 = et
-                        .HasOne<Customer>()
+                        .HasOne(a => (Customer)a.FavoritePerson)
                         .WithMany()
                         .HasForeignKey(c => new { c.Name, c.Breed })
                         .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
-                        .HasConstraintName("FK")
                         .Metadata;
                 });
 
@@ -547,6 +578,53 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotSame(fk1, fk2);
             Assert.Equal(fk1.Relational().Name, fk2.Relational().Name);
+
+            var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
+            var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
+            Assert.NotSame(index1, index2);
+            Assert.Equal(index1.Relational().Name, index2.Relational().Name);
+        }
+
+        [Fact]
+        public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy_name_configured_explicitly()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            IForeignKey fk1 = null;
+            IForeignKey fk2 = null;
+
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>(et =>
+            {
+                et.Property(c => c.Breed).HasColumnName("Breed");
+                fk1 = et
+                    .HasOne<Person>()
+                    .WithMany()
+                    .HasForeignKey(c => new { c.Name, c.Breed })
+                    .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
+                    .HasConstraintName("FK")
+                    .Metadata;
+            });
+            modelBuilder.Entity<Dog>(et =>
+            {
+                et.Property(c => c.Breed).HasColumnName("Breed");
+                fk2 = et
+                    .HasOne<Customer>()
+                    .WithMany()
+                    .HasForeignKey(c => new { c.Name, c.Breed })
+                    .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
+                    .HasConstraintName("FK")
+                    .Metadata;
+            });
+
+            Validate(modelBuilder.Model);
+
+            Assert.NotSame(fk1, fk2);
+            Assert.Equal(fk1.Relational().Name, fk2.Relational().Name);
+
+            var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
+            var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
+            Assert.NotSame(index1, index2);
+            Assert.Equal(index1.Relational().Name, index2.Relational().Name);
         }
 
         [Fact]
@@ -837,6 +915,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
             public string Name { get; set; }
+
+            public Person FavoritePerson { get; set; }
         }
 
         protected class Cat : Animal

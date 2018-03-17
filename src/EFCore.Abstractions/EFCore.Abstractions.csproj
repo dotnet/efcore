@@ -23,6 +23,7 @@
   <ItemGroup>
     <None Update="Properties\AbstractionsStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
       <LastGenOutput>AbstractionsStrings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
