@@ -314,6 +314,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Applies configuration that is defined in an <see cref="IQueryTypeConfiguration{TQuery}" /> instance.
+        /// </summary>
+        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
+        /// <param name="configuration"> The configuration to be applied. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder ApplyConfiguration<TQuery>([NotNull] IQueryTypeConfiguration<TQuery> configuration)
+            where TQuery : class
+        {
+            Check.NotNull(configuration, nameof(configuration));
+
+            configuration.Configure(Query<TQuery>());
+
+            return this;
+        }
+
+        /// <summary>
         ///     Marks an entity type as owned. All references to this type will be configured as
         ///     separate owned type instances.
         /// </summary>

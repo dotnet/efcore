@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Implement this interface, applying configuration for the entity in the
     ///     <see cref="Configure(EntityTypeBuilder{TEntity})" /> method,
     ///     and then apply the configuration to the model using
-    ///     <see cref="ModelBuilder.ApplyConfiguration{TEntity}" />
+    ///     <see cref="ModelBuilder.ApplyConfiguration{TEntity}(IEntityTypeConfiguration{TEntity})" />
     ///     in <see cref="DbContext.OnModelCreating(ModelBuilder)" />.
     /// </summary>
     /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
