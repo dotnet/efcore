@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -19,11 +18,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerSqlVariantTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] ValueConverter converter = null,
-            [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null)
-            : base(storeType, typeof(object), converter, comparer, keyComparer)
+            [NotNull] string storeType)
+            : base(storeType, typeof(object))
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected SqlServerSqlVariantTypeMapping(RelationalTypeMappingParameters parameters)
+            : base(parameters)
         {
         }
 
@@ -32,13 +37,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerSqlVariantTypeMapping(storeType, Converter, Comparer, KeyComparer);
+            => new SqlServerSqlVariantTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerSqlVariantTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer);
+            => new SqlServerSqlVariantTypeMapping(Parameters.WithComposedConverter(converter));
     }
 }

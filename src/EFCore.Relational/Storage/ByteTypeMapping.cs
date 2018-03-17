@@ -3,7 +3,6 @@
 
 using System.Data;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -27,25 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public ByteTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : this(storeType, null, null, null, dbType)
+            : base(storeType, typeof(byte), dbType)
         {
         }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ByteTypeMapping" /> class.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="converter"> Converts values to and from the store whenever this mapping is used. </param>
-        /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
-        /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
-        public ByteTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] ValueConverter converter,
-            [CanBeNull] ValueComparer comparer,
-            [CanBeNull] ValueComparer keyComparer,
-            DbType? dbType = null)
-            : base(storeType, typeof(byte), converter, comparer, keyComparer, dbType)
+        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping"/>. </param>
+        protected ByteTypeMapping(RelationalTypeMappingParameters parameters)
+            : base(parameters)
         {
         }
 
@@ -56,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new ByteTypeMapping(storeType, Converter, Comparer, KeyComparer, DbType);
+            => new ByteTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
 
         /// <summary>
         ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
@@ -65,6 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new ByteTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer, DbType);
+            => new ByteTypeMapping(Parameters.WithComposedConverter(converter));
     }
 }

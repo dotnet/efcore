@@ -28,14 +28,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly SqlServerByteArrayTypeMapping _rowversion
             = new SqlServerByteArrayTypeMapping(
                 "rowversion",
-                null,
-                new ValueComparer<byte[]>(
+                DbType.Binary,
+                size: 8,
+                comparer: new ValueComparer<byte[]>(
                     (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
                     v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
-                    v => v == null ? null : v.ToArray()),
-                null,
-                dbType: DbType.Binary,
-                size: 8);
+                    v => v == null ? null : v.ToArray()));
 
         private readonly IntTypeMapping _int
             = new IntTypeMapping("int", DbType.Int32);

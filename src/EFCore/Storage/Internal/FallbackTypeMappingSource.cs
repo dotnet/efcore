@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -45,8 +48,24 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             Check.NotNull(mappingInfo, nameof(mappingInfo));
 
             return _typeMapper.IsTypeMapped(mappingInfo.ClrType)
-                ? new CoreTypeMapping(mappingInfo.ClrType)
+                ? new ConcreteTypeMapping(mappingInfo.ClrType)
                 : null;
+        }
+
+        private class ConcreteTypeMapping : CoreTypeMapping
+        {
+            private ConcreteTypeMapping(CoreTypeMappingParameters parameters)
+                : base(parameters)
+            {
+            }
+
+            public ConcreteTypeMapping([NotNull] Type clrType)
+                : base(new CoreTypeMappingParameters(clrType))
+            {
+            }
+
+            public override CoreTypeMapping Clone(ValueConverter converter)
+                => new ConcreteTypeMapping(Parameters.WithComposedConverter(converter));
         }
     }
 }

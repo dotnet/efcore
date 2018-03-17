@@ -3,7 +3,6 @@
 
 using System.Data;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType,
             bool unicode,
             int? size)
-            : this(storeType, null, null, null, dbType, unicode, size)
+            : this(storeType, dbType, unicode, size, fixedLength: false)
         {
         }
 
@@ -50,31 +49,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool unicode = false,
             int? size = null,
             bool fixedLength = false)
-            : this(storeType, null, null, null, dbType, unicode, size, fixedLength)
+            : base(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(
+                        typeof(string)), storeType, dbType, unicode, size, fixedLength))
         {
         }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="converter"> Converts values to and from the store whenever this mapping is used. </param>
-        /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
-        /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
-        public StringTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] ValueConverter converter,
-            [CanBeNull] ValueComparer comparer,
-            [CanBeNull] ValueComparer keyComparer,
-            DbType? dbType = null,
-            bool unicode = false,
-            int? size = null,
-            bool fixedLength = false)
-            : base(storeType, typeof(string), converter, comparer, keyComparer, dbType, unicode, size, fixedLength)
+        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping" />. </param>
+        protected StringTypeMapping(RelationalTypeMappingParameters parameters)
+            : base(parameters)
         {
         }
 
@@ -85,16 +72,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new StringTypeMapping(storeType, Converter, Comparer, KeyComparer, DbType, IsUnicode, size, IsFixedLength);
+            => new StringTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
 
         /// <summary>
-        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
-        ///    added.
+        ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
+        ///     added.
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new StringTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer, DbType, IsUnicode, Size, IsFixedLength);
+            => new StringTypeMapping(Parameters.WithComposedConverter(converter));
 
         /// <summary>
         ///     Generates the escaped SQL representation of a literal value.

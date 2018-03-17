@@ -197,7 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
                 RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
-                InversePropertyAttributeConvention.InverseNavigationsAnnotationName
+                InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
+                CoreAnnotationNames.TypeMapping,
+                CoreAnnotationNames.ValueComparer,
+                CoreAnnotationNames.KeyValueComparer
             };
 
             return items.SelectMany(i => i.GetAnnotations())

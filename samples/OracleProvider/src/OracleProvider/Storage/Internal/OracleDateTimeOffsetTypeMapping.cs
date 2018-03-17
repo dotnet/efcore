@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.ManagedDataAccess.Client;
@@ -21,28 +20,27 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
         private const string DateTimeOffsetFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffzzz}";
 
         public OracleDateTimeOffsetTypeMapping([NotNull] string storeType)
-            : this(
-                storeType, new ValueConverter<DateTimeOffset, OracleTimeStampTZ>(
-                    v => new OracleTimeStampTZ(v.DateTime, v.Offset.ToString()),
-                    v => new DateTimeOffset(v.Value, v.GetTimeZoneOffset())))
+            : base(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(
+                        typeof(DateTimeOffset),
+                        new ValueConverter<DateTimeOffset, OracleTimeStampTZ>(
+                            v => new OracleTimeStampTZ(v.DateTime, v.Offset.ToString()),
+                            v => new DateTimeOffset(v.Value, v.GetTimeZoneOffset()))),
+                    storeType))
         {
         }
 
-        public OracleDateTimeOffsetTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] ValueConverter converter,
-            [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null)
-
-            : base(storeType, converter, comparer, keyComparer)
+        protected OracleDateTimeOffsetTypeMapping(RelationalTypeMappingParameters parameters)
+            : base(parameters)
         {
         }
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleDateTimeOffsetTypeMapping(storeType, Converter, Comparer);
+            => new OracleDateTimeOffsetTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
 
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleDateTimeOffsetTypeMapping(StoreType, ComposeConverter(converter), Comparer);
+            => new OracleDateTimeOffsetTypeMapping(Parameters.WithComposedConverter(converter));
 
         protected override string SqlLiteralFormatString => "'" + DateTimeOffsetFormatConst + "'";
 

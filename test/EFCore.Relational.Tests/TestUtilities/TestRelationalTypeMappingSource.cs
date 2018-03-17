@@ -47,32 +47,28 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             public IntArrayTypeMapping()
                 : base(
-                    "some_int_array_mapping",
-                    typeof(int[]),
-                    null,
-                    new ValueComparer<int[]>(
-                        (v1, v2) => v1.SequenceEqual(v2),
-                        v => v.Aggregate(0, (t, e) => (t * 397) ^ e),
-                        v => v.ToArray()),
-                    null)
+                    new RelationalTypeMappingParameters(
+                        new CoreTypeMappingParameters(
+                            typeof(int[]),
+                            null,
+                            new ValueComparer<int[]>(
+                                (v1, v2) => v1.SequenceEqual(v2),
+                                v => v.Aggregate(0, (t, e) => (t * 397) ^ e),
+                                v => v.ToArray())),
+                        "some_int_array_mapping"))
             {
             }
 
-            private IntArrayTypeMapping(
-                string storeType,
-                ValueConverter converter,
-                ValueComparer comparer,
-                ValueComparer keyComparer,
-                int? size = null)
-                : base(storeType, typeof(int[]), converter, comparer, keyComparer, null, false, size)
+            private IntArrayTypeMapping(RelationalTypeMappingParameters parameters)
+                : base(parameters)
             {
             }
 
             public override RelationalTypeMapping Clone(string storeType, int? size)
-                => new IntArrayTypeMapping(storeType, Converter, Comparer, KeyComparer, size);
+                => new IntArrayTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
 
             public override CoreTypeMapping Clone(ValueConverter converter)
-                => new IntArrayTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer, Size);
+                => new IntArrayTypeMapping(Parameters.WithComposedConverter(converter));
         }
 
         private static readonly RelationalTypeMapping _intArray

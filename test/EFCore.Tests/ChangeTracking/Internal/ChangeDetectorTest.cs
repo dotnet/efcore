@@ -237,6 +237,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             protected override bool UseTypeMapping => true;
         }
 
+        private class ConcreteTypeMapping : CoreTypeMapping
+        {
+            private ConcreteTypeMapping(CoreTypeMappingParameters parameters)
+                : base(parameters)
+            {
+            }
+
+            public ConcreteTypeMapping(Type clrType, ValueConverter converter, ValueComparer comparer)
+                : base(new CoreTypeMappingParameters(clrType, converter, comparer))
+            {
+            }
+
+            public override CoreTypeMapping Clone(ValueConverter converter)
+                => new ConcreteTypeMapping(Parameters.WithComposedConverter(converter));
+        }
+
+
         private class BaxterContext : DbContext
         {
             protected virtual bool UseTypeMapping => false;
@@ -266,16 +283,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (UseTypeMapping)
                 {
                     property[CoreAnnotationNames.TypeMapping]
-                        = new CoreTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer);
+                        = new ConcreteTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer);
 
                     shadowProperty[CoreAnnotationNames.TypeMapping]
-                        = new CoreTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer);
+                        = new ConcreteTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer);
                 }
                 else
                 {
                     property.SetValueConverter(intArrayConverter);
                     shadowProperty.SetValueConverter(intArrayConverter);
-                    
+
                     property.SetValueComparer(intArrayComparer);
                     shadowProperty.SetValueComparer(intArrayComparer);
                 }
@@ -1287,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Unchanged);
 
             var newCategory = useNull ? null : new NotifyingCategory { Id = 78, PrincipalId = 2, TagId = 778 };
-            
+
             product.Category = newCategory;
             product.Category = originalCategory;
 
