@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("We1!*~&%rdCh@r^act()0rs", "We1RdChRAct0rs")]
         public void Generates_candidate_identifiers(string input, string output)
         {
-            Assert.Equal(output, new CandidateNamingService().GenerateCandidateIdentifier(input));
+            Assert.Equal(output, new CandidateNamingService().GenerateCandidateIdentifier(new Scaffolding.Metadata.DatabaseTable { Name = input }));
         }
     }
 }

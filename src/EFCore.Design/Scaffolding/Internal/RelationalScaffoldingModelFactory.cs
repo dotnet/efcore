@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _tableNamer = new CSharpUniqueNamer<DatabaseTable>(
                 useDatabaseNames
                     ? (Func<DatabaseTable, string>)(t => t.Name)
-                    : t => _candidateNamingService.GenerateCandidateIdentifier(t.Name),
+                    : t => _candidateNamingService.GenerateCandidateIdentifier(t),
                 _cSharpUtilities,
                 useDatabaseNames
                     ? (Func<string, string>)null
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _dbSetNamer = new CSharpUniqueNamer<DatabaseTable>(
                 useDatabaseNames
                     ? (Func<DatabaseTable, string>)(t => t.Name)
-                    : t => _candidateNamingService.GenerateCandidateIdentifier(t.Name),
+                    : t => _candidateNamingService.GenerateCandidateIdentifier(t),
                 _cSharpUtilities,
                 useDatabaseNames
                     ? (Func<string, string>)null
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     _columnNamers.Add(
                         table,
                         new CSharpUniqueNamer<DatabaseColumn>(
-                            c => _candidateNamingService.GenerateCandidateIdentifier(c.Name),
+                            c => _candidateNamingService.GenerateCandidateIdentifier(c),
                             usedNames,
                             _cSharpUtilities,
                             singularizePluralizer: null));
