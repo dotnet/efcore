@@ -1,11 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Entity Framework Core .NET Command-line Tools</Description>
+    <Description>Entity Framework Core .NET Command-line Tools. Includes dotnet-ef.</Description>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <IsPackable>false</IsPackable>
+    <PackAsTool>true</PackAsTool>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
+    <IncludeSource>false</IncludeSource>
+    <IncludeSymbols>false</IncludeSymbols>
+    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +29,10 @@
     <Compile Include="..\ef\Reporter.cs" />
     <Compile Include="..\ef\Commands\**\*.Configure.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,6 +60,25 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.Designer.tt</DependentUpon>
     </Compile>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\ef\bin\$(Configuration)\net461\ef.exe">
+      <Pack>True</Pack>
+      <PackagePath>tools\net461</PackagePath>
+    </None>
+    <None Include="..\ef\bin\x86\$(Configuration)\net461\ef.x86.exe">
+      <Pack>True</Pack>
+      <PackagePath>tools\net461</PackagePath>
+    </None>
+    <None Include="..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll">
+      <Pack>True</Pack>
+      <PackagePath>tools\netcoreapp2.0</PackagePath>
+    </None>
+    <None Include="..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json">
+      <Pack>True</Pack>
+      <PackagePath>tools\netcoreapp2.0</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

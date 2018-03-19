@@ -92,11 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             var args = new List<string>();
 
             var toolsPath = Path.GetFullPath(
-                Path.Combine(
-                    Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location),
-                    "..",
-                    "..",
-                    "tools"));
+                Path.Combine(Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location), "..", ".."));
 
             var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir, startupProject.OutputPath));
             var targetPath = Path.Combine(targetDir, project.TargetFileName);
