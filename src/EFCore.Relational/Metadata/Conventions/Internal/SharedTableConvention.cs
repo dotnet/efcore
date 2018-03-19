@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -89,15 +90,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
             var maxLength = modelBuilder.Relational(ConfigurationSource.Convention).MaxIdentifierLength;
-            var tables = new Dictionary<string,
+            var tables = new Dictionary<(string, string),
                 (Dictionary<string, Property> Columns,
                     Dictionary<string, Key> Keys,
                     Dictionary<string, ForeignKey> ForeignKeys,
                     Dictionary<string, Index> Indexes)>();
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes().Where(et => !et.IsQueryType))
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                var tableName = FormatName(entityType.Relational());
+                if (entityType.IsQueryType)
+                {
+                    continue;
+                }
 
+                var annotations = entityType.Relational();
+                var tableName = (annotations.Schema, annotations.TableName);
                 if (!tables.TryGetValue(tableName, out var tableObjects))
                 {
                     tableObjects = (new Dictionary<string, Property>(),
@@ -202,15 +208,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 var relationalIndexBuilder = index.Builder.Relational(ConfigurationSource.Convention);
+                var otherRelationalIndexBuilder = otherIndex.Builder.Relational(ConfigurationSource.Convention);
                 if (relationalIndexBuilder.CanSetName(null))
                 {
+                    if (index.GetConfigurationSource() == ConfigurationSource.Convention
+                        && otherIndex.GetConfigurationSource() == ConfigurationSource.Convention
+                        && otherRelationalIndexBuilder.CanSetName(null))
+                    {
+                        var associatedForeignKey = index.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
+                        var otherAssociatedForeignKey = otherIndex.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
+                        if (associatedForeignKey != null
+                            && otherAssociatedForeignKey != null
+                            && associatedForeignKey.Relational().Name == otherAssociatedForeignKey.Relational().Name
+                            && index.AreCompatible(otherIndex, shouldThrow: false))
+                        {
+                            continue;
+                        }
+                    }
+
                     indexName = Uniquify(indexName, null, indexes, maxLength);
                     relationalIndexBuilder.Name = indexName;
                     indexes[indexName] = index;
                     continue;
                 }
 
-                var otherRelationalIndexBuilder = otherIndex.Builder.Relational(ConfigurationSource.Convention);
                 if (otherRelationalIndexBuilder.CanSetName(null))
                 {
                     indexes[indexName] = index;
@@ -225,6 +246,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
             {
+                var declaringAnnotations = foreignKey.DeclaringEntityType.Relational();
+                var principalAnnotations = foreignKey.PrincipalEntityType.Relational();
+                if (declaringAnnotations.TableName == principalAnnotations.TableName
+                    && declaringAnnotations.Schema == principalAnnotations.Schema)
+                {
+                    continue;
+                }
+
                 var foreignKeyName = foreignKey.Relational().Name;
                 if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
                 {
@@ -232,22 +261,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                if (FormatName(foreignKey.DeclaringEntityType.Relational())
-                    == FormatName(foreignKey.PrincipalEntityType.Relational()))
-                {
-                    continue;
-                }
-
                 var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
+                var otherRelationalKeyBuilder = otherForeignKey.Builder.Relational(ConfigurationSource.Convention);
                 if (relationalKeyBuilder.CanSetName(null))
                 {
+                    if (otherRelationalKeyBuilder.CanSetName(null)
+                        && (foreignKey.PrincipalToDependent != null
+                            || foreignKey.DependentToPrincipal != null)
+                        && (foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo()).IsSameAs(
+                            otherForeignKey.PrincipalToDependent?.GetIdentifyingMemberInfo())
+                        && (foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo()).IsSameAs(
+                            otherForeignKey.DependentToPrincipal?.GetIdentifyingMemberInfo())
+                        && foreignKey.AreCompatible(otherForeignKey, shouldThrow: false))
+                    {
+                        continue;
+                    }
+
                     foreignKeyName = Uniquify(foreignKeyName, null, foreignKeys, maxLength);
                     relationalKeyBuilder.Name = foreignKeyName;
                     foreignKeys[foreignKeyName] = foreignKey;
                     continue;
                 }
 
-                var otherRelationalKeyBuilder = otherForeignKey.Builder.Relational(ConfigurationSource.Convention);
                 if (otherRelationalKeyBuilder.CanSetName(null))
                 {
                     foreignKeys[foreignKeyName] = foreignKey;
@@ -275,8 +310,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             return finalIdentifier;
         }
-
-        private static string FormatName(IRelationalEntityTypeAnnotations annotations)
-            => (string.IsNullOrEmpty(annotations.Schema) ? "" : annotations.Schema + ".") + annotations.TableName;
     }
 }

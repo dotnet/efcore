@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(((ForeignKey)fk).GetForeignKeyPropertiesConfigurationSource());
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Debug, Log[0].Level);
             Assert.Equal(CoreStrings.LogIncompatibleMatchingForeignKeyProperties.GenerateMessage(
                 "{'PeeKay' : string}", "{'PeeKay' : int}"), Log[0].Message);
 
@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogConflictingShadowForeignKeysWarning.GenerateMessage(
+            Assert.Equal(CoreStrings.LogConflictingShadowForeignKeys.GenerateMessage(
                 nameof(DependentEntity), nameof(PrincipalEntity), nameof(DependentEntity)), Log[0].Message);
         }
 

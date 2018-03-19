@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Detects_schemas()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>().ToTable("Animals", "pet");
+            modelBuilder.Entity<Animal>().ToTable("Animals", "pet").Ignore(a => a.FavoritePerson);
 
             VerifyWarning(SqliteStrings.LogSchemaConfigured.GenerateMessage("Animal", "pet"), modelBuilder.Model);
         }

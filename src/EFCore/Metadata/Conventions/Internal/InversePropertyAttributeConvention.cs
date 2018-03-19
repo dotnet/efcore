@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             inverseNavigation.Value);
                         if (ambiguousInverse != null)
                         {
-                            _logger.MultipleInversePropertiesSameTarget(
+                            _logger.MultipleInversePropertiesSameTargetWarning(
                                 new[] { referencingNavigationWithAttribute, ambiguousInverse },
                                 inverseNavigation.Key,
                                 entityType.ClrType);

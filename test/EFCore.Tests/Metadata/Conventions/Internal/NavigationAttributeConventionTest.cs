@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.True(relationshipBuilder.Metadata.IsRequired);
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Debug, Log[0].Level);
             Assert.Equal(CoreStrings.LogRequiredAttributeOnDependent.GenerateMessage(
                 nameof(Principal.Dependent), nameof(Principal)), Log[0].Message);
         }
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 .Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Debug, Log[0].Level);
             Assert.Equal(CoreStrings.LogRequiredAttributeOnBothNavigations.GenerateMessage(
                 nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), Log[0].Message);
         }
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             convention.Apply(dependentEntityTypeBuilder.ModelBuilder);
 
             Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(LogLevel.Warning, Log[0].Level);
             Assert.Equal(CoreStrings.LogMultipleInversePropertiesSameTarget.GenerateMessage(
                 "AmbiguousDependent.AmbiguousPrincipal, AmbiguousDependent.AnotherAmbiguousPrincipal",
                 nameof(AmbiguousPrincipal.Dependent)), Log[0].Message);
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogNonDefiningInverseNavigationWarning.GenerateMessage(
+            Assert.Equal(CoreStrings.LogNonDefiningInverseNavigation.GenerateMessage(
                 nameof(Principal), nameof(Principal.Dependent), "Principal.Dependents#Dependent", nameof(Dependent.Principal),
                 nameof(Principal.Dependents)), Log[0].Message);
         }
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogNonOwnershipInverseNavigationWarning.GenerateMessage(
+            Assert.Equal(CoreStrings.LogNonOwnershipInverseNavigation.GenerateMessage(
                 nameof(Principal), nameof(Principal.Dependent), nameof(Dependent), nameof(Dependent.Principal),
                 nameof(Principal.Dependents)), Log[0].Message);
         }
