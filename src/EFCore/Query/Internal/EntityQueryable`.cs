@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class EntityQueryable<TResult> : QueryableBase<TResult>, IAsyncEnumerable<TResult>, IDetachableContext, IListSource
     {
+        private static readonly EntityQueryable<TResult> _detached
+            = new EntityQueryable<TResult>(NullAsyncQueryProvider.Instance);
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -50,8 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IDetachableContext IDetachableContext.DetachContext()
-            => new EntityQueryable<TResult>(NullAsyncQueryProvider.Instance);
+        IDetachableContext IDetachableContext.DetachContext() => _detached;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
