@@ -618,5 +618,42 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => o.OrderID < 10300)
                     .Select(o => o.OrderDate.Value - new DateTime(1997, 1, 1)));
         }
+
+        [ConditionalFact(Skip = "Issue #11326")]
+        public virtual void Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault()
+        {
+            AssertQuery<Customer>(cs => cs.Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(1).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault()
+        {
+            AssertQuery<Customer>(cs => cs.Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Skip(1).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault()
+        {
+            AssertQuery<Customer>(cs => cs.Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()));
+        }
+
+        [ConditionalFact(Skip = "Issue #11326")]
+        public virtual void Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault()
+        {
+            AssertQuery<Customer>(cs => cs.Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(3).SingleOrDefault()));
+        }
+
+        [ConditionalFact(Skip = "Issue #11326")]
+        public virtual void Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter()
+        {
+            var i = 1;
+            AssertQuery<Customer>(cs => cs.Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(i).FirstOrDefault()));
+        }
+
+        [ConditionalFact(Skip = "Issue #11326")]
+        public virtual void Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault()
+        {
+            AssertQuery<Customer>(cs => cs.Select(c => c.Orders.OrderBy(o => o.OrderID).ThenByDescending(o => o.OrderDate).Select(o => o.CustomerID).Take(2).FirstOrDefault()));
+        }
     }
 }

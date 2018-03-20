@@ -596,5 +596,65 @@ OFFSET @__p_0 ROWS");
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300");
         }
+
+        public override void Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault()
+        {
+            base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault()
+        {
+            base.Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault();
+
+            AssertSql(
+                @"SELECT (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY
+)
+FROM [Customers] AS [c]");
+        }
+
+        public override void Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault()
+        {
+            base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault();
+
+            AssertSql(
+                @"SELECT (
+    SELECT DISTINCT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]");
+        }
+
+        public override void Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault()
+        {
+            base.Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter()
+        {
+            base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault()
+        {
+            base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault();
+
+            AssertSql(
+                @"");
+        }
     }
 }
