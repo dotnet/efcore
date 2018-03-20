@@ -1372,5 +1372,165 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }),
                 elementSorter: e => e.c);
         }
+
+        [ConditionalFact]
+        public virtual async Task Join_on_entity_qsre_keys()
+        {
+            await AssertQuery<Weapon>(
+                ws => from w1 in ws
+                      join w2 in ws on w1 equals w2
+                      select new { Name1 = w1.Name, Name2 = w2.Name },
+                elementSorter: e => e.Name1 + " " + e.Name2);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Join_on_entity_qsre_keys_composite_key()
+        {
+            await AssertQuery<Gear>(
+                gs => from g1 in gs
+                      join g2 in gs on g1 equals g2
+                      select new { GearName1 = g1.FullName, GearName2 = g2.FullName },
+                elementSorter: e => e.GearName1 + " " + e.GearName2);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Join_on_entity_qsre_keys_inheritance()
+        {
+            await AssertQuery<Gear>(
+                gs => from g in gs
+                      join o in gs.OfType<Officer>() on g equals o
+                      select new { GearName = g.FullName, OfficerName = o.FullName },
+                elementSorter: e => e.GearName + " " + e.OfficerName);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Join_on_entity_qsre_keys_outer_key_is_navigation()
+        {
+            await AssertQuery<Weapon>(
+                ws => from w1 in ws
+                      join w2 in ws on w1.SynergyWith equals w2
+                      select new { Name1 = w1.Name, Name2 = w2.Name },
+                elementSorter: e => e.Name1 + " " + e.Name2);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Join_on_entity_qsre_keys_inner_key_is_navigation()
+        {
+            await AssertQuery<City, Gear>(
+                (cs, gs) =>
+                    from c in cs
+                    join g in gs on c equals g.AssignedCity
+                    select new { CityName = c.Name, GearNickname = g.Nickname },
+                e => e.CityName + " " + e.GearNickname);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Join_on_entity_qsre_keys_inner_key_is_navigation_composite_key()
+        {
+            await AssertQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    from g in gs
+                    join t in ts.Where(tt => tt.Note == "Cole's Tag" || tt.Note == "Dom's Tag") on g equals t.Gear
+                    select new { g.Nickname, t.Note },
+                elementSorter: e => e.Nickname + " " + e.Note);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Join_on_entity_qsre_keys_inner_key_is_nested_navigation()
+        {
+            await AssertQuery<Squad, Weapon>(
+                (ss, ws) =>
+                    from s in ss
+                    join w in ws.Where(ww => ww.IsAutomatic) on s equals w.Owner.Squad
+                    select new { SquadName = s.Name, WeaponName = w.Name },
+                elementSorter: e => e.SquadName + " " + e.WeaponName);
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupJoin_on_entity_qsre_keys_inner_key_is_nested_navigation()
+        {
+            await AssertQuery<Squad, Weapon>(
+                (ss, ws) =>
+                    from s in ss
+                    join w in ws on s equals w.Owner.Squad into grouping
+                    from w in grouping.DefaultIfEmpty()
+                    select new { SquadName = s.Name, WeaponName = w.Name },
+                (ss, ws) =>
+                    from s in ss
+                    join w in ws on s equals Maybe(w.Owner, () => w.Owner.Squad) into grouping
+                    from w in grouping.DefaultIfEmpty()
+                    select new { SquadName = s.Name, WeaponName = Maybe(w, () => w.Name) },
+                elementSorter: e => e.SquadName + " " + e.WeaponName);
+        }
+
+
+        [ConditionalFact]
+        public virtual async Task Join_with_complex_key_selector()
+        {
+            await AssertQuery<Squad, CogTag, Gear>(
+                (ss, ts, gs) => ss
+                    .Join(ts.Where(t => t.Note == "Marcus' Tag"), o => true, i => true, (o, i) => new { o, i })
+                    .GroupJoin(
+                        gs,
+                        oo => oo.o.Members.FirstOrDefault(v => v.Tag == oo.i),
+                        ii => ii,
+                        (k, g) => new { k.o, k.i, value = g.OrderBy(gg => gg.FullName).FirstOrDefault() })
+                    .Select(r => new { Id = r.o.Id, TagId = r.i.Id }),
+                elementSorter: e => e.Id + " " + e.TagId);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_group_by_on_entity_qsre()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Squads.Include(s => s.Members).GroupBy(s => s);
+                var results = await query.ToListAsync();
+
+                foreach (var result in results)
+                {
+                    foreach (var grouping in result)
+                    {
+                        Assert.True(grouping.Members.Count > 0);
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_group_by_on_entity_qsre_with_composite_key()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears.Include(g => g.Weapons).GroupBy(g => g);
+                var results = await query.ToListAsync();
+
+                foreach (var result in results)
+                {
+                    foreach (var grouping in result)
+                    {
+                        Assert.True(grouping.Weapons.Count > 0);
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_group_by_on_entity_navigation()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Factions.OfType<LocustHorde>().Include(lh => lh.Leaders).GroupBy(lh => lh.Commander.DefeatedBy);
+                var results = await query.ToListAsync();
+
+                foreach (var result in results)
+                {
+                    foreach (var grouping in result)
+                    {
+                        Assert.True(grouping.Leaders.Count > 0);
+                    }
+                }
+            }
+        }
     }
 }

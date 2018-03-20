@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var translated = CreateSubqueryForNavigations(
                         outerQuerySourceReferenceExpression,
-                        navigations,
+                        properties,
                         propertyCreator);
 
                     return translated;
@@ -884,9 +884,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private Expression CreateSubqueryForNavigations(
             Expression outerQuerySourceReferenceExpression,
-            ICollection<INavigation> navigations,
+            IReadOnlyList<IPropertyBase> properties,
             Func<Expression, Expression> propertyCreator)
         {
+            var navigations = properties.OfType<INavigation>().ToList();
             var firstNavigation = navigations.First();
             var targetEntityType = firstNavigation.GetTargetType();
 
@@ -930,7 +931,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         selectClauseExpression,
                         (current, navigation) => Expression.Property(current, navigation.Name));
 
-            subQueryModel.SelectClause = new SelectClause(propertyCreator(selectClauseExpression));
+            subQueryModel.SelectClause = new SelectClause(selectClauseExpression);
+
+            if (properties.Count > navigations.Count)
+            {
+                subQueryModel.SelectClause = new SelectClause(propertyCreator(subQueryModel.SelectClause.Selector));
+            }
 
             if (navigations.Count > 1)
             {
