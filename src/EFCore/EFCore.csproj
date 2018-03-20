@@ -33,6 +33,7 @@ Microsoft.EntityFrameworkCore.DbSet
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Abstractions\EFCore.Abstractions.csproj" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" />
   </ItemGroup>
 
   <ItemGroup>

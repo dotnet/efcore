@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" />
+    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" />
   </ItemGroup>
 
   <ItemGroup>

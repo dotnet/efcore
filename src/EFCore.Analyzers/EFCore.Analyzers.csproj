@@ -4,12 +4,6 @@
         <Description>CSharp Analyzers for Entity Framework Core.</Description>
         <PackageTags>efcore</PackageTags>
         <MinClientVersion>3.6</MinClientVersion>
-
-        <VerifyVersion>false</VerifyVersion>
-        <VersionPrefix>$(ExperimentalVersionPrefix)</VersionPrefix>
-        <VersionSuffix>$(ExperimentalVersionSuffix)</VersionSuffix>
-        <PackageVersion>$(ExperimentalPackageVersion)</PackageVersion>
-        
         <TargetFramework>netstandard2.0</TargetFramework>
         <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
         <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
