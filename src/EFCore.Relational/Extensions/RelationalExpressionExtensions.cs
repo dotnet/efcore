@@ -40,7 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static ColumnReferenceExpression LiftExpressionFromSubquery([NotNull] this Expression expression, [NotNull] TableExpressionBase table)
+        public static ColumnReferenceExpression LiftExpressionFromSubquery(
+            [NotNull] this Expression expression,
+            [NotNull] TableExpressionBase table)
         {
             Check.NotNull(expression, nameof(expression));
             Check.NotNull(table, nameof(table));
@@ -64,6 +66,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static Expression UnwrapNullableExpression(this Expression expression)
+            => expression is NullableExpression nullableExpression
+                ? nullableExpression.Operand
+                : expression;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IProperty FindProperty([NotNull] this Expression expression, [NotNull] Type targetType)
         {
             targetType = targetType.UnwrapNullableType();
@@ -79,7 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 case UnaryExpression unaryExpression:
                     return unaryExpression.Operand.FindProperty(targetType);
                 case SqlFunctionExpression functionExpression:
-                {
                     var properties = functionExpression.Arguments
                         .Select(e => e.FindProperty(targetType))
                         .Where(p => p != null && p.ClrType.UnwrapNullableType() == targetType)
@@ -99,7 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         }
                     }
                     return property;
-                }
             }
 
             return null;

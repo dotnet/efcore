@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </value>
         public virtual IQuerySource QuerySource
         {
-            get { return _querySource; }
+            get => _querySource;
             [param: NotNull]
             set
             {
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </value>
         public virtual string Alias
         {
-            get { return _alias; }
+            get => _alias;
             [param: NotNull]
             set
             {

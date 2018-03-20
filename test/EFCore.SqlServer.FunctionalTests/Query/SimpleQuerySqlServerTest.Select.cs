@@ -602,7 +602,17 @@ WHERE [o].[OrderID] < 10300");
             base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault();
 
             AssertSql(
-                @"");
+                @"SELECT (
+    SELECT TOP(1) [t].[CustomerID]
+    FROM (
+        SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderID]
+    ) AS [t]
+    ORDER BY [t].[OrderID]
+)
+FROM [Customers] AS [c]");
         }
 
         public override void Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault()
@@ -638,7 +648,20 @@ FROM [Customers] AS [c]");
             base.Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault();
 
             AssertSql(
-                @"");
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'",
+                //
+                @"@_outer_CustomerID='ALFKI' (Size = 5)
+
+SELECT TOP(2) [t0].[CustomerID]
+FROM (
+    SELECT TOP(1) [o0].[CustomerID], [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE @_outer_CustomerID = [o0].[CustomerID]
+    ORDER BY [o0].[OrderID]
+) AS [t0]
+ORDER BY [t0].[OrderID]");
         }
 
         public override void Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter()
@@ -646,7 +669,19 @@ FROM [Customers] AS [c]");
             base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter();
 
             AssertSql(
-                @"");
+                @"@__i_0='1'
+
+SELECT (
+    SELECT TOP(1) [t].[CustomerID]
+    FROM (
+        SELECT TOP(@__i_0) [o].[CustomerID], [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderID]
+    ) AS [t]
+    ORDER BY [t].[OrderID]
+)
+FROM [Customers] AS [c]");
         }
 
         public override void Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault()
@@ -654,7 +689,89 @@ FROM [Customers] AS [c]");
             base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault();
 
             AssertSql(
-                @"");
+                @"SELECT (
+    SELECT TOP(1) [t].[CustomerID]
+    FROM (
+        SELECT TOP(2) [o].[CustomerID], [o].[OrderID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderID], [o].[OrderDate] DESC
+    ) AS [t]
+    ORDER BY [t].[OrderID], [t].[OrderDate] DESC
+)
+FROM [Customers] AS [c]");
+        }
+
+        public override void Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2()
+        {
+            base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2();
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [t].[CustomerID]
+    FROM (
+        SELECT TOP(2) [o].[CustomerID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[CustomerID], [o].[OrderDate] DESC
+    ) AS [t]
+    ORDER BY [t].[CustomerID], [t].[OrderDate] DESC
+)
+FROM [Customers] AS [c]");
+        }
+
+        public override void Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault()
+        {
+            base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault();
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [t].[OrderID]
+    FROM (
+        SELECT TOP(1) [od].[OrderID], [od.Product].[ProductName]
+        FROM [Order Details] AS [od]
+        INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
+        WHERE [o].[OrderID] = [od].[OrderID]
+        ORDER BY [od.Product].[ProductName]
+    ) AS [t]
+    ORDER BY [t].[ProductName]
+)
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+        }
+
+        public override void Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2()
+        {
+            base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2();
+
+            AssertSql(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250",
+                //
+                @"@_outer_OrderID='10248'
+
+SELECT TOP(1) [t].*
+FROM (
+    SELECT TOP(1) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Product].[ProductName]
+    FROM [Order Details] AS [od]
+    INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
+    WHERE @_outer_OrderID = [od].[OrderID]
+    ORDER BY [od.Product].[ProductName]
+) AS [t]
+ORDER BY [t].[ProductName]",
+                //
+                @"@_outer_OrderID='10249'
+
+SELECT TOP(1) [t].*
+FROM (
+    SELECT TOP(1) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Product].[ProductName]
+    FROM [Order Details] AS [od]
+    INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
+    WHERE @_outer_OrderID = [od].[OrderID]
+    ORDER BY [od.Product].[ProductName]
+) AS [t]
+ORDER BY [t].[ProductName]");
         }
     }
 }

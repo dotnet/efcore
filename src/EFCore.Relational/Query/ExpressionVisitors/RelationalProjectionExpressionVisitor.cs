@@ -247,10 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
             else
             {
-                if (sqlExpression is NullableExpression nullableExpression)
-                {
-                    sqlExpression = nullableExpression.Operand;
-                }
+                sqlExpression = sqlExpression.UnwrapNullableExpression();
 
                 // We bind with ValueBuffer in GroupByAggregate case straight away
                 // Since the expression can be some translation from [g].[Key] which won't bind with MemberAccessBindingEV
