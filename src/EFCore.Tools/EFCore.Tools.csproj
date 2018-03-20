@@ -3,49 +3,30 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <PropertyGroup>
-    <Description>Entity Framework Core Package Manager Console Tools. Includes Scaffold-DbContext, Add-Migration, and Update-Database.</Description>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <MinClientVersion>3.6</MinClientVersion>
     <PackageId>Microsoft.EntityFrameworkCore.Tools</PackageId>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSource>false</IncludeSource>
     <IncludeSymbols>false</IncludeSymbols>
     <EnableApiCheck>false</EnableApiCheck>
-    <DevelopmentDependency>true</DevelopmentDependency>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ef\ef.csproj" ExcludeAssets="all" />
-    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" PrivateAssets="contentfiles;analyzers" />
+    <ProjectReference Include="..\ef\ef.csproj" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <None Include="lib\**\*">
-      <Pack>True</Pack>
-      <PackagePath>lib</PackagePath>
-    </None>
-    <None Include="tools\**\*">
-      <Pack>True</Pack>
-      <PackagePath>tools</PackagePath>
-    </None>
-    <None Include="..\ef\bin\$(Configuration)\net461\ef.exe">
-      <Pack>True</Pack>
-      <PackagePath>tools\net461</PackagePath>
-    </None>
-    <None Include="..\ef\bin\x86\$(Configuration)\net461\ef.x86.exe">
-      <Pack>True</Pack>
-      <PackagePath>tools\net461</PackagePath>
-    </None>
-    <None Include="..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll">
-      <Pack>True</Pack>
-      <PackagePath>tools\netcoreapp2.0</PackagePath>
-    </None>
-    <None Include="..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json">
-      <Pack>True</Pack>
-      <PackagePath>tools\netcoreapp2.0</PackagePath>
-    </None>
-  </ItemGroup>
+
+  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
+    <PropertyGroup>
+      <NuspecProperties>
+        id=$(PackageId);
+        version=$(PackageVersion);
+        configuration=$(Configuration)
+      </NuspecProperties>
+    </PropertyGroup>
+  </Target>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata minClientVersion="3.6">
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <copyright>Copyright © Microsoft Corporation</copyright>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
+    <description>Entity Framework Core Package Manager Console Tools. Includes Scaffold-DbContext, Add-Migration, and Update-Database.</description>
+    <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore</tags>
+    <serviceable>true</serviceable>
+    <repository type="git" url="https://github.com/aspnet/EntityFramework.git" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" exclude="Analyzers" />
+      </group>
+    </dependencies>
+    <licenseUrl>https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</licenseUrl>
+    <iconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</iconUrl>
+    <projectUrl>https://asp.net</projectUrl>
+    <minClientVersion>3.6</minClientVersion>
+  </metadata>
+  <files>
+    <file src="lib/**/*" target="" />
+    <file src="tools/**/*" target=""/>
+    <file src="../ef/bin/$configuration$/net461/ef.exe" target="tools/net461/" />
+    <file src="../ef/bin/x86/$configuration$/net461/ef.x86.exe" target="tools/net461/" />
+    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/" />
+    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/" />
+  </files>
+</package>
