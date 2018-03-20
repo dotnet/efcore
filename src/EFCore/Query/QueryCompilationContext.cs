@@ -513,6 +513,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var setResultOperatorsCompensatingVisitor = new SetResultOperatorsCompensatingVisitor(this);
                 setResultOperatorsCompensatingVisitor.VisitQueryModel(queryModel);
 
+                var complexJoinKeyCompensatingVisitor = new ComplexJoinKeyCompensatingVisitor(this);
+                complexJoinKeyCompensatingVisitor.VisitQueryModel(queryModel);
+
                 _querySourcesRequiringMaterialization.UnionWith(
                     querySourcesRequiringMaterialization
                         .Concat(groupJoinCompensatingVisitor.QuerySources)
@@ -629,6 +632,45 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 }
+            }
+        }
+
+        private class ComplexJoinKeyCompensatingVisitor : QueryModelVisitorBase
+        {
+            private readonly QuerySourcesRequiringMaterializationFinder _querySourcesRequiringMaterializationFinder;
+
+            public ComplexJoinKeyCompensatingVisitor(QuerySourcesRequiringMaterializationFinder querySourcesRequiringMaterializationFinder)
+            {
+                _querySourcesRequiringMaterializationFinder = querySourcesRequiringMaterializationFinder;
+            }
+
+            public override void VisitQueryModel(QueryModel queryModel)
+            {
+                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<ComplexJoinKeyCompensatingVisitor>(this).Visit);
+
+                base.VisitQueryModel(queryModel);
+            }
+
+            public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
+            {
+                if (joinClause.OuterKeySelector is SubQueryExpression outerKeySubquery)
+                {
+                    _querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(outerKeySubquery.QueryModel);
+                }
+
+                if (joinClause.InnerKeySelector is SubQueryExpression innerKeySubquery)
+                {
+                    _querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(innerKeySubquery.QueryModel);
+                }
+
+                base.VisitJoinClause(joinClause, queryModel, index);
+            }
+
+            public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
+            {
+                VisitJoinClause(groupJoinClause.JoinClause, queryModel, index);
+
+                base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
             }
         }
 
