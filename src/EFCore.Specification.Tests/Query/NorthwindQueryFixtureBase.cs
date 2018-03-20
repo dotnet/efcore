@@ -37,6 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override string StoreName { get; } = "Northwind";
 
+        protected override bool UsePooling => false;
+
         public QueryAsserterBase QueryAsserter { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

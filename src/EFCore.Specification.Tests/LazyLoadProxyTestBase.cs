@@ -1599,6 +1599,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                 => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
 
+            // By-design. Lazy loaders are not disposed when using pooling
             protected override bool UsePooling => false;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

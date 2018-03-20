@@ -9,7 +9,6 @@
     <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp20PackageVersion)" />
     <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp21PackageVersion)" />
 
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
     <ExcludeFromTest Include="$(RepositoryRoot)samples\OracleProvider\test\OracleProvider.FunctionalTests\*.csproj" />
     <!-- DocumentDb FunctionalTests are explicitly disabled due to excessively long execution time. -->
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.DocumentDb.FunctionalTests\*.csproj" />
