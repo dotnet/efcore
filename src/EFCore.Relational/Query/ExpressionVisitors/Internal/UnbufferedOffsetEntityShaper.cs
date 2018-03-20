@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             bool trackingQuery,
             [NotNull] IKey key,
             [NotNull] Func<MaterializationContext, object> materializer)
-            : base(querySource, trackingQuery, key, materializer)
+            : base(querySource, trackingQuery, key, materializer, materializerExpression: null)
         {
         }
 

@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -78,8 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 new Dictionary<string, object>((Dictionary<string, object>)ParameterValues));
         }
 
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
-
         private IRelationalValueBufferFactory _valueBufferFactory;
 
         /// <summary>
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] Func<IQuerySqlGenerator> querySqlGeneratorFactory)
         {
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
+            ValueBufferFactoryFactory = valueBufferFactoryFactory;
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
         }
 
@@ -105,6 +104,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -140,9 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => NonCapturingLazyInitializer
                 .EnsureInitialized(
                     ref _valueBufferFactory,
-                    new FactoryAndReader(_valueBufferFactoryFactory, dataReader),
-                    s => QuerySqlGeneratorFactory()
-                        .CreateValueBufferFactory(s.Factory, s.Reader));
+                    new FactoryAndReader(ValueBufferFactoryFactory, dataReader),
+                    s => QuerySqlGeneratorFactory().CreateValueBufferFactory(s.Factory, s.Reader));
 
         private readonly struct FactoryAndReader
         {

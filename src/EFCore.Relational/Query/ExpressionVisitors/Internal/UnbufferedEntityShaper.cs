@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -24,8 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             bool trackingQuery,
             [NotNull] IKey key,
-            [NotNull] Func<MaterializationContext, object> materializer)
-            : base(querySource, trackingQuery, key, materializer)
+            [NotNull] Func<MaterializationContext, object> materializer,
+            [CanBeNull] Expression materializerExpression)
+            : base(querySource, trackingQuery, key, materializer, materializerExpression)
         {
         }
 

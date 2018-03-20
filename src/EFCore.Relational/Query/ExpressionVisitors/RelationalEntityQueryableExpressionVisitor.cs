@@ -270,6 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                                 && !entityType.IsQueryType,
                                 entityType.FindPrimaryKey(),
                                 materializer,
+                                materializerExpression,
                                 typeIndexMap,
                                 QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
                                 && !entityType.IsQueryType
@@ -283,14 +284,45 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return shaper;
         }
 
-        private void FindPaths(IEntityType entityType, HashSet<IEntityType> sharedTypes,
-            Stack<IEntityType> currentPath, List<List<IEntityType>> result)
+        private static readonly MethodInfo _createEntityShaperMethodInfo
+            = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()
+                .GetDeclaredMethod(nameof(CreateEntityShaper));
+
+        [UsedImplicitly]
+        private static IShaper<TEntity> CreateEntityShaper<TEntity>(
+            IQuerySource querySource,
+            bool trackingQuery,
+            IKey key,
+            Func<MaterializationContext, object> materializer,
+            Expression materializerExpression,
+            Dictionary<Type, int[]> typeIndexMap,
+            bool useQueryBuffer)
+            where TEntity : class
+            => !useQueryBuffer
+                ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
+                    querySource,
+                    trackingQuery,
+                    key,
+                    materializer,
+                    materializerExpression)
+                : new BufferedEntityShaper<TEntity>(
+                    querySource,
+                    trackingQuery,
+                    key,
+                    materializer,
+                    typeIndexMap);
+
+
+        private static void FindPaths(
+                IEntityType entityType, ICollection<IEntityType> sharedTypes,
+                Stack<IEntityType> currentPath, ICollection<List<IEntityType>> result)
         {
             var identifyingFks = entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties)
-                                    .Where(fk => fk.PrincipalKey.IsPrimaryKey()
-                                            && fk.PrincipalEntityType != entityType
-                                            && sharedTypes.Contains(fk.PrincipalEntityType))
-                                    .ToList();
+                .Where(
+                    fk => fk.PrincipalKey.IsPrimaryKey()
+                          && fk.PrincipalEntityType != entityType
+                          && sharedTypes.Contains(fk.PrincipalEntityType))
+                .ToList();
 
             if (identifyingFks.Count == 0)
             {
@@ -346,8 +378,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                                 Expression.OrElse(
                                     Expression.Equal(discriminatorColumn, discriminatorValue),
                                     current));
-
-
             }
 
             return discriminatorPredicate;
@@ -356,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private void DiscriminateProjectionQuery(
             IEntityType entityType, SelectExpression selectExpression, IQuerySource querySource)
         {
-            Expression discriminatorPredicate = null;
+            Expression discriminatorPredicate;
 
             if (entityType.IsQueryType)
             {
@@ -367,8 +397,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 var sharedTypes = new HashSet<IEntityType>(
                     _model.GetEntityTypes()
                         .Where(e => !e.IsQueryType)
-                        .Where(et => et.Relational().TableName == entityType.Relational().TableName
-                            && et.Relational().Schema == entityType.Relational().Schema));
+                        .Where(
+                            et => et.Relational().TableName == entityType.Relational().TableName
+                                  && et.Relational().Schema == entityType.Relational().Schema));
 
                 var currentPath = new Stack<IEntityType>();
                 currentPath.Push(entityType);
@@ -401,31 +432,5 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 selectExpression.Predicate = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
             }
         }
-
-        private static readonly MethodInfo _createEntityShaperMethodInfo
-            = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateEntityShaper));
-
-        [UsedImplicitly]
-        private static IShaper<TEntity> CreateEntityShaper<TEntity>(
-            IQuerySource querySource,
-            bool trackingQuery,
-            IKey key,
-            Func<MaterializationContext, object> materializer,
-            Dictionary<Type, int[]> typeIndexMap,
-            bool useQueryBuffer)
-            where TEntity : class
-            => !useQueryBuffer
-                ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
-                    querySource,
-                    trackingQuery,
-                    key,
-                    materializer)
-                : new BufferedEntityShaper<TEntity>(
-                    querySource,
-                    trackingQuery,
-                    key,
-                    materializer,
-                    typeIndexMap);
     }
 }
