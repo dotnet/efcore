@@ -36,3 +36,5 @@ To run a complete build on command line only, execute `build.cmd` or `build.sh` 
 This will execute only the part of the build script that downloads and initializes a few required build tools and packages.
 
 See [developer documentation](https://github.com/aspnet/EntityFrameworkCore/wiki/Getting-and-Building-the-Code) for more details.
+
+Test ignore
