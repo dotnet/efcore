@@ -579,10 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 {
                     var nonNullExpression = (isLeftNullConstant ? right : left).RemoveConvert();
 
-                    if (nonNullExpression is NullableExpression nullableExpression)
-                    {
-                        nonNullExpression = nullableExpression.Operand.RemoveConvert();
-                    }
+                    nonNullExpression = nonNullExpression.UnwrapNullableExpression().RemoveConvert();
 
                     return expressionType == ExpressionType.Equal
                         ? (Expression)new IsNullExpression(nonNullExpression)

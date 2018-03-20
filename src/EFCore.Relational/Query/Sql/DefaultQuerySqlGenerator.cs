@@ -1372,8 +1372,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private static string GetColumnName(Expression expression)
         {
             expression = expression.RemoveConvert();
-            expression = (expression as NullableExpression)?.Operand.RemoveConvert()
-                         ?? expression;
+            expression = expression.UnwrapNullableExpression().RemoveConvert();
 
             return (expression as AliasExpression)?.Alias
                    ?? (expression as ColumnExpression)?.Name

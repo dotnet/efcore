@@ -443,18 +443,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     subquery.LiftOrderBy();
                 }
 
-                foreach (var ordering in subquery.OrderBy.ToList())
+                var orderings = subquery.OrderBy.ToArray();
+
+                if (IsProjectStar
+                    && subquery.Projection.Count == 1
+                    && orderings.Any(o => !subquery.IsExpressionContainedInProjection(o.Expression)))
                 {
-                    var expression = ordering.Expression;
+                    ExplodeStarProjection();
+                }
 
-                    if (expression is NullableExpression nullableExpression)
-                    {
-                        expression = nullableExpression.Operand;
-                    }
+                foreach (var ordering in orderings)
+                {
+                    var expression = ordering.Expression.UnwrapNullableExpression();
 
-                    if (!(expression is ColumnExpression
-                        || expression is ColumnReferenceExpression
-                        || expression is AliasExpression))
+                    if (!subquery.IsExpressionContainedInProjection(expression))
                     {
                         expression = subquery.Projection[subquery.AddToProjection(expression, resetProjectStar: false)];
                     }
@@ -468,6 +470,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     subquery.ClearOrderBy();
                 }
             }
+        }
+
+        private bool IsExpressionContainedInProjection(Expression expression)
+        {
+            expression = expression.UnwrapNullableExpression();
+
+            if (IsProjectStar)
+            {
+                switch (expression)
+                {
+                    case ColumnExpression columnExpression:
+                        return columnExpression.Table == ProjectStarTable;
+
+                    case ColumnReferenceExpression columnReferenceExpression:
+                        return columnReferenceExpression.Table == ProjectStarTable;
+                }
+
+                return false;
+            }
+
+            return Projection.Any(
+                p => ExpressionEqualityComparer.Instance.Equals(expression, p));
         }
 
         /// <summary>
@@ -749,8 +773,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private static string GetColumnName(Expression expression)
         {
             expression = expression.RemoveConvert();
-            expression = (expression as NullableExpression)?.Operand.RemoveConvert()
-                         ?? expression;
+            expression = expression.UnwrapNullableExpression().RemoveConvert();
 
             return (expression as AliasExpression)?.Alias
                    ?? (expression as ColumnExpression)?.Name
@@ -931,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return ordering;
         }
 
-        private bool OrderingExpressionComparison(Ordering ordering, Expression expressionToMatch)
+        private static bool OrderingExpressionComparison(Ordering ordering, Expression expressionToMatch)
         {
             var unwrappedOrderingExpression = UnwrapNullableExpression(ordering.Expression.RemoveConvert()).RemoveConvert();
             var unwrappedExpressionToMatch = UnwrapNullableExpression(expressionToMatch.RemoveConvert()).RemoveConvert();
@@ -939,7 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return ExpressionEqualityComparer.Instance.Equals(unwrappedOrderingExpression, unwrappedExpressionToMatch);
         }
 
-        private Expression UnwrapNullableExpression(Expression expression)
+        private static Expression UnwrapNullableExpression(Expression expression)
         {
             if (expression is NullableExpression nullableExpression)
             {

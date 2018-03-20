@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return base.VisitMethodCall(node);
             }
         }
-        
+
         /// <summary>
         ///     Gets the options for the target context.
         /// </summary>
@@ -781,8 +781,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var leftExpression = binaryExpression.Left.RemoveConvert();
                     var rightExpression = binaryExpression.Right.RemoveConvert();
-                    var leftProperty = (((leftExpression as NullableExpression)?.Operand ?? leftExpression) as ColumnExpression)?.Property;
-                    var rightProperty = (((rightExpression as NullableExpression)?.Operand ?? rightExpression) as ColumnExpression)?.Property;
+                    var leftProperty = ((leftExpression.UnwrapNullableExpression()) as ColumnExpression)?.Property;
+                    var rightProperty = ((rightExpression.UnwrapNullableExpression()) as ColumnExpression)?.Property;
                     if (leftProperty != null
                         && rightProperty != null
                         && leftProperty.IsForeignKey()
