@@ -420,6 +420,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Can_override_navigations_as_properties()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Customer>();
+
+                var customer = model.FindEntityType(typeof(Customer));
+                Assert.NotNull(customer.FindNavigation(nameof(Customer.Orders)));
+
+                modelBuilder.Entity<Customer>().Property(c => c.Orders);
+
+                Assert.Null(customer.FindNavigation(nameof(Customer.Orders)));
+                Assert.NotNull(customer.FindProperty(nameof(Customer.Orders)));
+            }
+
+            [Fact]
             public virtual void Ignoring_a_navigation_property_removes_discovered_entity_types()
             {
                 var modelBuilder = CreateModelBuilder();
