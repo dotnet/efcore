@@ -423,6 +423,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void SelectMany_subquery_with_custom_projection()
+        {
+        }
+
         #endregion
     }
 }
