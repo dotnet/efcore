@@ -48,11 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 foreach (var propertyInfo in candidates)
                 {
-                    if (!(propertyInfo.IsCandidateProperty()
-                          && _typeMappingSource.FindMapping(propertyInfo) != null)
-                        && propertyInfo.IsCandidateProperty(publicOnly: false))
+                    if (propertyInfo.IsCandidateProperty(publicOnly: false)
+                        && !(propertyInfo.IsCandidateProperty()
+                             && _typeMappingSource.FindMapping(propertyInfo) != null))
                     {
-                        var factory = _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.Name);
+                        var factory = _parameterBindingFactories.FindFactory(
+                            propertyInfo.PropertyType, propertyInfo.Name);
 
                         if (factory != null)
                         {
@@ -60,11 +61,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             if (serviceProperty == null
                                 || serviceProperty.PropertyInfo != propertyInfo)
                             {
-                                serviceProperty = entityType.AddServiceProperty(propertyInfo, ConfigurationSource.Convention);
+                                serviceProperty = entityType.AddServiceProperty(propertyInfo,
+                                    ConfigurationSource.Convention);
                             }
 
                             serviceProperty.SetParameterBinding(
-                                (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.Name));
+                                (ServiceParameterBinding)
+                                    factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.Name));
                         }
                     }
                 }

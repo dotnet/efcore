@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public abstract class TypeBase : ConventionalAnnotatable, IMutableTypeBase
     {
-        private readonly object _typeOrName;
         private ConfigurationSource _configurationSource;
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new Dictionary<string, ConfigurationSource>();
 
@@ -31,10 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(model, nameof(model));
 
-            _typeOrName = name;
-#if DEBUG
-            DebugName = name;
-#endif
+            Name = name;
         }
 
         /// <summary>
@@ -46,10 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(model, nameof(model));
 
-            _typeOrName = clrType;
-#if DEBUG
-            DebugName = clrType.DisplayName();
-#endif
+            Name = clrType.DisplayName();
+            ClrType = clrType;
         }
 
         private TypeBase([NotNull] Model model, ConfigurationSource configurationSource)
@@ -58,19 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _configurationSource = configurationSource;
         }
 
-#if DEBUG
-        // For breakpoint conditions
-        private string DebugName { [UsedImplicitly] get; }
-#endif
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Type ClrType
-        {
-            [DebuggerStepThrough] get => _typeOrName as Type;
-        }
+        public virtual Type ClrType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -82,10 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Name
-        {
-            [DebuggerStepThrough] get => ClrType != null ? ClrType.DisplayName() : (string)_typeOrName;
-        }
+        public virtual string Name { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -102,14 +102,28 @@ namespace System
 
         public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
-            if (!type.GetTypeInfo().IsGenericTypeDefinition)
+            if (type.GetTypeInfo().IsGenericTypeDefinition)
             {
-                var types = GetGenericTypeImplementations(type, interfaceOrBaseType).ToList();
-
-                return types.Count == 1 ? types[0].GetTypeInfo().GenericTypeArguments.FirstOrDefault() : null;
+                return null;
             }
 
-            return null;
+            var types = GetGenericTypeImplementations(type, interfaceOrBaseType);
+
+            Type singleImplementation = null;
+            foreach (var impelementation in types)
+            {
+                if (singleImplementation == null)
+                {
+                    singleImplementation = impelementation;
+                }
+                else
+                {
+                    singleImplementation = null;
+                    break;
+                }
+            }
+
+            return singleImplementation?.GetTypeInfo().GenericTypeArguments.FirstOrDefault();
         }
 
         public static IEnumerable<Type> GetGenericTypeImplementations(this Type type, Type interfaceOrBaseType)
@@ -117,14 +131,24 @@ namespace System
             var typeInfo = type.GetTypeInfo();
             if (!typeInfo.IsGenericTypeDefinition)
             {
-                return (interfaceOrBaseType.GetTypeInfo().IsInterface ? typeInfo.ImplementedInterfaces : type.GetBaseTypes())
-                    .Union(new[] { type })
-                    .Where(
-                        t => t.GetTypeInfo().IsGenericType
-                             && t.GetGenericTypeDefinition() == interfaceOrBaseType);
-            }
+                var baseTypes = interfaceOrBaseType.GetTypeInfo().IsInterface
+                    ? typeInfo.ImplementedInterfaces
+                    : type.GetBaseTypes();
+                foreach (var baseType in baseTypes)
+                {
+                    if (baseType.GetTypeInfo().IsGenericType
+                        && baseType.GetGenericTypeDefinition() == interfaceOrBaseType)
+                    {
+                        yield return baseType;
+                    }
+                }
 
-            return Enumerable.Empty<Type>();
+                if (type.GetTypeInfo().IsGenericType
+                    && type.GetGenericTypeDefinition() == interfaceOrBaseType)
+                {
+                    yield return type;
+                }
+            }
         }
 
         public static IEnumerable<Type> GetBaseTypes(this Type type)

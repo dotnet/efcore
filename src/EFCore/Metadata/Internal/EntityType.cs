@@ -2244,15 +2244,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Compare(string x, string y)
             {
-                var properties = _entityType.FindPrimaryKey()?.Properties.Select(p => p.Name).ToList();
-
                 var xIndex = -1;
                 var yIndex = -1;
 
+                var properties = _entityType.FindPrimaryKey()?.Properties;
+
                 if (properties != null)
                 {
-                    xIndex = properties.IndexOf(x);
-                    yIndex = properties.IndexOf(y);
+                    for (var i = 0; i < properties.Count; i++)
+                    {
+                        var name = properties[i].Name;
+
+                        if (name == x)
+                        {
+                            xIndex = i;
+                        }
+
+                        if (name == y)
+                        {
+                            yIndex = i;
+                        }
+                    }
                 }
 
                 // Neither property is part of the Primary Key
