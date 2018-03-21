@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
                 messageFormat: MessageFormat,
                 category: Category,
                 defaultSeverity: DiagnosticSeverity.Warning,
-                isEnabledByDefault: true);
+                isEnabledByDefault: false);
 
         protected override DiagnosticDescriptor DiagnosticDescriptor { get; } = _descriptor;
 

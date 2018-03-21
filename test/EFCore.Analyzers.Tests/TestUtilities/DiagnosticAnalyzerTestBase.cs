@@ -26,8 +26,13 @@ namespace EFCore.Analyzers.Test.TestUtilities
 
             Assert.Empty(errors);
 
+            var analyzer = CreateDiagnosticAnalyzer();
             var compilationWithAnalyzers
-                = compilation.WithAnalyzers(ImmutableArray.Create(CreateDiagnosticAnalyzer()));
+                = compilation
+                    .WithOptions(
+                        compilation.Options.WithSpecificDiagnosticOptions(
+                            analyzer.SupportedDiagnostics.ToDictionary(d => d.Id, d => ReportDiagnostic.Default)))
+                    .WithAnalyzers(ImmutableArray.Create(analyzer));
 
             var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
 
