@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             return x.Name == y.Name
                    && (x.Name == CoreAnnotationNames.ValueGeneratorFactoryAnnotation
+                       || x.Name == CoreAnnotationNames.TypeMapping
                        || x.Value.Equals(y.Value));
         }
 

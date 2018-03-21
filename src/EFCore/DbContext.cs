@@ -133,7 +133,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
         /// </summary>
-        public virtual IModel Model => DbContextDependencies.Model;
+        public virtual IModel Model
+        {
+            [DebuggerStepThrough] get => DbContextDependencies.Model;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -318,6 +321,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private IDbContextDependencies DbContextDependencies
         {
+            [DebuggerStepThrough]
             get
             {
                 CheckDisposed();

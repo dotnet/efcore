@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqlServerTypeMappingTest : RelationalTypeMappingTest
@@ -171,8 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.True(clone.IsFixedLength);
         }
 
-        public static RelationalTypeMapping GetMapping(
-            Type type)
+        public static RelationalTypeMapping GetMapping(Type type)
             => (RelationalTypeMapping)new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
@@ -201,13 +201,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("'2015-03-12T13:36:37.371-07:00'", literal);
         }
 
+        public static RelationalTypeMapping GetMapping(string type)
+            => new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
+                .FindMapping(type);
+
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_Unicode_String_literal()
         {
-            var mapping = new SqlServerTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
-                .FindMapping("nvarchar(max)");
+            var mapping = GetMapping("nvarchar(max)");
 
             var literal = mapping.GenerateSqlLiteral("A Unicode String");
 
@@ -217,10 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_NonUnicode_String_literal()
         {
-            var mapping = new SqlServerTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
-                .FindMapping("varchar(max)");
+            var mapping = GetMapping("varchar(max)");
 
             var literal = mapping.GenerateSqlLiteral("A Non-Unicode String");
             Assert.Equal("'A Non-Unicode String'", literal);
@@ -232,13 +232,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]
         public virtual void Get_named_mappings_for_sql_type(string typeName, string udtName)
         {
-            var mapper = (IRelationalTypeMappingSource)new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-
             var type = new FakeType(typeName);
 
-            var mapping = mapper.FindMapping(type);
+            var mapping = GetMapping(type);
 
             Assert.Equal(udtName, mapping.StoreType);
             Assert.Equal(udtName, ((SqlServerUdtTypeMapping)mapping).UdtTypeName);

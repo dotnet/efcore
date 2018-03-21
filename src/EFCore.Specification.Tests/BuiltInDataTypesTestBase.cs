@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.NotNull(context.Set<UnicodeDataTypes>().Where(e => e.Id == 799 && e.StringUnicode == shortString).ToList().SingleOrDefault());
 
-                var entity = context.Set<UnicodeDataTypes>().Where(e => e.Id == 799).ToList().SingleOrDefault();
+                var entity = context.Set<UnicodeDataTypes>().Where(e => e.Id == 799).ToList().Single();
 
                 Assert.Equal(shortString, entity.StringDefault);
                 Assert.Equal(shortString, entity.StringUnicode);
@@ -949,18 +949,20 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<StringKeyDataType>().Add(
+                var principal = context.Set<StringKeyDataType>().Add(
                     new StringKeyDataType
                     {
                         Id = "Gumball!"
-                    });
+                    }).Entity;
 
-                context.Set<StringForeignKeyDataType>().Add(
+                var dependent = context.Set<StringForeignKeyDataType>().Add(
                     new StringForeignKeyDataType
                     {
                         Id = 77,
                         StringKeyDataTypeId = "Gumball!"
-                    });
+                    }).Entity;
+
+                Assert.Same(principal, dependent.Principal);
 
                 Assert.Equal(2, context.SaveChanges());
             }
@@ -1140,12 +1142,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-                modelBuilder.Entity<BuiltInDataTypes>();
-                modelBuilder.Entity<BuiltInNullableDataTypes>();
                 modelBuilder.Entity<BinaryKeyDataType>();
-                modelBuilder.Entity<BinaryForeignKeyDataType>();
                 modelBuilder.Entity<StringKeyDataType>();
-                modelBuilder.Entity<StringForeignKeyDataType>();
                 modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.Id).ValueGeneratedNever();
                 modelBuilder.Entity<BuiltInDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();
                 modelBuilder.Entity<BuiltInNullableDataTypes>().Property(e => e.Id).ValueGeneratedNever();
