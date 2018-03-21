@@ -953,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             columnOperation.ClrType
                 = typeMapping.Converter?.ProviderClrType
-                  ?? typeMapping.ClrType.UnwrapNullableType().UnwrapEnumType();
+                  ?? typeMapping.ClrType.UnwrapNullableType();
 
             columnOperation.ColumnType = property.GetConfiguredColumnType();
             columnOperation.MaxLength = property.GetMaxLength();
