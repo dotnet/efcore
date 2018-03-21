@@ -243,23 +243,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     };
             }
 
-            /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
-            {
-                var mapping = FindRawMapping(mappingInfo);
-
-                if (mapping == null)
-                {
-                    return null;
-                }
-
-                mapping = mapping.CloneWithFacetedName(mappingInfo);
-
-                return mapping;
-            }
+                => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
             private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
             {

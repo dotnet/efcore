@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(900)", typeMapping.StoreType);
-            Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+            Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[] { 0, 1, 2, 3 }).Size);
         }
 
         [Fact]

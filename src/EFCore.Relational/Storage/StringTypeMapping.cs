@@ -28,31 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public StringTypeMapping(
             [NotNull] string storeType,
-            DbType? dbType,
-            bool unicode,
-            int? size)
-            : this(storeType, dbType, unicode, size, fixedLength: false)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
-        /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
-        public StringTypeMapping(
-            [NotNull] string storeType,
             DbType? dbType = null,
             bool unicode = false,
-            int? size = null,
-            bool fixedLength = false)
+            int? size = null)
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
-                        typeof(string)), storeType, dbType, unicode, size, fixedLength))
+                        typeof(string)), storeType, StoreTypeModifierKind.None, dbType, unicode, size))
         {
         }
 

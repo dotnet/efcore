@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -14,15 +15,29 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     public class OracleByteArrayTypeMapping : ByteArrayTypeMapping
     {
+        private const int MaxSize = 8000;
+
         private readonly int _maxSpecificSize;
+
+        private readonly StoreTypeModifierKind? _storeTypeModifier;
 
         public OracleByteArrayTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-            int? size = null)
-            : base(storeType, dbType, size)
+            int? size = null,
+            bool fixedLength = false,
+            ValueComparer comparer = null,
+            StoreTypeModifierKind? storeTypeModifier = null)
+            : this(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(typeof(byte[]), null, comparer),
+                    storeType,
+                    GetStoreTypeModifier(storeTypeModifier, size),
+                    dbType,
+                    size: size,
+                    fixedLength: fixedLength))
         {
-            _maxSpecificSize = CalculateSize(size);
+            _storeTypeModifier = storeTypeModifier;
         }
 
         protected OracleByteArrayTypeMapping(RelationalTypeMappingParameters parameters)
@@ -31,11 +46,16 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             _maxSpecificSize = CalculateSize(parameters.Size);
         }
 
+        private static StoreTypeModifierKind GetStoreTypeModifier(StoreTypeModifierKind? storeTypeModifier, int? size)
+            => storeTypeModifier
+               ?? (size != null && size <= MaxSize ? StoreTypeModifierKind.Size : StoreTypeModifierKind.None);
+
         private static int CalculateSize(int? size)
-            => size.HasValue && size < 8000 ? size.Value : 8000;
+            => size.HasValue && size < MaxSize ? size.Value : MaxSize;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleByteArrayTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
+            => new OracleByteArrayTypeMapping(
+                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypeModifier(_storeTypeModifier, size)));
 
         public override CoreTypeMapping Clone(ValueConverter converter)
             => new OracleByteArrayTypeMapping(Parameters.WithComposedConverter(converter));
@@ -43,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
         protected override void ConfigureParameter(DbParameter parameter)
         {
             var value = parameter.Value;
-            var length = (value as string)?.Length ?? (value as byte[])?.Length;
+            var length = (value as byte[])?.Length;
 
             parameter.Size
                 = value == null

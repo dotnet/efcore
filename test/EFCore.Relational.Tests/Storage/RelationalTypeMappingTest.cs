@@ -77,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(mapping.Comparer, clone.Comparer);
             Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
+            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.PrecisionAndScale, clone.StoreTypeModifier);
 
             var newConverter = new FakeValueConverter();
             clone = (RelationalTypeMapping)mapping.Clone(newConverter);
@@ -90,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(mapping.Comparer, clone.Comparer);
             Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
+            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.PrecisionAndScale, clone.StoreTypeModifier);
         }
 
         [Theory]
@@ -100,7 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 mappingType,
                 BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
                 null,
-                new[] { FakeTypeMapping.CreateParameters(clrType, size: 33, fixedLength: true) },
+                new[]
+                {
+                    FakeTypeMapping.CreateParameters(
+                        clrType,
+                        size: 33,
+                        fixedLength: true,
+                        storeTypeModifier: RelationalTypeMapping.StoreTypeModifierKind.Size)
+                },
                 null,
                 null);
 
@@ -108,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.NotSame(mapping, clone);
             Assert.Same(mapping.GetType(), clone.GetType());
-            Assert.Equal("<original>", mapping.StoreType);
-            Assert.Equal("<clone>", clone.StoreType);
+            Assert.Equal("<original>(33)", mapping.StoreType);
+            Assert.Equal("<clone>(66)", clone.StoreType);
             Assert.Equal(DbType.VarNumeric, clone.DbType);
             Assert.Equal(33, mapping.Size);
             Assert.Equal(66, clone.Size);
@@ -120,14 +129,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.Size, clone.StoreTypeModifier);
 
             var newConverter = new FakeValueConverter();
             clone = (RelationalTypeMapping)mapping.Clone(newConverter);
 
             Assert.NotSame(mapping, clone);
             Assert.Same(mapping.GetType(), clone.GetType());
-            Assert.Equal("<original>", mapping.StoreType);
-            Assert.Equal("<original>", clone.StoreType);
+            Assert.Equal("<original>(33)", mapping.StoreType);
+            Assert.Equal("<original>(33)", clone.StoreType);
             Assert.Equal(DbType.VarNumeric, clone.DbType);
             Assert.Equal(33, mapping.Size);
             Assert.Equal(33, clone.Size);
@@ -137,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.Size, clone.StoreTypeModifier);
         }
 
         [Theory]
@@ -147,7 +158,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 mappingType,
                 BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
                 null,
-                new[] { FakeTypeMapping.CreateParameters(clrType, size: 33, unicide: false, fixedLength: true) },
+                new[]
+                {
+                    FakeTypeMapping.CreateParameters(
+                        clrType,
+                        size: 33,
+                        unicide: false,
+                        fixedLength: true,
+                        storeTypeModifier: RelationalTypeMapping.StoreTypeModifierKind.Size)
+                },
                 null,
                 null);
 
@@ -155,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.NotSame(mapping, clone);
             Assert.Same(mapping.GetType(), clone.GetType());
-            Assert.Equal("<original>", mapping.StoreType);
-            Assert.Equal("<clone>", clone.StoreType);
+            Assert.Equal("<original>(33)", mapping.StoreType);
+            Assert.Equal("<clone>(66)", clone.StoreType);
             Assert.Equal(DbType.VarNumeric, clone.DbType);
             Assert.Equal(33, mapping.Size);
             Assert.Equal(66, clone.Size);
@@ -169,14 +188,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.Size, clone.StoreTypeModifier);
 
             var newConverter = new FakeValueConverter();
             clone = (RelationalTypeMapping)mapping.Clone(newConverter);
 
             Assert.NotSame(mapping, clone);
             Assert.Same(mapping.GetType(), clone.GetType());
-            Assert.Equal("<original>", mapping.StoreType);
-            Assert.Equal("<original>", clone.StoreType);
+            Assert.Equal("<original>(33)", mapping.StoreType);
+            Assert.Equal("<original>(33)", clone.StoreType);
             Assert.Equal(DbType.VarNumeric, clone.DbType);
             Assert.Equal(33, mapping.Size);
             Assert.Equal(33, clone.Size);
@@ -188,6 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.Size, clone.StoreTypeModifier);
         }
 
         private class FakeTypeMapping : RelationalTypeMapping
@@ -206,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Type clrType,
                 int? size = null,
                 bool unicide = false,
-                bool fixedLength = false)
+                bool fixedLength = false,
+                StoreTypeModifierKind storeTypeModifier = StoreTypeModifierKind.PrecisionAndScale)
             {
                 return new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
@@ -215,6 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         new FakeValueComparer(),
                         new FakeValueComparer()),
                     "<original>",
+                    storeTypeModifier,
                     System.Data.DbType.VarNumeric,
                     size: size,
                     unicode: unicide,

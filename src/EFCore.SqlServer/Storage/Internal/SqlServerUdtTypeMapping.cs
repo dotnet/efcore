@@ -26,8 +26,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerUdtTypeMapping(
-            [NotNull] string storeType,
             [NotNull] Type clrType,
+            [NotNull] string storeType,
+            StoreTypeModifierKind storeTypeModifier = StoreTypeModifierKind.None,
             [CanBeNull] string udtTypeName = null,
             [CanBeNull] ValueConverter converter = null,
             [CanBeNull] ValueComparer comparer = null,
@@ -35,10 +36,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             DbType? dbType = null,
             bool unicode = false,
             int? size = null,
-            bool fixedLength = false)
+            bool fixedLength = false,
+            int? precision = null,
+            int? scale = null)
             : base(new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(
-                    clrType, converter, comparer, keyComparer), storeType, dbType, unicode, size, fixedLength))
+                    clrType, converter, comparer, keyComparer), storeType, storeTypeModifier, dbType, unicode, size, fixedLength, precision, scale))
 
         {
             UdtTypeName = udtTypeName ?? storeType;

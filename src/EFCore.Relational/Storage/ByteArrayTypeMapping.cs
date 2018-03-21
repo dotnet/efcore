@@ -29,28 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public ByteArrayTypeMapping(
             [NotNull] string storeType,
-            DbType? dbType,
-            int? size)
-            : this(storeType, dbType, size, fixedLength: false)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ByteArrayTypeMapping" /> class.
-        /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
-        public ByteArrayTypeMapping(
-            [NotNull] string storeType,
             DbType? dbType = null,
-            int? size = null,
-            bool fixedLength = false)
+            int? size = null)
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
-                        typeof(byte[])), storeType, dbType, false, size, fixedLength))
+                        typeof(byte[])), storeType, StoreTypeModifierKind.None, dbType, unicode: false, size))
         {
         }
 

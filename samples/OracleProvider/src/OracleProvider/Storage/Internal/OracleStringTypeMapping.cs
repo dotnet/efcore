@@ -12,17 +12,31 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     public class OracleStringTypeMapping : StringTypeMapping
     {
+        private const int UnicodeMax = 2000;
+        private const int AnsiMax = 4000;
+
         private readonly int _maxSpecificSize;
+
+        private readonly StoreTypeModifierKind? _storeTypeModifier;
 
         public OracleStringTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType,
             bool unicode = false,
             int? size = null,
-            bool fixedLength = false)
-            : base(storeType, dbType, unicode, size, fixedLength)
+            bool fixedLength = false,
+            StoreTypeModifierKind? storeTypeModifier = null)
+            : this(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(typeof(string)),
+                    storeType,
+                    GetStoreTypeModifier(storeTypeModifier, unicode, size),
+                    dbType,
+                    unicode,
+                    size,
+                    fixedLength))
         {
-            _maxSpecificSize = CalculateSize(unicode, size);
+            _storeTypeModifier = storeTypeModifier;
         }
 
         protected OracleStringTypeMapping(RelationalTypeMappingParameters parameters)
@@ -31,17 +45,31 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
         }
 
+        private static StoreTypeModifierKind GetStoreTypeModifier(
+            StoreTypeModifierKind? storeTypeModifier,
+            bool unicode,
+            int? size)
+            => storeTypeModifier
+               ?? (unicode
+                   ? size.HasValue && size <= UnicodeMax
+                       ? StoreTypeModifierKind.Size
+                       : StoreTypeModifierKind.None
+                   : size.HasValue && size <= AnsiMax
+                       ? StoreTypeModifierKind.Size
+                       : StoreTypeModifierKind.None);
+
         private static int CalculateSize(bool unicode, int? size)
             => unicode
-                ? size.HasValue && size < 2000
+                ? size.HasValue && size <= UnicodeMax
                     ? size.Value
-                    : 2000
-                : size.HasValue && size < 4000
+                    : UnicodeMax
+                : size.HasValue && size <= AnsiMax
                     ? size.Value
-                    : 4000;
+                    : AnsiMax;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleStringTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
+            => new OracleStringTypeMapping(
+                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypeModifier(_storeTypeModifier, IsUnicode, size)));
 
         public override CoreTypeMapping Clone(ValueConverter converter)
             => new OracleStringTypeMapping(Parameters.WithComposedConverter(converter));
@@ -54,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             // 0 to avoid SQL client size inference.
 
             var value = parameter.Value;
-            var length = (value as string)?.Length ?? (value as byte[])?.Length;
+            var length = (value as string)?.Length;
 
             try
             {

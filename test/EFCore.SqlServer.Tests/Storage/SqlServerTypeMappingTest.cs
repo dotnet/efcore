@@ -118,8 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void Create_and_clone_UDT_mapping_with_converter()
         {
             var mapping = new SqlServerUdtTypeMapping(
-                "storeType",
                 typeof(object),
+                "storeType",
+                RelationalTypeMapping.StoreTypeModifierKind.None,
                 "udtType",
                 new FakeValueConverter(),
                 new FakeValueComparer(),

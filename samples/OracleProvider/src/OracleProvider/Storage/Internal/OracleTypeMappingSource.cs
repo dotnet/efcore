@@ -2,9 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Oracle.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -13,10 +16,20 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
     public class OracleTypeMappingSource : RelationalTypeMappingSource
     {
         private readonly OracleStringTypeMapping _unboundedUnicodeString
-            = new OracleStringTypeMapping("NCLOB", dbType: null, unicode: true);
+            = new OracleStringTypeMapping(
+                "NCLOB",
+                dbType: null,
+                unicode: true);
 
         private readonly OracleByteArrayTypeMapping _rowversion
-            = new OracleByteArrayTypeMapping("RAW(8)", dbType: DbType.Binary, size: 8);
+            = new OracleByteArrayTypeMapping(
+                "RAW(8)",
+                dbType: DbType.Binary,
+                size: 8,
+                comparer: new ValueComparer<byte[]>(
+                    (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
+                    v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
+                    v => v == null ? null : v.ToArray()));
 
         private readonly IntTypeMapping _int
             = new IntTypeMapping("NUMBER(10)", DbType.Int32);
@@ -67,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             = new OracleFloatTypeMapping("REAL");
 
         private readonly DecimalTypeMapping _decimal
-            = new DecimalTypeMapping("DECIMAL(29,4)");
+            = new OracleDecimalTypeMapping("DECIMAL(29,4)");
 
         private readonly TimeSpanTypeMapping _time
             = new OracleTimeSpanTypeMapping("INTERVAL DAY TO SECOND");
@@ -153,16 +166,9 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
         {
-            var mapping = FindRawMapping(mappingInfo);
+            var mapping = FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
-            if (mapping == null)
-            {
-                return null;
-            }
-
-            mapping = mapping.CloneWithFacetedName(mappingInfo);
-
-            if (_disallowedMappings.Contains(mapping.StoreType))
+            if (_disallowedMappings.Contains(mapping?.StoreType))
             {
                 throw new ArgumentException(OracleStrings.UnqualifiedDataType(mapping.StoreType));
             }
@@ -211,19 +217,22 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
                     var baseName = (isAnsi ? "" : "N") + (isFixedLength ? "CHAR" : "VARCHAR2");
                     var unboundedName = isAnsi ? "CLOB" : "NCLOB";
                     var maxSize = isAnsi ? 4000 : 2000;
+                    var storeTypeModifier = (RelationalTypeMapping.StoreTypeModifierKind?)null;
 
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (isAnsi ? 900 : 450) : maxSize);
+                    var size = (int?)(mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (isAnsi ? 900 : 450) : maxSize));
                     if (size > maxSize)
                     {
-                        size = -1;
+                        size = null;
+                        storeTypeModifier = RelationalTypeMapping.StoreTypeModifierKind.None;
                     }
 
                     return new OracleStringTypeMapping(
-                        size == -1 ? unboundedName : baseName + "(" + size + ")",
+                        storeTypeModifier == RelationalTypeMapping.StoreTypeModifierKind.None ? unboundedName : baseName + "(" + size + ")",
                         isAnsi ? DbType.AnsiString : (DbType?)null,
                         !isAnsi,
                         size,
-                        isFixedLength);
+                        isFixedLength,
+                        storeTypeModifier);
                 }
 
                 if (clrType == typeof(byte[]))
@@ -234,15 +243,18 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
                     }
 
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    var storeTypeModifier = (RelationalTypeMapping.StoreTypeModifierKind?)null;
                     if (size > 2000)
                     {
-                        size = -1;
+                        size = null;
+                        storeTypeModifier = RelationalTypeMapping.StoreTypeModifierKind.None;
                     }
 
                     return new OracleByteArrayTypeMapping(
                         (size == -1 || size == null) ? "BLOB" : "RAW(" + size + ")",
                         DbType.Binary,
-                        size);
+                        size,
+                        storeTypeModifier: storeTypeModifier);
                 }
             }
 

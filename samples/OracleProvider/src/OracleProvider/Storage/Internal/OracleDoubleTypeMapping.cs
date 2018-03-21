@@ -13,7 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
         public OracleDoubleTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null)
-            : base(storeType, dbType)
+            : this(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(
+                        typeof(double)),
+                    storeType,
+                    StoreTypeModifierKind.Size,
+                    dbType,
+                    size: 49))
         {
         }
 

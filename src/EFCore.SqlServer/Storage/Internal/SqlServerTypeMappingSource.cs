@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 comparer: new ValueComparer<byte[]>(
                     (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
                     v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
-                    v => v == null ? null : v.ToArray()));
+                    v => v == null ? null : v.ToArray()),
+                storeTypeModifier: RelationalTypeMapping.StoreTypeModifierKind.None);
 
         private readonly IntTypeMapping _int
             = new IntTypeMapping("int", DbType.Int32);
@@ -87,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new GuidTypeMapping("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
-            = new DecimalTypeMapping("decimal(18, 2)");
+            = new SqlServerDecimalTypeMapping("decimal(18, 2)", null, 18, 2);
 
         private readonly TimeSpanTypeMapping _time
             = new SqlServerTimeSpanTypeMapping("time");
@@ -122,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> _namedClrMappings
             = new Dictionary<string, Func<Type, RelationalTypeMapping>>(StringComparer.Ordinal)
             {
-                { "Microsoft.SqlServer.Types.SqlHierarchyId", t => new SqlServerUdtTypeMapping("hierarchyid", t) },
-                { "Microsoft.SqlServer.Types.SqlGeography", t => new SqlServerUdtTypeMapping("geography", t) },
-                { "Microsoft.SqlServer.Types.SqlGeometry", t => new SqlServerUdtTypeMapping("geometry", t) }
+                { "Microsoft.SqlServer.Types.SqlHierarchyId", t => new SqlServerUdtTypeMapping(t, "hierarchyid") },
+                { "Microsoft.SqlServer.Types.SqlGeography", t => new SqlServerUdtTypeMapping(t, "geography") },
+                { "Microsoft.SqlServer.Types.SqlGeometry", t => new SqlServerUdtTypeMapping(t, "geometry") }
             };
 
         /// <summary>
@@ -205,16 +206,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
         {
-            var mapping = FindRawMapping(mappingInfo);
+            var mapping = FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
-            if (mapping == null)
-            {
-                return null;
-            }
-
-            mapping = mapping.CloneWithFacetedName(mappingInfo);
-
-            if (_disallowedMappings.Contains(mapping.StoreType))
+            if (_disallowedMappings.Contains(mapping?.StoreType))
             {
                 var propertyName = mappingInfo.Property?.Name
                                    ?? mappingInfo.MemberInfo?.Name;
