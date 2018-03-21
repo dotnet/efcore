@@ -695,17 +695,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     if (additionalFromClauseBeingProcessed.FromExpression is SubQueryExpression fromSubqueryExpression)
                     {
-                        return RewriteSelectManyInsideSubqueryIntoJoins(
-                            fromSubqueryExpression,
+                        if (fromSubqueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression)
+                        {
+                            return RewriteSelectManyInsideSubqueryIntoJoins(
+                                fromSubqueryExpression,
+                                outerQuerySourceReferenceExpression,
+                                navigations,
+                                additionalFromClauseBeingProcessed);
+                        }
+                    }
+                    else
+                    {
+                        return RewriteSelectManyNavigationsIntoJoins(
                             outerQuerySourceReferenceExpression,
                             navigations,
                             additionalFromClauseBeingProcessed);
                     }
-
-                    return RewriteSelectManyNavigationsIntoJoins(
-                        outerQuerySourceReferenceExpression,
-                        navigations,
-                        additionalFromClauseBeingProcessed);
                 }
 
                 if (navigations.Count == 1

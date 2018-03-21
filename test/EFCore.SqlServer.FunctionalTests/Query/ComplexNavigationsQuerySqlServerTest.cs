@@ -3678,6 +3678,23 @@ ORDER BY [l1.OneToMany_Required.OneToOne_Optional_FK4].[Id]",
 FROM [LevelFour] AS [l1.OneToMany_Required.OneToOne_Optional_FK.OneToMany_Optional0]");
         }
 
+        public override void SelectMany_subquery_with_custom_projection()
+        {
+            base.SelectMany_subquery_with_custom_projection();
+
+            AssertSql(
+                @"@__p_0='1'
+
+SELECT TOP(@__p_0) [t].[Name]
+FROM [LevelOne] AS [l1]
+CROSS APPLY (
+    SELECT [l2].[Name]
+    FROM [LevelTwo] AS [l2]
+    WHERE [l1].[Id] = [l2].[OneToMany_Optional_InverseId]
+) AS [t]
+ORDER BY [l1].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
         {
             Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

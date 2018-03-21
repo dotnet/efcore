@@ -3993,5 +3993,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select lOuter,
                 new List<IExpectedInclude> { new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional, "OneToMany_Optional") });
         }
+
+        [ConditionalFact]
+        public virtual void SelectMany_subquery_with_custom_projection()
+        {
+            AssertQuery<Level1>(
+                l1s => l1s.OrderBy(l1 => l1.Id).SelectMany(l1 => l1.OneToMany_Optional.Select(l2 => new { l2.Name })).Take(1));
+        }
     }
 }
