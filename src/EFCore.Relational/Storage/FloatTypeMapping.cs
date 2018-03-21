@@ -4,7 +4,6 @@
 using System.Data;
 using System.Globalization;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -28,25 +27,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public FloatTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : this(storeType, null, null, null, dbType)
+            : base(storeType, typeof(float))
         {
         }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="FloatTypeMapping" /> class.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="converter"> Converts values to and from the store whenever this mapping is used. </param>
-        /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
-        /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
-        public FloatTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] ValueConverter converter,
-            [CanBeNull] ValueComparer comparer,
-            [CanBeNull] ValueComparer keyComparer,
-            DbType? dbType = null)
-            : base(storeType, typeof(float), converter, comparer, keyComparer, dbType)
+        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping" />. </param>
+        protected FloatTypeMapping(RelationalTypeMappingParameters parameters)
+            : base(parameters)
         {
         }
 
@@ -57,16 +47,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new FloatTypeMapping(storeType, Converter, Comparer, KeyComparer, DbType);
+            => new FloatTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
 
         /// <summary>
-        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
-        ///    added.
+        ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
+        ///     added.
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new FloatTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer, DbType);
+            => new FloatTypeMapping(Parameters.WithComposedConverter(converter));
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.

@@ -36,9 +36,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             bool unicode = false,
             int? size = null,
             bool fixedLength = false)
-            : base(storeType, clrType, converter, comparer, keyComparer, dbType, unicode, size, fixedLength)
+            : base(new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(
+                    clrType, converter, comparer, keyComparer), storeType, dbType, unicode, size, fixedLength))
+
         {
             UdtTypeName = udtTypeName ?? storeType;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected SqlServerUdtTypeMapping(RelationalTypeMappingParameters parameters, [CanBeNull] string udtTypeName)
+            : base(parameters)
+        {
+            UdtTypeName = udtTypeName ?? parameters.StoreType;
         }
 
         /// <summary>
@@ -52,14 +65,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerUdtTypeMapping(storeType, ClrType, UdtTypeName, Converter, Comparer, KeyComparer, DbType, IsUnicode, size, IsFixedLength);
+            => new SqlServerUdtTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size), UdtTypeName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerUdtTypeMapping(StoreType, ClrType, UdtTypeName, ComposeConverter(converter), Comparer, KeyComparer, DbType, IsUnicode, Size, IsFixedLength);
+            => new SqlServerUdtTypeMapping(Parameters.WithComposedConverter(converter), UdtTypeName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -75,7 +88,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 parameter.GetType(),
                 CreateUdtTypeNameAccessor);
 
-            if (parameter.Value != null && parameter.Value != DBNull.Value)
+            if (parameter.Value != null
+                && parameter.Value != DBNull.Value)
             {
                 _udtTypeNameSetter(parameter, UdtTypeName);
             }

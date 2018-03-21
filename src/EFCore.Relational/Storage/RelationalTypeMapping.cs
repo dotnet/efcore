@@ -8,7 +8,6 @@ using System.Data.Common;
 using System.Globalization;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,6 +25,94 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMapping : CoreTypeMapping
     {
+        /// <summary>
+        ///     Parameter object for use in the <see cref="RelationalTypeMapping" /> hierarchy.
+        /// </summary>
+        protected readonly struct RelationalTypeMappingParameters
+        {
+            /// <summary>
+            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object.
+            /// </summary>
+            /// <param name="storeType"> The name of the database type. </param>
+            /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+            /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
+            /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+            /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
+            /// <param name="coreParameters"> Parameters for the <see cref="CharTypeMapping"/> base class. </param>
+            public RelationalTypeMappingParameters(
+                CoreTypeMappingParameters coreParameters,
+                [NotNull] string storeType,
+                DbType? dbType = null,
+                bool unicode = false,
+                int? size = null,
+                bool fixedLength = false)
+            {
+                Check.NotEmpty(storeType, nameof(storeType));
+
+                CoreParameters = coreParameters;
+                StoreType = storeType;
+                DbType = dbType;
+                Unicode = unicode;
+                Size = size;
+                FixedLength = fixedLength;
+            }
+
+            /// <summary>
+            ///     Parameters for the <see cref="CharTypeMapping"/> base class.
+            /// </summary>
+            public CoreTypeMappingParameters CoreParameters { get; }
+
+            /// <summary>
+            ///     The mapping store type.
+            /// </summary>
+            public string StoreType { get; }
+
+            /// <summary>
+            ///     The mapping DbType.
+            /// </summary>
+            public DbType? DbType { get; }
+
+            /// <summary>
+            ///     The mapping Unicode flag.
+            /// </summary>
+            public bool Unicode { get; }
+
+            /// <summary>
+            ///     The mapping size.
+            /// </summary>
+            public int? Size { get; }
+
+            /// <summary>
+            ///     The mapping fixed-length flag.
+            /// </summary>
+            public bool FixedLength { get; }
+
+            /// <summary>
+            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
+            ///     store type and size.
+            /// </summary>
+            /// <param name="storeType"> The new store type name. </param>
+            /// <param name="size"> The new size. </param>
+            /// <returns> The new parameter object. </returns>
+            public RelationalTypeMappingParameters WithStoreTypeAndSize(string storeType, int? size)
+                => new RelationalTypeMappingParameters(CoreParameters, storeType, DbType, Unicode, size, FixedLength);
+
+            /// <summary>
+            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
+            ///     converter composed with any existing converter and set on the new parameter object.
+            /// </summary>
+            /// <param name="converter"> The converter. </param>
+            /// <returns> The new parameter object. </returns>
+            public RelationalTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter converter)
+                => new RelationalTypeMappingParameters(
+                    CoreParameters.WithComposedConverter(converter),
+                    StoreType,
+                    DbType,
+                    Unicode,
+                    Size,
+                    FixedLength);
+        }
+
         private static readonly MethodInfo _getFieldValueMethod
             = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFieldValue));
 
@@ -68,6 +155,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
+        /// <param name="parameters"> The parameters for this mapping. </param>
+        protected RelationalTypeMapping(RelationalTypeMappingParameters parameters)
+            : base(parameters.CoreParameters)
+        {
+            Parameters = parameters;
+            DbType = parameters.DbType;
+            IsUnicode = parameters.Unicode;
+            Size = parameters.Size ?? parameters.CoreParameters.Converter?.MappingHints?.Size;
+            StoreType = parameters.StoreType;
+            IsFixedLength = parameters.FixedLength;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
+        /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="clrType"> The .NET type. </param>
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
@@ -79,43 +181,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : this(storeType, clrType, null, null, null, dbType, unicode, size)
+            : this(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(clrType), storeType, dbType, unicode, size))
         {
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
+        ///     Returns the parameters used to create this type mapping.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="clrType"> The .NET type. </param>
-        /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
-        /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
-        /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
-        protected RelationalTypeMapping(
-            [NotNull] string storeType,
-            [NotNull] Type clrType,
-            [CanBeNull] ValueConverter converter,
-            [CanBeNull] ValueComparer comparer,
-            [CanBeNull] ValueComparer keyComparer,
-            DbType? dbType = null,
-            bool unicode = false,
-            int? size = null,
-            bool fixedLength = false)
-            : base(clrType, converter, comparer, keyComparer)
-        {
-            Check.NotEmpty(storeType, nameof(storeType));
-
-            DbType = dbType;
-            IsUnicode = unicode;
-            Size = size ?? converter?.MappingHints?.Size;
-            StoreType = storeType;
-
-            IsFixedLength = fixedLength;
-        }
+        protected new virtual RelationalTypeMappingParameters Parameters { get; }
 
         /// <summary>
         ///     Creates a copy of this mapping.
@@ -124,15 +199,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public abstract RelationalTypeMapping Clone([NotNull] string storeType, int? size);
-
-        /// <summary>
-        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
-        ///    added.
-        /// </summary>
-        /// <param name="converter"> The converter to use. </param>
-        /// <returns> A new type mapping </returns>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => throw new NotImplementedException(CoreStrings.ConverterCloneNotImplemented(GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Gets the name of the database type.

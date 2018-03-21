@@ -5,6 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
+using System.Reflection;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -58,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
                 mappingType,
-                "<original>",
-                new FakeValueConverter(),
-                new FakeValueComparer(),
-                new FakeValueComparer(),
-                DbType.VarNumeric);
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
+                null,
+                new[] { FakeTypeMapping.CreateParameters(clrType) },
+                null,
+                null);
 
             var clone = mapping.Clone("<clone>", null);
 
@@ -97,13 +101,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
                 mappingType,
-                "<original>",
-                new FakeValueConverter(),
-                new FakeValueComparer(),
-                new FakeValueComparer(),
-                DbType.VarNumeric,
-                33,
-                true);
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
+                null,
+                new[] { FakeTypeMapping.CreateParameters(clrType, size: 33, fixedLength: true) },
+                null,
+                null);
 
             var clone = mapping.Clone("<clone>", 66);
 
@@ -146,14 +148,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
                 mappingType,
-                "<original>",
-                new FakeValueConverter(),
-                new FakeValueComparer(),
-                new FakeValueComparer(),
-                DbType.VarNumeric,
-                false,
-                33,
-                true);
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
+                null,
+                new[] { FakeTypeMapping.CreateParameters(clrType, size: 33, unicide: false, fixedLength: true) },
+                null,
+                null);
 
             var clone = mapping.Clone("<clone>", 66);
 
@@ -194,23 +193,42 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.True(clone.IsFixedLength);
         }
 
-        [Fact]
-        public void Cannot_compose_converters_with_mismatched_types()
-        {
-            Assert.Equal(
-                CoreStrings.ConverterCloneNotImplemented("FakeTypeMapping"),
-                Assert.Throws<NotImplementedException>(
-                    () => new FakeTypeMapping().Clone(new FakeValueConverter())).Message);
-        }
-
         private class FakeTypeMapping : RelationalTypeMapping
         {
+            private FakeTypeMapping(RelationalTypeMappingParameters parameters)
+                : base(parameters)
+            {
+            }
+
             public FakeTypeMapping()
                 : base("storeType", typeof(object))
             {
             }
 
-            public override RelationalTypeMapping Clone(string storeType, int? size) => throw new NotImplementedException();
+            public static object CreateParameters(
+                Type clrType,
+                int? size = null,
+                bool unicide = false,
+                bool fixedLength = false)
+            {
+                return new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(
+                        clrType,
+                        new FakeValueConverter(),
+                        new FakeValueComparer(),
+                        new FakeValueComparer()),
+                    "<original>",
+                    System.Data.DbType.VarNumeric,
+                    size: size,
+                    unicode: unicide,
+                    fixedLength: fixedLength);
+            }
+
+            public override RelationalTypeMapping Clone(string storeType, int? size)
+                => throw new NotImplementedException();
+
+            public override CoreTypeMapping Clone(ValueConverter converter)
+                => new FakeTypeMapping(Parameters.WithComposedConverter(converter));
         }
 
         [Fact]

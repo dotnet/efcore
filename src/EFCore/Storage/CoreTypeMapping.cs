@@ -19,40 +19,100 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class CoreTypeMapping
+    public abstract class CoreTypeMapping
     {
+        /// <summary>
+        ///     Parameter object for use in the <see cref="CoreTypeMapping" /> hierarchy.
+        /// </summary>
+        protected readonly struct CoreTypeMappingParameters
+        {
+            /// <summary>
+            ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object.
+            /// </summary>
+            /// <param name="clrType"> The .NET type used in the EF model. </param>
+            /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
+            /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
+            /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
+            public CoreTypeMappingParameters(
+                [NotNull] Type clrType,
+                [CanBeNull] ValueConverter converter = null,
+                [CanBeNull] ValueComparer comparer = null,
+                [CanBeNull] ValueComparer keyComparer = null)
+            {
+                Check.NotNull(clrType, nameof(clrType));
+
+                ClrType = clrType;
+                Converter = converter;
+                Comparer = comparer;
+                KeyComparer = keyComparer;
+            }
+
+            /// <summary>
+            ///     The mapping CLR type.
+            /// </summary>
+            public Type ClrType { get; }
+
+            /// <summary>
+            ///     The mapping converter.
+            /// </summary>
+            public ValueConverter Converter { get; }
+
+            /// <summary>
+            ///     The mapping comparer.
+            /// </summary>
+            public ValueComparer Comparer { get; }
+
+            /// <summary>
+            ///     The mapping key comparer.
+            /// </summary>
+            public ValueComparer KeyComparer { get; }
+
+            /// <summary>
+            ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given
+            ///     converter composed with any existing converter and set on the new parameter object.
+            /// </summary>
+            /// <param name="converter"> The converter. </param>
+            /// <returns> The new parameter object. </returns>
+            public CoreTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter converter)
+                => new CoreTypeMappingParameters(
+                    ClrType,
+                    converter == null ? Converter : converter.ComposeWith(Converter),
+                    Comparer,
+                    KeyComparer);
+        }
+
         private ValueComparer _comparer;
         private ValueComparer _keyComparer;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CoreTypeMapping" /> class.
         /// </summary>
-        /// <param name="clrType"> The .NET type used in the EF model. </param>
-        /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
-        /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
-        /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
-        public CoreTypeMapping(
-            [NotNull] Type clrType,
-            [CanBeNull] ValueConverter converter = null,
-            [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null)
+        /// <param name="parameters"> The parameters for this mapping. </param>
+        protected CoreTypeMapping(CoreTypeMappingParameters parameters)
         {
-            Check.NotNull(clrType, nameof(clrType));
+            Parameters = parameters;
 
-            clrType = converter?.ModelClrType ?? clrType;
+            var clrType = parameters.Converter?.ModelClrType ?? parameters.ClrType;
+
             ClrType = clrType;
-            Converter = converter;
 
-            if (comparer?.Type == clrType)
+            Converter = parameters.Converter;
+
+            if (parameters.Comparer?.Type == clrType)
             {
-                _comparer = comparer;
+                _comparer = parameters.Comparer;
             }
 
-            if (keyComparer?.Type == clrType)
+            if (parameters.KeyComparer?.Type == clrType)
             {
-                _keyComparer = keyComparer;
+                _keyComparer = parameters.KeyComparer;
             }
         }
+
+        /// <summary>
+        ///     Returns the parameters used to create this type mapping.
+        /// </summary>
+        protected virtual CoreTypeMappingParameters Parameters { get; }
 
         /// <summary>
         ///     Gets the .NET type used in the EF model.
@@ -97,16 +157,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
-        public virtual CoreTypeMapping Clone([CanBeNull] ValueConverter converter)
-            => new CoreTypeMapping(ClrType, ComposeConverter(converter));
-
-        /// <summary>
-        ///     Composes the given <see cref="ValueConverter" /> with any already in this mapping
-        ///     and returns a new <see cref="ValueConverter" /> combining them together.
-        /// </summary>
-        /// <param name="converter"> The new converter. </param>
-        /// <returns> The composed converter. </returns>
-        protected virtual ValueConverter ComposeConverter([CanBeNull] ValueConverter converter)
-            => converter == null ? Converter : converter.ComposeWith(Converter);
+        public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter converter);
     }
 }

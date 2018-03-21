@@ -5,7 +5,6 @@ using System;
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -21,22 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             bool unicode = false,
             int? size = null,
             bool fixedLength = false)
-            : this(storeType, null, null, null, dbType, unicode, size, fixedLength)
-        {
-        }
-
-        public OracleStringTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] ValueConverter converter,
-            [CanBeNull] ValueComparer comparer,
-            [CanBeNull] ValueComparer keyComparer,
-            [CanBeNull] DbType? dbType,
-            bool unicode = false,
-            int? size = null,
-            bool fixedLength = false)
-            : base(storeType, converter, comparer, keyComparer, dbType, unicode, size, fixedLength)
+            : base(storeType, dbType, unicode, size, fixedLength)
         {
             _maxSpecificSize = CalculateSize(unicode, size);
+        }
+
+        protected OracleStringTypeMapping(RelationalTypeMappingParameters parameters)
+            : base(parameters)
+        {
+            _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
         }
 
         private static int CalculateSize(bool unicode, int? size)
@@ -49,10 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
                     : 4000;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleStringTypeMapping(storeType, Converter, Comparer, KeyComparer, DbType, IsUnicode, size, IsFixedLength);
+            => new OracleStringTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
 
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleStringTypeMapping(StoreType, ComposeConverter(converter), Comparer, KeyComparer, DbType, IsUnicode, Size, IsFixedLength);
+            => new OracleStringTypeMapping(Parameters.WithComposedConverter(converter));
 
         protected override void ConfigureParameter(DbParameter parameter)
         {
