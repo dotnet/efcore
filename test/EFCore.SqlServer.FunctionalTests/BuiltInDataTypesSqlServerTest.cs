@@ -28,6 +28,8 @@ namespace Microsoft.EntityFrameworkCore
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
     public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
     {
+        private static readonly string _eol = Environment.NewLine;
+
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
@@ -545,7 +547,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
         }
 
         private string DumpParameters()
-            => Fixture.TestSqlLoggerFactory.Parameters.Single().Replace(", ", EOL);
+            => Fixture.TestSqlLoggerFactory.Parameters.Single().Replace(", ", _eol);
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {
@@ -2746,8 +2748,6 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
-
-        private static readonly string EOL = Environment.NewLine;
 
         [Fact]
         public void Can_get_column_types_from_built_model()

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -27,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [DebuggerStepThrough]
         public static string GetConfiguredColumnType([NotNull] this IProperty property)
             => (string)property[RelationalAnnotationNames.ColumnType];
 
@@ -34,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static RelationalTypeMapping FindRelationalMapping(
-            [NotNull] this IProperty property)
+        [DebuggerStepThrough]
+        public static RelationalTypeMapping FindRelationalMapping([NotNull] this IProperty property)
             => property[CoreAnnotationNames.TypeMapping] as RelationalTypeMapping;
     }
 }

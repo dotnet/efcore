@@ -178,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="other"> The other object. </param>
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         protected virtual bool Equals([NotNull] TypeMappingInfo other)
-            => ClrType == other.ClrType
+            => Property == other.Property
+               && ClrType == other.ClrType
                && MemberInfo == other.MemberInfo
                && IsKeyOrIndex == other.IsKeyOrIndex
                && Size == other.Size
@@ -204,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
         {
-            var hashCode = ClrType?.GetHashCode() ?? 0;
+            var hashCode = Property?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ ClrType?.GetHashCode() ?? 0;
             hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
             hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (MemberInfo?.GetHashCode() ?? 0);

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalTypeMappingTest
@@ -554,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [Fact]
-        public void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
+        public virtual void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
         {
             using (var context = new FruityContext(ContextOptions))
             {
@@ -573,6 +574,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public DbSet<Banana> Bananas { get; set; }
             public DbSet<Kiwi> Kiwi { get; set; }
+        }
+
+        [Fact]
+        public virtual void Primary_key_type_mapping_can_differ_from_FK()
+        {
+            using (var context = new MismatchedFruityContext(ContextOptions))
+            {
+                Assert.Equal(typeof(short),
+                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").FindMapping().Converter.ProviderClrType);
+                Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").FindMapping().Converter);
+            }
+        }
+
+        private class MismatchedFruityContext : FruityContext
+        {
+            public MismatchedFruityContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Banana>().Property(e => e.Id).HasConversion<short>();
+                modelBuilder.Entity<Kiwi>().Property(e => e.Id).HasConversion<int>();
+                modelBuilder.Entity<Kiwi>().HasOne(e => e.Banana).WithMany(e => e.Kiwis).HasForeignKey(e => e.Id);
+            }
         }
 
         private class Banana

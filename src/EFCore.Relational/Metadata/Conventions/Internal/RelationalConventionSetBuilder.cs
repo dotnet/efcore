@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var sharedTableConvention = new SharedTableConvention();
 
-            var discriminatorConvention =new DiscriminatorConvention();
+            var discriminatorConvention = new DiscriminatorConvention();
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(sharedTableConvention);
             conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
@@ -63,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyUniquenessChangedConventions.Add(sharedTableConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(sharedTableConvention);
 
-            conventionSet.ModelBuiltConventions.Add(new RelationalTypeMappingConvention(Dependencies.TypeMappingSource));
             conventionSet.ModelBuiltConventions.Add(sharedTableConvention);
 
             conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention());

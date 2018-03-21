@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -23,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or null if none if found. </returns>
+        [DebuggerStepThrough]
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
             => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
 
@@ -54,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or null if none are found. </returns>
+        [DebuggerStepThrough]
         public static IEntityType FindEntityType(
             [NotNull] this IModel model,
             [NotNull] Type type,
@@ -77,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
+        [DebuggerStepThrough]
         public static IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
             => model.AsModel().GetEntityTypes(type);
 
@@ -86,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
+        [DebuggerStepThrough]
         public static IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
             => model.AsModel().GetEntityTypes(name);
 
@@ -95,6 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type used to find an entity type a defining navigation. </param>
         /// <returns> true if the model contains a corresponding entity type with a defining navigation. </returns>
+        [DebuggerStepThrough]
         public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] Type type)
             => Check.NotNull(model, nameof(model)).AsModel().HasEntityTypeWithDefiningNavigation(Check.NotNull(type, nameof(type)));
 
@@ -104,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="name"> The name used to find an entity type with a defining navigation. </param>
         /// <returns> true if the model contains a corresponding entity type with a defining navigation. </returns>
+        [DebuggerStepThrough]
         public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] string name)
             => Check.NotNull(model, nameof(model)).AsModel()
                 .HasEntityTypeWithDefiningNavigation(Check.NotNull(name, nameof(name)));
@@ -114,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to get the default change tracking strategy for. </param>
         /// <returns> The change tracking strategy. </returns>
-        public static ChangeTrackingStrategy GetChangeTrackingStrategy(
-            [NotNull] this IModel model)
+        [DebuggerStepThrough]
+        public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IModel model)
             => Check.NotNull(model, nameof(model)).AsModel().ChangeTrackingStrategy;
 
         /// <summary>
@@ -131,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to get the access mode for. </param>
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
-        public static PropertyAccessMode? GetPropertyAccessMode(
-            [NotNull] this IModel model)
+        [DebuggerStepThrough]
+        public static PropertyAccessMode? GetPropertyAccessMode([NotNull] this IModel model)
             => (PropertyAccessMode?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.PropertyAccessModeAnnotation];
     }
 }

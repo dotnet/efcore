@@ -2002,7 +2002,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<ServiceProperty> GetServiceProperties()
             => _baseType?.GetServiceProperties().Concat(_serviceProperties.Values) ?? _serviceProperties.Values;
 
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -2121,7 +2120,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _seedData.AddRange(data);
         }
 
-
         #endregion
 
         #region Explicit interface implementations
@@ -2148,14 +2146,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
             => SetPrimaryKey(properties?.Cast<Property>().ToList());
 
+        [DebuggerStepThrough]
         IKey IEntityType.FindPrimaryKey() => FindPrimaryKey();
+
+        [DebuggerStepThrough]
         IMutableKey IMutableEntityType.FindPrimaryKey() => FindPrimaryKey();
 
         IMutableKey IMutableEntityType.AddKey(IReadOnlyList<IMutableProperty> properties)
             => AddKey(properties.Cast<Property>().ToList());
 
+        [DebuggerStepThrough]
         IKey IEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
+
+        [DebuggerStepThrough]
         IMutableKey IMutableEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
+
         IEnumerable<IKey> IEntityType.GetKeys() => GetKeys();
         IEnumerable<IMutableKey> IMutableEntityType.GetKeys() => GetKeys();
         IMutableKey IMutableEntityType.RemoveKey(IReadOnlyList<IProperty> properties) => RemoveKey(properties);
@@ -2164,10 +2169,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey, IMutableEntityType principalEntityType)
             => AddForeignKey(properties.Cast<Property>().ToList(), (Key)principalKey, (EntityType)principalEntityType);
 
+        [DebuggerStepThrough]
         IMutableForeignKey IMutableEntityType.FindForeignKey(
             IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
+        [DebuggerStepThrough]
         IForeignKey IEntityType.FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
@@ -2181,8 +2188,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
             => AddIndex(properties.Cast<Property>().ToList());
 
+        [DebuggerStepThrough]
         IIndex IEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
+
+        [DebuggerStepThrough]
         IMutableIndex IMutableEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
+
         IEnumerable<IIndex> IEntityType.GetIndexes() => GetIndexes();
         IEnumerable<IMutableIndex> IMutableEntityType.GetIndexes() => GetIndexes();
 
@@ -2190,15 +2201,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => RemoveIndex(properties);
 
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType) => AddProperty(name, propertyType);
+
+        [DebuggerStepThrough]
         IProperty IEntityType.FindProperty(string name) => FindProperty(name);
+
+        [DebuggerStepThrough]
         IMutableProperty IMutableEntityType.FindProperty(string name) => FindProperty(name);
+
+        [DebuggerStepThrough]
         IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
+
+        [DebuggerStepThrough]
         IEnumerable<IMutableProperty> IMutableEntityType.GetProperties() => GetProperties();
         IMutableProperty IMutableEntityType.RemoveProperty(string name) => RemoveProperty(name);
 
         IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo) => AddServiceProperty(memberInfo);
+
+        [DebuggerStepThrough]
         IServiceProperty IEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
+
+        [DebuggerStepThrough]
         IMutableServiceProperty IMutableEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
+
         IEnumerable<IServiceProperty> IEntityType.GetServiceProperties() => GetServiceProperties();
         IEnumerable<IMutableServiceProperty> IMutableEntityType.GetServiceProperties() => GetServiceProperties();
         IMutableServiceProperty IMutableEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
