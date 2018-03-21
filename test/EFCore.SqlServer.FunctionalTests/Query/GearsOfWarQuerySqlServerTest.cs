@@ -6167,7 +6167,7 @@ LEFT JOIN (
     FROM [Gears] AS [w.Owner]
     WHERE [w.Owner].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
-ORDER BY [t].[Nickname], [t].[SquadId]");
+ORDER BY [t].[Nickname], [t].[SquadId], [w].[Id]");
         }
 
         public override void Order_by_entity_qsre_with_other_orderbys()

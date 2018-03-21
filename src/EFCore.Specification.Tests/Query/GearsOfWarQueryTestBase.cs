@@ -4386,8 +4386,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Order_by_entity_qsre_composite_key()
         {
             AssertQuery<Weapon>(
-                ws => ws.OrderBy(w => w.Owner).Select(w => w.Name),
-                ws => ws.OrderBy(w => Maybe(w.Owner, () => w.Owner.Nickname)).ThenBy(w => MaybeScalar<int>(w.Owner, () => w.Owner.SquadId)).Select(w => w.Name),
+                ws => ws.OrderBy(w => w.Owner).ThenBy(w => w.Id).Select(w => w.Name),
+                ws => ws.OrderBy(w => Maybe(w.Owner, () => w.Owner.Nickname)).ThenBy(w => MaybeScalar<int>(w.Owner, () => w.Owner.SquadId)).ThenBy(w => w.Id).Select(w => w.Name),
                 assertOrder: true);
         }
 
