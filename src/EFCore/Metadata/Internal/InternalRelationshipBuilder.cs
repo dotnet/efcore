@@ -1444,7 +1444,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return builder;
             }
 
-            if (!CanSetForeignKey(properties, dependentEntityType, configurationSource, out var resetIsRequired, out var resetPrincipalKey))
+            if (!CanSetForeignKey(
+                properties, dependentEntityType, configurationSource, out var resetIsRequired, out var resetPrincipalKey))
             {
                 return null;
             }

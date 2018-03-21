@@ -398,15 +398,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         if ((duplicateNavigation.IsDependentToPrincipal()
                             ? foreignKey.GetDependentToPrincipalConfigurationSource()
                             : foreignKey.GetPrincipalToDependentConfigurationSource())
-                            .Overrides(configurationSource)
-                            && configurationSource == ConfigurationSource.Explicit)
+                            .Overrides(configurationSource))
                         {
-                            throw new InvalidOperationException(CoreStrings.PropertyCalledOnNavigation(propertyName, Metadata.DisplayName()));
+                            if (configurationSource == ConfigurationSource.Explicit)
+                            {
+                                throw new InvalidOperationException(CoreStrings.PropertyCalledOnNavigation(propertyName, Metadata.DisplayName()));
+                            }
+
+                            return null;
                         }
 
                         if (foreignKey.GetConfigurationSource() == ConfigurationSource.Convention)
                         {
-                            RemoveForeignKey(foreignKey, ConfigurationSource.Convention);
+                            foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, ConfigurationSource.Convention);
                         }
                         else
                         {

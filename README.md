@@ -2,9 +2,6 @@
 
 Documentation on using EF Core is available at <https://docs.microsoft.com/en-us/ef/core/>.
 
-[![Travis build status](https://img.shields.io/travis/aspnet/EntityFrameworkCore.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/EntityFrameworkCore/branches)
-[![AppVeyor build status](https://img.shields.io/appveyor/ci/aspnetci/EntityFramework/dev.svg?label=appveyor&style=flat-square)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
-
 ## EF Core here, EF6 elsewhere
 
 This project is for Entity Framework Core. Entity Framework 6 is still under active development at https://github.com/aspnet/EntityFramework6.
@@ -28,7 +25,7 @@ InMemory (for testing) | `Microsoft.EntityFrameworkCore.InMemory`  | [![NuGet](h
 
 ## Project Wiki
 
-More details about our project, like our release [roadmap](https://github.com/aspnet/EntityFrameworkCore/wiki/roadmap), or [how to get and build our code](https://github.com/aspnet/EntityFrameworkCore/wiki/getting-and-building-the-code), are located in our our [project wiki](https://github.com/aspnet/EntityFrameworkCore/wiki/).
+More details about our project, like our release [roadmap](https://docs.microsoft.com/en-us/ef/core/what-is-new/roadmap), or [how to get and build our code](https://github.com/aspnet/EntityFrameworkCore/wiki/getting-and-building-the-code), are located in our our [project wiki](https://github.com/aspnet/EntityFrameworkCore/wiki/).
 
 ## Building from source
 

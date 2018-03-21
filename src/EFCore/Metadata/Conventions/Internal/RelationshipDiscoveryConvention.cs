@@ -96,9 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var navigationPropertyInfo = candidateTuple.Key;
                 var targetClrType = candidateTuple.Value;
 
-                if (entityTypeBuilder.IsIgnored(navigationPropertyInfo.Name, ConfigurationSource.Convention)
-                    || (entityTypeBuilder.Metadata.IsQueryType
-                        && navigationPropertyInfo.PropertyType.TryGetSequenceType() != null))
+                if (!IsCandidateNavigationProperty(entityTypeBuilder, navigationPropertyInfo.Name, navigationPropertyInfo))
                 {
                     continue;
                 }
@@ -179,14 +177,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                     if (inverseTargetType != entityType.ClrType
                         || navigationPropertyInfo.IsSameAs(inversePropertyInfo)
-                        || candidateTargetEntityTypeBuilder.IsIgnored(inversePropertyInfo.Name, ConfigurationSource.Convention)
                         || entityType.IsQueryType
                         || (ownership != null
                             && (ownership.PrincipalEntityType != candidateTargetEntityType
                                 || ownership.PrincipalToDependent.Name != inversePropertyInfo.Name))
                         || (entityType.HasDefiningNavigation()
                             && (entityType.DefiningEntityType != candidateTargetEntityType
-                                || entityType.DefiningNavigationName != inversePropertyInfo.Name)))
+                                || entityType.DefiningNavigationName != inversePropertyInfo.Name))
+                        || !IsCandidateNavigationProperty(
+                            candidateTargetEntityTypeBuilder, inversePropertyInfo.Name, inversePropertyInfo))
                     {
                         continue;
                     }
@@ -663,8 +662,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             string navigationName,
             MemberInfo propertyInfo)
         {
-            sourceEntityTypeBuilder = sourceEntityTypeBuilder.Metadata.Builder;
-            if (!IsCandidateNavigationProperty(sourceEntityTypeBuilder, navigationName, propertyInfo))
+            if ((targetEntityTypeBuilder.Metadata.Builder == null
+                 && sourceEntityTypeBuilder.ModelBuilder.IsIgnored(
+                     targetEntityTypeBuilder.Metadata.Name, ConfigurationSource.Convention))
+                || !IsCandidateNavigationProperty(sourceEntityTypeBuilder, navigationName, propertyInfo))
             {
                 return true;
             }
@@ -696,35 +697,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [ContractAnnotation("propertyInfo:null => false")]
         private static bool IsCandidateNavigationProperty(
             InternalEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, MemberInfo propertyInfo)
-        {
-            if (propertyInfo == null)
-            {
-                return false;
-            }
-
-            if (sourceEntityTypeBuilder == null
-                || sourceEntityTypeBuilder.ModelBuilder.IsIgnored(sourceEntityTypeBuilder.Metadata.Name, ConfigurationSource.Convention))
-            {
-                return false;
-            }
-
-            if (sourceEntityTypeBuilder.IsIgnored(navigationName, ConfigurationSource.Convention))
-            {
-                return false;
-            }
-
-            if (sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) != null)
-            {
-                return false;
-            }
-
-            if (sourceEntityTypeBuilder.Metadata.FindServiceProperty(navigationName) != null)
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => propertyInfo != null
+               && sourceEntityTypeBuilder != null
+               && !sourceEntityTypeBuilder.IsIgnored(navigationName, ConfigurationSource.Convention)
+               && sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) == null
+               && sourceEntityTypeBuilder.Metadata.FindServiceProperty(navigationName) == null
+               && (!sourceEntityTypeBuilder.Metadata.IsQueryType
+                   || (propertyInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
