@@ -23,6 +23,12 @@
                     },
                     "ASSEMBLY_INFORMATIONAL_VERSION_MISMATCH": {
                         "tools/netcoreapp2.0/any/Newtonsoft.Json.dll": "External"
+                    },
+                    "ASSEMBLY_FILE_VERSION_MISMATCH": {
+                      "tools/netcoreapp2.0/any/Newtonsoft.Json.dll": "External"
+                    },
+                    "ASSEMBLY_VERSION_MISMATCH": {
+                      "tools/netcoreapp2.0/any/Newtonsoft.Json.dll": "External"
                     }
                 }
             },
