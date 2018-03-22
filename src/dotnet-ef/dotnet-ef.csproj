@@ -65,19 +65,19 @@
   <ItemGroup>
     <None Include="..\ef\bin\$(Configuration)\net461\ef.exe">
       <Pack>True</Pack>
-      <PackagePath>tools\net461</PackagePath>
+      <PackagePath>tools\$(TargetFramework)\any\tools\net461\any</PackagePath>
     </None>
-    <None Include="..\ef\bin\x86\$(Configuration)\net461\ef.x86.exe">
+    <None Include="..\ef\bin\x86\$(Configuration)\net461\ef.exe">
       <Pack>True</Pack>
-      <PackagePath>tools\net461</PackagePath>
+      <PackagePath>tools\$(TargetFramework)\any\tools\net461\win-x86</PackagePath>
     </None>
     <None Include="..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll">
       <Pack>True</Pack>
-      <PackagePath>tools\netcoreapp2.0</PackagePath>
+      <PackagePath>tools\$(TargetFramework)\any\tools\netcoreapp2.0\any</PackagePath>
     </None>
     <None Include="..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json">
       <Pack>True</Pack>
-      <PackagePath>tools\netcoreapp2.0</PackagePath>
+      <PackagePath>tools\$(TargetFramework)\any\tools\netcoreapp2.0\any</PackagePath>
     </None>
   </ItemGroup>
 
