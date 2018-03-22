@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void PopulateMigrations(
+        protected void PopulateMigrations(
             IEnumerable<string> appliedMigrationEntries,
             string targetMigration,
             out IReadOnlyList<Migration> migrationsToApply,
