@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                 {
                     if (sqlFunctionExpression.Arguments[1] is ParameterExpression parameterExpression
                         && ParameterValues.TryGetValue(parameterExpression.Name, out var value)
-                        && (string)value == string.Empty)
+                        && ((string)value)?.Length == 0)
                     {
                         return Visit(Expression.Constant(1));
                     }

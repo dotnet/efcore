@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var value = o.ToString();
 
-            if (value != string.Empty)
+            if (value.Length != 0)
             {
                 DoIndent();
             }

@@ -13,8 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
         {
-            var sqlServerCondition = (traitAttribute as IReflectionAttributeInfo)?.Attribute as SqlServerConditionAttribute;
-            if (sqlServerCondition == null)
+            if (!((traitAttribute as IReflectionAttributeInfo)?.Attribute is SqlServerConditionAttribute sqlServerCondition))
             {
                 return Enumerable.Empty<KeyValuePair<string, string>>();
             }

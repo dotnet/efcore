@@ -552,9 +552,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
+        private static void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
 
-        private void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
+        private static void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
 
         [Flags]
         public enum ChangeMechanism
@@ -636,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var newEntities = new HashSet<object>(actualEntries.Select(ne => ne.Entity));
             var missingEntities = expectedEntries.Select(e => e.Entity).Where(e => !newEntities.Contains(e)).ToList();
-            Assert.Equal(new object[0], missingEntities);
+            Assert.Equal(Array.Empty<object>(), missingEntities);
             Assert.Equal(expectedEntries.Count, actualEntries.Count);
         }
 

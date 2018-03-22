@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
             }
 
-            private bool IsNavigationSubquery(SubQueryExpression subQueryExpression)
+            private static bool IsNavigationSubquery(SubQueryExpression subQueryExpression)
                 => subQueryExpression != null
                 ? subQueryExpression.QueryModel.BodyClauses.OfType<WhereClause>().Where(c => c.Predicate is NullSafeEqualExpression).Any()
                     && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression selectorQsre

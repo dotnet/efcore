@@ -249,7 +249,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return result;
         }
 
-        private CommandLineApplication ParseSubCommand(string arg, CommandLineApplication command)
+        private static CommandLineApplication ParseSubCommand(string arg, CommandLineApplication command)
         {
             foreach (var subcommand in command.Commands)
             {
@@ -483,7 +483,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Console.WriteLine();
         }
 
-        private int MaxOptionTemplateLength(IEnumerable<CommandOption> options)
+        private static int MaxOptionTemplateLength(IEnumerable<CommandOption> options)
         {
             var maxLen = 0;
             foreach (var opt in options)
@@ -493,7 +493,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return maxLen;
         }
 
-        private int MaxCommandLength(IEnumerable<CommandLineApplication> commands)
+        private static int MaxCommandLength(IEnumerable<CommandLineApplication> commands)
         {
             var maxLen = 0;
             foreach (var cmd in commands)
@@ -503,7 +503,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return maxLen;
         }
 
-        private int MaxArgumentLength(IEnumerable<CommandArgument> arguments)
+        private static int MaxArgumentLength(IEnumerable<CommandArgument> arguments)
         {
             var maxLen = 0;
             foreach (var arg in arguments)
@@ -513,7 +513,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return maxLen;
         }
 
-        private void HandleUnexpectedArg(CommandLineApplication command, string[] args, int index, string argTypeName)
+        private static void HandleUnexpectedArg(CommandLineApplication command, string[] args, int index, string argTypeName)
         {
             if (command._throwOnUnexpectedArg)
             {

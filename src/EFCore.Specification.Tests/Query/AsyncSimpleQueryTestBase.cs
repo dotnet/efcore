@@ -3330,7 +3330,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_empty_closure()
         {
-            var ids = new string[0];
+            var ids = Array.Empty<string>();
 
             await AssertQuery<Customer>(
                 cs =>
@@ -3429,7 +3429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
+        private static Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
         {
             e.Set();
             s.Wait();

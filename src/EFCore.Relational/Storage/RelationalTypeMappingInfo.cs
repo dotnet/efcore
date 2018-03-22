@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IsFixedLength = fixedLength;
         }
 
-        private string ParseStoreTypeName(
+        private static string ParseStoreTypeName(
             string storeTypeName,
             out int? size,
             out int? precision,

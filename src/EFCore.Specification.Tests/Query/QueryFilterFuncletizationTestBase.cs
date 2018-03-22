@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryFilterFuncletizationTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : QueryFilterFuncletizationFixtureBase, new()
     {
-        public QueryFilterFuncletizationTestBase(TFixture fixture) => Fixture = fixture;
+        protected QueryFilterFuncletizationTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 

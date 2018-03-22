@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return base.VisitBinary(node);
         }
 
-        private bool NegatedNullableExpression(Expression expression)
+        private static bool NegatedNullableExpression(Expression expression)
         {
             var unaryExpression = expression.RemoveConvert() as UnaryExpression;
 

@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateEntityTypes(builderName, Sort(model.GetEntityTypes().Where(et => !et.IsQueryType).ToList()), stringBuilder);
         }
 
-        private IReadOnlyList<IEntityType> Sort(IReadOnlyList<IEntityType> entityTypes)
+        private static IReadOnlyList<IEntityType> Sort(IReadOnlyList<IEntityType> entityTypes)
         {
             var entityTypeGraph = new Multigraph<IEntityType, int>();
             entityTypeGraph.AddVertices(entityTypes);

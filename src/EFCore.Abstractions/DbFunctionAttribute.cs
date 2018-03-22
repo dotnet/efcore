@@ -12,7 +12,10 @@ namespace Microsoft.EntityFrameworkCore
     ///     By convention uses the .NET method name as name of the database function and the default schema.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
+#pragma warning disable CA1813 // Avoid unsealed attributes
+    // Already shipped unsealed
     public class DbFunctionAttribute : Attribute
+#pragma warning restore CA1813 // Avoid unsealed attributes
     {
         private string _functionName;
         private string _schema;

@@ -9,7 +9,7 @@ using Xunit.Sdk;
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class UseCultureAttribute : BeforeAfterTestAttribute
+    public sealed class UseCultureAttribute : BeforeAfterTestAttribute
     {
         private CultureInfo _originalCulture;
         private CultureInfo _originalUICulture;

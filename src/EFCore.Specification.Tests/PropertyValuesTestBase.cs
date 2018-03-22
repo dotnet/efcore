@@ -1308,7 +1308,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void ValidateBuildingPropereties(
+        private static void ValidateBuildingPropereties(
             EntityEntry buildingEntry,
             Func<EntityEntry, string, object> getValue,
             int shadow1,
@@ -2210,7 +2210,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class MailRoom
         {
+#pragma warning disable IDE1006 // Naming Styles
             public int id { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
             public Building Building { get; set; }
             public Guid BuildingId { get; set; }
         }
@@ -2245,7 +2247,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Whiteboard
         {
+#pragma warning disable IDE1006 // Naming Styles
             public byte[] iD { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
             public string AssetTag { get; set; }
             public Office Office { get; set; }
         }

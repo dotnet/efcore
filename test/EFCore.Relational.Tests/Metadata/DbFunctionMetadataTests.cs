@@ -204,11 +204,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dup1methodInfo
                 = typeof(MyDerivedContext)
-                    .GetRuntimeMethod(nameof(MyDerivedContext.DuplicateNameTest), new Type[] { });
+                    .GetRuntimeMethod(nameof(MyDerivedContext.DuplicateNameTest), Array.Empty<Type>());
 
             var dup2methodInfo
                 = typeof(MyNonDbContext)
-                    .GetRuntimeMethod(nameof(MyNonDbContext.DuplicateNameTest), new Type[] { });
+                    .GetRuntimeMethod(nameof(MyNonDbContext.DuplicateNameTest), Array.Empty<Type>());
 
             var dbFunc1 = modelBuilder.HasDbFunction(dup1methodInfo).HasName("Dup1").Metadata;
             var dbFunc2 = modelBuilder.HasDbFunction(dup2methodInfo).HasName("Dup2").Metadata;
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var methodInfo
                 = typeof(MyDerivedContext)
-                    .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), new Type[] { });
+                    .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), Array.Empty<Type>());
 
             var dbFunc = modelBuilder.HasDbFunction(methodInfo).Metadata;
 
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var methodInfo
                 = typeof(MyNonDbContext)
-                    .GetRuntimeMethod(nameof(MyNonDbContext.NonStatic), new Type[] { });
+                    .GetRuntimeMethod(nameof(MyNonDbContext.NonStatic), Array.Empty<Type>());
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidInstanceType(methodInfo.DisplayName(), typeof(MyNonDbContext).ShortDisplayName()),
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var methodInfo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), new Type[] { });
+            var methodInfo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), Array.Empty<Type>());
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidReturnType(methodInfo.DisplayName(), typeof(void).ShortDisplayName()),

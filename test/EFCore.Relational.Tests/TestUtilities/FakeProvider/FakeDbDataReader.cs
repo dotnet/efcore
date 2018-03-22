@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public FakeDbDataReader(string[] columnNames = null, IList<object[]> results = null)
         {
-            _columnNames = columnNames ?? new string[0];
+            _columnNames = columnNames ?? Array.Empty<string>();
             _results = results ?? new List<object[]>();
         }
 

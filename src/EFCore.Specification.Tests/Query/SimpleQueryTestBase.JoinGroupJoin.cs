@@ -62,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 #if Test20
-        private int GetEmployeeID(Employee employee)
+        private static int GetEmployeeID(Employee employee)
 #else
-        private uint GetEmployeeID(Employee employee)
+        private static uint GetEmployeeID(Employee employee)
 #endif
         {
             return employee.EmployeeID;

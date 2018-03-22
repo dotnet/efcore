@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(
-                new string[0][],
+                Array.Empty<string[]>(),
                 b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "F" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(
-                new string[0][],
+                Array.Empty<string[]>(),
                 b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "F" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
 
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
-            Assert.Equal(new string[0], specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
+            Assert.Equal(Array.Empty<string>(), specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
 
             specialCustomerType.HasBaseType(customerType);
 
@@ -1337,7 +1337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.GetKeys().Count());
 
-            Assert.Null(entityType.SetPrimaryKey(new Property[0]));
+            Assert.Null(entityType.SetPrimaryKey(Array.Empty<Property>()));
 
             Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.GetKeys().Count());

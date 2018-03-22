@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Oracle.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Oracle.ManagedDataAccess.Client;
 
 // ReSharper disable SuggestBaseTypeForParameter

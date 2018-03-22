@@ -4,6 +4,7 @@
     <TargetFrameworks>net461</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Oracle.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <NoWarn>$(NoWarn);CA1822</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">

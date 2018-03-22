@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.EndCommand();
         }
 
-        private void DropIdentity(
+        private static void DropIdentity(
             AlterColumnOperation operation,
             MigrationCommandListBuilder builder)
         {

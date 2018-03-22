@@ -1230,8 +1230,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override bool Equals(object obj)
             {
-                var otherCustomer = obj as TransactionCustomer;
-                if (otherCustomer == null)
+                if (!(obj is TransactionCustomer otherCustomer))
                 {
                     return false;
                 }

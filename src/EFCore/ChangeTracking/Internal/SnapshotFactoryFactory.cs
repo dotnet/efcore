@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : constructorExpression;
         }
 
-        private Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)
+        private static Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)
         {
             if (propertyBase is IProperty property)
             {

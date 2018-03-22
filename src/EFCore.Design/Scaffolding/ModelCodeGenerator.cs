@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Initializes a new instance of the <see cref="ModelCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public ModelCodeGenerator([NotNull] ModelCodeGeneratorDependencies dependencies)
+        protected ModelCodeGenerator([NotNull] ModelCodeGeneratorDependencies dependencies)
             => Dependencies = Check.NotNull(dependencies, nameof(dependencies));
 
         /// <summary>

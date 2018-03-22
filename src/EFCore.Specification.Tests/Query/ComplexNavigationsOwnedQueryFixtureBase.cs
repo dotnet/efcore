@@ -219,16 +219,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return context.Set<TEntity>();
             }
 
-            private IQueryable<Level1> GetLevelOne(DbContext context)
+            private static IQueryable<Level1> GetLevelOne(DbContext context)
                 => context.Set<Level1>();
 
-            private IQueryable<Level2> GetLevelTwo(DbContext context)
+            private static IQueryable<Level2> GetLevelTwo(DbContext context)
                 => GetLevelOne(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
 
-            private IQueryable<Level3> GetLevelThree(DbContext context)
+            private static IQueryable<Level3> GetLevelThree(DbContext context)
                 => GetLevelTwo(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
 
-            private IQueryable<Level4> GetLevelFour(DbContext context)
+            private static IQueryable<Level4> GetLevelFour(DbContext context)
                 => GetLevelThree(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
         }
 

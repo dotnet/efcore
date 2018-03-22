@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method)]
     [XunitTestCaseDiscoverer("Microsoft.EntityFrameworkCore.TestUtilities.Xunit.ConditionalFactDiscoverer", "Microsoft.EntityFrameworkCore.Specification.Tests")]
-    public class ConditionalFactAttribute : FactAttribute
+    public sealed class ConditionalFactAttribute : FactAttribute
     {
     }
 }

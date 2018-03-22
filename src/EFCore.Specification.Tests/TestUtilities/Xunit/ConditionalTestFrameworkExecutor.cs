@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
             }
         }
 
-        private IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
+        private static IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
             if (executionOptions.SynchronousMessageReportingOrDefault())
             {
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
             return new MessageBus(messageSink);
         }
 
-        private string EvaluateSkipConditions(IAssemblyInfo assembly)
+        private static string EvaluateSkipConditions(IAssemblyInfo assembly)
         {
             var reasons = assembly
                 .GetCustomAttributes(typeof(ITestCondition))

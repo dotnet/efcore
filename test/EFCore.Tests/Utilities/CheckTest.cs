@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public void Generic_Not_empty_throws_when_arg_is_empty()
         {
             // ReSharper disable once NotResolvedInText
-            Assert.Throws<ArgumentException>(() => Check.NotEmpty(new string[] { }, "foo"));
+            Assert.Throws<ArgumentException>(() => Check.NotEmpty(Array.Empty<string>(), "foo"));
         }
 
         [Fact]

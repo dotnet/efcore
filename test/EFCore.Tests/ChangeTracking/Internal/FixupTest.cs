@@ -1118,7 +1118,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(setFk ? principal.Id : 0, dependent.CategoryId);
-                            Assert.Equal(setToDependent ? new[] { dependent } : new ProductPN[0], principal.Products);
+                            Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
                             Assert.Equal(EntityState.Detached, context.Entry(principal).State);
                             Assert.Equal(entityState == EntityState.Unchanged && setFk ? EntityState.Modified : entityState,
                                 context.Entry(dependent).State);
@@ -1178,7 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     () =>
                         {
                             Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(setToDependent ? new[] { dependent } : new ProductPN[0], principal.Products);
+                            Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
                             Assert.Equal(entityState, context.Entry(principal).State);
                             Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
                         });

@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
                 }
 
-                constructorBinding = new DirectConstructorBinding(constructorInfo, new ParameterBinding[0]);
+                constructorBinding = new DirectConstructorBinding(constructorInfo, Array.Empty<ParameterBinding>());
             }
 
             // This is to avoid breaks because this method used to expect ValueBuffer but now expects MaterializationContext

@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        private void EnsureServices(IServiceProvider services)
+        private static void EnsureServices(IServiceProvider services)
         {
             var migrator = services.GetService<IMigrator>();
             if (migrator == null)
