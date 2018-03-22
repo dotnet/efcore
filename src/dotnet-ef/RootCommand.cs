@@ -91,8 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string executable;
             var args = new List<string>();
 
-            var toolsPath = Path.GetFullPath(
-                Path.Combine(Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location), "..", ".."));
+            var toolsPath = Path.Combine(
+                Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location),
+                "tools");
 
             var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir, startupProject.OutputPath));
             var targetPath = Path.Combine(targetDir, project.TargetFileName);
@@ -112,8 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     toolsPath,
                     "net461",
                     startupProject.PlatformTarget == "x86"
-                        ? "ef.x86.exe"
-                        : "ef.exe");
+                        ? "win-x86"
+                        : "any",
+                    "ef.exe");
             }
             else if (targetFramework.Identifier == ".NETCoreApp")
             {
@@ -148,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     args.Add(startupProject.RuntimeFrameworkVersion);
                 }
 
-                args.Add(Path.Combine(toolsPath, "netcoreapp2.0", "ef.dll"));
+                args.Add(Path.Combine(toolsPath, "netcoreapp2.0", "any", "ef.dll"));
             }
             else if (targetFramework.Identifier == ".NETStandard")
             {
