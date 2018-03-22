@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        private void ValidateDiscriminatorValues(IEntityType rootEntityType)
+        private static void ValidateDiscriminatorValues(IEntityType rootEntityType)
         {
             var discriminatorValues = new Dictionary<object, IEntityType>();
             var derivedTypes = rootEntityType.GetDerivedTypesInclusive().ToList();

@@ -120,6 +120,6 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Value() => HasValue() ? Values[0] : null;
 
-        private bool IsEnglishLetter(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        private static bool IsEnglishLetter(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 }

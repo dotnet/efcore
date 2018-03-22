@@ -20,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static TConcrete AsConcreteMetadataType<TInterface, TConcrete>([NotNull] TInterface @interface, [NotNull] string methodName)
             where TConcrete : class
         {
-            var concrete = @interface as TConcrete;
-            if (concrete == null)
+            if (!(@interface is TConcrete concrete))
             {
                 throw new NotSupportedException(
                     CoreStrings.CustomMetadata(

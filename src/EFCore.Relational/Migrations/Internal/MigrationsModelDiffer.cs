@@ -1390,7 +1390,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             yield return operation;
         }
 
-        private SequenceOperation Initialize(
+        private static SequenceOperation Initialize(
             SequenceOperation sequenceOperation,
             ISequence sequence,
             IEnumerable<IAnnotation> migrationsAnnotations)
@@ -1665,7 +1665,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private InternalEntityEntry GetEntry(IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IStateManager stateManager)
+        private static InternalEntityEntry GetEntry(IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IStateManager stateManager)
         {
             var key = sourceEntityType.FindPrimaryKey();
             var keyValues = new object[key.Properties.Count];

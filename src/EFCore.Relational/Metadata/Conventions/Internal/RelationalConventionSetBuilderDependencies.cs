@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
                             new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMappingSourceDependencies(), 
+                    new RelationalTypeMappingSourceDependencies(),
                     typeMapper),
                 null,
                 currentContext,
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
                             new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMappingSourceDependencies(), 
+                    new RelationalTypeMappingSourceDependencies(),
                     typeMapper),
                 Logger, Context, SetFinder, typeMapper);
 

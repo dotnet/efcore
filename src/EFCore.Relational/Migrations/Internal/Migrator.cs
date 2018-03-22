@@ -202,11 +202,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 migrationsToApply = unappliedMigrations
                     .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
-                migrationsToRevert = new Migration[0];
+                migrationsToRevert = Array.Empty<Migration>();
             }
             else if (targetMigration == Migration.InitialDatabase)
             {
-                migrationsToApply = new Migration[0];
+                migrationsToApply = Array.Empty<Migration>();
                 migrationsToRevert = appliedMigrations
                     .OrderByDescending(m => m.Key)
                     .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))

@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        private void Validate(ModificationCommand modificationCommand)
+        private static void Validate(ModificationCommand modificationCommand)
         {
             if (modificationCommand.EntityState == EntityState.Added)
             {

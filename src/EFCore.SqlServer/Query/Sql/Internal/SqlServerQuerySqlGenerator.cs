@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
             base.GenerateProjection(expressionToProcess);
         }
 
-        private Expression ExplicitCastToBool(Expression expression)
+        private static Expression ExplicitCastToBool(Expression expression)
             => (expression as BinaryExpression)?.NodeType == ExpressionType.Coalesce
             && expression.Type.UnwrapNullableType() == typeof(bool)
                 ? new ExplicitCastExpression(expression, expression.Type)

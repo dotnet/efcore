@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         ClrType = typeof(PropertyEntry)
                     }
                 },
-                new MigrationOperation[0]);
+                Array.Empty<MigrationOperation>());
             Assert.Equal(
                 @"using System;
 using System.Collections.Generic;

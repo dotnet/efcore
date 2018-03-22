@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => view.Add(new Category()));
             Assert.Throws<ObjectDisposedException>(() => view.Remove(new Category()));
             Assert.Throws<ObjectDisposedException>(() => view.Contains(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => view.CopyTo(new Category[0], 0));
+            Assert.Throws<ObjectDisposedException>(() => view.CopyTo(Array.Empty<Category>(), 0));
             Assert.Throws<ObjectDisposedException>(() => view.Clear());
             Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator());
         }

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                     Expression.Constant(0));
 
                 return patternExpression is ConstantExpression patternConstantExpression
-                    ? (string)patternConstantExpression.Value == string.Empty
+                    ? ((string)patternConstantExpression.Value)?.Length == 0
                         ? (Expression)Expression.Constant(true)
                         : charIndexExpression
                     : Expression.OrElse(

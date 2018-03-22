@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     [TraitDiscoverer("Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities.SqlServerConditionTraitDiscoverer", "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests")]
-    public class SqlServerConditionAttribute : Attribute, ITestCondition, ITraitAttribute
+    public sealed class SqlServerConditionAttribute : Attribute, ITestCondition, ITraitAttribute
     {
         public SqlServerCondition Conditions { get; set; }
 

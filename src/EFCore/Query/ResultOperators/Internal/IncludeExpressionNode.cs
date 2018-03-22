@@ -47,9 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         {
             var prm = Expression.Parameter(typeof(object));
             var pathFromQuerySource = Resolve(prm, prm, clauseGenerationContext);
-            var navigationPropertyPath = NavigationPropertyPathLambda.Body as MemberExpression;
 
-            if (navigationPropertyPath == null)
+            if (!(NavigationPropertyPathLambda.Body is MemberExpression navigationPropertyPath))
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidIncludeLambdaExpression(

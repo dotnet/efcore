@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
@@ -846,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var methodInfo
                 = typeof(DbFunctionMetadataTests.TestMethods)
-                    .GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodD), new Type[] { });
+                    .GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodD), Array.Empty<Type>());
 
             modelBuilder.HasDbFunction(methodInfo);
 

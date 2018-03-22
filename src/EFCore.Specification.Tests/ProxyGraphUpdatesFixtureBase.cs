@@ -544,9 +544,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
+        private static void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
 
-        private void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
+        private static void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
 
         [Flags]
         public enum ChangeMechanism

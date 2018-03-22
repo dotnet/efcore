@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [Fact]
         public void Literal_works_when_empty_ByteArray() =>
             Literal_works(
-                new byte[0],
+                Array.Empty<byte>(),
                 "new byte[] {  }");
 
         [Fact]

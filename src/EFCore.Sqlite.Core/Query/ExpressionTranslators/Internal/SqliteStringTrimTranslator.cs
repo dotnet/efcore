@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
     {
         // Method defined in netstandard2.0
         private static readonly MethodInfo _methodInfoWithoutArgs
-            = typeof(string).GetRuntimeMethod(nameof(string.Trim), new Type[] { });
+            = typeof(string).GetRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
 
         // Method defined in netcoreapp2.0 only
         private static readonly MethodInfo _methodInfoWithCharArg

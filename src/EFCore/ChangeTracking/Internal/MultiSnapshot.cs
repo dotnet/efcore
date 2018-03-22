@@ -40,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object this[int index]
         {
-            get { return _snapshots[index / Snapshot.MaxGenericTypes][index % Snapshot.MaxGenericTypes]; }
-            set { _snapshots[index / Snapshot.MaxGenericTypes][index % Snapshot.MaxGenericTypes] = value; }
+            get => _snapshots[index / Snapshot.MaxGenericTypes][index % Snapshot.MaxGenericTypes];
+            set => _snapshots[index / Snapshot.MaxGenericTypes][index % Snapshot.MaxGenericTypes] = value;
         }
     }
 }

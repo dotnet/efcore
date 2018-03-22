@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node.Update(newOperand);
         }
 
-        private Expression ValueBufferNullComparisonCheck(Expression valueBufferExpression) => Expression.Not(
+        private static Expression ValueBufferNullComparisonCheck(Expression valueBufferExpression) => Expression.Not(
             Expression.MakeMemberAccess(
                 valueBufferExpression,
                 typeof(ValueBuffer).GetRuntimeProperty(nameof(ValueBuffer.IsEmpty))));

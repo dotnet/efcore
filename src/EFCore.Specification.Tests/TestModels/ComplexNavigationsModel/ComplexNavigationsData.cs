@@ -26,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         public IReadOnlyList<InheritanceLeaf1> InheritanceLeafOnes { get; }
         public IReadOnlyList<InheritanceLeaf2> InheritanceLeafTwos { get; }
 
-        public abstract IQueryable<TEntity> Set<TEntity>() 
+        public abstract IQueryable<TEntity> Set<TEntity>()
             where TEntity : class;
 
-        public ComplexNavigationsData()
+        protected ComplexNavigationsData()
         {
             LevelOnes = CreateLevelOnes(tableSplitting: false);
             LevelTwos = CreateLevelTwos(tableSplitting: false);

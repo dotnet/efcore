@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return null;
         }
 
-        private RelationalTypeMapping FilterByClrType(RelationalTypeMapping mapping, RelationalTypeMappingInfo mappingInfo)
+        private static RelationalTypeMapping FilterByClrType(RelationalTypeMapping mapping, RelationalTypeMappingInfo mappingInfo)
             => mapping != null
                && (mappingInfo.ClrType == null
                    || mappingInfo.ClrType == mapping.ClrType)

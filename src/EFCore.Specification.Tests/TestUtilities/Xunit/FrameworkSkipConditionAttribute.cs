@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
-    public class FrameworkSkipConditionAttribute : Attribute, ITestCondition
+    public sealed class FrameworkSkipConditionAttribute : Attribute, ITestCondition
     {
         private readonly RuntimeFrameworks _excludedFrameworks;
 

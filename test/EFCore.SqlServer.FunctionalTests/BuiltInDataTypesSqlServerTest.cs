@@ -2953,6 +2953,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public override DateTime DefaultDateTime => new DateTime();
         }
 
+        [Flags]
         protected enum StringEnum16 : short
         {
             Value1 = 1,
@@ -2960,6 +2961,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             Value4 = 4
         }
 
+        [Flags]
         protected enum StringEnumU16 : ushort
         {
             Value1 = 1,

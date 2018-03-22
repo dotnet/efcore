@@ -877,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine(";");
         }
 
-        private string GenerateLambdaToKey(
+        private static string GenerateLambdaToKey(
             IReadOnlyList<IProperty> properties,
             string lambdaIdentifier)
         {
@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 : $"new {{ {string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name))} }}";
         }
 
-        private void RemoveAnnotation(ref List<IAnnotation> annotations, string annotationName)
+        private static void RemoveAnnotation(ref List<IAnnotation> annotations, string annotationName)
             => annotations.Remove(annotations.SingleOrDefault(a => a.Name == annotationName));
 
         private IList<string> GenerateAnnotations(IEnumerable<IAnnotation> annotations)

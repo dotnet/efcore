@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return expression;
         }
 
-        private Expression BuildCollectionAccessorExpression(
+        private static Expression BuildCollectionAccessorExpression(
             ParameterExpression parameter,
             IEnumerable<IPropertyBase> navigations)
         {

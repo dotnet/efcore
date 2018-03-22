@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Oracle.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 

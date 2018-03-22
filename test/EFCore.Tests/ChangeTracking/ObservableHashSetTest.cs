@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var collectionChanged = 0;
             var currentCount = 0;
             var countChange = 1;
-            var adding = new string[0];
+            var adding = Array.Empty<string>();
 
             hashSet.PropertyChanging += (s, a) => AssertCountChanging(hashSet, s, a, currentCount, ref countChanging);
             hashSet.PropertyChanged += (s, a) => AssertCountChanged(hashSet, s, a, ref currentCount, countChange, ref countChanged);
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var collectionChanged = 0;
             var currentCount = 2;
             var countChange = -1;
-            var removing = new string[0];
+            var removing = Array.Empty<string>();
 
             hashSet.PropertyChanging += (s, a) => AssertCountChanging(hashSet, s, a, currentCount, ref countChanging);
             hashSet.PropertyChanged += (s, a) => AssertCountChanged(hashSet, s, a, ref currentCount, countChange, ref countChanged);
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal(1, collectionChanged);
             Assert.Equal(new[] { "Abrash", "Brendan", "Nate" }, hashSet.OrderBy(i => i));
 
-            hashSet.SymmetricExceptWith(new string[0]);
+            hashSet.SymmetricExceptWith(Array.Empty<string>());
 
             Assert.Equal(1, countChanging);
             Assert.Equal(1, countChanged);

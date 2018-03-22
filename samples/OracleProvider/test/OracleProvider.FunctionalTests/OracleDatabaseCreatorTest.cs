@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
         private static async Task Creates_physical_database_and_schema_test(
             (bool CreateDatabase, bool Async) options)
         {
-            (bool createDatabase, bool async) = options;
+            (var createDatabase, var async) = options;
 
             using (var testDatabase = OracleTestStore.Create("EnsureCreatedTest"))
             {
@@ -735,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool HasTablesBase() => HasTables();
 
-            public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default(CancellationToken))
+            public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default)
                 => HasTablesAsync(cancellationToken);
 
             public IExecutionStrategyFactory ExecutionStrategyFactory => Dependencies.ExecutionStrategyFactory;

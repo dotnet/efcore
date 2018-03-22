@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var entityType = FindEntityType(name);
-            return entityType == null ? new EntityType[0] : new[] { entityType };
+            return entityType == null ? Array.Empty<EntityType>() : new[] { entityType };
         }
 
         /// <summary>

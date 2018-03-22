@@ -883,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Contains_with_local_collection_empty_closure()
         {
-            var ids = new string[0];
+            var ids = Array.Empty<string>();
 
             AssertQuery<Customer>(
                 cs =>
