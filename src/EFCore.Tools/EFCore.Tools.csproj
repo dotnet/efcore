@@ -12,6 +12,7 @@
     <IncludeSource>false</IncludeSource>
     <IncludeSymbols>false</IncludeSymbols>
     <EnableApiCheck>false</EnableApiCheck>
+    <Description>Entity Framework Core Package Manager Console Tools. Includes Scaffold-DbContext, Add-Migration, and Update-Database.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +24,17 @@
       <NuspecProperties>
         id=$(PackageId);
         version=$(PackageVersion);
-        configuration=$(Configuration)
+        configuration=$(Configuration);
+        tags=$(PackageTags.Replace(';',' '));
+        projectUrl=$(PackageProjectUrl);
+        licenseUrl=$(PackageLicenseUrl);
+        iconUrl=$(PackageIconUrl);
+        repositoryUrl=$(RepositoryUrl);
+        repositoryType=$(RepositoryType);
+        repositoryCommit=$(RepositoryCommit);
+        author=$(Authors);
+        copyright=$(Copyright);
+        description=$(Description);
       </NuspecProperties>
     </PropertyGroup>
   </Target>
