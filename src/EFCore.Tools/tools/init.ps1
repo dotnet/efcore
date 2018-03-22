@@ -14,11 +14,24 @@ if ($PSVersionTable.PSVersion.Major -lt 3)
 }
 else
 {
-    if (Get-Module 'EntityFrameworkCore')
+    $importedModule = Get-Module 'EntityFrameworkCore'
+    $moduleToImport = Test-ModuleManifest (Join-Path $PSScriptRoot 'EntityFrameworkCore.psd1')
+    $import = $true
+    if ($importedModule)
     {
-        Remove-Module 'EntityFrameworkCore'
+        if ($importedModule.Version -le $moduleToImport.Version)
+        {
+            Remove-Module 'EntityFrameworkCore'
+        }
+        else
+        {
+            $import = $false
+        }
     }
 
-    Import-Module (Join-Path $PSScriptRoot 'EntityFrameworkCore.psd1') -DisableNameChecking
+    if ($import)
+    {
+        Import-Module $moduleToImport -DisableNameChecking
+    }
 }
 
