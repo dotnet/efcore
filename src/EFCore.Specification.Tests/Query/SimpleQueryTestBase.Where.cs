@@ -1428,5 +1428,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         && os.OrderBy(o => o.OrderID).Take(10).Select(o => o.OrderID).Contains(od.OrderID)),
                 entryCount: 5);
         }
+
+        [ConditionalFact]
+        public virtual void Where_contains_on_navigation()
+        {
+            AssertQuery<Order, Customer>(
+                (os, cs) => os.Where(o => cs.Any(c => c.Orders.Contains(o))),
+                entryCount: 830);
+        }
     }
 }

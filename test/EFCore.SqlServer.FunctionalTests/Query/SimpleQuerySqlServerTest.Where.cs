@@ -1551,5 +1551,22 @@ WHERE [od].[ProductID] IN (
     ORDER BY [o].[OrderID]
 )");
         }
+
+        public override void Where_contains_on_navigation()
+        {
+            base.Where_contains_on_navigation();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Customers] AS [c]
+    WHERE [o].[OrderID] IN (
+        SELECT [o0].[OrderID]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ))");
+        }
     }
 }
