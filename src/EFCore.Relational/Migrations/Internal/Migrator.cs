@@ -173,7 +173,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void PopulateMigrations(
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void PopulateMigrations(
             IEnumerable<string> appliedMigrationEntries,
             string targetMigration,
             out IReadOnlyList<Migration> migrationsToApply,
