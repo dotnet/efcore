@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     [DebuggerDisplay("{Metadata,nq}")]
+    // Issue#11266 This type is being used by provider code. Do not break.
     public class InternalKeyBuilder : InternalMetadataItemBuilder<Key>
     {
         /// <summary>
