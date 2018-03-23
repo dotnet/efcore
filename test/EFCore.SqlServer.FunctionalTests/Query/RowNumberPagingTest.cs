@@ -535,9 +535,9 @@ SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM (
-            SELECT [t0].*
+            SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
             FROM (
-                SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
+                SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
                 FROM [Customers] AS [c]
             ) AS [t0]
             WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
@@ -558,7 +558,7 @@ SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM (
-            SELECT TOP(@__p_0) [c].*
+            SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [t]
