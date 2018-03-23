@@ -21,7 +21,7 @@
     Description = 'Entity Framework Core Package Manager Console Tools'
 
     # Minimum version of the Windows PowerShell engine required by this module
-    PowerShellVersion = '1.0'
+    PowerShellVersion = '2.0'
 
     # Name of the Windows PowerShell host required by this module
     PowerShellHostName = 'Package Manager Host'
@@ -39,7 +39,7 @@
     ProcessorArchitecture = ''
 
     # Modules that must be imported into the global environment prior to importing this module
-    RequiredModules = 'NuGet'
+    RequiredModules = @()
 
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies = @()
