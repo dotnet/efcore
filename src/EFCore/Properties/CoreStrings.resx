@@ -125,6 +125,7 @@
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="StillUsingTypeMapper" xml:space="preserve">
     <value>The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.</value>
@@ -263,6 +264,7 @@
   </data>
   <data name="SingletonOptionChanged" xml:space="preserve">
     <value>A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="LogServiceProviderCreated" xml:space="preserve">
     <value>An 'IServiceProvider' was created for internal use by Entity Framework.</value>
@@ -540,12 +542,14 @@
   </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="RelationshipCannotBeInverted" xml:space="preserve">
     <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
     <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.</value>
@@ -558,6 +562,7 @@
   </data>
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
     <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="DerivedEntityTypeKey" xml:space="preserve">
     <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.</value>

@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
+    // Issue#11266 This type is being used by provider code. Do not break.
     public sealed class CoreConventionSetBuilderDependencies
     {
         /// <summary>
