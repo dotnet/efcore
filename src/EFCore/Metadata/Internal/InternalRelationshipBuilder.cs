@@ -1239,6 +1239,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? principalEndConfigurationSource,
             ConfigurationSource? configurationSource)
         {
+            if ((Metadata.PrincipalEntityType == principalEntityType
+                && Metadata.DeclaringEntityType == dependentEntityType)
+                || (Metadata.PrincipalEntityType == principalEntityType.LeastDerivedType(Metadata.PrincipalEntityType)
+                    && Metadata.DeclaringEntityType == dependentEntityType.LeastDerivedType(Metadata.DeclaringEntityType)))
+            {
+                if (!principalEndConfigurationSource.HasValue
+                    || Metadata.GetPrincipalEndConfigurationSource()?.Overrides(principalEndConfigurationSource) == true)
+                {
+                    return this;
+                }
+
+                Metadata.UpdatePrincipalEndConfigurationSource(principalEndConfigurationSource.Value);
+
+                return ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndChanged(this);
+            }
+
             if (!CanSetRelatedTypes(
                     principalEntityType,
                     dependentEntityType,
@@ -1282,26 +1298,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 principalEntityType = principalEntityType.LeastDerivedType(Metadata.PrincipalEntityType);
                 dependentEntityType = dependentEntityType.LeastDerivedType(Metadata.DeclaringEntityType);
-
-                if (Metadata.PrincipalEntityType == principalEntityType
-                    && Metadata.DeclaringEntityType == dependentEntityType)
-                {
-                    Debug.Assert(
-                        !shouldResetToPrincipal
-                        && !shouldResetToDependent
-                        && !shouldResetPrincipalProperties
-                        && !shouldResetDependentProperties);
-
-                    if (principalEndConfigurationSource.HasValue
-                        && Metadata.GetPrincipalEndConfigurationSource()?.Overrides(principalEndConfigurationSource) != true)
-                    {
-                        builder.Metadata.UpdatePrincipalEndConfigurationSource(principalEndConfigurationSource.Value);
-
-                        builder = ModelBuilder.Metadata.ConventionDispatcher.OnPrincipalEndChanged(builder);
-                    }
-
-                    return builder;
-                }
 
                 dependentProperties = shouldResetDependentProperties
                     ? dependentProperties

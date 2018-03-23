@@ -259,17 +259,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var memberInfo in clrType.GetRuntimeProperties().Cast<MemberInfo>()
                 .Concat(clrType.GetRuntimeFields()))
             {
-                if (memberInfo is PropertyInfo propertyInfo
-                    && FindCandidateNavigationPropertyType(propertyInfo) != null)
-                {
-                    continue;
-                }
-
                 var attribute = memberInfo.GetCustomAttribute<ForeignKeyAttribute>(true);
 
                 if (attribute != null
                     && attribute.Name == navigationName)
                 {
+                    if (memberInfo is PropertyInfo propertyInfo
+                        && FindCandidateNavigationPropertyType(propertyInfo) != null)
+                    {
+                        continue;
+                    }
+
                     if (candidateProperty != null)
                     {
                         throw new InvalidOperationException(CoreStrings.CompositeFkOnProperty(navigationName, entityType.DisplayName()));

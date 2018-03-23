@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -221,36 +221,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private IReadOnlyList<Property> FindCandidateForeignKeyProperties(
             ForeignKey foreignKey, bool onDependent, bool matchPk = false)
         {
-            var baseNames = new List<string>();
+            IReadOnlyList<Property> match;
             var navigation = onDependent
                 ? foreignKey.DependentToPrincipal
                 : foreignKey.PrincipalToDependent;
             if (navigation != null)
             {
-                baseNames.Add(navigation.Name);
+                if (TryFindMatchingProperties(foreignKey, navigation.Name, onDependent, matchPk, out match))
+                {
+                    return match;
+                }
             }
 
             var entityTypeToReference = onDependent
                 ? foreignKey.PrincipalEntityType
                 : foreignKey.DeclaringEntityType;
-            baseNames.Add(entityTypeToReference.ShortName());
+            if (TryFindMatchingProperties(foreignKey, entityTypeToReference.ShortName(), onDependent, matchPk, out match))
+            {
+                return match;
+            }
 
             if (!matchPk)
             {
-                baseNames.Add("");
-            }
-
-            foreach (var baseName in baseNames)
-            {
-                var match = FindMatchingProperties(foreignKey, baseName, onDependent, matchPk);
-                if (match != null)
+                if (TryFindMatchingProperties(foreignKey, "", onDependent, false, out match))
                 {
-                    // Stop searching if match found, but is incompatible
-                    return match.Count == 0 ? null : match;
+                    return match;
                 }
             }
 
-            return null;
+            return match;
         }
 
         private static IReadOnlyList<Property> GetCompatiblePrimaryKeyProperties(EntityType dependentEntityType, EntityType principalEntityType, IReadOnlyList<Property> propertiesToReference)
@@ -270,9 +269,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return null;
         }
 
-        private IReadOnlyList<Property> FindMatchingProperties(
-            ForeignKey foreignKey, string baseName, bool onDependent, bool matchPK = false)
+        private bool TryFindMatchingProperties(
+            ForeignKey foreignKey, string baseName, bool onDependent, bool matchPK, out IReadOnlyList<Property> match)
         {
+            match = null;
             var dependentEntityType = onDependent
                 ? foreignKey.DeclaringEntityType
                 : foreignKey.PrincipalEntityType;
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (propertiesToReference == null)
             {
-                return null;
+                return false;
             }
 
             var foreignKeyProperties = new Property[propertiesToReference.Count];
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (!matchFound)
             {
-                return null;
+                return false;
             }
 
             if (!ForeignKey.AreCompatible(
@@ -338,20 +338,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _logger.IncompatibleMatchingForeignKeyProperties(foreignKeyProperties, propertiesToReference);
                 }
 
-                return Array.Empty<Property>();
+                // Stop searching if match found, but is incompatible
+                return true;
             }
 
             foreach (var key in dependentEntityType.GetKeys())
             {
-                if (key.Properties.All(property => foreignKeyProperties.Contains(property))
+                var isContainedInForeignKey = true;
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var i = 0; i < key.Properties.Count; i++)
+                {
+                    if (!foreignKeyProperties.Contains(key.Properties[i]))
+                    {
+                        isContainedInForeignKey = false;
+                        break;
+                    }
+                }
+
+                if (isContainedInForeignKey
                     && (!foreignKey.IsUnique
                         || (key.IsPrimaryKey() && !matchPK)))
                 {
-                    return Array.Empty<Property>();
+                    // Stop searching if match found, but is incompatible
+                    return true;
                 }
             }
 
-            return foreignKeyProperties;
+            match = foreignKeyProperties;
+            return true;
         }
 
         private static Property TryGetProperty(EntityType entityType, string prefix, string suffix)

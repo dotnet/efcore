@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             if (ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource()))
             {
-                foreach (var type in propertyBase.DeclaringType.ClrType.GetTypesInHierarchy().ToList())
+                var type = propertyBase.DeclaringType.ClrType;
+                while (type != null)
                 {
                     var fieldInfo = TryMatchFieldName(type, propertyBase.ClrType, propertyBase.Name);
                     if (fieldInfo != null)
@@ -54,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Convention);
                         return;
                     }
+                    type = type.GetTypeInfo().BaseType;
                 }
             }
         }
@@ -66,33 +68,96 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] Type entityType, [NotNull] Type propertyType, [NotNull] string propertyName)
         {
             var fields = new Dictionary<string, FieldInfo>();
-            foreach (var field in entityType.GetRuntimeFields().Where(f => !f.IsStatic))
+            foreach (var field in entityType.GetRuntimeFields())
             {
-                if (!fields.ContainsKey(field.Name))
+                if (!field.IsStatic
+                    && !fields.ContainsKey(field.Name))
                 {
                     fields[field.Name] = field;
                 }
             }
 
-            var camelized = char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1);
+            var sortedFields = fields.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray();
 
             var typeInfo = propertyType.GetTypeInfo();
 
-            return fields.TryGetValue("<" + propertyName + ">k__BackingField", out var fieldInfo)
-                   || (fields.TryGetValue(propertyName, out fieldInfo)
-                       && IsConvertable(typeInfo, fieldInfo))
-                   || (fields.TryGetValue(camelized, out fieldInfo)
-                       && IsConvertable(typeInfo, fieldInfo))
-                   || (fields.TryGetValue("_" + camelized, out fieldInfo)
-                       && IsConvertable(typeInfo, fieldInfo))
-                   || (fields.TryGetValue("_" + propertyName, out fieldInfo)
-                       && IsConvertable(typeInfo, fieldInfo))
-                   || (fields.TryGetValue("m_" + camelized, out fieldInfo)
-                       && IsConvertable(typeInfo, fieldInfo))
-                   || (fields.TryGetValue("m_" + propertyName, out fieldInfo)
-                       && IsConvertable(typeInfo, fieldInfo))
-                ? fieldInfo
-                : null;
+            var match = TryMatch(sortedFields, "<", propertyName, ">k__BackingField", null)
+                        ?? TryMatch(sortedFields, propertyName, "", "", typeInfo);
+            if (match == null)
+            {
+                var camelPrefix = char.ToLowerInvariant(propertyName[0]).ToString();
+                var camelizedSuffix = propertyName.Substring(1);
+
+                match = TryMatch(sortedFields, camelPrefix, camelizedSuffix, "", typeInfo)
+                        ?? TryMatch(sortedFields, "_", camelPrefix, camelizedSuffix, typeInfo)
+                        ?? TryMatch(sortedFields, "_", "", propertyName, typeInfo)
+                        ?? TryMatch(sortedFields, "m_", camelPrefix, camelizedSuffix, typeInfo)
+                        ?? TryMatch(sortedFields, "m_", "", propertyName, typeInfo);
+            }
+
+            return match;
+        }
+
+        private static FieldInfo TryMatch(
+            KeyValuePair<string, FieldInfo>[] array, string prefix, string middle, string suffix, TypeInfo typeInfo)
+        {
+            var index = PrefixBinarySearch(array, prefix, 0, array.Length - 1);
+            if (index == -1)
+            {
+                return null;
+            }
+
+            var length = prefix.Length + middle.Length + suffix.Length;
+            var currentValue = array[index];
+            while (true)
+            {
+                if (currentValue.Key.Length == length
+                    && currentValue.Key.EndsWith(suffix, StringComparison.Ordinal)
+                    && currentValue.Key.IndexOf(middle, prefix.Length, StringComparison.Ordinal) == prefix.Length)
+                {
+                    return typeInfo == null
+                        ? currentValue.Value
+                        : (IsConvertable(typeInfo, currentValue.Value)
+                            ? currentValue.Value
+                            : null);
+                }
+
+                if (++index == array.Length)
+                {
+                    return null;
+                }
+                currentValue = array[index];
+                if (!currentValue.Key.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    return null;
+                }
+            }
+        }
+
+        private static int PrefixBinarySearch<T>(KeyValuePair<string, T>[] array, string prefix, int left, int right)
+        {
+            var found = -1;
+            while (true)
+            {
+                if (right < left)
+                {
+                    return found;
+                }
+
+                var middle = (left + right) >> 1;
+                var value = array[middle].Key;
+
+                if (value.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    found = middle;
+                }
+                else if (StringComparer.Ordinal.Compare(value, prefix) < 0)
+                {
+                    left = middle + 1;
+                    continue;
+                }
+                right = middle - 1;
+            }
         }
 
         private static bool IsConvertable(TypeInfo typeInfo, FieldInfo fieldInfo)

@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     // Make sure that the properties won't be reuniquified
                     definingFk.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Convention);
-                    keyProperties = definingFk.Properties.ToList();
+                    keyProperties = definingFk.Properties;
                 }
 
                 if (keyProperties == null)
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var candidateProperties = entityType.GetProperties().Where(
                         p => !p.IsShadowProperty
                              || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
-                    keyProperties = DiscoverKeyProperties(entityType, candidateProperties).ToList();
+                    keyProperties = (IReadOnlyList<Property>)DiscoverKeyProperties(entityType, candidateProperties);
                     if (keyProperties.Count > 1)
                     {
                         _logger?.MultiplePrimaryKeyCandidates(keyProperties[0], keyProperties[1]);
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (keyProperties.Any())
+                if (keyProperties.Count > 0)
                 {
                     entityTypeBuilder.PrimaryKey(keyProperties, ConfigurationSource.Convention);
                 }
@@ -93,14 +93,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var keyProperties = candidateProperties.Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase));
-            if (!keyProperties.Any())
+            var keyProperties = candidateProperties.Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (keyProperties.Count == 0)
             {
                 var entityTypeName = entityType.ShortName();
                 keyProperties = candidateProperties.Where(
                     p => p.Name.Length == entityTypeName.Length + KeySuffix.Length
                          && p.Name.StartsWith(entityTypeName, StringComparison.OrdinalIgnoreCase)
-                         && p.Name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase));
+                         && p.Name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
             return keyProperties;

@@ -80,13 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel)
         {
-            var warningBehavior = _warningsConfiguration?.GetBehavior(eventId);
+            var warningBehavior = _warningsConfiguration?.GetBehavior(eventId) ??
+                                  (logLevel == LogLevel.Warning
+                                   && _warningsConfiguration?.DefaultBehavior == WarningBehavior.Throw
+                                      ? WarningBehavior.Throw
+                                      : WarningBehavior.Log);
 
-            return warningBehavior ??
-                   (logLevel == LogLevel.Warning
-                    && _warningsConfiguration?.DefaultBehavior == WarningBehavior.Throw
-                       ? WarningBehavior.Throw
-                       : WarningBehavior.Log);
+            return warningBehavior == WarningBehavior.Log
+                ? Logger.IsEnabled(logLevel) ? WarningBehavior.Log : WarningBehavior.Ignore
+                : warningBehavior;
         }
     }
 }

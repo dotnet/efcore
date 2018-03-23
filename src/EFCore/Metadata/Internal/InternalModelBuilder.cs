@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
 
-                    Metadata.Unignore(clrType);
+                    Metadata.Unignore(type.Name);
 
                     entityType = Metadata.AddEntityType(clrType, configurationSource);
                 }
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    Metadata.Unignore(clrType);
+                    Metadata.Unignore(type.Name);
 
                     weakEntityType = Metadata.AddEntityType(clrType, definingNavigationName, definingEntityType, configurationSource);
                 }
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                Metadata.Unignore(clrType);
+                Metadata.Unignore(type.Name);
 
                 Metadata.MarkAsOwnedType(clrType);
             }

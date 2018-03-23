@@ -5,6 +5,12 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable ArrangeAccessorOwnerBody
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedMember.Local
+// ReSharper disable PossibleInvalidOperationException
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToAutoProperty
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -170,10 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("m_onTheRun", property.GetFieldName());
         }
 
-        private class TheDarkSideOfTheMoon
-        {
 #pragma warning disable 649
 #pragma warning disable 169
+#pragma warning disable IDE0027 // Use expression body for accessors
+#pragma warning disable IDE1006 // Naming Styles
+        private class TheDarkSideOfTheMoon
+        {
             private string m_SpeakToMe;
             private int _notSpeakToMe;
 
@@ -289,14 +297,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 get { return (int)m_Eclipse; }
                 set { m_Eclipse = value; }
             }
-#pragma warning restore 649
-#pragma warning restore 169
         }
 
         private class TheDarkerSideOfTheMoon
         {
-#pragma warning disable 649
-#pragma warning disable 169
             private string m_SpeakToMe;
 
             private int IsThereAnybodyOutThere;
@@ -343,9 +347,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private int? m_BrainDamage;
 
             private int? m_Eclipse;
-
-#pragma warning restore 649
-#pragma warning restore 169
         }
 
         private class TheDarkSide : OfTheMoon
@@ -379,5 +380,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public int Unrelated = 2;
         }
+#pragma warning restore 649
+#pragma warning restore 169
+#pragma warning restore IDE0027 // Use expression body for accessors
+#pragma warning restore IDE1006 // Naming Styles
     }
 }
