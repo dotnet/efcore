@@ -610,6 +610,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("UsingReferencedServices", nameof(referencedAssembly)),
                 referencedAssembly);
 
+        /// <summary>
+        ///     The EF Core tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.
+        /// </summary>
+        public static string VersionMismatch([CanBeNull] object toolsVersion, [CanBeNull] object runtimeVersion)
+            => string.Format(
+                GetString("VersionMismatch", nameof(toolsVersion), nameof(runtimeVersion)),
+                toolsVersion, runtimeVersion);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

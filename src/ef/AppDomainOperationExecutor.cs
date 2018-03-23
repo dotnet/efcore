@@ -8,6 +8,7 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -65,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         { "startupTargetName", StartupAssemblyFileName },
                         { "projectDir", ProjectDirectory },
                         { "rootNamespace", RootNamespace },
-                        { "language", Language }
+                        { "language", Language },
+                        { "toolsVersion", ProductInfo.GetVersion() }
                     }
                 },
                 null,

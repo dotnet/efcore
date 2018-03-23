@@ -53,9 +53,17 @@ namespace Microsoft.EntityFrameworkCore.Design
             _projectDir = (string)args["projectDir"];
             var rootNamespace = (string)args["rootNamespace"];
             var language = (string)args["language"];
+            var toolsVersion = (string)args["toolsVersion"];
 
             // TODO: Flow in from tools (issue #8332)
             var designArgs = Array.Empty<string>();
+
+            var runtimeVersion = ProductInfo.GetVersion();
+            if (toolsVersion != null
+                && new SemanticVersionComparer().Compare(toolsVersion, runtimeVersion) < 0)
+            {
+                reporter.WriteWarning(DesignStrings.VersionMismatch(toolsVersion, runtimeVersion));
+            }
 
             // NOTE: LazyRef is used so any exceptions get passed to the resultHandler
             var startupAssembly = new LazyRef<Assembly>(

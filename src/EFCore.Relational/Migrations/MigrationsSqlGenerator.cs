@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -12,9 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -1385,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 if (unicode == property.IsUnicode()
                     && maxLength == property.GetMaxLength()
-                    && (fixedLength ?? false)  == property.Relational().IsFixedLength
+                    && (fixedLength ?? false) == property.Relational().IsFixedLength
                     && rowVersion == (property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate))
                 {
                     return Dependencies.TypeMappingSource.FindMapping(property).StoreType;
@@ -1621,8 +1621,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName,
             [NotNull] string columnName
-            // Any property that maps to the column will work because model validator has
-            // checked that all properties result in the same column definition.
+        // Any property that maps to the column will work because model validator has
+        // checked that all properties result in the same column definition.
         )
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
                 .FirstOrDefault(p => p.Relational().ColumnName == columnName);
@@ -1668,13 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 return false;
             }
 
-            var prereleaseIndex = versionString.IndexOf("-", StringComparison.Ordinal);
-            if (prereleaseIndex != -1)
-            {
-                versionString = versionString.Substring(0, prereleaseIndex);
-            }
-
-            return new Version(versionString) >= new Version(1, 1, 0);
+            return new SemanticVersionComparer().Compare(versionString, "1.1.0") >= 0;
         }
     }
 }
