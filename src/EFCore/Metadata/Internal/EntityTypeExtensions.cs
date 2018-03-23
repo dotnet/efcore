@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [DebuggerStepThrough]
+        // Issue#11266 This method is being used by provider code. Do not break.
         public static string DisplayName([NotNull] this IEntityType type)
         {
             if (type.ClrType == null)
@@ -82,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        // Issue#11266 This method is being used by provider code. Do not break.
         public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
             => new List<IEntityType>(GetAllBaseTypes(entityType)) { entityType };
 
@@ -497,6 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        // Issue#11266 This method is being used by provider code. Do not break.
         public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().GetDeclaredProperties();
 
@@ -528,6 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        // Issue#11266 This method is being used by provider code. Do not break.
         public static IEnumerable<IIndex> GetDeclaredIndexes([NotNull] this IEntityType entityType)
             => entityType.GetIndexes().Where(p => p.DeclaringEntityType == entityType);
 

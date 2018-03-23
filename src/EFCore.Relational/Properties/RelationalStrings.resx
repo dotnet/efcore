@@ -122,6 +122,7 @@
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
@@ -134,6 +135,7 @@
   </data>
   <data name="NoConnectionOrConnectionString" xml:space="preserve">
     <value>A relational store has been configured without specifying either the DbConnection or connection string to use.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="NamedConnectionStringNotFound" xml:space="preserve">
     <value>A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information.</value>
@@ -150,12 +152,15 @@
   </data>
   <data name="UpdateStoreException" xml:space="preserve">
     <value>An error occurred while updating the entries. See the inner exception for details.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="TransactionAlreadyStarted" xml:space="preserve">
     <value>The connection is already in a transaction and cannot participate in another transaction.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="LogRelationalLoggerOpeningConnection" xml:space="preserve">
     <value>Opening connection to database '{database}' on server '{server}'.</value>
@@ -210,6 +215,7 @@
   </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize sequence from model metadata. See inner exception for details.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="MigrationNotFound" xml:space="preserve">
     <value>The migration '{migrationName}' was not found.</value>
@@ -222,6 +228,7 @@
   </data>
   <data name="InvalidMaxBatchSize" xml:space="preserve">
     <value>The specified MaxBatchSize value is not valid. It must be a positive number.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="UnableToDiscriminate" xml:space="preserve">
     <value>Unable to materialize entity of type '{entityType}'. No discriminators were matched.</value>
@@ -309,6 +316,7 @@
   </data>
   <data name="MissingParameterValue" xml:space="preserve">
     <value>No value provided for required parameter '{parameter}'.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
@@ -330,6 +338,7 @@
   </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="ConflictingRowUpdateTypes" xml:space="preserve">
     <value>An instance of entity type '{firstEntityType}' is marked as '{firstState}', but an instance of entity type '{secondEntityType}' is marked as '{secondState}' and both are mapped to the same row. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -372,6 +381,7 @@
   </data>
   <data name="ConflictingColumnServerGeneration" xml:space="preserve">
     <value>{conflictingConfiguration} cannot be set for '{property}', because {existingConfiguration} is already set.</value>
+    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="DuplicateForeignKeyColumnMismatch" xml:space="preserve">
     <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).</value>
