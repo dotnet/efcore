@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
+        private static Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
         {
             e.Set();
             s.Wait();

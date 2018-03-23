@@ -1169,6 +1169,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new RelationalCommand(
                 logger ?? new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
                 commandText,
-                parameters ?? new IRelationalParameter[0]);
+                parameters ?? Array.Empty<IRelationalParameter>());
     }
 }

@@ -2622,7 +2622,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
-        private TResult ClientMethodReturnSelf<TResult>(TResult element)
+        private static TResult ClientMethodReturnSelf<TResult>(TResult element)
         {
             return element;
         }
@@ -2827,7 +2827,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select Maybe(l2_outer, () => l2_outer.Name));
         }
 
-        private Level1 ClientLevel1(Level1 arg)
+        private static Level1 ClientLevel1(Level1 arg)
         {
             return arg;
         }
@@ -2896,7 +2896,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // ReSharper disable once UnusedParameter.Local
-        private bool ClientMethod(int? id)
+        private static bool ClientMethod(int? id)
         {
             return true;
         }

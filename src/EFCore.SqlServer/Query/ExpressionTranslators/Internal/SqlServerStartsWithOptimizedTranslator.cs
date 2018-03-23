@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                             patternExpression)));
 
                 return patternExpression is ConstantExpression patternConstantExpression
-                    ? (string)patternConstantExpression.Value == string.Empty
+                    ? ((string)patternConstantExpression.Value)?.Length == 0
                         ? (Expression)Expression.Constant(true)
                         : startsWithExpression
                     : Expression.OrElse(

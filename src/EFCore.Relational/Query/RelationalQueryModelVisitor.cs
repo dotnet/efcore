@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -27,7 +26,6 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {

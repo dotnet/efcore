@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class AsyncSimpleQueryOracleTest : AsyncSimpleQueryTestBase<NorthwindQueryOracleFixture<NoopModelCustomizer>>
     {
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         // ReSharper disable once UnusedParameter.Local
         public AsyncSimpleQueryOracleTest(NorthwindQueryOracleFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 using (var asyncEnumerator = context.Customers.AsAsyncEnumerable().GetEnumerator())
                 {
-                    while (await asyncEnumerator.MoveNext(default(CancellationToken)))
+                    while (await asyncEnumerator.MoveNext(default))
                     {
                         if (!context.GetService<IRelationalConnection>().IsMultipleActiveResultSetsEnabled)
                         {

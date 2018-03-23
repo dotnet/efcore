@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
             return baseDelay;
         }
 
-        private bool IsMemoryOptimizedError(Exception exception)
+        private static bool IsMemoryOptimizedError(Exception exception)
         {
             if (exception is SqlException sqlException)
             {

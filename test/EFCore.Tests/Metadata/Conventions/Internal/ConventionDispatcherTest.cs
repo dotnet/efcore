@@ -2050,7 +2050,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
-            relationship = relationship.HasPrincipalKey(new string[0], ConfigurationSource.Convention);
+            relationship = relationship.HasPrincipalKey(Array.Empty<string>(), ConfigurationSource.Convention);
             Assert.NotNull(relationship);
 
             if (useScope)
@@ -2073,7 +2073,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
-            relationship = relationship.HasForeignKey(new string[0], ConfigurationSource.Convention);
+            relationship = relationship.HasForeignKey(Array.Empty<string>(), ConfigurationSource.Convention);
             Assert.NotNull(relationship);
 
             if (useScope)

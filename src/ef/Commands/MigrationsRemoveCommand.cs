@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             return base.Execute();
         }
 
-        private void ReportJsonResults(IDictionary result)
+        private static void ReportJsonResults(IDictionary result)
         {
             Reporter.WriteData("{");
             Reporter.WriteData("  \"migrationFile\": " + Json.Literal(result["MigrationFile"] as string) + ",");

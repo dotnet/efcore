@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             fixer.KeyPropertyChanged(
                 dependentEntry,
                 categoryIdProperty,
-                new IKey[0],
+                Array.Empty<IKey>(),
                 productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
                 12,
                 11);
@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             fixer.KeyPropertyChanged(
                 dependentEntry,
                 categoryIdProperty,
-                new IKey[0],
+                Array.Empty<IKey>(),
                 productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
                 12,
                 11);
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             fixer.KeyPropertyChanged(
                 dependentEntry,
                 categoryIdProperty,
-                new IKey[0],
+                Array.Empty<IKey>(),
                 productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
                 12,
                 11);
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             fixer.KeyPropertyChanged(
                 entry1,
                 alternateProductId,
-                new IKey[0],
+                Array.Empty<IKey>(),
                 productType.GetForeignKeys().Where(k => k.Properties.Contains(alternateProductId)).ToList(),
                 22,
                 23);
@@ -797,7 +797,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             fixer.KeyPropertyChanged(
                 entry1,
                 alternateProductId,
-                new IKey[0],
+                Array.Empty<IKey>(),
                 productType.GetForeignKeys().Where(k => k.Properties.Contains(alternateProductId)).ToList(),
                 22,
                 23);
@@ -916,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             fixer.KeyPropertyChanged(
                 tagEntry1,
                 productId,
-                new IKey[0],
+                Array.Empty<IKey>(),
                 productTagType.GetForeignKeys().Where(k => k.Properties.Contains(productId)).ToList(),
                 1,
                 2);

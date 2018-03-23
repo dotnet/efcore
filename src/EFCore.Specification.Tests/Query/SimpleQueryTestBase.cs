@@ -216,27 +216,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var inmemcheck = new InMemoryCheck();
                 var variableName = "test";
                 var differentVariableName = "test";
 
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
-                    .Where(e2 => inmemcheck.Check(variableName, e2.CustomerID) || true).Count();
+                    .Where(e2 => InMemoryCheck.Check(variableName, e2.CustomerID) || true).Count();
 
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
-                    .Where(e2 => inmemcheck.Check(differentVariableName, e2.CustomerID) || true).Count();
+                    .Where(e2 => InMemoryCheck.Check(differentVariableName, e2.CustomerID) || true).Count();
             }
         }
 
         private class InMemoryCheck
         {
-            // ReSharper disable once UnusedMember.Local
-            private Dictionary<string, string> _data = new Dictionary<string, string>();
-
             // ReSharper disable once UnusedParameter.Local
-            public bool Check(string input1, string input2)
+            public static bool Check(string input1, string input2)
             {
                 return false;
             }

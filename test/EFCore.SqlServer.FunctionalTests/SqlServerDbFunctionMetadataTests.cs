@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public static MethodInfo MethodFoo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.Foo), new Type[] { });
+        public static MethodInfo MethodFoo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.Foo), Array.Empty<Type>());
 
         [Fact]
         public virtual void DbFuction_defaults_schema_to_dbo_if_no_default_schema_or_set_schema()

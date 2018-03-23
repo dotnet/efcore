@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             return base.Execute();
         }
 
-        private void ReportJsonResults(IDictionary result)
+        private static void ReportJsonResults(IDictionary result)
         {
             Reporter.WriteData("{");
             Reporter.WriteData("  \"contextFile\": " + Json.Literal(result["ContextFile"] as string) + ",");

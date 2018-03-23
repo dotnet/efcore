@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected virtual object[] GetTenMostExpensiveProductsParameters()
-            => new object[0];
+            => Array.Empty<object>();
 
         protected virtual object[] GetCustomerOrderHistorySprocParameters()
             => new[] { "ALFKI" };

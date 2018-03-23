@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Update.Internal
                 .Append("v_RowCount = ")
                 .Append(expectedRowsAffected.ToString(CultureInfo.InvariantCulture));
 
-        private ResultSetMapping AppendSelectAffectedCountCommand(
+        private static ResultSetMapping AppendSelectAffectedCountCommand(
             StringBuilder commandStringBuilder, int cursorPosition)
         {
             commandStringBuilder

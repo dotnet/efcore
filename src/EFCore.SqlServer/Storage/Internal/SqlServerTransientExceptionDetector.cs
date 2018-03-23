@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// <summary>
     ///     Detects the exceptions caused by SQL Server transient failures.
     /// </summary>
-    public class SqlServerTransientExceptionDetector
+    public static class SqlServerTransientExceptionDetector
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

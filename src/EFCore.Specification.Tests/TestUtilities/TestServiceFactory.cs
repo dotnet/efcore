@@ -54,26 +54,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
             else
             {
-                foreach (var service in GetImplementationType(serviceType))
+                foreach (var (ServiceType, ImplementationType) in GetImplementationType(serviceType))
                 {
-                    implementation = specialCases.Where(s => s.Type == service.ImplementationType).Select(s => s.Implementation).FirstOrDefault();
+                    implementation = specialCases.Where(s => s.Type == ImplementationType).Select(s => s.Implementation).FirstOrDefault();
 
                     if (implementation != null)
                     {
-                        serviceCollection.AddSingleton(service.ServiceType, implementation);
+                        serviceCollection.AddSingleton(ServiceType, implementation);
                     }
                     else
                     {
-                        serviceCollection.AddSingleton(service.ServiceType, service.ImplementationType);
+                        serviceCollection.AddSingleton(ServiceType, ImplementationType);
 
-                        var constructors = service.ImplementationType.GetConstructors();
+                        var constructors = ImplementationType.GetConstructors();
                         var constructor = constructors
                             .FirstOrDefault(c => c.GetParameters().Length == constructors.Max(c2 => c2.GetParameters().Length));
 
                         if (constructor == null)
                         {
                             throw new InvalidOperationException(
-                                $"Cannot use 'TestServiceFactory' for '{service.ImplementationType.ShortDisplayName()}': no public constructor.");
+                                $"Cannot use 'TestServiceFactory' for '{ImplementationType.ShortDisplayName()}': no public constructor.");
                         }
 
                         foreach (var parameter in constructor.GetParameters())

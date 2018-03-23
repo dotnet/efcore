@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IServiceProvider CreateServiceProvider(IServiceCollection customServices = null)
             => CreateServiceProvider(customServices, AddProviderServices);
 
-        private IServiceProvider CreateServiceProvider(
+        private static IServiceProvider CreateServiceProvider(
             IServiceCollection customServices,
             Func<IServiceCollection, IServiceCollection> addProviderServices)
         {

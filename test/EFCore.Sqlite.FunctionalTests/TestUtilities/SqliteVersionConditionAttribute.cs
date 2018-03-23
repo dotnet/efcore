@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class SqliteVersionConditionAttribute : Attribute, ITestCondition
+    public sealed class SqliteVersionConditionAttribute : Attribute, ITestCondition
     {
         private Version _min;
         private Version _max;
@@ -16,23 +16,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public string Min
         {
-            get { return _min.ToString(); }
-            set { _min = new Version(value); }
+            get => _min.ToString();
+            set => _min = new Version(value);
         }
 
         public string Max
         {
-            get { return _max.ToString(); }
-            set { _max = new Version(value); }
+            get => _max.ToString();
+            set => _max = new Version(value);
         }
 
         public string Skip
         {
-            get { return _skip.ToString(); }
-            set { _skip = new Version(value); }
+            get => _skip.ToString();
+            set => _skip = new Version(value);
         }
 
-        private Version Current
+        private static Version Current
         {
             get
             {
@@ -78,13 +78,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public string SkipReason
         {
-            set { _skipReason = value; }
-            get
-            {
-                return _skipReason ??
+            set => _skipReason = value;
+            get => _skipReason ??
                        $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
                        + (Skip == null ? "" : "and skipping on " + Skip);
-            }
         }
     }
 }

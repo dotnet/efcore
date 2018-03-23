@@ -1475,7 +1475,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         oo => oo.o.Members.FirstOrDefault(v => v.Tag == oo.i),
                         ii => ii,
                         (k, g) => new { k.o, k.i, value = g.OrderBy(gg => gg.FullName).FirstOrDefault() })
-                    .Select(r => new { Id = r.o.Id, TagId = r.i.Id }),
+                    .Select(r => new { r.o.Id, TagId = r.i.Id }),
                 elementSorter: e => e.Id + " " + e.TagId);
         }
 

@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 (n, s, c) => PaintActionAsync(n, (bool)s, c),
                 cancellationToken);
 
-        private bool PaintAction(EntityEntryGraphNode node, bool force)
+        private static bool PaintAction(EntityEntryGraphNode node, bool force)
         {
             var internalEntityEntry = node.GetInfrastructure();
             if (internalEntityEntry.EntityState != EntityState.Detached)

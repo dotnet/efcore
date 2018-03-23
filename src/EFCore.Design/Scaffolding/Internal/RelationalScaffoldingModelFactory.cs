@@ -892,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         // TODO use CSharpUniqueNamer
-        private string NavigationUniquifier([NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
+        private static string NavigationUniquifier([NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
             if (existingIdentifiers == null
                 || !existingIdentifiers.Contains(proposedIdentifier))

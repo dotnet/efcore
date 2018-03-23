@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [Fact]
         public void Add_dbfunction_ignore()
         {
-            var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), new Type[] { });
+            var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), Array.Empty<Type>());
 
             Execute(
                 _ => { },

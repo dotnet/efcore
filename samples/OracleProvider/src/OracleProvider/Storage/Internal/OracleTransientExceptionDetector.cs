@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
     /// <summary>
     ///     Detects the exceptions caused by SQL Server transient failures.
     /// </summary>
-    public class OracleTransientExceptionDetector
+    public static class OracleTransientExceptionDetector
     {
         public static bool ShouldRetryOn([NotNull] Exception ex)
         {

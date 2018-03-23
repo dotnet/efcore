@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln == "" || (r.fn != null && r.ln != null && r.fn.Contains(r.ln)))
+                    .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.Contains(r.ln)))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln != "" && r.fn != null && r.ln != null && !r.fn.Contains(r.ln))
+                    .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.Contains(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln == "" || (r.fn != null && r.ln != null && r.fn.StartsWith(r.ln)))
+                    .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.StartsWith(r.ln)))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln != "" && r.fn != null && r.ln != null && !r.fn.StartsWith(r.ln))
+                    .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.StartsWith(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln == "" || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)))
+                    .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln != "" && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln))
+                    .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln == "" || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)) ? true : false)
+                    .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)) ? true : false)
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
                     .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln != "" && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln) ? true : false)
+                    .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln) ? true : false)
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 Assert.Equal(result.Count, expected.Count);

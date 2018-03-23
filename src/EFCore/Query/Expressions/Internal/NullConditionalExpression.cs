@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             }
         }
 
-        private void VisitArguments(ExpressionPrinter expressionPrinter, IList<Expression> arguments)
+        private static void VisitArguments(ExpressionPrinter expressionPrinter, IList<Expression> arguments)
         {
             for (var i = 0; i < arguments.Count; i++)
             {

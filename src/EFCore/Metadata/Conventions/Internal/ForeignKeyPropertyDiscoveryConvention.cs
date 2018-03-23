@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _logger.IncompatibleMatchingForeignKeyProperties(foreignKeyProperties, propertiesToReference);
                 }
 
-                return new Property[0];
+                return Array.Empty<Property>();
             }
 
             foreach (var key in dependentEntityType.GetKeys())
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     && (!foreignKey.IsUnique
                         || (key.IsPrimaryKey() && !matchPK)))
                 {
-                    return new Property[0];
+                    return Array.Empty<Property>();
                 }
             }
 
@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return modelBuilder;
         }
 
-        private bool HasUniquifiedProperties(ForeignKey foreignKey)
+        private static bool HasUniquifiedProperties(ForeignKey foreignKey)
         {
             var fkBaseName = GetPropertyBaseName(foreignKey);
             for (var i = 0; i < foreignKey.Properties.Count; i++)

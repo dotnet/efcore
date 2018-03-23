@@ -25,9 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(dbContextTransaction, nameof(dbContextTransaction));
 
-            var accessor = dbContextTransaction as IInfrastructure<DbTransaction>;
-
-            if (accessor == null)
+            if (!(dbContextTransaction is IInfrastructure<DbTransaction> accessor))
             {
                 throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
             }

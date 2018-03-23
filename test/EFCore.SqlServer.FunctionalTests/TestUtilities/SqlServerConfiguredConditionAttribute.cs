@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
-    public class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition
+    public sealed class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition
     {
         private static readonly string _dataSource = new SqlConnectionStringBuilder(SqlServerTestStore.CreateConnectionString("sample")).DataSource;
         private readonly bool _isLocalDb = _dataSource.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase);

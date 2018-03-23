@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
-            var rawSqlCommand = builder.Build("SQL COMMAND TEXT", new object[0]);
+            var rawSqlCommand = builder.Build("SQL COMMAND TEXT", System.Array.Empty<object>());
 
             Assert.Equal("SQL COMMAND TEXT", rawSqlCommand.RelationalCommand.CommandText);
             Assert.Equal(0, rawSqlCommand.RelationalCommand.Parameters.Count);

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.ExpressionTranslators.Inter
     {
         // Method defined in netstandard2.0
         private static readonly MethodInfo _methodInfoWithoutArgs
-            = typeof(string).GetRuntimeMethod(nameof(string.Trim), new Type[] { });
+            = typeof(string).GetRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
 
         // Method defined in netstandard2.0
         private static readonly MethodInfo _methodInfoWithCharArrayArg

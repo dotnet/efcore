@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     _withNoGetter = new HashSet<MyOtherEntity>();
                     _enumerable = new HashSet<MyOtherEntity>();
                     _enumerableNotCollection = new MyEnumerable();
-                    _array = new MyOtherEntity[0];
+                    _array = Array.Empty<MyOtherEntity>();
                     _privateCollection = MyPrivateCollection.Create();
                     _internalCollection = new MyInternalCollection();
                     _unavailableCollection = new MyUnavailableCollection(true);

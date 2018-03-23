@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void Join_empty_input_returns_empty_string()
         {
-            Assert.Equal("", new object[] { }.Join());
+            Assert.Equal("", System.Array.Empty<object>().Join());
         }
 
         [Fact]

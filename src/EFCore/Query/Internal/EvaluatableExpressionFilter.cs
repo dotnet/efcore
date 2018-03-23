@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid));
 
         private static readonly MethodInfo _randomNextNoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new Type[] { });
+            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
 
         private static readonly MethodInfo _randomNextOneArg
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new Type[] { typeof(int) });

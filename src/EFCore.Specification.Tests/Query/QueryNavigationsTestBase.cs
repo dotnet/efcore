@@ -109,10 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        private static readonly Random randomGenrator = new Random();
+        private static readonly Random _randomGenrator = new Random();
         private static T ClientProjection<T>(T t, object _) => t;
         private static bool ClientPredicate<T>(T t, object _) => true;
-        private static int ClientOrderBy<T>(T t, object _) => randomGenrator.Next(0, 20);
+        private static int ClientOrderBy<T>(T t, object _) => _randomGenrator.Next(0, 20);
 
         [ConditionalFact]
         public virtual void Select_Where_Navigation()
@@ -833,7 +833,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // ReSharper disable once MemberCanBeMadeStatic.Local
-        private int ClientMethod(int argument) => argument;
+        private static int ClientMethod(int argument) => argument;
 
         [ConditionalFact]
         public virtual void Navigation_in_subquery_referencing_outer_query()

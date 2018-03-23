@@ -468,6 +468,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public static readonly PropertyChangingEventArgs _countPropertyChanging
             = new PropertyChangingEventArgs("Count");
 
-        public static readonly object[] _noItems = new object[0];
+        public static readonly object[] _noItems = Array.Empty<object>();
     }
 }

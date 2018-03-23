@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             }
         }
 
-        private bool AllowsTable(HashSet<string> tables, HashSet<string> selectedTables, string name)
+        private static bool AllowsTable(HashSet<string> tables, HashSet<string> selectedTables, string name)
         {
             if (tables.Count == 0)
             {

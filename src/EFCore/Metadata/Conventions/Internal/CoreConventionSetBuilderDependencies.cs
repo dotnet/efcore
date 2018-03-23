@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             new ValueConverterSelectorDependencies())),
                     typeMapper),
                 null,
-                null, 
+                null,
                 null)
         {
         }

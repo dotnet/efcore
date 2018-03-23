@@ -151,7 +151,7 @@ namespace System
 
         public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[] types)
         {
-            types = types ?? new Type[0];
+            types = types ?? Array.Empty<Type>();
 
             return type.GetTypeInfo().DeclaredConstructors
                 .SingleOrDefault(

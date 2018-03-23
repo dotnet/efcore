@@ -1663,8 +1663,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </returns>
         protected virtual bool IsOldColumnSupported([CanBeNull] IModel model)
         {
-            var versionString = model?[CoreAnnotationNames.ProductVersionAnnotation] as string;
-            if (versionString == null)
+            if (!(model?[CoreAnnotationNames.ProductVersionAnnotation] is string versionString))
             {
                 return false;
             }

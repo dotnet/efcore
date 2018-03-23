@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
-    public class PlatformSkipConditionAttribute : Attribute, ITestCondition
+    public sealed class PlatformSkipConditionAttribute : Attribute, ITestCondition
     {
         private readonly TestPlatform _excludedPlatforms;
 

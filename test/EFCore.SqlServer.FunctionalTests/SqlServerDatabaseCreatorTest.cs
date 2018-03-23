@@ -605,30 +605,30 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var script = context.Database.GenerateCreateScript();
                 Assert.Equal(
-                    "CREATE TABLE [Blogs] (" + EOL +
-                    "    [Key1] nvarchar(450) NOT NULL," + EOL +
-                    "    [Key2] varbinary(900) NOT NULL," + EOL +
-                    "    [Cheese] nvarchar(max) NULL," + EOL +
-                    "    [ErMilan] int NOT NULL," + EOL +
-                    "    [George] bit NOT NULL," + EOL +
-                    "    [TheGu] uniqueidentifier NOT NULL," + EOL +
-                    "    [NotFigTime] datetime2 NOT NULL," + EOL +
-                    "    [ToEat] tinyint NOT NULL," + EOL +
-                    "    [OrNothing] float NOT NULL," + EOL +
-                    "    [Fuse] smallint NOT NULL," + EOL +
-                    "    [WayRound] bigint NOT NULL," + EOL +
-                    "    [On] real NOT NULL," + EOL +
-                    "    [AndChew] varbinary(max) NULL," + EOL +
-                    "    [AndRow] rowversion NULL," + EOL +
-                    "    CONSTRAINT [PK_Blogs] PRIMARY KEY ([Key1], [Key2])" + EOL +
-                    ");" + EOL +
-                    "GO" + EOL + EOL + EOL,
+                    "CREATE TABLE [Blogs] (" + _eol +
+                    "    [Key1] nvarchar(450) NOT NULL," + _eol +
+                    "    [Key2] varbinary(900) NOT NULL," + _eol +
+                    "    [Cheese] nvarchar(max) NULL," + _eol +
+                    "    [ErMilan] int NOT NULL," + _eol +
+                    "    [George] bit NOT NULL," + _eol +
+                    "    [TheGu] uniqueidentifier NOT NULL," + _eol +
+                    "    [NotFigTime] datetime2 NOT NULL," + _eol +
+                    "    [ToEat] tinyint NOT NULL," + _eol +
+                    "    [OrNothing] float NOT NULL," + _eol +
+                    "    [Fuse] smallint NOT NULL," + _eol +
+                    "    [WayRound] bigint NOT NULL," + _eol +
+                    "    [On] real NOT NULL," + _eol +
+                    "    [AndChew] varbinary(max) NULL," + _eol +
+                    "    [AndRow] rowversion NULL," + _eol +
+                    "    CONSTRAINT [PK_Blogs] PRIMARY KEY ([Key1], [Key2])" + _eol +
+                    ");" + _eol +
+                    "GO" + _eol + _eol + _eol,
                     script);
             }
         }
 #endif
 
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
     }
 
     public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTest

@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
         // --output-dir $(projectFolder)/A/B/C
         // => "namespace $(rootnamespace).A.B.C"
-        private string SubnamespaceFromOutputPath(string projectDir, string outputDir)
+        private static string SubnamespaceFromOutputPath(string projectDir, string outputDir)
         {
             if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
             {

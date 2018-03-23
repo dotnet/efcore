@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.ExpressionTranslators.Inter
                 var patternExpression = methodCallExpression.Arguments[0];
 
                 if (patternExpression is ConstantExpression patternConstantExpression
-                    && (string)patternConstantExpression.Value == string.Empty)
+                    && ((string)patternConstantExpression.Value)?.Length == 0)
                 {
                     return Expression.Constant(true);
                 }

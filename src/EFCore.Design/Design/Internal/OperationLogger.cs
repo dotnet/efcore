@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        private string GetMessage<TState>(TState state, Exception exception, Func<TState, Exception, string> formatter)
+        private static string GetMessage<TState>(TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             var builder = new StringBuilder();
             if (formatter != null)

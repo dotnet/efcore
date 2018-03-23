@@ -264,12 +264,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (Metadata.GetForeignKeyPropertiesConfigurationSource() == configurationSource.Value)
                 {
-                    dependentProperties = new Property[0];
+                    dependentProperties = Array.Empty<Property>();
                 }
 
                 if (Metadata.GetPrincipalKeyConfigurationSource() == configurationSource.Value)
                 {
-                    principalProperties = new Property[0];
+                    principalProperties = Array.Empty<Property>();
                 }
             }
 
@@ -772,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                return ReplaceForeignKey(configurationSource, dependentProperties: new Property[0], isRequired: isRequired);
+                return ReplaceForeignKey(configurationSource, dependentProperties: Array.Empty<Property>(), isRequired: isRequired);
             }
 
             foreach (var property in Metadata.Properties.Where(p => p.ClrType.IsNullableType()))
@@ -1258,8 +1258,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var dependentProperties = (IReadOnlyList<Property>)new Property[0];
-            var principalProperties = (IReadOnlyList<Property>)new Property[0];
+            var dependentProperties = (IReadOnlyList<Property>)Array.Empty<Property>();
+            var principalProperties = (IReadOnlyList<Property>)Array.Empty<Property>();
             var builder = this;
             if (shouldInvert)
             {
@@ -1413,7 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ? null
                     : ReplaceForeignKey(
                         configurationSource,
-                        dependentProperties: new Property[0]);
+                        dependentProperties: Array.Empty<Property>());
             }
 
             properties = dependentEntityType.Builder.GetActualProperties(properties, configurationSource);
@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource,
                 dependentEntityTypeBuilder: dependentEntityType.Builder,
                 dependentProperties: properties,
-                principalProperties: resetPrincipalKey ? new Property[0] : null,
+                principalProperties: resetPrincipalKey ? Array.Empty<Property>() : null,
                 principalEndConfigurationSource: properties == null ? null : configurationSource);
         }
 
@@ -1608,7 +1608,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return ReplaceForeignKey(
                 configurationSource,
                 principalProperties: properties,
-                dependentProperties: resetDependent ? new Property[0] : null,
+                dependentProperties: resetDependent ? Array.Empty<Property>() : null,
                 principalEndConfigurationSource: properties == null ? (ConfigurationSource?)null : configurationSource);
         }
 
