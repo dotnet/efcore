@@ -238,13 +238,13 @@ Change your target project to the migrations project by using the Package Manage
     <value>Using environment '{environment}'.</value>
   </data>
   <data name="FindingBuildWebHost" xml:space="preserve">
-    <value>Finding BuildWebHost method...</value>
+    <value>Finding IWebHost accessor...</value>
   </data>
   <data name="FindingServiceProvider" xml:space="preserve">
     <value>Finding application service provider...</value>
   </data>
   <data name="NoBuildWebHost" xml:space="preserve">
-    <value>No BuildWebHost method was found on type '{programClass}'.</value>
+    <value>No CreateWebHostBuilder(string[]) method was found on type '{programClass}'.</value>
   </data>
   <data name="NoEntryPoint" xml:space="preserve">
     <value>No entry point was found for assembly '{startupAssembly}'.</value>
@@ -253,7 +253,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>No application service provider was found.</value>
   </data>
   <data name="UsingBuildWebHost" xml:space="preserve">
-    <value>Using application service provider from BuildWebHost method on '{programClass}'.</value>
+    <value>Using application service provider from IWebHost accessor on '{programClass}'.</value>
   </data>
   <data name="FoundDbContext" xml:space="preserve">
     <value>Found DbContext '{contextType}'.</value>
@@ -337,7 +337,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
   <data name="InvokeBuildWebHostFailed" xml:space="preserve">
-    <value>An error occurred while calling method 'BuildWebHost' on class '{startupClass}'. Continuing without the application service provider. Error: {error}</value>
+    <value>An error occurred while accessing the IWebHost on class '{startupClass}'. Continuing without the application service provider. Error: {error}</value>
   </data>
   <data name="NoLanguageService" xml:space="preserve">
     <value>The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.</value>

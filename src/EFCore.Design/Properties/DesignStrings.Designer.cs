@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 environment);
 
         /// <summary>
-        ///     Finding BuildWebHost method...
+        ///     Finding IWebHost accessor...
         /// </summary>
         public static string FindingBuildWebHost
             => GetString("FindingBuildWebHost");
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("FindingServiceProvider");
 
         /// <summary>
-        ///     No BuildWebHost method was found on type '{programClass}'.
+        ///     No CreateWebHostBuilder(string[]) method was found on type '{programClass}'.
         /// </summary>
         public static string NoBuildWebHost([CanBeNull] object programClass)
             => string.Format(
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoServiceProvider");
 
         /// <summary>
-        ///     Using application service provider from BuildWebHost method on '{programClass}'.
+        ///     Using application service provider from IWebHost accessor on '{programClass}'.
         /// </summary>
         public static string UsingBuildWebHost([CanBeNull] object programClass)
             => string.Format(
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SequencesRequireName");
 
         /// <summary>
-        ///     An error occurred while calling method 'BuildWebHost' on class '{startupClass}'. Continuing without the application service provider. Error: {error}
+        ///     An error occurred while accessing the IWebHost on class '{startupClass}'. Continuing without the application service provider. Error: {error}
         /// </summary>
         public static string InvokeBuildWebHostFailed([CanBeNull] object startupClass, [CanBeNull] object error)
             => string.Format(
