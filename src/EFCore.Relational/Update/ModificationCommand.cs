@@ -98,7 +98,21 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     updated (<see cref="EntityFrameworkCore.EntityState.Modified" />),
         ///     or deleted ((<see cref="EntityFrameworkCore.EntityState.Deleted" />).
         /// </summary>
-        public virtual EntityState EntityState => _entries.FirstOrDefault(e => e.SharedIdentityEntry == null)?.EntityState ?? EntityState.Modified;
+        public virtual EntityState EntityState
+        {
+            get
+            {
+                foreach (var e in _entries)
+                {
+                    if (e.SharedIdentityEntry == null)
+                    {
+                        return e.EntityState;
+                    }
+                }
+
+                return EntityState.Modified;
+            }
+        }
 
         /// <summary>
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.

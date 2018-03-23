@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
                 if (nonIdentityOperations.Count > 1)
                 {
-                    nonIdentityOperations = new List<ColumnModification> { nonIdentityOperations.First() };
+                    nonIdentityOperations.RemoveRange(1, nonIdentityOperations.Count - 1);
                 }
             }
 

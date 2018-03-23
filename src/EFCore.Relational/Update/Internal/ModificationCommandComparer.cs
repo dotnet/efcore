@@ -50,13 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 return result;
             }
 
-            result = (int)x.EntityState - (int)y.EntityState;
+            var xState = x.EntityState;
+            result = (int)xState - (int)y.EntityState;
             if (0 != result)
             {
                 return result;
             }
 
-            if (x.EntityState != EntityState.Added
+            if (xState != EntityState.Added
                 && x.Entries.Count > 0
                 && y.Entries.Count > 0)
             {
