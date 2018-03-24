@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -204,25 +205,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
+        protected override void ValidateMapping(CoreTypeMapping mapping, IProperty property)
         {
-            var mapping = FindRawMapping(mappingInfo)?.Clone(mappingInfo);
+            var relationalMapping = mapping as RelationalTypeMapping;
 
-            if (_disallowedMappings.Contains(mapping?.StoreType))
+            if (_disallowedMappings.Contains(relationalMapping?.StoreType))
             {
-                var propertyName = mappingInfo.Property?.Name
-                                   ?? mappingInfo.MemberInfo?.Name;
-
-                if (propertyName == null)
+                if (property== null)
                 {
-                    throw new ArgumentException(SqlServerStrings.UnqualifiedDataType(mapping.StoreType));
+                    throw new ArgumentException(SqlServerStrings.UnqualifiedDataType(relationalMapping.StoreType));
                 }
 
-                throw new ArgumentException(SqlServerStrings.UnqualifiedDataTypeOnProperty(mapping.StoreType, propertyName));
+                throw new ArgumentException(SqlServerStrings.UnqualifiedDataTypeOnProperty(relationalMapping.StoreType, property.Name));
             }
-
-            return mapping;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
+            => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
         private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {

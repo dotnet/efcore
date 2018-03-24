@@ -59,6 +59,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected abstract CoreTypeMapping FindMapping([NotNull] TypeMappingInfo mappingInfo);
 
         /// <summary>
+        ///     Called after a mapping has been found so that it can be validated for the given property.
+        /// </summary>
+        /// <param name="mapping"> The mapping, if any. </param>
+        /// <param name="property"> The property, if any. </param>
+        protected virtual void ValidateMapping(
+            [CanBeNull] CoreTypeMapping mapping,
+            [CanBeNull] IProperty property)
+        {
+        }
+
+        /// <summary>
         ///     <para>
         ///         Uses any available <see cref="ValueConverter" /> to help find a mapping that works.
         ///     </para>
@@ -67,36 +78,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="mappingInfo"> The mapping info. </param>
+        /// <param name="property"> The property for which the type mapping is needed, if any. </param>
         /// <returns> The type mapping with conversions applied, or <c>null</c> if none could be found. </returns>
-        protected virtual CoreTypeMapping FindMappingWithConversion([NotNull] TypeMappingInfo mappingInfo)
+        protected virtual CoreTypeMapping FindMappingWithConversion(
+            [NotNull] TypeMappingInfo mappingInfo,
+            [CanBeNull] IProperty property)
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
 
-            return _explicitMappings.GetOrAdd(
+            var principals = property?.FindPrincipals().ToList();
+
+            var customConverter = principals
+                ?.Select(p => p.GetValueConverter())
+                .FirstOrDefault(c => c != null);
+
+            var providerClrType = principals
+                ?.Select(p => p.GetProviderClrType())
+                .FirstOrDefault(t => t != null)
+                ?.UnwrapNullableType();
+
+            var resolvedMapping = _explicitMappings.GetOrAdd(
                 mappingInfo,
                 k =>
                 {
-                    var principals = mappingInfo.Property?.FindPrincipals().ToList();
-
-                    var customConverter = principals
-                        ?.Select(p => p.GetValueConverter())
-                        .FirstOrDefault(c => c != null);
-
-                    if (customConverter != null)
-                    {
-                        mappingInfo = mappingInfo.WithConverter(
-                            new ValueConverterInfo(
-                                customConverter.ModelClrType,
-                                customConverter.ProviderClrType,
-                                i => customConverter,
-                                customConverter.MappingHints));
-                    }
-
-                    var providerClrType = principals
-                        ?.Select(p => p.GetProviderClrType())
-                        .FirstOrDefault(t => t != null)
-                        ?.UnwrapNullableType();
-
                     var mapping = providerClrType == null
                                   || providerClrType == mappingInfo.ClrType
                         ? FindMapping(mappingInfo)
@@ -149,6 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     return mapping;
                 });
+
+            ValidateMapping(resolvedMapping, property);
+
+            return resolvedMapping;
         }
 
         /// <summary>
@@ -163,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public virtual CoreTypeMapping FindMapping(IProperty property)
             => property.FindMapping()
-               ?? FindMappingWithConversion(new ConcreteTypeMappingInfo(property));
+               ?? FindMappingWithConversion(new ConcreteTypeMappingInfo(property), property);
 
         /// <summary>
         ///     <para>
@@ -181,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public virtual CoreTypeMapping FindMapping(Type type)
-            => FindMappingWithConversion(new ConcreteTypeMappingInfo(type));
+            => FindMappingWithConversion(new ConcreteTypeMappingInfo(type), null);
 
         /// <summary>
         ///     <para>
@@ -199,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public virtual CoreTypeMapping FindMapping(MemberInfo member)
-            => FindMappingWithConversion(new ConcreteTypeMappingInfo(member));
+            => FindMappingWithConversion(new ConcreteTypeMappingInfo(member), null);
 
         private sealed class ConcreteTypeMappingInfo : TypeMappingInfo
         {
