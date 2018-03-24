@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -198,6 +199,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public abstract RelationalTypeMapping Clone([NotNull] string storeType, int? size);
+
+        /// <summary>
+        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
+        ///    added.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <returns> A new type mapping </returns>
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => throw new NotImplementedException(CoreStrings.ConverterCloneNotImplemented(GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Gets the name of the database type.
