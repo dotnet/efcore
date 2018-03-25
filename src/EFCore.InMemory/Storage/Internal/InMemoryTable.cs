@@ -6,7 +6,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -58,16 +57,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             var key = CreateKey(entry);
 
-            if (_rows.ContainsKey(key))
+            if (_rows.TryGetValue(key, out var row))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
                 var concurrencyConflicts = new Dictionary<IProperty, object>();
 
                 for (var index = 0; index < properties.Count; index++)
                 {
-                    if (properties[index].IsConcurrencyToken && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
+                    if (properties[index].IsConcurrencyToken && !Equals(row[index], entry.GetOriginalValue(properties[index])))
                     {
-                        concurrencyConflicts.Add(properties[index], _rows[key][index]);
+                        concurrencyConflicts.Add(properties[index], row[index]);
                     }
                 }
 
@@ -92,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             var key = CreateKey(entry);
 
-            if (_rows.ContainsKey(key))
+            if (_rows.TryGetValue(key, out var row))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
                 var valueBuffer = new object[properties.Count];
@@ -100,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 for (var index = 0; index < valueBuffer.Length; index++)
                 {
-                    if (properties[index].IsConcurrencyToken && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
+                    if (properties[index].IsConcurrencyToken && !Equals(row[index], entry.GetOriginalValue(properties[index])))
                     {
-                        concurrencyConflicts.Add(properties[index], _rows[key][index]);
+                        concurrencyConflicts.Add(properties[index], row[index]);
                         continue;
                     }
                     valueBuffer[index] = entry.IsModified(properties[index])

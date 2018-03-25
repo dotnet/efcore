@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     // !(false) -> true
                     // !(true) -> false
-                    return Expression.Constant((bool)constantExpression.Value ? false : true);
+                    return Expression.Constant(!(bool)constantExpression.Value);
                 }
 
                 if (unaryExpression.Operand is UnaryExpression innerUnary && innerUnary.NodeType == ExpressionType.Not)
@@ -137,12 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 Expression.Not(innerBinary.Right)));
                     }
 
-                    if (_nodeTypeMapping.ContainsKey(innerBinary.NodeType))
+                    if (_nodeTypeMapping.TryGetValue(innerBinary.NodeType, out var invertedType))
                     {
                         // e.g. !(a > b) -> a <= b
                         result = Visit(
                             Expression.MakeBinary(
-                                _nodeTypeMapping[innerBinary.NodeType],
+                                invertedType,
                                 innerBinary.Left,
                                 innerBinary.Right));
                     }

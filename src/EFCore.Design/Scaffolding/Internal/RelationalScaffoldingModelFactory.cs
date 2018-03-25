@@ -131,31 +131,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 usedNames.Add(GetEntityTypeName(table));
             }
 
-            if (!_columnNamers.ContainsKey(table))
+            if (!_columnNamers.TryGetValue(table, out var namer))
             {
-                if (_useDatabaseNames)
-                {
-                    _columnNamers.Add(
-                        table,
-                        new CSharpUniqueNamer<DatabaseColumn>(
-                            c => c.Name,
-                            usedNames,
-                            _cSharpUtilities,
-                            singularizePluralizer: null));
-                }
-                else
-                {
-                    _columnNamers.Add(
-                        table,
-                        new CSharpUniqueNamer<DatabaseColumn>(
-                            c => _candidateNamingService.GenerateCandidateIdentifier(c),
-                            usedNames,
-                            _cSharpUtilities,
-                            singularizePluralizer: null));
-                }
+                namer = new CSharpUniqueNamer<DatabaseColumn>(
+                    c => _useDatabaseNames ? c.Name : _candidateNamingService.GenerateCandidateIdentifier(c),
+                    usedNames,
+                    _cSharpUtilities,
+                    singularizePluralizer: null);
+                _columnNamers.Add(table, namer);
             }
 
-            return _columnNamers[table].GetName(column);
+            return namer.GetName(column);
         }
 
         /// <summary>

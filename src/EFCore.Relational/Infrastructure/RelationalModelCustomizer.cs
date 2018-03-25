@@ -103,9 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in modelBuilder.Model.GetEntityTypes().Cast<EntityType>())
             {
                 if (entityType.BaseType == null
-                    && sets.ContainsKey(entityType.ClrType))
+                    && sets.TryGetValue(entityType.ClrType, out var property))
                 {
-                    entityType.Builder.Relational(ConfigurationSource.Convention).ToTable(sets[entityType.ClrType].Name);
+                    entityType.Builder.Relational(ConfigurationSource.Convention).ToTable(property.Name);
                 }
             }
         }

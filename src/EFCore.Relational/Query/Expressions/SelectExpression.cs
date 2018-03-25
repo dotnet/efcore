@@ -879,8 +879,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(memberInfo, nameof(memberInfo));
 
-            return _memberInfoProjectionMapping.ContainsKey(memberInfo)
-                ? _memberInfoProjectionMapping[memberInfo]
+            return _memberInfoProjectionMapping.TryGetValue(memberInfo, out var projection)
+                ? projection
                 : null;
         }
 
