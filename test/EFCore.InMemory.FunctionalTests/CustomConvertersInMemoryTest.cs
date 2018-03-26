@@ -13,6 +13,11 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        // Disabled: In-memory database is case-sensitive
+        public override void Can_insert_and_read_back_with_case_insensitive_string_key()
+        {
+        }
+
         public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => true;
