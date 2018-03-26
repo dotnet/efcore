@@ -1246,5 +1246,69 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertSingleResult<Employee>(es => es.Sum(e => 1));
         }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_any_equals_operator()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
+            AssertQuery<Customer>(cs => cs.Where(c => ids.Any(li => li == c.CustomerID)),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_any_equals()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
+            AssertQuery<Customer>(cs => cs.Where(c => ids.Any(li => li.Equals(c.CustomerID))),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_any_equals_static()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
+            AssertQuery<Customer>(cs => cs.Where(c => ids.Any(li => Equals(li, c.CustomerID))),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_where_any()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
+            AssertQuery<Customer>(cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.Any(li => li == c.CustomerID)),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_all_not_equals_operator()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
+            AssertQuery<Customer>(cs => cs.Where(c => ids.All(li => li != c.CustomerID)),
+                entryCount: 89);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_all_not_equals()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
+            AssertQuery<Customer>(cs => cs.Where(c => ids.All(li => !li.Equals(c.CustomerID))),
+                entryCount: 89);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_all_not_equals_static()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
+            AssertQuery<Customer>(cs => cs.Where(c => ids.All(li => !Equals(li, c.CustomerID))),
+                entryCount: 89);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_where_all()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
+            AssertQuery<Customer>(cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.All(li => li != c.CustomerID)),
+                entryCount: 4);
+        }
     }
 }
