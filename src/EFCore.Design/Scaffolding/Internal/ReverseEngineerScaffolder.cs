@@ -76,7 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(tables, nameof(tables));
             Check.NotNull(schemas, nameof(schemas));
             Check.NotEmpty(@namespace, nameof(@namespace));
-            Check.NotNull(language, nameof(language));
             Check.NotNull(modelOptions, nameof(modelOptions));
             Check.NotNull(codeOptions, nameof(codeOptions));
 
