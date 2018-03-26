@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
-            public abstract TestEntityTypeBuilder<TEntity> SeedData(params TEntity[] data);
+            public abstract DataBuilder<TEntity> HasData(params TEntity[] data);
         }
 
         public class TestKeyBuilder
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
             public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>();
-            public abstract TestPropertyBuilder<TProperty> HasConversion(Type storeType);
+            public abstract TestPropertyBuilder<TProperty> HasConversion(Type providerClrType);
 
             public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
                 Expression<Func<TProperty, TProvider>> convertToProviderExpression,

@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateOwnership(model);
             ValidateFieldMapping(model);
             ValidateQueryFilters(model);
-            ValidateSeedData(model);
+            ValidateData(model);
             LogShadowProperties(model);
         }
 
@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateSeedData([NotNull] IModel model)
+        protected virtual void ValidateData([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     identityMaps[key] = identityMap;
                 }
 
-                foreach (var seedDatum in entityType.GetSeedData())
+                foreach (var seedDatum in entityType.GetData())
                 {
                     foreach (var property in entityType.GetProperties())
                     {

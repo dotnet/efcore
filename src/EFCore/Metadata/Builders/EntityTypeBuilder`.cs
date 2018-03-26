@@ -457,8 +457,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="data">
         ///     An array of seed data.
         /// </param>
-        public virtual EntityTypeBuilder<TEntity> SeedData([NotNull] params TEntity[] data)
-            => (EntityTypeBuilder<TEntity>)base.SeedData(data);
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public virtual DataBuilder<TEntity> HasData([NotNull] params TEntity[] data)
+        {
+            base.HasData(data);
+
+            return new DataBuilder<TEntity>();
+        }
 
         private InternalEntityTypeBuilder Builder => this.GetInfrastructure<InternalEntityTypeBuilder>();
     }

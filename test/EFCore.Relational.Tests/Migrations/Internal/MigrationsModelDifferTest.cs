@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("MouseId");
-                                    x.SeedData(
+                                    x.HasData(
                                         new { Id = 42, MouseId = "Jerry" });
                                 });
                         modelBuilder.Entity(
@@ -798,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("BoneId");
-                                    x.SeedData(
+                                    x.HasData(
                                         new { Id = 42, BoneId = "Brook" });
                                 });
                         modelBuilder.Entity(
@@ -807,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("HandlerId");
-                                    x.SeedData(
+                                    x.HasData(
                                         new { Id = 42, HandlerId = "Brenda" });
                                 });
                     },
@@ -894,7 +894,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 x.Property<int>("Id");
                                 x.Property<string>("MouseId");
                                 x.Property<string>("BoneId");
-                                x.SeedData(new { Id = 42, MouseId = "1", BoneId = "2" });
+                                x.HasData(new { Id = 42, MouseId = "1", BoneId = "2" });
                             });
                 },
                 modelBuilder =>
@@ -906,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     x.Property<int>("Id");
                                     x.Property<string>("MouseId");
                                     x.ToTable("Animal");
-                                    x.SeedData(new { Id = 42, MouseId = "1" });
+                                    x.HasData(new { Id = 42, MouseId = "1" });
                                 });
                         modelBuilder.Entity(
                             "Dog",
@@ -916,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     x.Property<string>("BoneId");
                                     x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
                                     x.ToTable("Animal");
-                                    x.SeedData(new { Id = 42, BoneId = "2" });
+                                    x.HasData(new { Id = 42, BoneId = "2" });
                                 });
                     },
                 operations =>
@@ -936,7 +936,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.SeedData(new { Id = 42 });
+                                    x.HasData(new { Id = 42 });
                                 });
                     },
                 _ => { },
@@ -950,13 +950,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                         {
                                             s.Property<string>("Street");
                                             s.Property<string>("City");
-                                            s.SeedData(new { OrderId = 42, Street = "Lombard", City = "San Francisco" });
+                                            s.HasData(new { OrderId = 42, Street = "Lombard", City = "San Francisco" });
                                         });
                                     x.OwnsOne("Address", "BillingAddress", s =>
                                         {
                                             s.Property<string>("Street");
                                             s.Property<string>("City");
-                                            s.SeedData(new { OrderId = 42, Street = "Abbey Road", City = "London" });
+                                            s.HasData(new { OrderId = 42, Street = "Abbey Road", City = "London" });
                                         });
                                 });
                     },
@@ -1039,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         x.Property<int>("Id");
                         x.HasKey("Id").HasName("PK_EntityId");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42 },
                             new { Id = 27 });
                     }),
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("EntityWithIdWrongName");
                         x.Property<int>("Id");
                         x.HasKey("Id").HasName("PK_EntityId");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42 },
                             new { Id = 27 });
                     }),
@@ -1189,7 +1189,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         x.ToTable("Firefly", "dbo");
                         x.Property<int>("Id");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42 });
                     }),
                 target => target.Entity(
@@ -1199,7 +1199,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Firefly", "dbo");
                         x.Property<int>("Id");
                         x.Property<string>("Name").HasColumnType("nvarchar(30)");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42, Name = "Firefly 1" },
                             new { Id = 43, Name = "Firefly 2" });
                     }),
@@ -1293,7 +1293,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.HasKey("IdBeforeRename");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(
+                        x.HasData(
                             new { IdBeforeRename = 42, Value1 = 32, Value2 = "equal" },
                             new { IdBeforeRename = 24, Value1 = 72, Value2 = "not equal1" });
                     }),
@@ -1304,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
                             new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
                     }),
@@ -1397,7 +1397,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Zebra", "dbo");
                         x.Property<int>("Id");
                         x.Property<string>("ZebraName").HasColumnType("nvarchar(30)");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42, ZebraName = "equal" });
                     }),
                 source => source.Entity(
@@ -1407,7 +1407,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Zebra", "dbo");
                         x.Property<int>("Id");
                         x.Property<string>("Name").HasColumnName("ZebraName").HasColumnType("nvarchar(30)");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42, Name = "equal" });
                     }),
                 Assert.Empty,
@@ -1632,14 +1632,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.Property<short>("ClawCount")
                                 .HasColumnType("int");
-                            x.SeedData(new { Id = 42, ClawCount = (short)20 });
+                            x.HasData(new { Id = 42, ClawCount = (short)20 });
                         }),
                 target => target.Entity(
                     "Puma",
                     x =>
                         {
                             x.Property<int>("ClawCount");
-                            x.SeedData(new { Id = 42, ClawCount = 20 });
+                            x.HasData(new { Id = 42, ClawCount = 20 });
                         }),
                 operations =>
                     {
@@ -1668,7 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Firefly", "dbo");
                             x.Property<int>("Id");
-                            x.SeedData(
+                            x.HasData(
                                 new { Id = 42 },
                                 new { Id = 43 });
                         }),
@@ -1678,7 +1678,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Firefly", "dbo");
                             x.Property<string>("Id").HasColumnType("nvarchar(30)");
-                            x.SeedData(
+                            x.HasData(
                                 new { Id = "42" });
                         }),
                 upOps => Assert.Collection(upOps,
@@ -2189,7 +2189,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.ToTable("Raven", "dbo");
                             x.Property<int>("Id");
                             x.Property<string>("RavenId");
-                            x.SeedData(new { Id = 42, RavenId = "42" });
+                            x.HasData(new { Id = 42, RavenId = "42" });
                         }),
                 source => source.Entity(
                     "Raven",
@@ -4031,7 +4031,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         x.Property<int>("Id");
                         x.Property<string>("Name").HasColumnType("nvarchar(30)");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42, Name = "equal" });
                     }),
                 upOps => Assert.Collection(upOps,
@@ -4437,7 +4437,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         modelBuilder.Entity("Cat", x =>
                             {
                                 x.HasBaseType("Animal").Property<string>("BreederId").HasColumnName("BreederId");
-                                x.SeedData(new { Id = 42, BreederId = "42" });
+                                x.HasData(new { Id = 42, BreederId = "42" });
                             });
                     },
                 _ => { },
@@ -4446,7 +4446,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         modelBuilder.Entity("Dog", x =>
                             {
                                 x.HasBaseType("Animal").Property<string>("BreederId").HasColumnName("BreederId");
-                                x.SeedData(new { Id = 43, BreederId = "43" });
+                                x.HasData(new { Id = 43, BreederId = "43" });
                             });
                     },
                 upOps => Assert.Collection(upOps,
@@ -4751,23 +4751,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 x.Property<int>("Id");
                                 x.Property<string>("Name");
                                 x.ToTable("Animal", "dbo");
-                                x.SeedData(new { Id = 42 });
+                                x.HasData(new { Id = 42 });
                             });
 
                         common.Entity("Eagle", x =>
                             {
                                 x.HasBaseType("Animal");
-                                x.SeedData(new { Id = 41 });
+                                x.HasData(new { Id = 41 });
                             });
                     },
                 source => source.Entity("Animal", x =>
                     {
-                        x.SeedData(new { Id = 43, Name = "Bob" });
+                        x.HasData(new { Id = 43, Name = "Bob" });
                     }),
                 target => target.Entity("Shark", x =>
                     {
                         x.HasBaseType("Animal");
-                        x.SeedData(new { Id = 43, Name = "Bob" });
+                        x.HasData(new { Id = 43, Name = "Bob" });
                     }),
                 upOps => Assert.Collection(upOps,
                     o =>
@@ -5015,20 +5015,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                             {
                                 x.HasIndex("ForeignId");
-                                x.SeedData(new { Id = 43 });
+                                x.HasData(new { Id = 43 });
                             }),
                 target => target
                     .Entity("ReferencedTable", x =>
                         {
                             x.Property<int>("Id").HasColumnName("ReferencedTableId");
-                            x.SeedData(new { Id = 42 });
+                            x.HasData(new { Id = 42 });
                         })
                     .Entity(
                         "Table",
                         x =>
                             {
                                 x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
-                                x.SeedData(new { Id = 43, ForeignId = 42 });
+                                x.HasData(new { Id = 43, ForeignId = 42 });
                             }),
                 upOps => Assert.Collection(upOps,
                     o =>
@@ -5733,7 +5733,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                             {
                                 x.HasAlternateKey("AlternateId");
-                                x.SeedData(new { Id = 42, AlternateId = 4242 });
+                                x.HasData(new { Id = 42, AlternateId = 4242 });
                             })
                     .Entity(
                         "ReferencingTable",
@@ -5744,7 +5744,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 x.HasOne("Table").WithMany()
                                     .HasForeignKey("ReferencedAlternateId")
                                     .HasPrincipalKey("AlternateId");
-                                x.SeedData(new { Id = 43, ReferencedAlternateId = 4242 });
+                                x.HasData(new { Id = 43, ReferencedAlternateId = 4242 });
                             }),
                 upOps => Assert.Collection(upOps,
                     o =>
@@ -5821,7 +5821,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(new { Id = 42, Value1 = 32 });
+                        x.HasData(new { Id = 42, Value1 = 32 });
                     }),
                 upOps => Assert.Collection(upOps,
                     o =>
@@ -5853,7 +5853,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(new { Id = 42, Value1 = 32 });
+                        x.HasData(new { Id = 42, Value1 = 32 });
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -5895,7 +5895,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.HasKey("Id").HasName("PK_Cat");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42, Value1 = 32, Value2 = "equal" }, // modified
                             new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
                     }),
@@ -5908,7 +5908,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.HasKey("Id").HasName("PK_Cat");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
                             new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
                     }),
@@ -5989,7 +5989,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                     {
                         x.Property<string>("Value1").IsRequired();
-                        x.SeedData(new
+                        x.HasData(new
                         {
                             Id = 42,
                             Value1 = "32"
@@ -6001,7 +6001,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         x.Property<int>("Value1")
                             .HasConversion(e => e.ToString(), e => int.Parse(e));
-                        x.SeedData(new
+                        x.HasData(new
                         {
                             Id = 42,
                             Value1 = 32
@@ -6028,7 +6028,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1")
                             .IsRequired()
                             .HasConversion(e => new int[] { e }, e => e[0]);
-                        x.SeedData(new
+                        x.HasData(new
                         {
                             Id = 42,
                             Value1 = 32
@@ -6041,7 +6041,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Value1")
                             .IsRequired()
                             .HasConversion(e => new int[] { int.Parse(e) }, e => e[0].ToString());
-                        x.SeedData(new
+                        x.HasData(new
                         {
                             Id = 42,
                             Value1 = "32"
@@ -6066,7 +6066,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                     {
                         x.Property<string>("Id");
-                        x.SeedData(new
+                        x.HasData(new
                         {
                             Id = "42",
                             Value1 = 32
@@ -6078,7 +6078,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         x.Property<int>("Id")
                             .HasConversion(e => e.ToString(), e => int.Parse(e));
-                        x.SeedData(new
+                        x.HasData(new
                         {
                             Id = 42,
                             Value1 = 32
@@ -6126,7 +6126,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<SomeEnum?>("Enum").HasDefaultValue(SomeEnum.Default);
-                        x.SeedData(new
+                        x.HasData(new
                         {
                             Id = 1,
                             Enum = SomeEnum.NonDefault
@@ -6194,7 +6194,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
                             new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
                             new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
@@ -6207,7 +6207,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 11111, Value1 = 0, Value2 = "" }, // added
                             new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
                             new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
@@ -6306,7 +6306,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.Property<int>("BlogId");
                             x.Property<string>("Url");
-                            x.SeedData(
+                            x.HasData(
                                 new { BlogId = 32, Url = "updated.url" },
                                 new { BlogId = 38, Url = "newblog.url" },
                                 new { BlogId = 316, Url = "nowitexists.blog" });
@@ -6321,7 +6321,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .WithMany("Posts")
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
-                            x.SeedData(
+                            x.HasData(
                                 new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
                                 new { PostId = 545, Title = "Updated Title", BlogId = 38 },
                                 new { PostId = 546, Title = "New Post", BlogId = 32 });
@@ -6340,7 +6340,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.Property<int>("BlogId");
                             x.Property<string>("Url");
-                            x.SeedData(
+                            x.HasData(
                                 new { BlogId = 32, Url = "updated.url" },
                                 new { BlogId = 38, Url = "newblog.url" },
                                 new { BlogId = 316, Url = "nowitexists.blog" });
@@ -6354,7 +6354,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .WithMany("Posts")
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
-                            x.SeedData(
+                            x.HasData(
                                 new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
                                 new { PostId = 545, Title = "Updated Title", BlogId = 38 },
                                 new { PostId = 546, Title = "New Post", BlogId = 32 });
@@ -6374,7 +6374,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.Property<int>("BlogId");
                             x.Property<string>("Url");
-                            x.SeedData(
+                            x.HasData(
                                 new { BlogId = 32, Url = "original.url" });
                         });
                     source.Entity(
@@ -6387,7 +6387,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .WithMany("Posts")
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
-                            x.SeedData(
+                            x.HasData(
                                 new { PostId = 545, Title = "Original Title", BlogId = 32 },
                                 new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
                                 new { PostId = 390, Title = "Post To Be Removed", BlogId = 32 });
@@ -6637,16 +6637,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                         {
                             x.Property<int>("_secretId");
-                            x.SeedData(new Order(42)
+                            x.HasData(new Order(42)
                             {
                                 Id = 1
                             });
-                            x.OwnsOne(y => y.Billing).SeedData(new
+                            x.OwnsOne(y => y.Billing).HasData(new
                             {
                                 OrderId = 1,
                                 AddressLine1 = "billing"
                             });
-                            x.OwnsOne(y => y.Shipping).SeedData(new
+                            x.OwnsOne(y => y.Shipping).HasData(new
                             {
                                 OrderId = 1,
                                 AddressLine2 = "shipping"

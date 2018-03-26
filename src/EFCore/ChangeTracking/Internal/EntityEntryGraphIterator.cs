@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void TraverseGraph(
+        public virtual void TraverseGraph<TState>(
             EntityEntryGraphNode node,
-            object state,
-            Func<EntityEntryGraphNode, object, bool> handleNode)
+            TState state,
+            Func<EntityEntryGraphNode, TState, bool> handleNode)
         {
             if (!handleNode(node, state))
             {
@@ -69,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual async Task TraverseGraphAsync(
+        public virtual async Task TraverseGraphAsync<TState>(
             EntityEntryGraphNode node,
-            object state,
-            Func<EntityEntryGraphNode, object, CancellationToken, Task<bool>> handleNode,
+            TState state,
+            Func<EntityEntryGraphNode, TState, CancellationToken, Task<bool>> handleNode,
             CancellationToken cancellationToken = default)
         {
             if (!await handleNode(node, state, cancellationToken))

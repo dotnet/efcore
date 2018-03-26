@@ -10,9 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class OracleCodeGenerator : ProviderCodeGenerator
+    public class OracleConfigurationCodeGenerator : ProviderConfigurationCodeGenerator
     {
-        public OracleCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
+        public OracleConfigurationCodeGenerator(ProviderConfigurationCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }

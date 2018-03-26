@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [CanBeNull] IModel target,
             [NotNull] DiffContext diffContext)
         {
-            TrackSeedData(source, target);
+            TrackData(source, target);
 
             var schemaOperations = source != null && target != null
                 ? DiffAnnotations(source, target)
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         ? Remove(source, diffContext)
                         : Enumerable.Empty<MigrationOperation>();
 
-            return schemaOperations.Concat(GetSeedDataOperations());
+            return schemaOperations.Concat(GetDataOperations());
         }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
@@ -528,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 yield return operation;
             }
 
-            DiffSeedData(source, target, diffContext);
+            DiffData(source, target, diffContext);
         }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
@@ -1406,13 +1406,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #endregion
 
-        #region SeedData
+        #region Data
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void TrackSeedData(
+        protected virtual void TrackData(
             [CanBeNull] IModel source,
             [CanBeNull] IModel target)
         {
@@ -1426,7 +1426,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var targetEntityType in target.GetEntityTypes())
             {
-                foreach (var targetSeed in targetEntityType.GetSeedData())
+                foreach (var targetSeed in targetEntityType.GetData())
                 {
                     _targetStateManager.CreateEntry(targetSeed, targetEntityType).SetEntityState(EntityState.Added);
                 }
@@ -1442,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var sourceEntityType in source.GetEntityTypes())
             {
-                foreach (var sourceSeed in sourceEntityType.GetSeedData())
+                foreach (var sourceSeed in sourceEntityType.GetData())
                 {
                     _sourceStateManager.CreateEntry(sourceSeed, sourceEntityType).SetEntityState(EntityState.Added);
                 }
@@ -1453,7 +1453,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void DiffSeedData(
+        protected virtual void DiffData(
             [NotNull] TableMapping source,
             [NotNull] TableMapping target,
             [NotNull] DiffContext diffContext)
@@ -1471,7 +1471,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var targetEntityType in target.EntityTypes)
             {
-                foreach (var targetSeed in targetEntityType.GetSeedData())
+                foreach (var targetSeed in targetEntityType.GetData())
                 {
                     var targetEntry = GetEntry(targetSeed, targetEntityType, _targetStateManager);
                     var targetEntries = targetTableEntryMappingMap.GetOrAddValue(targetEntry);
@@ -1518,7 +1518,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var sourceEntityType in source.EntityTypes)
             {
-                foreach (var sourceSeed in sourceEntityType.GetSeedData())
+                foreach (var sourceSeed in sourceEntityType.GetData())
                 {
                     var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceStateManager);
                     var entryMapping = sourceTableEntryMappingMap.GetOrAddValue(sourceEntry);
@@ -1681,7 +1681,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> GetSeedDataOperations()
+        protected virtual IEnumerable<MigrationOperation> GetDataOperations()
         {
             if (_sourceStateManager != null)
             {

@@ -798,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private static readonly List<(LogLevel Level, EventId Id, string Message)> _log
             = new List<(LogLevel, EventId, string)>();
-             
+
         private static readonly LoggerFactory _loggerFactory
             = new LoggerFactory(new[] { new ListLoggerProvider(_log) });
 
@@ -2232,12 +2232,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 context.ChangeTracker.TrackGraph(
                     category, visited, (e, v) =>
                     {
-                        if (((HashSet<object>)v).Contains(e.Entry.Entity))
+                        if (v.Contains(e.Entry.Entity))
                         {
                             return false;
                         }
 
-                        ((HashSet<object>)v).Add(e.Entry.Entity);
+                        v.Add(e.Entry.Entity);
 
                         traversal.Add(NodeString(e));
 
@@ -2283,12 +2283,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 context.ChangeTracker.TrackGraph(
                     category, visited, (e, v) =>
                     {
-                        if (((HashSet<object>)v).Contains(e.Entry.Entity))
+                        if (v.Contains(e.Entry.Entity))
                         {
                             return false;
                         }
 
-                        ((HashSet<object>)v).Add(e.Entry.Entity);
+                        v.Add(e.Entry.Entity);
 
                         traversal.Add(NodeString(e));
 

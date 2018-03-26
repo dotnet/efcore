@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
-                .AddSingleton<IProviderCodeGenerator, TestProviderCodeGenerator>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderConfigurationCodeGenerator>()
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
                 .BuildServiceProvider()
                 .GetRequiredService<IReverseEngineerScaffolder>();

@@ -213,8 +213,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
                 => Wrap(EntityTypeBuilder.UsePropertyAccessMode(propertyAccessMode));
 
-            public override TestEntityTypeBuilder<TEntity> SeedData(params TEntity[] data)
-                => Wrap(EntityTypeBuilder.SeedData(data));
+            public override DataBuilder<TEntity> HasData(params TEntity[] data)
+                => EntityTypeBuilder.HasData(data);
 
             public EntityTypeBuilder<TEntity> Instance => EntityTypeBuilder;
         }
@@ -278,8 +278,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasConversion<TProvider>()
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TProvider>());
 
-            public override TestPropertyBuilder<TProperty> HasConversion(Type storeType)
-                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(storeType));
+            public override TestPropertyBuilder<TProperty> HasConversion(Type providerClrType)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(providerClrType));
 
             public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
                 Expression<Func<TProperty, TProvider>> convertToProviderExpression,

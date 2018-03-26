@@ -491,7 +491,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="data">
         ///     An array of seed data.
         /// </param>
-        public virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> SeedData([NotNull] params TRelatedEntity[] data)
-            => (ReferenceOwnershipBuilder<TEntity, TRelatedEntity>)base.SeedData(data);
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public virtual DataBuilder<TRelatedEntity> HasData([NotNull] params TRelatedEntity[] data)
+        {
+            Check.NotNull(data, nameof(data));
+
+            OwnedEntityType.AddData(data);
+
+            return new DataBuilder<TRelatedEntity>();
+        }
+
     }
 }

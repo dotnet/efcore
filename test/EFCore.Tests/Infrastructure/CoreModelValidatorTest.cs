@@ -581,11 +581,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Passes_for_valid_seeds()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<A>().SeedData(new A
+            modelBuilder.Entity<A>().HasData(new A
             {
                 Id = 1
             });
-            modelBuilder.Entity<D>().SeedData(new D
+            modelBuilder.Entity<D>().HasData(new D
             {
                 Id = 2,
                 P0 = 3
@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateModelBuilder();
 
             Assert.Equal(CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>().SeedData(new D
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>().HasData(new D
                 {
                     Id = 2,
                     P0 = 3
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Assert.Equal(CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<B>()
-                    .OwnsOne(b => b.A, a => a.SeedData(new D
+                    .OwnsOne(b => b.A, a => a.HasData(new D
                     {
                         Id = 2,
                         P0 = 3
@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<A>(e =>
             {
                 e.Property(a => a.P0).IsRequired();
-                e.SeedData(new A
+                e.HasData(new A
                 {
                     Id = 1
                 });
@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_key_values_in_seeds()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<A>(e => { e.SeedData(new A()); });
+            modelBuilder.Entity<A>(e => { e.HasData(new A()); });
 
             VerifyError(CoreStrings.SeedDatumMissingValue(nameof(A), nameof(A.Id)),
                 modelBuilder.Model);
@@ -656,11 +656,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Logger = CreateLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<A>().SeedData(new A
+            modelBuilder.Entity<A>().HasData(new A
             {
                 Id = 1
             });
-            modelBuilder.Entity<D>().SeedData(new D
+            modelBuilder.Entity<D>().HasData(new D
             {
                 Id = 1
             });
@@ -681,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<A>(e =>
             {
-                e.SeedData(new
+                e.HasData(new
                 {
                     Id = 1,
                     P0 = "invalid"
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<SampleEntity>(e =>
             {
-                e.SeedData(new SampleEntity
+                e.HasData(new SampleEntity
                 {
                     Id = 1,
                     ReferencedEntity = new ReferencedEntity
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<SampleEntity>(e =>
             {
-                e.SeedData(new SampleEntity
+                e.HasData(new SampleEntity
                 {
                     Id = 1,
                     OtherSamples = new HashSet<SampleEntity>(new[]

@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private readonly struct CacheKey
         {
-            public CacheKey(IReadOnlyList<TypeMaterializationInfo> materializationInfo) 
+            public CacheKey(IReadOnlyList<TypeMaterializationInfo> materializationInfo)
                 => TypeMaterializationInfo = materializationInfo;
 
             public IReadOnlyList<TypeMaterializationInfo> TypeMaterializationInfo { get; }
@@ -72,10 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public override bool Equals(object obj)
                 => obj is CacheKey && Equals((CacheKey)obj);
 
-            private bool Equals(CacheKey other) 
+            private bool Equals(CacheKey other)
                 => TypeMaterializationInfo.SequenceEqual(other.TypeMaterializationInfo);
 
-            public override int GetHashCode() 
+            public override int GetHashCode()
                 => TypeMaterializationInfo.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
         /// <returns> The value buffer assignment expressions. </returns>
-        public virtual Expression[] CreateAssignmentExpressions(IReadOnlyList<TypeMaterializationInfo> types)
+        public virtual IReadOnlyList<Expression> CreateAssignmentExpressions(IReadOnlyList<TypeMaterializationInfo> types)
         {
             Check.NotNull(types, nameof(types));
 

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [Fact]
         public virtual void Use_provider_method_is_generated_correctly()
         {
-            var codeGenerator = new OracleCodeGenerator(new ProviderCodeGeneratorDependencies());
+            var codeGenerator = new OracleConfigurationCodeGenerator(new ProviderConfigurationCodeGeneratorDependencies());
 
             var result = codeGenerator.GenerateUseProvider("Data Source=Test");
 

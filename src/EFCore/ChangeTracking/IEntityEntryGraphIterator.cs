@@ -9,28 +9,35 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     A service to travserse a graph of entities and perform some action on at each node.
     /// </summary>
     public interface IEntityEntryGraphIterator
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Traverses a graph of entities allowing an action to be taken at each node.
         /// </summary>
-        void TraverseGraph(
+        /// <param name="node"> The node that is being visited. </param>
+        /// <param name="state"> An arbitary state object. </param>
+        /// <param name="handleNode"> A delegate to call to handle the node. </param>
+        /// <typeparam name="TState"> The type of the state object. </typeparam>
+        void TraverseGraph<TState>(
             [NotNull] EntityEntryGraphNode node,
-            [CanBeNull] object state,
-            [NotNull] Func<EntityEntryGraphNode, object, bool> handleNode);
+            [CanBeNull] TState state,
+            [NotNull] Func<EntityEntryGraphNode, TState, bool> handleNode);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Traverses a graph of entities allowing an action to be taken at each node.
         /// </summary>
-        Task TraverseGraphAsync(
+        /// <param name="node"> The node that is being visited. </param>
+        /// <param name="state"> An arbitary state object. </param>
+        /// <param name="handleNode"> A delegate to call to handle the node. </param>
+        /// <param name="cancellationToken">  A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <typeparam name="TState"> The type of the state object. </typeparam>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        Task TraverseGraphAsync<TState>(
             [NotNull] EntityEntryGraphNode node,
-            [CanBeNull] object state,
-            [NotNull] Func<EntityEntryGraphNode, object, CancellationToken, Task<bool>> handleNode,
+            [CanBeNull] TState state,
+            [NotNull] Func<EntityEntryGraphNode, TState, CancellationToken, Task<bool>> handleNode,
             CancellationToken cancellationToken = default);
     }
 }

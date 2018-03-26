@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     ///     A service typically implemented by database providers to generate code fragments
     ///     for reverse engineering.
     /// </summary>
-    public interface IProviderCodeGenerator
+    public interface IProviderConfigurationCodeGenerator
     {
         /// <summary>
         ///     Generates a code fragment like <c>.UseSqlServer("Database=Foo")</c> which can be used in

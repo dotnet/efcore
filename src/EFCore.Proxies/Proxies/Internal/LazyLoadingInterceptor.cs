@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using Castle.DynamicProxy;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal

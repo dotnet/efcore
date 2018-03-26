@@ -1172,7 +1172,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                 {
                     eb.Property(e => e.Day).HasDefaultValue(Days.Wed)
                         .HasConversion(v => v.ToString(), v => (Days)Enum.Parse(typeof(Days), v));
-                    eb.SeedData(new
+                    eb.HasData(new
                     {
                         Id = 1,
                         Day = Days.Fri
@@ -1192,7 +1192,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.ToTable(""EntityWithEnumType"");
 
-        b.SeedData(
+        b.HasData(
             new { Id = 1, Day = ""Fri"" }
         );
     });
@@ -2086,7 +2086,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
                         eb.Ignore(e => e.EntityWithTwoProperties);
                         eb.Property<decimal?>("OptionalProperty");
-                        eb.SeedData(
+                        eb.HasData(
                             new EntityWithOneProperty
                             {
                                 Id = 42
@@ -2111,14 +2111,14 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.ToTable(""EntityWithOneProperty"");
 
-        b.SeedData(
+        b.HasData(
             new { Id = 42 },
             new { Id = 43, OptionalProperty = 4.3m }
         );
     });
 ",
                 o => Assert.Collection(
-                    o.GetEntityTypes().SelectMany(e => e.GetSeedData()),
+                    o.GetEntityTypes().SelectMany(e => e.GetData()),
                     seed => Assert.Equal(42, seed["Id"]),
                     seed =>
                     {
@@ -2135,11 +2135,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     {
                         builder.Entity<EntityWithOneProperty>()
                             .Ignore(e => e.EntityWithTwoProperties)
-                            .SeedData(
+                            .HasData(
                                 new EntityWithOneProperty { Id = 27 });
                         builder.Entity<EntityWithTwoProperties>()
                             .Ignore(e => e.EntityWithOneProperty)
-                            .SeedData(
+                            .HasData(
                                 new EntityWithTwoProperties { Id = 42, AlternateId = 43 });
                     },
                 GetHeading() + @"
@@ -2152,7 +2152,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.ToTable(""EntityWithOneProperty"");
 
-        b.SeedData(
+        b.HasData(
             new { Id = 27 }
         );
     });
@@ -2168,13 +2168,13 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.ToTable(""EntityWithTwoProperties"");
 
-        b.SeedData(
+        b.HasData(
             new { Id = 42, AlternateId = 43 }
         );
     });
 ",
                 o => Assert.Collection(
-                    o.GetEntityTypes().Select(e => e.GetSeedData().Single()),
+                    o.GetEntityTypes().Select(e => e.GetData().Single()),
                     seed => Assert.Equal(27, seed["Id"]),
                     seed =>
                         {
