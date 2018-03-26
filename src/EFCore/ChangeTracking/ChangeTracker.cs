@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                      return false;
                  }
 
-                 ((Action<EntityEntryGraphNode>)c)(n);
+                 c(n);
 
                  return n.Entry.State != EntityState.Detached;
              });
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Traversal is recursive so the navigation properties of any discovered entities will also be scanned.
         ///         The specified <paramref name="callback" /> is called for each discovered entity and must set the
         ///         <see cref="EntityEntry.State" /> that each entity should be tracked in. If no state is set, the entity
-        ///         remains untracked. 
+        ///         remains untracked.
         ///     </para>
         ///     <para>
         ///         This method is designed for use in disconnected scenarios where entities are retrieved using one instance of
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         Typically traversal of the graph should stop whenever an already tracked entity is encountered or when
-        ///         an entity is reached that should not be tracked. For this typical behavior, use the 
+        ///         an entity is reached that should not be tracked. For this typical behavior, use the
         ///         <see cref="TrackGraph(object,Action{EntityEntryGraphNode})"/> overload. This overload, on the other hand,
         ///         allows the callback to decide when traversal will end, but the onus is then on the caller to ensure that
         ///         traversal will not enter an infinite loop.
@@ -267,14 +267,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="rootEntity"> The entity to begin traversal from. </param>
         /// <param name="state"> An arbitrary state object passed to the callback. </param>
         /// <param name="callback">
-        ///     An delegate to configure the change tracking information for each entity. The second parameter to the 
+        ///     An delegate to configure the change tracking information for each entity. The second parameter to the
         ///     callback is the arbitrary state object passed above. Iteration of the graph will not continue down the graph
         ///     if the callback returns <c>false</c>.
         /// </param>
-        public virtual void TrackGraph(
+        /// <typeparam name="TState"> The tyoe of the state object. </typeparam>
+        public virtual void TrackGraph<TState>(
             [NotNull] object rootEntity,
-            [CanBeNull] object state,
-            [NotNull] Func<EntityEntryGraphNode, object, bool> callback)
+            [CanBeNull] TState state,
+            [NotNull] Func<EntityEntryGraphNode, TState, bool> callback)
         {
             Check.NotNull(rootEntity, nameof(rootEntity));
             Check.NotNull(callback, nameof(callback));

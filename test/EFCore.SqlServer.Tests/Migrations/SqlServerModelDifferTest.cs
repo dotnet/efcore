@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.ToTable("Firefly", "dbo");
                             x.Property<int>("Id");
                             x.Property<int>("SequenceId");
-                            x.SeedData(new { Id = 42 });
+                            x.HasData(new { Id = 42 });
                         }),
                 _ => { },
                 target => target.Entity(
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             x.ToTable("Firefly", "dbo");
                             x.Property<int>("SequenceId").ForSqlServerUseSequenceHiLo(schema: "dbo");
-                            x.SeedData(new { Id = 43 });
+                            x.HasData(new { Id = 43 });
                         }),
                 upOps => Assert.Collection(upOps,
                     o =>
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Id");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
                             new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
                             new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Id");
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
-                        x.SeedData(
+                        x.HasData(
                             new { Id = 11111, Value1 = 0, Value2 = "" }, // added
                             new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
                             new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified

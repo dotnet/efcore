@@ -345,11 +345,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted to the given type before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="storeType"> The type to convert to and from. </param>
+        /// <param name="providerClrType"> The type to convert to and from. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasConversion([CanBeNull] Type storeType)
+        public virtual PropertyBuilder HasConversion([CanBeNull] Type providerClrType)
         {
-            Builder.HasConversion(storeType, ConfigurationSource.Explicit);
+            Builder.HasConversion(providerClrType, ConfigurationSource.Explicit);
 
             return this;
         }

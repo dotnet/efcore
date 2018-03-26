@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             => serviceCollection
                 .AddSingleton<IRelationalTypeMappingSource, SqlServerTypeMappingSource>()
                 .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
-                .AddSingleton<IProviderCodeGenerator, SqlServerCodeGenerator>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, SqlServerConfigurationCodeGenerator>()
                 .AddSingleton<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>();
     }
 }

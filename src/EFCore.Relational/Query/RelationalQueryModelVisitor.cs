@@ -137,9 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private sealed class FastQueryMaterializerCreatingVisitor : ExpressionVisitor
         {
-            private readonly Expression[] _valueBufferAssignmentExpressions;
+            private readonly IReadOnlyList<Expression> _valueBufferAssignmentExpressions;
 
-            public FastQueryMaterializerCreatingVisitor(Expression[] valueBufferAssignmentExpressions)
+            public FastQueryMaterializerCreatingVisitor(IReadOnlyList<Expression> valueBufferAssignmentExpressions)
                 => _valueBufferAssignmentExpressions = valueBufferAssignmentExpressions;
 
             protected override Expression VisitMethodCall(MethodCallExpression node)

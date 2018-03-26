@@ -4,7 +4,7 @@
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     Extension methods for the <see cref="ILazyLoader" /> service that make it more

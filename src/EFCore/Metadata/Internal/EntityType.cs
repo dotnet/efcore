@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
             = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
 
-        private List<object> _seedData;
+        private List<object> _data;
 
         private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
             = new SortedDictionary<string, ServiceProperty>(StringComparer.Ordinal);
@@ -2034,27 +2034,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #endregion
 
-        #region SeedData
+        #region Data
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<IDictionary<string, object>> GetSeedData(bool providerValues = false)
+        public virtual IEnumerable<IDictionary<string, object>> GetData(bool providerValues = false)
         {
-            if (_seedData == null
-                || _seedData.Count == 0)
+            if (_data == null
+                || _data.Count == 0)
             {
                 return Enumerable.Empty<IDictionary<string, object>>();
             }
 
-            var seedData = new List<Dictionary<string, object>>();
+            var data = new List<Dictionary<string, object>>();
             var valueConverters = new Dictionary<string, ValueConverter>();
             var properties = this.GetPropertiesAndNavigations().ToDictionary(p => p.Name);
-            foreach (var rawSeed in _seedData)
+            foreach (var rawSeed in _data)
             {
                 var seed = new Dictionary<string, object>();
-                seedData.Add(seed);
+                data.Add(seed);
                 var type = rawSeed.GetType();
                 foreach (var memberInfo in type.GetMembersInHierarchy())
                 {
@@ -2094,14 +2094,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            return seedData;
+            return data;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void AddSeedData([NotNull] object[] data)
+        public virtual void AddData([NotNull] object[] data)
         {
             foreach (var entity in data)
             {
@@ -2114,11 +2114,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (_seedData == null)
+            if (_data == null)
             {
-                _seedData = new List<object>();
+                _data = new List<object>();
             }
-            _seedData.AddRange(data);
+            _data.AddRange(data);
         }
 
         #endregion
@@ -2343,10 +2343,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 Properties.Attach(entityTypeBuilder);
 
-                var rawSeedData = EntityType._seedData;
-                if (rawSeedData != null)
+                var rawData = EntityType._data;
+                if (rawData != null)
                 {
-                    entityTypeBuilder.Metadata.AddSeedData(Enumerable.ToArray(rawSeedData));
+                    entityTypeBuilder.Metadata.AddData(Enumerable.ToArray(rawData));
                 }
             }
         }

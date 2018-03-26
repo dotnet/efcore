@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
             return fromSqlExpression;
         }
 
-        protected override void GeneratorPseudoFromClause()
+        protected override void GeneratePseudoFromClause()
         {
             Sql.Append(" FROM DUAL");
         }

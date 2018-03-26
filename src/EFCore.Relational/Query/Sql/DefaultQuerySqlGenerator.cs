@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Information about the types being projected by this query.
         /// </summary>
-        public virtual TypeMaterializationInfo[] GetTypeMaterializationInfos()
+        public virtual IReadOnlyList<TypeMaterializationInfo> GetTypeMaterializationInfos()
             => SelectExpression.GetMappedProjectionTypes().ToArray();
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
             else
             {
-                GeneratorPseudoFromClause();
+                GeneratePseudoFromClause();
             }
 
             if (selectExpression.Predicate != null)
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     Generates a pseudo FROM clause. Required by some providers
         ///     when a query has no actual FROM clause.
         /// </summary>
-        protected virtual void GeneratorPseudoFromClause()
+        protected virtual void GeneratePseudoFromClause()
         {
         }
 

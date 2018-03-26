@@ -552,13 +552,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="data">
         ///     An array of seed data of the same type as the entity we're building.
         /// </param>
-        public virtual EntityTypeBuilder SeedData([NotNull] params object[] data)
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public virtual DataBuilder HasData([NotNull] params object[] data)
         {
             Check.NotNull(data, nameof(data));
 
-            Metadata.AddSeedData(data);
+            Metadata.AddData(data);
 
-            return this;
+            return new DataBuilder();
         }
 
         #region Hidden System.Object members

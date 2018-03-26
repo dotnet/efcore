@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly IScaffoldingProviderCodeGenerator _legacyProviderCodeGenerator;
 #pragma warning restore CS0618 // Type or member is obsolete
-        private readonly IProviderCodeGenerator _providerCodeGenerator;
+        private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
         private IndentedStringBuilder _sb;
         private bool _entityTypeBuilderInitialized;
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
             [NotNull] IEnumerable<IScaffoldingProviderCodeGenerator> legacyProviderCodeGenerators,
 #pragma warning restore CS0618 // Type or member is obsolete
-            [NotNull] IEnumerable<IProviderCodeGenerator> providerCodeGenerators,
+            [NotNull] IEnumerable<IProviderConfigurationCodeGenerator> providerCodeGenerators,
             [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
             [NotNull] ICSharpUtilities cSharpUtilities)
         {
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _legacyProviderCodeGenerator = legacyProviderCodeGenerators.LastOrDefault();
-            _providerCodeGenerator = providerCodeGenerators.LastOrDefault();
+            _providerConfigurationCodeGenerator = providerCodeGenerators.LastOrDefault();
             _annotationCodeGenerator = annotationCodeGenerator;
             _cSharpUtilities = cSharpUtilities;
         }
@@ -187,9 +187,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     _sb.Append("optionsBuilder")
                         .Append(
-                            _providerCodeGenerator != null
+                            _providerConfigurationCodeGenerator != null
                                 ? _cSharpUtilities.Generate(
-                                    _providerCodeGenerator.GenerateUseProvider(connectionString))
+                                    _providerConfigurationCodeGenerator.GenerateUseProvider(connectionString))
 #pragma warning disable CS0618 // Type or member is obsolete
                                 : _legacyProviderCodeGenerator.GenerateUseProvider(connectionString, Language))
 #pragma warning restore CS0618 // Type or member is obsolete

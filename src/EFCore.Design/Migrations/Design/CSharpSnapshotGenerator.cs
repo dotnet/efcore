@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         GenerateRelationships(builderName, entityType, stringBuilder);
                     }
 
-                    GenerateSeedData(entityType.GetProperties(), entityType.GetSeedData(providerValues: true), stringBuilder);
+                    GenerateData(entityType.GetProperties(), entityType.GetData(providerValues: true), stringBuilder);
                 }
 
                 stringBuilder
@@ -1104,7 +1104,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="properties"> The properties to generate. </param>
         /// <param name="data"> The data to be seeded. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateSeedData(
+        protected virtual void GenerateData(
             [NotNull] IEnumerable<IProperty> properties,
             [NotNull] IEnumerable<IDictionary<string, object>> data,
             [NotNull] IndentedStringBuilder stringBuilder)
@@ -1123,7 +1123,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .AppendLine($"b.{nameof(EntityTypeBuilder.SeedData)}(");
+                .AppendLine($"b.{nameof(EntityTypeBuilder.HasData)}(");
 
             using (stringBuilder.Indent())
             {

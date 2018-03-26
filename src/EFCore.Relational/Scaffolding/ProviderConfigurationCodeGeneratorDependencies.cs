@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="ProviderCodeGenerator" />
+    ///         Service dependencies parameter class for <see cref="ProviderConfigurationCodeGenerator" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -20,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class ProviderCodeGeneratorDependencies
+    public sealed class ProviderConfigurationCodeGeneratorDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="ProviderCodeGenerator" />.
+        ///         Creates the service dependencies parameter object for a <see cref="ProviderConfigurationCodeGenerator" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     </para>
         /// </summary>
         // ReSharper disable once EmptyConstructor
-        public ProviderCodeGeneratorDependencies()
+        public ProviderConfigurationCodeGeneratorDependencies()
         {
         }
     }

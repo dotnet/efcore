@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
             => serviceCollection
                 .AddSingleton<IRelationalTypeMappingSource, SqliteTypeMappingSource>()
                 .AddSingleton<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
-                .AddSingleton<IProviderCodeGenerator, SqliteCodeGenerator>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, SqliteConfigurationCodeGenerator>()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
     }
 }
