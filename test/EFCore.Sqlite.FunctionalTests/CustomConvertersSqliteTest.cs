@@ -14,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        // Disabled: SQLite database is case-sensitive
+        public override void Can_insert_and_read_back_with_case_insensitive_string_key()
+        {
+        }
+
         public class CustomConvertersSqliteFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => false;

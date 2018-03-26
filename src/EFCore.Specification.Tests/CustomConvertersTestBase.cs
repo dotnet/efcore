@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -66,12 +67,7 @@ namespace Microsoft.EntityFrameworkCore
             public static implicit operator string(Email email) => email._value;
         }
 
-        // #11362
-        public override void Can_insert_and_read_back_with_string_key()
-        {
-        }
-
-        // #11362
+        [Fact]
         public virtual void Can_insert_and_read_back_with_case_insensitive_string_key()
         {
             using (var context = CreateContext())
@@ -79,14 +75,14 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Set<StringKeyDataType>().Add(
                     new StringKeyDataType
                     {
-                        Id = "Gumball!"
+                        Id = "Gumball!!"
                     }).Entity;
 
                 var dependent = context.Set<StringForeignKeyDataType>().Add(
                     new StringForeignKeyDataType
                     {
-                        Id = 77,
-                        StringKeyDataTypeId = "gumball!"
+                        Id = 7767,
+                        StringKeyDataTypeId = "gumball!!"
                     }).Entity;
 
                 Assert.Same(principal, dependent.Principal);
@@ -99,11 +95,23 @@ namespace Microsoft.EntityFrameworkCore
                 var entity = context
                     .Set<StringKeyDataType>()
                     .Include(e => e.Dependents)
-                    .Where(e => e.Id == "Gumball!")
+                    .Where(e => e.Id == "Gumball!!")
                     .ToList().Single();
 
-                Assert.Equal("Gumball!", entity.Id);
-                Assert.Equal("Gumball!", entity.Dependents.First().StringKeyDataTypeId);
+                Assert.Equal("Gumball!!", entity.Id);
+                Assert.Equal("gumball!!", entity.Dependents.First().StringKeyDataTypeId);
+            }
+
+            using (var context = CreateContext())
+            {
+                var entity = context
+                    .Set<StringKeyDataType>()
+                    .Include(e => e.Dependents)
+                    .Where(e => e.Id == "gumball!!")
+                    .ToList().Single();
+
+                Assert.Equal("Gumball!!", entity.Id);
+                Assert.Equal("gumball!!", entity.Dependents.First().StringKeyDataTypeId);
             }
         }
 
@@ -330,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var caseInsensitiveComparer = new ValueComparer<string>(
                     (l, r) =>(l == null || r == null) ? (l == r) : l.Equals(r, StringComparison.InvariantCultureIgnoreCase),
-                    v => v.GetHashCode(),
+                    v => StringComparer.InvariantCultureIgnoreCase.GetHashCode(v),
                     v => v);
 
                 modelBuilder.Entity<StringKeyDataType>(b =>
@@ -344,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<StringForeignKeyDataType>(b =>
                 {
                     var property = b.Property(e => e.StringKeyDataTypeId)
-                        .HasConversion(v => "keyvalue=" + v.ToLowerInvariant(), v => v.Substring(9)).Metadata;
+                        .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
                     property.SetKeyValueComparer(caseInsensitiveComparer);
                 });
