@@ -454,7 +454,8 @@ namespace Microsoft.Data.Sqlite
             string name,
             int arity,
             TState state,
-            Func<TState, SqliteValueReader, TResult> function)
+            Func<TState, SqliteValueReader, TResult> function,
+            bool isDeterministic)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -494,7 +495,13 @@ namespace Microsoft.Data.Sqlite
                     };
             }
 
-            var rc = raw.sqlite3_create_function(_db, name, arity, state, func);
+            var rc = raw.sqlite3_create_function(
+                _db,
+                name,
+                arity,
+                isDeterministic ? raw.SQLITE_DETERMINISTIC : 0,
+                state,
+                func);
             SqliteException.ThrowExceptionForRC(rc, _db);
         }
 
@@ -503,7 +510,8 @@ namespace Microsoft.Data.Sqlite
             int arity,
             TAccumulate seed,
             Func<TAccumulate, SqliteValueReader, TAccumulate> func,
-            Func<TAccumulate, TResult> resultSelector)
+            Func<TAccumulate, TResult> resultSelector,
+            bool isDeterministic)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -581,6 +589,7 @@ namespace Microsoft.Data.Sqlite
                 _db,
                 name,
                 arity,
+                isDeterministic ? raw.SQLITE_DETERMINISTIC : 0,
                 new AggregateContext<TAccumulate>(seed),
                 func_step,
                 func_final);

@@ -94,8 +94,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="state">An object available during each invocation of the function.</param>
 <# } #>
         /// <param name="function">The function to be invoked.</param>
-        public virtual void CreateFunction<<#= typeArguments #>>(string name, <#= stateParameter #>Func<<#= typeArguments #>> function)
-            => CreateFunctionCore(name, <#= arity #>, <#= stateArgument #>, IfNotNull<<#= stateParameterType #>, TResult>(function, (s, r) => function(<#= lambdaArguments #>)));
+        /// <param name="isDeterministic">Flag indicating whether the function is deterministic.</param>
+        public virtual void CreateFunction<<#= typeArguments #>>(string name, <#= stateParameter #>Func<<#= typeArguments #>> function, bool isDeterministic = false)
+            => CreateFunctionCore(name, <#= arity #>, <#= stateArgument #>, IfNotNull<<#= stateParameterType #>, TResult>(function, (s, r) => function(<#= lambdaArguments #>)), isDeterministic);
 <#
         }
 
@@ -113,8 +114,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="state">An object available during each invocation of the function.</param>
 <# } #>
         /// <param name="function">The function to be invoked.</param>
-        public virtual void CreateFunction<<#= stateTypeArgument #>TResult>(string name, <#= stateParameter #>Func<<#= stateTypeArgument #>object[], TResult> function)
-            => CreateFunctionCore(name, -1, <#= stateArgument #>, IfNotNull<<#= stateParameterType #>, TResult>(function, (s, r) => function(<#= lambdaStateArgument #>GetValues(r))));
+        /// <param name="isDeterministic">Flag indicating whether the function is deterministic.</param>
+        public virtual void CreateFunction<<#= stateTypeArgument #>TResult>(string name, <#= stateParameter #>Func<<#= stateTypeArgument #>object[], TResult> function, bool isDeterministic = false)
+            => CreateFunctionCore(name, -1, <#= stateArgument #>, IfNotNull<<#= stateParameterType #>, TResult>(function, (s, r) => function(<#= lambdaStateArgument #>GetValues(r))), isDeterministic);
 <#
     }
 #>

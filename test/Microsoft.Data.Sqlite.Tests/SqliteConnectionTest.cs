@@ -706,6 +706,40 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void CreateFunction_is_non_deterministic()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+                connection.CreateFunction("test", (double x) => x);
+
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
+
+                Assert.Equal(
+                    Resources.SqliteNativeError(raw.SQLITE_ERROR, "non-deterministic functions prohibited in partial index WHERE clauses"),
+                    ex.Message);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_deterministic_param_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+                connection.CreateFunction("test", (double x) => x, true);
+
+                Assert.Equal(1, connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
+            }
+        }
+
+        [Fact]
         public void CreateAggregate_throws_when_closed()
         {
             var connection = new SqliteConnection();
