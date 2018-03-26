@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
+using Microsoft.Data.Sqlite.TestUtilities;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -391,7 +392,61 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
-        
+
+        [Fact, UseCulture("ar-SA")]
+        public void Bind_DateTime_with_Arabic_Culture()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Person(DateOfBirth datetime);");
+
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO Person(DateOfBirth) VALUES (@DateOfBirth);";
+                var date = new DateTime(2018, 3, 25);
+                command.Parameters.AddWithValue("DateOfBirth", date);
+                Assert.Equal(1, command.ExecuteNonQuery());
+
+                command.CommandText = "SELECT DateOfBirth FROM Person;";
+                var result = command.ExecuteScalar();
+                Assert.Equal("2018-03-25 00:00:00", (string)result);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal("2018-03-25 00:00:00", reader.GetString(0));
+                    Assert.Equal(date, reader.GetDateTime(0));
+                }
+            }
+        }
+
+        [Fact, UseCulture("ar-SA")]
+        public void Bind_DateTimeOffset_with_Arabic_Culture()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Test(date TEXT);");
+
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO Test(date) VALUES (@date);";
+                var date = new DateTimeOffset(new DateTime(2018, 3, 25), new TimeSpan());
+                command.Parameters.AddWithValue("date", date);
+                Assert.Equal(1, command.ExecuteNonQuery());
+
+                command.CommandText = "SELECT date FROM Test;";
+                var result = command.ExecuteScalar();
+                Assert.Equal("2018-03-25 00:00:00+00:00", (string)result);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal("2018-03-25 00:00:00+00:00", reader.GetString(0));
+                    Assert.Equal(date, reader.GetDateTimeOffset(0));
+                }
+            }
+        }
+
         [Fact]
         public void Add_range_of_parameters_using_DbCommand_base_class()
         {
@@ -418,7 +473,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal(parameterValue2.Value, reader.GetString(1));
                 }
             }
-        }      
+        }
 
         private enum MyEnum
         {

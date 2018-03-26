@@ -94,21 +94,21 @@ namespace Microsoft.Data.Sqlite
                 }
                 else
                 {
-                    var value = dateTime.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF");
+                    var value = dateTime.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF", CultureInfo.InvariantCulture);
                     BindText(value);
                 }
             }
             else if (type == typeof(DateTimeOffset))
             {
-                var dateTime = (DateTimeOffset)_value;
+                var dateTimeOffset = (DateTimeOffset)_value;
                 if (_sqliteType == SqliteType.Real)
                 {
-                    var value = ToJulianDate(dateTime.DateTime);
+                    var value = ToJulianDate(dateTimeOffset.DateTime);
                     BindDouble(value);
                 }
                 else
                 {
-                    var value = dateTime.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz");
+                    var value = dateTimeOffset.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz", CultureInfo.InvariantCulture);
                     BindText(value);
                 }
             }
