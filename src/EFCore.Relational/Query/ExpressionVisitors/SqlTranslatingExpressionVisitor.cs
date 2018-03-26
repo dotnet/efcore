@@ -909,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             if (subQueryModel.IsIdentityQuery()
                 && subQueryModel.ResultOperators.Count == 1
-                && subQueryModel.ResultOperators.First() is ContainsResultOperator)
+                && subQueryModel.ResultOperators[0] is ContainsResultOperator)
             {
                 var contains = (ContainsResultOperator)subQueryModel.ResultOperators.First();
                 var fromExpression = subQueryModel.MainFromClause.FromExpression;
