@@ -99,11 +99,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
 
         /// <summary>
-        ///     Configures this as a one-to-many relationship.
+        ///     <para>
+        ///          Configures this as a one-to-many relationship.
+        ///     </para>
+        ///     <para>
+        ///         Note that calling this method with no parameters will explicitly configure this side
+        ///         of the relationship to use no navigation property, even if such a property exists on the
+        ///         entity type. If the navigation property is to be used, then it must be specified.
+        ///     </para>
         /// </summary>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on the other end of this relationship.
-        ///     If null, there is no navigation property on the other end of the relationship.
+        ///     If null or not specified, then there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string navigationName = null)
