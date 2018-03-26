@@ -223,18 +223,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
             }
 
             protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
-            {
-                var mapping = FindRawMapping(mappingInfo);
-
-                if (mapping == null)
-                {
-                    return null;
-                }
-
-                mapping = mapping.CloneWithFacetedName(mappingInfo);
-
-                return mapping;
-            }
+                => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
             private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
             {

@@ -132,6 +132,28 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
+        private class TestStringTypeMapping : StringTypeMapping
+        {
+            public TestStringTypeMapping(
+                string storeType,
+                DbType? dbType,
+                bool unicode = false,
+                int? size = null,
+                bool fixedLength = false)
+                : base(
+                    new RelationalTypeMappingParameters(
+                        new CoreTypeMappingParameters(typeof(string)),
+                        storeType,
+                        StoreTypeModifierKind.None,
+                        dbType,
+                        unicode,
+                        size,
+                        fixedLength))
+            {
+            }
+
+        }
+
         protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
@@ -146,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     var baseName = (isAnsi ? "ansi_" : "just_") + (isFixedLength ? "string_fixed" : "string");
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
 
-                    return new StringTypeMapping(
+                    return new TestStringTypeMapping(
                         storeTypeName ?? baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
                         isAnsi ? DbType.AnsiString : (DbType?)null,
                         !isAnsi,

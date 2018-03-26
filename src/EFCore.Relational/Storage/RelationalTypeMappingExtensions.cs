@@ -13,88 +13,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public static class RelationalTypeMappingExtensions
     {
         /// <summary>
-        ///     Clones the type mapping to update the name with size, precision,
-        ///     and scale updated in the type name, as is common for some database
-        ///     providers.
+        ///     Clones the type mapping to update the name and size from the
+        ///     mapping info, if needed.
         /// </summary>
         /// <param name="mapping"> The mapping. </param>
         /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
         /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
-        public static RelationalTypeMapping CloneWithFacetedName(
+        public static RelationalTypeMapping Clone(
             [NotNull] this RelationalTypeMapping mapping,
             [NotNull] RelationalTypeMappingInfo mappingInfo)
         {
             Check.NotNull(mapping, nameof(mapping));
             Check.NotNull(mappingInfo, nameof(mappingInfo));
 
-            var clone = false;
-
-            var storeTypeName = mappingInfo.StoreTypeName;
-            if (storeTypeName != null
-                && !storeTypeName.Equals(mapping.StoreType, StringComparison.Ordinal))
-            {
-                clone = true;
-            }
-            else
-            {
-                storeTypeName = mapping.StoreType;
-            }
-
-            var size = mapping.Size == -1 ? -1 : (int?)null;
-            if (size != -1)
-            {
-                size = mappingInfo.Size
-                       ?? mapping.Size;
-
-                if (size != mapping.Size)
-                {
-                    var typeNameBase = GetTypeNameBase(mappingInfo, storeTypeName, out var isMax);
-                    if (!mappingInfo.StoreTypeNameSizeIsMax
-                        && !isMax)
-                    {
-                        storeTypeName = typeNameBase + "(" + size + ")";
-                    }
-
-                    clone = true;
-                }
-            }
-
-            if (mappingInfo.Precision != null
-                && mappingInfo.Scale != null)
-            {
-                storeTypeName = GetTypeNameBase(mappingInfo, storeTypeName, out var _)
-                                + "(" + mappingInfo.Precision + "," + mappingInfo.Scale + ")";
-                clone = true;
-            }
-
-            if (clone)
-            {
-                mapping = mapping.Clone(storeTypeName, size);
-            }
-
-            return mapping;
-        }
-
-        private static string GetTypeNameBase(RelationalTypeMappingInfo mappingInfo, string storeTypeName, out bool isMax)
-        {
-            isMax = false;
-            var typeNameBase = mappingInfo.StoreTypeNameBase;
-            if (typeNameBase == null)
-            {
-                typeNameBase = storeTypeName;
-                var openParen = typeNameBase.IndexOf("(", StringComparison.Ordinal);
-                if (openParen > 0)
-                {
-                    if (typeNameBase.Substring(openParen + 1).Trim().StartsWith("max", StringComparison.OrdinalIgnoreCase))
-                    {
-                        isMax = true;
-                    }
-
-                    typeNameBase = typeNameBase.Substring(0, openParen);
-                }
-            }
-
-            return typeNameBase;
+            return (mappingInfo.Size != null
+                    && mappingInfo.Size != mapping.Size)
+                   || (mappingInfo.StoreTypeName != null
+                       && !string.Equals(mappingInfo.StoreTypeName, mapping.StoreType, StringComparison.Ordinal))
+                ? mapping.Clone(
+                    mappingInfo.StoreTypeName ?? mapping.StoreType,
+                    mappingInfo.Size ?? mapping.Size)
+                : mapping;
         }
     }
 }

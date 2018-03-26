@@ -93,10 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Parameters = parameters;
 
             var clrType = parameters.Converter?.ModelClrType ?? parameters.ClrType;
-
             ClrType = clrType;
-
-            Converter = parameters.Converter;
 
             if (parameters.Comparer?.Type == clrType)
             {
@@ -123,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Converts types to and from the store whenever this mapping is used.
         ///     May be null if no conversion is needed.
         /// </summary>
-        public virtual ValueConverter Converter { get; }
+        public virtual ValueConverter Converter => Parameters.Converter;
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value snapshotting and comparison for

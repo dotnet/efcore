@@ -90,16 +90,6 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.StringTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
-      "MemberId": "public .ctor(System.String storeType, System.Nullable<System.Data.DbType> dbType = default(System.Nullable<System.Data.DbType>), System.Boolean unicode = False, System.Nullable<System.Int32> size = default(System.Nullable<System.Int32>))",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ByteArrayTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
-      "MemberId": "public .ctor(System.String storeType, System.Nullable<System.Data.DbType> dbType = default(System.Nullable<System.Data.DbType>), System.Nullable<System.Int32> size = default(System.Nullable<System.Int32>))",
-      "Kind": "Removal"
-    },
-    {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder",
       "MemberId": "public virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.AlterOperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AlterColumnOperation> AlterColumn<T0>(System.String name, System.String table, System.String type = null, System.Nullable<System.Boolean> unicode = default(System.Nullable<System.Boolean>), System.Nullable<System.Int32> maxLength = default(System.Nullable<System.Int32>), System.Boolean rowVersion = False, System.String schema = null, System.Boolean nullable = False, System.Object defaultValue = null, System.String defaultValueSql = null, System.String computedColumnSql = null, System.Type oldClrType = null, System.String oldType = null, System.Nullable<System.Boolean> oldUnicode = default(System.Nullable<System.Boolean>), System.Nullable<System.Int32> oldMaxLength = default(System.Nullable<System.Int32>), System.Boolean oldRowVersion = False, System.Boolean oldNullable = False, System.Object oldDefaultValue = null, System.String oldDefaultValueSql = null, System.String oldComputedColumnSql = null)",
       "Kind": "Removal"

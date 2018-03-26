@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerStringTypeMapping : StringTypeMapping
     {
+        private const int UnicodeMax = 4000;
+        private const int AnsiMax = 8000;
+
         private readonly int _maxSpecificSize;
 
         /// <summary>
@@ -28,9 +31,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             bool unicode = false,
             int? size = null,
             bool fixedLength = false)
-            : base(storeType, dbType, unicode, size, fixedLength)
+            : this(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(typeof(string)),
+                    storeType,
+                    GetStoreTypeModifier(unicode, size),
+                    dbType,
+                    unicode,
+                    size,
+                    fixedLength))
         {
-            _maxSpecificSize = CalculateSize(unicode, size);
         }
 
         /// <summary>
@@ -43,21 +53,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
         }
 
+        private static StoreTypeModifierKind GetStoreTypeModifier(bool unicode, int? size)
+            => unicode
+                ? size.HasValue && size <= UnicodeMax
+                    ? StoreTypeModifierKind.Size
+                    : StoreTypeModifierKind.None
+                : size.HasValue && size <= AnsiMax
+                    ? StoreTypeModifierKind.Size
+                    : StoreTypeModifierKind.None;
+
         private static int CalculateSize(bool unicode, int? size)
             => unicode
-                ? size.HasValue && size < 4000
+                ? size.HasValue && size <= UnicodeMax
                     ? size.Value
-                    : 4000
-                : size.HasValue && size < 8000
+                    : UnicodeMax
+                : size.HasValue && size <= AnsiMax
                     ? size.Value
-                    : 8000;
+                    : AnsiMax;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerStringTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
+            => new SqlServerStringTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypeModifier(IsUnicode, size)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -78,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             // -1 (unbounded) to avoid SQL client size inference.
 
             var value = parameter.Value;
-            var length = (value as string)?.Length ?? (value as byte[])?.Length;
+            var length = (value as string)?.Length;
 
             parameter.Size = value == null || value == DBNull.Value || length != null && length <= _maxSpecificSize
                 ? _maxSpecificSize
