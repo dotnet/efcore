@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(IProperty property)
             => property.FindRelationalMapping()
-               ?? FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(property));
+               ?? FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(property), property);
 
         /// <summary>
         ///     <para>
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(Type type)
-            => FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(type));
+            => FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(type), null);
 
         /// <summary>
         ///     <para>
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(MemberInfo member)
-            => FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(member));
+            => FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(member), null);
 
         /// <summary>
         ///     <para>
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeTypeName"> The database type name. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public virtual RelationalTypeMapping FindMapping(string storeTypeName)
-            => (RelationalTypeMapping)FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(storeTypeName));
+            => (RelationalTypeMapping)FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(storeTypeName), null);
 
         /// <summary>
         ///     <para>
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? scale = null)
             => (RelationalTypeMapping)FindMappingWithConversion(
                 new ConcreteRelationalTypeMappingInfo(
-                    type, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale));
+                    type, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
 
         RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(IProperty property)
             => (RelationalTypeMapping)FindMapping(property);

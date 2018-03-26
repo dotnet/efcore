@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class TypeMappingInfo
     {
+        private readonly Type _providerClrType;
+        private readonly ValueConverter _customConverter;
+
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
@@ -34,13 +37,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var principals = property.FindPrincipals().ToList();
 
-            Property = property;
-            MemberInfo = property.GetIdentifyingMemberInfo();
+            _providerClrType = principals
+                ?.Select(p => p.GetProviderClrType())
+                .FirstOrDefault(t => t != null)
+                ?.UnwrapNullableType();
+
+            _customConverter = principals
+                ?.Select(p => p.GetValueConverter())
+                .FirstOrDefault(c => c != null);
+
+            var mappingHints = _customConverter?.MappingHints;
+
             IsKeyOrIndex = property.IsKeyOrForeignKey() || property.IsIndex();
-            Size = principals.Select(p => p.GetMaxLength()).FirstOrDefault(t => t != null);
-            IsUnicode = principals.Select(p => p.IsUnicode()).FirstOrDefault(t => t != null);
+            Size = principals.Select(p => p.GetMaxLength()).FirstOrDefault(t => t != null) ?? mappingHints?.Size;
+            IsUnicode = principals.Select(p => p.IsUnicode()).FirstOrDefault(t => t != null) ?? mappingHints?.IsUnicode;
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
-            ClrType = property.ClrType.UnwrapNullableType();
+            ClrType = (_customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+            Scale = mappingHints?.Scale;
+            Precision = mappingHints?.Precision;
         }
 
         /// <summary>
@@ -63,7 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(member, nameof(member));
 
             ClrType = member.GetMemberType().UnwrapNullableType();
-            MemberInfo = member;
         }
 
         /// <summary>
@@ -105,10 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(source, nameof(source));
 
-            Property = source.Property;
             IsRowVersion = source.IsRowVersion;
             IsKeyOrIndex = source.IsKeyOrIndex;
-            MemberInfo = source.MemberInfo;
+            _providerClrType = source._providerClrType;
+            _customConverter = source._customConverter;
 
             var mappingHints = converter.MappingHints;
 
@@ -126,11 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
         public abstract TypeMappingInfo WithConverter(ValueConverterInfo converterInfo);
-
-        /// <summary>
-        ///     The property for which mapping is needed.
-        /// </summary>
-        public virtual IProperty Property { get; }
 
         /// <summary>
         ///     Indicates whether or not the mapping is part of a key or index.
@@ -163,11 +171,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual int? Scale { get; }
 
         /// <summary>
-        ///     The field or property info for the property.
-        /// </summary>
-        public virtual MemberInfo MemberInfo { get; }
-
-        /// <summary>
         ///     The CLR type in the model.
         /// </summary>
         public virtual Type ClrType { get; }
@@ -178,9 +181,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="other"> The other object. </param>
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         protected virtual bool Equals([NotNull] TypeMappingInfo other)
-            => Property == other.Property
-               && ClrType == other.ClrType
-               && MemberInfo == other.MemberInfo
+            => ClrType == other.ClrType
+               && _providerClrType == other._providerClrType
+               && _customConverter == other._customConverter
                && IsKeyOrIndex == other.IsKeyOrIndex
                && Size == other.Size
                && IsUnicode == other.IsUnicode
@@ -205,11 +208,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
         {
-            var hashCode = Property?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ ClrType?.GetHashCode() ?? 0;
+            var hashCode = ClrType?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ (_providerClrType?.GetHashCode() ?? 0);
+            hashCode = (hashCode * 397) ^ (_customConverter?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
             hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (MemberInfo?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (IsUnicode?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (IsRowVersion?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (Scale?.GetHashCode() ?? 0);

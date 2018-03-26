@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -17,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly IRelationalTypeMapper _relationalTypeMapper;
 #pragma warning restore 618
 
+        [ThreadStatic]
+        private static IProperty _property;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -30,6 +34,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             : base(dependencies, relationalDependencies)
         {
             _relationalTypeMapper = typeMapper;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override CoreTypeMapping FindMappingWithConversion(
+            TypeMappingInfo mappingInfo,
+            IProperty property)
+        {
+            _property = property;
+
+            return base.FindMappingWithConversion(mappingInfo, property);
         }
 
         /// <summary>
@@ -67,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         private RelationalTypeMapping FindMappingForProperty(RelationalTypeMappingInfo mappingInfo)
-            => mappingInfo.Property != null
-                ? _relationalTypeMapper.FindMapping(mappingInfo.Property)
+            => _property != null
+                ? _relationalTypeMapper.FindMapping(_property)
                 : null;
 
         private RelationalTypeMapping FindMappingForClrType(RelationalTypeMappingInfo mappingInfo)
