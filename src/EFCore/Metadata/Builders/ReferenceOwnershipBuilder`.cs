@@ -374,6 +374,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         to a single instance of the other type in the relationship.
         ///     </para>
         ///     <para>
+        ///         Note that calling this method with no parameters will explicitly configure this side
+        ///         of the relationship to use no navigation property, even if such a property exists on the
+        ///         entity type. If the navigation property is to be used, then it must be specified.
+        ///     </para>
+        ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}
         /// .WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}})" />
@@ -414,6 +419,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Configures a relationship where this entity type has a collection that contains
         ///         instances of the other type in the relationship.
+        ///     </para>
+        ///     <para>
+        ///         Note that calling this method with no parameters will explicitly configure this side
+        ///         of the relationship to use no navigation property, even if such a property exists on the
+        ///         entity type. If the navigation property is to be used, then it must be specified.
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
