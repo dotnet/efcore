@@ -293,10 +293,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var nodeType = binaryOperation.NodeType;
 
                     return
-                        !_inverseOperatorMap.ContainsKey(nodeType)
+                        !_inverseOperatorMap.TryGetValue(nodeType, out var invertedType)
                             ? null
                             : Expression.MakeBinary(
-                                _inverseOperatorMap[nodeType],
+                                invertedType,
                                 binaryOperation.Left,
                                 binaryOperation.Right);
                 }

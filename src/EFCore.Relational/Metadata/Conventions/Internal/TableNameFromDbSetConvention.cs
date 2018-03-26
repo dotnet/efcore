@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
                 else if (oldBaseType != null
                          && entityType.BaseType == null
-                         && _sets.ContainsKey(entityType.ClrType))
+                         && _sets.TryGetValue(entityType.ClrType, out var property))
                 {
-                    entityTypeBuilder.Relational(ConfigurationSource.Convention).ToTable(_sets[entityType.ClrType].Name);
+                    entityTypeBuilder.Relational(ConfigurationSource.Convention).ToTable(property.Name);
                 }
             }
 

@@ -401,13 +401,13 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                             MaxValue = maxValue
                         };
 
-                        if (_defaultSequenceMinMax.ContainsKey(storeType))
+                        if (_defaultSequenceMinMax.TryGetValue(storeType, out var minMaxValues))
                         {
-                            var defaultMin = _defaultSequenceMinMax[storeType][0];
+                            var defaultMin = minMaxValues[0];
                             sequence.MinValue = sequence.MinValue == defaultMin ? null : sequence.MinValue;
                             sequence.StartValue = sequence.StartValue == defaultMin ? null : sequence.StartValue;
 
-                            sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1] ? null : sequence.MaxValue;
+                            sequence.MaxValue = sequence.MaxValue == minMaxValues[1] ? null : sequence.MaxValue;
                         }
 
                         yield return sequence;

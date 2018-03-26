@@ -49,12 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(item, nameof(item));
 
-            if (NameCache.ContainsKey(item))
+            if (NameCache.TryGetValue(item, out var name))
             {
-                return NameCache[item];
+                return name;
             }
 
-            var name = _cSharpUtilities.GenerateCSharpIdentifier(
+            name = _cSharpUtilities.GenerateCSharpIdentifier(
                 _nameGetter(item), existingIdentifiers: null, singularizePluralizer: _singularizePluralizer);
             NameCache.Add(item, name);
             return name;
