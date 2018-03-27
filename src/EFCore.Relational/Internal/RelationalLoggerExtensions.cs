@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Update;
 using Remotion.Linq;
 
@@ -1250,6 +1251,46 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         definition,
                         (d, p) => ((EventDefinition)d).GenerateMessage()));
             }
+        }
+
+        
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ValueConversionSqlLiteralWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] Type mappingClrType,
+            [NotNull] ValueConverter valueConverter)
+        {
+            var definition = RelationalStrings.LogValueConversionSqlLiteralWarning;
+ 
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics,
+                    warningBehavior,
+                    mappingClrType.ShortDisplayName(),
+                    valueConverter.GetType().ShortDisplayName());
+            }
+ 
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new ValueConverterEventData(
+                        definition,
+                        ValueConversionSqlLiteral,
+                        mappingClrType,
+                        valueConverter));
+            }
+        }
+ 
+        private static string ValueConversionSqlLiteral(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<object, object>)definition;
+            var p = (ValueConverterEventData)payload;
+            return d.GenerateMessage(p.MappingClrType.ShortDisplayName(), p.ValueConverter.GetType().ShortDisplayName());
         }
 
         /// <summary>

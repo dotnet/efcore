@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
@@ -74,7 +75,9 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(MethodCallExpression), () => Expression.Call(constantExpression, typeof(object).GetMethod("ToString")) },
                 { typeof(Expression), () => constantExpression },
                 { typeof(IProperty), () => property },
-                { typeof(TypeInfo), () => typeof(object).GetTypeInfo() }
+                { typeof(TypeInfo), () => typeof(object).GetTypeInfo() },
+                { typeof(Type), () => typeof(object) },
+                { typeof(ValueConverter), () => new BoolToZeroOneConverter<int>() }
             };
 
             TestEventLogging(

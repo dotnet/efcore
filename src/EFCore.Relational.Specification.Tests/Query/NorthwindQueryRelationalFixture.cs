@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 c => c
                     .Log(RelationalEventId.QueryClientEvaluationWarning)
                     .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning)
-                    .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperator));
+                    .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperator)
+                    .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
 
         protected override Type ContextType => typeof(NorthwindRelationalContext);
     }

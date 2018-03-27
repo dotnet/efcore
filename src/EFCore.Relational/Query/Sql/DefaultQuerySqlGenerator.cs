@@ -36,6 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private ReducingExpressionVisitor _reducingExpressionVisitor;
         private BooleanExpressionTranslatingVisitor _booleanExpressionTranslatingVisitor;
         private InExpressionValuesExpandingVisitor _inExpressionValuesExpandingVisitor;
+ 
+        private bool _valueConverterWarningsEnabled; 
 
         private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
         {
@@ -241,6 +243,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.Append("1");
             }
 
+            var oldValueConverterWarningsEnabled = _valueConverterWarningsEnabled;
+
+            _valueConverterWarningsEnabled = true;
+
             if (selectExpression.Tables.Count > 0)
             {
                 _relationalCommandBuilder.AppendLine()
@@ -294,6 +300,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         .Append(SqlGenerator.DelimitIdentifier(selectExpression.Alias));
                 }
             }
+
+            _valueConverterWarningsEnabled = oldValueConverterWarningsEnabled;
 
             return selectExpression;
         }
@@ -818,6 +826,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 mapping = Dependencies.TypeMappingSource.GetMappingForValue(value);
             }
 
+            LogValueConversionWarning(mapping); 
+
             return mapping.GenerateSqlLiteral(value);
         }
 
@@ -919,7 +929,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitIn(InExpression inExpression)
         {
-            GenerateIn(inExpression, negated: false);
+            var oldValueConverterWarningsEnabled = _valueConverterWarningsEnabled; 
+
+            _valueConverterWarningsEnabled = false;
+
+            GenerateIn(inExpression);
+            
+            _valueConverterWarningsEnabled = oldValueConverterWarningsEnabled;
 
             return inExpression;
         }
@@ -1175,7 +1191,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 _relationalCommandBuilder.Append("WHEN ");
 
+                var oldValueConverterWarningsEnabled = _valueConverterWarningsEnabled;
+
+                _valueConverterWarningsEnabled = false;
+
                 Visit(conditionalExpression.Test);
+
+                _valueConverterWarningsEnabled = oldValueConverterWarningsEnabled;
 
                 _relationalCommandBuilder.AppendLine();
                 _relationalCommandBuilder.Append("THEN ");
@@ -1248,6 +1270,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
+            var oldValueConverterWarningsEnabled = _valueConverterWarningsEnabled;
+
+            _valueConverterWarningsEnabled
+                = _valueConverterWarningsEnabled
+                  && binaryExpression.NodeType != ExpressionType.Equal
+                  && binaryExpression.NodeType != ExpressionType.NotEqual;
+
             switch (binaryExpression.NodeType)
             {
                 case ExpressionType.Coalesce:
@@ -1307,6 +1336,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     break;
             }
+
+            _valueConverterWarningsEnabled = oldValueConverterWarningsEnabled; 
 
             return binaryExpression;
         }
@@ -1556,6 +1587,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     RelationalStrings.UnsupportedType(explicitCastExpression.Type.ShortDisplayName()));
             }
 
+            LogValueConversionWarning(typeMapping); 
+
             _relationalCommandBuilder.Append(typeMapping.StoreType);
 
             _relationalCommandBuilder.Append(")");
@@ -1652,10 +1685,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (_relationalCommandBuilder.ParameterBuilder.Parameters
                 .All(p => p.InvariantName != parameterExpression.Name))
             {
+                var typeMapping
+                    = _typeMapping
+                        ?? Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type); 
+ 
+                LogValueConversionWarning(typeMapping); 
+
                 _relationalCommandBuilder.AddParameter(
                     parameterExpression.Name,
                     parameterName,
-                    _typeMapping ?? Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type),
+                    typeMapping, 
                     parameterExpression.Type.IsNullableType());
             }
 
@@ -1663,6 +1702,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             return parameterExpression;
         }
+ 
+        private void LogValueConversionWarning(CoreTypeMapping typeMapping) 
+        { 
+            if (_valueConverterWarningsEnabled 
+                && typeMapping.Converter != null) 
+            { 
+                Dependencies.Logger.ValueConversionSqlLiteralWarning(typeMapping.ClrType, typeMapping.Converter); 
+            } 
+        } 
 
         /// <summary>
         ///     Visits a PropertyParameterExpression.

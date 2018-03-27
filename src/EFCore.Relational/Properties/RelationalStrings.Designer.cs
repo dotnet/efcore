@@ -1000,6 +1000,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("DuplicateUniqueIndexValuesRemovedSensitive", nameof(entityType), nameof(firstKeyValues), nameof(secondKeyValues), nameof(indexValue)),
                 entityType, firstKeyValues, secondKeyValues, indexValue);
 
+        /// <summary>
+        ///     A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.
+        /// </summary>
+        public static readonly EventDefinition<object, object> LogValueConversionSqlLiteralWarning
+            = new EventDefinition<object, object>(
+                RelationalEventId.ValueConversionSqlLiteralWarning,
+                LogLevel.Warning,
+                "RelationalEventId.ValueConversionSqlLiteralWarning",
+                LoggerMessage.Define<object, object>(
+                    LogLevel.Warning,
+                    RelationalEventId.ValueConversionSqlLiteralWarning,
+                    _resourceManager.GetString("LogValueConversionSqlLiteralWarning")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

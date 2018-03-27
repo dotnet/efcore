@@ -3,7 +3,10 @@
 
 #if !Test20
 using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
@@ -16,6 +19,22 @@ namespace Microsoft.EntityFrameworkCore
         public ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerFixture fixture)
             : base(fixture)
         {
+        }
+
+        [ConditionalFact]
+        public virtual void Warning_when_suspicious_conversion_in_sql()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Contains(
+                    RelationalStrings.LogValueConversionSqlLiteralWarning
+                        .GenerateMessage(
+                            typeof(decimal).ShortDisplayName(),
+                            new NumberToBytesConverter<decimal>().GetType().ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<BuiltInDataTypes>().Where(b => b.TestDecimal > 123.0m).ToList()).Message);
+            }
         }
 
         [ConditionalFact]

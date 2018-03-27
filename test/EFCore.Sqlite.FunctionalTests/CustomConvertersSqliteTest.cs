@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore
                 => base
                     .AddOptions(builder)
                     .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning));
+                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
+                              .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
         }
     }
 }

@@ -64,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
             QueryPossibleUnintendedUseOfEqualsWarning,
             QueryPossibleExceptionWithAggregateOperator,
+            ValueConversionSqlLiteralWarning,
 
             // Model validation events
             ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
@@ -462,6 +463,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId QueryPossibleExceptionWithAggregateOperator = MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperator);
+
+        /// <summary> 
+        ///     <para> 
+        ///         A SQL literal is being generated for a value that is using a value conversion. 
+        ///     </para> 
+        ///     <para> 
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category. 
+        ///     </para> 
+        /// </summary> 
+        public static readonly EventId ValueConversionSqlLiteralWarning = MakeQueryId(Id.ValueConversionSqlLiteralWarning); 
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);

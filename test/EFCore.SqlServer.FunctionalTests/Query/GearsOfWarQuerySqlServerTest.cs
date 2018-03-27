@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -659,6 +662,13 @@ WHERE ([w].[AmmunitionType] & NULL) > 0");
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
+
+            Assert.Contains(
+                RelationalStrings.LogValueConversionSqlLiteralWarning
+                    .GenerateMessage(
+                        typeof(AmmunitionType).ShortDisplayName(),
+                        new EnumToNumberConverter<AmmunitionType, int>().GetType().ShortDisplayName()),
+                Fixture.TestSqlLoggerFactory.Log);
         }
 
         public override void Where_bitwise_and_nullable_enum_with_nullable_parameter()
@@ -677,6 +687,13 @@ WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0",
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
+
+            Assert.Contains(
+                RelationalStrings.LogValueConversionSqlLiteralWarning
+                    .GenerateMessage(
+                        typeof(AmmunitionType).ShortDisplayName(),
+                        new EnumToNumberConverter<AmmunitionType, int>().GetType().ShortDisplayName()),
+                Fixture.TestSqlLoggerFactory.Log);
         }
 
         public override void Where_bitwise_or_enum()
