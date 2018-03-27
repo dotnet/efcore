@@ -113,8 +113,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         private static int CountParameters(ModificationCommand modificationCommand)
         {
             var parameterCount = 0;
-            foreach (var columnModification in modificationCommand.ColumnModifications)
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var columnIndex = 0; columnIndex < modificationCommand.ColumnModifications.Count; columnIndex++)
             {
+                var columnModification = modificationCommand.ColumnModifications[columnIndex];
                 if (columnModification.UseCurrentValueParameter)
                 {
                     parameterCount++;

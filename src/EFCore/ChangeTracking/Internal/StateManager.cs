@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var entriesToSave = GetInternalEntriesToSave();
-            if (!entriesToSave.Any())
+            if (entriesToSave.Count == 0)
             {
                 return 0;
             }
@@ -942,20 +942,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void AcceptAllChanges()
         {
             var changedEntries = Entries
-                .Where(
-                    e => e.EntityState == EntityState.Added
-                         || e.EntityState == EntityState.Modified
-                         || e.EntityState == EntityState.Deleted)
+                .Where(e => e.EntityState == EntityState.Added
+                            || e.EntityState == EntityState.Modified
+                            || e.EntityState == EntityState.Deleted)
                 .ToList();
 
             AcceptAllChanges(changedEntries);
         }
 
-        private static void AcceptAllChanges(IEnumerable<InternalEntityEntry> changedEntries)
+        private static void AcceptAllChanges(IReadOnlyList<InternalEntityEntry> changedEntries)
         {
-            foreach (var entry in changedEntries)
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var entryIndex = 0; entryIndex < changedEntries.Count; entryIndex++)
             {
-                entry.AcceptChanges();
+                changedEntries[entryIndex].AcceptChanges();
             }
         }
 

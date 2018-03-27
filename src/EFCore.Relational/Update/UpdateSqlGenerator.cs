@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="command"> The command that represents the delete operation. </param>
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
-        public virtual ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public virtual ResultSetMapping AppendInsertOperation(
+            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -101,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
             }
+
             return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
         }
 

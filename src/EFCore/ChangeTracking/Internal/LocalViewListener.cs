@@ -28,9 +28,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
         {
-            foreach (var viewAction in _viewActions)
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < _viewActions.Count; i++)
             {
-                viewAction(entry, oldState);
+                _viewActions[i](entry, oldState);
             }
         }
 
