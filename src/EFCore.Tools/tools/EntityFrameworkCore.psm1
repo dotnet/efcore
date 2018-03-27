@@ -640,13 +640,15 @@ function GetStartupProject($name, $fallbackProject)
         }
         else
         {
-            Write-Verbose 'More than one startup project found.'
+            Write-Warning 'Multiple startup projects set.'
         }
     }
     else
     {
-        Write-Verbose 'No startup project found.'
+        Write-Warning 'No startup project set.'
     }
+    
+    Write-Warning "Using project '$($fallbackProject.ProjectName)' as the startup project."
 
     return $fallbackProject
 }
