@@ -163,7 +163,7 @@ WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE CAST((strftime('%f', ""o"".""OrderDate"") * 1000) % 1000 AS INTEGER) = 88");
+WHERE ((strftime('%f', ""o"".""OrderDate"") * 1000) % 1000) = 88");
         }
 
         public override void String_StartsWith_Literal()
@@ -598,6 +598,78 @@ WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
                 @"SELECT SUM(COALESCE(""p"".""UnitPrice"", '0.0'))
 FROM ""Products"" AS ""p""
 WHERE ""p"".""ProductID"" < 40");
+        }
+
+        public override void Select_datetime_year_component()
+        {
+            base.Select_datetime_year_component();
+
+            AssertSql(
+                @"SELECT CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_month_component()
+        {
+            base.Select_datetime_month_component();
+
+            AssertSql(
+                @"SELECT CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_day_of_year_component()
+        {
+            base.Select_datetime_day_of_year_component();
+
+            AssertSql(
+                @"SELECT CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_day_component()
+        {
+            base.Select_datetime_day_component();
+
+            AssertSql(
+                @"SELECT CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_hour_component()
+        {
+            base.Select_datetime_hour_component();
+
+            AssertSql(
+                @"SELECT CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_minute_component()
+        {
+            base.Select_datetime_minute_component();
+
+            AssertSql(
+                @"SELECT CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_second_component()
+        {
+            base.Select_datetime_second_component();
+
+            AssertSql(
+                @"SELECT CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_millisecond_component()
+        {
+            base.Select_datetime_millisecond_component();
+
+            AssertSql(
+                @"SELECT (strftime('%f', ""o"".""OrderDate"") * 1000) % 1000
+FROM ""Orders"" AS ""o""");
         }
 
         private void AssertSql(params string[] expected)

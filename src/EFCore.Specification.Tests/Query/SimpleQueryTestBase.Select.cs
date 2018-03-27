@@ -701,5 +701,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(
                     o => o.OrderDetails.OrderBy(od => od.Product.ProductName).Take(1).FirstOrDefault()));
         }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_year_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Year));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_month_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Month));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_day_of_year_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.DayOfYear));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_day_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Day));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_hour_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Hour));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_minute_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Minute));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_second_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Second));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_millisecond_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Millisecond));
+        }
     }
 }
