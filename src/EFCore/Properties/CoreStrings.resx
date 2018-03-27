@@ -407,9 +407,6 @@
   <data name="PropertyMethodInvoked" xml:space="preserve">
     <value>The EF.Property&lt;T&gt; method may only be used within LINQ queries.</value>
   </data>
-  <data name="DuplicateProperty" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
-  </data>
   <data name="PropertyWrongClrType" xml:space="preserve">
     <value>The property '{property}' cannot be added to type '{entityType}' because the type of the corresponding CLR property or field '{clrType}' does not match the specified type '{propertyType}'.</value>
   </data>
@@ -421,12 +418,6 @@
   </data>
   <data name="KeyInUse" xml:space="preserve">
     <value>Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.</value>
-  </data>
-  <data name="DuplicateNavigation" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
-  </data>
-  <data name="DuplicateServiceProperty" xml:space="preserve">
-    <value>The service property '{property}' cannot be added to the entity type '{entityType}' because a service property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="DuplicateServicePropertyType" xml:space="preserve">
     <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.</value>
@@ -660,14 +651,8 @@
   <data name="InvalidRelationshipUsingDataAnnotations" xml:space="preserve">
     <value>Invalid relationship has been specified using InversePropertyAttribute and ForeignKeyAttribute. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.</value>
   </data>
-  <data name="ConflictingNavigation" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
-  </data>
-  <data name="ConflictingProperty" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
-  </data>
-  <data name="ConflictingServiceProperty" xml:space="preserve">
-    <value>The property or navigation '{property}' cannot be added to the entity type '{entityType}' because a service property with the same name already exists on entity type '{duplicateEntityType}'.</value>
+  <data name="ConflictingPropertyOrNavigation" xml:space="preserve">
+    <value>The property or navigation '{member}' cannot be added to the entity type '{entityType}' because a property or navigation with the same name already exists on entity type '{conflictingEntityType}'.</value>
   </data>
   <data name="EntityTypeNotInRelationshipStrict" xml:space="preserve">
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.</value>
@@ -1073,5 +1058,8 @@
   </data>
   <data name="IdentifyingRelationshipCycle" xml:space="preserve">
     <value>The entity type '{entityType}' is part of a relationship cycle involving its primary key.</value>
+  </data>
+  <data name="AmbiguousServiceProperty" xml:space="preserve">
+    <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the NotMappedAttribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
 </root>

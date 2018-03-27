@@ -10,6 +10,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class ConstructorBindingConventionTest
@@ -740,10 +748,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private abstract class Blog
         {
 #pragma warning disable 649
+#pragma warning disable IDE1006 // Naming Styles
             public string _content;
 
-            // ReSharper disable once InconsistentNaming
             public int m_follows;
+#pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore 649
 
             public int Id { get; set; }

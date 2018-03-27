@@ -845,14 +845,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("PropertyMethodInvoked");
 
         /// <summary>
-        ///     The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.
-        /// </summary>
-        public static string DuplicateProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
-            => string.Format(
-                GetString("DuplicateProperty", nameof(property), nameof(entityType), nameof(duplicateEntityType)),
-                property, entityType, duplicateEntityType);
-
-        /// <summary>
         ///     The property '{property}' cannot be added to type '{entityType}' because the type of the corresponding CLR property or field '{clrType}' does not match the specified type '{propertyType}'.
         /// </summary>
         public static string PropertyWrongClrType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object clrType, [CanBeNull] object propertyType)
@@ -883,22 +875,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("KeyInUse", nameof(key), nameof(entityType), nameof(dependentType)),
                 key, entityType, dependentType);
-
-        /// <summary>
-        ///     The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.
-        /// </summary>
-        public static string DuplicateNavigation([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
-            => string.Format(
-                GetString("DuplicateNavigation", nameof(navigation), nameof(entityType), nameof(duplicateEntityType)),
-                navigation, entityType, duplicateEntityType);
-
-        /// <summary>
-        ///     The service property '{property}' cannot be added to the entity type '{entityType}' because a service property with the same name already exists on entity type '{duplicateEntityType}'.
-        /// </summary>
-        public static string DuplicateServiceProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
-            => string.Format(
-                GetString("DuplicateServiceProperty", nameof(property), nameof(entityType), nameof(duplicateEntityType)),
-                property, entityType, duplicateEntityType);
 
         /// <summary>
         ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.
@@ -1509,28 +1485,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 navigation, entityType, referencedNavigation, referencedEntityType);
 
         /// <summary>
-        ///     The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.
+        ///     The property or navigation '{member}' cannot be added to the entity type '{entityType}' because a property or navigation with the same name already exists on entity type '{conflictingEntityType}'.
         /// </summary>
-        public static string ConflictingNavigation([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+        public static string ConflictingPropertyOrNavigation([CanBeNull] object member, [CanBeNull] object entityType, [CanBeNull] object conflictingEntityType)
             => string.Format(
-                GetString("ConflictingNavigation", nameof(property), nameof(entityType), nameof(duplicateEntityType)),
-                property, entityType, duplicateEntityType);
-
-        /// <summary>
-        ///     The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.
-        /// </summary>
-        public static string ConflictingProperty([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
-            => string.Format(
-                GetString("ConflictingProperty", nameof(navigation), nameof(entityType), nameof(duplicateEntityType)),
-                navigation, entityType, duplicateEntityType);
-
-        /// <summary>
-        ///     The property or navigation '{property}' cannot be added to the entity type '{entityType}' because a service property with the same name already exists on entity type '{duplicateEntityType}'.
-        /// </summary>
-        public static string ConflictingServiceProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
-            => string.Format(
-                GetString("ConflictingServiceProperty", nameof(property), nameof(entityType), nameof(duplicateEntityType)),
-                property, entityType, duplicateEntityType);
+                GetString("ConflictingPropertyOrNavigation", nameof(member), nameof(entityType), nameof(conflictingEntityType)),
+                member, entityType, conflictingEntityType);
 
         /// <summary>
         ///     The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.
@@ -2651,6 +2611,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("IdentifyingRelationshipCycle", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the NotMappedAttribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        /// </summary>
+        public static string AmbiguousServiceProperty([CanBeNull] object property, [CanBeNull] object serviceType, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("AmbiguousServiceProperty", nameof(property), nameof(serviceType), nameof(entityType)),
+                property, serviceType, entityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

@@ -405,6 +405,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
             => Model.ConventionDispatcher.OnEntityTypeAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<PropertyBase> FindMembersInHierarchy([NotNull] string name)
+            => FindPropertiesInHierarchy(name).Cast<PropertyBase>()
+                .Concat(FindServicePropertiesInHierarchy(name))
+                .Concat(FindNavigationsInHierarchy(name));
+
         #region Primary and Candidate Keys
 
         /// <summary>
@@ -1220,25 +1229,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 throw new InvalidOperationException(
-                    CoreStrings.DuplicateNavigation(name, this.DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
+                    CoreStrings.ConflictingPropertyOrNavigation(name, this.DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
             }
 
-            var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
+            var duplicateProperty = FindPropertiesInHierarchy(name).Cast<PropertyBase>()
+                .Concat(FindServicePropertiesInHierarchy(name)).FirstOrDefault();
             if (duplicateProperty != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ConflictingProperty(
-                        name, this.DisplayName(),
-                        duplicateProperty.DeclaringEntityType.DisplayName()));
-            }
-
-            var duplicateServiceProperty = FindServicePropertiesInHierarchy(name).FirstOrDefault();
-            if (duplicateServiceProperty != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ConflictingServiceProperty(
-                        name, this.DisplayName(),
-                        duplicateServiceProperty.DeclaringEntityType.DisplayName()));
+                    CoreStrings.ConflictingPropertyOrNavigation(name, this.DisplayName(),
+                        duplicateProperty.DeclaringType.DisplayName()));
             }
 
             Debug.Assert(
@@ -1332,8 +1332,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<Navigation> FindNavigationsInHierarchy([NotNull] string propertyName)
-            => ToEnumerable(FindNavigation(propertyName)).Concat(FindDerivedNavigations(propertyName));
+        public virtual IEnumerable<Navigation> FindNavigationsInHierarchy([NotNull] string navigationName)
+            => ToEnumerable(FindNavigation(navigationName)).Concat(FindDerivedNavigations(navigationName));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1567,8 +1567,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(name, nameof(name));
 
-            ValidateCanAddProperty(name);
-
             return AddProperty(
                 name,
                 propertyType,
@@ -1587,8 +1585,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(memberInfo, nameof(memberInfo));
 
-            ValidateCanAddProperty(memberInfo.Name);
-
             if (ClrType == null)
             {
                 throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
@@ -1605,35 +1601,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddProperty(memberInfo.Name, memberInfo.GetMemberType(), memberInfo, configurationSource, configurationSource);
         }
 
-        private void ValidateCanAddProperty(string name)
-        {
-            var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
-            if (duplicateProperty != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.DuplicateProperty(
-                        name, this.DisplayName(), duplicateProperty.DeclaringEntityType.DisplayName()));
-            }
-
-            var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
-            if (duplicateNavigation != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ConflictingNavigation(
-                        name, this.DisplayName(),
-                        duplicateNavigation.DeclaringEntityType.DisplayName()));
-            }
-
-            var duplicateServiceProperty = FindServicePropertiesInHierarchy(name).FirstOrDefault();
-            if (duplicateServiceProperty != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ConflictingServiceProperty(
-                        name, this.DisplayName(),
-                        duplicateServiceProperty.DeclaringEntityType.DisplayName()));
-            }
-        }
-
         private Property AddProperty(
             string name,
             Type propertyType,
@@ -1641,7 +1608,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             ConfigurationSource? typeConfigurationSource)
         {
-            Check.NotNull(name, nameof(name));
+            var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
+            if (conflictingMember != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ConflictingPropertyOrNavigation(name, this.DisplayName(),
+                        conflictingMember.DeclaringType.DisplayName()));
+            }
 
             if (propertyType == null)
             {
@@ -1666,7 +1639,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            var property = new Property(name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this, configurationSource, typeConfigurationSource);
+            var property = new Property(
+                name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this,
+                configurationSource, typeConfigurationSource);
 
             _properties.Add(property.Name, property);
             PropertyMetadataChanged();
@@ -1878,46 +1853,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ServiceProperty AddServiceProperty(
             [NotNull] MemberInfo memberInfo,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(memberInfo, nameof(memberInfo));
 
             var name = memberInfo.Name;
 
-            var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
-            if (duplicateProperty != null)
+            var duplicateMember = FindMembersInHierarchy(name).FirstOrDefault();
+            if (duplicateMember != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ConflictingProperty(
-                        name, this.DisplayName(), duplicateProperty.DeclaringEntityType.DisplayName()));
-            }
-
-            var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
-            if (duplicateNavigation != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ConflictingNavigation(
-                        name, this.DisplayName(),
-                        duplicateNavigation.DeclaringEntityType.DisplayName()));
-            }
-
-            var duplicateServiceProperty = FindServicePropertiesInHierarchy(name).FirstOrDefault();
-            if (duplicateServiceProperty != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.DuplicateServiceProperty(
-                        name, this.DisplayName(),
-                        duplicateServiceProperty.DeclaringEntityType.DisplayName()));
+                    CoreStrings.ConflictingPropertyOrNavigation(name, this.DisplayName(),
+                        duplicateMember.DeclaringType.DisplayName()));
             }
 
             var serviceProperty = new ServiceProperty(
                 name,
                 memberInfo as PropertyInfo,
                 memberInfo as FieldInfo,
-                this);
+                this,
+                configurationSource);
 
-            duplicateServiceProperty = GetServiceProperties().FirstOrDefault(p => p.ClrType == serviceProperty.ClrType);
+            var duplicateServiceProperty = GetServiceProperties().FirstOrDefault(p => p.ClrType == serviceProperty.ClrType);
             if (duplicateServiceProperty != null)
             {
                 throw new InvalidOperationException(
@@ -1945,6 +1902,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual Property FindServiceProperty([NotNull] MemberInfo memberInfo)
+            => FindProperty(memberInfo.Name);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ServiceProperty FindDeclaredServiceProperty([NotNull] string name)
             => _serviceProperties.TryGetValue(Check.NotEmpty(name, nameof(name)), out var property)
                 ? property
@@ -1960,6 +1924,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return GetDerivedTypes().Select(et => et.FindDeclaredServiceProperty(propertyName)).Where(p => p != null);
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<ServiceProperty> FindDerivedServicePropertiesInclusive([NotNull] string propertyName)
+            => ToEnumerable(FindDeclaredServiceProperty(propertyName)).Concat(FindDerivedServiceProperties(propertyName));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1992,6 +1963,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ServiceProperty RemoveServiceProperty(ServiceProperty property)
         {
             _serviceProperties.Remove(property.Name);
+            property.Builder = null;
 
             return property;
         }

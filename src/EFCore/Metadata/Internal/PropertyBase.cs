@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual FieldInfo FieldInfo
         {
             [DebuggerStepThrough] get => _fieldInfo;
-            [DebuggerStepThrough] [param: CanBeNull] set { SetFieldInfo(value, ConfigurationSource.Explicit); }
+            [DebuggerStepThrough] [param: CanBeNull] set => SetFieldInfo(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -110,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static FieldInfo GetFieldInfo([NotNull] string fieldName, [NotNull] Type type, [CanBeNull] string propertyName, bool shouldThrow)
+        public static FieldInfo GetFieldInfo(
+            [NotNull] string fieldName, [NotNull] Type type, [CanBeNull] string propertyName, bool shouldThrow)
         {
             Debug.Assert(propertyName != null || !shouldThrow);
 
