@@ -39,24 +39,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
 
                 if (memberName == nameof(DateTime.Millisecond))
                 {
-                    var timeExpression = new SqlFunctionExpression(
-                        "strftime",
-                        memberExpression.Type,
-                        new[]
-                        {
-                            new SqlFragmentExpression("'%Y-%m-%d %H:%M:%f'"),
-                            memberExpression.Expression
-                        });
                     return new ExplicitCastExpression(
                         new SqlFunctionExpression(
                             "substr",
                             memberExpression.Type,
                             new Expression[]
                             {
-                                timeExpression,
-                                Expression.Subtract(
-                                    new SqlFunctionExpression("LENGTH", typeof(int), new[] { timeExpression }),
-                                    Expression.Constant(2))
+                                new SqlFunctionExpression(
+                                    "strftime",
+                                    memberExpression.Type,
+                                    new[]
+                                    {
+                                        new SqlFragmentExpression("'%f'"),
+                                        memberExpression.Expression
+                                    }),
+                                Expression.Constant(4),
                             }),
                         typeof(int));
                 }

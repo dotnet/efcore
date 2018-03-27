@@ -163,7 +163,7 @@ WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE CAST(substr(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate""), LENGTH(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"")) - 2) AS INTEGER) = 88");
+WHERE CAST(substr(strftime('%f', ""o"".""OrderDate""), 4) AS INTEGER) = 88");
         }
 
         public override void String_StartsWith_Literal()
