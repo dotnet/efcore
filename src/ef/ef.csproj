@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="..\EFCore\Internal\ProductInfo.cs" />
     <Compile Include="..\EFCore.Design\Design\IOperationReportHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\IOperationResultHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\OperationReportHandler.cs" />

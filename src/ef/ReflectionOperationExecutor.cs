@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
@@ -47,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     { "startupTargetName", StartupAssemblyFileName },
                     { "projectDir", ProjectDirectory },
                     { "rootNamespace", RootNamespace },
-                    { "language", Language }
+                    { "language", Language },
+                    { "toolsVersion", ProductInfo.GetVersion() }
                 });
 
             _resultHandlerType = _commandsAssembly.GetType(ResultHandlerTypeName, throwOnError: true, ignoreCase: false);
