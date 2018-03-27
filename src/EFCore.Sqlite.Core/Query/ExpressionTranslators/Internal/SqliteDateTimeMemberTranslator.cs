@@ -39,12 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
 
                 if (memberName == nameof(DateTime.Millisecond))
                 {
+                    var factor = 1000;
                     return new ExplicitCastExpression(
-                        new SqlFunctionExpression(
-                            "substr",
-                            memberExpression.Type,
-                            new Expression[]
-                            {
+                        Expression.Modulo(
+                            Expression.Multiply(
                                 new SqlFunctionExpression(
                                     "strftime",
                                     memberExpression.Type,
@@ -53,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                                         new SqlFragmentExpression("'%f'"),
                                         memberExpression.Expression
                                     }),
-                                Expression.Constant(4),
-                            }),
+                                Expression.Constant(factor)),
+                            Expression.Constant(factor)),
                         typeof(int));
                 }
 
