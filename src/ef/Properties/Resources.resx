@@ -312,4 +312,7 @@
   <data name="ContextDirDescription" xml:space="preserve">
     <value>The directory to put DbContext file in. Paths are relative to the project directory.</value>
   </data>
+  <data name="WorkingDirDescription" xml:space="preserve">
+    <value>The working directory of the tool invoking this command.</value>
+  </data>
 </root>

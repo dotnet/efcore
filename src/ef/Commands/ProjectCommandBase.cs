@@ -17,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption _rootNamespace;
         private CommandOption _language;
 
+        protected CommandOption WorkingDir { get; private set; }
+
         public override void Configure(CommandLineApplication command)
         {
             _assembly = command.Option("-a|--assembly <PATH>", Resources.AssemblyDescription);
@@ -25,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _projectDir = command.Option("--project-dir <PATH>", Resources.ProjectDirDescription);
             _rootNamespace = command.Option("--root-namespace <NAMESPACE>", Resources.RootNamespaceDescription);
             _language = command.Option("--language <LANGUAGE>", Resources.LanguageDescription);
+            WorkingDir = command.Option("--working-dir <PATH>", Resources.WorkingDirDescription);
 
             base.Configure(command);
         }
