@@ -33,14 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
-            [NotNull] string language,
+            [CanBeNull] string language,
             [NotNull] string[] args)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
-            Check.NotNull(language, nameof(language));
             Check.NotNull(args, nameof(args));
 
             _reporter = reporter;

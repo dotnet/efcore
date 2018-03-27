@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             [NotNull] IEnumerable<string> tables,
             [NotNull] IEnumerable<string> schemas,
             [NotNull] string @namespace,
-            [NotNull] string language,
+            [CanBeNull] string language,
             [CanBeNull] string contextDir,
             [CanBeNull] string contextName,
             [NotNull] ModelReverseEngineerOptions modelOptions,
