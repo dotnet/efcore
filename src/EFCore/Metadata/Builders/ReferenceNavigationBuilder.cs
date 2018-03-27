@@ -219,9 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     && referenceName != null
                     && ReferenceName == referenceName)
                 {
-                    throw new InvalidOperationException(
-                        CoreStrings.DuplicateNavigation(
-                            referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ConflictingPropertyOrNavigation(
+                        referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
                 }
 
                 var pointsToPrincipal = !foreignKey.IsSelfReferencing()

@@ -90,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.EntityTypeMemberIgnoredConventions.Add(servicePropertyDiscoveryConvention);
 
             var keyAttributeConvention = new KeyAttributeConvention();
             var backingFieldConvention = new BackingFieldConvention();
@@ -158,6 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention());
             conventionSet.ModelBuiltConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.ModelBuiltConventions.Add(servicePropertyDiscoveryConvention);
 
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention(Dependencies.Logger));

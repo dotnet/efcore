@@ -1612,6 +1612,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Can_ignore_service_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.ServiceProperty(Order.ContextProperty, ConfigurationSource.Explicit);
+
+            Assert.False(entityBuilder.Ignore(nameof(Order.Context), ConfigurationSource.DataAnnotation));
+
+            Assert.True(entityBuilder.Ignore(nameof(Order.Context), ConfigurationSource.Explicit));
+            Assert.Empty(entityBuilder.Metadata.GetServiceProperties());
+        }
+
+        [Fact]
         public void Can_ignore_property_that_is_part_of_lower_source_foreign_key_preserving_the_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2389,6 +2402,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(1, dependentEntityBuilder.Metadata.GetDeclaredProperties().Count());
         }
 
+        [Fact]
+        public void Setting_base_type_removes_duplicate_service_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Explicit);
+            entityBuilder.ServiceProperty(Order.ContextProperty, ConfigurationSource.Explicit);
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention);
+            derivedEntityBuilder.ServiceProperty(Order.ContextProperty, ConfigurationSource.Explicit);
+
+            Assert.Same(derivedEntityBuilder,
+                derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit));
+
+            Assert.Equal(1, entityBuilder.Metadata.GetServiceProperties().Count());
+            Assert.Equal(1, derivedEntityBuilder.Metadata.GetServiceProperties().Count());
+        }
+
         private InternalModelBuilder CreateModelBuilder() => new InternalModelBuilder(new Model());
 
         private class Order
@@ -2397,11 +2428,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
             public static readonly PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty("CustomerUnique");
             public static readonly PropertyInfo CustomerProperty = typeof(Order).GetProperty("Customer");
+            public static readonly PropertyInfo ContextProperty = typeof(Order).GetProperty(nameof(Context));
 
             public int Id { get; set; }
             public int CustomerId { get; set; }
             public Guid? CustomerUnique { get; set; }
             public Customer Customer { get; set; }
+            public DbContext Context { get; set; }
         }
 
         private class SpecialOrder : Order, IEnumerable<Order>
