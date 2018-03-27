@@ -37,6 +37,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             {
                 var memberName = memberExpression.Member.Name;
 
+                if (memberName == nameof(DateTime.Millisecond))
+                {
+                    var factor = 1000;
+
+                    return Expression.Modulo(
+                        Expression.Multiply(
+                            new SqlFunctionExpression(
+                                "strftime",
+                                memberExpression.Type,
+                                new[]
+                                {
+                                    new SqlFragmentExpression("'%f'"),
+                                    memberExpression.Expression
+                                }),
+                            Expression.Constant(factor)),
+                        Expression.Constant(factor));
+                }
+
                 if (_datePartMapping.TryGetValue(memberName, out var datePart))
                 {
                     return new ExplicitCastExpression(
