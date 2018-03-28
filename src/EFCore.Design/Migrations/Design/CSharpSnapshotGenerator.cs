@@ -738,11 +738,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 if (discriminatorValueAnnotation?.Value != null)
                 {
+                    var value = discriminatorValueAnnotation.Value;
+                    var discriminatorProperty = entityType.RootType().Relational().DiscriminatorProperty;
+                    if (discriminatorProperty != null)
+                    {
+                        var valueConverter = FindValueConverter(discriminatorProperty);
+                        if (valueConverter != null)
+                        {
+                            value = valueConverter.ConvertToProvider(value);
+                        }
+                    }
+
                     stringBuilder
                         .Append(".")
                         .Append(nameof(DiscriminatorBuilder.HasValue))
                         .Append("(")
-                        .Append(Code.UnknownLiteral(discriminatorValueAnnotation.Value))
+                        .Append(Code.UnknownLiteral(value))
                         .Append(")");
                 }
 
