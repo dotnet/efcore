@@ -9,6 +9,10 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalRelationshipBuilderTest
@@ -278,33 +282,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
             Assert.True(shadowProperty.IsShadowProperty);
             Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
-        }
-
-        [Fact]
-        public void ForeignKey_throws_if_conflicting_with_inherited_key()
-        {
-            var modelBuilder = CreateInternalModelBuilder();
-            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Explicit);
-            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            dependentEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention);
-            var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
-            derivedDependentEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention);
-            derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit);
-            var idProperty = derivedDependentEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention).Metadata;
-            idProperty.ValueGenerated = ValueGenerated.OnAdd;
-
-            var relationship = derivedDependentEntityBuilder.Relationship(
-                principalEntityBuilder,
-                Order.CustomerProperty.Name,
-                nameof(Customer.SpecialOrders),
-                ConfigurationSource.Explicit);
-
-            Assert.Null(relationship.HasForeignKey(new[] { idProperty }, ConfigurationSource.DataAnnotation));
-
-            Assert.Equal(
-                CoreStrings.ForeignKeyPropertyInKey(Order.IdProperty.Name, typeof(SpecialOrder).Name, "{'" + Order.IdProperty.Name + "'}", typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey(new[] { idProperty }, ConfigurationSource.Explicit)).Message);
         }
 
         [Fact]

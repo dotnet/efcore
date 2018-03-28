@@ -51,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateChangeTrackingStrategy(model);
             ValidateDefiningNavigations(model);
             ValidateOwnership(model);
+            ValidateForeignKeys(model);
             ValidateFieldMapping(model);
             ValidateQueryFilters(model);
             ValidateData(model);
@@ -207,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var entityTypeWithNullPk
                 = model.GetEntityTypes()
-                    .FirstOrDefault(et => !et.IsQueryType && et.FindPrimaryKey() == null);
+                    .FirstOrDefault(et => !et.IsQueryType && et.BaseType == null && et.FindPrimaryKey() == null);
 
             if (entityTypeWithNullPk != null)
             {
@@ -344,6 +345,46 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 fk.PrincipalToDependent.Name,
                                 entityType.DisplayName(),
                                 ownership.PrincipalEntityType.DisplayName()));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ValidateForeignKeys([NotNull] IModel model)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                if (entityType.BaseType == null)
+                {
+                    continue;
+                }
+
+                foreach (var declaredForeignKey in entityType.GetDeclaredForeignKeys())
+                {
+                    var inheritedKey = declaredForeignKey.Properties.Where(p => p.ValueGenerated != ValueGenerated.Never)
+                        .SelectMany(p => p.GetContainingKeys().Where(k => k.DeclaringEntityType != entityType)).FirstOrDefault();
+                    if (inheritedKey != null)
+                    {
+                        var generatedProperty = declaredForeignKey.Properties.First(
+                            p => p.ValueGenerated != ValueGenerated.Never && inheritedKey.Properties.Contains(p));
+
+                        if (entityType.BaseType.ClrType.IsAbstract
+                            && entityType.BaseType.GetDerivedTypes().All(
+                                d => d.GetDeclaredForeignKeys().Any(fk => fk.Properties.Contains(generatedProperty))))
+                        {
+                            continue;
+                        }
+
+                        throw new InvalidOperationException(
+                            CoreStrings.ForeignKeyPropertyInKey(
+                                generatedProperty.Name,
+                                entityType.DisplayName(),
+                                Property.Format(inheritedKey.Properties),
+                                inheritedKey.DeclaringEntityType.DisplayName()));
                     }
                 }
             }
