@@ -7,8 +7,12 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+#if Test20
+using Microsoft.EntityFrameworkCore.Internal;
+#else
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+#endif
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 

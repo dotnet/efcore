@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+#if Test20
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+#else
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+#endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;

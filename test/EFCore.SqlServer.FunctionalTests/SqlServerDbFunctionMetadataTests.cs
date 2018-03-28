@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if !Test20
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -10,7 +11,6 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test20
     public class SqlServerDbFunctionMetadataTests
     {
         public class TestMethods
@@ -72,5 +72,5 @@ namespace Microsoft.EntityFrameworkCore
             return new ModelBuilder(conventionset);
         }
     }
-#endif
 }
+#endif

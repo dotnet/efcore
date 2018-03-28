@@ -6,7 +6,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+#if Test20
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+#else
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+#endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
