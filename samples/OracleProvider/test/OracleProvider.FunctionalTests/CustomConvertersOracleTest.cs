@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore
             // Disabled--sample Oracle cannot query against large data types
         }
 
+
+        // Disabled: Oracle database is case-sensitive
+        public override void Can_insert_and_read_back_with_case_insensitive_string_key()
+        {
+        }
+
         public class CustomConvertersOracleFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => false;
