@@ -842,7 +842,8 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         '--assembly', $targetPath,
         '--startup-assembly', $startupTargetPath,
         '--project-dir', $projectDir,
-        '--language', $language
+        '--language', $language,
+        '--working-dir', $PWD.Path
 
     if (IsWeb $startupProject)
     {

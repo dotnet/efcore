@@ -442,6 +442,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string ContextDirDescription
             => GetString("ContextDirDescription");
 
+        /// <summary>
+        ///     The working directory of the tool invoking this command.
+        /// </summary>
+        public static string WorkingDirDescription
+            => GetString("WorkingDirDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

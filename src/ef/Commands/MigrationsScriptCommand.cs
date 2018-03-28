@@ -24,14 +24,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             }
             else
             {
-                var directory = Path.GetDirectoryName(_output.Value());
+                var output = _output.Value();
+                if (WorkingDir.HasValue())
+                {
+                    output = Path.Combine(WorkingDir.Value(), output);
+                }
+
+                var directory = Path.GetDirectoryName(output);
                 if (!string.IsNullOrEmpty(directory))
                 {
                     Directory.CreateDirectory(directory);
                 }
 
                 Reporter.WriteVerbose(Resources.WritingFile(_output.Value()));
-                File.WriteAllText(_output.Value(), sql, Encoding.UTF8);
+                File.WriteAllText(output, sql, Encoding.UTF8);
             }
 
             return base.Execute();

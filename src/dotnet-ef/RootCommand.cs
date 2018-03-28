@@ -171,6 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add(project.ProjectDir);
             args.Add("--language");
             args.Add(project.Language);
+            args.Add("--working-dir");
+            args.Add(Directory.GetCurrentDirectory());
 
             if (Reporter.IsVerbose)
             {
