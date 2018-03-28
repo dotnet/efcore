@@ -3944,7 +3944,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => l1s.Where(l1 => l1.OneToOne_Optional_PK != null).Select(l1 => Math.Max(l1.OneToOne_Optional_PK.Level1_Required_Id, 7)));
         }
 
-        [ConditionalFact(Skip = "See PR #11433")]
+        [ConditionalFact(Skip = "See issue#11464")]
         public virtual void Accessing_optional_property_inside_result_operator_subquery()
         {
             var names = new[] { "Name1", "Name2" };
