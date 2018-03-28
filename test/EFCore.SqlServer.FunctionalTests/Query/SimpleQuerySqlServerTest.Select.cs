@@ -773,5 +773,77 @@ FROM (
 ) AS [t]
 ORDER BY [t].[ProductName]");
         }
+
+        public override void Select_datetime_year_component()
+        {
+            base.Select_datetime_year_component();
+
+            AssertSql(
+                @"SELECT DATEPART(year, [o].[OrderDate])
+FROM [Orders] AS [o]");
+        }
+
+        public override void Select_datetime_month_component()
+        {
+            base.Select_datetime_month_component();
+
+            AssertSql(
+                @"SELECT DATEPART(month, [o].[OrderDate])
+FROM [Orders] AS [o]");
+        }
+
+        public override void Select_datetime_day_of_year_component()
+        {
+            base.Select_datetime_day_of_year_component();
+
+            AssertSql(
+                @"SELECT DATEPART(dayofyear, [o].[OrderDate])
+FROM [Orders] AS [o]");
+        }
+
+        public override void Select_datetime_day_component()
+        {
+            base.Select_datetime_day_component();
+
+            AssertSql(
+                @"SELECT DATEPART(day, [o].[OrderDate])
+FROM [Orders] AS [o]");
+        }
+
+        public override void Select_datetime_hour_component()
+        {
+            base.Select_datetime_hour_component();
+
+            AssertSql(
+                @"SELECT DATEPART(hour, [o].[OrderDate])
+FROM [Orders] AS [o]");
+        }
+
+        public override void Select_datetime_minute_component()
+        {
+            base.Select_datetime_minute_component();
+
+            AssertSql(
+                @"SELECT DATEPART(minute, [o].[OrderDate])
+FROM [Orders] AS [o]");
+        }
+
+        public override void Select_datetime_second_component()
+        {
+            base.Select_datetime_second_component();
+
+            AssertSql(
+                @"SELECT DATEPART(second, [o].[OrderDate])
+FROM [Orders] AS [o]");
+        }
+
+        public override void Select_datetime_millisecond_component()
+        {
+            base.Select_datetime_millisecond_component();
+
+            AssertSql(
+                @"SELECT DATEPART(millisecond, [o].[OrderDate])
+FROM [Orders] AS [o]");
+        }
     }
 }
