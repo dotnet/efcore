@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             queryModel.TransformExpressions(new ConditionalOptimizingExpressionVisitor().Visit);
             queryModel.TransformExpressions(new EntityEqualityRewritingExpressionVisitor(queryCompilationContext).Visit);
             queryModel.TransformExpressions(new SubQueryMemberPushDownExpressionVisitor(queryCompilationContext).Visit);
-            queryModel.TransformExpressions(new AllAnyToContainsResultOperatorExpressionRewriter().Visit);
+            queryModel.TransformExpressions(new AllAnyToContainsRewritingExpressionVisitor().Visit);
         }
 
         /// <summary>
