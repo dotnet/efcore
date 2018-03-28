@@ -4581,6 +4581,43 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Streaming_correlated_collection_issue_11403()
+        {
+            Weapon[] expected;
+            using (var context = CreateContext())
+            {
+                expected = context.Gears.OrderBy(g => g.Nickname)
+                    .Select(g => g.Weapons.Where(w => !w.IsAutomatic).OrderBy(w => w.Id).ToArray())
+                    .FirstOrDefault();
+
+                ClearLog();
+            }
+
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .OrderBy(g => g.Nickname)
+                    .Select(g => g.Weapons.Where(w => !w.IsAutomatic).OrderBy(w => w.Id))
+                    .FirstOrDefault()
+                    .ToArray();
+
+                Assert.Equal(expected.Length, query.Length);
+
+                for (var i = 0; i < expected.Length; i++)
+                {
+                    Assert.Equal(expected[i].Id, query[i].Id);
+                    Assert.Equal(expected[i].AmmunitionType, query[i].AmmunitionType);
+                    Assert.Equal(expected[i].IsAutomatic, query[i].IsAutomatic);
+                    Assert.Equal(expected[i].Name, query[i].Name);
+                    Assert.Equal(expected[i].Owner, query[i].Owner);
+                    Assert.Equal(expected[i].OwnerFullName, query[i].OwnerFullName);
+                    Assert.Equal(expected[i].SynergyWith, query[i].SynergyWith);
+                    Assert.Equal(expected[i].SynergyWithId, query[i].SynergyWithId);
+                }
+            }
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

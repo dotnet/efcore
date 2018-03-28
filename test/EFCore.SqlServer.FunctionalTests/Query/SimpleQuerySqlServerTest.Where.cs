@@ -37,7 +37,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [o].*
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
     ) AS [t]

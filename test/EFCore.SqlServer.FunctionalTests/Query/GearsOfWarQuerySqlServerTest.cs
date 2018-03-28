@@ -6446,6 +6446,24 @@ WHERE [l.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
 ORDER BY [t3].[Nickname], [t3].[SquadId], [t3].[Id]");
         }
 
+        public override void Streaming_correlated_collection_issue_11403()
+        {
+            base.Streaming_correlated_collection_issue_11403();
+
+            AssertSql(
+                @"SELECT TOP(1) [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Nickname]",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE ([w].[IsAutomatic] = 0) AND (@_outer_FullName = [w].[OwnerFullName])
+ORDER BY [w].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
