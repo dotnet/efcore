@@ -241,6 +241,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             public int Id { get; set; }
         }
 
+        private class Derived : WithAnnotations
+        {
+        }
+
+        [Fact]
+        public void Snapshot_with_enum_discriminator_uses_converted_values()
+        {
+            var codeHelper = new CSharpHelper();
+            var generator = new CSharpMigrationsGenerator(
+                new MigrationsCodeGeneratorDependencies(),
+                new CSharpMigrationsGeneratorDependencies(
+                    codeHelper,
+                    new CSharpMigrationOperationGenerator(
+                        new CSharpMigrationOperationGeneratorDependencies(codeHelper)),
+                    new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper))));
+
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<WithAnnotations>(
+                eb =>
+                {
+                    eb.HasDiscriminator<RawEnum>("EnumDiscriminator")
+                        .HasValue(RawEnum.A)
+                        .HasValue<Derived>(RawEnum.B);
+                    eb.Property<RawEnum>("EnumDiscriminator").HasConversion<int>();
+                });
+
+            modelBuilder.GetInfrastructure().Metadata.Validate();
+
+            var modelSnapshotCode = generator.GenerateSnapshot(
+                "MyNamespace",
+                typeof(MyContext),
+                "MySnapshot",
+                modelBuilder.Model);
+
+            var snapshotModel = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot").Model;
+
+            Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations)).SqlServer().DiscriminatorValue);
+            Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).SqlServer().DiscriminatorValue);
+        }
+
         [Fact]
         public void Value_converters_with_mapping_hints_are_scaffolded_correctly()
         {
