@@ -497,6 +497,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.OwnedDerivedType(nameof(D)), modelBuilder.Metadata);
         }
 
+        [Fact]
+        public virtual void Detects_ForeignKey_on_inherited_generated_key_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Abstract>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>(e => e.Id);
+            modelBuilder.Entity<Generic<string>>();
+
+            VerifyError(
+                CoreStrings.ForeignKeyPropertyInKey(
+                    nameof(Abstract.Id),
+                    "Generic<int>",
+                    "{'" + nameof(Abstract.Id)+"'}",
+                    nameof(Abstract)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_ForeignKey_on_inherited_generated_key_property_abstract_base()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Abstract>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>(e => e.Id);
+
+            Validate(modelBuilder.Model);
+        }
+
         [Theory]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]

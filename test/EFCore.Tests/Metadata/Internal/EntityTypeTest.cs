@@ -742,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Adding_a_foreign_key_throws_if_any_properties_are_part_of_inherited_key_with_value_generation()
+        public void Can_add_a_foreign_key_if_any_properties_are_part_of_inherited_key_with_value_generation()
         {
             var model = new Model();
             var baseType = model.AddEntityType(typeof(BaseType));
@@ -754,13 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityType.BaseType = baseType;
             var fkProperty = entityType.AddProperty("fk", typeof(int));
 
-            Assert.Equal(
-                CoreStrings.ForeignKeyPropertyInKey(
-                    Customer.IdProperty.Name,
-                    typeof(Customer).Name,
-                    "{'" + Customer.IdProperty.Name + "'" + ", 'id2'}",
-                    typeof(BaseType).Name),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType)).Message);
+            Assert.NotNull(entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType));
         }
 
         [Fact]

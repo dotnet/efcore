@@ -8,6 +8,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable UnusedMember.Local
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class PropertyTest
@@ -170,28 +175,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             property.ValueGenerated = ValueGenerated.Never;
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
-        }
-
-        [Fact]
-        public void Marking_a_property_ValueGenerated_throws_if_part_of_a_key_and_inherited_foreign_key()
-        {
-            var model = new Model();
-            var baseType = model.AddEntityType(typeof(BaseType));
-            var idProperty = baseType.GetOrAddProperty(nameof(Customer.Id), typeof(int));
-            var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int));
-            var key = baseType.GetOrAddKey(new[] { idProperty, idProperty2 });
-            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
-            entityType.BaseType = baseType;
-            var fkProperty = entityType.AddProperty("fk", typeof(int));
-            entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType);
-
-            Assert.Equal(
-                CoreStrings.ForeignKeyPropertyInKey(
-                    nameof(Customer.Id),
-                    typeof(Customer).Name,
-                    "{'" + nameof(Customer.Id) + "'" + ", 'id2'}",
-                    typeof(BaseType).Name),
-                Assert.Throws<InvalidOperationException>(() => idProperty.ValueGenerated = ValueGenerated.OnAdd).Message);
         }
 
         [Fact]
