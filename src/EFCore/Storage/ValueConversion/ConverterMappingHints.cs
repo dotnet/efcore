@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -18,16 +21,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="precision"> The suggested precision of the mapped data type. </param>
         /// <param name="scale"> The suggested scale of the mapped data type. </param>
         /// <param name="unicode"> Whether or not the mapped data type should support Unicode. </param>
+        /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator"/>. </param>
         public ConverterMappingHints(
             int? size = null,
             int? precision = null,
             int? scale = null,
-            bool? unicode = null)
+            bool? unicode = null,
+            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory = null)
         {
             Size = size;
             Precision = precision;
             Scale = scale;
             IsUnicode = unicode;
+            ValueGeneratorFactory = valueGeneratorFactory;
         }
 
         /// <summary>
@@ -43,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                     hints.Size ?? Size,
                     hints.Precision ?? Precision,
                     hints.Scale ?? Scale,
-                    hints.IsUnicode ?? IsUnicode);
+                    hints.IsUnicode ?? IsUnicode,
+                    hints.ValueGeneratorFactory ?? ValueGeneratorFactory);
 
         /// <summary>
         ///     The suggested size of the mapped data type.
@@ -64,5 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Whether or not the mapped data type should support Unicode.
         /// </summary>
         public virtual bool? IsUnicode { get; }
+
+        /// <summary>
+        ///     An optional factory for creating a specific <see cref="ValueGenerator"/> to use for model
+        ///     values when this converter is being used.
+        /// </summary>
+        public virtual Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }
     }
 }

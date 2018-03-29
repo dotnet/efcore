@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -12,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     public class GuidToBytesConverter : ValueConverter<Guid, byte[]>
     {
         private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 16);
+            = new ConverterMappingHints(
+                size: 16,
+                valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
 
         /// <summary>
         ///     <para>

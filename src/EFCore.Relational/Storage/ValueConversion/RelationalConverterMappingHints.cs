@@ -1,6 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -17,13 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="scale"> The suggested scale of the mapped data type. </param>
         /// <param name="unicode"> Whether or not the mapped data type should support Unicode. </param>
         /// <param name="fixedLength"> Whether or not the mapped data type is fixed length. </param>
+        /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator"/>. </param>
         public RelationalConverterMappingHints(
             int? size = null,
             int? precision = null,
             int? scale = null,
             bool? unicode = null,
-            bool? fixedLength = null)
-        : base(size, precision, scale, unicode)
+            bool? fixedLength = null,
+            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory = null)
+        : base(size, precision, scale, unicode, valueGeneratorFactory)
         {
             IsFixedLength = fixedLength;
         }
@@ -42,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                     hints.Precision ?? Precision,
                     hints.Scale ?? Scale,
                     hints.IsUnicode ?? IsUnicode,
-                    (hints as RelationalConverterMappingHints)?.IsFixedLength ?? IsFixedLength);
+                    (hints as RelationalConverterMappingHints)?.IsFixedLength ?? IsFixedLength,
+                    hints.ValueGeneratorFactory ?? ValueGeneratorFactory);
 
         /// <summary>
         ///     Whether or not the mapped data type is fixed length.

@@ -5,8 +5,10 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -33,11 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
             /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
             /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
+            /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator"/>. </param>
             public CoreTypeMappingParameters(
                 [NotNull] Type clrType,
                 [CanBeNull] ValueConverter converter = null,
                 [CanBeNull] ValueComparer comparer = null,
-                [CanBeNull] ValueComparer keyComparer = null)
+                [CanBeNull] ValueComparer keyComparer = null,
+                [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory = null)
             {
                 Check.NotNull(clrType, nameof(clrType));
 
@@ -45,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Converter = converter;
                 Comparer = comparer;
                 KeyComparer = keyComparer;
+                ValueGeneratorFactory = valueGeneratorFactory;
             }
 
             /// <summary>
@@ -66,6 +71,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ///     The mapping key comparer.
             /// </summary>
             public ValueComparer KeyComparer { get; }
+
+            /// <summary>
+            ///     An optional factory for creating a specific <see cref="ValueGenerator"/> to use with
+            ///     this mapping.
+            /// </summary>
+            public Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }
 
             /// <summary>
             ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given
@@ -92,7 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Parameters = parameters;
 
-            var clrType = parameters.Converter?.ModelClrType ?? parameters.ClrType;
+            var converter = parameters.Converter;
+
+            var clrType = converter?.ModelClrType ?? parameters.ClrType;
             ClrType = clrType;
 
             if (parameters.Comparer?.Type == clrType)
@@ -104,6 +117,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _keyComparer = parameters.KeyComparer;
             }
+
+            ValueGeneratorFactory = parameters.ValueGeneratorFactory
+                                     ?? converter?.MappingHints?.ValueGeneratorFactory;
         }
 
         /// <summary>
@@ -121,6 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     May be null if no conversion is needed.
         /// </summary>
         public virtual ValueConverter Converter => Parameters.Converter;
+
+        /// <summary>
+        ///     An optional factory for creating a specific <see cref="ValueGenerator"/> to use with
+        ///     this mapping.
+        /// </summary>
+        public virtual Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value snapshotting and comparison for

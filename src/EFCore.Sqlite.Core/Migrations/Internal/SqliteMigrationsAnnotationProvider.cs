@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 
@@ -33,10 +34,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
             if (property.ValueGenerated == ValueGenerated.OnAdd
-                && property.ClrType.UnwrapNullableType().IsInteger())
+                && property.ClrType.UnwrapNullableType().IsInteger()
+                && !HasConverter(property))
             {
                 yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);
             }
         }
+
+        private static bool HasConverter(IProperty property)
+            => (property.FindMapping()?.Converter
+                ?? property.GetValueConverter()) != null;
     }
 }

@@ -80,13 +80,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelStrategy = Property.DeclaringEntityType.Model.Oracle().ValueGenerationStrategy;
 
             if (modelStrategy == OracleValueGenerationStrategy.SequenceHiLo
-                && IsCompatibleSequenceHiLo(Property.ClrType))
+                && IsCompatibleSequenceHiLo(Property))
             {
                 return OracleValueGenerationStrategy.SequenceHiLo;
             }
 
             if (modelStrategy == OracleValueGenerationStrategy.IdentityColumn
-                && IsCompatibleIdentityColumn(Property.ClrType))
+                && IsCompatibleIdentityColumn(Property))
             {
                 return OracleValueGenerationStrategy.IdentityColumn;
             }
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var propertyType = Property.ClrType;
 
                 if (value == OracleValueGenerationStrategy.IdentityColumn
-                    && !IsCompatibleIdentityColumn(propertyType))
+                    && !IsCompatibleIdentityColumn(Property))
                 {
                     if (ShouldThrowOnInvalidConfiguration)
                     {
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
 
                 if (value == OracleValueGenerationStrategy.SequenceHiLo
-                    && !IsCompatibleSequenceHiLo(propertyType))
+                    && !IsCompatibleSequenceHiLo(Property))
                 {
                     if (ShouldThrowOnInvalidConfiguration)
                     {
@@ -280,9 +280,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             base.ClearAllServerGeneratedValues();
         }
 
-        private static bool IsCompatibleIdentityColumn(Type type)
-            => type.IsInteger() || type == typeof(decimal);
+        private static bool IsCompatibleIdentityColumn(IProperty property)
+        {
+            var type = property.ClrType;
 
-        private static bool IsCompatibleSequenceHiLo(Type type) => type.IsInteger();
+            return (type.IsInteger() || type == typeof(decimal)) && !HasConverter(property);
+        }
+
+        private static bool IsCompatibleSequenceHiLo(IProperty property)
+            => property.ClrType.IsInteger() && !HasConverter(property);
+
+        private static bool HasConverter(IProperty property)
+            => (property.FindMapping()?.Converter
+                ?? property.GetValueConverter()) != null;
     }
 }
