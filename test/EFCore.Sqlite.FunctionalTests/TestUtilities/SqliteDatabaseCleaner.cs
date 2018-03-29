@@ -9,9 +9,13 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+#if Test20
+using Microsoft.EntityFrameworkCore.Design.Internal;
+#else
+using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
+#endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {

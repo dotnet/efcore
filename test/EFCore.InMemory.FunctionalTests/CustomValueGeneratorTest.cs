@@ -6,7 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+#if Test20
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+#else
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
+#endif
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
