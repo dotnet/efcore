@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Query_for_base_type_loads_all_owned_navs();
 
-
             // See issue #10067
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t].[Id], [t0].[Id], [t0].[LeafBAddress_Country_Name], [t1].[Id], [t2].[Id], [t2].[LeafAAddress_Country_Name], [t3].[Id], [t4].[Id], [t4].[BranchAddress_Country_Name], [t5].[Id], [t6].[Id], [t6].[PersonAddress_Country_Name]

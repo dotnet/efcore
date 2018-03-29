@@ -1136,7 +1136,7 @@ namespace Microsoft.EntityFrameworkCore
             base.InsertDataOperation();
 
             Assert.Equal(
-                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'[People]'))" + EOL +
+                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name') AND [object_id] = OBJECT_ID(N'[People]'))" + EOL +
                 "    SET IDENTITY_INSERT [People] ON;" + EOL +
                 "INSERT INTO [People] ([Id], [Full Name])" + EOL +
                 "VALUES (0, NULL)," + EOL +
@@ -1144,7 +1144,7 @@ namespace Microsoft.EntityFrameworkCore
                 "(2, N'John Snow')," + EOL +
                 "(3, N'Arya Stark')," + EOL +
                 "(4, N'Harry Strickland');" + EOL +
-                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'[People]'))" + EOL +
+                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name') AND [object_id] = OBJECT_ID(N'[People]'))"  + EOL +
                 "    SET IDENTITY_INSERT [People] OFF;" + EOL,
                 Sql);
         }

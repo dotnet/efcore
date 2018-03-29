@@ -9,7 +9,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -1045,23 +1044,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-
-            builder
-                .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(")
-                .Append(
-                    stringTypeMapping.GenerateSqlLiteral(
-                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
-                .AppendLine("))");
-
-            using (builder.Indent())
-            {
-                builder
-                    .Append("SET IDENTITY_INSERT ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                    .Append(" ON")
-                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-            }
+            GenerateIdentityInsert(builder, operation, on: true);
 
             var sqlBuilder = new StringBuilder();
             ((SqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator).AppendBulkInsertOperation(
@@ -1071,11 +1054,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.Append(sqlBuilder.ToString());
 
+            GenerateIdentityInsert(builder, operation, on: false);
+
+            builder.EndCommand();
+        }
+
+        private void GenerateIdentityInsert(MigrationCommandListBuilder builder, InsertDataOperation operation, bool on)
+        {
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
             builder
-                .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(")
-                .Append(
-                    stringTypeMapping.GenerateSqlLiteral(
-                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
+                .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE")
+                .Append(" [name] IN (")
+                .Append(string.Join(", ", operation.Columns.Select(stringTypeMapping.GenerateSqlLiteral)))
+                .Append(") AND [object_id] = OBJECT_ID(")
+                .Append(stringTypeMapping.GenerateSqlLiteral(
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
                 .AppendLine("))");
 
             using (builder.Indent())
@@ -1083,11 +1077,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder
                     .Append("SET IDENTITY_INSERT ")
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                    .Append(" OFF")
+                    .Append(on ? " ON" : " OFF")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
-
-            builder.EndCommand();
         }
 
         /// <summary>
