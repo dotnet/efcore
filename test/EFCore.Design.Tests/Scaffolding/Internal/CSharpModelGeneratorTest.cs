@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             => new ServiceCollection()
             .AddEntityFrameworkDesignTimeServices()
             .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
-            .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderConfigurationCodeGenerator>()
+            .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
             .BuildServiceProvider()
             .GetRequiredService<IModelCodeGenerator>();
     }

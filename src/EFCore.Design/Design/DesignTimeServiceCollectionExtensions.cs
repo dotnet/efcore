@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<CSharpSnapshotGeneratorDependencies>()
                 .AddSingleton<MigrationsCodeGeneratorDependencies>()
                 .AddSingleton<ModelCodeGeneratorDependencies>()
-                .AddSingleton<ProviderConfigurationCodeGeneratorDependencies>()
+                .AddSingleton<ProviderCodeGeneratorDependencies>()
                 .AddSingleton<RelationalTypeMapperDependencies>()
                 .AddSingleton<TypeMappingSourceDependencies>()
                 .AddSingleton<RelationalTypeMappingSourceDependencies>()

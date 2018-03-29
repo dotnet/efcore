@@ -129,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public CompositeCustomComparer(IList<ValueComparer> comparers)
             {
-                _equals = comparers.Select(c => c.Equals).ToArray();
-                _hashCodes = comparers.Select(c => c.HashCode).ToArray();
+                _equals = comparers.Select(c => (Func<object, object, bool>)c.Equals).ToArray();
+                _hashCodes = comparers.Select(c => (Func<object, int>)c.GetHashCode).ToArray();
             }
 
             public bool Equals(object[] x, object[] y)

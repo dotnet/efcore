@@ -11,13 +11,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqliteConfigurationCodeGenerator : ProviderConfigurationCodeGenerator
+    public class SqliteCodeGenerator : ProviderCodeGenerator
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SqliteConfigurationCodeGenerator" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public SqliteConfigurationCodeGenerator([NotNull] ProviderConfigurationCodeGeneratorDependencies dependencies)
+        public SqliteCodeGenerator([NotNull] ProviderCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }

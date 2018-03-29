@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 comparer = comparer.ToNonNullNullableComparer();
             }
-            
+
             Assert.True(comparer.Equals(value1, value1));
             Assert.True(comparer.Equals(value2, value2));
             Assert.False(comparer.Equals(value1, value2));
@@ -52,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(comparer.Equals(null, value2));
             Assert.True(comparer.Equals(null, null));
 
-            Assert.Equal(0, comparer.HashCode(null));
-            Assert.Equal(hashCode ?? value1.GetHashCode(), comparer.HashCode(value1));
+            Assert.Equal(0, comparer.GetHashCode(null));
+            Assert.Equal(hashCode ?? value1.GetHashCode(), comparer.GetHashCode(value1));
 
             var keyComparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), new object[] { true });
             if (toNullable)
@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(keyComparer.Equals(null, value2));
             Assert.True(keyComparer.Equals(null, null));
 
-            Assert.Equal(0, keyComparer.HashCode(null));
-            Assert.Equal(hashCode ?? value1.GetHashCode(), keyComparer.HashCode(value1));
+            Assert.Equal(0, keyComparer.GetHashCode(null));
+            Assert.Equal(hashCode ?? value1.GetHashCode(), keyComparer.GetHashCode(value1));
 
             return comparer;
         }

@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestProviderConfigurationCodeGenerator : ProviderConfigurationCodeGenerator
+    public class TestProviderCodeGenerator : ProviderCodeGenerator
     {
-        public TestProviderConfigurationCodeGenerator(ProviderConfigurationCodeGeneratorDependencies dependencies)
+        public TestProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }

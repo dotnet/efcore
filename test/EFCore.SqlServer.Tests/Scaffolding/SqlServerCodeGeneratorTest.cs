@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [Fact]
         public virtual void Use_provider_method_is_generated_correctly()
         {
-            var codeGenerator = new SqlServerConfigurationCodeGenerator(new ProviderConfigurationCodeGeneratorDependencies());
+            var codeGenerator = new SqlServerCodeGenerator(new ProviderCodeGeneratorDependencies());
 
             var result = codeGenerator.GenerateUseProvider("Data Source=Test");
 

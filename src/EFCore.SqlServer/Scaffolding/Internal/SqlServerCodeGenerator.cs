@@ -11,13 +11,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerConfigurationCodeGenerator : ProviderConfigurationCodeGenerator
+    public class SqlServerCodeGenerator : ProviderCodeGenerator
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SqlServerConfigurationCodeGenerator" /> class.
+        ///     Initializes a new instance of the <see cref="SqlServerCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public SqlServerConfigurationCodeGenerator([NotNull] ProviderConfigurationCodeGeneratorDependencies dependencies)
+        public SqlServerCodeGenerator([NotNull] ProviderCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }

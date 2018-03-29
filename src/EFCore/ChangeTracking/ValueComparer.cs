@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         reference.
     ///     </para>
     /// </summary>
-    public abstract class ValueComparer
+    public abstract class ValueComparer : IEqualityComparer
     {
         internal static readonly MethodInfo EqualityComparerHashCodeMethod
             = typeof(IEqualityComparer).GetTypeInfo()
@@ -78,18 +78,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public abstract Type Type { get; }
 
         /// <summary>
-        ///     The comparison expression compiled into an untyped delegate.
+        ///     Compares the two instances to determine if they are equal.
         /// </summary>
-        public new abstract Func<object, object, bool> Equals { get; }
+        /// <param name="left"> The first instance. </param>
+        /// <param name="right"> The second instance. </param>
+        /// <returns> <c>True</c> if they are equal; <c>false</c> otherwise. </returns>
+        public new abstract bool Equals(object left, object right);
 
         /// <summary>
-        ///     The hash code expression compiled into an untyped delegate.
+        ///     Returns the hash code for the given instance.
         /// </summary>
-        public abstract Func<object, int> HashCode { get; }
+        /// <param name="instance"> The instance. </param>
+        /// <returns> The hash code. </returns>
+        public abstract int GetHashCode(object instance);
 
         /// <summary>
         ///     <para>
-        ///         The snapshot expression compiled into an untyped delegate.
+        ///         Creates a snapshot of the given instance.
         ///     </para>
         ///     <para>
         ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
@@ -98,7 +103,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         reference.
         ///     </para>
         /// </summary>
-        public abstract Func<object, object> Snapshot { get; }
+        /// <param name="instance"> The instance. </param>
+        /// <returns> The snapshot. </returns>
+        public abstract object Snapshot([CanBeNull] object instance);
 
         /// <summary>
         ///     The comparison expression.
@@ -147,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Takes the <see cref="HashCodeExpression"/> and replaces the parameter with the given expression, 
+        ///     Takes the <see cref="HashCodeExpression"/> and replaces the parameter with the given expression,
         ///     returning the transformed body.
         /// </summary>
         /// <param name="expression"> The new expression. </param>
@@ -164,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Takes the <see cref="SnapshotExpression"/> and replaces the parameter with the given expression, 
+        ///     Takes the <see cref="SnapshotExpression"/> and replaces the parameter with the given expression,
         ///     returning the transformed body.
         /// </summary>
         /// <param name="expression"> The new expression. </param>

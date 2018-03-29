@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Design.Internal
             => serviceCollection
                 .AddSingleton<IRelationalTypeMappingSource, OracleTypeMappingSource>()
                 .AddSingleton<IDatabaseModelFactory, OracleDatabaseModelFactory>()
-                .AddSingleton<IProviderConfigurationCodeGenerator, OracleConfigurationCodeGenerator>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, OracleCodeGenerator>()
                 .AddSingleton<IAnnotationCodeGenerator, OracleAnnotationCodeGenerator>();
     }
 }
