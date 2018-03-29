@@ -1144,9 +1144,74 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<BinaryKeyDataType>();
                 modelBuilder.Entity<StringKeyDataType>();
-                modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<BuiltInDataTypes>(eb =>
+                {
+                    eb.HasData(
+                        new BuiltInDataTypes
+                        {
+                            Id = 13,
+                            PartitionId = 1,
+                            TestInt16 = -1234,
+                            TestInt32 = -123456789,
+                            TestInt64 = -1234567890123456789L,
+                            TestDouble = -1.23456789,
+                            TestDecimal = -1234567890.01M,
+                            TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                            TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                            TestSingle = -1.234F,
+                            TestBoolean = true,
+                            TestByte = 255,
+                            TestUnsignedInt16 = 1234,
+                            TestUnsignedInt32 = 1234565789U,
+                            TestUnsignedInt64 = 1234567890123456789UL,
+                            TestCharacter = 'a',
+                            TestSignedByte = -128,
+                            Enum64 = Enum64.SomeValue,
+                            Enum32 = Enum32.SomeValue,
+                            Enum16 = Enum16.SomeValue,
+                            Enum8 = Enum8.SomeValue,
+                            EnumU64 = EnumU64.SomeValue,
+                            EnumU32 = EnumU32.SomeValue,
+                            EnumU16 = EnumU16.SomeValue,
+                            EnumS8 = EnumS8.SomeValue
+                        });
+                    eb.Property(e => e.Id).ValueGeneratedNever();
+                });
                 modelBuilder.Entity<BuiltInDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();
-                modelBuilder.Entity<BuiltInNullableDataTypes>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<BuiltInNullableDataTypes>(eb =>
+                {
+                    eb.HasData(
+                        new BuiltInNullableDataTypes
+                        {
+                            Id = 13,
+                            PartitionId = 1,
+                            TestNullableInt16 = -1234,
+                            TestNullableInt32 = -123456789,
+                            TestNullableInt64 = -1234567890123456789L,
+                            TestNullableDouble = -1.23456789,
+                            TestNullableDecimal = -1234567890.01M,
+                            TestNullableDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                            TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                            TestNullableSingle = -1.234F,
+                            TestNullableBoolean = true,
+                            TestNullableByte = 255,
+                            TestNullableUnsignedInt16 = 1234,
+                            TestNullableUnsignedInt32 = 1234565789U,
+                            TestNullableUnsignedInt64 = 1234567890123456789UL,
+                            TestNullableCharacter = 'a',
+                            TestNullableSignedByte = -128,
+                            Enum64 = Enum64.SomeValue,
+                            Enum32 = Enum32.SomeValue,
+                            Enum16 = Enum16.SomeValue,
+                            Enum8 = Enum8.SomeValue,
+                            EnumU64 = EnumU64.SomeValue,
+                            EnumU32 = EnumU32.SomeValue,
+                            EnumU16 = EnumU16.SomeValue,
+                            EnumS8 = EnumS8.SomeValue
+                        });
+                    eb.Property(e => e.Id).ValueGeneratedNever();
+                });
                 modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();
                 modelBuilder.Entity<BinaryForeignKeyDataType>().Property(e => e.Id).ValueGeneratedNever();
                 modelBuilder.Entity<StringForeignKeyDataType>().Property(e => e.Id).ValueGeneratedNever();
