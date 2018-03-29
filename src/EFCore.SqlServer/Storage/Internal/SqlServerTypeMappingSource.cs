@@ -26,6 +26,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly FloatTypeMapping _real
             = new SqlServerFloatTypeMapping("real");
 
+        private readonly ByteTypeMapping _byte
+            = new SqlServerByteTypeMapping("tinyint", DbType.Byte);
+
+        private readonly ShortTypeMapping _short
+            = new SqlServerShortTypeMapping("smallint", DbType.Int16);
+
+        private readonly LongTypeMapping _long
+            = new SqlServerLongTypeMapping("bigint", DbType.Int64);
+
         private readonly SqlServerByteArrayTypeMapping _rowversion
             = new SqlServerByteArrayTypeMapping(
                 "rowversion",
@@ -39,15 +48,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
         private readonly IntTypeMapping _int
             = new IntTypeMapping("int", DbType.Int32);
-
-        private readonly LongTypeMapping _long
-            = new LongTypeMapping("bigint", DbType.Int64);
-
-        private readonly ShortTypeMapping _short
-            = new ShortTypeMapping("smallint", DbType.Int16);
-
-        private readonly ByteTypeMapping _byte
-            = new ByteTypeMapping("tinyint", DbType.Byte);
 
         private readonly BoolTypeMapping _bool
             = new BoolTypeMapping("bit");

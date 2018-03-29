@@ -749,5 +749,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Millisecond));
         }
+
+        [ConditionalFact]
+        public virtual void Select_byte_constant()
+        {
+            AssertQueryScalar<Customer, byte>(cs => cs.Select(c => c.CustomerID == "ALFKI" ? (byte)1 : (byte)2));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_short_constant()
+        {
+            AssertQueryScalar<Customer, short>(cs => cs.Select(c => c.CustomerID == "ALFKI" ? (short)1 : (short)2));
+        }
     }
 }

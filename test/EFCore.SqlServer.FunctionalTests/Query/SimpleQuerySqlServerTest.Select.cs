@@ -177,7 +177,7 @@ FROM [Customers] AS [c]");
 
             AssertSql(
                 @"SELECT [p].[ProductID], CASE
-    WHEN [p].[UnitsInStock] > 0
+    WHEN [p].[UnitsInStock] > CAST(0 AS smallint)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END AS [IsAvailable]
 FROM [Products] AS [p]");
@@ -844,6 +844,30 @@ FROM [Orders] AS [o]");
             AssertSql(
                 @"SELECT DATEPART(millisecond, [o].[OrderDate])
 FROM [Orders] AS [o]");
+        }
+
+        public override void Select_byte_constant()
+        {
+            base.Select_byte_constant();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS tinyint) ELSE CAST(2 AS tinyint)
+END
+FROM [Customers] AS [c]");
+        }
+
+        public override void Select_short_constant()
+        {
+            base.Select_short_constant();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS smallint) ELSE CAST(2 AS smallint)
+END
+FROM [Customers] AS [c]");
         }
     }
 }

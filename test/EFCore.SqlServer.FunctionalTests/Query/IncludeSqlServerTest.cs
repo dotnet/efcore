@@ -979,7 +979,7 @@ CROSS JOIN [Customers] AS [c2]");
 SELECT [od.Order].[CustomerID]
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
-WHERE [od].[Quantity] = 10
+WHERE [od].[Quantity] = CAST(10 AS smallint)
 ORDER BY [od].[OrderID], [od].[ProductID]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
             }

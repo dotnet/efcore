@@ -57,15 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 var convertedObjectExpression = Expression.Convert(methodCallExpression.Object, objectType);
                 var convertedArgumentExpression = Expression.Convert(argument, objectType);
 
-                var bitwiseArgumentExpression
-                    = objectType == typeof(long) && argument is ConstantExpression
-                        ? (Expression)new ExplicitCastExpression(argument, objectType)
-                        : convertedArgumentExpression;
-
                 return Expression.Equal(
                     Expression.And(
                         convertedObjectExpression,
-                        bitwiseArgumentExpression),
+                        convertedArgumentExpression),
                     convertedArgumentExpression);
             }
 

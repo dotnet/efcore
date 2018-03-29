@@ -4618,14 +4618,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Project_one_value_type_from_empty_collection()
         {
             AssertQuery<Squad>(
                 ss => ss.Where(s => s.Name == "Kilo").Select(s => new { s.Name, SquadId = s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Filter_on_subquery_projecting_one_value_type_from_empty_collection()
         {
             AssertQuery<Squad>(

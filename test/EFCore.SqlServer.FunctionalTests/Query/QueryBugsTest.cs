@@ -1886,9 +1886,9 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     Assert.Equal(1, query.Count);
 
                     AssertSql(
-                        @"SELECT [e].[Id], [e].[Permission]
+                        @"SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
 FROM [Entity] AS [e]
-WHERE ([e].[Permission] & CAST(17179869184 AS bigint)) = 17179869184");
+WHERE ([e].[Permission] & CAST(17179869184 AS bigint)) = CAST(17179869184 AS bigint)");
                 }
             }
         }
@@ -1905,9 +1905,47 @@ WHERE ([e].[Permission] & CAST(17179869184 AS bigint)) = 17179869184");
                     Assert.Equal(3, query.Count);
 
                     AssertSql(
-                        @"SELECT [e].[Id], [e].[Permission]
+                        @"SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
 FROM [Entity] AS [e]
 WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Byte_enum_has_flag_does_not_apply_explicit_cast_for_non_constant()
+        {
+            using (CreateDatabase8538())
+            {
+                using (var context = new MyContext8538(_options))
+                {
+                    var query = context.Entity.Where(e => e.PermissionByte.HasFlag(e.PermissionByte)).ToList();
+
+                    Assert.Equal(3, query.Count);
+
+                    AssertSql(
+                        @"SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
+FROM [Entity] AS [e]
+WHERE ([e].[PermissionByte] & [e].[PermissionByte]) = [e].[PermissionByte]");
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Enum_has_flag_applies_explicit_cast_for_short_constant()
+        {
+            using (CreateDatabase8538())
+            {
+                using (var context = new MyContext8538(_options))
+                {
+                    var query = context.Entity.Where(e => e.PermissionShort.HasFlag(PermissionShort.READ_WRITE)).ToList();
+
+                    Assert.Equal(1, query.Count);
+
+                    AssertSql(
+                        @"SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
+FROM [Entity] AS [e]
+WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
                 }
             }
         }
@@ -1916,6 +1954,28 @@ WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
         {
             public int Id { get; set; }
             public Permission Permission { get; set; }
+            public PermissionByte PermissionByte { get; set; }
+            public PermissionShort PermissionShort { get; set; }
+        }
+
+        [Flags]
+#pragma warning disable CA2217 // Do not mark enums with FlagsAttribute
+        public enum PermissionByte : byte
+#pragma warning restore CA2217 // Do not mark enums with FlagsAttribute
+        {
+            NONE = 1,
+            READ_ONLY = 2,
+            READ_WRITE = 4,
+        }
+
+        [Flags]
+#pragma warning disable CA2217 // Do not mark enums with FlagsAttribute
+        public enum PermissionShort : short
+#pragma warning restore CA2217 // Do not mark enums with FlagsAttribute
+        {
+            NONE = 1,
+            READ_ONLY = 2,
+            READ_WRITE = 4,
         }
 
         [Flags]
@@ -1945,9 +2005,9 @@ WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
                 context =>
                     {
                         context.AddRange(
-                            new Entity8538 { Permission = Permission.NONE },
-                            new Entity8538 { Permission = Permission.READ_ONLY },
-                            new Entity8538 { Permission = Permission.READ_WRITE }
+                            new Entity8538 { Permission = Permission.NONE, PermissionByte = PermissionByte.NONE, PermissionShort = PermissionShort.NONE },
+                            new Entity8538 { Permission = Permission.READ_ONLY, PermissionByte = PermissionByte.READ_ONLY, PermissionShort = PermissionShort.READ_ONLY },
+                            new Entity8538 { Permission = Permission.READ_WRITE, PermissionByte = PermissionByte.READ_WRITE, PermissionShort = PermissionShort.READ_WRITE }
                         );
                         context.SaveChanges();
 

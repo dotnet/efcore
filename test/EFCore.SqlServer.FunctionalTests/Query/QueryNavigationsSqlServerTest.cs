@@ -1008,7 +1008,7 @@ WHERE EXISTS (
     INNER JOIN (
         SELECT TOP(1) [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
-        WHERE [o0].[Quantity] = 1
+        WHERE [o0].[Quantity] = CAST(1 AS smallint)
         ORDER BY [o0].[OrderID] DESC, [o0].[ProductID]
     ) AS [t1] ON ([t0].[OrderID] = [t1].[OrderID]) AND ([t0].[ProductID] = [t1].[ProductID]))");
         }
