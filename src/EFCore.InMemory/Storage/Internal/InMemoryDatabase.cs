@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -72,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool EnsureDatabaseCreated(IModel model)
-            => _store.EnsureCreated(Check.NotNull(model, nameof(model)));
+        public virtual bool EnsureDatabaseCreated(StateManagerDependencies stateManagerDependencies)
+            => _store.EnsureCreated(Check.NotNull(stateManagerDependencies, nameof(stateManagerDependencies)), _updateLogger);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
