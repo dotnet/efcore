@@ -441,11 +441,11 @@ INNER JOIN [LevelOne] AS [e1] ON [e3.OneToOne_Required_FK_Inverse.OneToOne_Optio
             AssertSql(
                 @"SELECT [e2].[Id] AS [Id2], [e1].[Id] AS [Id1]
 FROM [LevelTwo] AS [e2]
-INNER JOIN [LevelOne] AS [e1] ON [e2].[Id] = (
+INNER JOIN [LevelOne] AS [e1] ON [e2].[Id] = COALESCE((
     SELECT TOP(1) [subQuery0].[Id]
     FROM [LevelTwo] AS [subQuery0]
     WHERE [subQuery0].[Level1_Optional_Id] = [e1].[Id]
-)");
+), 0)");
         }
 
         public override void Join_navigations_in_inner_selector_translated_to_multiple_subquery_without_collision()
@@ -455,11 +455,11 @@ INNER JOIN [LevelOne] AS [e1] ON [e2].[Id] = (
             AssertSql(
                 @"SELECT [e2].[Id] AS [Id2], [e1].[Id] AS [Id1], [e3].[Id] AS [Id3]
 FROM [LevelTwo] AS [e2]
-INNER JOIN [LevelOne] AS [e1] ON [e2].[Id] = (
+INNER JOIN [LevelOne] AS [e1] ON [e2].[Id] = COALESCE((
     SELECT TOP(1) [subQuery0].[Id]
     FROM [LevelTwo] AS [subQuery0]
     WHERE [subQuery0].[Level1_Optional_Id] = [e1].[Id]
-)
+), 0)
 INNER JOIN [LevelThree] AS [e3] ON [e2].[Id] = [e3].[Level2_Optional_Id]");
         }
 
@@ -2245,11 +2245,11 @@ INNER JOIN (
             AssertSql(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
 FROM [LevelOne] AS [l1]
-INNER JOIN [LevelTwo] AS [l2] ON [l1].[Id] = (
+INNER JOIN [LevelTwo] AS [l2] ON [l1].[Id] = COALESCE((
     SELECT TOP(1) [l0].[Id]
     FROM [LevelTwo] AS [l0]
     ORDER BY [l0].[Id]
-)");
+), 0)");
         }
 
         public override void Contains_with_subquery_optional_navigation_and_constant_item()

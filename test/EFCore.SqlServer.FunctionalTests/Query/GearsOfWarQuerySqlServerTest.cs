@@ -738,31 +738,31 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((1 & [g].[Rank]) = [g].[
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & (
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & COALESCE((
     SELECT TOP(1) [x].[Rank]
     FROM [Gears] AS [x]
     WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
     ORDER BY [x].[Nickname], [x].[SquadId]
-)) = (
+), 0)) = COALESCE((
     SELECT TOP(1) [x].[Rank]
     FROM [Gears] AS [x]
     WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
     ORDER BY [x].[Nickname], [x].[SquadId]
-))",
+), 0))",
                 //
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((1 & (
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((1 & COALESCE((
     SELECT TOP(1) [x].[Rank]
     FROM [Gears] AS [x]
     WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
     ORDER BY [x].[Nickname], [x].[SquadId]
-)) = (
+), 0)) = COALESCE((
     SELECT TOP(1) [x].[Rank]
     FROM [Gears] AS [x]
     WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
     ORDER BY [x].[Nickname], [x].[SquadId]
-))");
+), 0))");
         }
 
         public override void Where_enum_has_flag_subquery_client_eval()
@@ -1490,12 +1490,12 @@ ORDER BY [w].[Id]");
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (COALESCE((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
     ORDER BY [w].[Id]
-) = 1)");
+), 0) = 1)");
         }
 
         public override void Where_subquery_distinct_firstordefault_boolean()
@@ -1505,7 +1505,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1) AND ((
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1) AND (COALESCE((
     SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].*
@@ -1513,7 +1513,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1)
         WHERE [g].[FullName] = [w].[OwnerFullName]
     ) AS [t]
     ORDER BY [t].[Id]
-) = 1))");
+), 0) = 1))");
         }
 
         public override void Where_subquery_distinct_first_boolean()
@@ -1599,7 +1599,7 @@ FROM (
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1) AND ((
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1) AND (COALESCE((
     SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].*
@@ -1607,7 +1607,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1)
         WHERE [g].[FullName] = [w].[OwnerFullName]
     ) AS [t]
     ORDER BY [t].[Id]
-) = 1))");
+), 0) = 1))");
         }
 
         public override void Where_subquery_union_firstordefault_boolean()
@@ -6462,6 +6462,34 @@ SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[Owner
 FROM [Weapons] AS [w]
 WHERE ([w].[IsAutomatic] = 0) AND (@_outer_FullName = [w].[OwnerFullName])
 ORDER BY [w].[Id]");
+        }
+
+        public override void Project_one_value_type_from_empty_collection()
+        {
+            base.Project_one_value_type_from_empty_collection();
+
+            AssertSql(
+                @"SELECT [s].[Name], COALESCE((
+    SELECT TOP(1) [m].[SquadId]
+    FROM [Gears] AS [m]
+    WHERE ([m].[Discriminator] IN (N'Officer', N'Gear') AND ([m].[HasSoulPatch] = 1)) AND ([s].[Id] = [m].[SquadId])
+), 0) AS [SquadId]
+FROM [Squads] AS [s]
+WHERE [s].[Name] = N'Kilo'");
+        }
+
+        public override void Filter_on_subquery_projecting_one_value_type_from_empty_collection()
+        {
+            base.Filter_on_subquery_projecting_one_value_type_from_empty_collection();
+
+            AssertSql(
+                @"SELECT [s].[Name]
+FROM [Squads] AS [s]
+WHERE ([s].[Name] = N'Kilo') AND (COALESCE((
+    SELECT TOP(1) [m].[SquadId]
+    FROM [Gears] AS [m]
+    WHERE ([m].[Discriminator] IN (N'Officer', N'Gear') AND ([m].[HasSoulPatch] = 1)) AND ([s].[Id] = [m].[SquadId])
+), 0) <> 0)");
         }
 
         private void AssertSql(params string[] expected)
