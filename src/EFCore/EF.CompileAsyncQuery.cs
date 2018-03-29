@@ -36,6 +36,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, AsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
+            [NotNull] Expression<Func<TContext, DbQuery<TResult>>> queryExpression)
+            where TContext : DbContext
+            where TResult : class
+            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
+
+        /// <summary>
+        ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
+        /// </summary>
+        /// <typeparam name="TContext">The target DbContext type.</typeparam>
+        /// <typeparam name="TResult">The query result type.</typeparam>
+        /// <param name="queryExpression">The LINQ query expression.</param>
+        /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
+        public static Func<TContext, AsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
