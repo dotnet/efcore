@@ -50,6 +50,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void DbQuery_query()
+        {
+            var query = EF.CompileQuery((NorthwindContext context) => context.CustomerQueries);
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(91, query(context).Count());
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(91, query(context).ToList().Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DbQuery_query_first()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context) => context.CustomerQueries.OrderBy(c => c.CompanyName).First());
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Alfreds Futterkiste", query(context).CompanyName);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Query_ending_with_include()
         {
             var query = EF.CompileQuery(
@@ -291,6 +319,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal("ALFKI", (await query(context)).CustomerID);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task DbQuery_query_async()
+        {
+            var query = EF.CompileAsyncQuery((NorthwindContext context) => context.CustomerQueries);
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(91, (await query(context).ToListAsync()).Count);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(91, (await query(context).ToListAsync()).Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task DbQuery_query_first_async()
+        {
+            var query = EF.CompileAsyncQuery(
+                (NorthwindContext context)
+                    => context.CustomerQueries.OrderBy(c => c.CompanyName).First());
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Alfreds Futterkiste", (await query(context)).CompanyName);
             }
         }
 
