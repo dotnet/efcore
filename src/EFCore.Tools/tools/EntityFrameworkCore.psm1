@@ -871,7 +871,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
     $process = [Diagnostics.Process]::Start($startInfo)
 
-    while ($line = $process.StandardOutput.ReadLine())
+    while (($line = $process.StandardOutput.ReadLine()) -ne $null)
     {
         $level = $null
         $text = $null
@@ -906,7 +906,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
     if ($process.ExitCode)
     {
-        while ($line = $process.StandardError.ReadLine())
+        while (($line = $process.StandardError.ReadLine()) -ne $null)
         {
             WriteErrorLine $line
         }
