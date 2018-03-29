@@ -14,14 +14,61 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        public override void No_ignored_include_warning_when_implicit_load()
-        {
-            base.No_ignored_include_warning_when_implicit_load();
-        }
-
         public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+
+            // #11474
+            protected override void Seed(DbContext context)
+            {
+                context.Set<OwnedPerson>().AddRange(
+                    new OwnedPerson
+                    {
+                        PersonAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "USA" }
+                        }
+                    },
+                    new Branch
+                    {
+                        PersonAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "USA" }
+                        },
+                        BranchAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "Canada" }
+                        }
+                    },
+                    new LeafA
+                    {
+                        PersonAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "USA" }
+                        },
+                        BranchAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "Canada" }
+                        },
+                        LeafAAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "Mexico" }
+                        }
+                    },
+                    new LeafB
+                    {
+                        PersonAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "USA" }
+                        },
+                        LeafBAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "Panama" }
+                        }
+                    });
+
+                context.SaveChanges();
+            }
         }
     }
 }

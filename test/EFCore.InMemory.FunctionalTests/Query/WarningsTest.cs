@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+#if !Test20
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+#endif
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
