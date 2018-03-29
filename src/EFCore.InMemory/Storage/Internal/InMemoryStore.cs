@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -50,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool EnsureCreated(IModel model)
+        public virtual bool EnsureCreated(
+            StateManagerDependencies stateManagerDependencies,
+            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             lock (_lock)
             {
@@ -58,6 +61,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 // ReSharper disable once AssignmentIsFullyDiscarded
                 _ = _tables.Value;
+
+                var stateManager = new StateManager(stateManagerDependencies);
+                var entries = new List<IUpdateEntry>();
+                foreach (var entityType in stateManagerDependencies.Model.GetEntityTypes())
+                {
+                    foreach (var targetSeed in entityType.GetData())
+                    {
+                        var entry = stateManager.CreateEntry(targetSeed, entityType);
+                        entry.SetEntityState(EntityState.Added);
+                        entries.Add(entry);
+                    }
+                }
+
+                ExecuteTransaction(entries, updateLogger);
 
                 return returnValue;
             }
@@ -114,15 +131,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int ExecuteTransaction(
-            IEnumerable<IUpdateEntry> entries,
+            IReadOnlyList<IUpdateEntry> entries,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             var rowsAffected = 0;
 
             lock (_lock)
             {
-                foreach (var entry in entries)
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var i = 0; i < entries.Count; i++)
                 {
+                    var entry = entries[i];
                     var entityType = entry.EntityType;
 
                     Debug.Assert(!entityType.IsAbstract());
