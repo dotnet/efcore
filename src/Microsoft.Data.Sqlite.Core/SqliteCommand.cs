@@ -243,9 +243,11 @@ namespace Microsoft.Data.Sqlite
                 return;
             }
 
+            var timer = Stopwatch.StartNew();
+
             try
             {
-                using (var enumerator = PrepareAndEnumerateStatements().GetEnumerator())
+                using (var enumerator = PrepareAndEnumerateStatements(timer).GetEnumerator())
                 {
                     while (enumerator.MoveNext())
                     {
@@ -312,20 +314,17 @@ namespace Microsoft.Data.Sqlite
                         : Resources.TransactionConnectionMismatch);
             }
 
-            // This is not a guarantee. SQLITE_BUSY can still be thrown before the command timeout.
-            // This sets a timeout handler but this can be cleared by concurrent commands.
-            raw.sqlite3_busy_timeout(_connection.Handle, CommandTimeout * 1000);
-
             var hasChanges = false;
             var changes = 0;
             int rc;
             var stmts = new Queue<(sqlite3_stmt, bool)>();
             var unprepared = _preparedStatements.Count == 0;
+            var timer = Stopwatch.StartNew();
 
             try
             {
                 foreach (var stmt in unprepared
-                    ? PrepareAndEnumerateStatements()
+                    ? PrepareAndEnumerateStatements(timer)
                     : _preparedStatements)
                 {
                     var boundParams = 0;
@@ -353,10 +352,7 @@ namespace Microsoft.Data.Sqlite
                         throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
                     }
 
-                    var timer = Stopwatch.StartNew();
-                    while (raw.SQLITE_LOCKED == (rc = raw.sqlite3_step(stmt))
-                           || rc == raw.SQLITE_BUSY
-                           || rc == raw.SQLITE_LOCKED_SHAREDCACHE)
+                    while (IsBusy(rc = raw.sqlite3_step(stmt)))
                     {
                         if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
                         {
@@ -524,16 +520,23 @@ namespace Microsoft.Data.Sqlite
         {
         }
 
-        private IEnumerable<sqlite3_stmt> PrepareAndEnumerateStatements()
+        private IEnumerable<sqlite3_stmt> PrepareAndEnumerateStatements(Stopwatch timer)
         {
+            int rc;
+            sqlite3_stmt stmt;
             var tail = _commandText;
             do
             {
-                var rc = raw.sqlite3_prepare_v2(
-                    _connection.Handle,
-                    tail,
-                    out var stmt,
-                    out tail);
+                while (IsBusy(rc = raw.sqlite3_prepare_v2(_connection.Handle, tail, out stmt, out tail)))
+                {
+                    if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(150);
+                }
+
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
 
                 // Statement was empty, white space, or a comment
@@ -569,5 +572,10 @@ namespace Microsoft.Data.Sqlite
 
             _preparedStatements.Clear();
         }
+
+        private static bool IsBusy(int rc)
+            => rc == raw.SQLITE_LOCKED
+                || rc == raw.SQLITE_BUSY
+                || rc == raw.SQLITE_LOCKED_SHAREDCACHE;
     }
 }
