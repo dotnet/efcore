@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+// ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -47,22 +48,26 @@ namespace Microsoft.EntityFrameworkCore
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
             var store = CreateStore(serviceProvider);
+            var stateManager = CreateContextServices(serviceProvider).GetRequiredService<StateManagerDependencies>().With(model);
 
-            Assert.True(store.EnsureDatabaseCreated(model));
-            Assert.False(store.EnsureDatabaseCreated(model));
-            Assert.False(store.EnsureDatabaseCreated(model));
+            Assert.True(store.EnsureDatabaseCreated(stateManager));
+            Assert.False(store.EnsureDatabaseCreated(stateManager));
+            Assert.False(store.EnsureDatabaseCreated(stateManager));
 
             store = CreateStore(serviceProvider);
 
-            Assert.False(store.EnsureDatabaseCreated(model));
+            Assert.False(store.EnsureDatabaseCreated(stateManager));
         }
 
         private static IInMemoryDatabase CreateStore(IServiceProvider serviceProvider)
+            => CreateContextServices(serviceProvider).GetRequiredService<IInMemoryDatabase>();
+
+        private static IServiceProvider CreateContextServices(IServiceProvider serviceProvider)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase(nameof(InMemoryDatabaseTest));
+            optionsBuilder.UseInMemoryDatabase(nameof(InMemoryDatabaseCreatorTest));
 
-            return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options).GetRequiredService<IInMemoryDatabase>();
+            return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options);
         }
 
         [Fact]

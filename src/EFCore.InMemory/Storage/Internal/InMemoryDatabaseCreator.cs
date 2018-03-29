@@ -4,7 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -16,20 +16,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     /// </summary>
     public class InMemoryDatabaseCreator : IDatabaseCreator
     {
-        private readonly IModel _model;
+        private readonly StateManagerDependencies _stateManagerDependencies;
         private readonly IInMemoryDatabase _database;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public InMemoryDatabaseCreator([NotNull] IInMemoryDatabase database, [NotNull] IModel model)
+        public InMemoryDatabaseCreator([NotNull] StateManagerDependencies stateManagerDependencies, [NotNull] IInMemoryDatabase database)
         {
+            Check.NotNull(stateManagerDependencies, nameof(stateManagerDependencies));
             Check.NotNull(database, nameof(database));
-            Check.NotNull(model, nameof(model));
 
+            _stateManagerDependencies = stateManagerDependencies;
             _database = database;
-            _model = model;
         }
 
         /// <summary>
@@ -50,13 +50,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool EnsureCreated() => _database.EnsureDatabaseCreated(_model);
+        public virtual bool EnsureCreated() => _database.EnsureDatabaseCreated(_stateManagerDependencies);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
-            => Task.FromResult(_database.EnsureDatabaseCreated(_model));
+            => Task.FromResult(_database.EnsureDatabaseCreated(_stateManagerDependencies));
     }
 }
