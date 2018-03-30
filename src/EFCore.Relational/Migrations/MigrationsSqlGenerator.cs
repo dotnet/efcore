@@ -1394,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 keyOrIndex = property.IsKey() || property.IsForeignKey();
             }
 
-            return Dependencies.TypeMappingSource.FindMapping(clrType, keyOrIndex, unicode, maxLength, rowVersion, fixedLength).StoreType;
+            return Dependencies.TypeMappingSource.FindMapping(clrType, null, keyOrIndex, unicode, maxLength, rowVersion, fixedLength).StoreType;
         }
 
         /// <summary>

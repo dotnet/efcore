@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(mapping.Comparer, clone.Comparer);
             Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
-            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.PrecisionAndScale, clone.StoreTypeModifier);
+            Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
 
             var newConverter = new FakeValueConverter();
             clone = (RelationalTypeMapping)mapping.Clone(newConverter);
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(mapping.Comparer, clone.Comparer);
             Assert.Same(mapping.KeyComparer, clone.KeyComparer);
             Assert.Same(typeof(object), clone.ClrType);
-            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.PrecisionAndScale, clone.StoreTypeModifier);
+            Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
         }
 
         [Theory]
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         clrType,
                         size: 33,
                         fixedLength: true,
-                        storeTypeModifier: RelationalTypeMapping.StoreTypeModifierKind.Size)
+                        storeTypePostfix: StoreTypePostfix.Size)
                 },
                 null,
                 null);
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
-            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.Size, clone.StoreTypeModifier);
+            Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
 
             var newConverter = new FakeValueConverter();
             clone = (RelationalTypeMapping)mapping.Clone(newConverter);
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
-            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.Size, clone.StoreTypeModifier);
+            Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
         }
 
         [Theory]
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         size: 33,
                         unicide: false,
                         fixedLength: true,
-                        storeTypeModifier: RelationalTypeMapping.StoreTypeModifierKind.Size)
+                        storeTypePostfix: StoreTypePostfix.Size)
                 },
                 null,
                 null);
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
-            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.Size, clone.StoreTypeModifier);
+            Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
 
             var newConverter = new FakeValueConverter();
             clone = (RelationalTypeMapping)mapping.Clone(newConverter);
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
-            Assert.Equal(RelationalTypeMapping.StoreTypeModifierKind.Size, clone.StoreTypeModifier);
+            Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
         }
 
         private class FakeTypeMapping : RelationalTypeMapping
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 int? size = null,
                 bool unicide = false,
                 bool fixedLength = false,
-                StoreTypeModifierKind storeTypeModifier = StoreTypeModifierKind.PrecisionAndScale)
+                StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
             {
                 return new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         new FakeValueComparer(),
                         new FakeValueComparer()),
                     "<original>",
-                    storeTypeModifier,
+                    storeTypePostfix,
                     System.Data.DbType.VarNumeric,
                     size: size,
                     unicode: unicide,

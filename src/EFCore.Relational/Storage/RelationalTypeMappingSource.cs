@@ -145,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
+        /// <param name="storeTypeName"> The database type name. </param>
         /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
         /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
         /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
@@ -155,7 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public virtual RelationalTypeMapping FindMapping(
             Type type,
-            bool keyOrIndex,
+            string storeTypeName,
+            bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,
             bool? rowVersion = null,
@@ -164,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? scale = null)
             => (RelationalTypeMapping)FindMappingWithConversion(
                 new ConcreteRelationalTypeMappingInfo(
-                    type, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
+                    type, storeTypeName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
 
         RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(IProperty property)
             => (RelationalTypeMapping)FindMapping(property);
@@ -203,15 +205,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             public ConcreteRelationalTypeMappingInfo(
-                [NotNull] Type type,
+                Type type,
+                string storeTypeName,
                 bool keyOrIndex,
-                bool? unicode = null,
-                int? size = null,
-                bool? rowVersion = null,
-                bool? fixedLength = null,
-                int? precision = null,
-                int? scale = null)
-                : base(type, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale)
+                bool? unicode,
+                int? size,
+                bool? rowVersion,
+                bool? fixedLength,
+                int? precision,
+                int? scale)
+                : base(type, storeTypeName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale)
             {
             }
 

@@ -81,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
+        /// <param name="storeTypeName"> The database type name. </param>
         /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
         /// <param name="unicode"> Specifies Unicode or Ansi mapping, or <c>null</c> for default. </param>
         /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
@@ -91,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         RelationalTypeMapping FindMapping(
             [NotNull] Type type,
-            bool keyOrIndex,
+            [CanBeNull] string storeTypeName,
+            bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,
             bool? rowVersion = null,

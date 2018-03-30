@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var mapping = new SqlServerUdtTypeMapping(
                 typeof(object),
                 "storeType",
-                RelationalTypeMapping.StoreTypeModifierKind.None,
+                StoreTypePostfix.None,
                 "udtType",
                 new FakeValueConverter(),
                 new FakeValueComparer(),

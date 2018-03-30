@@ -105,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
+        /// <param name="storeTypeName"> The database type name. </param>
         /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
         /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
         /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
@@ -114,16 +115,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
         protected RelationalTypeMappingInfo(
             [NotNull] Type type,
+            [CanBeNull] string storeTypeName,
             bool keyOrIndex,
-            bool? unicode = null,
-            int? size = null,
-            bool? rowVersion = null,
-            bool? fixedLength = null,
-            int? precision = null,
-            int? scale = null)
+            bool? unicode,
+            int? size,
+            bool? rowVersion,
+            bool? fixedLength,
+            int? precision,
+            int? scale)
             : base(type, keyOrIndex, unicode, size, rowVersion, precision, scale)
         {
             IsFixedLength = fixedLength;
+            StoreTypeName = storeTypeName;
+            StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
         }
 
         private static string ParseStoreTypeName(
@@ -170,6 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             else if (int.TryParse(sizeString, out var parsedSize))
                             {
                                 size = parsedSize;
+                                precision = parsedSize;
                             }
                         }
 

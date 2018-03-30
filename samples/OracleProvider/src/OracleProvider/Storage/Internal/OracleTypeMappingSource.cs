@@ -217,22 +217,22 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
                     var baseName = (isAnsi ? "" : "N") + (isFixedLength ? "CHAR" : "VARCHAR2");
                     var unboundedName = isAnsi ? "CLOB" : "NCLOB";
                     var maxSize = isAnsi ? 4000 : 2000;
-                    var storeTypeModifier = (RelationalTypeMapping.StoreTypeModifierKind?)null;
+                    var storeTypePostfix = (StoreTypePostfix?)null;
 
                     var size = (int?)(mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (isAnsi ? 900 : 450) : maxSize));
                     if (size > maxSize)
                     {
                         size = null;
-                        storeTypeModifier = RelationalTypeMapping.StoreTypeModifierKind.None;
+                        storeTypePostfix = StoreTypePostfix.None;
                     }
 
                     return new OracleStringTypeMapping(
-                        storeTypeModifier == RelationalTypeMapping.StoreTypeModifierKind.None ? unboundedName : baseName + "(" + size + ")",
+                        storeTypePostfix == StoreTypePostfix.None ? unboundedName : baseName + "(" + size + ")",
                         isAnsi ? DbType.AnsiString : (DbType?)null,
                         !isAnsi,
                         size,
                         isFixedLength,
-                        storeTypeModifier);
+                        storeTypePostfix);
                 }
 
                 if (clrType == typeof(byte[]))
@@ -243,18 +243,18 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
                     }
 
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
-                    var storeTypeModifier = (RelationalTypeMapping.StoreTypeModifierKind?)null;
+                    var storeTypePostfix = (StoreTypePostfix?)null;
                     if (size > 2000)
                     {
                         size = null;
-                        storeTypeModifier = RelationalTypeMapping.StoreTypeModifierKind.None;
+                        storeTypePostfix = StoreTypePostfix.None;
                     }
 
                     return new OracleByteArrayTypeMapping(
                         (size == -1 || size == null) ? "BLOB" : "RAW(" + size + ")",
                         DbType.Binary,
                         size,
-                        storeTypeModifier: storeTypeModifier);
+                        storeTypePostfix: storeTypePostfix);
                 }
             }
 

@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     new RelationalTypeMappingParameters(
                         new CoreTypeMappingParameters(typeof(string)),
                         storeType,
-                        StoreTypeModifierKind.None,
+                        StoreTypePostfix.None,
                         dbType,
                         unicode,
                         size,

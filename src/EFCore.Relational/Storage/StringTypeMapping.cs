@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
-                        typeof(string)), storeType, StoreTypeModifierKind.None, dbType, unicode, size))
+                        typeof(string)), storeType, StoreTypePostfix.None, dbType, unicode, size))
         {
         }
 

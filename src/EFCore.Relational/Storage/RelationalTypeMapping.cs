@@ -26,27 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public abstract class RelationalTypeMapping : CoreTypeMapping
     {
         /// <summary>
-        ///     Indicates which values should be appended to the store type name.
-        /// </summary>
-        public enum StoreTypeModifierKind
-        {
-            /// <summary>
-            ///     Append nothing.
-            /// </summary>
-            None,
-
-            /// <summary>
-            ///     Append only the size.
-            /// </summary>
-            Size,
-
-            /// <summary>
-            ///     Append the precision and scale.
-            /// </summary>
-            PrecisionAndScale
-        }
-
-        /// <summary>
         ///     Parameter object for use in the <see cref="RelationalTypeMapping" /> hierarchy.
         /// </summary>
         protected readonly struct RelationalTypeMappingParameters
@@ -56,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// </summary>
             /// <param name="coreParameters"> Parameters for the <see cref="CoreTypeMapping"/> base class. </param>
             /// <param name="storeType"> The name of the database type. </param>
-            /// <param name="storeTypeModifier"> Indicates which values should be appended to the store type name. </param>
+            /// <param name="storeTypePostfix"> Indicates which values should be appended to the store type name. </param>
             /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
             /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
             /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
@@ -66,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public RelationalTypeMappingParameters(
                 CoreTypeMappingParameters coreParameters,
                 [NotNull] string storeType,
-                StoreTypeModifierKind storeTypeModifier = StoreTypeModifierKind.None,
+                StoreTypePostfix storeTypePostfix = StoreTypePostfix.None,
                 DbType? dbType = null,
                 bool unicode = false,
                 int? size = null,
@@ -78,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 CoreParameters = coreParameters;
                 StoreType = storeType;
-                StoreTypeModifier = storeTypeModifier;
+                StoreTypePostfix = storeTypePostfix;
                 DbType = dbType;
                 Unicode = unicode;
                 Size = size;
@@ -130,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     Indicates which values should be appended to the store type name.
             /// </summary>
-            public StoreTypeModifierKind StoreTypeModifier { get; }
+            public StoreTypePostfix StoreTypePostfix { get; }
 
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
@@ -138,16 +117,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// </summary>
             /// <param name="storeType"> The new store type name. </param>
             /// <param name="size"> The new size. </param>
-            /// <param name="storeTypeModifier"> The new modifier, or null to leave unchanged. </param>
+            /// <param name="storeTypePostfix"> The new postfix, or null to leave unchanged. </param>
             /// <returns> The new parameter object. </returns>
             public RelationalTypeMappingParameters WithStoreTypeAndSize(
                 [NotNull] string storeType,
                 int? size,
-                StoreTypeModifierKind? storeTypeModifier = null)
+                StoreTypePostfix? storeTypePostfix = null)
                 => new RelationalTypeMappingParameters(
                     CoreParameters,
                     storeType,
-                    storeTypeModifier ?? StoreTypeModifier,
+                    storeTypePostfix ?? StoreTypePostfix,
                     DbType,
                     Unicode,
                     size,
@@ -165,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 => new RelationalTypeMappingParameters(
                     CoreParameters.WithComposedConverter(converter),
                     StoreType,
-                    StoreTypeModifier,
+                    StoreTypePostfix,
                     DbType,
                     Unicode,
                     Size,
@@ -232,19 +211,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (storeType != null)
             {
                 if (size != null
-                    && parameters.StoreTypeModifier == StoreTypeModifierKind.Size)
+                    && parameters.StoreTypePostfix == StoreTypePostfix.Size)
                 {
                     storeType = GetBaseName(storeType) + "(" + size + ")";
                 }
-                else if (parameters.StoreTypeModifier == StoreTypeModifierKind.PrecisionAndScale)
+                else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
+                         || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
                 {
                     var precision = converter?.MappingHints?.Precision;
-                    var scale = converter?.MappingHints?.Scale;
 
-                    if (precision != null
-                        && scale != null)
+                    if (precision != null)
                     {
-                        storeType = GetBaseName(storeType) + "(" + precision + "," + scale + ")";
+                        var scale = converter?.MappingHints?.Scale;
+
+                        storeType = GetBaseName(storeType)
+                                    + "("
+                                    + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
+                                        ? precision.ToString()
+                                        : precision + "," + scale)
+                                    + ")";
                     }
                 }
             }
@@ -279,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? size = null)
             : this(
                 new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(clrType), storeType, StoreTypeModifierKind.None, dbType, unicode, size))
+                    new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
         {
         }
 
@@ -306,9 +291,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => throw new NotImplementedException(CoreStrings.ConverterCloneNotImplemented(GetType().ShortDisplayName()));
 
         /// <summary>
+        ///     Clones the type mapping to update the name and size from the mapping info, if needed.
+        /// </summary>
+        /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
+        /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
+        public virtual RelationalTypeMapping Clone(
+            [NotNull] RelationalTypeMappingInfo mappingInfo)
+        {
+            Check.NotNull(mappingInfo, nameof(mappingInfo));
+
+            return (mappingInfo.Size != null
+                    && mappingInfo.Size != Size)
+                   || (mappingInfo.StoreTypeName != null
+                       && !string.Equals(mappingInfo.StoreTypeName, StoreType, StringComparison.Ordinal))
+                ? Clone(
+                    mappingInfo.StoreTypeName ?? StoreType,
+                    mappingInfo.Size ?? Size)
+                : this;
+        }
+
+        /// <summary>
         ///     Gets the name of the database type.
         /// </summary>
-        public virtual StoreTypeModifierKind StoreTypeModifier => Parameters.StoreTypeModifier;
+        public virtual StoreTypePostfix StoreTypePostfix => Parameters.StoreTypePostfix;
 
         /// <summary>
         ///     Gets the name of the database type.
