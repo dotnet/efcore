@@ -293,19 +293,19 @@ FROM (
                 //
                 @"@_outer_ReportsTo='2' (Nullable = true)
 
-SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]
-WHERE [e2].[EmployeeID] = @_outer_ReportsTo",
+SELECT TOP(2) [e20].[EmployeeID]
+FROM [Employees] AS [e20]
+WHERE [e20].[EmployeeID] = @_outer_ReportsTo",
                 //
-                @"SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]
-WHERE [e2].[EmployeeID] IS NULL",
+                @"SELECT TOP(2) [e20].[EmployeeID]
+FROM [Employees] AS [e20]
+WHERE [e20].[EmployeeID] IS NULL",
                 //
                 @"@_outer_ReportsTo='2' (Nullable = true)
 
-SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]
-WHERE [e2].[EmployeeID] = @_outer_ReportsTo");
+SELECT TOP(2) [e20].[EmployeeID]
+FROM [Employees] AS [e20]
+WHERE [e20].[EmployeeID] = @_outer_ReportsTo");
         }
 
         public override void Where_query_composition_is_not_null()
@@ -324,19 +324,19 @@ FROM (
                 //
                 @"@_outer_ReportsTo='2' (Nullable = true)
 
-SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]
-WHERE [e2].[EmployeeID] = @_outer_ReportsTo",
+SELECT TOP(2) [e20].[EmployeeID]
+FROM [Employees] AS [e20]
+WHERE [e20].[EmployeeID] = @_outer_ReportsTo",
                 //
-                @"SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]
-WHERE [e2].[EmployeeID] IS NULL",
+                @"SELECT TOP(2) [e20].[EmployeeID]
+FROM [Employees] AS [e20]
+WHERE [e20].[EmployeeID] IS NULL",
                 //
                 @"@_outer_ReportsTo='2' (Nullable = true)
 
-SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]
-WHERE [e2].[EmployeeID] = @_outer_ReportsTo");
+SELECT TOP(2) [e20].[EmployeeID]
+FROM [Employees] AS [e20]
+WHERE [e20].[EmployeeID] = @_outer_ReportsTo");
         }
 
         public override void Where_query_composition_entity_equality_one_element_SingleOrDefault()
@@ -4143,10 +4143,10 @@ ORDER BY [Id1]");
             base.Comparing_different_entity_types_using_Equals();
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]
-WHERE ([c].[CustomerID] = N' ALFKI') AND ([o].[CustomerID] = N'ALFKI')");
+WHERE 0 = 1");
         }
 
         public override void Comparing_entity_to_null_using_Equals()
@@ -4154,9 +4154,9 @@ WHERE ([c].[CustomerID] = N' ALFKI') AND ([o].[CustomerID] = N'ALFKI')");
             base.Comparing_entity_to_null_using_Equals();
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE ([c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')) AND [c].[CustomerID] IS NOT NULL
 ORDER BY [c].[CustomerID]");
         }
 
@@ -4189,10 +4189,10 @@ ORDER BY [Id1], [Id2]");
             base.Comparing_non_matching_entities_using_Equals();
 
             AssertSql(
-                @"SELECT [c].[CustomerID] AS [Id1], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID] AS [Id2], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [c].[CustomerID] AS [Id1], [o].[OrderID] AS [Id2]
 FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE 0 = 1");
         }
 
         public override void Comparing_non_matching_collection_navigations_using_Equals()
@@ -4410,6 +4410,20 @@ ORDER BY (SELECT 1)");
     @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY (SELECT 1)");
+        }
+
+        public override void Manual_expression_tree_typed_null_equality()
+        {
+            base.Manual_expression_tree_typed_null_equality();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [o].[CustomerID] IS NULL
+    THEN [o.Customer].[City] ELSE NULL
+END
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[OrderID] < 10300");
         }
 
         private void AssertSql(params string[] expected)

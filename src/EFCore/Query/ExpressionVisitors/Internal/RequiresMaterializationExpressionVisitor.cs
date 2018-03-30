@@ -196,53 +196,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitBinary(BinaryExpression node)
-            => node.Update(
-                VisitBinaryOperand(node.Left, node.NodeType),
-                node.Conversion,
-                VisitBinaryOperand(node.Right, node.NodeType));
-
-        private Expression VisitBinaryOperand(Expression operand, ExpressionType comparison)
-        {
-            if (comparison == ExpressionType.Equal
-                || comparison == ExpressionType.NotEqual)
-            {
-                var isEntityTypeExpression = _model.FindEntityType(operand.Type) != null
-                                             || _model.HasEntityTypeWithDefiningNavigation(operand.Type);
-
-                if (isEntityTypeExpression)
-                {
-                    // An equality comparison of query source reference expressions
-                    // that reference an entity query source does not suggest that
-                    // materialization of that entity type may be required. This is true
-                    // whether in a join predicate, where predicate, selector, etc.
-                    // because it is rewritten into a key equality comparison.
-                    if (operand is QuerySourceReferenceExpression)
-                    {
-                        return operand;
-                    }
-
-                    // Same as above, key comparison, except coming from a subquery
-                    if (operand is SubQueryExpression subQueryExpression)
-                    {
-                        _queryModelStack.Push(subQueryExpression.QueryModel);
-
-                        subQueryExpression.QueryModel.TransformExpressions(Visit);
-
-                        _queryModelStack.Pop();
-
-                        return operand;
-                    }
-                }
-            }
-
-            return Visit(operand);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             if (!IsGroupByAggregateSubQuery(expression.QueryModel))

@@ -1436,5 +1436,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (os, cs) => os.Where(o => cs.Any(c => c.Orders.Contains(o))),
                 entryCount: 830);
         }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_FirstOrDefault_is_null()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_FirstOrDefault_compared_to_entity()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10243 }));
+        }
     }
 }

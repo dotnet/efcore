@@ -1568,5 +1568,35 @@ WHERE EXISTS (
         WHERE [c].[CustomerID] = [o0].[CustomerID]
     ))");
         }
+
+        public override void Where_subquery_FirstOrDefault_is_null()
+        {
+            base.Where_subquery_FirstOrDefault_is_null();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+) IS NULL");
+        }
+
+        public override void Where_subquery_FirstOrDefault_compared_to_entity()
+        {
+            base.Where_subquery_FirstOrDefault_compared_to_entity();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+) = 10243");
+        }
     }
 }

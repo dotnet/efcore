@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { ExpressionType.Add, " + " },
             { ExpressionType.Subtract, " - " },
             { ExpressionType.Multiply, " * " },
-            { ExpressionType.Divide, " * " },
+            { ExpressionType.Divide, " / " },
             { ExpressionType.Modulo, " % " },
             { ExpressionType.And, " & " },
             { ExpressionType.Or, " | " }
