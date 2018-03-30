@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -26,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="T"> The type. </typeparam>
-    public class ValueComparer<T> : ValueComparer
+    public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
     {
-        private Func<object, object, bool> _equals;
-        private Func<object, int> _hashCode;
-        private Func<object, object> _snapshotFunc;
+        private Func<T, T, bool> _equals;
+        private Func<T, int> _hashCode;
+        private Func<T, T> _snapshot;
 
         /// <summary>
         ///     Creates a new <see cref="ValueComparer{T}" /> with a default comparison
@@ -187,43 +188,51 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return Expression.Lambda<Func<T, int>>(expression, param);
         }
 
-        /// <summary>
-        ///     The comparison expression compiled into an untyped delegate.
-        /// </summary>
-        public override Func<object, object, bool> Equals
-            => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _equals, this, c => HandleNulls(c.EqualsExpression));
 
         /// <summary>
-        ///     The hash code expression compiled into an untyped delegate.
+        ///     Compares the two instances to determine if they are equal.
         /// </summary>
-        public override Func<object, int> HashCode
+        /// <param name="left"> The first instance. </param>
+        /// <param name="right"> The second instance. </param>
+        /// <returns> <c>True</c> if they are equal; <c>false</c> otherwise. </returns>
+        public override bool Equals(object left, object right)
+        {
+            var v1Null = left == null;
+            var v2Null = right == null;
+
+            return v1Null || v2Null ? v1Null && v2Null : Equals((T)left, (T)right);
+        }
+
+        /// <summary>
+        ///     Returns the hash code for the given instance.
+        /// </summary>
+        /// <param name="instance"> The instance. </param>
+        /// <returns> The hash code. </returns>
+        public override int GetHashCode(object instance)
+            => instance == null ? 0 : GetHashCode((T)instance);
+
+        /// <summary>
+        ///     Compares the two instances to determine if they are equal.
+        /// </summary>
+        /// <param name="left"> The first instance. </param>
+        /// <param name="right"> The second instance. </param>
+        /// <returns> <c>True</c> if they are equal; <c>false</c> otherwise. </returns>
+        public virtual bool Equals(T left, T right)
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _hashCode, this, c => HandleNulls(c.HashCodeExpression));
+                ref _equals, this, c => c.EqualsExpression.Compile())(left, right);
 
-        private static Func<object, object, bool> HandleNulls(Expression<Func<T, T, bool>> expression)
-        {
-            var compiled = expression.Compile();
-
-            return (v1, v2) =>
-            {
-                var v1Null = v1 == null;
-                var v2Null = v2 == null;
-
-                return v1Null || v2Null ? v1Null && v2Null : compiled((T)v1, (T)v2);
-            };
-        }
-
-        private static Func<object, int> HandleNulls(Expression<Func<T, int>> expression)
-        {
-            var compiled = expression.Compile();
-
-            return v => v == null ? 0 : compiled((T)v);
-        }
+        /// <summary>
+        ///     Returns the hash code for the given instance.
+        /// </summary>
+        /// <param name="instance"> The instance. </param>
+        /// <returns> The hash code. </returns>
+        public virtual int GetHashCode(T instance)
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _hashCode, this, c => c.HashCodeExpression.Compile())(instance);
 
         /// <summary>
         ///     <para>
-        ///         The snapshot expression compiled into an untyped delegate.
+        ///         Creates a snapshot of the given instance.
         ///     </para>
         ///     <para>
         ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
@@ -232,9 +241,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         reference.
         ///     </para>
         /// </summary>
-        public override Func<object, object> Snapshot
+        /// <param name="instance"> The instance. </param>
+        /// <returns> The snapshot. </returns>
+        public override object Snapshot(object instance)
+            => Snapshot((T)instance);
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a snapshot of the given instance.
+        ///     </para>
+        ///     <para>
+        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
+        ///         later be compared to determine if it has changed. For some types, such as collections,
+        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
+        ///         reference.
+        ///     </para>
+        /// </summary>
+        /// <param name="instance"> The instance. </param>
+        /// <returns> The snapshot. </returns>
+        public virtual T Snapshot([CanBeNull] T instance)
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _snapshotFunc, this, c => Compile(c.SnapshotExpression));
+                ref _snapshot, this, c => c.SnapshotExpression.Compile())(instance);
 
         /// <summary>
         ///     The type.
@@ -267,11 +294,5 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual Expression<Func<T, T>> SnapshotExpression
             => (Expression<Func<T, T>>)base.SnapshotExpression;
 
-        private static Func<object, object> Compile(Expression<Func<T, T>> snapshotExpression)
-        {
-            var compiled = snapshotExpression.Compile();
-
-            return v => compiled((T)v);
-        }
     }
 }

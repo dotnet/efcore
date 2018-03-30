@@ -10,19 +10,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     /// <summary>
     ///     Generates provider-specific code fragments.
     /// </summary>
-    public abstract class ProviderConfigurationCodeGenerator : IProviderConfigurationCodeGenerator
+    public abstract class ProviderCodeGenerator : IProviderConfigurationCodeGenerator
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ProviderConfigurationCodeGenerator" /> class.
+        ///     Initializes a new instance of the <see cref="ProviderCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        protected ProviderConfigurationCodeGenerator([NotNull] ProviderConfigurationCodeGeneratorDependencies dependencies)
+        protected ProviderCodeGenerator([NotNull] ProviderCodeGeneratorDependencies dependencies)
             => Dependencies = Check.NotNull(dependencies, nameof(dependencies));
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.
         /// </summary>
-        protected virtual ProviderConfigurationCodeGeneratorDependencies Dependencies { get; }
+        protected virtual ProviderCodeGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Generates a code fragment like <c>.UseSqlServer("Database=Foo")</c> which can be used in

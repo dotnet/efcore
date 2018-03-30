@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
-                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderConfigurationCodeGenerator>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
                 .BuildServiceProvider()
                 .GetRequiredService<IReverseEngineerScaffolder>();
