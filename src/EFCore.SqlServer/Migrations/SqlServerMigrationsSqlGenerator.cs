@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -388,6 +389,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Builds commands for the given <see cref="RestartSequenceOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(
+            RestartSequenceOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER SEQUENCE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
+                .Append(" RESTART WITH ")
+                .Append(IntegerConstant(operation.StartValue))
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            EndStatement(builder);
+        }
+
+        /// <summary>
         ///     Builds commands for the given <see cref="CreateTableOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
@@ -596,6 +622,45 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(")")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand();
+        }
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="CreateSequenceOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(
+            CreateSequenceOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("CREATE SEQUENCE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
+
+            if (operation.ClrType != typeof(long))
+            {
+                var typeMapping = Dependencies.TypeMappingSource.GetMapping(operation.ClrType);
+
+                builder
+                    .Append(" AS ")
+                    .Append(typeMapping.StoreType);
+            }
+
+            builder
+                .Append(" START WITH ")
+                .Append(IntegerConstant(operation.StartValue));
+
+            SequenceOptions(operation, model, builder);
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            EndStatement(builder);
         }
 
         /// <summary>
@@ -1080,6 +1145,61 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(on ? " ON" : " OFF")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment configuring a sequence with the given options.
+        /// </summary>
+        /// <param name="schema"> The schema that contains the sequence, or <c>null</c> to use the default schema. </param>
+        /// <param name="name"> The sequence name. </param>
+        /// <param name="increment"> The amount to increment by to generate the next value in the sequence. </param>
+        /// <param name="minimumValue"> The minimum value supported by the sequence, or <c>null</c> if none was specified. </param>
+        /// <param name="maximumValue"> The maximum value supported by the sequence, or <c>null</c> if none was specified. </param>
+        /// <param name="cycle"> Indicates whether or not the sequence will start again once the maximum value is reached. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void SequenceOptions(
+            string schema,
+            string name,
+            int increment,
+            long? minimumValue,
+            long? maximumValue,
+            bool cycle,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(increment, nameof(increment));
+            Check.NotNull(cycle, nameof(cycle));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(" INCREMENT BY ")
+                .Append(IntegerConstant(increment));
+
+            if (minimumValue.HasValue)
+            {
+                builder
+                    .Append(" MINVALUE ")
+                    .Append(IntegerConstant(minimumValue.Value));
+            }
+            else
+            {
+                builder.Append(" NO MINVALUE");
+            }
+
+            if (maximumValue.HasValue)
+            {
+                builder
+                    .Append(" MAXVALUE ")
+                    .Append(IntegerConstant(maximumValue.Value));
+            }
+            else
+            {
+                builder.Append(" NO MAXVALUE");
+            }
+
+            builder.Append(cycle ? " CYCLE" : " NO CYCLE");
         }
 
         /// <summary>
@@ -1596,6 +1716,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }
+
+        private string IntegerConstant(long value)
+            => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
         private bool IsMemoryOptimized(Annotatable annotatable, IModel model, string schema, string tableName)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
