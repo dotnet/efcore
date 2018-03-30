@@ -2425,7 +2425,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogRedundantIndexRemoved")));
 
         /// <summary>
-        ///     The best match for foreign key properties {foreignKey} are incompatible with the principal key {principalKey}.
+        ///     The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
         public static readonly EventDefinition<string, string> LogIncompatibleMatchingForeignKeyProperties
             = new EventDefinition<string, string>(
@@ -2451,7 +2451,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogRequiredAttributeOnDependent")));
 
         /// <summary>
-        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored bacause there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'.
+        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.
         /// </summary>
         public static readonly EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations
             = new EventDefinition<string, string, string, string>(
@@ -2529,7 +2529,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogConflictingShadowForeignKeys")));
 
         /// <summary>
-        ///     Relationship from '{firstEntityType}' to '{secondEntityType}' not configured because there are multiple properties on one entity type {navigationProperties} that could be matched with the properties on the other entity type {inverseNavigations}.
+        ///     No relationship from '{firstEntityType}' to '{secondEntityType}' has been configured by convention because there are multiple properties on one entity type {navigationProperties} that could be matched with the properties on the other entity type {inverseNavigations}. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
         public static readonly EventDefinition<string, string, string, string> LogMultipleNavigationProperties
             = new EventDefinition<string, string, string, string>(
@@ -2542,7 +2542,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogMultipleNavigationProperties")));
 
         /// <summary>
-        ///     Primary key not configured as both properties '{firstProperty}' and '{secondProperty}' could be used as the primary key for the entity type '{entityType}'.
+        ///     Primary key hasn't been configured by convention as both properties '{firstProperty}' and '{secondProperty}' could be used as the primary key for the entity type '{entityType}'. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
         public static readonly EventDefinition<string, string, string> LogMultiplePrimaryKeyCandidates
             = new EventDefinition<string, string, string>(
