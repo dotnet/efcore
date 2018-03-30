@@ -551,6 +551,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Fact]
+        public virtual void Byte_enum_value_constant_used_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Kiwi>().Select(k => k.IsFlightless ? Island.North : Island.South);
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal(Island.North, result[0]);
+            }
+        }
+
         protected InheritanceContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

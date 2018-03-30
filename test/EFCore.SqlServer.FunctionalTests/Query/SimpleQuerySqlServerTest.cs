@@ -380,7 +380,7 @@ WHERE (
     SELECT TOP(1) [e2].[EmployeeID]
     FROM [Employees] AS [e2]
     WHERE [e2].[EmployeeID] = [e1].[ReportsTo]
-) = 0");
+) = CAST(0 AS bigint)");
         }
 
         public override void Where_query_composition_entity_equality_no_elements_SingleOrDefault()
@@ -420,7 +420,7 @@ WHERE (
     SELECT TOP(1) [e2].[EmployeeID]
     FROM [Employees] AS [e2]
     WHERE [e2].[EmployeeID] = 42
-) = 0");
+) = CAST(0 AS bigint)");
         }
 
         public override void Where_query_composition_entity_equality_multiple_elements_FirstOrDefault()
@@ -434,7 +434,7 @@ WHERE (
     SELECT TOP(1) [e2].[EmployeeID]
     FROM [Employees] AS [e2]
     WHERE ([e2].[EmployeeID] <> [e1].[ReportsTo]) OR [e1].[ReportsTo] IS NULL
-) = 0");
+) = CAST(0 AS bigint)");
         }
 
         public override void Where_query_composition2()
@@ -770,7 +770,7 @@ ORDER BY [e].[EmployeeID] - [e].[EmployeeID]");
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 ORDER BY CASE
-    WHEN [p].[UnitsInStock] > 0
+    WHEN [p].[UnitsInStock] > CAST(0 AS smallint)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END, [p].[ProductID]");
         }
@@ -783,7 +783,7 @@ END, [p].[ProductID]");
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 ORDER BY CASE
-    WHEN (([p].[UnitsInStock] > 10) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= 10) AND ([p].[ProductID] <= 40))
+    WHEN (([p].[UnitsInStock] > CAST(10 AS smallint)) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= CAST(10 AS smallint)) AND ([p].[ProductID] <= 40))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END, [p].[ProductID]");
         }
@@ -2367,7 +2367,7 @@ WHERE N'Chai' IN (
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE 5 IN (
+WHERE CAST(5 AS smallint) IN (
     SELECT [o].[Quantity]
     FROM [Order Details] AS [o]
     WHERE [o].[ProductID] = [p].[ProductID]

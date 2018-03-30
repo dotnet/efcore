@@ -322,7 +322,7 @@ ORDER BY [t].[Name], [t].[Id]");
             AssertSql(
                 @"SELECT [x].[Species], [x].[CountryId], [x].[Discriminator], [x].[Name], [x].[EagleId], [x].[IsFlightless], [x].[FoundOn]
 FROM [Animal] AS [x]
-WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = 0)");
+WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = CAST(0 AS tinyint))");
         }
 
         public override void Can_use_of_type_kiwi_where_south_on_derived_property()
@@ -332,7 +332,7 @@ WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = 0)");
             AssertSql(
                 @"SELECT [x].[Species], [x].[CountryId], [x].[Discriminator], [x].[Name], [x].[EagleId], [x].[IsFlightless], [x].[FoundOn]
 FROM [Animal] AS [x]
-WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = 1)");
+WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = CAST(1 AS tinyint))");
         }
 
         public override void Discriminator_used_when_projection_over_derived_type()
@@ -412,6 +412,19 @@ SELECT @@ROWCOUNT;",
                 @"SELECT COUNT(*)
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')");
+        }
+
+        public override void Byte_enum_value_constant_used_in_projection()
+        {
+            base.Byte_enum_value_constant_used_in_projection();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [k].[IsFlightless] = 1
+    THEN CAST(0 AS tinyint) ELSE CAST(1 AS tinyint)
+END
+FROM [Animal] AS [k]
+WHERE [k].[Discriminator] = N'Kiwi'");
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
