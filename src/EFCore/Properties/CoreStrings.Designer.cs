@@ -1391,6 +1391,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("HiLoBadBlockSize");
 
         /// <summary>
+        ///     Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explict values instead.
+        /// </summary>
+        public static string ValueGenWithConversion([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object converter)
+            => string.Format(
+                GetString("ValueGenWithConversion", nameof(entityType), nameof(property), nameof(converter)),
+                entityType, property, converter);
+
+        /// <summary>
         ///     The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references entity type '{principalEntityType}' that it is in the same hierarchy as the entity type that it is declared on '{dependentEntityType}'.
         /// </summary>
         public static string IntraHierarchicalAmbiguousTargetEntityType([CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object principalEntityType, [CanBeNull] object dependentEntityType)

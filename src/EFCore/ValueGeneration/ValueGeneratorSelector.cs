@@ -57,7 +57,35 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            return Cache.GetOrAdd(property, entityType, (p, e) => property.GetValueGeneratorFactory()?.Invoke(p, e) ?? Create(p, e));
+            return Cache.GetOrAdd(property, entityType, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
+        }
+
+        private static ValueGenerator CreateFromFactory(IProperty property, IEntityType entityType)
+        {
+            var factory = property.GetValueGeneratorFactory();
+
+            if (factory == null)
+            {
+                var mapping = property.FindMapping();
+                factory = mapping?.ValueGeneratorFactory;
+
+                if (factory == null)
+                {
+                    var converter = mapping?.Converter
+                                    ?? property.GetValueConverter();
+
+                    if (converter != null)
+                    {
+                        throw new NotSupportedException(
+                            CoreStrings.ValueGenWithConversion(
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                converter.GetType().ShortDisplayName()));
+                    }
+                }
+            }
+
+            return factory?.Invoke(property, entityType);
         }
 
         /// <summary>

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -20,6 +21,54 @@ namespace Microsoft.EntityFrameworkCore
         protected StoreGeneratedTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
+
+        [Fact]
+        public virtual void Value_generation_throws_for_common_cases()
+        {
+            ValueGenerationNegative<int, IntToString, NumberToStringConverter<int>>();
+            ValueGenerationNegative<short, ShortToBytes, NumberToBytesConverter<short>>();
+        }
+
+        private void ValueGenerationNegative<TKey, TEntity, TConverter>()
+            where TEntity : WithConverter<TKey>, new()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.ValueGenWithConversion(
+                        typeof(TEntity).ShortDisplayName(),
+                        nameof(WithConverter<int>.Id),
+                        typeof(TConverter).ShortDisplayName()),
+                    Assert.Throws<NotSupportedException>(() => context.Add(new TEntity())).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Value_generation_works_for_common_GUID_conversions()
+        {
+            ValueGenerationPositive<Guid, GuidToString>();
+            ValueGenerationPositive<Guid, GuidToBytes>();
+        }
+
+        private void ValueGenerationPositive<TKey, TEntity>()
+            where TEntity : WithConverter<TKey>, new()
+        {
+            TKey id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new TEntity()).Entity;
+
+                context.SaveChanges();
+
+                id = entity.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(id, context.Set<TEntity>().Single(e => e.Id.Equals(id)).Id);
+            }
+        }
 
         [Theory]
         [InlineData(nameof(Anais.NeverThrowBeforeUseAfter))]
@@ -1169,6 +1218,27 @@ namespace Microsoft.EntityFrameworkCore
             public string OnUpdateThrowBeforeThrowAfter { get; set; }
         }
 
+        protected class WithConverter<TKey>
+        {
+            public TKey Id { get; set; }
+        }
+
+        protected class IntToString : WithConverter<int>
+        {
+        }
+
+        protected class GuidToString: WithConverter<Guid>
+        {
+        }
+
+        protected class GuidToBytes: WithConverter<Guid>
+        {
+        }
+
+        protected class ShortToBytes: WithConverter<short>
+        {
+        }
+
         protected virtual void ExecuteWithStrategyInTransaction(
             Action<DbContext> testOperation,
             Action<DbContext> nestedTestOperation1 = null,
@@ -1189,6 +1259,11 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
+                modelBuilder.Entity<IntToString>().Property(e => e.Id).HasConversion<string>();
+                modelBuilder.Entity<GuidToString>().Property(e => e.Id).HasConversion<string>();
+                modelBuilder.Entity<GuidToBytes>().Property(e => e.Id).HasConversion<byte[]>();
+                modelBuilder.Entity<ShortToBytes>().Property(e => e.Id).HasConversion<byte[]>();
+
                 modelBuilder.Entity<Gumball>(
                     b =>
                         {

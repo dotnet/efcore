@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -157,13 +158,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelStrategy = Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy;
 
             if (modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
-                && IsCompatibleSequenceHiLo(Property.ClrType))
+                && IsCompatibleSequenceHiLo(Property))
             {
                 return SqlServerValueGenerationStrategy.SequenceHiLo;
             }
 
             if (modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
-                && IsCompatibleIdentityColumn(Property.ClrType))
+                && IsCompatibleIdentityColumn(Property))
             {
                 return SqlServerValueGenerationStrategy.IdentityColumn;
             }
@@ -183,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var propertyType = Property.ClrType;
 
                 if (value == SqlServerValueGenerationStrategy.IdentityColumn
-                    && !IsCompatibleIdentityColumn(propertyType))
+                    && !IsCompatibleIdentityColumn(Property))
                 {
                     if (ShouldThrowOnInvalidConfiguration)
                     {
@@ -196,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
 
                 if (value == SqlServerValueGenerationStrategy.SequenceHiLo
-                    && !IsCompatibleSequenceHiLo(propertyType))
+                    && !IsCompatibleSequenceHiLo(Property))
                 {
                     if (ShouldThrowOnInvalidConfiguration)
                     {
@@ -249,11 +250,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration(nameof(ValueGenerationStrategy), Property.Name, nameof(DefaultValue)));
                 }
+
                 if (GetDefaultValueSql(false) != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration(nameof(ValueGenerationStrategy), Property.Name, nameof(DefaultValueSql)));
                 }
+
                 if (GetComputedColumnSql(false) != null)
                 {
                     throw new InvalidOperationException(
@@ -413,9 +416,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             base.ClearAllServerGeneratedValues();
         }
 
-        private static bool IsCompatibleIdentityColumn(Type type)
-            => type.IsInteger() || type == typeof(decimal);
+        private static bool IsCompatibleIdentityColumn(IProperty property)
+        {
+            var type = property.ClrType;
 
-        private static bool IsCompatibleSequenceHiLo(Type type) => type.IsInteger();
+            return (type.IsInteger() || type == typeof(decimal)) && !HasConverter(property);
+        }
+
+        private static bool IsCompatibleSequenceHiLo(IProperty property)
+            => property.ClrType.IsInteger() && !HasConverter(property);
+
+        private static bool HasConverter(IProperty property)
+            => (property.FindMapping()?.Converter
+                ?? property.GetValueConverter()) != null;
     }
 }
