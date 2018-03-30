@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
                     v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
                     v => v == null ? null : v.ToArray()),
-                storeTypeModifier: RelationalTypeMapping.StoreTypeModifierKind.None);
+                storeTypePostfix: StoreTypePostfix.None);
 
         private readonly IntTypeMapping _int
             = new IntTypeMapping("int", DbType.Int32);

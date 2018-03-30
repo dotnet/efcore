@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         public SqlServerUdtTypeMapping(
             [NotNull] Type clrType,
             [NotNull] string storeType,
-            StoreTypeModifierKind storeTypeModifier = StoreTypeModifierKind.None,
+            StoreTypePostfix storeTypePostfix = StoreTypePostfix.None,
             [CanBeNull] string udtTypeName = null,
             [CanBeNull] ValueConverter converter = null,
             [CanBeNull] ValueComparer comparer = null,
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             int? scale = null)
             : base(new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(
-                    clrType, converter, comparer, keyComparer), storeType, storeTypeModifier, dbType, unicode, size, fixedLength, precision, scale))
+                    clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength, precision, scale))
 
         {
             UdtTypeName = udtTypeName ?? storeType;

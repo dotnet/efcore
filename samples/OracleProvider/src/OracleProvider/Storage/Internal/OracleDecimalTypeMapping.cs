@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
                     new CoreTypeMappingParameters(
                         typeof(decimal)),
                     storeType,
-                    StoreTypeModifierKind.PrecisionAndScale,
+                    StoreTypePostfix.PrecisionAndScale,
                     dbType,
                     precision: 29,
                     scale: 4))

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 
         private readonly int _maxSpecificSize;
 
-        private readonly StoreTypeModifierKind? _storeTypeModifier;
+        private readonly StoreTypePostfix? _storeTypePostfix;
 
         public OracleByteArrayTypeMapping(
             [NotNull] string storeType,
@@ -27,17 +27,17 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             int? size = null,
             bool fixedLength = false,
             ValueComparer comparer = null,
-            StoreTypeModifierKind? storeTypeModifier = null)
+            StoreTypePostfix? storeTypePostfix = null)
             : this(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(byte[]), null, comparer),
                     storeType,
-                    GetStoreTypeModifier(storeTypeModifier, size),
+                    GetStoreTypePostfix(storeTypePostfix, size),
                     dbType,
                     size: size,
                     fixedLength: fixedLength))
         {
-            _storeTypeModifier = storeTypeModifier;
+            _storeTypePostfix = storeTypePostfix;
         }
 
         protected OracleByteArrayTypeMapping(RelationalTypeMappingParameters parameters)
@@ -46,16 +46,16 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             _maxSpecificSize = CalculateSize(parameters.Size);
         }
 
-        private static StoreTypeModifierKind GetStoreTypeModifier(StoreTypeModifierKind? storeTypeModifier, int? size)
-            => storeTypeModifier
-               ?? (size != null && size <= MaxSize ? StoreTypeModifierKind.Size : StoreTypeModifierKind.None);
+        private static StoreTypePostfix GetStoreTypePostfix(StoreTypePostfix? storeTypePostfix, int? size)
+            => storeTypePostfix
+               ?? (size != null && size <= MaxSize ? StoreTypePostfix.Size : StoreTypePostfix.None);
 
         private static int CalculateSize(int? size)
             => size.HasValue && size < MaxSize ? size.Value : MaxSize;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new OracleByteArrayTypeMapping(
-                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypeModifier(_storeTypeModifier, size)));
+                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypePostfix(_storeTypePostfix, size)));
 
         public override CoreTypeMapping Clone(ValueConverter converter)
             => new OracleByteArrayTypeMapping(Parameters.WithComposedConverter(converter));

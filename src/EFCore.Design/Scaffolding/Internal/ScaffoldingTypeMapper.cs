@@ -55,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 // Check for inference
                 var byteArrayMapping = _typeMappingSource.FindMapping(
                     typeof(byte[]),
+                    null,
                     keyOrIndex,
                     rowVersion: rowVersion,
                     size: mapping.Size,
@@ -67,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // Check for fixed-length
                     var fixedLengthMapping = _typeMappingSource.FindMapping(
                         typeof(byte[]),
+                        null,
                         keyOrIndex,
                         rowVersion: rowVersion,
                         size: mapping.Size,
@@ -77,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
                         typeof(byte[]),
+                        null,
                         keyOrIndex,
                         rowVersion: rowVersion,
                         fixedLength: mapping.IsFixedLength);
@@ -89,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 // Check for inference
                 var stringMapping = _typeMappingSource.FindMapping(
                     typeof(string),
+                    null,
                     keyOrIndex,
                     unicode: mapping.IsUnicode,
                     size: mapping.Size,
@@ -101,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // Check for Unicode
                     var unicodeMapping = _typeMappingSource.FindMapping(
                         typeof(string),
+                        null,
                         keyOrIndex,
                         unicode: true,
                         size: mapping.Size,
@@ -111,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // Check for fixed-length
                     var fixedLengthMapping = _typeMappingSource.FindMapping(
                         typeof(string),
+                        null,
                         keyOrIndex,
                         unicode: mapping.IsUnicode,
                         size: mapping.Size,
@@ -121,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
                         typeof(string),
+                        null,
                         keyOrIndex,
                         unicode: mapping.IsUnicode,
                         fixedLength: mapping.IsFixedLength);
