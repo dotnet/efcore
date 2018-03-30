@@ -119,6 +119,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
             }
             else if (targetFramework.Identifier == ".NETCoreApp")
             {
+                if (targetFramework.Version < new Version(2, 0))
+                {
+                    throw new CommandException(
+                        Resources.NETCoreApp1StartupProject(startupProject.ProjectName, targetFramework.Version));
+                }
+
                 executable = "dotnet";
                 args.Add("exec");
                 args.Add("--depsfile");
