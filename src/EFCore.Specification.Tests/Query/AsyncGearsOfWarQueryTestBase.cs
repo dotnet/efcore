@@ -1532,5 +1532,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
         }
+
+        [ConditionalFact]
+        public virtual async Task Project_one_value_type_from_empty_collection()
+        {
+            await AssertQuery<Squad>(
+                ss => ss.Where(s => s.Name == "Kilo").Select(s => new { s.Name, SquadId = s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() }));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Filter_on_subquery_projecting_one_value_type_from_empty_collection()
+        {
+            await AssertQuery<Squad>(
+                ss => ss.Where(s => s.Name == "Kilo").Where(s => s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() != 0).Select(s => s.Name));
+        }
     }
 }

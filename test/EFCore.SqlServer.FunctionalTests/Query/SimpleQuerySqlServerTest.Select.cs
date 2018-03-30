@@ -363,7 +363,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
             base.Select_nested_collection_multi_level4();
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) (
         SELECT COUNT(*)
         FROM [Order Details] AS [od]
@@ -371,7 +371,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     )
     FROM [Orders] AS [o]
     WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
-) AS [Order]
+), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
         }
@@ -381,7 +381,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
             base.Select_nested_collection_multi_level5();
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) (
         SELECT TOP(1) [od].[ProductID]
         FROM [Order Details] AS [od]
@@ -393,7 +393,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     )
     FROM [Orders] AS [o]
     WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
-) AS [Order]
+), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
         }
@@ -403,7 +403,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
             base.Select_nested_collection_multi_level6();
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) (
         SELECT TOP(1) [od].[ProductID]
         FROM [Order Details] AS [od]
@@ -411,7 +411,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     )
     FROM [Orders] AS [o]
     WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
-) AS [Order]
+), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
         }
@@ -725,7 +725,7 @@ FROM [Customers] AS [c]");
             base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault();
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) [t].[OrderID]
     FROM (
         SELECT TOP(1) [od].[OrderID], [od.Product].[ProductName]
@@ -735,7 +735,7 @@ FROM [Customers] AS [c]");
         ORDER BY [od.Product].[ProductName]
     ) AS [t]
     ORDER BY [t].[ProductName]
-)
+), 0)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300");
         }

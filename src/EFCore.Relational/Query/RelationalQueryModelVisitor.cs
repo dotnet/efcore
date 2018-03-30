@@ -1366,8 +1366,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             base.OptimizeQueryModel(queryModel, asyncQuery);
 
-            var typeIsExpressionTranslatingVisitor = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model);
-            queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
+            queryModel.TransformExpressions(new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model).Visit);
+            queryModel.TransformExpressions(new SubqueryProjectingSingleValueOptimizingExpressionVisitor().Visit);
         }
 
         /// <summary>

@@ -4618,6 +4618,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Fact]
+        public virtual void Project_one_value_type_from_empty_collection()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Where(s => s.Name == "Kilo").Select(s => new { s.Name, SquadId = s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() }));
+        }
+
+        [Fact]
+        public virtual void Filter_on_subquery_projecting_one_value_type_from_empty_collection()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Where(s => s.Name == "Kilo").Where(s => s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() != 0).Select(s => s.Name));
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
