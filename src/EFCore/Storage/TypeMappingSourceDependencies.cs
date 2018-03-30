@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="TypeMappingSource" />
+    ///         Service dependencies parameter class for <see cref="TypeMappingSourceBase" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="TypeMappingSource" />.
+        ///         Creates the service dependencies parameter object for a <see cref="TypeMappingSourceBase" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change

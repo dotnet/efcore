@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     Describes metadata needed to decide on a type mapping for a property or type.
     /// </summary>
-    public abstract class TypeMappingInfo
+    public readonly struct TypeMappingInfo
     {
         private readonly Type _providerClrType;
         private readonly ValueConverter _customConverter;
@@ -23,15 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
-        protected TypeMappingInfo()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a new instance of <see cref="TypeMappingInfo" />.
-        /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
-        protected TypeMappingInfo([NotNull] IProperty property)
+        public TypeMappingInfo([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -61,22 +54,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
-        protected TypeMappingInfo([NotNull] Type type)
+        public TypeMappingInfo([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
             ClrType = type.UnwrapNullableType();
+
+            _providerClrType = null;
+            _customConverter = null;
+
+            IsKeyOrIndex = false;
+            Size = null;
+            IsUnicode = null;
+            IsRowVersion = null;
+            Precision = null;
+            Scale = null;
         }
 
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="member"> The property or field for which mapping is needed. </param>
-        protected TypeMappingInfo([NotNull] MemberInfo member)
+        public TypeMappingInfo([NotNull] MemberInfo member)
+            : this(Check.NotNull(member, nameof(member)).GetMemberType())
         {
-            Check.NotNull(member, nameof(member));
-
-            ClrType = member.GetMemberType().UnwrapNullableType();
         }
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="rowVersion"> Specifies a row-version, or <c>null</c> for default. </param>
         /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
-        protected TypeMappingInfo(
+        public TypeMappingInfo(
             [NotNull] Type type,
             bool keyOrIndex,
             bool? unicode = null,
@@ -97,8 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool? rowVersion = null,
             int? precision = null,
             int? scale = null)
-            : this(type)
         {
+            Check.NotNull(type, nameof(type));
+
+            ClrType = type.UnwrapNullableType();
+
+            _providerClrType = null;
+            _customConverter = null;
+
             IsKeyOrIndex = keyOrIndex;
             Size = size;
             IsUnicode = unicode;
@@ -112,9 +119,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="source"> The source info. </param>
         /// <param name="converter"> The converter to apply. </param>
-        protected TypeMappingInfo(
-            [NotNull] TypeMappingInfo source,
-            ValueConverterInfo converter)
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
+        /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
+        /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
+        /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
+        public TypeMappingInfo(
+            TypeMappingInfo source,
+            ValueConverterInfo converter,
+            bool? unicode = null,
+            int? size = null,
+            int? precision = null,
+            int? scale = null)
         {
             Check.NotNull(source, nameof(source));
 
@@ -125,10 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var mappingHints = converter.MappingHints;
 
-            Size = source.Size ?? mappingHints?.Size;
-            IsUnicode = source.IsUnicode ?? mappingHints?.IsUnicode;
-            Scale = source.Scale ?? mappingHints?.Scale;
-            Precision = source.Precision ?? mappingHints?.Precision;
+            Size = size ?? source.Size ?? mappingHints?.Size;
+            IsUnicode = unicode ?? source.IsUnicode ?? mappingHints?.IsUnicode;
+            Scale = scale ?? source.Scale ?? mappingHints?.Scale;
+            Precision = precision ?? source.Precision ?? mappingHints?.Precision;
 
             ClrType = converter.ProviderClrType.UnwrapNullableType();
         }
@@ -138,49 +153,50 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
-        public abstract TypeMappingInfo WithConverter(ValueConverterInfo converterInfo);
+        public TypeMappingInfo WithConverter(ValueConverterInfo converterInfo)
+            => new TypeMappingInfo(this, converterInfo);
 
         /// <summary>
         ///     Indicates whether or not the mapping is part of a key or index.
         /// </summary>
-        public virtual bool IsKeyOrIndex { get; }
+        public bool IsKeyOrIndex { get; }
 
         /// <summary>
         ///     Indicates the store-size to use for the mapping, or null if none.
         /// </summary>
-        public virtual int? Size { get; }
+        public int? Size { get; }
 
         /// <summary>
         ///     Indicates whether or not the mapping supports Unicode, or null if not defined.
         /// </summary>
-        public virtual bool? IsUnicode { get; }
+        public bool? IsUnicode { get; }
 
         /// <summary>
         ///     Indicates whether or not the mapping will be used for a row version, or null if not defined.
         /// </summary>
-        public virtual bool? IsRowVersion { get; }
+        public bool? IsRowVersion { get; }
 
         /// <summary>
         ///     The suggested precision of the mapped data type.
         /// </summary>
-        public virtual int? Precision { get; }
+        public int? Precision { get; }
 
         /// <summary>
         ///     The suggested scale of the mapped data type.
         /// </summary>
-        public virtual int? Scale { get; }
+        public int? Scale { get; }
 
         /// <summary>
         ///     The CLR type in the model.
         /// </summary>
-        public virtual Type ClrType { get; }
+        public Type ClrType { get; }
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
         /// </summary>
         /// <param name="other"> The other object. </param>
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
-        protected virtual bool Equals([NotNull] TypeMappingInfo other)
+        public bool Equals(TypeMappingInfo other)
             => ClrType == other.ClrType
                && _providerClrType == other._providerClrType
                && _customConverter == other._customConverter
@@ -198,9 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj.GetType() == GetType()
-                   && Equals((TypeMappingInfo)obj));
+               && obj.GetType() == GetType()
+               && Equals((TypeMappingInfo)obj);
 
         /// <summary>
         ///     Returns a hash code for this object.

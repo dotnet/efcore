@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         provider maps CLR types/values to database types/values.
     ///     </para>
     ///     <para>
-    ///         Warning: do not implement this interface directly. Instead, derive from <see cref="TypeMappingSource" />
+    ///         Warning: do not implement this interface directly. Instead, derive from <see cref="TypeMappingSourceBase" />
     ///         for non-relational providers, or 'RelationalTypeMappingSourceBase' for relational providers.
     ///     </para>
     ///     <para>
