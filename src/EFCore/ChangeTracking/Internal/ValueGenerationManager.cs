@@ -123,14 +123,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private static IEnumerable<IProperty> FindPropagatingProperties(InternalEntityEntry entry)
-            => entry.EntityType.GetProperties().Where(
-                property => property.IsForeignKey()
-                            && property.ClrType.IsDefaultValue(entry[property]));
+        {
+            foreach (var property in ((EntityType)entry.EntityType).GetProperties())
+            {
+                if (property.IsForeignKey() && entry.HasDefaultValue(property))
+                {
+                    yield return property;
+                }
+            }
+        }
 
         private static IEnumerable<IProperty> FindGeneratingProperties(InternalEntityEntry entry)
-            => entry.EntityType.GetProperties().Where(
-                property => property.RequiresValueGenerator()
-                            && property.ClrType.IsDefaultValue(entry[property]));
+        {
+            foreach (var property in ((EntityType)entry.EntityType).GetProperties())
+            {
+                if (property.RequiresValueGenerator() && entry.HasDefaultValue(property))
+                {
+                    yield return property;
+                }
+            }
+        }
 
         private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)
             => _valueGeneratorSelector.Select(

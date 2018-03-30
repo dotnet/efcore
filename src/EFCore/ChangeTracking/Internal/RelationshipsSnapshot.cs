@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public RelationshipsSnapshot(InternalEntityEntry entry)
             {
-                _values = entry.EntityType.GetRelationshipSnapshotFactory()(entry);
+                _values = ((EntityType)entry.EntityType).RelationshipSnapshotFactory(entry);
             }
 
             public object GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)

@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
                 readExpression = Expression.Block(
-                    new[] { converted }, 
+                    new[] { converted },
                     new List<Expression>
                     {
                         Expression.Assign(
@@ -57,10 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     });
             }
 
+            var hasDefaultValueExpression = Expression.Equal(readExpression, Expression.Default(memberInfo.GetMemberType()));
+
             return new ClrPropertyGetter<TEntity, TValue>(
-                Expression.Lambda<Func<TEntity, TValue>>(
-                    readExpression,
-                    entityParameter).Compile());
+                Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
+                Expression.Lambda<Func<TEntity, bool>>(hasDefaultValueExpression, entityParameter).Compile());
         }
     }
 }

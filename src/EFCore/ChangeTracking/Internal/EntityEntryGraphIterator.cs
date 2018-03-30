@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var internalEntityEntry = node.GetInfrastructure();
-            var navigations = internalEntityEntry.EntityType.GetNavigations();
+            var navigations = ((EntityType)internalEntityEntry.EntityType).GetNavigations();
             var stateManager = internalEntityEntry.StateManager;
 
             foreach (var navigation in navigations)

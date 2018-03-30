@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ClrPropertyGetterFactoryTest
@@ -22,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class FakeProperty : IProperty, IClrPropertyGetter
         {
             public object GetClrValue(object instance) => throw new NotImplementedException();
+            public bool HasDefaultValue(object instance) => throw new NotImplementedException();
             public object this[string name] => throw new NotImplementedException();
             public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
             public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();

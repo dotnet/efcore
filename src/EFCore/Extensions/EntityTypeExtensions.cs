@@ -155,8 +155,13 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
 
-            return entityType.GetForeignKeys()
-                .Where(foreignKey => PropertyListComparer.Instance.Equals(foreignKey.Properties, properties));
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                if (PropertyListComparer.Instance.Equals(foreignKey.Properties, properties))
+                {
+                    yield return foreignKey;
+                }
+            }
         }
 
         /// <summary>
@@ -269,6 +274,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The change tracking strategy. </returns>
         public static ChangeTrackingStrategy GetChangeTrackingStrategy(
             [NotNull] this IEntityType entityType)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy;
+            => ((EntityType)Check.NotNull(entityType, nameof(entityType))).ChangeTrackingStrategy;
     }
 }

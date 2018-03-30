@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object this[int index]
         {
-            get { throw new IndexOutOfRangeException(); }
-            set { throw new IndexOutOfRangeException(); }
+            get => throw new IndexOutOfRangeException();
+            set => throw new IndexOutOfRangeException();
         }
 
         /// <summary>
