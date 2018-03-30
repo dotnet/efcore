@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(string)),
                     storeType,
-                    GetStoreTypeModifier(unicode, size),
+                    GetStoreTypePostfix(unicode, size),
                     dbType,
                     unicode,
                     size,
@@ -53,14 +53,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
         }
 
-        private static StoreTypeModifierKind GetStoreTypeModifier(bool unicode, int? size)
+        private static StoreTypePostfix GetStoreTypePostfix(bool unicode, int? size)
             => unicode
                 ? size.HasValue && size <= UnicodeMax
-                    ? StoreTypeModifierKind.Size
-                    : StoreTypeModifierKind.None
+                    ? StoreTypePostfix.Size
+                    : StoreTypePostfix.None
                 : size.HasValue && size <= AnsiMax
-                    ? StoreTypeModifierKind.Size
-                    : StoreTypeModifierKind.None;
+                    ? StoreTypePostfix.Size
+                    : StoreTypePostfix.None;
 
         private static int CalculateSize(bool unicode, int? size)
             => unicode
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerStringTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypeModifier(IsUnicode, size)));
+            => new SqlServerStringTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypePostfix(IsUnicode, size)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

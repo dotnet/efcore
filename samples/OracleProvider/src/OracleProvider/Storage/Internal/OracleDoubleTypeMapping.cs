@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
                     new CoreTypeMappingParameters(
                         typeof(double)),
                     storeType,
-                    StoreTypeModifierKind.Size,
+                    StoreTypePostfix.Size,
                     dbType,
                     size: 49))
         {

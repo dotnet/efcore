@@ -17,8 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     Describes metadata needed to decide on a relational type mapping for
     ///     a property, type, or provider-specific relational type name.
     /// </summary>
-    public abstract class RelationalTypeMappingInfo : TypeMappingInfo
+    public readonly struct RelationalTypeMappingInfo
     {
+        private readonly TypeMappingInfo _coreTypeMappingInfo;
         private readonly int? _parsedSize;
         private readonly int? _parsedPrecision;
         private readonly int? _parsedScale;
@@ -28,9 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
         /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
-        protected RelationalTypeMappingInfo([NotNull] IProperty property)
-            : base(property)
+        public RelationalTypeMappingInfo([NotNull] IProperty property)
         {
+            _coreTypeMappingInfo = new TypeMappingInfo(property);
+
             var principals = property.FindPrincipals().ToList();
 
             var storeTypeName = principals
@@ -50,19 +52,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
         /// </summary>
         /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
-        protected RelationalTypeMappingInfo([NotNull] Type type)
-            : base(type)
+        public RelationalTypeMappingInfo([NotNull] Type type)
         {
+            _coreTypeMappingInfo = new TypeMappingInfo(type);
+            StoreTypeName = null;
+            StoreTypeNameBase = null;
+            IsFixedLength = false;
+            _parsedSize = null;
+            _parsedPrecision = null;
+            _parsedScale = null;
+            _isMax = false;
         }
 
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
         /// </summary>
         /// <param name="storeTypeName"> The provider-specific relational type name for which mapping is needed. </param>
-        protected RelationalTypeMappingInfo([NotNull] string storeTypeName)
+        public RelationalTypeMappingInfo([NotNull] string storeTypeName)
         {
             Check.NotEmpty(storeTypeName, nameof(storeTypeName));
 
+            _coreTypeMappingInfo = new TypeMappingInfo();
+            IsFixedLength = false;
             StoreTypeName = storeTypeName;
             StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
         }
@@ -71,10 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
         /// </summary>
         /// <param name="member"> The property or field for which mapping is needed. </param>
-        protected RelationalTypeMappingInfo([NotNull] MemberInfo member)
-            : base(member)
+        public RelationalTypeMappingInfo([NotNull] MemberInfo member)
         {
             Check.NotNull(member, nameof(member));
+
+            _coreTypeMappingInfo = new TypeMappingInfo(member);
 
             var attribute = member.GetCustomAttributes<ColumnAttribute>(true)?.FirstOrDefault();
             if (attribute != null)
@@ -82,6 +94,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 StoreTypeName = attribute.TypeName;
                 StoreTypeNameBase = ParseStoreTypeName(attribute.TypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
             }
+            else
+            {
+                StoreTypeName = null;
+                StoreTypeNameBase = null;
+                _parsedSize = null;
+                _parsedPrecision = null;
+                _parsedScale = null;
+                _isMax = false;
+            }
+
+            IsFixedLength = false;
         }
 
         /// <summary>
@@ -89,11 +112,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="source"> The source info. </param>
         /// <param name="converter"> The converter to apply. </param>
-        protected RelationalTypeMappingInfo(
-            [NotNull] RelationalTypeMappingInfo source,
+        public RelationalTypeMappingInfo(
+            RelationalTypeMappingInfo source,
             ValueConverterInfo converter)
-            : base(source, converter)
         {
+            _coreTypeMappingInfo = new TypeMappingInfo(
+                source._coreTypeMappingInfo,
+                converter,
+                source.IsUnicode,
+                source.Size,
+                source.Precision,
+                source.Scale);
+
             var mappingHints = converter.MappingHints;
 
             StoreTypeName = source.StoreTypeName;
@@ -105,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
+        /// <param name="storeTypeName"> The database type name. </param>
         /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
         /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
         /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
@@ -112,18 +143,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>
         /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
-        protected RelationalTypeMappingInfo(
+        public RelationalTypeMappingInfo(
             [NotNull] Type type,
+            [CanBeNull] string storeTypeName,
             bool keyOrIndex,
-            bool? unicode = null,
-            int? size = null,
-            bool? rowVersion = null,
-            bool? fixedLength = null,
-            int? precision = null,
-            int? scale = null)
-            : base(type, keyOrIndex, unicode, size, rowVersion, precision, scale)
+            bool? unicode,
+            int? size,
+            bool? rowVersion,
+            bool? fixedLength,
+            int? precision,
+            int? scale)
         {
+            _coreTypeMappingInfo = new TypeMappingInfo(type, keyOrIndex, unicode, size, rowVersion, precision, scale);
+
             IsFixedLength = fixedLength;
+            StoreTypeName = storeTypeName;
+            StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
         }
 
         private static string ParseStoreTypeName(
@@ -170,6 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             else if (int.TryParse(sizeString, out var parsedSize))
                             {
                                 size = parsedSize;
+                                precision = parsedSize;
                             }
                         }
 
@@ -184,45 +220,73 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The provider-specific relational type name for which mapping is needed.
         /// </summary>
-        public virtual string StoreTypeName { get; }
+        public string StoreTypeName { get; }
 
         /// <summary>
         ///     The provider-specific relational type name, with any size/precision/scale removed.
         /// </summary>
-        public virtual string StoreTypeNameBase { get; }
+        public string StoreTypeNameBase { get; }
 
         /// <summary>
         ///     <c>True</c> if the store type name ends in "(max)".
         /// </summary>
-        public virtual bool StoreTypeNameSizeIsMax => _isMax;
+        public bool StoreTypeNameSizeIsMax => _isMax;
 
         /// <summary>
         ///     Indicates the store-size to use for the mapping, or null if none.
         /// </summary>
-        public override int? Size => base.Size ?? _parsedSize;
+        public int? Size => _coreTypeMappingInfo.Size ?? _parsedSize;
 
         /// <summary>
         ///     The suggested precision of the mapped data type.
         /// </summary>
-        public override int? Precision => base.Precision ?? _parsedPrecision;
+        public int? Precision => _coreTypeMappingInfo.Precision ?? _parsedPrecision;
 
         /// <summary>
         ///     The suggested scale of the mapped data type.
         /// </summary>
-        public override int? Scale => base.Scale ?? _parsedScale;
+        public int? Scale => _coreTypeMappingInfo.Scale ?? _parsedScale;
 
         /// <summary>
         ///     Whether or not the mapped data type is fixed length.
         /// </summary>
-        public virtual bool? IsFixedLength { get; }
+        public bool? IsFixedLength { get; }
+
+        /// <summary>
+        ///     Indicates whether or not the mapping is part of a key or index.
+        /// </summary>
+        public bool IsKeyOrIndex => _coreTypeMappingInfo.IsKeyOrIndex;
+
+        /// <summary>
+        ///     Indicates whether or not the mapping supports Unicode, or null if not defined.
+        /// </summary>
+        public bool? IsUnicode => _coreTypeMappingInfo.IsUnicode;
+
+        /// <summary>
+        ///     Indicates whether or not the mapping will be used for a row version, or null if not defined.
+        /// </summary>
+        public bool? IsRowVersion => _coreTypeMappingInfo.IsRowVersion;
+
+        /// <summary>
+        ///     The CLR type in the model.
+        /// </summary>
+        public Type ClrType => _coreTypeMappingInfo.ClrType;
+
+        /// <summary>
+        ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.
+        /// </summary>
+        /// <param name="converterInfo"> The converter to apply. </param>
+        /// <returns> The new mapping info. </returns>
+        public RelationalTypeMappingInfo WithConverter(ValueConverterInfo converterInfo)
+            => new RelationalTypeMappingInfo(this, converterInfo);
 
         /// <summary>
         ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.
         /// </summary>
         /// <param name="other"> The other object. </param>
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
-        protected virtual bool Equals([NotNull] RelationalTypeMappingInfo other)
-            => Equals((TypeMappingInfo)other)
+        public bool Equals(RelationalTypeMappingInfo other)
+            => _coreTypeMappingInfo.Equals(other._coreTypeMappingInfo)
                && IsFixedLength == other.IsFixedLength
                && StoreTypeName == other.StoreTypeName;
 
@@ -233,9 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj.GetType() == GetType()
-                   && Equals((RelationalTypeMappingInfo)obj));
+               && obj.GetType() == GetType()
+               && Equals((RelationalTypeMappingInfo)obj);
 
         /// <summary>
         ///     Returns a hash code for this object.
@@ -243,7 +306,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
         {
-            var hashCode = StoreTypeName?.GetHashCode() ?? 0;
+            var hashCode = _coreTypeMappingInfo.GetHashCode();
+            hashCode = (hashCode * 397) ^ (StoreTypeName?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (IsFixedLength?.GetHashCode() ?? 0);
             return hashCode;
         }

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 
         private readonly int _maxSpecificSize;
 
-        private readonly StoreTypeModifierKind? _storeTypeModifier;
+        private readonly StoreTypePostfix? _storeTypePostfix;
 
         public OracleStringTypeMapping(
             [NotNull] string storeType,
@@ -25,18 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             bool unicode = false,
             int? size = null,
             bool fixedLength = false,
-            StoreTypeModifierKind? storeTypeModifier = null)
+            StoreTypePostfix? storeTypePostfix = null)
             : this(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(string)),
                     storeType,
-                    GetStoreTypeModifier(storeTypeModifier, unicode, size),
+                    GetStoreTypePostfix(storeTypePostfix, unicode, size),
                     dbType,
                     unicode,
                     size,
                     fixedLength))
         {
-            _storeTypeModifier = storeTypeModifier;
+            _storeTypePostfix = storeTypePostfix;
         }
 
         protected OracleStringTypeMapping(RelationalTypeMappingParameters parameters)
@@ -45,18 +45,18 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
         }
 
-        private static StoreTypeModifierKind GetStoreTypeModifier(
-            StoreTypeModifierKind? storeTypeModifier,
+        private static StoreTypePostfix GetStoreTypePostfix(
+            StoreTypePostfix? storeTypePostfix,
             bool unicode,
             int? size)
-            => storeTypeModifier
+            => storeTypePostfix
                ?? (unicode
                    ? size.HasValue && size <= UnicodeMax
-                       ? StoreTypeModifierKind.Size
-                       : StoreTypeModifierKind.None
+                       ? StoreTypePostfix.Size
+                       : StoreTypePostfix.None
                    : size.HasValue && size <= AnsiMax
-                       ? StoreTypeModifierKind.Size
-                       : StoreTypeModifierKind.None);
+                       ? StoreTypePostfix.Size
+                       : StoreTypePostfix.None);
 
         private static int CalculateSize(bool unicode, int? size)
             => unicode
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new OracleStringTypeMapping(
-                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypeModifier(_storeTypeModifier, IsUnicode, size)));
+                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypePostfix(_storeTypePostfix, IsUnicode, size)));
 
         public override CoreTypeMapping Clone(ValueConverter converter)
             => new OracleStringTypeMapping(Parameters.WithComposedConverter(converter));

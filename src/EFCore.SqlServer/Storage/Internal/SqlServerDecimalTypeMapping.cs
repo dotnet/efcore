@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(decimal)),
                     storeType,
-                    StoreTypeModifierKind.PrecisionAndScale,
+                    StoreTypePostfix.PrecisionAndScale,
                     dbType,
                     precision: precision,
                     scale: scale))

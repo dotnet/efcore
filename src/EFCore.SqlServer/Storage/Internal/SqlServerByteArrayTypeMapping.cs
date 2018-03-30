@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     {
         private const int MaxSize = 8000;
 
-        private readonly StoreTypeModifierKind? _storeTypeModifier;
+        private readonly StoreTypePostfix? _storeTypePostfix;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -33,22 +33,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             int? size = null,
             bool fixedLength = false,
             ValueComparer comparer = null,
-            StoreTypeModifierKind? storeTypeModifier = null)
+            StoreTypePostfix? storeTypePostfix = null)
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(byte[]), null, comparer),
                     storeType,
-                    GetStoreTypeModifier(storeTypeModifier, size),
+                    GetStoreTypePostfix(storeTypePostfix, size),
                     dbType,
                     size: size,
                     fixedLength: fixedLength))
         {
-            _storeTypeModifier = storeTypeModifier;
+            _storeTypePostfix = storeTypePostfix;
         }
 
-        private static StoreTypeModifierKind GetStoreTypeModifier(StoreTypeModifierKind? storeTypeModifier, int? size)
-            => storeTypeModifier
-               ?? (size != null && size <= MaxSize ? StoreTypeModifierKind.Size : StoreTypeModifierKind.None);
+        private static StoreTypePostfix GetStoreTypePostfix(StoreTypePostfix? storeTypePostfix, int? size)
+            => storeTypePostfix
+               ?? (size != null && size <= MaxSize ? StoreTypePostfix.Size : StoreTypePostfix.None);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new SqlServerByteArrayTypeMapping(
-                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypeModifier(_storeTypeModifier, size)));
+                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypePostfix(_storeTypePostfix, size)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
