@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [Fact]
-        public void All_original_values_can_be_accessed_for_entity_that_does_no_notifiction()
+        public void All_original_values_can_be_accessed_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [Fact]
-        public void All_original_values_can_be_accessed_for_entity_that_does_changed_only_notifictions()
+        public void All_original_values_can_be_accessed_for_entity_that_does_changed_only_notifications()
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(ChangedOnlyEntity).FullName);
@@ -118,6 +118,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.HasTemporaryValue(keyProperty));
 
             entry.SetEntityState(EntityState.Unchanged); // Does not throw
+
+            var nameProperty = entityType.FindProperty(nameof(SomeEntity.Name));
+            Assert.True(entry.HasDefaultValue(nameProperty));
+
+            entity.Name = "Name";
+
+            Assert.False(entry.HasDefaultValue(nameProperty));
         }
     }
 }

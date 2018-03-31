@@ -16,6 +16,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private readonly IEntityEntryGraphIterator _graphIterator;
 
+        // Stored for perf
+        private static readonly object[] _boxedEntityStates =
+        {
+            EntityState.Detached, EntityState.Unchanged, EntityState.Deleted, EntityState.Modified, EntityState.Added
+        };
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -31,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _graphIterator.TraverseGraph(
                 new EntityEntryGraphNode(rootEntry, null, null)
                 {
-                    NodeState = entityState
+                    NodeState = _boxedEntityStates[(int)entityState]
                 },
                 forceStateWhenUnknownKey,
-                (n, s) => PaintAction(n, (bool)s));
+                PaintAction);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -48,10 +54,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _graphIterator.TraverseGraphAsync(
                 new EntityEntryGraphNode(rootEntry, null, null)
                 {
-                    NodeState = entityState
+                    NodeState = _boxedEntityStates[(int)entityState]
                 },
                 forceStateWhenUnknownKey,
-                (n, s, c) => PaintActionAsync(n, (bool)s, c),
+                PaintActionAsync,
                 cancellationToken);
 
         private static bool PaintAction(EntityEntryGraphNode node, bool force)

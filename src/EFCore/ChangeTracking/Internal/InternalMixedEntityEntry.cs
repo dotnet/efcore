@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             : base(stateManager, entityType)
         {
             Entity = entity;
-            _shadowValues = entityType.GetShadowValuesFactory()(valueBuffer);
+            _shadowValues = ((EntityType)entityType).ShadowValuesFactory(valueBuffer);
         }
 
         /// <summary>
@@ -70,6 +71,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => !propertyBase.IsShadowProperty
                 ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[propertyBase.GetShadowIndex()];
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override bool PropertyHasDefaultValue(IPropertyBase propertyBase)
+            => !propertyBase.IsShadowProperty
+                ? base.PropertyHasDefaultValue(propertyBase)
+                : propertyBase.ClrType.IsDefaultValue(_shadowValues[propertyBase.GetShadowIndex()]);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

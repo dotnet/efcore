@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity type, or null if none if found. </returns>
         [DebuggerStepThrough]
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
-            => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
+            => ((Model)Check.NotNull(model, nameof(model))).FindEntityType(Check.NotNull(type, nameof(type)));
 
         /// <summary>
         ///     Gets the entity that maps the given entity class, where the class may be a proxy derived from the
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IEntityType FindRuntimeEntityType([NotNull] this IModel model, [NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
-            var realModel = Check.NotNull(model, nameof(model)).AsModel();
+            var realModel = (Model)Check.NotNull(model, nameof(model));
 
             return realModel.FindEntityType(type)
                    ?? (type.BaseType == null

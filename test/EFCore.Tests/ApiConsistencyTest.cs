@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -47,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override bool ShouldHaveNotNullAnnotation(MethodBase method, Type type)
-        {
-            return base.ShouldHaveNotNullAnnotation(method, type)
-                   && method.Name != nameof(DbContext.OnConfiguring)
-                   && method.Name != nameof(DbContext.OnModelCreating)
-                   && !(type == typeof(IEntityTypeConfiguration<>)
-                        && method.Name == nameof(IEntityTypeConfiguration<object>.Configure));
-        }
+            => base.ShouldHaveNotNullAnnotation(method, type)
+               && method.Name != nameof(DbContext.OnConfiguring)
+               && method.Name != nameof(DbContext.OnModelCreating)
+               && !(type == typeof(IEntityTypeConfiguration<>)
+                    && method.Name == nameof(IEntityTypeConfiguration<object>.Configure));
+
+        protected override bool ShouldHaveVirtualMethods(Type type) => type != typeof(InternalEntityEntry);
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
 

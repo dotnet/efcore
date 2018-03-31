@@ -528,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ISet<IForeignKey> handledForeignKeys,
             bool fromQuery)
         {
-            var entityType = entry.EntityType;
+            var entityType = (EntityType)entry.EntityType;
             var stateManager = entry.StateManager;
 
             foreach (var foreignKey in entityType.GetForeignKeys())
@@ -572,29 +572,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (handledForeignKeys == null
                     || !handledForeignKeys.Contains(foreignKey))
                 {
-                    var dependents = stateManager.GetDependents(entry, foreignKey).ToList();
-                    if (dependents.Any())
+                    var dependents = stateManager.GetDependents(entry, foreignKey);
+                    if (foreignKey.IsUnique)
                     {
-                        var dependentToPrincipal = foreignKey.DependentToPrincipal;
-                        var principalToDependent = foreignKey.PrincipalToDependent;
-
-                        if (foreignKey.IsUnique)
+                        var dependentEntry = dependents.FirstOrDefault();
+                        if (dependentEntry != null)
                         {
-                            var dependentEntry = dependents.First();
-
                             // Set navigations to and from principal entity that is indicated by FK
-                            SetNavigation(entry, principalToDependent, dependentEntry);
-                            SetNavigation(dependentEntry, dependentToPrincipal, entry);
+                            SetNavigation(entry, foreignKey.PrincipalToDependent, dependentEntry);
+                            SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry);
                         }
-                        else
+                    }
+                    else
+                    {
+                        foreach (var dependentEntry in dependents)
                         {
-                            foreach (var dependentEntry in dependents)
-                            {
-                                // Add to collection on principal indicated by FK and set inverse navigation
-                                AddToCollection(entry, principalToDependent, dependentEntry);
+                            // Add to collection on principal indicated by FK and set inverse navigation
+                            AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry);
 
-                                SetNavigation(dependentEntry, dependentToPrincipal, entry);
-                            }
+                            SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry);
                         }
                     }
                 }

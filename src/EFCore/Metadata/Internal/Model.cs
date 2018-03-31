@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<string, EntityType> _entityTypes
             = new SortedDictionary<string, EntityType>();
 
-        private readonly IDictionary<Type, EntityType> _clrTypeMap
+        private readonly Dictionary<Type, EntityType> _clrTypeMap
             = new Dictionary<Type, EntityType>();
 
         private readonly SortedDictionary<string, SortedSet<EntityType>> _entityTypesWithDefiningNavigation
