@@ -1,28 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
-        <Description>CSharp Analyzers for Entity Framework Core.</Description>
-        <PackageTags>efcore</PackageTags>
-        <MinClientVersion>3.6</MinClientVersion>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
-        <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-        <IncludeBuildOutput>false</IncludeBuildOutput>
-        <EnableApiCheck>false</EnableApiCheck>
-        <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
-    </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
+    <Description>CSharp Analyzers for Entity Framework Core.</Description>
+    <PackageTags>efcore</PackageTags>
+    <MinClientVersion>3.6</MinClientVersion>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableApiCheck>false</EnableApiCheck>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <Compile Include="..\Shared\CodeAnnotations.cs" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\CodeAnnotations.cs" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion)" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion)" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers\dotnet\cs\" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers\dotnet\cs\" />
+  </ItemGroup>
 
 </Project>
