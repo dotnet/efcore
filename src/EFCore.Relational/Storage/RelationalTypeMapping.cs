@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
         /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
-        public virtual RelationalTypeMapping Clone(RelationalTypeMappingInfo mappingInfo)
+        public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
 

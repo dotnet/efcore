@@ -9,15 +9,16 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#pragma warning disable 1574
+#pragma warning disable CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         The base class for non-relational type mapping starting with version 2.1. Non-relational providers
-    ///         should derive from this class and override <see cref="FindMapping(RelationalTypeMappingInfo)" />
+    ///         The base class for relational type mapping starting with version 2.1. Relational providers
+    ///         should derive from this class and override <see cref="RelationalTypeMappingSource.FindMapping" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -26,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRelationalTypeMappingSource
     {
-        private readonly ConcurrentDictionary<RelationalTypeMappingInfo, RelationalTypeMapping> _explicitMappings
-            = new ConcurrentDictionary<RelationalTypeMappingInfo, RelationalTypeMapping>();
+        private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type), RelationalTypeMapping> _explicitMappings
+            = new ConcurrentDictionary<(RelationalTypeMappingInfo, Type), RelationalTypeMapping>();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -56,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected abstract RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo);
+        protected abstract RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo);
 
         /// <summary>
         ///     Dependencies used to create this <see cref="RelationalTypeMappingSource" />
@@ -64,11 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     Overridden to call <see cref="FindMapping(RelationalTypeMappingInfo)" />
+        ///    Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected override CoreTypeMapping FindMapping(TypeMappingInfo mappingInfo)
+        protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
             => throw new InvalidOperationException("FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.");
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual RelationalTypeMapping FindMappingWithConversion(
-            RelationalTypeMappingInfo mappingInfo,
+            in RelationalTypeMappingInfo mappingInfo,
             [CanBeNull] IProperty property)
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
@@ -93,33 +94,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ?.UnwrapNullableType();
 
             var resolvedMapping = _explicitMappings.GetOrAdd(
-                mappingInfo,
+                (mappingInfo, providerClrType),
                 k =>
                 {
-                    var mapping = providerClrType == null
-                                  || providerClrType == mappingInfo.ClrType
-                        ? FindMapping(mappingInfo)
+                    var (info, providerType) = k;
+                    var mapping = providerType == null
+                                  || providerType == info.ClrType
+                        ? FindMapping(info)
                         : null;
 
                     if (mapping == null)
                     {
-                        var sourceType = mappingInfo.ClrType;
+                        var sourceType = info.ClrType;
 
                         if (sourceType != null)
                         {
                             foreach (var converterInfo in Dependencies
                                 .ValueConverterSelector
-                                .Select(sourceType, providerClrType))
+                                .Select(sourceType, providerType))
                             {
-                                var mappingInfoUsed = mappingInfo.WithConverter(converterInfo);
+                                var mappingInfoUsed = info.WithConverter(converterInfo);
                                 mapping = FindMapping(mappingInfoUsed);
 
                                 if (mapping == null
-                                    && providerClrType != null)
+                                    && providerType != null)
                                 {
                                     foreach (var secondConverterInfo in Dependencies
                                         .ValueConverterSelector
-                                        .Select(providerClrType))
+                                        .Select(providerType))
                                     {
                                         mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
@@ -140,14 +142,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         }
                     }
 
-                    if (mapping != null
-                        && customConverter != null)
-                    {
-                        mapping = (RelationalTypeMapping)mapping.Clone(customConverter);
-                    }
-
                     return mapping;
                 });
+
+            if (resolvedMapping != null
+                && customConverter != null)
+            {
+                resolvedMapping = (RelationalTypeMapping)resolvedMapping.Clone(customConverter);
+            }
 
             ValidateMapping(resolvedMapping, property);
 

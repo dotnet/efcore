@@ -10,12 +10,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#pragma warning disable 1574
+#pragma warning disable CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
     ///         The base class for non-relational type mapping starting with version 2.1. Non-relational providers
-    ///         should derive from this class and override <see cref="TypeMappingSourceBase.FindMapping(TypeMappingInfo)" />
+    ///         should derive from this class and override <see cref="TypeMappingSourceBase.FindMapping" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -24,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class TypeMappingSource : TypeMappingSourceBase
     {
-        private readonly ConcurrentDictionary<TypeMappingInfo, CoreTypeMapping> _explicitMappings
-            = new ConcurrentDictionary<TypeMappingInfo, CoreTypeMapping>();
+        private readonly ConcurrentDictionary<(TypeMappingInfo, Type), CoreTypeMapping> _explicitMappings
+            = new ConcurrentDictionary<(TypeMappingInfo, Type), CoreTypeMapping>();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private CoreTypeMapping FindMappingWithConversion(
-            TypeMappingInfo mappingInfo,
+            in TypeMappingInfo mappingInfo,
             [CanBeNull] IProperty property)
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
@@ -54,33 +56,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ?.UnwrapNullableType();
 
             var resolvedMapping = _explicitMappings.GetOrAdd(
-                mappingInfo,
+                (mappingInfo, providerClrType),
                 k =>
                 {
-                    var mapping = providerClrType == null
-                                  || providerClrType == mappingInfo.ClrType
-                        ? FindMapping(mappingInfo)
+                    var (info, providerType) = k;
+                    var mapping = providerType == null
+                                  || providerType == info.ClrType
+                        ? FindMapping(info)
                         : null;
 
                     if (mapping == null)
                     {
-                        var sourceType = mappingInfo.ClrType;
+                        var sourceType = info.ClrType;
 
                         if (sourceType != null)
                         {
                             foreach (var converterInfo in Dependencies
                                 .ValueConverterSelector
-                                .Select(sourceType, providerClrType))
+                                .Select(sourceType, providerType))
                             {
-                                var mappingInfoUsed = mappingInfo.WithConverter(converterInfo);
+                                var mappingInfoUsed = info.WithConverter(converterInfo);
                                 mapping = FindMapping(mappingInfoUsed);
 
                                 if (mapping == null
-                                    && providerClrType != null)
+                                    && providerType != null)
                                 {
                                     foreach (var secondConverterInfo in Dependencies
                                         .ValueConverterSelector
-                                        .Select(providerClrType))
+                                        .Select(providerType))
                                     {
                                         mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
@@ -101,14 +104,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         }
                     }
 
-                    if (mapping != null
-                        && customConverter != null)
-                    {
-                        mapping = mapping.Clone(customConverter);
-                    }
-
                     return mapping;
                 });
+
+            if (resolvedMapping != null
+                && customConverter != null)
+            {
+                resolvedMapping = resolvedMapping.Clone(customConverter);
+            }
 
             ValidateMapping(resolvedMapping, property);
 

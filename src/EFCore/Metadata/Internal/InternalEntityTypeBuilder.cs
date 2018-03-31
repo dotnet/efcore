@@ -2037,7 +2037,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
             => Owns(
-                new TypeIdentity(targetEntityType),
+                new TypeIdentity(targetEntityType, Metadata.Model),
                 PropertyIdentity.Create(navigationName),
                 inverse: null,
                 configurationSource: configurationSource);
@@ -2051,7 +2051,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] PropertyInfo navigationProperty,
             ConfigurationSource configurationSource)
             => Owns(
-                new TypeIdentity(targetEntityType),
+                new TypeIdentity(targetEntityType, Metadata.Model),
                 PropertyIdentity.Create(navigationProperty),
                 inverse: null,
                 configurationSource: configurationSource);
@@ -2066,13 +2066,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] MemberInfo inverseProperty,
             ConfigurationSource configurationSource)
             => Owns(
-                new TypeIdentity(targetEntityType),
+                new TypeIdentity(targetEntityType, Metadata.Model),
                 PropertyIdentity.Create(navigationProperty),
                 PropertyIdentity.Create(inverseProperty),
                 configurationSource);
 
         private InternalRelationshipBuilder Owns(
-            TypeIdentity targetEntityType,
+            in TypeIdentity targetEntityType,
             PropertyIdentity navigation,
             PropertyIdentity? inverse,
             ConfigurationSource configurationSource)
@@ -2334,11 +2334,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string baseName)
         {
             var newProperties = new Property[propertyCount];
-            var clrMembers = Metadata.ClrType == null
-                ? null
-                : new HashSet<string>(
-                    Metadata.ClrType.GetRuntimeProperties().Select(p => p.Name)
-                        .Concat(Metadata.ClrType.GetRuntimeFields().Select(p => p.Name)));
+            var clrProperties =  Metadata.GetRuntimeProperties();
+            var clrFields = Metadata.GetRuntimeFields();
             var noNewProperties = true;
             using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
             {
@@ -2362,7 +2359,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
                             if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
-                                && clrMembers?.Contains(propertyName) != true)
+                                && clrProperties?.ContainsKey(propertyName) != true
+                                && clrFields?.ContainsKey(propertyName) != true)
                             {
                                 var propertyBuilder = Property(propertyName, clrType, ConfigurationSource.Convention, typeConfigurationSource: null);
                                 if (propertyBuilder == null)

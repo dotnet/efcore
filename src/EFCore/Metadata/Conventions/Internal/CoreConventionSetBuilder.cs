@@ -160,6 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention());
             conventionSet.ModelBuiltConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ModelBuiltConventions.Add(servicePropertyDiscoveryConvention);
+            conventionSet.ModelBuiltConventions.Add(new CacheCleanupConvention());
 
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention(Dependencies.Logger));

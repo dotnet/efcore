@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Type ownedType,
             [NotNull] string navigationName)
             => OwnsOneBuilder(
-                new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType))),
+                new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), (Model)OwnedEntityType.Model),
                 Check.NotEmpty(navigationName, nameof(navigationName)));
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
             {
-                buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedType), navigationName));
+                buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)OwnedEntityType.Model), navigationName));
                 return this;
             }
         }
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
         }
 
-        private ReferenceOwnershipBuilder OwnsOneBuilder(TypeIdentity ownedType, string navigationName)
+        private ReferenceOwnershipBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
             InternalRelationshipBuilder relationship;
             using (RelatedEntityType.Model.ConventionDispatcher.StartBatch())

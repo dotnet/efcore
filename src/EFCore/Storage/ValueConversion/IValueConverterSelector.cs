@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="providerClrType"> The store type to target, or null for any. </param>
         /// <returns> The converters available. </returns>
         IEnumerable<ValueConverterInfo> Select(
-            [NotNull] Type modelClrType, 
+            [NotNull] Type modelClrType,
             [CanBeNull] Type providerClrType = null);
     }
 }

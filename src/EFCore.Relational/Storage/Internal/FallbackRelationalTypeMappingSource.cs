@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override RelationalTypeMapping FindMappingWithConversion(
-            RelationalTypeMappingInfo mappingInfo,
+            in RelationalTypeMappingInfo mappingInfo,
             IProperty property)
         {
             _property = property;
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
+        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
 
@@ -83,12 +83,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return mapping;
         }
 
-        private RelationalTypeMapping FindMappingForProperty(RelationalTypeMappingInfo mappingInfo)
+        private RelationalTypeMapping FindMappingForProperty(in RelationalTypeMappingInfo mappingInfo)
             => _property != null
                 ? _relationalTypeMapper.FindMapping(_property)
                 : null;
 
-        private RelationalTypeMapping FindMappingForClrType(RelationalTypeMappingInfo mappingInfo)
+        private RelationalTypeMapping FindMappingForClrType(in RelationalTypeMappingInfo mappingInfo)
         {
             if (mappingInfo.ClrType == null
                 || (mappingInfo.StoreTypeName != null
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return _relationalTypeMapper.FindMapping(mappingInfo.ClrType);
         }
 
-        private RelationalTypeMapping FindMappingForStoreTypeName(RelationalTypeMappingInfo mappingInfo)
+        private RelationalTypeMapping FindMappingForStoreTypeName(in RelationalTypeMappingInfo mappingInfo)
         {
             if (mappingInfo.StoreTypeName != null)
             {
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return null;
         }
 
-        private static RelationalTypeMapping FilterByClrType(RelationalTypeMapping mapping, RelationalTypeMappingInfo mappingInfo)
+        private static RelationalTypeMapping FilterByClrType(RelationalTypeMapping mapping, in RelationalTypeMappingInfo mappingInfo)
             => mapping != null
                && (mappingInfo.ClrType == null
                    || mappingInfo.ClrType == mapping.ClrType)

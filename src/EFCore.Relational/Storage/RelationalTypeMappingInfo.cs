@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     Describes metadata needed to decide on a relational type mapping for
     ///     a property, type, or provider-specific relational type name.
     /// </summary>
-    public readonly struct RelationalTypeMappingInfo
+    public readonly struct RelationalTypeMappingInfo : IEquatable<RelationalTypeMappingInfo>
     {
         private readonly TypeMappingInfo _coreTypeMappingInfo;
         private readonly int? _parsedSize;
@@ -88,11 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             _coreTypeMappingInfo = new TypeMappingInfo(member);
 
-            var attribute = member.GetCustomAttributes<ColumnAttribute>(true)?.FirstOrDefault();
-            if (attribute != null)
+            if (Attribute.IsDefined(member, typeof(ColumnAttribute), inherit: true))
             {
+                var attribute = member.GetCustomAttributes<ColumnAttribute>(inherit: true).First();
                 StoreTypeName = attribute.TypeName;
-                StoreTypeNameBase = ParseStoreTypeName(attribute.TypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
+                StoreTypeNameBase = ParseStoreTypeName(
+                    attribute.TypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
             }
             else
             {
@@ -113,8 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="source"> The source info. </param>
         /// <param name="converter"> The converter to apply. </param>
         public RelationalTypeMappingInfo(
-            RelationalTypeMappingInfo source,
-            ValueConverterInfo converter)
+            in RelationalTypeMappingInfo source,
+            in ValueConverterInfo converter)
         {
             _coreTypeMappingInfo = new TypeMappingInfo(
                 source._coreTypeMappingInfo,
@@ -277,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
-        public RelationalTypeMappingInfo WithConverter(ValueConverterInfo converterInfo)
+        public RelationalTypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
             => new RelationalTypeMappingInfo(this, converterInfo);
 
         /// <summary>

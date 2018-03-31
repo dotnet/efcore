@@ -36,7 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var entityTypeBuilder = entityType.Builder;
             var currentKey = entityTypeBuilder.Metadata.FindPrimaryKey();
-            var properties = new List<string> { propertyBuilder.Metadata.Name };
+            var properties = new List<string>
+            {
+                propertyBuilder.Metadata.Name
+            };
 
             if (currentKey != null
                 && entityType.GetPrimaryKeyConfigurationSource() == ConfigurationSource.DataAnnotation)
@@ -81,8 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     foreach (var declaredProperty in entityType.GetDeclaredProperties())
                     {
                         var memberInfo = declaredProperty.GetIdentifyingMemberInfo();
-                        var attributes = memberInfo?.GetCustomAttributes<KeyAttribute>(true);
-                        if (attributes?.Any() == true)
+
+                        if (memberInfo != null
+                            && Attribute.IsDefined(memberInfo, typeof(KeyAttribute), inherit: true))
                         {
                             throw new InvalidOperationException(
                                 CoreStrings.KeyAttributeOnDerivedEntity(entityType.DisplayName(), declaredProperty.Name));

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
@@ -23,18 +24,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            var clrType = entityTypeBuilder.Metadata.ClrType;
-            if (clrType == null)
+            var entityType = entityTypeBuilder.Metadata;
+            if (!entityType.HasClrType())
             {
                 return entityTypeBuilder;
             }
 
-            var members = clrType.GetRuntimeProperties().Cast<MemberInfo>().Concat(clrType.GetRuntimeFields());
+            var members = entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
+                .Concat(entityType.GetRuntimeFields().Values);
 
             foreach (var member in members)
             {
-                var attributes = member.GetCustomAttributes<NotMappedAttribute>(inherit: true);
-                if (attributes.Any())
+                if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true))
                 {
                     entityTypeBuilder.Ignore(member.Name, ConfigurationSource.DataAnnotation);
                 }

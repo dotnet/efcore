@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private ConfigurationSource _configurationSource;
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new Dictionary<string, ConfigurationSource>();
+
+        private Dictionary<string, PropertyInfo> _runtimeProperties;
+        private Dictionary<string, FieldInfo> _runtimeFields;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -42,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(model, nameof(model));
 
-            Name = clrType.DisplayName();
+            Name = model.GetDisplayName(clrType);
             ClrType = clrType;
         }
 
@@ -89,6 +92,70 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract void PropertyMetadataChanged();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Dictionary<string, PropertyInfo> GetRuntimeProperties()
+        {
+            if (ClrType == null)
+            {
+                return null;
+            }
+
+            if (_runtimeProperties == null)
+            {
+                _runtimeProperties = new Dictionary<string, PropertyInfo>();
+                foreach (var property in ClrType.GetRuntimeProperties())
+                {
+                    if (!property.IsStatic()
+                        && !_runtimeProperties.ContainsKey(property.Name))
+                    {
+                        _runtimeProperties[property.Name] = property;
+                    }
+                }
+            }
+
+            return _runtimeProperties;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Dictionary<string, FieldInfo> GetRuntimeFields()
+        {
+            if (ClrType == null)
+            {
+                return null;
+            }
+
+            if (_runtimeFields == null)
+            {
+                _runtimeFields = new Dictionary<string, FieldInfo>();
+                foreach (var field in ClrType.GetRuntimeFields())
+                {
+                    if (!field.IsStatic
+                        && !_runtimeFields.ContainsKey(field.Name))
+                    {
+                        _runtimeFields[field.Name] = field;
+                    }
+                }
+            }
+
+            return _runtimeFields;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void ClearCaches()
+        {
+            _runtimeProperties = null;
+            _runtimeFields = null;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

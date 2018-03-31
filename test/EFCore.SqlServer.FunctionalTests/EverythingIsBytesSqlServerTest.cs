@@ -222,7 +222,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                     };
             }
 
-            protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
+            protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
                 => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
             private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)

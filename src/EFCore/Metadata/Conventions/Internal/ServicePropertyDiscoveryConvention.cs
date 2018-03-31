@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            var candidates = entityType.ClrType.GetRuntimeProperties();
+            var candidates = entityType.GetRuntimeProperties().Values;
 
             foreach (var propertyInfo in candidates)
             {
@@ -129,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return true;
             }
 
-            var member = (MemberInfo)entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == ignoredMemberName)
-                         ?? entityType.ClrType.GetFieldInfo(ignoredMemberName);
+            var member = (MemberInfo)entityType.GetRuntimeProperties().Find(ignoredMemberName)
+                         ?? entityType.GetRuntimeFields().Find(ignoredMemberName);
             var type = member.GetMemberType();
             if (duplicateMap.TryGetValue(type, out var duplicateServiceProperties)
                 && duplicateServiceProperties.Remove(member))

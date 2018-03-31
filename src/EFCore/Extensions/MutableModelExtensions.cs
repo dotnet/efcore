@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(model, nameof(model));
             Check.NotNull(type, nameof(type));
 
-            return model.RemoveEntityType(type.DisplayName());
+            return model.AsModel().RemoveEntityType(type);
         }
 
         /// <summary>

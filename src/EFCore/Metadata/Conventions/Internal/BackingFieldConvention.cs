@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var type = propertyBase.DeclaringType.ClrType;
                 while (type != null)
                 {
-                    var fieldInfo = TryMatchFieldName(type, propertyBase.ClrType, propertyBase.Name);
+                    var fieldInfo = TryMatchFieldName(
+                        (Model)propertyBase.DeclaringType.Model, type, propertyBase.ClrType,propertyBase.Name);
                     if (fieldInfo != null)
                     {
                         propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Convention);
@@ -60,21 +61,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual FieldInfo TryMatchFieldName(
-            [NotNull] Type entityType, [NotNull] Type propertyType, [NotNull] string propertyName)
+        private FieldInfo TryMatchFieldName(Model model, Type entityClrType,  Type propertyType, string propertyName)
         {
-            var fields = new Dictionary<string, FieldInfo>();
-            foreach (var field in entityType.GetRuntimeFields())
+            Dictionary<string, FieldInfo> fields;
+            var entityType = model.FindEntityType(entityClrType);
+            if (entityType == null)
             {
-                if (!field.IsStatic
-                    && !fields.ContainsKey(field.Name))
+                fields = new Dictionary<string, FieldInfo>();
+                foreach (var field in entityClrType.GetRuntimeFields())
                 {
-                    fields[field.Name] = field;
+                    if (!field.IsStatic
+                        && !fields.ContainsKey(field.Name))
+                    {
+                        fields[field.Name] = field;
+                    }
                 }
+            }
+            else
+            {
+                fields = entityType.GetRuntimeFields();
             }
 
             var sortedFields = fields.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray();

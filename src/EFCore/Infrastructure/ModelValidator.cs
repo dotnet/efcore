@@ -511,12 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType))
             {
                 var key = entityType.FindPrimaryKey();
-                if (!identityMaps.TryGetValue(key, out var identityMap))
-                {
-                    identityMap = key.GetIdentityMapFactory()(sensitiveDataLogged);
-                    identityMaps[key] = identityMap;
-                }
-
+                IIdentityMap identityMap = null;
                 foreach (var seedDatum in entityType.GetData())
                 {
                     foreach (var property in entityType.GetProperties())
@@ -575,6 +570,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 navigation.Name,
                                 navigation.GetTargetType().DisplayName(),
                                 Property.Format(navigation.ForeignKey.Properties)));
+                        }
+                    }
+
+                    if (identityMap == null)
+                    {
+                        if (!identityMaps.TryGetValue(key, out identityMap))
+                        {
+                            identityMap = key.GetIdentityMapFactory()(sensitiveDataLogged);
+                            identityMaps[key] = identityMap;
                         }
                     }
 

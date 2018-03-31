@@ -48,10 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Entity(
             [NotNull] Type type, ConfigurationSource configurationSource, bool throwOnQuery = false)
-            => Entity(new TypeIdentity(type), configurationSource, throwOnQuery);
+            => Entity(new TypeIdentity(type, Metadata), configurationSource, throwOnQuery);
 
         private InternalEntityTypeBuilder Entity(
-            TypeIdentity type, ConfigurationSource configurationSource, bool throwOnQuery)
+            in TypeIdentity type, ConfigurationSource configurationSource, bool throwOnQuery)
         {
             if (IsIgnored(type, configurationSource))
             {
@@ -187,10 +187,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType,
             ConfigurationSource configurationSource)
-            => Entity(new TypeIdentity(type), definingNavigationName, definingEntityType, configurationSource);
+            => Entity(new TypeIdentity(type, Metadata), definingNavigationName, definingEntityType, configurationSource);
 
         private InternalEntityTypeBuilder Entity(
-            TypeIdentity type,
+            in TypeIdentity type,
             string definingNavigationName,
             EntityType definingEntityType,
             ConfigurationSource configurationSource)
@@ -266,9 +266,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool Owned(
             [NotNull] Type type, ConfigurationSource configurationSource)
-            => Owned(new TypeIdentity(type), configurationSource);
+            => Owned(new TypeIdentity(type, Metadata), configurationSource);
 
-        private bool Owned(TypeIdentity type, ConfigurationSource configurationSource)
+        private bool Owned(in TypeIdentity type, ConfigurationSource configurationSource)
         {
             if (IsIgnored(type, configurationSource))
             {
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsIgnored([NotNull] Type type, ConfigurationSource configurationSource)
-            => IsIgnored(new TypeIdentity(type), configurationSource);
+            => IsIgnored(new TypeIdentity(type, Metadata), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsIgnored([NotNull] string name, ConfigurationSource configurationSource)
             => IsIgnored(new TypeIdentity(name), configurationSource);
 
-        private bool IsIgnored(TypeIdentity type, ConfigurationSource configurationSource)
+        private bool IsIgnored(in TypeIdentity type, ConfigurationSource configurationSource)
         {
             if (configurationSource == ConfigurationSource.Explicit)
             {
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
-            => Ignore(new TypeIdentity(type), configurationSource);
+            => Ignore(new TypeIdentity(type, Metadata), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
             => Ignore(new TypeIdentity(name), configurationSource);
 
-        private bool Ignore(TypeIdentity type, ConfigurationSource configurationSource)
+        private bool Ignore(in TypeIdentity type, ConfigurationSource configurationSource)
         {
             var name = type.Name;
             var ignoredConfigurationSource = Metadata.FindIgnoredTypeConfigurationSource(name);

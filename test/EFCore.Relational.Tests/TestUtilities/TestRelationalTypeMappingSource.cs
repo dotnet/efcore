@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         }
 
-        protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
+        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
             var storeTypeName = mappingInfo.StoreTypeName;

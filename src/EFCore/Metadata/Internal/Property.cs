@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public new virtual EntityType DeclaringType
+        public override TypeBase DeclaringType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
@@ -465,9 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                + "}";
 
         IEntityType IProperty.DeclaringEntityType => DeclaringEntityType;
-        ITypeBase IPropertyBase.DeclaringType => DeclaringType;
         IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
-        IMutableTypeBase IMutablePropertyBase.DeclaringType => DeclaringType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -478,14 +476,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(properties, nameof(properties));
             Check.NotNull(entityType, nameof(entityType));
 
-            return properties.All(
-                property =>
-                    property.IsShadowProperty
-                    || (entityType.HasClrType()
-                        && ((property.PropertyInfo != null
-                             && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null)
-                            || (property.FieldInfo != null
-                                && entityType.ClrType.GetFieldInfo(property.Name) != null))));
+            return properties.All(property =>
+                property.IsShadowProperty
+                || (entityType.HasClrType()
+                    && ((property.PropertyInfo != null
+                         && entityType.GetRuntimeProperties().ContainsKey(property.Name))
+                        || (property.FieldInfo != null
+                            && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
         }
 
         /// <summary>

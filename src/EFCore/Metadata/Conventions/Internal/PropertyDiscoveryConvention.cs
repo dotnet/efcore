@@ -40,9 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (entityType.HasClrType())
             {
-                var candidates = entityType.ClrType.GetRuntimeProperties();
-
-                foreach (var propertyInfo in candidates)
+                foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
                 {
                     if (IsCandidatePrimitiveProperty(propertyInfo))
                     {

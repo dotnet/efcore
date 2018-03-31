@@ -43,8 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var unmappedProperty = entityType.GetProperties().FirstOrDefault(p =>
@@ -58,72 +56,79 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             entityType.DisplayName(), unmappedProperty.Name, unmappedProperty.ClrType.ShortDisplayName()));
                 }
 
-                if (entityType.HasClrType())
+                if (!entityType.HasClrType())
                 {
-                    var clrProperties = new HashSet<string>();
+                    continue;
+                }
 
-                    clrProperties.UnionWith(
-                        entityType.ClrType.GetRuntimeProperties()
-                            .Where(pi => pi.IsCandidateProperty())
-                            .Select(pi => pi.Name));
+                var clrProperties = new HashSet<string>();
 
-                    clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
-                    clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
-                    clrProperties.ExceptWith(entityType.GetServiceProperties().Select(p => p.Name));
-                    clrProperties.RemoveWhere(p => entityType.Builder.IsIgnored(p, ConfigurationSource.Convention));
+                clrProperties.UnionWith(
+                    entityType.GetRuntimeProperties().Values
+                        .Where(pi => pi.IsCandidateProperty())
+                        .Select(pi => pi.Name));
 
-                    if (clrProperties.Count > 0)
+                clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
+                clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
+                clrProperties.ExceptWith(entityType.GetServiceProperties().Select(p => p.Name));
+                clrProperties.RemoveWhere(p => entityType.Builder.IsIgnored(p, ConfigurationSource.Convention));
+
+                if (clrProperties.Count <= 0)
+                {
+                    continue;
+                }
+
+                foreach (var clrProperty in clrProperties)
+                {
+                    var actualProperty = entityType.GetRuntimeProperties()[clrProperty];
+                    var propertyType = actualProperty.PropertyType;
+                    var targetSequenceType = propertyType.TryGetSequenceType();
+
+                    if (modelBuilder.IsIgnored(modelBuilder.Metadata.GetDisplayName(propertyType),
+                        ConfigurationSource.Convention)
+                        || (targetSequenceType != null
+                            && modelBuilder.IsIgnored(modelBuilder.Metadata.GetDisplayName(targetSequenceType),
+                                ConfigurationSource.Convention)))
                     {
-                        foreach (var clrProperty in clrProperties)
+                        continue;
+                    }
+
+                    var targetType = FindCandidateNavigationPropertyType(actualProperty);
+
+                    var isTargetWeakOrOwned
+                        = targetType != null
+                          && (modelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetType)
+                              || modelBuilder.Metadata.ShouldBeOwnedType(targetType));
+
+                    if (targetType != null
+                        && targetType.IsValidEntityType()
+                        && (isTargetWeakOrOwned
+                            || modelBuilder.Metadata.FindEntityType(targetType) != null
+                            || targetType.GetRuntimeProperties().Any(p => p.IsCandidateProperty())))
+                    {
+                        if ((!isTargetWeakOrOwned
+                             || !targetType.GetTypeInfo().Equals(entityType.ClrType.GetTypeInfo()))
+                            && entityType.GetDerivedTypes().All(
+                                dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
+                            && !entityType.IsInDefinitionPath(targetType))
                         {
-                            var actualProperty = entityType.ClrType.GetRuntimeProperties().First(p => p.Name == clrProperty);
-                            var propertyType = actualProperty.PropertyType;
-                            var targetSequenceType = propertyType.TryGetSequenceType();
-
-                            if (modelBuilder.IsIgnored(propertyType.DisplayName(), ConfigurationSource.Convention)
-                                || (targetSequenceType != null
-                                && modelBuilder.IsIgnored(targetSequenceType.DisplayName(), ConfigurationSource.Convention)))
-                            {
-                                continue;
-                            }
-
-                            var targetType = FindCandidateNavigationPropertyType(actualProperty);
-
-                            var isTargetWeakOrOwned
-                                = targetType != null
-                                  && (modelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetType)
-                                      || modelBuilder.Metadata.ShouldBeOwnedType(targetType));
-
-                            if (targetType != null
-                                && targetType.IsValidEntityType()
-                                && (isTargetWeakOrOwned
-                                    || modelBuilder.Metadata.FindEntityType(targetType) != null
-                                    || targetType.GetRuntimeProperties().Any(p => p.IsCandidateProperty())))
-                            {
-                                if ((!isTargetWeakOrOwned
-                                     || !targetType.GetTypeInfo().Equals(entityType.ClrType.GetTypeInfo()))
-                                    && entityType.GetDerivedTypes().All(dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
-                                    && !entityType.IsInDefinitionPath(targetType))
-                                {
-                                    throw new InvalidOperationException(
-                                        CoreStrings.NavigationNotAdded(
-                                            entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
-                                }
-                            }
-                            else if (targetSequenceType == null && propertyType.GetTypeInfo().IsInterface
-                                     || targetSequenceType != null && targetSequenceType.GetTypeInfo().IsInterface)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.InterfacePropertyNotAdded(
-                                        entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
-                            }
-                            else
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.PropertyNotAdded(
-                                        entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
-                            }
+                            throw new InvalidOperationException(
+                                CoreStrings.NavigationNotAdded(
+                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                         }
+                    }
+                    else if (targetSequenceType == null && propertyType.GetTypeInfo().IsInterface
+                             || targetSequenceType != null && targetSequenceType.GetTypeInfo().IsInterface)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.InterfacePropertyNotAdded(
+                                entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.PropertyNotAdded(
+                                entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                     }
                 }
             }
@@ -137,8 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual bool IsMappedPrimitiveProperty([NotNull] IProperty property)
         {
-            Check.NotNull(property, nameof(property));
-
             return _typeMappingSource.FindMapping(property) != null;
         }
 
@@ -148,8 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
         {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
             return propertyInfo.FindCandidateNavigationPropertyType(_typeMappingSource, _parameterBindingFactories);
         }
     }

@@ -231,18 +231,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static InversePropertyAttribute GetInversePropertyAttributeOnNavigation(Navigation navigation)
-        {
-            return navigation.DeclaringEntityType.ClrType?.GetRuntimeProperties()
-                .FirstOrDefault(p => string.Equals(p.Name, navigation.Name, StringComparison.OrdinalIgnoreCase))
-                ?.GetCustomAttribute<InversePropertyAttribute>(true);
-        }
+            => navigation.DeclaringEntityType.GetRuntimeProperties()?.Values
+                .FirstOrDefault(p => string.Equals(p.Name, navigation.Name, StringComparison.OrdinalIgnoreCase)
+                                     && Attribute.IsDefined(p, typeof(InversePropertyAttribute), inherit: true))
+                ?.GetCustomAttribute<InversePropertyAttribute>(inherit: true);
 
         private static ForeignKeyAttribute GetForeignKeyAttribute(TypeBase entityType, string propertyName)
-        {
-            return entityType.ClrType?.GetRuntimeProperties()
-                .FirstOrDefault(p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                ?.GetCustomAttribute<ForeignKeyAttribute>(true);
-        }
+            => entityType.GetRuntimeProperties()?.Values
+                .FirstOrDefault(p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase)
+                                     && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
+                ?.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
 
         [ContractAnnotation("navigationName:null => null")]
         private MemberInfo FindForeignKeyAttributeOnProperty(EntityType entityType, string navigationName)
@@ -254,29 +252,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             MemberInfo candidateProperty = null;
-            var clrType = entityType.ClrType;
 
-            foreach (var memberInfo in clrType.GetRuntimeProperties().Cast<MemberInfo>()
-                .Concat(clrType.GetRuntimeFields()))
+            foreach (var memberInfo in entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
+                .Concat(entityType.GetRuntimeFields().Values))
             {
-                var attribute = memberInfo.GetCustomAttribute<ForeignKeyAttribute>(true);
-
-                if (attribute != null
-                    && attribute.Name == navigationName)
+                if (!Attribute.IsDefined(memberInfo, typeof(ForeignKeyAttribute), inherit: true))
                 {
-                    if (memberInfo is PropertyInfo propertyInfo
-                        && FindCandidateNavigationPropertyType(propertyInfo) != null)
-                    {
-                        continue;
-                    }
-
-                    if (candidateProperty != null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.CompositeFkOnProperty(navigationName, entityType.DisplayName()));
-                    }
-
-                    candidateProperty = memberInfo;
+                    continue;
                 }
+
+                var attribute = memberInfo.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
+
+                if (attribute.Name != navigationName
+                    || (memberInfo is PropertyInfo propertyInfo
+                        && FindCandidateNavigationPropertyType(propertyInfo) != null))
+                {
+                    continue;
+                }
+
+                if (candidateProperty != null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.CompositeFkOnProperty(navigationName,entityType.DisplayName()));
+                }
+
+                candidateProperty = memberInfo;
             }
 
             if (candidateProperty != null)
@@ -327,18 +327,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         CoreStrings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
                 }
 
-                var navigationPropertyTargetType = navigation.DeclaringEntityType.ClrType.GetRuntimeProperties()
-                    .Single(p => p.Name == navigation.Name).PropertyType;
+                var navigationPropertyTargetType =
+                    navigation.DeclaringEntityType.GetRuntimeProperties()[navigation.Name].PropertyType;
 
-                var otherNavigations = navigation.DeclaringEntityType.ClrType.GetRuntimeProperties()
+                var otherNavigations = navigation.DeclaringEntityType.GetRuntimeProperties().Values
                     .Where(p => p.PropertyType == navigationPropertyTargetType && p.Name != navigation.Name)
                     .OrderBy(p => p.Name);
 
                 foreach (var propertyInfo in otherNavigations)
                 {
+                    if (!Attribute.IsDefined(propertyInfo, typeof(ForeignKeyAttribute), inherit: true))
+                    {
+                        continue;
+                    }
+
                     var attribute = propertyInfo.GetCustomAttribute<ForeignKeyAttribute>(true);
-                    if (attribute != null
-                        && attribute.Name == navigationFkAttribute.Name)
+                    if (attribute.Name == navigationFkAttribute.Name)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.MultipleNavigationsSameFk(navigation.DeclaringEntityType.DisplayName(), attribute.Name));

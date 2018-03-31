@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     Describes metadata needed to decide on a type mapping for a property or type.
     /// </summary>
-    public readonly struct TypeMappingInfo
+    public readonly struct TypeMappingInfo : IEquatable<TypeMappingInfo>
     {
         private readonly Type _providerClrType;
         private readonly ValueConverter _customConverter;
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
-        public TypeMappingInfo WithConverter(ValueConverterInfo converterInfo)
+        public TypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
             => new TypeMappingInfo(this, converterInfo);
 
         /// <summary>

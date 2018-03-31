@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = entityTypeBuilder.Metadata;
             var existingNavigation = entityType.FindNavigation(navigationProperty.Name);
             if (existingNavigation != null
-                && !CanMergeWith(existingNavigation, inversePropertyInfo.Name, targetEntityTypeBuilder))
+                && !CanMergeWith(existingNavigation, inversePropertyInfo, targetEntityTypeBuilder))
             {
                 return false;
             }
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (existingInverse != null)
             {
                 if (existingInverse.DeclaringEntityType != targetEntityTypeBuilder.Metadata
-                    || !CanMergeWith(existingInverse, navigationProperty.Name, entityTypeBuilder))
+                    || !CanMergeWith(existingInverse, navigationProperty, entityTypeBuilder))
                 {
                     return false;
                 }
@@ -379,12 +379,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static bool CanMergeWith(
-            Navigation existingNavigation, string inverseName, InternalEntityTypeBuilder inverseEntityTypeBuilder)
+            Navigation existingNavigation, PropertyInfo inverse, InternalEntityTypeBuilder inverseEntityTypeBuilder)
         {
             var fk = existingNavigation.ForeignKey;
             return (fk.IsSelfReferencing()
                     || fk.ResolveOtherEntityType(existingNavigation.DeclaringEntityType) == inverseEntityTypeBuilder.Metadata)
-                   && fk.Builder.CanSetNavigation(inverseName, !existingNavigation.IsDependentToPrincipal(), ConfigurationSource.Convention);
+                   && fk.Builder.CanSetNavigation(inverse, !existingNavigation.IsDependentToPrincipal(), ConfigurationSource.Convention);
         }
 
         private static IReadOnlyList<RelationshipCandidate> RemoveInheritedInverseNavigations(
@@ -824,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(MemberInfoNameComparer.Instance);
             if (entityType.HasClrType())
             {
-                foreach (var propertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
+                foreach (var propertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
                 {
                     var targetType = FindCandidateNavigationPropertyType(propertyInfo);
                     if (targetType != null)

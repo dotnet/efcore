@@ -75,7 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public new virtual EntityType DeclaringType => DeclaringEntityType;
+        public override TypeBase DeclaringType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -217,8 +220,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;
         IEntityType INavigation.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableNavigation.DeclaringEntityType => DeclaringEntityType;
-        ITypeBase IPropertyBase.DeclaringType => DeclaringType;
-        IMutableTypeBase IMutablePropertyBase.DeclaringType => DeclaringType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

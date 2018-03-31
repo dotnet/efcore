@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<string, EntityType> _entityTypes
             = new SortedDictionary<string, EntityType>();
 
-        private readonly Dictionary<Type, EntityType> _clrTypeMap
-            = new Dictionary<Type, EntityType>();
+        private readonly Dictionary<Type, string> _clrTypeNameMap
+            = new Dictionary<Type, string>();
 
         private readonly SortedDictionary<string, SortedSet<EntityType>> _entityTypesWithDefiningNavigation
             = new SortedDictionary<string, SortedSet<EntityType>>();
@@ -109,8 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entityType = new EntityType(type, this, configurationSource);
 
-            _clrTypeMap[type] = entityType;
-
             return AddEntityType(entityType);
         }
 
@@ -126,8 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 IsQueryType = true
             };
-
-            _clrTypeMap[type] = queryType;
 
             return AddEntityType(queryType);
         }
@@ -188,9 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType FindEntityType([NotNull] Type type)
-            => _clrTypeMap.TryGetValue(Check.NotNull(type, nameof(type)), out var entityType)
-                ? entityType
-                : FindEntityType(type.DisplayName());
+            => FindEntityType(GetDisplayName(type));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -280,12 +274,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var removed = _entityTypes.Remove(entityTypeName);
                 Debug.Assert(removed);
-
-                if (entityType.ClrType != null)
-                {
-                    removed = _clrTypeMap.Remove(entityType.ClrType);
-                    Debug.Assert(removed);
-                }
             }
 
             entityType.OnTypeRemoved();
@@ -331,8 +319,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual string GetDisplayName(Type type)
+        {
+            if (!_clrTypeNameMap.TryGetValue(type, out var name))
+            {
+                name = type.DisplayName();
+                _clrTypeNameMap[type] = name;
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool HasEntityTypeWithDefiningNavigation([NotNull] Type clrType)
-            => _entityTypesWithDefiningNavigation.ContainsKey(clrType.DisplayName());
+            => _entityTypesWithDefiningNavigation.ContainsKey(GetDisplayName(clrType));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -349,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
-            => FindEntityType(type.DisplayName(), definingNavigationName, definingEntityType);
+            => FindEntityType(GetDisplayName(type), definingNavigationName, definingEntityType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -393,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] Type type)
-            => GetEntityTypes(type.DisplayName());
+            => GetEntityTypes(GetDisplayName(type));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -437,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void Ignore(
             [NotNull] Type type,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
-            => Ignore(Check.NotNull(type, nameof(type)).DisplayName(), type, configurationSource);
+            => Ignore(GetDisplayName(Check.NotNull(type, nameof(type))), type, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -473,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(type, nameof(type));
 
-            return FindIgnoredTypeConfigurationSource(type.DisplayName());
+            return FindIgnoredTypeConfigurationSource(GetDisplayName(type));
         }
 
         /// <summary>
@@ -492,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void Unignore([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
-            Unignore(type.DisplayName());
+            Unignore(GetDisplayName(type));
         }
 
         /// <summary>

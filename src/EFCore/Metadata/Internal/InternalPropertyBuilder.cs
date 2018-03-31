@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (fieldName != null)
             {
                 var fieldInfo = PropertyBase.GetFieldInfo(
-                    fieldName, Metadata.DeclaringType.ClrType, Metadata.Name,
+                    fieldName, Metadata.DeclaringType, Metadata.Name,
                     shouldThrow: configurationSource == ConfigurationSource.Explicit);
                 Metadata.SetFieldInfo(fieldInfo, configurationSource);
                 return true;

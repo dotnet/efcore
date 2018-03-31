@@ -25,7 +25,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             var memberInfo = propertyBuilder.Metadata.GetIdentifyingMemberInfo();
-            var attributes = memberInfo?.GetCustomAttributes<TAttribute>(true);
+            if (memberInfo == null)
+            {
+                return propertyBuilder;
+            }
+
+            if (!Attribute.IsDefined(memberInfo, typeof(TAttribute), inherit: true))
+            {
+                return propertyBuilder;
+            }
+
+            var attributes = memberInfo.GetCustomAttributes<TAttribute>(inherit: true);
             if (attributes != null)
             {
                 foreach (var attribute in attributes)

@@ -16,8 +16,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
-// ReSharper disable MemberHidesStaticFromOuterClass
 
+// ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedMember.Local

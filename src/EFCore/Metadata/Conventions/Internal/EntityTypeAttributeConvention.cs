@@ -24,7 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            var attributes = entityTypeBuilder.Metadata.ClrType?.GetTypeInfo().GetCustomAttributes<TAttribute>(true);
+            var type = entityTypeBuilder.Metadata.ClrType;
+            if (type == null
+                || !Attribute.IsDefined(type, typeof(TAttribute), inherit: true))
+            {
+                return entityTypeBuilder;
+            }
+
+            var attributes = type.GetTypeInfo().GetCustomAttributes<TAttribute>(true);
             if (attributes != null)
             {
                 foreach (var attribute in attributes)

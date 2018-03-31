@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             while (clrType != null)
             {
-                if (ownedTypes.Contains(clrType.DisplayName()))
+                var name = (model as Model)?.GetDisplayName(clrType) ?? clrType.DisplayName();
+                if (ownedTypes.Contains(name))
                 {
                     return true;
                 }
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MarkAsOwnedType([NotNull] this Model model, [NotNull] Type clrType)
-            => model.MarkAsOwnedType(clrType.DisplayName());
+            => model.MarkAsOwnedType(model.GetDisplayName(clrType));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             while (clrType != null)
             {
-                ownedTypes.Remove(clrType.DisplayName());
+                ownedTypes.Remove(model.GetDisplayName(clrType));
 
                 clrType = clrType.BaseType;
             }

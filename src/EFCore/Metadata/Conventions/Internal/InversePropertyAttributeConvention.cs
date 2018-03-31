@@ -82,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityType = entityTypeBuilder.Metadata;
             var targetClrType = targetEntityTypeBuilder.Metadata.ClrType;
-            var inverseNavigationPropertyInfo = targetClrType.GetRuntimeProperties().FirstOrDefault(p => string.Equals(p.Name, attribute.Property, StringComparison.OrdinalIgnoreCase));
+            var inverseNavigationPropertyInfo = targetEntityTypeBuilder.Metadata.GetRuntimeProperties().Values
+                .FirstOrDefault(p => string.Equals(p.Name, attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
                 || !FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo).GetTypeInfo()
@@ -104,16 +105,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             // Check for InversePropertyAttribute on the inverseNavigation to verify that it matches.
-            var inverseAttribute = inverseNavigationPropertyInfo.GetCustomAttribute<InversePropertyAttribute>(true);
-            if (inverseAttribute != null
-                && inverseAttribute.Property != navigationMemberInfo.Name)
+            if (Attribute.IsDefined(inverseNavigationPropertyInfo, typeof(InversePropertyAttribute)))
             {
-                throw new InvalidOperationException(
-                    CoreStrings.InversePropertyMismatch(
-                        navigationMemberInfo.Name,
-                        entityType.DisplayName(),
-                        inverseNavigationPropertyInfo.Name,
-                        targetEntityTypeBuilder.Metadata.DisplayName()));
+                var inverseAttribute = inverseNavigationPropertyInfo.GetCustomAttribute<InversePropertyAttribute>(true);
+                if (inverseAttribute.Property != navigationMemberInfo.Name)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.InversePropertyMismatch(
+                            navigationMemberInfo.Name,
+                            entityType.DisplayName(),
+                            inverseNavigationPropertyInfo.Name,
+                            targetEntityTypeBuilder.Metadata.DisplayName()));
+                }
             }
 
             var referencingNavigationsWithAttribute =
@@ -153,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 _logger.NonDefiningInverseNavigationWarning(entityType, navigationMemberInfo,
                     targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
-                    targetClrType.GetRuntimeProperties().First(p => p.Name == entityType.DefiningNavigationName));
+                    targetEntityTypeBuilder.Metadata.GetRuntimeProperties()[entityType.DefiningNavigationName]);
                 return null;
             }
 

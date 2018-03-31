@@ -7,12 +7,14 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#pragma warning disable 1574
+#pragma warning disable CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
     ///         The base class for non-relational type mapping starting with version 2.1. Non-relational providers
-    ///         should derive from this class and override <see cref="FindMapping(TypeMappingInfo)" />
+    ///         should derive from this class and override <see cref="TypeMappingSourceBase.FindMapping" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected abstract CoreTypeMapping FindMapping(TypeMappingInfo mappingInfo);
+        protected abstract CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo);
 
         /// <summary>
         ///     Called after a mapping has been found so that it can be validated for the given property.
