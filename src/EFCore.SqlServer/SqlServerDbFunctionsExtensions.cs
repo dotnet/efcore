@@ -23,15 +23,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     This can happen if the query contains one or more expressions that could not be translated to the store.
         /// </remarks>
         /// <param name="_">DbFunctions instance</param>
-        /// <param name="propertyName">The property on which the search will be performed.</param>
+        /// <param name="propertyReference">The property on which the search will be performed.</param>
         /// <param name="freeText">The text that will be searched for in the property.</param>
         /// <param name="languageTerm">A Language ID from the sys.syslanguages table.</param>
         public static bool FreeText(
             [CanBeNull] this DbFunctions _,
-            [NotNull] string propertyName,
+            [NotNull] string propertyReference,
             [NotNull] string freeText,
             int languageTerm)
-            => FreeTextCore(propertyName, freeText, languageTerm);
+            => FreeTextCore(propertyReference, freeText, languageTerm);
 
         /// <summary>
         /// <para>
@@ -43,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     This can happen if the query contains one or more expressions that could not be translated to the store.
         /// </remarks>
         /// <param name="_">DbFunctions instance</param>
-        /// <param name="propertyName">The property on which the search will be performed.</param>
+        /// <param name="propertyReference">The property on which the search will be performed.</param>
         /// <param name="freeText">The text that will be searched for in the property.</param>
         public static bool FreeText(
             [CanBeNull] this DbFunctions _,
-            [NotNull] string propertyName,
+            [NotNull] string propertyReference,
             [NotNull] string freeText)
-            => FreeTextCore(propertyName, freeText, null);
+            => FreeTextCore(propertyReference, freeText, null);
 
         private static bool FreeTextCore(string propertyName, string freeText, int? languageTerm)
         {

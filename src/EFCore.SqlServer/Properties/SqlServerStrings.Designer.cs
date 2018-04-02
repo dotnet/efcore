@@ -315,6 +315,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string FreeTextFunctionOnClient
             => GetString("FreeTextFunctionOnClient");
 
+        /// <summary>
+        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
+        /// </summary>
+        public static string InvalidColumnNameForFreeText
+            => GetString("InvalidColumnNameForFreeText");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

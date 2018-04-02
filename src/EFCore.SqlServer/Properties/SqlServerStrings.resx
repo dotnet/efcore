@@ -222,4 +222,7 @@
   <data name="FreeTextFunctionOnClient" xml:space="preserve">
     <value>The 'FreeText' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
   </data>
+  <data name="InvalidColumnNameForFreeText" xml:space="preserve">
+    <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
+  </data>
 </root>
