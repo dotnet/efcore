@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public string Phone { get; set; }
         public string Fax { get; set; }
 
-        public virtual ICollection<Order> Orders { get; set; }
+        public virtual List<Order> Orders { get; set; }
 
         [NotMapped]
         public bool IsLondon => City == "London";
