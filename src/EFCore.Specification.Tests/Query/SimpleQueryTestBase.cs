@@ -1707,6 +1707,43 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Where_Join_Any()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Any(o => o.OrderDate == new DateTime(2008, 10, 24))));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Join_Exists()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate == new DateTime(2008, 10, 24))));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Join_Exists_Inequality()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate != new DateTime(2008, 10, 24))),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Join_Exists_Constant()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => false)));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Join_Not_Exists()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && !c.Orders.Exists(o => false)),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual void Multiple_joins_Where_Order_Any()
         {
             AssertSingleResult<Customer, Order, OrderDetail>(
