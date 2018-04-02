@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var genericTypeParameters = methodCallExpression.Method.DeclaringType.GetGenericArguments();
                 if (genericTypeParameters.Length == 1 && methodCallExpression.Arguments[0] is LambdaExpression actualLambdaExpression)
                 {
-                    var innerListType = methodCallExpression.Method.DeclaringType.GetGenericArguments()[0];
+                    var innerListType = genericTypeParameters[0];
 
                     var mainFromClause = new MainFromClause(
                         "<generated>_",
