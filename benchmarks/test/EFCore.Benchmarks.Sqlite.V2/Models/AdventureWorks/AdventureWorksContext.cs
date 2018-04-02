@@ -17,5 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         {
             optionsBuilder.UseSqlite(_connectionString);
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                // Work around issue #9560
+                entityType.Relational().Schema = null;
+            }
+        }
     }
 }

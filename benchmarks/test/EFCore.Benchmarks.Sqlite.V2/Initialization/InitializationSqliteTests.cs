@@ -11,21 +11,5 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
         {
             return SqliteConventionSetBuilder.Build();
         }
-
-        // TODO: Following are disabled due to no database.
-        public override void CreateAndDisposeUnusedContext()
-        {
-            base.CreateAndDisposeUnusedContext();
-        }
-
-        public override void InitializeAndQuery_AdventureWorks()
-        {
-            base.InitializeAndQuery_AdventureWorks();
-        }
-
-        public override void InitializeAndSaveChanges_AdventureWorks()
-        {
-            base.InitializeAndSaveChanges_AdventureWorks();
-        }
     }
 }

@@ -14,6 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\EFCore.Benchmarks.Sqlite.Dev\AdventureWorks2014.db" Link="AdventureWorks2014.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.Benchmarks.V2\EFCore.Benchmarks.V2.csproj" />
   </ItemGroup>
 

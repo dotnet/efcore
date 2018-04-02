@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         private IQueryable<Store> _query;
 
         protected virtual int QueriesPerIteration => 10;
+        protected virtual int UnfilteredCount => 466;
 
         [Params(true, false)]
         public bool Async { get; set; }
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         [GlobalCleanup]
         public virtual void CleanupContext()
         {
-            Assert.Equal(Filter ? 466 : 701, _query.Count());
+            Assert.Equal(Filter ? UnfilteredCount : 701, _query.Count());
 
             _context.Dispose();
         }

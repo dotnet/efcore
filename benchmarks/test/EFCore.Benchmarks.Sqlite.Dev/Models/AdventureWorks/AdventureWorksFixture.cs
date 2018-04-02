@@ -5,8 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
 {
     public static class AdventureWorksFixture
     {
-        // TODO: No database for Sqlite
-        private static string _connectionString = $"DataSource=AdventureWorks2014;";
+        private static string _connectionString = "Data Source=AdventureWorks2014.db";
 
         // This method is called from timed code, be careful when changing it
         public static AdventureWorksContextBase CreateContext()
