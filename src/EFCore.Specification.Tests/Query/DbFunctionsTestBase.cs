@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TFixture Fixture { get; }
 
         [ConditionalFact]
-        public virtual void String_Like_Literal()
+        public virtual void Like_literal()
         {
             using (var context = CreateContext())
             {
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void String_Like_Identity()
+        public virtual void Like_identity()
         {
             using (var context = CreateContext())
             {
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void String_Like_Literal_With_Escape()
+        public virtual void Like_literal_with_escape()
         {
             using (var context = CreateContext())
             {

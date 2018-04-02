@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public override void String_Like_Literal()
+        public override void Like_literal()
         {
             using (var context = CreateContext())
             {

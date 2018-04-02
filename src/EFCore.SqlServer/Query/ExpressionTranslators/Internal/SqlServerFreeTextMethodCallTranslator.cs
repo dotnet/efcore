@@ -1,10 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.Internal
@@ -35,27 +38,50 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            return Equals(methodCallExpression.Method, _methodInfo)
-                ? new SqlFunctionExpression(
+            if (Equals(methodCallExpression.Method, _methodInfo))
+            {
+                ValidatePropertyReference(methodCallExpression.Arguments[1]);
+
+                return new SqlFunctionExpression(
                     FunctionName,
                     typeof(bool),
                     new Expression[]
                     {
                         methodCallExpression.Arguments[1],
                         methodCallExpression.Arguments[2]
-                    })
-                : Equals(methodCallExpression.Method, _methodInfoWithLanguage)
-                    ? new SqlFunctionExpression(
-                        FunctionName,
-                        typeof(bool),
-                        new Expression[]
-                        {
-                            methodCallExpression.Arguments[1],
-                            methodCallExpression.Arguments[2],
-                            new SqlFragmentExpression(
-                                $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
-                        })
-                    : null;
+                    });
+            }
+            else if (Equals(methodCallExpression.Method, _methodInfoWithLanguage))
+            {
+                ValidatePropertyReference(methodCallExpression.Arguments[1]);
+
+                return new SqlFunctionExpression(
+                    FunctionName,
+                    typeof(bool),
+                    new Expression[]
+                    {
+                        methodCallExpression.Arguments[1],
+                        methodCallExpression.Arguments[2],
+                        new SqlFragmentExpression(
+                            $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
+                    });
+            }
+
+            return null;
+        }
+
+        private static void ValidatePropertyReference(Expression expression)
+        {
+            expression = expression.RemoveConvert();
+            if (expression is NullableExpression nullableExpression)
+            {
+                expression = nullableExpression.Operand;
+            }
+
+            if (!(expression is ColumnExpression))
+            {
+                throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText);
+            }
         }
     }
 }
