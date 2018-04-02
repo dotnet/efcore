@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -31,13 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
             {
                 var genericTypeParameters = methodCallExpression.Method.DeclaringType.GetGenericArguments();
-                if (genericTypeParameters.Length == 1 && methodCallExpression.Arguments[0] is LambdaExpression actualLambdaExpression)
+                if (genericTypeParameters.Length == 1
+                    && methodCallExpression.Arguments[0] is LambdaExpression lambdaExpression)
                 {
-                    var innerListType = methodCallExpression.Method.DeclaringType.GetGenericArguments()[0];
-
                     var mainFromClause = new MainFromClause(
                         "<generated>_",
-                        innerListType,
+                        genericTypeParameters[0],
                         methodCallExpression.Object);
 
                     var qsre = new QuerySourceReferenceExpression(mainFromClause);
@@ -48,11 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     mainFromClause.ItemName = queryModel.GetNewName(mainFromClause.ItemName);
 
                     var predicateExpression
-                        = ReplacingExpressionVisitor
-                        .Replace(
-                            actualLambdaExpression.Parameters[0],
+                        = ReplacingExpressionVisitor.Replace(
+                            lambdaExpression.Parameters[0],
                             qsre,
-                            actualLambdaExpression.Body);
+                            lambdaExpression.Body);
 
                     queryModel.BodyClauses.Add(new WhereClause(predicateExpression));
                     queryModel.ResultOperators.Add(new AnyResultOperator());
