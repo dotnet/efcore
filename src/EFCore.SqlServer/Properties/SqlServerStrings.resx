@@ -187,7 +187,7 @@
     <comment>Warning SqlServerEventId.MissingTableWarning string</comment>
   </data>
   <data name="LogFoundSequence" xml:space="preserve">
-    <value>Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
+    <value>Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}, cache size: {cacheSize}.</value>
     <comment>Debug SqlServerEventId.SequenceFound string string bool int long long long</comment>
   </data>
   <data name="LogFoundTable" xml:space="preserve">

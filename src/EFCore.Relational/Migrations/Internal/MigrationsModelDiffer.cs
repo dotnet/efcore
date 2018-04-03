@@ -1342,6 +1342,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || source.MaxValue != target.MaxValue
                 || source.MinValue != target.MinValue
                 || source.IsCyclic != target.IsCyclic
+                || source.CacheSize != target.CacheSize
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var alterSequenceOperation = new AlterSequenceOperation
@@ -1399,6 +1400,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             sequenceOperation.MinValue = sequence.MinValue;
             sequenceOperation.MaxValue = sequence.MaxValue;
             sequenceOperation.IsCyclic = sequence.IsCyclic;
+            sequenceOperation.CacheSize = sequence.CacheSize;
             sequenceOperation.AddAnnotations(migrationsAnnotations);
 
             return sequenceOperation;

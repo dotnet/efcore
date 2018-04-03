@@ -42,5 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     is reached.
         /// </summary>
         new bool IsCyclic { get; set; }
+
+        /// <summary>
+        ///     The value of the cache size used by the sequence, or <c>null</c> if none has been set.
+        /// </summary>
+        new long? CacheSize { get; set; }
     }
 }

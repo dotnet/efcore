@@ -28,5 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Indicates whether or not the sequence will re-start when the maximum value is reached.
         /// </summary>
         public virtual bool IsCyclic { get; set; }
+
+        /// <summary>
+        ///     The value of the sequence cache size, or <c>null</c> if not specified.
+        /// </summary>
+        public virtual long? CacheSize { get; set; }
     }
 }

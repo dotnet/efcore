@@ -1098,6 +1098,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operation.MinValue,
                 operation.MaxValue,
                 operation.IsCyclic,
+                operation.CacheSize,
                 model,
                 builder);
 
@@ -1118,6 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operation.MinValue,
                 operation.MaxValue,
                 operation.IsCyclic,
+                operation.CacheSize,
                 model,
                 builder);
 
@@ -1130,6 +1132,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="minimumValue"> The minimum value supported by the sequence, or <c>null</c> if none was specified. </param>
         /// <param name="maximumValue"> The maximum value supported by the sequence, or <c>null</c> if none was specified. </param>
         /// <param name="cycle"> Indicates whether or not the sequence will start again once the maximum value is reached. </param>
+        /// <param name="cacheSize"> The value of the sequence cache size, or <c>null</c> if not specified. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected virtual void SequenceOptions(
@@ -1139,6 +1142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             long? minimumValue,
             long? maximumValue,
             bool cycle,
+            long? cacheSize,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
         {
@@ -1177,6 +1181,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             builder.Append(cycle ? " CYCLE" : " NO CYCLE");
+
+            if (cacheSize.HasValue)
+            {
+                builder
+                    .Append(" CACHE ")
+                    .Append(longTypeMapping.GenerateSqlLiteral(cacheSize));
+            }
         }
 
         /// <summary>

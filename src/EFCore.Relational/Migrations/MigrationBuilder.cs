@@ -541,10 +541,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="minValue"> The minimum value of the sequence, or <c>null</c> if not specified. </param>
         /// <param name="maxValue"> The maximum value of the sequence, or <c>null</c> if not specified. </param>
         /// <param name="cyclic"> Indicates whether or not the sequence will re-start when the maximum value is reached. </param>
+        /// <param name="cacheSize"> The value of the sequence cache size, or <c>null</c> if not specified. </param>
         /// <param name="oldIncrementBy"> The previous amount to increment by when generating the next value in the sequence, defaulting to 1. </param>
         /// <param name="oldMinValue"> The previous minimum value of the sequence, or <c>null</c> if not specified. </param>
         /// <param name="oldMaxValue"> The previous maximum value of the sequence, or <c>null</c> if not specified. </param>
         /// <param name="oldCyclic"> Indicates whether or not the sequence would previously re-start when the maximum value is reached. </param>
+        /// <param name="oldCacheSize"> The previous value of the sequence cache size, or <c>null</c> if not specified. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterSequenceOperation> AlterSequence(
             [NotNull] string name,
@@ -553,10 +555,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             long? minValue = null,
             long? maxValue = null,
             bool cyclic = false,
+            int? cacheSize = null,
             int oldIncrementBy = 1,
             long? oldMinValue = null,
             long? oldMaxValue = null,
-            bool oldCyclic = false)
+            bool oldCyclic = false,
+            int? oldCacheSize = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -568,12 +572,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MinValue = minValue,
                 MaxValue = maxValue,
                 IsCyclic = cyclic,
+                CacheSize = cacheSize,
                 OldSequence = new SequenceOperation
                 {
                     IncrementBy = oldIncrementBy,
                     MinValue = oldMinValue,
                     MaxValue = oldMaxValue,
-                    IsCyclic = oldCyclic
+                    IsCyclic = oldCyclic,
+                    CacheSize = oldCacheSize
                 }
             };
             Operations.Add(operation);

@@ -479,8 +479,11 @@
   <data name="DuplicateUniqueIndexValuesRemovedSensitive" xml:space="preserve">
     <value>The entities of type '{entityType}' with key values {firstKeyValues} and {secondKeyValues} had the same value for the unique index {indexValue}. Configure the index as non-unique if duplicates should be allowed.</value>
   </data>
-  <data name="LogValueConversionSqlLiteralWarning" xml:space="preserve"> 
-    <value>A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.</value> 
-    <comment>Warning RelationalEventId.ValueConversionSqlLiteralWarning object object</comment> 
+  <data name="LogValueConversionSqlLiteralWarning" xml:space="preserve">
+    <value>A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.</value>
+    <comment>Warning RelationalEventId.ValueConversionSqlLiteralWarning object object</comment>
+  </data>
+  <data name="BadCacheSize" xml:space="preserve">
+    <value>Cannot use {value} as the cache size, the value must be greater than zero</value>
   </data>
 </root>
