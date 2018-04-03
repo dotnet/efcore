@@ -876,6 +876,9 @@ namespace Microsoft.EntityFrameworkCore
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; private set; }
 
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+            public bool Filler { get; private set; }
+
             public TContext Context { get; }
         }
 
@@ -936,12 +939,16 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public IEntityType GetEntityType() => _entityType;
         }
 
         protected class HasEntityTypeProperty
         {
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public IEntityType EntityType { get; set; }
         }
@@ -961,6 +968,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             private IEntityType EntityType
             {
@@ -992,12 +1001,16 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public IStateManager GetStateManager() => _stateManager;
         }
 
         protected class HasStateManagerProperty
         {
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public IStateManager StateManager { get; set; }
         }
@@ -1017,6 +1030,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             private IStateManager StateManager
             {
@@ -1049,6 +1064,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public void AddPost(LazyPost post) => _lazyPosts.Add(post);
 
             public IEnumerable<LazyPost> LazyPosts => _loader.Load(this, ref _lazyPosts);
@@ -1070,6 +1087,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public LazyBlog LazyBlog
             {
                 get => _loader.Load(this, ref _lazyBlog);
@@ -1085,6 +1104,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public void AddPost(LazyPropertyPost post) => _lazyPropertyPosts.Add(post);
 
             public IEnumerable<LazyPropertyPost> LazyPropertyPosts => Loader.Load(this, ref _lazyPropertyPosts);
@@ -1097,6 +1118,7 @@ namespace Microsoft.EntityFrameworkCore
             private ILazyLoader Loader { get; set; }
 
             public int Id { get; set; }
+            public bool Filler { get; set; }
             public int LazyPropertyBlogId { get; set; }
 
             public LazyPropertyBlog LazyPropertyBlog
@@ -1118,6 +1140,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public void AddPost(LazyFieldPost post) => _lazyFieldPosts.Add(post);
 
             public IEnumerable<LazyFieldPost> LazyFieldPosts => _loader.Load(this, ref _lazyFieldPosts);
@@ -1132,6 +1156,7 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning restore 649
 
             public int Id { get; set; }
+            public bool Filler { get; set; }
             public int LazyFieldBlogId { get; set; }
 
             public LazyFieldBlog LazyFieldBlog
@@ -1151,6 +1176,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public void AddPost(LazyPsPost post) => _lazyPsPosts.Add(post);
 
             public IEnumerable<LazyPsPost> LazyPsPosts => LazyLoader.Load(this, ref _lazyPsPosts);
@@ -1163,6 +1190,8 @@ namespace Microsoft.EntityFrameworkCore
             private Action<object, string> LazyLoader { get; set; }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public LazyPsBlog LazyPsBlog
             {
@@ -1178,6 +1207,8 @@ namespace Microsoft.EntityFrameworkCore
             private Func<object, CancellationToken, string, Task> LazyLoader { get; set; }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public void AddPost(LazyAsyncPsPost post) => _lazyAsyncPsPosts.Add(post);
 
@@ -1196,6 +1227,7 @@ namespace Microsoft.EntityFrameworkCore
             private Func<object, CancellationToken, string, Task> LazyLoader { get; set; }
 
             public int Id { get; set; }
+            public bool Filler { get; set; }
             public async Task<LazyAsyncPsBlog> LoadBlogAsync(CancellationToken cancellationToken = default)
             {
                 await LazyLoader(this, cancellationToken, nameof(LazyAsyncPsBlog));
@@ -1236,6 +1268,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public void AddPost(LazyPcPost post) => _lazyPcPosts.Add(post);
 
             public IEnumerable<LazyPcPost> LazyPcPosts => Loader.Load(this, ref _lazyPcPosts);
@@ -1270,6 +1304,8 @@ namespace Microsoft.EntityFrameworkCore
             public bool LoaderSetterCalled { get; set; }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public LazyPcBlog LazyPcBlog
             {
@@ -1308,6 +1344,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public void AddPost(LazyPcsPost post) => _lazyPcsPosts.Add(post);
 
             public IEnumerable<LazyPcsPost> LazyPcsPosts => LazyLoader.Load(this, ref _lazyPcsPosts);
@@ -1342,6 +1380,7 @@ namespace Microsoft.EntityFrameworkCore
             public bool LoaderSetterCalled { get; set; }
 
             public int Id { get; set; }
+            public bool Filler { get; set; }
             public int LazyPcsBlogId { get; set; }
 
             public LazyPcsBlog LazyPcsBlog
@@ -1368,6 +1407,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public void AddPost(LazyPocoPost post) => _lazyPocoPosts.Add(post);
 
             public IEnumerable<LazyPocoPost> LazyPocoPosts => _loader.Load(this, ref _lazyPocoPosts);
@@ -1388,6 +1429,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public LazyPocoBlog LazyPocoBlog
             {
@@ -1411,6 +1454,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public void AddPost(LazyAsyncPocoPost post) => _lazyAsyncPocoPosts.Add(post);
 
@@ -1439,6 +1484,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
 
+            public bool Filler { get; set; }
+
             public async Task<LazyAsyncPocoBlog> LoadBlogAsync(CancellationToken cancellationToken = default)
             {
                 await _loader(this, cancellationToken, nameof(LazyAsyncPocoBlog));
@@ -1464,6 +1511,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public void AddPost(LazyAsyncPost post) => _lazyAsyncPosts.Add(post);
 
@@ -1491,6 +1540,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public int Id { get; set; }
+
+            public bool Filler { get; set; }
 
             public async Task<LazyAsyncBlog> LoadBlogAsync(CancellationToken cancellationToken = default)
             {
