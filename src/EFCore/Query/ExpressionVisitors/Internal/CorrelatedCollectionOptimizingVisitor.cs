@@ -76,6 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static bool IsCorrelatedCollectionMethod(MethodCallExpression methodCallExpression)
+            => methodCallExpression.Method.MethodIsClosedFormOf(_correlateSubqueryMethodInfo)
+               || methodCallExpression.Method.MethodIsClosedFormOf(_correlateSubqueryAsyncMethodInfo);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.MethodIsClosedFormOf(_toListMethodInfo)

@@ -1106,7 +1106,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     _canBindPropertyToOuterParameter = canBindPropertyToOuterParameter;
 
-                    if (sqlOrderingExpression == null)
+                    if (sqlOrderingExpression == null
+                        || sqlOrderingExpression.Type == typeof(Expression[]))
                     {
                         break;
                     }

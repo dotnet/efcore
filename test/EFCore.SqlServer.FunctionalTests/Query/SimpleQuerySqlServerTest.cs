@@ -2263,7 +2263,7 @@ FROM [Customers] AS [c2]");
             base.Select_DTO_distinct_translated_to_server();
 
             AssertSql(
-                @"SELECT DISTINCT 1
+                @"SELECT 1
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300");
         }

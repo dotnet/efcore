@@ -874,6 +874,18 @@ FROM [Customers] AS [c]");
 END
 FROM [Customers] AS [c]");
         }
+
+        public override void Select_bool_constant()
+        {
+            base.Select_bool_constant();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]");
+        }
 #endif
     }
 }

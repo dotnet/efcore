@@ -3374,6 +3374,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Correlated_collections_basic_projecting_constant_bool()
+        {
+            AssertQuery<Gear>(
+                gs => from g in gs
+                      where g.Nickname != "Marcus"
+                      orderby g.Nickname
+                      select (from w in g.Weapons
+                              where w.IsAutomatic || w.Name != "foo"
+                              select true).ToList(),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<bool>());
+        }
+
+        [ConditionalFact]
         public virtual void Correlated_collections_projection_of_collection_thru_navigation()
         {
             AssertQuery<Gear>(
@@ -4630,6 +4644,98 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Squad>(
                 ss => ss.Where(s => s.Name == "Kilo").Where(s => s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() != 0).Select(s => s.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_projecting_single_constant_int()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => 42).FirstOrDefault() }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_projecting_single_constant_string()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => "Foo").FirstOrDefault() }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_projecting_single_constant_bool()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => true).FirstOrDefault() }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_projecting_single_constant_inside_anonymous()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new { One = 1 }).FirstOrDefault() }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_projecting_multiple_constants_inside_anonymous()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new { True = true, False = false }).FirstOrDefault() }));
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_order_by_constant()
+        {
+            AssertIncludeQuery<Squad>(
+                ss => ss.Include(s => s.Members).OrderBy(s => 42),
+                expectedQuery: ss => ss,
+                new List <IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_groupby_constant()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Squads.Include(s => s.Members).GroupBy(s => 1);
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                var bucket = result[0].ToList();
+                Assert.Equal(2, bucket.Count);
+                Assert.NotNull(bucket[0].Members);
+                Assert.NotNull(bucket[1].Members);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_collection_order_by_constant()
+        {
+            AssertQuery<Gear>(
+                gs => gs.OrderByDescending(s => 1).Select(g => new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }),
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Nickname, a.Nickname);
+                    CollectionAsserter<string>()(e.Weapons, a.Weapons);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_composite_key_with_Include()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears.Include(o => o.Weapons).GroupBy(o => new { o.Rank, One = 1, o.Nickname, });
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+                foreach (var bucket in result)
+                {
+                    foreach (var gear in bucket)
+                    {
+                        Assert.True(gear.Weapons.Count > 0);
+                    }
+                }
+            }
         }
 
         // Remember to add any new tests to Async version of this test class

@@ -1546,5 +1546,43 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Squad>(
                 ss => ss.Where(s => s.Name == "Kilo").Where(s => s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() != 0).Select(s => s.Name));
         }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_order_by_constant()
+        {
+            await AssertIncludeQuery<Squad>(
+                ss => ss.Include(s => s.Members).OrderBy(s => 42),
+                expectedQuery: ss => ss,
+                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_groupby_constant()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Squads.Include(s => s.Members).GroupBy(s => 1);
+                var result = await query.ToListAsync();
+
+                Assert.Equal(1, result.Count);
+                var bucket = result[0].ToList();
+                Assert.Equal(2, bucket.Count);
+                Assert.NotNull(bucket[0].Members);
+                Assert.NotNull(bucket[1].Members);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Correlated_collection_order_by_constant()
+        {
+            await AssertQuery<Gear>(
+                gs => gs.OrderByDescending(s => 1).Select(g => new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }),
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Nickname, a.Nickname);
+                    CollectionAsserter<string>()(e.Weapons, a.Weapons);
+                });
+        }
     }
 }

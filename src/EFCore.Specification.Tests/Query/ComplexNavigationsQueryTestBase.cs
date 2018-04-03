@@ -2493,7 +2493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      join l1i in l1s
                          on l2i.Level1_Required_Id equals l1i.Id
                      orderby l2i.Id
-                     select new { Navigation = l2i.OneToOne_Required_FK_Inverse, Contant = 7 }).First().Navigation.Name);
+                     select new { Navigation = l2i.OneToOne_Required_FK_Inverse, Constant = 7 }).First().Navigation.Name);
         }
 
         [ConditionalFact]

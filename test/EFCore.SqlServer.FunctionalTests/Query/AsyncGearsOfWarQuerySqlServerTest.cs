@@ -979,7 +979,7 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] <> N'Marcus')
 ORDER BY [g].[Nickname], [g].[SquadId], [g].[FullName]",
                 //
-                @"SELECT [t].[Nickname], [t].[SquadId], [t].[FullName], [g.Weapons].[OwnerFullName]
+                @"SELECT [t].[Nickname], [t].[SquadId], [t].[FullName], N'BFG', [g.Weapons].[OwnerFullName]
 FROM [Weapons] AS [g.Weapons]
 INNER JOIN (
     SELECT [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
@@ -1039,11 +1039,11 @@ ORDER BY [t].[Id]");
             await base.Correlated_collections_nested();
 
             AssertSql(
-                  @"SELECT [s].[Id]
+                @"SELECT [s].[Id]
 FROM [Squads] AS [s]
 ORDER BY [s].[Id]",
-                  //
-                  @"SELECT [t].[Id], [m.Mission].[Id], [s.Missions].[SquadId]
+                //
+                @"SELECT [t].[Id], [s.Missions].[SquadId], [m.Mission].[Id]
 FROM [SquadMissions] AS [s.Missions]
 INNER JOIN [Missions] AS [m.Mission] ON [s.Missions].[MissionId] = [m.Mission].[Id]
 INNER JOIN (
@@ -1052,8 +1052,8 @@ INNER JOIN (
 ) AS [t] ON [s.Missions].[SquadId] = [t].[Id]
 WHERE [s.Missions].[MissionId] < 42
 ORDER BY [t].[Id], [s.Missions].[SquadId], [s.Missions].[MissionId], [m.Mission].[Id]",
-                  //
-                  @"SELECT [m.Mission.ParticipatingSquads].[SquadId], [m.Mission.ParticipatingSquads].[MissionId], [t1].[Id], [t1].[SquadId], [t1].[MissionId], [t1].[Id0]
+                //
+                @"SELECT [m.Mission.ParticipatingSquads].[SquadId], [m.Mission.ParticipatingSquads].[MissionId], [t1].[Id], [t1].[SquadId], [t1].[MissionId], [t1].[Id0]
 FROM [SquadMissions] AS [m.Mission.ParticipatingSquads]
 INNER JOIN (
     SELECT [t0].[Id], [s.Missions0].[SquadId], [s.Missions0].[MissionId], [m.Mission0].[Id] AS [Id0]
@@ -1320,7 +1320,7 @@ ORDER BY [t0].[FullName], [t0].[Nickname], [t0].[SquadId], [o.Reports].[FullName
             await base.Correlated_collections_multiple_nested_complex_collections();
 
             AssertSql(
-                  @"SELECT [o].[FullName] AS [FullName0], [o].[Nickname], [o].[SquadId], [t].[FullName]
+                @"SELECT [o].[FullName], [o].[Nickname], [o].[SquadId], [t].[FullName]
 FROM [Gears] AS [o]
 LEFT JOIN [Tags] AS [o.Tag] ON ([o].[Nickname] = [o.Tag].[GearNickName]) AND ([o].[SquadId] = [o.Tag].[GearSquadId])
 LEFT JOIN (
@@ -1333,8 +1333,8 @@ WHERE ([o].[Discriminator] = N'Officer') AND EXISTS (
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([o].[Nickname] = [g].[LeaderNickname]) AND ([o].[SquadId] = [g].[LeaderSquadId])))
 ORDER BY [o].[HasSoulPatch] DESC, [o.Tag].[Note], [o].[Nickname], [o].[SquadId], [t].[FullName]",
-                  //
-                  @"SELECT [t1].[HasSoulPatch], [t1].[Note], [t1].[Nickname], [t1].[SquadId], [o.Reports].[FullName], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId]
+                //
+                @"SELECT [t1].[HasSoulPatch], [t1].[Note], [t1].[Nickname], [t1].[SquadId], [o.Reports].[FullName], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId]
 FROM [Gears] AS [o.Reports]
 INNER JOIN (
     SELECT [o0].[HasSoulPatch], [o.Tag0].[Note], [o0].[Nickname], [o0].[SquadId]
@@ -1352,8 +1352,8 @@ INNER JOIN (
 ) AS [t1] ON ([o.Reports].[LeaderNickname] = [t1].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t1].[SquadId])
 WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[FullName] <> N'Foo')
 ORDER BY [t1].[HasSoulPatch] DESC, [t1].[Note], [t1].[Nickname], [t1].[SquadId], [o.Reports].[Rank], [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[FullName]",
-                  //
-                  @"SELECT [t5].[HasSoulPatch], [t5].[Note], [t5].[Nickname], [t5].[SquadId], [t5].[Rank], [t5].[Nickname0], [t5].[SquadId0], [t5].[FullName], [o.Reports.Weapons].[Id] AS [Id0], [t2].[FullName], [w.Owner.Squad].[Id], [o.Reports.Weapons].[OwnerFullName]
+                //
+                @"SELECT [t5].[HasSoulPatch], [t5].[Note], [t5].[Nickname], [t5].[SquadId], [t5].[Rank], [t5].[Nickname0], [t5].[SquadId0], [t5].[FullName], [o.Reports.Weapons].[Id], [o.Reports.Weapons].[OwnerFullName], [t2].[FullName], [w.Owner.Squad].[Id]
 FROM [Weapons] AS [o.Reports.Weapons]
 LEFT JOIN (
     SELECT [w.Owner].*
@@ -1382,8 +1382,8 @@ INNER JOIN (
 ) AS [t5] ON [o.Reports.Weapons].[OwnerFullName] = [t5].[FullName]
 WHERE ([o.Reports.Weapons].[Name] <> N'Bar') OR [o.Reports.Weapons].[Name] IS NULL
 ORDER BY [t5].[HasSoulPatch] DESC, [t5].[Note], [t5].[Nickname], [t5].[SquadId], [t5].[Rank], [t5].[Nickname0], [t5].[SquadId0], [t5].[FullName], [o.Reports.Weapons].[IsAutomatic], [o.Reports.Weapons].[Id], [t2].[FullName], [w.Owner.Squad].[Id]",
-                  //
-                  @"SELECT [t10].[HasSoulPatch], [t10].[Note], [t10].[Nickname], [t10].[SquadId], [t10].[Rank], [t10].[Nickname0], [t10].[SquadId0], [t10].[FullName], [t10].[IsAutomatic], [t10].[Id], [t10].[FullName0], [w.Owner.Weapons].[Name], [w.Owner.Weapons].[IsAutomatic] AS [IsAutomatic0], [w.Owner.Weapons].[OwnerFullName]
+                //
+                @"SELECT [t10].[HasSoulPatch], [t10].[Note], [t10].[Nickname], [t10].[SquadId], [t10].[Rank], [t10].[Nickname0], [t10].[SquadId0], [t10].[FullName], [t10].[IsAutomatic], [t10].[Id], [t10].[FullName0], [w.Owner.Weapons].[Name], [w.Owner.Weapons].[IsAutomatic] AS [IsAutomatic0], [w.Owner.Weapons].[OwnerFullName]
 FROM [Weapons] AS [w.Owner.Weapons]
 INNER JOIN (
     SELECT [t9].[HasSoulPatch], [t9].[Note], [t9].[Nickname], [t9].[SquadId], [t9].[Rank], [t9].[Nickname0], [t9].[SquadId0], [t9].[FullName], [o.Reports.Weapons0].[IsAutomatic], [o.Reports.Weapons0].[Id], [t6].[FullName] AS [FullName0]
@@ -1416,8 +1416,8 @@ INNER JOIN (
     WHERE ([o.Reports.Weapons0].[Name] <> N'Bar') OR [o.Reports.Weapons0].[Name] IS NULL
 ) AS [t10] ON [w.Owner.Weapons].[OwnerFullName] = [t10].[FullName0]
 ORDER BY [t10].[HasSoulPatch] DESC, [t10].[Note], [t10].[Nickname], [t10].[SquadId], [t10].[Rank], [t10].[Nickname0], [t10].[SquadId0], [t10].[FullName], [t10].[IsAutomatic], [t10].[Id], [t10].[FullName0]",
-                  //
-                  @"SELECT [t15].[HasSoulPatch], [t15].[Note], [t15].[Nickname], [t15].[SquadId], [t15].[Rank], [t15].[Nickname0], [t15].[SquadId0], [t15].[FullName], [t15].[IsAutomatic], [t15].[Id], [t15].[Id0], [w.Owner.Squad.Members].[Nickname] AS [Nickname1], [w.Owner.Squad.Members].[HasSoulPatch] AS [HasSoulPatch0], [w.Owner.Squad.Members].[SquadId]
+                //
+                @"SELECT [t15].[HasSoulPatch], [t15].[Note], [t15].[Nickname], [t15].[SquadId], [t15].[Rank], [t15].[Nickname0], [t15].[SquadId0], [t15].[FullName], [t15].[IsAutomatic], [t15].[Id], [t15].[Id0], [w.Owner.Squad.Members].[Nickname] AS [Nickname1], [w.Owner.Squad.Members].[HasSoulPatch] AS [HasSoulPatch0], [w.Owner.Squad.Members].[SquadId]
 FROM [Gears] AS [w.Owner.Squad.Members]
 INNER JOIN (
     SELECT [t14].[HasSoulPatch], [t14].[Note], [t14].[Nickname], [t14].[SquadId], [t14].[Rank], [t14].[Nickname0], [t14].[SquadId0], [t14].[FullName], [o.Reports.Weapons1].[IsAutomatic], [o.Reports.Weapons1].[Id], [w.Owner.Squad1].[Id] AS [Id0]
@@ -1451,8 +1451,8 @@ INNER JOIN (
 ) AS [t15] ON [w.Owner.Squad.Members].[SquadId] = [t15].[Id0]
 WHERE [w.Owner.Squad.Members].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [t15].[HasSoulPatch] DESC, [t15].[Note], [t15].[Nickname], [t15].[SquadId], [t15].[Rank], [t15].[Nickname0], [t15].[SquadId0], [t15].[FullName], [t15].[IsAutomatic], [t15].[Id], [t15].[Id0], [Nickname1]",
-                  //
-                  @"SELECT [o.Tag.Gear.Weapons].[Id], [o.Tag.Gear.Weapons].[AmmunitionType], [o.Tag.Gear.Weapons].[IsAutomatic], [o.Tag.Gear.Weapons].[Name], [o.Tag.Gear.Weapons].[OwnerFullName], [o.Tag.Gear.Weapons].[SynergyWithId], [t18].[HasSoulPatch], [t18].[Note], [t18].[Nickname], [t18].[SquadId], [t18].[FullName]
+                //
+                @"SELECT [o.Tag.Gear.Weapons].[Id], [o.Tag.Gear.Weapons].[AmmunitionType], [o.Tag.Gear.Weapons].[IsAutomatic], [o.Tag.Gear.Weapons].[Name], [o.Tag.Gear.Weapons].[OwnerFullName], [o.Tag.Gear.Weapons].[SynergyWithId], [t18].[HasSoulPatch], [t18].[Note], [t18].[Nickname], [t18].[SquadId], [t18].[FullName]
 FROM [Weapons] AS [o.Tag.Gear.Weapons]
 LEFT JOIN (
     SELECT [www.Owner].*
@@ -1880,7 +1880,7 @@ LEFT JOIN (
 LEFT JOIN [Squads] AS [g.Squad] ON [t0].[SquadId] = [g.Squad].[Id]
 ORDER BY [t].[Note], [t0].[Nickname] DESC, [t0].[SquadId], [g.Squad].[Id]",
                 //
-                @"SELECT [t3].[Note], [t3].[Nickname], [t3].[SquadId], [t3].[Id], [g.Squad.Members].[Nickname] AS [Nickname0], [g.Squad.Members].[FullName], [g.Squad.Members].[SquadId]
+                @"SELECT [t3].[Note], [t3].[Nickname], [t3].[SquadId], [t3].[Id], [g.Squad.Members].[Nickname] AS [Nickname0], [g.Squad.Members].[SquadId], [g.Squad.Members].[FullName]
 FROM [Gears] AS [g.Squad.Members]
 INNER JOIN (
     SELECT [t1].[Note], [t2].[Nickname], [t2].[SquadId], [g.Squad0].[Id]
@@ -1931,7 +1931,7 @@ LEFT JOIN (
 LEFT JOIN [Squads] AS [w.Owner.Squad] ON [t].[SquadId] = [w.Owner.Squad].[Id]
 ORDER BY [w].[Name], [w].[Id], [w.Owner.Squad].[Id]",
                 //
-                @"SELECT [t1].[Name], [t1].[Id], [t1].[Id0], [w.Owner.Squad.Members].[FullName], [w.Owner.Squad.Members].[Rank], [w.Owner.Squad.Members].[SquadId]
+                @"SELECT [t1].[Name], [t1].[Id], [t1].[Id0], [w.Owner.Squad.Members].[Rank], [w.Owner.Squad.Members].[SquadId], [w.Owner.Squad.Members].[FullName]
 FROM [Gears] AS [w.Owner.Squad.Members]
 INNER JOIN (
     SELECT [w0].[Name], [w0].[Id], [w.Owner.Squad0].[Id] AS [Id0]
@@ -1977,7 +1977,7 @@ FROM [Gears] AS [r]
 WHERE [r].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [r].[Nickname], [r].[SquadId], [r].[FullName]",
                 //
-                @"SELECT [t0].[Nickname], [t0].[SquadId], [t0].[FullName], [r.Weapons].[Id] AS [Id0], [w.Owner.Squad].[Id], [r.Weapons].[OwnerFullName]
+                @"SELECT [t0].[Nickname], [t0].[SquadId], [t0].[FullName], [r.Weapons].[Id], [r.Weapons].[OwnerFullName], [w.Owner.Squad].[Id]
 FROM [Weapons] AS [r.Weapons]
 LEFT JOIN (
     SELECT [w.Owner].*
@@ -2033,7 +2033,7 @@ INNER JOIN (
 WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [t].[Nickname], [t].[SquadId], [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[FullName]",
                 //
-                @"SELECT [t2].[Nickname], [t2].[SquadId], [t2].[Nickname0], [t2].[SquadId0], [t2].[FullName], [o.Reports.Weapons].[Id] AS [Id0], [w.Owner.Squad].[Id], [o.Reports.Weapons].[OwnerFullName]
+                @"SELECT [t2].[Nickname], [t2].[SquadId], [t2].[Nickname0], [t2].[SquadId0], [t2].[FullName], [o.Reports.Weapons].[Id], [o.Reports.Weapons].[OwnerFullName], [w.Owner.Squad].[Id]
 FROM [Weapons] AS [o.Reports.Weapons]
 LEFT JOIN (
     SELECT [w.Owner].*
