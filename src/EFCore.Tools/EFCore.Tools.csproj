@@ -12,7 +12,16 @@
     <IncludeSource>false</IncludeSource>
     <IncludeSymbols>false</IncludeSymbols>
     <EnableApiCheck>false</EnableApiCheck>
-    <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio. Includes the "Scaffold-DbContext", "Add-Migration", "Script-Migrations", and "Update-Database" commands.</Description>
+    <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
+
+Enables these commonly used commands:
+Add-Migration
+Drop-Database
+Get-DbContext
+Scaffold-DbContext
+Script-Migrations
+Update-Database
+  </Description>
   </PropertyGroup>
 
   <ItemGroup>
