@@ -113,5 +113,30 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
       "MemberId": "System.Reflection.MethodInfo get_FastQueryMethod()",
       "Kind": "Addition"
+    },
+	  {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator",
+      "MemberId": "protected virtual System.Void SequenceOptions(System.String schema, System.String name, System.Int32 increment, System.Nullable<System.Int64> minimumValue, System.Nullable<System.Int64> maximumValue, System.Boolean cycle, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder",
+      "MemberId": "public virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.AlterOperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AlterSequenceOperation> AlterSequence(System.String name, System.String schema = null, System.Int32 incrementBy = 1, System.Nullable<System.Int64> minValue = default(System.Nullable<System.Int64>), System.Nullable<System.Int64> maxValue = default(System.Nullable<System.Int64>), System.Boolean cyclic = False, System.Int32 oldIncrementBy = 1, System.Nullable<System.Int64> oldMinValue = default(System.Nullable<System.Int64>), System.Nullable<System.Int64> oldMaxValue = default(System.Nullable<System.Int64>), System.Boolean oldCyclic = False)",
+      "Kind": "Removal"
+    },
+	  {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableSequence : Microsoft.EntityFrameworkCore.Metadata.ISequence",
+      "MemberId": "System.Nullable<System.Int64> get_CacheSize()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableSequence : Microsoft.EntityFrameworkCore.Metadata.ISequence",
+      "MemberId": "System.Void set_CacheSize(System.Nullable<System.Int64> value)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.ISequence",
+      "MemberId": "System.Nullable<System.Int64> get_CacheSize()",
+      "Kind": "Addition"
     }
 ]
