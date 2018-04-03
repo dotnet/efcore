@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -145,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                         entry.EntityType.DisplayName(),
                         entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
                         entry.BuildOriginalValuesString(concurrencyConflicts.Keys),
-                        "{" + string.Join(", ", concurrencyConflicts.Select(c => c.Key.Name + ": " + c.Value)) + "}"),
+                        "{" + string.Join(", ", concurrencyConflicts.Select(c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture))) + "}"),
                     new[] { entry });
             }
 
