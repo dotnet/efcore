@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore
             // Disabled--sample Oracle cannot query against large data types
         }
 
-
         // Disabled: Oracle database is case-sensitive
         public override void Can_insert_and_read_back_with_case_insensitive_string_key()
         {
@@ -44,8 +43,11 @@ namespace Microsoft.EntityFrameworkCore
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base
                     .AddOptions(builder)
-                    .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning));
+                    .ConfigureWarnings(c =>
+                    {
+                        c.Log(RelationalEventId.QueryClientEvaluationWarning);
+                        c.Log(RelationalEventId.ValueConversionSqlLiteralWarning);
+                    });
         }
     }
 }

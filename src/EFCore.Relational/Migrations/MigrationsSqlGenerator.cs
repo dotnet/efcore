@@ -1009,7 +1009,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands())
+            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
             {
                 SqlGenerator.AppendInsertOperation(
                     sqlBuilder,
@@ -1041,7 +1041,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands())
+            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
             {
                 SqlGenerator.AppendDeleteOperation(
                     sqlBuilder,
@@ -1069,7 +1069,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands())
+            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
             {
                 SqlGenerator.AppendUpdateOperation(
                     sqlBuilder,

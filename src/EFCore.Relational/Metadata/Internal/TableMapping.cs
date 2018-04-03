@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public TableMapping(
-            [NotNull] string schema,
+            [CanBeNull] string schema,
             [NotNull] string name,
             [NotNull] IReadOnlyList<IEntityType> entityTypes)
         {
@@ -63,9 +63,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<IProperty> GetProperties()
-            => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredProperties)
-                .Distinct((x, y) => x.Relational().ColumnName == y.Relational().ColumnName);
+        public virtual IEnumerable<IProperty> GetProperties() => GetPropertyMap().Values;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Dictionary<string, IProperty> GetPropertyMap()
+        {
+            var dictionary = new Dictionary<string, IProperty>();
+            foreach (var property in EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+            {
+                var columnName = property.Relational().ColumnName;
+                if (!dictionary.ContainsKey(columnName))
+                {
+                    dictionary[columnName] = property;
+                }
+            }
+
+            return dictionary;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -104,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType))
             {
-                var fullName = (entityType.Relational().Schema, entityType.Relational().TableName);
+                var relationalExtentions = entityType.Relational();
+                var fullName = (relationalExtentions.Schema, relationalExtentions.TableName);
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
                 {
                     mappedEntityTypes = new List<IEntityType>();
@@ -117,6 +135,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return tables.Select(kv => new TableMapping(kv.Key.Schema, kv.Key.TableName, kv.Value))
                 .OrderBy(t => t.Schema).ThenBy(t => t.Name).ToList();
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static TableMapping GetTableMapping([NotNull] IModel model, [NotNull] string table, [CanBeNull] string schema)
+        {
+            var mappedEntities = new List<IEntityType>();
+            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType))
+            {
+                var relationalExtentions = entityType.Relational();
+                if (table == relationalExtentions.TableName
+                    && schema == relationalExtentions.Schema)
+                {
+                    mappedEntities.Add(entityType);
+                }
+            }
+
+            return mappedEntities.Count > 0
+                ? new TableMapping(schema, table, mappedEntities)
+                : null;
         }
     }
 }

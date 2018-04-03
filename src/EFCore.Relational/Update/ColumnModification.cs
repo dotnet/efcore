@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 Check.NotNull(propertyAnnotations, nameof(propertyAnnotations)).ColumnName,
                 originalValue: null,
                 value: null,
+                property: property,
                 isRead: isRead,
                 isWrite: isWrite,
                 isKey: isKey,
@@ -62,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
             Entry = entry;
-            Property = property;
             IsConcurrencyToken = isConcurrencyToken;
             _generateParameterName = generateParameterName;
             _useParameters = true;
@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="columnName"> The name of the column. </param>
         /// <param name="originalValue"> The original value of the property mapped to this column. </param>
         /// <param name="value"> Gets or sets the current value of the property mapped to this column. </param>
+        /// <param name="property"> The property that maps to the column. </param>
         /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
         /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
         /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
@@ -82,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             [NotNull] string columnName,
             [CanBeNull] object originalValue,
             [CanBeNull] object value,
+            [CanBeNull] IProperty property,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -92,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             ColumnName = columnName;
             _originalValue = originalValue;
             _value = value;
+            Property = property;
             IsRead = isRead;
             IsWrite = isWrite;
             IsKey = isKey;

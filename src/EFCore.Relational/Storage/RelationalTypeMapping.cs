@@ -414,10 +414,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 value = Converter.ConvertToProvider(value);
             }
 
-            return value == null
+            return GenerateProviderValueSqlLiteral(value);
+        }
+
+        /// <summary>
+        ///     Generates the SQL representation of a literal value without conversion.
+        /// </summary>
+        /// <param name="value">The literal value.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        public virtual string GenerateProviderValueSqlLiteral([CanBeNull] object value)
+            => value == null
                 ? "NULL"
                 : GenerateNonNullSqlLiteral(value);
-        }
 
         /// <summary>
         ///     Generates the SQL representation of a non-null literal value.

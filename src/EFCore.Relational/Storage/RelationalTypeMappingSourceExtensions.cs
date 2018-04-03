@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                || value == DBNull.Value
                || typeMappingSource == null
                 ? RelationalTypeMapping.NullMapping
-                : typeMappingSource.FindMapping(value.GetType());
+                : typeMappingSource.GetMapping(value.GetType());
 
         /// <summary>
         ///     Gets the relational database type for a given property, throwing if no mapping is found.

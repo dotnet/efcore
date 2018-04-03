@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -324,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             sb.Append(" = ");
                             if (!o.UseCurrentValueParameter)
                             {
-                                AppendSqlLiteral(sb, o.Value);
+                                AppendSqlLiteral(sb, o.Value, o.Property);
                             }
                             else
                             {
@@ -414,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                                 {
                                     if (!o.UseCurrentValueParameter)
                                     {
-                                        AppendSqlLiteral(sb, o.Value);
+                                        AppendSqlLiteral(sb, o.Value, o.Property);
                                     }
                                     else
                                     {
@@ -532,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 if (!columnModification.UseCurrentValueParameter
                     && !columnModification.UseOriginalValueParameter)
                 {
-                    AppendSqlLiteral(commandStringBuilder, columnModification.Value);
+                    AppendSqlLiteral(commandStringBuilder, columnModification.Value, columnModification.Property);
                 }
                 else
                 {
@@ -586,10 +587,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, Check.NotNull(name, nameof(name)), schema);
         }
 
-        private void AppendSqlLiteral(StringBuilder commandStringBuilder, object value)
+        private void AppendSqlLiteral(StringBuilder commandStringBuilder, object value, IProperty property)
         {
-            commandStringBuilder.Append(
-                Dependencies.TypeMappingSource.GetMappingForValue(value).GenerateSqlLiteral(value));
+            var mapping = property != null
+                ? Dependencies.TypeMappingSource.FindMapping(property)
+                : null;
+            mapping = mapping ?? Dependencies.TypeMappingSource.GetMappingForValue(value);
+            commandStringBuilder.Append(mapping.GenerateProviderValueSqlLiteral(value));
         }
     }
 }

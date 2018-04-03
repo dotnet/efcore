@@ -30,5 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
             return value;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static TValue Find<TKey, TValue>(
+            [NotNull] this IDictionary<TKey, TValue> source,
+            [NotNull] TKey key)
+            => !source.TryGetValue(key, out var value) ? default : value;
     }
 }
