@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore
             public Type ClrType => throw new NotImplementedException();
             public IModel Model => throw new NotImplementedException();
             public bool IsCyclic => throw new NotImplementedException();
+            public long? CacheSize => throw new NotImplementedException();
         }
     }
 }
