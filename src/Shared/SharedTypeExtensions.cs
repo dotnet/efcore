@@ -26,10 +26,12 @@ namespace System
         public static bool IsValidEntityType(this Type type)
             => type.GetTypeInfo().IsClass;
 
-        public static Type MakeNullable(this Type type)
-            => type.IsNullableType()
+        public static Type MakeNullable(this Type type, bool nullable = true)
+            => type.IsNullableType() == nullable
                 ? type
-                : typeof(Nullable<>).MakeGenericType(type);
+                : nullable
+                    ? typeof(Nullable<>).MakeGenericType(type)
+                    : type.UnwrapNullableType();
 
         public static bool IsInteger(this Type type)
         {

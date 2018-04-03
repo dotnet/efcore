@@ -952,8 +952,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             bool inline = false)
         {
             columnOperation.ClrType
-                = typeMapping.Converter?.ProviderClrType
-                  ?? typeMapping.ClrType.UnwrapNullableType();
+                = (typeMapping.Converter?.ProviderClrType
+                  ?? typeMapping.ClrType).UnwrapNullableType();
 
             columnOperation.ColumnType = property.GetConfiguredColumnType();
             columnOperation.MaxLength = property.GetMaxLength();

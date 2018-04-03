@@ -1179,6 +1179,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void Add_property_converted_to_nullable()
+        {
+            Execute(
+                source => source.Entity("Capybara").Property<int>("Id"),
+                target => target.Entity(
+                    "Capybara",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<SomeEnum>("SomeEnum")
+                            .HasConversion(m => (int?)m, p => p.HasValue ? (SomeEnum)p.Value : default);
+                    }),
+                operations =>
+                {
+                    var operation = Assert.IsType<AddColumnOperation>(Assert.Single(operations));
+                    Assert.Equal(typeof(int), operation.ClrType);
+                });
+        }
+
+        [Fact]
         public void Add_column_with_seed_data()
         {
             Execute(

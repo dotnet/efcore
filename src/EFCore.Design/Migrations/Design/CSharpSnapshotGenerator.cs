@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var clrType = FindValueConverter(property)?.ProviderClrType
+            var clrType = FindValueConverter(property)?.ProviderClrType.MakeNullable(property.IsNullable)
                           ?? property.ClrType;
 
             stringBuilder
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(".IsConcurrencyToken()");
                 }
 
-                if (property.IsNullable != (property.ClrType.IsNullableType() && !property.IsPrimaryKey()))
+                if (property.IsNullable != (clrType.IsNullableType() && !property.IsPrimaryKey()))
                 {
                     stringBuilder
                         .AppendLine()
@@ -722,10 +722,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 if (discriminatorPropertyAnnotation?.Value != null)
                 {
-                    var propertyClrType = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value)?.ClrType;
+                    var discriminatorProperty = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value);
+                    var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
+                            .MakeNullable(discriminatorProperty.IsNullable)
+                        ?? discriminatorProperty.ClrType;
                     stringBuilder
                         .Append("<")
-                        .Append(Code.Reference(propertyClrType.UnwrapEnumType()))
+                        .Append(Code.Reference(propertyClrType))
                         .Append(">(")
                         .Append(Code.UnknownLiteral(discriminatorPropertyAnnotation.Value))
                         .Append(")");

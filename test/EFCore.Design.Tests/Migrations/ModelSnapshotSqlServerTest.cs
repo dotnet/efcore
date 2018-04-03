@@ -116,6 +116,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public Days Day { get; set; }
         }
 
+        private class EntityWithNullableEnumType
+        {
+            public int Id { get; set; }
+            public Days? Day { get; set; }
+        }
+
         private class CustomValueGenerator : ValueGenerator<int>
         {
             public override int Next(EntityEntry entry) => throw new NotImplementedException();
@@ -773,6 +779,63 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     });
         }
 
+        [Fact]
+        public virtual void Discriminator_of_enum()
+        {
+            Test(
+                builder => builder.Entity<EntityWithEnumType>().HasDiscriminator(e => e.Day),
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<long>(""Day"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithEnumType"");
+
+        b.HasDiscriminator<long>(""Day"");
+    });
+",
+                model => Assert.Equal(typeof(long), model.GetEntityTypes().First().Relational().DiscriminatorProperty.ClrType));
+        }
+
+        [Fact]
+        public virtual void Discriminator_of_enum_to_string()
+        {
+            Test(
+                builder => builder.Entity<EntityWithEnumType>(
+                    x =>
+                    {
+                        x.Property(e => e.Day).HasConversion<string>();
+                        x.HasDiscriminator(e => e.Day);
+                    }),
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Day"")
+            .IsRequired();
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithEnumType"");
+
+        b.HasDiscriminator<string>(""Day"");
+    });
+",
+                model =>
+                {
+                    var discriminatorProperty = model.GetEntityTypes().First().Relational().DiscriminatorProperty;
+                    Assert.Equal(typeof(string), discriminatorProperty.ClrType);
+                    Assert.False(discriminatorProperty.IsNullable);
+                });
+        }
+
         #endregion
 
         #region Property
@@ -1185,6 +1248,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
             .ValueGeneratedOnAdd();
 
         b.Property<string>(""Day"")
+            .IsRequired()
             .ValueGeneratedOnAdd()
             .HasDefaultValue(""Wed"");
 
@@ -1197,7 +1261,77 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         );
     });
 ",
-                o => { Assert.Equal(Days.Wed.ToString(), o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]); });
+                o =>
+                {
+                    var property = o.GetEntityTypes().First().FindProperty("Day");
+                    Assert.Equal(typeof(string), property.ClrType);
+                    Assert.Equal(Days.Wed.ToString(), property["Relational:DefaultValue"]);
+                    Assert.False(property.IsNullable);
+                });
+        }
+
+        [Fact]
+        public virtual void Property_of_nullable_enum()
+        {
+            Test(
+                builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day),
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithNullableEnumType"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<long?>(""Day"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithNullableEnumType"");
+    });
+",
+                o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
+        }
+
+        [Fact]
+        public virtual void Property_of_enum_to_nullable()
+        {
+            Test(
+                builder => builder.Entity<EntityWithEnumType>().Property(e => e.Day)
+                    .HasConversion(m => (long?)m, p => p.HasValue ? (Days)p.Value : default),
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<long>(""Day"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithEnumType"");
+    });
+",
+                o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
+        }
+
+        [Fact]
+        public virtual void Property_of_nullable_enum_to_string()
+        {
+            Test(
+                builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day).HasConversion<string>(),
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithNullableEnumType"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Day"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithNullableEnumType"");
+    });
+",
+                o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
         }
 
         [Fact]
