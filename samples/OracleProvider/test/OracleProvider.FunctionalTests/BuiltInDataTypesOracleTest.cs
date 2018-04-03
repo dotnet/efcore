@@ -402,7 +402,7 @@ WHERE ""e"".""Time"" = :timeSpan_0",
         }
 
         private string DumpParameters()
-            => Fixture.TestSqlLoggerFactory.Parameters.Single().Replace(", ", EOL);
+            => Fixture.TestSqlLoggerFactory.Parameters.Single().Replace(", ", _eol);
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {
@@ -2090,7 +2090,7 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
 
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         [Fact]
         public void Can_get_column_types_from_built_model()

@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
+#if !Test20
         [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -1278,6 +1279,7 @@ namespace Microsoft.EntityFrameworkCore
                         () => parent.Single).Message);
             }
         }
+#endif
 
         [Theory]
         [InlineData(EntityState.Unchanged, true)]

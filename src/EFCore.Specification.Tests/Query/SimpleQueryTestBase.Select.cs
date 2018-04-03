@@ -611,6 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Skip(1));
         }
 
+#if !Test20
         [ConditionalFact]
         public virtual void Projection_containing_DateTime_subtraction()
         {
@@ -618,6 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => o.OrderID < 10300)
                     .Select(o => o.OrderDate.Value - new DateTime(1997, 1, 1)));
         }
+#endif
 
         [ConditionalFact]
         public virtual void Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault()
@@ -750,6 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Millisecond));
         }
 
+#if !Test20
         [ConditionalFact]
         public virtual void Select_byte_constant()
         {
@@ -761,5 +764,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQueryScalar<Customer, short>(cs => cs.Select(c => c.CustomerID == "ALFKI" ? (short)1 : (short)2));
         }
+#endif
     }
 }

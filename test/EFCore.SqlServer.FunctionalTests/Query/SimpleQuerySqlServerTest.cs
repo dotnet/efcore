@@ -339,6 +339,7 @@ FROM [Employees] AS [e20]
 WHERE [e20].[EmployeeID] = @_outer_ReportsTo");
         }
 
+#if !Test20
         public override void Where_query_composition_entity_equality_one_element_SingleOrDefault()
         {
             base.Where_query_composition_entity_equality_one_element_SingleOrDefault();
@@ -408,6 +409,7 @@ WHERE [e20].[EmployeeID] = 42",
 FROM [Employees] AS [e20]
 WHERE [e20].[EmployeeID] = 42");
         }
+#endif
 
         public override void Where_query_composition_entity_equality_no_elements_FirstOrDefault()
         {
@@ -423,6 +425,7 @@ WHERE (
 ) = CAST(0 AS bigint)");
         }
 
+#if !Test20
         public override void Where_query_composition_entity_equality_multiple_elements_FirstOrDefault()
         {
             base.Where_query_composition_entity_equality_multiple_elements_FirstOrDefault();
@@ -436,6 +439,7 @@ WHERE (
     WHERE ([e2].[EmployeeID] <> [e1].[ReportsTo]) OR [e1].[ReportsTo] IS NULL
 ) = CAST(0 AS bigint)");
         }
+#endif
 
         public override void Where_query_composition2()
         {
@@ -762,6 +766,7 @@ FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID] - [e].[EmployeeID]");
         }
 
+#if !Test20
         public override void OrderBy_condition_comparison()
         {
             base.OrderBy_condition_comparison();
@@ -787,6 +792,7 @@ ORDER BY CASE
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END, [p].[ProductID]");
         }
+#endif
 
         public override void OrderBy_any()
         {
@@ -2425,6 +2431,7 @@ WHERE N'Chai' IN (
 )");
         }
 
+#if !Test20
         public override void Where_subquery_on_collection()
         {
             base.Where_subquery_on_collection();
@@ -2438,6 +2445,7 @@ WHERE CAST(5 AS smallint) IN (
     WHERE [o].[ProductID] = [p].[ProductID]
 )");
         }
+#endif
 
         public override void Select_many_cross_join_same_collection()
         {

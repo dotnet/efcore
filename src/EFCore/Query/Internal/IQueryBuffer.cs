@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         object GetEntity(
             [NotNull] IKey key,
-            in EntityLoadInfo entityLoadInfo,
+            EntityLoadInfo entityLoadInfo,
             bool queryStateManager,
             bool throwOnNullKey);
 

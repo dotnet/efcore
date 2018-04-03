@@ -52,13 +52,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var newArguments = Visit(expression.Arguments).ToList();
 
-            for (var i = 0; i < newArguments.Count; i++)
+            if (expression.Constructor != MaterializationContext.ObsoleteConstructor)
             {
-                if (newArguments[i].Type == typeof(ValueBuffer))
+                for (var i = 0; i < newArguments.Count; i++)
                 {
-                    newArguments[i]
-                        = _queryModelVisitor
-                            .BindReadValueMethod(expression.Arguments[i].Type, newArguments[i], 0);
+                    if (newArguments[i].Type == typeof(ValueBuffer))
+                    {
+
+                        newArguments[i]
+                            = _queryModelVisitor
+                                .BindReadValueMethod(expression.Arguments[i].Type, newArguments[i], 0);
+                    }
                 }
             }
 

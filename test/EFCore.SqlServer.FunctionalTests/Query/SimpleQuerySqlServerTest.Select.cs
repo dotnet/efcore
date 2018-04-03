@@ -171,6 +171,7 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
+#if !Test20
         public override void Select_anonymous_conditional_expression()
         {
             base.Select_anonymous_conditional_expression();
@@ -182,6 +183,7 @@ FROM [Customers] AS [c]");
 END AS [IsAvailable]
 FROM [Products] AS [p]");
         }
+#endif
 
         public override void Select_constant_int()
         {
@@ -587,6 +589,7 @@ ORDER BY [e].[EmployeeID]
 OFFSET @__p_0 ROWS");
         }
 
+#if !Test20
         public override void Projection_containing_DateTime_subtraction()
         {
             base.Projection_containing_DateTime_subtraction();
@@ -596,6 +599,7 @@ OFFSET @__p_0 ROWS");
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300");
         }
+#endif
 
         public override void Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault()
         {
@@ -846,6 +850,7 @@ FROM [Orders] AS [o]");
 FROM [Orders] AS [o]");
         }
 
+#if !Test20
         public override void Select_byte_constant()
         {
             base.Select_byte_constant();
@@ -869,5 +874,6 @@ FROM [Customers] AS [c]");
 END
 FROM [Customers] AS [c]");
         }
+#endif
     }
 }

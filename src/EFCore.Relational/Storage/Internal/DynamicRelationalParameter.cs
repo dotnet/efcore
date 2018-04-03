@@ -57,8 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             if (value == null)
             {
                 command.Parameters
-                    .Add(
-                        _typeMappingSource.GetMappingForValue(null)
+                    .Add(_typeMappingSource.GetMappingForValue(null)
                             .CreateParameter(command, Name, null));
 
                 return;

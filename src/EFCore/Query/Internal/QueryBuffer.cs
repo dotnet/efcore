@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual object GetEntity(
             IKey key,
-            in EntityLoadInfo entityLoadInfo,
+            EntityLoadInfo entityLoadInfo,
             bool queryStateManager,
             bool throwOnNullKey)
         {

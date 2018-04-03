@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="valueBuffer"> The <see cref="ValueBuffer" /> to use to materialize an entity. </param>
         [Obsolete("Use the constructor with the most parameters.")]
-        public MaterializationContext(in ValueBuffer valueBuffer)
+        public MaterializationContext(ValueBuffer valueBuffer)
         {
             ValueBuffer = valueBuffer;
             Context = null;

@@ -165,10 +165,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var properties = new HashSet<IPropertyBase>(
                 entityType.GetServiceProperties().Cast<IPropertyBase>()
-                    .Concat(
-                        entityType
-                            .GetProperties()
-                            .Where(p => !p.IsShadowProperty)));
+                    .Concat(entityType
+                        .GetProperties()
+                        .Where(p => !p.IsShadowProperty)));
 
             foreach (var consumedProperty in constructorBinding
                 .ParameterBindings

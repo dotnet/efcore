@@ -40,6 +40,7 @@ ORDER BY ""t"".""ContactName""
 LIMIT -1 OFFSET @__p_1");
         }
 
+#if !Test20
         public override void Where_datetime_now()
         {
             base.Where_datetime_now();
@@ -165,6 +166,7 @@ WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
 FROM ""Orders"" AS ""o""
 WHERE ((strftime('%f', ""o"".""OrderDate"") * 1000) % 1000) = 88");
         }
+#endif
 
         public override void String_StartsWith_Literal()
         {
@@ -240,6 +242,7 @@ FROM ""Customers"" AS ""c""
 WHERE (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = '')");
         }
 
+#if !Test20
         public override void String_EndsWith_MethodCall()
         {
             base.String_EndsWith_MethodCall();
@@ -251,6 +254,7 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM ""Customers"" AS ""c""
 WHERE (substr(""c"".""ContactName"", -length(@__LocalMethod2_0)) = @__LocalMethod2_0) OR (@__LocalMethod2_0 = '')");
         }
+#endif
 
         public override void String_Contains_Literal()
         {
@@ -316,6 +320,7 @@ FROM ""Customers"" AS ""c""
 WHERE length(""c"".""City"") = 6");
         }
 
+#if !Test20
         public override void Where_string_indexof()
         {
             base.Where_string_indexof();
@@ -397,6 +402,7 @@ SELECT substr(""c"".""ContactName"", @__start_0 + 1, 3)
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
+#endif
 
         public override void Substring_with_client_eval()
         {
@@ -408,6 +414,7 @@ FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
+#if !Test20
         public override void Substring_with_zero_length()
         {
             base.Substring_with_zero_length();
@@ -417,6 +424,7 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
+#endif
 
         public override void Where_math_abs1()
         {
@@ -450,6 +458,7 @@ FROM ""Order Details"" AS ""od""
 WHERE @__Abs_0 < ""od"".""ProductID""");
         }
 
+#if !Test20
         public override void Select_math_round_int()
         {
             base.Select_math_round_int();
@@ -479,6 +488,7 @@ WHERE (""od"".""OrderID"" = 11077) AND (min(""od"".""OrderID"", ""od"".""Product
 FROM ""Order Details"" AS ""od""
 WHERE (""od"".""OrderID"" = 11077) AND (max(""od"".""OrderID"", ""od"".""ProductID"") = ""od"".""OrderID"")");
         }
+#endif
 
         public override void Where_string_to_lower()
         {
@@ -590,6 +600,7 @@ FROM ""Customers"" AS ""c""
 WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
         }
 
+#if !Test20
         public override void Sum_with_coalesce()
         {
             base.Sum_with_coalesce();
@@ -671,6 +682,7 @@ FROM ""Orders"" AS ""o""");
                 @"SELECT (strftime('%f', ""o"".""OrderDate"") * 1000) % 1000
 FROM ""Orders"" AS ""o""");
         }
+#endif
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

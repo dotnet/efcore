@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if !Test20
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixture>
@@ -431,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(blog, blog.LazyPocoPosts.Skip(1).First().LazyPocoBlog);
             }
         }
-        
+
         [Fact]
         public virtual async Task Query_with_loader_delegate_injected_for_reference_async()
         {
@@ -505,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
-                
+
                 Assert.NotNull(post.GetLoader());
 
                 Assert.NotNull(post.LazyPropertyBlog);
@@ -533,14 +535,14 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Attach(post);
-                
+
                 Assert.NotNull(post.GetLoader());
 
                 Assert.NotNull(post.LazyPropertyBlog);
                 Assert.Contains(post, post.LazyPropertyBlog.LazyPropertyPosts);
             }
         }
-        
+
         [Fact]
         public virtual void Query_with_loader_injected_into_field_for_reference()
         {
@@ -583,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
-                
+
                 Assert.NotNull(post.GetLoader());
 
                 Assert.NotNull(post.LazyFieldBlog);
@@ -611,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Attach(post);
-                
+
                 Assert.NotNull(post.GetLoader());
 
                 Assert.NotNull(post.LazyFieldBlog);
@@ -636,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
-                
+
                 Assert.NotNull(post.GetLoader());
 
                 Assert.NotNull(post.LazyPcsBlog);
@@ -664,7 +666,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Attach(post);
-                
+
                 Assert.NotNull(post.GetLoader());
 
                 Assert.NotNull(post.LazyPcsBlog);
@@ -1234,7 +1236,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 return LazyAsyncPsBlog;
             }
-            
+
             public LazyAsyncPsBlog LazyAsyncPsBlog { get; set; }
         }
 
@@ -1661,22 +1663,22 @@ namespace Microsoft.EntityFrameworkCore
                     new HasContext<DbContext>(),
                     new HasContext<WithConstructorsContext>(),
                     new HasContext<OtherContext>());
-                
+
                 context.AddRange(
                     new HasContextProperty<DbContext>(),
                     new HasContextProperty<WithConstructorsContext>(),
                     new HasContextProperty<OtherContext>());
-                
+
                 context.AddRange(
                     new HasContextPc<DbContext>(),
                     new HasContextPc<WithConstructorsContext>(),
                     new HasContextPc<OtherContext>());
-                
+
                 context.AddRange(
                     new HasEntityType(),
                     new HasEntityTypeProperty(),
                     new HasEntityTypePc());
-                
+
                 context.AddRange(
                     new HasStateManager(),
                     new HasStateManagerProperty(),
@@ -1747,3 +1749,4 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 }
+#endif
