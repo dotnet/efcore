@@ -568,6 +568,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             else
             {
                 base.Generate(operation, model, builder, terminate: false);
+
+                if (operation.Filter == null && UseLegacyIndexFilters(model))
+                {
+                    var clustered = operation[SqlServerAnnotationNames.Clustered] as bool?;
+                    if (operation.IsUnique
+                        && (clustered != true)
+                        && nullableColumns.Count != 0)
+                    {
+                        builder.Append(" WHERE ");
+                        for (var i = 0; i < nullableColumns.Count; i++)
+                        {
+                            if (i != 0)
+                            {
+                                builder.Append(" AND ");
+                            }
+
+                            builder
+                                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
+                                .Append(" IS NOT NULL");
+                        }
+                    }
+                }
             }
 
             if (terminate)
@@ -1737,6 +1759,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }
+
+        /// <summary>
+        ///     Checks whether or not <see cref="CreateIndexOperation"/> should have a filter generated for it by
+        ///     Migrations.
+        /// </summary>
+        /// <param name="model"> The target model. </param>
+        /// <returns> True if a filter should be generated. </returns>
+        protected virtual bool UseLegacyIndexFilters([CanBeNull] IModel model)
+            => !TryGetVersion(model, out var version) || VersionComparer.Compare(version, "2.0.0") < 0;
 
         private string IntegerConstant(long value)
             => string.Format(CultureInfo.InvariantCulture, "{0}", value);
