@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -112,6 +113,39 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal("Gumball!!", entity.Id);
                 Assert.Equal("gumball!!", entity.Dependents.First().StringKeyDataTypeId);
             }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_with_string_list()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<StringListDataType>().Add(
+                    new StringListDataType
+                    {
+                        Strings = new List<string>
+                        {
+                            "Gum",
+                            "Ball"
+                        }
+                    });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Set<StringListDataType>().Single();
+
+                Assert.Equal(new[] { "Gum", "Ball" }, entity.Strings);
+            }
+        }
+
+        protected class StringListDataType
+        {
+            public int Id { get; set; }
+
+            public IList<string> Strings { get; set; }
         }
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
@@ -378,6 +412,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.ByteArray9000).HasConversion(
                             BytesToStringConverter.DefaultInfo.Create());
                     });
+
+                modelBuilder.Entity<StringListDataType>(b =>
+                {
+                    b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new []{','}).ToList());
+                });
             }
         }
     }

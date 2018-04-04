@@ -49,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         {
             var unwrappedType = typeof(T).UnwrapNullableType();
 
-            return (T)(unwrappedType != value.GetType()
-                ? Convert.ChangeType(value, unwrappedType)
-                : value);
+            return (T)(!unwrappedType.IsInstanceOfType(value)
+                    ? Convert.ChangeType(value, unwrappedType)
+                    : value);
         }
 
         /// <summary>
