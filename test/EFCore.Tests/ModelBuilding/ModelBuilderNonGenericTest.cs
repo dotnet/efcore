@@ -17,6 +17,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderNonGenericTest : ModelBuilderTest
     {
+        public class NonGenericField : FieldTestBase
+        {
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericTestModelBuilder(testHelpers);
+        }
+
         public class NonGenericNonRelationship : NonRelationshipTestBase
         {
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)

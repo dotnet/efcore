@@ -575,6 +575,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public IList<Friendship> Friendships { get; set; }
         }
 
+        protected class EntityWithFieldKey
+        {
+            public long Id;
+            public int Year;
+        }
+
+        protected class QueryWithField
+        {
+            public int Year;
+        }
+
         protected class QueryResult
         {
             public int ValueFk { get; set; }
