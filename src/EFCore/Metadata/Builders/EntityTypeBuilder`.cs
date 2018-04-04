@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual KeyBuilder HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
             => new KeyBuilder(
                 Builder.PrimaryKey(
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyOrFieldAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
             => new PropertyBuilder<TProperty>(
                 Builder.Property(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(), ConfigurationSource.Explicit));
+                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyOrFieldAccess(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         public virtual EntityTypeBuilder<TEntity> Ignore([NotNull] Expression<Func<TEntity, object>> propertyExpression)
             => (EntityTypeBuilder<TEntity>)base.Ignore(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().Name);
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyOrFieldAccess().Name);
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties

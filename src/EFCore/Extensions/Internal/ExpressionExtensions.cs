@@ -79,12 +79,76 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static MemberInfo GetPropertyOrFieldAccess([NotNull] this LambdaExpression lambdaExpression)
+        {
+            Debug.Assert(lambdaExpression.Parameters.Count == 1);
+
+            var parameterExpression = lambdaExpression.Parameters[0];
+            var memberInfo = parameterExpression.MatchSimplePropertyOrFieldAccess(lambdaExpression.Body);
+
+            if (memberInfo == null)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidPropertyExpression(lambdaExpression),
+                    nameof(lambdaExpression));
+            }
+
+            var declaringType = memberInfo.DeclaringType;
+            var parameterType = parameterExpression.Type;
+
+            if (declaringType != null
+                && declaringType != parameterType
+                && declaringType.GetTypeInfo().IsInterface
+                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo())
+                && memberInfo is PropertyInfo propertyInfo)
+            {
+                var propertyGetter = propertyInfo.GetMethod;
+                var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
+                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => propertyGetter.Equals(p));
+                var targetMethod = interfaceMapping.TargetMethods[index];
+                foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
+                {
+                    if (targetMethod.Equals(runtimeProperty.GetMethod))
+                    {
+                        return runtimeProperty;
+                    }
+                }
+            }
+
+            return memberInfo;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IReadOnlyList<MemberInfo> GetPropertyOrFieldAccessList([NotNull] this LambdaExpression lambdaExpression)
+        {
+            Debug.Assert(lambdaExpression.Parameters.Count == 1);
+
+            var memberPaths
+                = MatchPropertyOrFieldAccessList(lambdaExpression, (p, e) => e.MatchSimplePropertyOrFieldAccess(p));
+
+            if (memberPaths == null)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidPropertiesExpression(lambdaExpression),
+                    nameof(lambdaExpression));
+            }
+
+            return memberPaths;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IReadOnlyList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
 
             var propertyPaths
-                = MatchPropertyAccessList(propertyAccessExpression, (p, e) => e.MatchSimplePropertyAccess(p));
+                = MatchPropertyOrFieldAccessList(propertyAccessExpression, (p, e) => e.MatchSimplePropertyAccess(p));
 
             if (propertyPaths == null)
             {
@@ -100,30 +164,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        private static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
-            this LambdaExpression lambdaExpression, Func<Expression, Expression, PropertyInfo> propertyMatcher)
+        private static IReadOnlyList<T> MatchPropertyOrFieldAccessList<T>(
+            this LambdaExpression lambdaExpression, Func<Expression, Expression, T> propertyMatcher)
+            where T : MemberInfo
         {
             Debug.Assert(lambdaExpression.Body != null);
+            Debug.Assert(lambdaExpression.Parameters.Count == 1);
 
             var parameterExpression
-                = lambdaExpression.Parameters.Single();
+                = lambdaExpression.Parameters[0];
 
             if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
             {
-                var propertyInfos
+                var memberInfos
                     = newExpression
                         .Arguments
                         .Select(a => propertyMatcher(a, parameterExpression))
                         .Where(p => p != null)
                         .ToList();
 
-                return propertyInfos.Count != newExpression.Arguments.Count ? null : propertyInfos;
+                return memberInfos.Count != newExpression.Arguments.Count ? null : memberInfos;
             }
 
-            var propertyPath
+            var memberPath
                 = propertyMatcher(lambdaExpression.Body, parameterExpression);
 
-            return propertyPath != null ? new[] { propertyPath } : null;
+            return memberPath != null ? new[] { memberPath } : null;
         }
 
         /// <summary>
@@ -136,6 +202,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
             return propertyInfos != null && propertyInfos.Count == 1 ? propertyInfos[0] : null;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        private static MemberInfo MatchSimplePropertyOrFieldAccess(
+            this Expression parameterExpression, Expression propertyAccessExpression)
+        {
+            var membersInfos = MatchPropertyOrFieldAccess(parameterExpression, propertyAccessExpression);
+
+            return membersInfos != null && membersInfos.Count == 1 ? membersInfos[0] : null;
         }
 
         /// <summary>
@@ -199,6 +277,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
             while (RemoveTypeAs(RemoveConvert(memberExpression.Expression)) != parameterExpression);
 
             return propertyInfos;
+        }
+
+        private static IReadOnlyList<MemberInfo> MatchPropertyOrFieldAccess(
+            this Expression parameterExpression, Expression propertyAccessExpression)
+        {
+            var memberInfos = new List<MemberInfo>();
+
+            MemberExpression memberExpression;
+
+            do
+            {
+                memberExpression = RemoveTypeAs(RemoveConvert(propertyAccessExpression)) as MemberExpression;
+
+                switch (memberExpression?.Member)
+                {
+                    case PropertyInfo propertyInfo:
+                        memberInfos.Insert(0, propertyInfo);
+                        break;
+                    case FieldInfo fieldInfo:
+                        memberInfos.Insert(0, fieldInfo);
+                        break;
+                    case null:
+                        return null;
+                    default:
+                        break;
+                }
+
+                propertyAccessExpression = memberExpression.Expression;
+            }
+            while (RemoveTypeAs(RemoveConvert(memberExpression.Expression)) != parameterExpression);
+
+            return memberInfos;
         }
 
         /// <summary>

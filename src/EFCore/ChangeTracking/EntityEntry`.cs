@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyOrFieldAccess().Name);
         }
 
         /// <summary>

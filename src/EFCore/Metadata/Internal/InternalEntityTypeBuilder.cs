@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalKeyBuilder PrimaryKey(
-            [CanBeNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+            [CanBeNull] IReadOnlyList<MemberInfo> clrProperties, ConfigurationSource configurationSource)
             => PrimaryKey(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
         /// <summary>
