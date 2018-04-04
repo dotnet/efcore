@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     callback is the arbitrary state object passed above. Iteration of the graph will not continue down the graph
         ///     if the callback returns <c>false</c>.
         /// </param>
-        /// <typeparam name="TState"> The tyoe of the state object. </typeparam>
+        /// <typeparam name="TState"> The type of the state object. </typeparam>
         public virtual void TrackGraph<TState>(
             [NotNull] object rootEntity,
             [CanBeNull] TState state,

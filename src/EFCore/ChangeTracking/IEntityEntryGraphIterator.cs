@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     A service to travserse a graph of entities and perform some action on at each node.
+    ///     A service to traverse a graph of entities and perform some action on at each node.
     /// </summary>
     public interface IEntityEntryGraphIterator
     {
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Traverses a graph of entities allowing an action to be taken at each node.
         /// </summary>
         /// <param name="node"> The node that is being visited. </param>
-        /// <param name="state"> An arbitary state object. </param>
+        /// <param name="state"> An arbitrary state object. </param>
         /// <param name="handleNode"> A delegate to call to handle the node. </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>
         void TraverseGraph<TState>(
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Traverses a graph of entities allowing an action to be taken at each node.
         /// </summary>
         /// <param name="node"> The node that is being visited. </param>
-        /// <param name="state"> An arbitary state object. </param>
+        /// <param name="state"> An arbitrary state object. </param>
         /// <param name="handleNode"> A delegate to call to handle the node. </param>
         /// <param name="cancellationToken">  A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>

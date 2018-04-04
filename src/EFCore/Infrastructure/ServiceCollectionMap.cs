@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given concrete
-        ///     type to ths list of services that implement the given contract. The service is only added
+        ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given concrete
-        ///     type to ths list of services that implement the given contract. The service is only added
+        ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given concrete
-        ///     type to ths list of services that implement the given contract. The service is only added
+        ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given concrete
-        ///     type to ths list of services that implement the given contract. The service is only added
+        ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <param name="serviceType"> The contract for the service. </param>
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given concrete
-        ///     type to ths list of services that implement the given contract. The service is only added
+        ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <param name="serviceType"> The contract for the service. </param>
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given concrete
-        ///     type to ths list of services that implement the given contract. The service is only added
+        ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <param name="serviceType"> The contract for the service. </param>
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a service implemented by the given concrete
-        ///     type to ths list of services that implement the given contract. The service is only added
+        ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <param name="serviceType"> The contract for the service. </param>
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given factory
-        ///     to ths list of services that implement the given contract. The service is only added
+        ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given factory
-        ///     to ths list of services that implement the given contract. The service is only added
+        ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given factory
-        ///     to ths list of services that implement the given contract. The service is only added
+        ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a service implemented by the given factory
-        ///     to ths list of services that implement the given contract. The service is only added
+        ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <param name="serviceType"> The contract for the service. </param>
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given instance
-        ///     to ths list of services that implement the given contract. The service is only added
+        ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given instance
-        ///     to ths list of services that implement the given contract. The service is only added
+        ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
         /// <param name="serviceType"> The contract for the service. </param>
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private static Type TryGetImplementationType(ServiceDescriptor descriptor)
             => descriptor.ImplementationType
                ?? descriptor.ImplementationInstance?.GetType()
-               // Generic arg on Func may be obejct, but this is the best we can do and matches logic in D.I. container
+               // Generic arg on Func may be object, but this is the best we can do and matches logic in D.I. container
                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
 
         InternalServiceCollectionMap IInfrastructure<InternalServiceCollectionMap>.Instance => _map;
