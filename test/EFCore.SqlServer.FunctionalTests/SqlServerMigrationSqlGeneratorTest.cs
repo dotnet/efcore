@@ -940,7 +940,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void MoveSequenceOperation()
+        public virtual void MoveSequenceOperation_legacy()
         {
             Generate(
                 new RenameSequenceOperation
@@ -955,8 +955,46 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         [Fact]
-        public virtual void MoveTableOperation()
+        public virtual void MoveSequenceOperation()
+        {
+            Generate(
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                new RenameSequenceOperation
+                {
+                    Name = "EntityFrameworkHiLoSequence",
+                    Schema = "dbo",
+                    NewName = "EntityFrameworkHiLoSequence",
+                    NewSchema = "my"
+                });
+
+            Assert.Equal(
+                "ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void MoveSequenceOperation_into_default()
+        {
+            Generate(
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                new RenameSequenceOperation
+                {
+                    Name = "EntityFrameworkHiLoSequence",
+                    Schema = "dbo",
+                    NewName = "EntityFrameworkHiLoSequence"
+                });
+
+            Assert.Equal(
+                "DECLARE @defaultSchema sysname = SCHEMA_NAME();" + EOL +
+                "EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
+                Sql);
+        }
+#endif
+
+        [Fact]
+        public virtual void MoveTableOperation_legacy()
         {
             Generate(
                 new RenameTableOperation
@@ -970,6 +1008,44 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER SCHEMA [hr] TRANSFER [dbo].[People];" + EOL,
                 Sql);
         }
+
+#if !Test20
+        [Fact]
+        public virtual void MoveTableOperation()
+        {
+            Generate(
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                new RenameTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo",
+                    NewName = "People",
+                    NewSchema = "hr"
+                });
+
+            Assert.Equal(
+                "ALTER SCHEMA [hr] TRANSFER [dbo].[People];" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void MoveTableOperation_into_default()
+        {
+            Generate(
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                new RenameTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo",
+                    NewName = "People"
+                });
+
+            Assert.Equal(
+                "DECLARE @defaultSchema sysname = SCHEMA_NAME();" + EOL +
+                "EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [dbo].[People];');" + EOL,
+                Sql);
+        }
+#endif
 
         [Fact]
         public virtual void RenameColumnOperation()
@@ -1021,7 +1097,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void RenameSequenceOperation()
+        public virtual void RenameSequenceOperation_legacy()
         {
             Generate(
                 new RenameSequenceOperation
@@ -1036,21 +1112,47 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         [Fact]
-        public virtual void RenameTableOperation()
+        public virtual void RenameSequenceOperation()
         {
             Generate(
-                new RenameTableOperation
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                new RenameSequenceOperation
                 {
-                    Name = "People",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
-                    NewName = "Person"
+                    NewName = "MySequence",
+                    NewSchema = "dbo"
                 });
+
+            Assert.Equal(
+                "EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';" + EOL,
+                Sql);
+        }
+#endif
+
+        [Fact]
+        public override void RenameTableOperation_legacy()
+        {
+            base.RenameTableOperation_legacy();
 
             Assert.Equal(
                 "EXEC sp_rename N'[dbo].[People]', N'Person';" + EOL,
                 Sql);
         }
+
+#if !Test20
+        [Fact]
+        public override void RenameTableOperation()
+        {
+            base.RenameTableOperation();
+
+            Assert.Equal(
+                "EXEC sp_rename N'[dbo].[People]', N'Person';" + EOL,
+                Sql);
+        }
+#endif
 
         [Fact]
         public virtual void SqlOperation_handles_backslash()
@@ -1148,7 +1250,7 @@ namespace Microsoft.EntityFrameworkCore
                 "(2, N'John Snow')," + EOL +
                 "(3, N'Arya Stark')," + EOL +
                 "(4, N'Harry Strickland');" + EOL +
-                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name') AND [object_id] = OBJECT_ID(N'[People]'))"  + EOL +
+                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name') AND [object_id] = OBJECT_ID(N'[People]'))" + EOL +
                 "    SET IDENTITY_INSERT [People] OFF;" + EOL,
                 Sql);
         }

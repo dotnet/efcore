@@ -506,16 +506,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] TableMapping target,
             [NotNull] DiffContext diffContext)
         {
-            var schemaChanged = source.Schema != target.Schema;
-            var renamed = source.Name != target.Name;
-            if (schemaChanged || renamed)
+            if (source.Schema != target.Schema
+                || source.Name != target.Name)
             {
                 yield return new RenameTableOperation
                 {
                     Schema = source.Schema,
                     Name = source.Name,
-                    NewSchema = schemaChanged ? target.Schema : null,
-                    NewName = renamed ? target.Name : null
+                    NewSchema = target.Schema,
+                    NewName = target.Name
                 };
             }
 
@@ -1312,16 +1311,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] ISequence source, [NotNull] ISequence target, [NotNull] DiffContext diffContext)
         {
-            var schemaChanged = source.Schema != target.Schema;
-            var renamed = source.Name != target.Name;
-            if (schemaChanged || renamed)
+            if (source.Schema != target.Schema
+                || source.Name != target.Name)
             {
                 yield return new RenameSequenceOperation
                 {
                     Schema = source.Schema,
                     Name = source.Name,
-                    NewSchema = schemaChanged ? target.Schema : null,
-                    NewName = renamed ? target.Name : null
+                    NewSchema = target.Schema,
+                    NewName = target.Name
                 };
             }
 

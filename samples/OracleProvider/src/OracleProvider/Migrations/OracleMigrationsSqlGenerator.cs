@@ -270,7 +270,7 @@ END;";
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.NewName != null)
+            if (operation.NewName != null && operation.NewName != operation.Name)
             {
                 builder
                     .Append("RENAME ")
@@ -289,7 +289,7 @@ END;";
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.NewName != null)
+            if (operation.NewName != null && operation.NewName != operation.Name)
             {
                 builder
                    .Append("ALTER TABLE ")
@@ -297,16 +297,6 @@ END;";
                    .Append(" RENAME TO ")
                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.NewName))
                    .EndCommand();
-            }
-
-            if (operation.NewSchema != null)
-            {
-                builder
-                    .Append("RENAME ")
-                    .Append(operation.NewSchema)
-                    .Append(" TO ")
-                    .Append(operation.Schema)
-                    .EndCommand();
             }
         }
 
@@ -669,24 +659,6 @@ END;";
             }
 
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-        }
-
-        protected virtual void Transfer(
-            [NotNull] string newSchema,
-            [CanBeNull] string schema,
-            [NotNull] string name,
-            [NotNull] MigrationCommandListBuilder builder)
-        {
-            Check.NotEmpty(newSchema, nameof(newSchema));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("ALTER SCHEMA ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(newSchema))
-                .Append(" TRANSFER ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema))
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
         protected virtual void DropDefaultConstraint(

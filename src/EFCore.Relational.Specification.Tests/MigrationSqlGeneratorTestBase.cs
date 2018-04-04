@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -380,15 +381,28 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
         [Fact]
-        public virtual void RenameTableOperation_within_schema()
+        public virtual void RenameTableOperation_legacy()
             => Generate(
                 new RenameTableOperation
                 {
                     Name = "People",
                     Schema = "dbo",
-                    NewName = "Personas",
+                    NewName = "Person"
+                });
+
+#if !Test20
+        [Fact]
+        public virtual void RenameTableOperation()
+            => Generate(
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                new RenameTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo",
+                    NewName = "Person",
                     NewSchema = "dbo"
                 });
+#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique()

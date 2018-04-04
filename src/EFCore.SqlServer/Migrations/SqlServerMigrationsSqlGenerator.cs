@@ -370,7 +370,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var name = operation.Name;
-            if (operation.NewName != null)
+            if (operation.NewName != null
+                && operation.NewName != name)
             {
                 Rename(
                     Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema),
@@ -380,7 +381,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 name = operation.NewName;
             }
 
-            if (operation.NewSchema != null)
+            if (operation.NewSchema != operation.Schema
+                && (operation.NewSchema != null
+                    || !HasLegacyRenameOperations(model)))
             {
                 Transfer(operation.NewSchema, operation.Schema, name, builder);
             }
@@ -462,7 +465,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var name = operation.Name;
-            if (operation.NewName != null)
+            if (operation.NewName != null
+                && operation.NewName != name)
             {
                 Rename(
                     Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema),
@@ -472,7 +476,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 name = operation.NewName;
             }
 
-            if (operation.NewSchema != null)
+            if (operation.NewSchema != operation.Schema
+                && (operation.NewSchema != null
+                    || !HasLegacyRenameOperations(model)))
             {
                 Transfer(operation.NewSchema, operation.Schema, name, builder);
             }
@@ -1521,21 +1527,36 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="name"> The name of the item to transfer. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected virtual void Transfer(
-            [NotNull] string newSchema,
+            [CanBeNull] string newSchema,
             [CanBeNull] string schema,
             [NotNull] string name,
             [NotNull] MigrationCommandListBuilder builder)
         {
-            Check.NotEmpty(newSchema, nameof(newSchema));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append("ALTER SCHEMA ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(newSchema))
-                .Append(" TRANSFER ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema))
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            if (newSchema == null)
+            {
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
+                builder
+                    .AppendLine("DECLARE @defaultSchema sysname = SCHEMA_NAME();")
+                    .Append("EXEC(")
+                    .Append("N'ALTER SCHEMA ' + @defaultSchema + ")
+                    .Append(
+                        stringTypeMapping.GenerateSqlLiteral(
+                            " TRANSFER " + Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema) + ";"))
+                    .AppendLine(");");
+            }
+            else
+            {
+                builder
+                    .Append("ALTER SCHEMA ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(newSchema))
+                    .Append(" TRANSFER ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema))
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
         }
 
         /// <summary>

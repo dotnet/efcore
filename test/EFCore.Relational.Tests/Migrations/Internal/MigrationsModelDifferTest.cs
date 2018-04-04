@@ -640,7 +640,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Cat", operation.Name);
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("Cats", operation.NewName);
-                        Assert.Null(operation.NewSchema);
+#if !Test20
+                        Assert.Equal("dbo", operation.NewSchema);
+#endif
                     });
         }
 
@@ -660,7 +662,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var renameTableOperation = Assert.IsType<RenameTableOperation>(operations[1]);
                         Assert.Equal("People", renameTableOperation.Name);
                         Assert.Equal("dbo", renameTableOperation.Schema);
-                        Assert.Null(renameTableOperation.NewName);
+#if !Test20
+                        Assert.Equal("People", renameTableOperation.NewName);
+#endif
                         Assert.Equal("public", renameTableOperation.NewSchema);
                     });
         }
@@ -3015,7 +3019,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Bravo", operation.Name);
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("bravo", operation.NewName);
-                        Assert.Null(operation.NewSchema);
+#if !Test20
+                        Assert.Equal("dbo", operation.NewSchema);
+#endif
                     });
         }
 
@@ -3034,7 +3040,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var operation = Assert.IsType<RenameSequenceOperation>(operations[1]);
                         Assert.Equal("Charlie", operation.Name);
                         Assert.Equal("dbo", operation.Schema);
-                        Assert.Null(operation.NewName);
+#if !Test20
+                        Assert.Equal("Charlie", operation.NewName);
+#endif
                         Assert.Equal("odb", operation.NewSchema);
                     });
         }
@@ -5939,7 +5947,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Cat", operation.Name);
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("Cats", operation.NewName);
-                        Assert.Null(operation.NewSchema);
+#if !Test20
+                        Assert.Equal("dbo", operation.NewSchema);
+#endif
                     },
                     o =>
                     {
@@ -5969,7 +5979,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Cats", operation.Name);
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("Cat", operation.NewName);
-                        Assert.Null(operation.NewSchema);
+#if !Test20
+                        Assert.Equal("dbo", operation.NewSchema);
+#endif
                     },
                     o =>
                     {

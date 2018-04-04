@@ -409,7 +409,7 @@ ALTER TABLE ""Person"" MODIFY ""Id"" NUMBER(10) NOT NULL",
         }
 
         [Fact]
-        public virtual void RenameSequenceOperation()
+        public virtual void RenameSequenceOperation_legacy()
         {
             Generate(
                 new RenameSequenceOperation
@@ -425,15 +425,35 @@ ALTER TABLE ""Person"" MODIFY ""Id"" NUMBER(10) NOT NULL",
         }
 
         [Fact]
-        public virtual void RenameTableOperation()
+        public virtual void RenameSequenceOperation()
         {
             Generate(
-                new RenameTableOperation
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                new RenameSequenceOperation
                 {
-                    Name = "People",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "SYSTEM",
-                    NewName = "Person"
+                    NewName = "MySequence",
+                    NewSchema = "SYSTEM"
                 });
+
+            Assert.Equal(
+                "RENAME \"EntityFrameworkHiLoSequence\" TO \"MySequence\"",
+                Sql);
+        }
+
+        public override void RenameTableOperation_legacy()
+        {
+            base.RenameTableOperation_legacy();
+
+            Assert.Equal(
+                "ALTER TABLE \"People\" RENAME TO \"Person\"",
+                Sql);
+        }
+
+        public override void RenameTableOperation()
+        {
+            base.RenameTableOperation();
 
             Assert.Equal(
                 "ALTER TABLE \"People\" RENAME TO \"Person\"",

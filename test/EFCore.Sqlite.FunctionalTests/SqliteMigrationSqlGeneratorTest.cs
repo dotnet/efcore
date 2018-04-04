@@ -373,14 +373,25 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.InvalidMigrationOperation("RenameIndexOperation"), ex.Message);
         }
 
-        public override void RenameTableOperation_within_schema()
+        public override void RenameTableOperation_legacy()
         {
-            base.RenameTableOperation_within_schema();
+            base.RenameTableOperation_legacy();
 
             Assert.Equal(
-                "ALTER TABLE \"People\" RENAME TO \"Personas\";" + EOL,
+                "ALTER TABLE \"People\" RENAME TO \"Person\";" + EOL,
                 Sql);
         }
+
+#if !Test20
+        public override void RenameTableOperation()
+        {
+            base.RenameTableOperation();
+
+            Assert.Equal(
+                "ALTER TABLE \"People\" RENAME TO \"Person\";" + EOL,
+                Sql);
+        }
+#endif
 
         public override void CreateSequenceOperation_with_minValue_and_maxValue()
         {
