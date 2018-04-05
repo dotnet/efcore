@@ -4,11 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-#if Test20
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-#else
 using Microsoft.EntityFrameworkCore.Oracle.Infrastructure.Internal;
-#endif
 using Xunit;
 
 // ReSharper disable InconsistentNaming
