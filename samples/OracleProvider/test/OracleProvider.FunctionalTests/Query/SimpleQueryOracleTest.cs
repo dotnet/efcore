@@ -2037,10 +2037,10 @@ ORDER BY ""Id1"" NULLS FIRST");
             base.Comparing_different_entity_types_using_Equals();
 
             AssertSql(
-                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region"", ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+                @"SELECT ""c"".""CustomerID""
 FROM ""Customers"" ""c""
 CROSS JOIN ""Orders"" ""o""
-WHERE (""c"".""CustomerID"" = N' ALFKI') AND (""o"".""CustomerID"" = N'ALFKI')");
+WHERE 0 = 1");
         }
 
         public override void Comparing_entity_to_null_using_Equals()
@@ -2048,9 +2048,9 @@ WHERE (""c"".""CustomerID"" = N' ALFKI') AND (""o"".""CustomerID"" = N'ALFKI')")
             base.Comparing_entity_to_null_using_Equals();
 
             AssertSql(
-                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+                @"SELECT ""c"".""CustomerID""
 FROM ""Customers"" ""c""
-WHERE ""c"".""CustomerID"" LIKE N'A' || N'%' AND (SUBSTR(""c"".""CustomerID"", 1, LENGTH(N'A')) = N'A')
+WHERE (""c"".""CustomerID"" LIKE N'A' || N'%' AND (SUBSTR(""c"".""CustomerID"", 1, LENGTH(N'A')) = N'A')) AND ""c"".""CustomerID"" IS NOT NULL
 ORDER BY ""c"".""CustomerID"" NULLS FIRST");
         }
 
@@ -2083,10 +2083,10 @@ ORDER BY ""Id1"" NULLS FIRST, ""Id2"" NULLS FIRST");
             base.Comparing_non_matching_entities_using_Equals();
 
             AssertSql(
-                @"SELECT ""c"".""CustomerID"" ""Id1"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region"", ""o"".""OrderID"" ""Id2"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+                @"SELECT ""c"".""CustomerID"" ""Id1"", ""o"".""OrderID"" ""Id2""
 FROM ""Customers"" ""c""
 CROSS JOIN ""Orders"" ""o""
-WHERE ""c"".""CustomerID"" = N'ALFKI'");
+WHERE 0 = 1");
         }
 
         public override void Comparing_non_matching_collection_navigations_using_Equals()

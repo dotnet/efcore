@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-        [Fact]
+        [Fact(Skip = "See issue#11558")]
         public void Can_use_decimal_and_byte_as_identity_columns()
         {
             using (var testDatabase = OracleTestStore.CreateInitialized(DatabaseName))
