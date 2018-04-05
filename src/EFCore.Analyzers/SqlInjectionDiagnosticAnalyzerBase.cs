@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class SqlInjectionDiagnosticAnalyzerBase : DiagnosticAnalyzer
     {
         public const string MessageFormat
-            = "The SQL expression passed to '{0}' embeds data that will not be parameterized. Review for potential SQL injection vulnerability.";
+            = "The SQL expression passed to '{0}' embeds data that will not be parameterized."
+              + " Review for potential SQL injection vulnerability. See https://go.microsoft.com/fwlink/?linkid=871170 for more information.";
 
         protected const string DefaultTitle = "Possible SQL injection vulnerability.";
         protected const string Category = "Security";
