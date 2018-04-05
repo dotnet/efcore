@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private static readonly ParameterExpression _resultsParameter
             = Expression.Parameter(typeof(object[]), name: "results");
+        private static readonly ParameterExpression _dummyCancellationToken
+            = Expression.Parameter(typeof(CancellationToken), name: "ct");
 
         private readonly List<Expression> _taskExpressions = new List<Expression>();
 
@@ -45,6 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         _executeAsync.MakeGenericMethod(expression.Type),
                         Expression.NewArrayInit(typeof(Func<Task<object>>), _taskExpressions),
                         Expression.Lambda(newExpression, _resultsParameter));
+
+                if (CancellationTokenParameter == null)
+                {
+                    CancellationTokenParameter = _dummyCancellationToken;
+                }
             }
 
             return newExpression;
