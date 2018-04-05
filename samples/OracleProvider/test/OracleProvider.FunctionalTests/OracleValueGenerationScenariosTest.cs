@@ -674,7 +674,7 @@ RETURN NVARCHAR2 DETERMINISTIC IS BEGIN RETURN First || Second; END;");
                 => modelBuilder.Entity<GuidBlog>().Property(e => e.NotId).ValueGeneratedOnAdd();
         }
 
-        [Fact]
+        [Fact(Skip = "See issue#11559")]
         public void Insert_with_server_generated_GUID_key()
         {
             using (var testStore = OracleTestStore.CreateInitialized(DatabaseName))
@@ -746,7 +746,7 @@ RETURN NVARCHAR2 DETERMINISTIC IS BEGIN RETURN First || Second; END;");
 
                     // DbUpdateException : An error occurred while updating the entries. See the
                     // inner exception for details.
-                    // SqlException : Cannot insert explicit value for identity column in table 
+                    // SqlException : Cannot insert explicit value for identity column in table
                     // 'Blog' when IDENTITY_INSERT is set to OFF.
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 }
@@ -812,7 +812,7 @@ RETURN NVARCHAR2 DETERMINISTIC IS BEGIN RETURN First || Second; END;");
 
                     context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
-                    // The property 'Id' on entity type 'Blog' is defined to be read-only before it is 
+                    // The property 'Id' on entity type 'Blog' is defined to be read-only before it is
                     // saved, but its value has been set to something other than a temporary or default value.
                     Assert.Equal(
                         CoreStrings.PropertyReadOnlyBeforeSave("Id", "Blog"),
@@ -853,7 +853,7 @@ RETURN NVARCHAR2 DETERMINISTIC IS BEGIN RETURN First || Second; END;");
                         new Blog { Name = "One Unicorn" },
                         new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) });
 
-                    // The property 'CreatedOn' on entity type 'Blog' is defined to be read-only before it is 
+                    // The property 'CreatedOn' on entity type 'Blog' is defined to be read-only before it is
                     // saved, but its value has been set to something other than a temporary or default value.
                     Assert.Equal(
                         CoreStrings.PropertyReadOnlyBeforeSave("CreatedOn", "Blog"),
@@ -873,7 +873,7 @@ RETURN NVARCHAR2 DETERMINISTIC IS BEGIN RETURN First || Second; END;");
 
                     context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn", FullName = "Gerald" });
 
-                    // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is 
+                    // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is
                     // saved, but its value has been set to something other than a temporary or default value.
                     Assert.Equal(
                         CoreStrings.PropertyReadOnlyBeforeSave("FullName", "FullNameBlog"),
