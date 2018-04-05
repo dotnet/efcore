@@ -10,10 +10,10 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class ConcurrencyDetectorRelationalTest<TFixture> : ConcurrencyDetectorTestBase<TFixture>
+    public abstract class ConcurrencyDetectorRelationalTestBase<TFixture> : ConcurrencyDetectorTestBase<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
-        protected ConcurrencyDetectorRelationalTest(TFixture fixture)
+        protected ConcurrencyDetectorRelationalTestBase(TFixture fixture)
             : base(fixture)
         {
         }

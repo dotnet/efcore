@@ -13,7 +13,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class LoggingSqliteTest : LoggingRelationalTest<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
+    public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
     {
         [Fact]
         public void Logs_context_initialization_no_FKs()

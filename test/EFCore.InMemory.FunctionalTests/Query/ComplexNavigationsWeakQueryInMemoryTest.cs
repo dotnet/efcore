@@ -5,11 +5,11 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsOwnedQueryInMemoryTest :
-        ComplexNavigationsOwnedQueryTestBase<ComplexNavigationsOwnedQueryInMemoryFixture>
+    public class ComplexNavigationsWeakQueryInMemoryTest :
+        ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQueryInMemoryFixture>
     {
         // ReSharper disable once UnusedParameter.Local
-        public ComplexNavigationsOwnedQueryInMemoryTest(ComplexNavigationsOwnedQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
+        public ComplexNavigationsWeakQueryInMemoryTest(ComplexNavigationsWeakQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;

@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsOwnedQueryFixtureBase : ComplexNavigationsQueryFixtureBase
+    public abstract class ComplexNavigationsWeakQueryFixtureBase : ComplexNavigationsQueryFixtureBase
     {
         protected override string StoreName { get; } = "ComplexNavigationsOwned";
 
-        protected ComplexNavigationsOwnedQueryFixtureBase()
+        protected ComplexNavigationsWeakQueryFixtureBase()
         {
             QueryAsserter.SetExtractor = new ComplexNavigationsOwnedSetExtractor();
             QueryAsserter.ExpectedData = new ComplexNavigationsOwnedData();

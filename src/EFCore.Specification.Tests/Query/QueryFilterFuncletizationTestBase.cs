@@ -7,6 +7,9 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class QueryFilterFuncletizationTestBase<TFixture> : IClassFixture<TFixture>
@@ -74,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 // This throws because the default value of TenantIds is null which is NRE
-                Assert.Throws<InvalidOperationException>(() => context.Set<ListFilter>().ToList());
+                var exception = Record.Exception(() => context.Set<ListFilter>().ToList());
+                Assert.True(exception is InvalidOperationException || exception is ArgumentNullException);
 
                 context.TenantIds = new List<int>();
                 var query = context.Set<ListFilter>().ToList();

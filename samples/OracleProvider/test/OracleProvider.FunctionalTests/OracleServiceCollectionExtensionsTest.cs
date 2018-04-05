@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class OracleServiceCollectionExtensionsTest : RelationalServiceCollectionExtensionsTest
+    public class OracleServiceCollectionExtensionsTest : RelationalServiceCollectionExtensionsTestBase
     {
         public OracleServiceCollectionExtensionsTest()
             : base(OracleTestHelpers.Instance)

@@ -8,7 +8,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class LoggingRelationalTest<TBuilder, TExtension> : LoggingTestBase
+    public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingTestBase
         where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
         where TExtension : RelationalOptionsExtension, new()
     {

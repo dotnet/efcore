@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class RelationalServiceCollectionExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
+    public abstract class RelationalServiceCollectionExtensionsTestBase : EntityFrameworkServiceCollectionExtensionsTestBase
     {
-        protected RelationalServiceCollectionExtensionsTest(TestHelpers testHelpers)
+        protected RelationalServiceCollectionExtensionsTestBase(TestHelpers testHelpers)
             : base(testHelpers)
         {
         }

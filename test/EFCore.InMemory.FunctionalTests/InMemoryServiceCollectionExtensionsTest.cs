@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class InMemoryServiceCollectionExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
+    public class InMemoryServiceCollectionExtensionsTest : EntityFrameworkServiceCollectionExtensionsTestBase
     {
         public InMemoryServiceCollectionExtensionsTest()
             : base(InMemoryTestHelpers.Instance)

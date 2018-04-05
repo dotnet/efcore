@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsOwnedQueryTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>
-        where TFixture : ComplexNavigationsOwnedQueryFixtureBase, new()
+    public abstract class ComplexNavigationsWeakQueryTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>
+        where TFixture : ComplexNavigationsWeakQueryFixtureBase, new()
     {
-        protected ComplexNavigationsOwnedQueryTestBase(TFixture fixture)
+        protected ComplexNavigationsWeakQueryTestBase(TFixture fixture)
             : base(fixture)
         {
         }

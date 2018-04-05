@@ -13,7 +13,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class LoggingSqlServerTest : LoggingRelationalTest<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
+    public class LoggingSqlServerTest : LoggingRelationalTestBase<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
     {
         [Fact]
         public void Logs_context_initialization_row_number_paging()

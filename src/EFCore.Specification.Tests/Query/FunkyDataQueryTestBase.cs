@@ -13,7 +13,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class FunkyDataQueryTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : FunkyDataQueryFixtureBase, new()
+        where TFixture : FunkyDataQueryTestBase<TFixture>.FunkyDataQueryFixtureBase, new()
     {
         protected FunkyDataQueryTestBase(TFixture fixture) => Fixture = fixture;
 
@@ -505,6 +505,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual void ClearLog()
         {
+        }
+
+        public abstract class FunkyDataQueryFixtureBase : SharedStoreFixtureBase<FunkyDataContext>
+        {
+            protected override string StoreName { get; } = "FunkyDataQueryTest";
+
+            protected override void Seed(FunkyDataContext context) => FunkyDataContext.Seed(context);
         }
     }
 }

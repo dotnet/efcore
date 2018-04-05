@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsOwnedQueryRelationalFixtureBase : ComplexNavigationsOwnedQueryFixtureBase
+    public abstract class ComplexNavigationsWeakQueryRelationalFixtureBase : ComplexNavigationsWeakQueryFixtureBase
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 

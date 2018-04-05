@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable AccessToModifiedClosure
+// ReSharper disable PossibleMultipleEnumeration
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
@@ -20,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         [ConditionalFact]
-        public virtual void Optional_One_to_one_relationships_are_one_to_one()
+        public virtual void Optional_one_to_one_relationships_are_one_to_one()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -34,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Required_One_to_one_relationships_are_one_to_one()
+        public virtual void Required_one_to_one_relationships_are_one_to_one()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -48,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Optional_One_to_one_with_AK_relationships_are_one_to_one()
+        public virtual void Optional_one_to_one_with_AK_relationships_are_one_to_one()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -62,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Required_One_to_one_with_AK_relationships_are_one_to_one()
+        public virtual void Required_one_to_one_with_AK_relationships_are_one_to_one()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -351,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Save_removed_optional_many_to_one_dependents(ChangeMechanism changeMechanism)
         {
-            Root root = null;
+            Root root;
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
@@ -588,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var loadedRoot = LoadRoot(context);
+                        LoadRoot(context);
 
                         var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1.Id);
                         var loaded1d = context.Set<OptionalSingle1>().Single(e => e.Id == old1d.Id);
@@ -614,7 +617,8 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
-        [InlineData((int)ChangeMechanism.Principal)]
+        // #11553
+        //[InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Fk)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
@@ -622,12 +626,6 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism)
         {
-            // This test is a bit strange because the relationships are PK<->PK, which means
-            // that an existing entity has to be deleted and then a new entity created that has
-            // the same key as the existing entry. In other words it is a new incarnation of the same
-            // entity. EF7 can't track two different instances of the same entity, so this has to be
-            // done in two steps.
-
             RequiredSingle1 old1 = null;
             RequiredSingle2 old2 = null;
             Root oldRoot = null;
@@ -649,15 +647,10 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var root = context.Set<Root>().Include(e => e.RequiredSingle).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.RequiredSingle.Single).Single(IsTheRoot);
 
-                        root.RequiredSingle = null;
-
-                        context.SaveChanges();
-                    },
-                context =>
-                    {
-                        var root = context.Set<Root>().Include(e => e.RequiredSingle).Single(IsTheRoot);
+                        context.Entry(root.RequiredSingle.Single).State = EntityState.Deleted;
+                        context.Entry(root.RequiredSingle).State = EntityState.Deleted;
 
                         if ((changeMechanism & ChangeMechanism.Principal) != 0)
                         {
@@ -841,7 +834,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Sever_optional_one_to_one(ChangeMechanism changeMechanism)
         {
-            Root root = null;
+            Root root;
             OptionalSingle1 old1 = null;
             OptionalSingle2 old2 = null;
             ExecuteWithStrategyInTransaction(
@@ -884,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         if ((changeMechanism & ChangeMechanism.Fk) == 0)
                         {
-                            var loadedRoot = LoadRoot(context);
+                            LoadRoot(context);
 
                             var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1.Id);
                             var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2.Id);
@@ -943,7 +936,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var loadedRoot = LoadRoot(context);
+                        LoadRoot(context);
 
                         Assert.False(context.Set<RequiredSingle1>().Any(e => e.Id == old1.Id));
                         Assert.False(context.Set<RequiredSingle2>().Any(e => e.Id == old2.Id));
@@ -956,7 +949,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         public virtual void Sever_required_non_PK_one_to_one(ChangeMechanism changeMechanism)
         {
-            Root root = null;
+            Root root;
             RequiredNonPkSingle1 old1 = null;
             RequiredNonPkSingle2 old2 = null;
             ExecuteWithStrategyInTransaction(
@@ -996,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var loadedRoot = LoadRoot(context);
+                        LoadRoot(context);
 
                         Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1.Id));
                         Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2.Id));
@@ -1777,7 +1770,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
         public virtual void Save_removed_optional_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
         {
-            Root root = null;
+            Root root;
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
@@ -2038,7 +2031,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var loadedRoot = LoadRoot(context);
+                        LoadRoot(context);
 
                         var loaded1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1.Id);
                         var loaded1d = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1d.Id);
@@ -2193,7 +2186,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var loadedRoot = LoadRoot(context);
+                        LoadRoot(context);
 
                         var loaded1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1.Id);
                         var loaded1d = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1d.Id);
@@ -2305,7 +2298,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var loadedRoot = LoadRoot(context);
+                        LoadRoot(context);
 
                         Assert.False(context.Set<RequiredSingleAk1>().Any(e => e.Id == old1.Id));
                         Assert.False(context.Set<RequiredSingleAk2>().Any(e => e.Id == old2.Id));
@@ -2716,7 +2709,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var loadedRoot = LoadRoot(context);
+                        LoadRoot(context);
 
                         newRoot = context.Set<Root>().Single(e => e.Id == newRoot.Id);
                         var loaded1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1.Id);

@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceOracleTest : InheritanceTestBase<InheritanceOracleFixture>
+    public class InheritanceOracleTest : InheritanceRelationalTestBase<InheritanceOracleFixture>
     {
         public InheritanceOracleTest(InheritanceOracleFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

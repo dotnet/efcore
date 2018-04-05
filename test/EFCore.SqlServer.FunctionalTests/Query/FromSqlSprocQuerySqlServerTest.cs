@@ -100,10 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.From_sql_queryable_with_multiple_stored_procedures();
 
             Assert.StartsWith(
-                @"[dbo].[Ten Most Expensive Products]" + EOL +
-                EOL +
-                @"[dbo].[Ten Most Expensive Products]" + EOL +
-                EOL +
+                @"[dbo].[Ten Most Expensive Products]" + _eol +
+                _eol +
+                @"[dbo].[Ten Most Expensive Products]" + _eol +
+                _eol +
                 @"[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
@@ -113,16 +113,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.From_sql_queryable_stored_procedure_and_select();
 
             Assert.StartsWith(
-                @"[dbo].[Ten Most Expensive Products]" + EOL +
-                EOL +
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + EOL +
-                @"FROM (" + EOL +
-                @"    SELECT * FROM ""Products""" + EOL +
-                @") AS [p]" + EOL +
-                EOL +
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + EOL +
-                @"FROM (" + EOL +
-                @"    SELECT * FROM ""Products""" + EOL +
+                @"[dbo].[Ten Most Expensive Products]" + _eol +
+                _eol +
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + _eol +
+                @"FROM (" + _eol +
+                @"    SELECT * FROM ""Products""" + _eol +
+                @") AS [p]" + _eol +
+                _eol +
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + _eol +
+                @"FROM (" + _eol +
+                @"    SELECT * FROM ""Products""" + _eol +
                 @") AS [p]",
                 Sql);
         }
@@ -132,13 +132,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.From_sql_queryable_select_and_stored_procedure();
 
             Assert.StartsWith(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + EOL +
-                @"FROM (" + EOL +
-                @"    SELECT * FROM ""Products""" + EOL +
-                @") AS [p]" + EOL +
-                EOL +
-                @"[dbo].[Ten Most Expensive Products]" + EOL +
-                EOL +
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + _eol +
+                @"FROM (" + _eol +
+                @"    SELECT * FROM ""Products""" + _eol +
+                @") AS [p]" + _eol +
+                _eol +
+                @"[dbo].[Ten Most Expensive Products]" + _eol +
+                _eol +
                 @"[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
         protected override string CustomerOrderHistorySproc => "[dbo].[CustOrderHist] @CustomerID = {0}";
 
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         private string Sql => Fixture.TestSqlLoggerFactory.Sql;
     }

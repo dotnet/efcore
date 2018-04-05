@@ -5,10 +5,10 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsOwnedQueryOracleTest : ComplexNavigationsOwnedQueryTestBase<ComplexNavigationsOwnedQueryOracleFixture>
+    public class ComplexNavigationsWeakQueryOracleTest : ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQueryOracleFixture>
     {
-        public ComplexNavigationsOwnedQueryOracleTest(
-            ComplexNavigationsOwnedQueryOracleFixture fixture, ITestOutputHelper testOutputHelper)
+        public ComplexNavigationsWeakQueryOracleTest(
+            ComplexNavigationsWeakQueryOracleFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);

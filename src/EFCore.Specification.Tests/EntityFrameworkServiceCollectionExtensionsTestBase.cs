@@ -12,11 +12,11 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class EntityFrameworkServiceCollectionExtensionsTest
+    public abstract class EntityFrameworkServiceCollectionExtensionsTestBase
     {
         private readonly TestHelpers _testHelpers;
 
-        protected EntityFrameworkServiceCollectionExtensionsTest(TestHelpers testHelpers)
+        protected EntityFrameworkServiceCollectionExtensionsTestBase(TestHelpers testHelpers)
             => _testHelpers = testHelpers;
 
         [Fact]

@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ConcurrencyDetectorOracleTest : ConcurrencyDetectorRelationalTest<NorthwindQueryOracleFixture<NoopModelCustomizer>>
+    public class ConcurrencyDetectorOracleTest : ConcurrencyDetectorRelationalTestBase<NorthwindQueryOracleFixture<NoopModelCustomizer>>
     {
         public ConcurrencyDetectorOracleTest(NorthwindQueryOracleFixture<NoopModelCustomizer> fixture)
             : base(fixture)
