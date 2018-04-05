@@ -1106,7 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                           == c.FindSource(c.FindTargetTable(t.PrincipalEntityType))
                           && s.PrincipalKey.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
                               t.PrincipalKey.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName))
-                          && s.DeleteBehavior == t.DeleteBehavior
+                          && ToReferentialAction(s.DeleteBehavior) == ToReferentialAction(t.DeleteBehavior)
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
         /// <summary>
@@ -1136,11 +1136,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 PrincipalSchema = targetPrincipalEntityTypeAnnotations.Schema,
                 PrincipalTable = targetPrincipalEntityTypeAnnotations.TableName,
                 PrincipalColumns = GetColumns(target.PrincipalKey.Properties),
-                OnDelete = target.DeleteBehavior == DeleteBehavior.Cascade
-                    ? ReferentialAction.Cascade
-                    : target.DeleteBehavior == DeleteBehavior.SetNull
-                        ? ReferentialAction.SetNull
-                        : ReferentialAction.Restrict
+                OnDelete = ToReferentialAction(target.DeleteBehavior)
             };
             operation.AddAnnotations(MigrationsAnnotations.For(target));
 
@@ -1919,6 +1915,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private ValueConverter GetValueConverter(IProperty property)
             => TypeMappingSource.GetMapping(property).Converter;
+
+        private static ReferentialAction ToReferentialAction(DeleteBehavior deleteBehavior)
+            => deleteBehavior == DeleteBehavior.Cascade
+                ? ReferentialAction.Cascade
+                : deleteBehavior == DeleteBehavior.SetNull
+                    ? ReferentialAction.SetNull
+                    : ReferentialAction.Restrict;
 
         private static object[,] ToMultidimensionalArray(IReadOnlyList<object> values)
         {

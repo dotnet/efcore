@@ -2729,6 +2729,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void Alter_foreign_key_on_delete_from_ClientSetNull_to_Restrict()
+        {
+            Execute(
+                source => source.Entity(
+                    "Mushroom",
+                    x =>
+                    {
+                        x.ToTable("Mushroom", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("ParentId1");
+                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").OnDelete(DeleteBehavior.ClientSetNull);
+                        x.Property<int>("ParentId2");
+                    }),
+                target => target.Entity(
+                    "Mushroom",
+                    x =>
+                    {
+                        x.ToTable("Mushroom", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("ParentId1");
+                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").OnDelete(DeleteBehavior.Restrict);
+                        x.Property<int>("ParentId2");
+                    }),
+                operations => Assert.Equal(0, operations.Count));
+        }
+
+        [Fact]
         public void Alter_foreign_key_target()
         {
             Execute(
@@ -6164,7 +6191,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             Enum = SomeEnum.NonDefault
                         });
                     }),
-                _ => {},
+                _ => { },
                 target => target.Entity(
                     "EntityWithEnumProperty",
                     x =>
