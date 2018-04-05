@@ -1321,8 +1321,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.Lambda(
                                 asyncSelector,
                                 CurrentParameter,
-                                taskLiftingExpressionVisitor.CancellationTokenParameter
-                                ?? Expression.Parameter(typeof(CancellationToken), name: "ct")));
+                                taskLiftingExpressionVisitor.CancellationTokenParameter));
             }
         }
 

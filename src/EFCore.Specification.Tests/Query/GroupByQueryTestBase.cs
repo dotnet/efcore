@@ -1559,6 +1559,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
+
+
+        [ConditionalFact]
+        public virtual void GroupBy_Select_First_GroupBy()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    cs.GroupBy(c => c.City)
+                      .Select(g => g.OrderBy(c => c.CustomerID).First())
+                      .GroupBy(c => c.ContactName),
+                elementSorter: GroupingSorter<string, object>(),
+                elementAsserter: GroupingAsserter<string, dynamic>(d => d.CustomerID));
+        }
+
         #endregion
 
         #region GroupByEntityType
