@@ -39,8 +39,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(
-                    c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                          .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
+                    c => c.Log(RelationalEventId.QueryClientEvaluationWarning));
 
             public override bool SupportsBinaryKeys => true;
 
