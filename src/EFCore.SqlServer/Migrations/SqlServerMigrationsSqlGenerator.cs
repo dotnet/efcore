@@ -853,6 +853,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     builder
                         .AppendLine("BEGIN")
+                        .AppendLine("ALTER DATABASE CURRENT SET AUTO_CLOSE OFF;")
                         .AppendLine("DECLARE @db_name NVARCHAR(MAX) = DB_NAME();")
                         .AppendLine("DECLARE @fg_name NVARCHAR(MAX);")
                         .AppendLine("SELECT TOP(1) @fg_name = [name] FROM [sys].[filegroups] WHERE [type] = N'FX';")

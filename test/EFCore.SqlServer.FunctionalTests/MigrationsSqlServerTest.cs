@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 #endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -443,7 +444,7 @@ CreatedTable
             return builder.ToString();
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Empty_Migration_Creates_Database()
         {
             using (var context = new BloggingContext(Fixture.TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options))

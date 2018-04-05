@@ -8,8 +8,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+#if Test20
 using Microsoft.EntityFrameworkCore.Internal;
-#if !Test20
+#else
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 #endif
@@ -699,6 +700,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
+    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
     public class SqlServerDatabaseCreatorTest
     {
 

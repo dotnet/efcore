@@ -29,8 +29,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static string DefaultConnection => Config["DefaultConnection"] ?? DefaultConnectionString;
 
-        public static bool IsSqlAzure
-            => new SqlConnectionStringBuilder(DefaultConnection).DataSource.Contains("database.windows.net");
+        private static bool? _isSqlAzure;
+
+        public static bool IsSqlAzure =>
+            (bool)(_isSqlAzure
+                   ?? (_isSqlAzure = new SqlConnectionStringBuilder(DefaultConnection).DataSource.Contains("database.windows.net")));
 
         public static bool IsTeamCity => Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
 

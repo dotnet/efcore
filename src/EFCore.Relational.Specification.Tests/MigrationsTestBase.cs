@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_apply_one_migration()
         {
             using (var db = Fixture.CreateContext())
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_no_migration_script()
         {
             using (var db = Fixture.CreateEmptyContext())
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_migration_from_initial_database_to_initial()
         {
             using (var db = Fixture.CreateContext())
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_up_scripts()
         {
             using (var db = Fixture.CreateContext())
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_one_up_script()
         {
             using (var db = Fixture.CreateContext())
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_up_script_using_names()
         {
             using (var db = Fixture.CreateContext())
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_idempotent_up_scripts()
         {
             using (var db = Fixture.CreateContext())
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_down_scripts()
         {
             using (var db = Fixture.CreateContext())
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_one_down_script()
         {
             using (var db = Fixture.CreateContext())
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_down_script_using_names()
         {
             using (var db = Fixture.CreateContext())
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_idempotent_down_scripts()
         {
             using (var db = Fixture.CreateContext())
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_get_active_provider()
         {
             using (var db = Fixture.CreateContext())
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Creating databases and executing DDL is slow. This oddly-structured test allows us to get the most ammount of
         ///     coverage using the least ammount of database operations.
         /// </remarks>
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Can_execute_operations()
         {
             using (var db = Fixture.CreateContext())
