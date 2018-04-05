@@ -139,11 +139,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 @"builder
     .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
     .HasAnnotation(""ChangeDetector.SkipDetectChanges"", ""true"")
+    .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
     .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 ",
                 o =>
                     {
-                        Assert.Equal(3, o.GetAnnotations().Count());
+                        Assert.Equal(4, o.GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o["AnnotationName"]);
                     });
         }
@@ -161,11 +162,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     .HasDefaultSchema(""DefaultSchema"")
     .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
     .HasAnnotation(""ChangeDetector.SkipDetectChanges"", ""true"")
+    .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
     .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 ",
                 o =>
                     {
-                        Assert.Equal(4, o.GetAnnotations().Count());
+                        Assert.Equal(5, o.GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o["AnnotationName"]);
                         Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                     });
@@ -1616,6 +1618,37 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     });
         }
 
+        [Fact]
+        public virtual void Index_with_default_constraint_name_exceeding_max()
+        {
+            Test(
+                builder => builder.Entity<EntityWithStringProperty>(
+                    x =>
+                    {
+                        const string propertyName = "SomePropertyWithAnExceedinglyLongIdentifierThatCausesTheDefaultIndexNameToExceedTheMaximumIdentifierLimit";
+                        x.Property<string>(propertyName);
+                        x.HasIndex(propertyName);
+                    }),
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Name"");
+
+        b.Property<string>(""SomePropertyWithAnExceedinglyLongIdentifierThatCausesTheDefaultIndexNameToExceedTheMaximumIdentifierLimit"");
+
+        b.HasKey(""Id"");
+
+        b.HasIndex(""SomePropertyWithAnExceedinglyLongIdentifierThatCausesTheDefaultIndexNameToExceedTheMaximumIdentifierLimit"");
+
+        b.ToTable(""EntityWithStringProperty"");
+    });
+",
+                model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().Relational().Name.Length));
+        }
+
         #endregion
 
         #region ForeignKey
@@ -2320,6 +2353,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         #endregion
 
         protected virtual string GetHeading() => @"builder
+    .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
     .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 ";
 

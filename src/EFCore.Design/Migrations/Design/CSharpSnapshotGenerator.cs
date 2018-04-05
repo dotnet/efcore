@@ -63,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultSchema, nameof(RelationalModelBuilderExtensions.HasDefaultSchema), stringBuilder);
 
                     IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
-                    IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.MaxIdentifierLength);
                     IgnoreAnnotationTypes(annotations, CoreAnnotationNames.OwnedTypesAnnotation);
 
                     GenerateAnnotations(annotations, stringBuilder);
