@@ -409,7 +409,6 @@ WHERE [e20].[EmployeeID] = 42",
 FROM [Employees] AS [e20]
 WHERE [e20].[EmployeeID] = 42");
         }
-#endif
 
         public override void Where_query_composition_entity_equality_no_elements_FirstOrDefault()
         {
@@ -425,7 +424,6 @@ WHERE (
 ) = CAST(0 AS bigint)");
         }
 
-#if !Test20
         public override void Where_query_composition_entity_equality_multiple_elements_FirstOrDefault()
         {
             base.Where_query_composition_entity_equality_multiple_elements_FirstOrDefault();

@@ -366,6 +366,7 @@ LEFT JOIN [LevelTwo] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Op
 WHERE ([e1.OneToOne_Optional_FK].[Name] LIKE [e1.OneToOne_Optional_FK].[Name] + N'%' AND (LEFT([e1.OneToOne_Optional_FK].[Name], LEN([e1.OneToOne_Optional_FK].[Name])) = [e1.OneToOne_Optional_FK].[Name])) OR ([e1.OneToOne_Optional_FK].[Name] = N'')");
         }
 
+#if !Test20
         public override void Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability()
         {
             base.Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability();
@@ -398,6 +399,7 @@ FROM [LevelOne] AS [e1]
 LEFT JOIN [LevelTwo] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Optional_FK].[Level1_Optional_Id]
 WHERE DATEADD(day, [e1.OneToOne_Optional_FK].[Id], DATEADD(day, 15E0, [e1.OneToOne_Optional_FK].[Date])) > '2002-02-01T00:00:00.0000000'");
         }
+#endif
 
         public override void Join_navigation_in_outer_selector_translated_to_extra_join()
         {

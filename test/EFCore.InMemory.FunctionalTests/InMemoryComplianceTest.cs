@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
         {
+#if Test20
+            typeof(ProxyGraphUpdatesTestBase<>),
+#endif
             typeof(FunkyDataQueryTestBase<>),
             typeof(OptimisticConcurrencyTestBase<>),
             typeof(StoreGeneratedTestBase<>)

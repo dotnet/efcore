@@ -94,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+#if !Test20
         public class LazyLoading : ProxyGraphUpdatesInMemoryTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture>
         {
             public LazyLoading(ProxyGraphUpdatesWithLazyLoadingInMemoryFixture fixture)
@@ -112,5 +113,6 @@ namespace Microsoft.EntityFrameworkCore
                     => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
             }
         }
+#endif
     }
 }

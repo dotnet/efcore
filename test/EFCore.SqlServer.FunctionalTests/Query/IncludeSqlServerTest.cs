@@ -966,6 +966,7 @@ FROM (
 CROSS JOIN [Customers] AS [c2]");
         }
 
+#if !Test20
         public override void Include_where_skip_take_projection(bool useString)
         {
             base.Include_where_skip_take_projection(useString);
@@ -984,6 +985,7 @@ ORDER BY [od].[OrderID], [od].[ProductID]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
             }
         }
+#endif
 
         public override void Include_duplicate_collection_result_operator2(bool useString)
         {

@@ -1874,6 +1874,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug8538
 
+#if !Test20
         [Fact]
         public virtual void Enum_has_flag_applies_explicit_cast_for_long_constant()
         {
@@ -1892,6 +1893,7 @@ WHERE ([e].[Permission] & CAST(17179869184 AS bigint)) = CAST(17179869184 AS big
                 }
             }
         }
+#endif
 
         [Fact]
         public virtual void Enum_has_flag_does_not_apply_explicit_cast_for_non_constant()
@@ -1931,6 +1933,7 @@ WHERE ([e].[PermissionByte] & [e].[PermissionByte]) = [e].[PermissionByte]");
             }
         }
 
+#if !Test20
         [Fact]
         public virtual void Enum_has_flag_applies_explicit_cast_for_short_constant()
         {
@@ -1949,6 +1952,7 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
                 }
             }
         }
+#endif
 
         public class Entity8538
         {

@@ -211,6 +211,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         public override void AlterColumnOperation()
         {
             base.AlterColumnOperation();
@@ -588,6 +589,7 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void AlterColumnOperation_add_identity()
@@ -739,6 +741,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         public override void CreateIndexOperation_unique()
         {
             base.CreateIndexOperation_unique();
@@ -747,6 +750,7 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique_non_legacy()
@@ -802,6 +806,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         [Fact]
         public virtual void CreateIndexOperation_unique_bound_null()
         {
@@ -819,6 +824,7 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique_bound_not_null()
@@ -917,6 +923,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         public override void DropColumnOperation()
         {
             base.DropColumnOperation();
@@ -932,7 +939,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public virtual void DropDatabaseOperation()
         {
@@ -1082,7 +1088,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [dbo].[People];');" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void RenameColumnOperation()
@@ -1117,6 +1122,7 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC sp_rename N'[dbo].[People].[IX_People_Name]', N'IX_People_FullName', N'INDEX';" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void RenameIndexOperations_throws_when_no_table()
@@ -1133,6 +1139,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
         }
 
+#if !Test20
         [Fact]
         public virtual void RenameSequenceOperation_legacy()
         {
@@ -1149,7 +1156,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public virtual void RenameSequenceOperation()
         {
@@ -1167,7 +1173,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public override void RenameTableOperation_legacy()
@@ -1179,7 +1184,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public override void RenameTableOperation()
         {

@@ -610,6 +610,7 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)");
         }
 
+#if !Test20
         public override void Where_bitwise_and_integral()
         {
             base.Where_bitwise_and_integral();
@@ -631,6 +632,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)",
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)");
         }
+#endif
 
         public override void Where_bitwise_and_nullable_enum_with_constant()
         {
@@ -2845,6 +2847,7 @@ END
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
         }
 
+#if !Test20
         public override void Where_datetimeoffset_now()
         {
             base.Where_datetimeoffset_now();
@@ -2864,6 +2867,7 @@ WHERE [m].[Timeline] <> CAST(GETDATE() AS datetimeoffset)");
 FROM [Missions] AS [m]
 WHERE [m].[Timeline] <> CAST(GETUTCDATE() AS datetimeoffset)");
         }
+#endif
 
         public override void Where_datetimeoffset_date_component()
         {
@@ -4455,6 +4459,7 @@ LEFT JOIN (
 
         public override void Enum_ToString_is_client_eval()
         {
+#if !Test20
             base.Enum_ToString_is_client_eval();
 
             AssertSql(
@@ -4462,6 +4467,7 @@ LEFT JOIN (
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [g].[SquadId], [g].[Nickname]");
+#endif
         }
 
         public override void Correlated_collections_naked_navigation_with_ToList()

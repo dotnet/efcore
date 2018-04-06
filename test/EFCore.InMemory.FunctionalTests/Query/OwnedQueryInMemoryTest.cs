@@ -14,6 +14,32 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
+#if Test20
+        public override void No_ignored_include_warning_when_implicit_load()
+        {
+        }
+
+        public override void Query_for_base_type_loads_all_owned_navs()
+        {
+        }
+
+        public override void Query_for_branch_type_loads_all_owned_navs()
+        {
+        }
+
+        public override void Query_for_leaf_type_loads_all_owned_navs()
+        {
+        }
+
+        public override void Query_when_group_by()
+        {
+        }
+
+        public override void Query_when_subquery()
+        {
+        }
+#endif
+
         public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;

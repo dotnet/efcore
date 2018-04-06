@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+#if !Test20
         public override void Can_generate_migration_from_initial_database_to_initial()
         {
             base.Can_generate_migration_from_initial_database_to_initial();
@@ -344,6 +345,7 @@ GO
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
+#endif
 
         public override void Can_get_active_provider()
         {
