@@ -693,8 +693,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         }
 
                         var valueFactory = index.GetNullableValueFactory<object[]>();
-                        if (valueFactory.TryCreateFromOriginalValues((InternalEntityEntry)entry,
-                            out var indexValue))
+                        if (valueFactory.TryCreateFromOriginalValues(
+                            (InternalEntityEntry)entry, out var indexValue))
                         {
                             predecessorsMap = predecessorsMap ??
                                               new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
@@ -704,28 +704,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                     new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
                                 predecessorsMap.Add(index, predecessorCommands);
                             }
-                            if (predecessorCommands.TryGetValue(indexValue, out var duplicateCommand))
+                            if (!predecessorCommands.ContainsKey(indexValue))
                             {
-                                if (_sensitiveLoggingEnabled)
-                                {
-                                    var duplicateEntry = duplicateCommand.Entries
-                                        .First(e => index.DeclaringEntityType.IsAssignableFrom(e.EntityType));
-                                    throw new InvalidOperationException(
-                                        RelationalStrings.DuplicateUniqueIndexValuesRemovedSensitive(
-                                            entry.EntityType.DisplayName(),
-                                            entry.BuildOriginalValuesString(
-                                                entry.EntityType.FindPrimaryKey().Properties),
-                                            duplicateEntry.BuildOriginalValuesString(
-                                                duplicateEntry.EntityType.FindPrimaryKey().Properties),
-                                            entry.BuildOriginalValuesString(index.Properties)));
-                                }
-
-                                throw new InvalidOperationException(
-                                    RelationalStrings.DuplicateUniqueIndexValuesRemoved(
-                                        entry.EntityType.DisplayName(),
-                                        Property.Format(index.Properties)));
+                                predecessorCommands.Add(indexValue, command);
                             }
-                            predecessorCommands.Add(indexValue, command);
                         }
                     }
                 }

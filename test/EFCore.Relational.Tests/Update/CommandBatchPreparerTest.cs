@@ -419,10 +419,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray()).Message);
         }
 
-        [InlineData(true)]
-        [InlineData(false)]
-        [Theory]
-        public void Batch_command_throws_on_commands_with_duplicate_values_for_unique_indexes(bool sensitiveLogging)
+        [Fact]
+        public void BatchCommands_works_with_duplicate_values_for_unique_indexes()
         {
             var model = CreateCyclicFKModel();
             var configuration = CreateContextServices(model);
@@ -444,14 +442,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
             fakeEntry2.SetPropertyModified(fakeEntry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
 
-            Assert.Equal(
-                sensitiveLogging
-                    ? RelationalStrings.DuplicateUniqueIndexValuesRemovedSensitive(
-                        nameof(FakeEntity), "{Id: 2}", "{Id: 1}", "{UniqueValue: Test}")
-                    : RelationalStrings.DuplicateUniqueIndexValuesRemoved(nameof(FakeEntity), "{'UniqueValue'}"),
-                Assert.Throws<InvalidOperationException>(
-                    () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
-                        .BatchCommands(new[] { fakeEntry, fakeEntry2 }).ToArray()).Message);
+            var batches = CreateCommandBatchPreparer(stateManager: stateManager)
+                .BatchCommands(new[] { fakeEntry, fakeEntry2 }).ToArray();
+
+            Assert.Equal(2, batches.Length);
         }
 
         [Fact]

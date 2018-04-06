@@ -473,14 +473,8 @@
     <value>A MigrationAttribute isn't specified on the '{class}' class.</value>
     <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
   </data>
-  <data name="DuplicateUniqueIndexValuesRemoved" xml:space="preserve">
-    <value>There are multiple entities of type '{entityType}' that had the same value for the unique index {index}. Configure the index as non-unique if duplicates should be allowed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the values.</value>
-  </data>
-  <data name="DuplicateUniqueIndexValuesRemovedSensitive" xml:space="preserve">
-    <value>The entities of type '{entityType}' with key values {firstKeyValues} and {secondKeyValues} had the same value for the unique index {indexValue}. Configure the index as non-unique if duplicates should be allowed.</value>
-  </data>
-  <data name="LogValueConversionSqlLiteralWarning" xml:space="preserve"> 
-    <value>A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.</value> 
-    <comment>Warning RelationalEventId.ValueConversionSqlLiteralWarning object object</comment> 
+  <data name="LogValueConversionSqlLiteralWarning" xml:space="preserve">
+    <value>A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.</value>
+    <comment>Warning RelationalEventId.ValueConversionSqlLiteralWarning object object</comment>
   </data>
 </root>

@@ -985,22 +985,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogMigrationAttributeMissingWarning")));
 
         /// <summary>
-        ///     There are multiple entities of type '{entityType}' that had the same value for the unique index {index}. Configure the index as non-unique if duplicates should be allowed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the values.
-        /// </summary>
-        public static string DuplicateUniqueIndexValuesRemoved([CanBeNull] object entityType, [CanBeNull] object index)
-            => string.Format(
-                GetString("DuplicateUniqueIndexValuesRemoved", nameof(entityType), nameof(index)),
-                entityType, index);
-
-        /// <summary>
-        ///     The entities of type '{entityType}' with key values {firstKeyValues} and {secondKeyValues} had the same value for the unique index {indexValue}. Configure the index as non-unique if duplicates should be allowed.
-        /// </summary>
-        public static string DuplicateUniqueIndexValuesRemovedSensitive([CanBeNull] object entityType, [CanBeNull] object firstKeyValues, [CanBeNull] object secondKeyValues, [CanBeNull] object indexValue)
-            => string.Format(
-                GetString("DuplicateUniqueIndexValuesRemovedSensitive", nameof(entityType), nameof(firstKeyValues), nameof(secondKeyValues), nameof(indexValue)),
-                entityType, firstKeyValues, secondKeyValues, indexValue);
-
-        /// <summary>
         ///     A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.
         /// </summary>
         public static readonly EventDefinition<object, object> LogValueConversionSqlLiteralWarning
