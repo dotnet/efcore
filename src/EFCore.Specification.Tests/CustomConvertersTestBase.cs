@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
                         Strings = new List<string>
                         {
                             "Gum",
-                            "Ball"
+                            "Taffy"
                         }
                     });
 
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var entity = context.Set<StringListDataType>().Single();
 
-                Assert.Equal(new[] { "Gum", "Ball" }, entity.Strings);
+                Assert.Equal(new[] { "Gum", "Taffy" }, entity.Strings);
             }
         }
 
