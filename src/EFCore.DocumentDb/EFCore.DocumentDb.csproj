@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <Description>DocumentDb provider for Entity Framework Core.</Description>
-    <VersionPrefix Condition="'$(ExperimentalProjectVersionPrefix)' != ''">$(ExperimentalProjectVersionPrefix)</VersionPrefix>
-    <VerifyVersion Condition="'$(ExperimentalProjectVersionPrefix)' != ''">false</VerifyVersion>
+    <VersionPrefix Condition="'$(ExperimentalVersionPrefix)' != ''">$(ExperimentalVersionPrefix)</VersionPrefix>
+    <VersionSuffix Condition="'$(ExperimentalVersionSuffix)' != ''">$(ExperimentalVersionSuffix)</VersionSuffix>
+    <VerifyVersion Condition="'$(ExperimentalVersionPrefix)' != ''">false</VerifyVersion>
+    <PackageVersion Condition="'$(ExperimentalPackageVersion)' != ''">$(ExperimentalPackageVersion)</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.DocumentDb</AssemblyName>
