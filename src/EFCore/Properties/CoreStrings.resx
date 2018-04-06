@@ -1071,4 +1071,7 @@
   <data name="AmbiguousServiceProperty" xml:space="preserve">
     <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the NotMappedAttribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
+  <data name="ErrorInvalidQueryable" xml:space="preserve">
+    <value>Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.</value>
+  </data>
 </root>

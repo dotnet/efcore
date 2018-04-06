@@ -303,6 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _valueConverterWarningsEnabled = oldValueConverterWarningsEnabled;
 
+            selectExpression.DetachContext();
+
             return selectExpression;
         }
 

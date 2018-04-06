@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext, _contextType);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
 
             var compiledQuery
                 = _compiledQueryCache
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(query, nameof(query));
 
             query = _queryModelGenerator.ExtractParameters(
-                _logger, query, _queryContextFactory.Create(), _contextType,  parameterize: false);
+                _logger, query, _queryContextFactory.Create(),  parameterize: false);
 
             return CompileQueryCore<TResult>(query, _queryModelGenerator, _database, _logger, _contextType);
         }
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext, _contextType);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
 
             return CompileAsyncQuery<TResult>(query)(queryContext);
         }
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(query, nameof(query));
 
             query = _queryModelGenerator.ExtractParameters(
-                _logger, query, _queryContextFactory.Create(), _contextType, parameterize: false);
+                _logger, query, _queryContextFactory.Create(), parameterize: false);
 
             return CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
         }
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(query, nameof(query));
 
             query = _queryModelGenerator.ExtractParameters(
-                _logger, query, _queryContextFactory.Create(), _contextType, parameterize: false);
+                _logger, query, _queryContextFactory.Create(), parameterize: false);
 
             var compiledQuery = CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
 
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             queryContext.CancellationToken = cancellationToken;
 
-            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext, _contextType);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
 
             var compiledQuery = CompileAsyncQuery<TResult>(query);
 

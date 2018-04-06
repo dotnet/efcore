@@ -29,13 +29,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         internal string DebugView => ToString();
 #endif
 
-        private readonly RelationalQueryCompilationContext _queryCompilationContext;
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
         private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping = new Dictionary<MemberInfo, Expression>();
         private readonly List<Expression> _starProjection = new List<Expression>();
         private readonly List<Expression> _groupBy = new List<Expression>();
+
+        // NB: Currently unsafe to access this outside of compiler. #11601
+        private RelationalQueryCompilationContext _queryCompilationContext;
 
         private Expression _limit;
         private Expression _offset;
@@ -78,6 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             // When assigning alias to select expression make it unique
             // ReSharper disable once VirtualMemberCallInConstructor
             Alias = queryCompilationContext.CreateUniqueTableAlias(alias);
+        }
+
+        internal void DetachContext()
+        {
+            // TODO: Remove dependency on QCC. #11601
+            _queryCompilationContext = null;
         }
 
         /// <summary>

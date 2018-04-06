@@ -53,6 +53,63 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Multiple_context_instances()
+        {
+            using (var context1 = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Assert.Equal(
+                        CoreStrings.ErrorInvalidQueryable,
+                        Assert.Throws<InvalidOperationException>(
+                            () =>
+                                (from c in context1.Customers
+                                 from o in context2.Set<Order>()
+                                 select c).First()).Message);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_context_instances_set()
+        {
+            using (var context1 = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    var set = context2.Orders;
+
+                    Assert.Equal(
+                        CoreStrings.ErrorInvalidQueryable,
+                        Assert.Throws<InvalidOperationException>(
+                            () => (from c in context1.Customers
+                                   from o in set
+                                   select c).First()).Message);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_context_instances_parameter()
+        {
+            using (var context1 = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Customer Query(NorthwindContext c2) =>
+                        (from c in context1.Customers
+                         from o in c2.Orders
+                         select c).First();
+
+                    Assert.Equal(
+                        CoreStrings.ErrorInvalidQueryable,
+                        Assert.Throws<InvalidOperationException>(
+                            () => Query(context2)).Message);
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Query_when_evaluatable_queryable_method_call_with_repository()
         {
             using (var context = CreateContext())

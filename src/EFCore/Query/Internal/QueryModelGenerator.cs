@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
@@ -23,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly INodeTypeProvider _nodeTypeProvider;
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
+        private readonly ICurrentDbContext _currentDbContext;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -30,13 +32,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public QueryModelGenerator(
             [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
-            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
+            [NotNull] ICurrentDbContext currentDbContext)
         {
             Check.NotNull(nodeTypeProviderFactory, nameof(nodeTypeProviderFactory));
             Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
+            Check.NotNull(currentDbContext, nameof(currentDbContext));
 
             _nodeTypeProvider = nodeTypeProviderFactory.Create();
             _evaluatableExpressionFilter = evaluatableExpressionFilter;
+            _currentDbContext = currentDbContext;
         }
 
         /// <summary>
@@ -47,7 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             Expression query,
             IParameterValues parameterValues,
-            Type contextType,
             bool parameterize = true,
             bool generateContextAccessors = false)
         {
@@ -56,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _evaluatableExpressionFilter,
                     parameterValues,
                     logger,
-                    contextType,
+                    _currentDbContext.Context,
                     parameterize,
                     generateContextAccessors);
 

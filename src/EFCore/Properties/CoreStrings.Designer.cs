@@ -2644,6 +2644,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("AmbiguousServiceProperty", nameof(property), nameof(serviceType), nameof(entityType)),
                 property, serviceType, entityType);
 
+        /// <summary>
+        ///     Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.
+        /// </summary>
+        public static string ErrorInvalidQueryable
+            => GetString("ErrorInvalidQueryable");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

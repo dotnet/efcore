@@ -114,7 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                         _queryCompilationContext.Logger,
                                         query.Body,
                                         _parameters,
-                                        _queryCompilationContext.ContextType,
                                         parameterize: false,
                                         generateContextAccessors: true);
 
@@ -133,7 +132,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     _queryCompilationContext.Logger,
                                     entityType.QueryFilter,
                                     _parameters,
-                                    _queryCompilationContext.ContextType,
                                     parameterize: false,
                                     generateContextAccessors: true);
 
