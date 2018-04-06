@@ -1209,6 +1209,81 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Can_attach_owned_dependent_with_reference_to_parent(bool useAttach, bool setDependentKey)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var dreams = new Dreams
+                {
+                    Sweet = new Sweet
+                    {
+                        Id = 1
+                    },
+                    AreMade = new AreMadeOfThis(),
+                    OfThis = new AreMadeOfThis()
+                };
+
+                if (setDependentKey)
+                {
+                    var dreamsEntry = context.Entry(dreams);
+                    dreamsEntry.Property("SweetId").CurrentValue = 1;
+                    dreamsEntry.Reference(e => e.AreMade).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+                    dreamsEntry.Reference(e => e.OfThis).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+                }
+
+                if (useAttach)
+                {
+                    context.Attach(dreams);
+                }
+                else
+                {
+                    var traversal = new List<string>();
+
+                    context.ChangeTracker.TrackGraph(
+                        dreams, e =>
+                        {
+                            e.Entry.State = e.Entry.IsKeySet ? EntityState.Unchanged : EntityState.Added;
+
+                            traversal.Add(NodeString(e));
+                        });
+
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "<None> -----> Dreams:1",
+                            "Dreams:1 ---AreMade--> Dreams.AreMade#AreMadeOfThis:1",
+                            "Dreams:1 ---OfThis--> Dreams.OfThis#AreMadeOfThis:1",
+                            "Dreams:1 ---Sweet--> Sweet:1"
+                        },
+                        traversal);
+                }
+
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                var dependentEntry = context.Entry(dreams);
+                var dependentEntry2a = context.Entry(dreams.AreMade);
+                var dependentEntry2b = context.Entry(dreams.OfThis);
+
+                var expectedPrincipalState = EntityState.Unchanged;
+                var expectedDependentState = setDependentKey ? EntityState.Unchanged : EntityState.Added;
+
+                Assert.Equal(expectedPrincipalState, context.Entry(dreams.Sweet).State);
+                Assert.Equal(expectedDependentState, dependentEntry.State);
+                Assert.Equal(expectedDependentState, dependentEntry2a.State);
+                Assert.Equal(expectedDependentState, dependentEntry2b.State);
+
+                Assert.Equal(1, dreams.Sweet.Id);
+                Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+                Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+                Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+            }
+        }
+
         [Fact]
         public void Can_attach_parent_with_child_collection()
         {
@@ -1686,6 +1761,83 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 }
 
                 return base.DetermineState(entry);
+            }
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Can_add_owned_dependent_with_reference_to_parent(bool useAdd, bool setDependentKey)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var dreams = new Dreams
+                {
+                    Sweet = new Sweet
+                    {
+                        Id = 1
+                    },
+                    AreMade = new AreMadeOfThis(),
+                    OfThis = new AreMadeOfThis()
+                };
+
+                context.Entry(dreams.Sweet).State = EntityState.Unchanged;
+
+                if (setDependentKey)
+                {
+                    var dreamsEntry = context.Entry(dreams);
+                    dreamsEntry.Property("SweetId").CurrentValue = 1;
+                    dreamsEntry.Reference(e => e.AreMade).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+                    dreamsEntry.Reference(e => e.OfThis).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+                }
+
+                if (useAdd)
+                {
+                    context.Add(dreams);
+                }
+                else
+                {
+                    var traversal = new List<string>();
+
+                    context.ChangeTracker.TrackGraph(
+                        dreams, e =>
+                        {
+                            e.Entry.State = e.Entry.IsKeySet && !e.Entry.Metadata.IsOwned()
+                                ? EntityState.Unchanged : EntityState.Added;
+
+                            traversal.Add(NodeString(e));
+                        });
+
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "<None> -----> Dreams:1",
+                            "Dreams:1 ---AreMade--> Dreams.AreMade#AreMadeOfThis:1",
+                            "Dreams:1 ---OfThis--> Dreams.OfThis#AreMadeOfThis:1"
+                        },
+                        traversal);
+                }
+
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                var dependentEntry = context.Entry(dreams);
+                var dependentEntry2a = context.Entry(dreams.AreMade);
+                var dependentEntry2b = context.Entry(dreams.OfThis);
+
+                var expectedPrincipalState = EntityState.Unchanged;
+                var expectedDependentState = EntityState.Added;
+
+                Assert.Equal(expectedPrincipalState, context.Entry(dreams.Sweet).State);
+                Assert.Equal(expectedDependentState, dependentEntry.State);
+                Assert.Equal(expectedDependentState, dependentEntry2a.State);
+                Assert.Equal(expectedDependentState, dependentEntry2b.State);
+
+                Assert.Equal(1, dreams.Sweet.Id);
+                Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+                Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+                Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
             }
         }
 
@@ -2543,6 +2695,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private class Dreams
         {
+            public Sweet Sweet { get; set; }
             public AreMadeOfThis AreMade { get; set; }
             public AreMadeOfThis OfThis { get; set; }
         }
@@ -2602,7 +2755,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 modelBuilder.Entity<Sweet>().OwnsOne(
                     e => e.Dreams, b =>
-                        {
+                    {
+                        b.HasOne(e => e.Sweet).WithOne(e => e.Dreams);
                             b.OwnsOne(e => e.AreMade);
                             b.OwnsOne(e => e.OfThis);
                         });

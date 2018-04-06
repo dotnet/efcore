@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? entityState
                     : EntityState.Added,
                 acceptChanges: true,
-                forceStateWhenUnknownKey: force);
+                forceStateWhenUnknownKey: force ? (EntityState?)entityState : null);
 
             return true;
         }
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? entityState
                     : EntityState.Added,
                 acceptChanges: true,
-                forceStateWhenUnknownKey: force,
+                forceStateWhenUnknownKey: force ? (EntityState?)entityState : null,
                 cancellationToken: cancellationToken);
 
             return true;

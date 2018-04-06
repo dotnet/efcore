@@ -397,7 +397,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
-        [DebuggerStepThrough]
         public virtual int SaveChanges() => SaveChanges(acceptAllChangesOnSuccess: true);
 
         /// <summary>
@@ -423,7 +422,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
-        [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             CheckDisposed();
@@ -672,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore
                 entry.SetEntityState(
                     entityState,
                     acceptChanges: true,
-                    forceStateWhenUnknownKey: true);
+                    forceStateWhenUnknownKey: entityState);
             }
         }
 
@@ -694,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore
                 await entry.SetEntityStateAsync(
                     entityState,
                     acceptChanges: true,
-                    forceStateWhenUnknownKey: true,
+                    forceStateWhenUnknownKey: entityState,
                     cancellationToken: cancellationToken);
             }
         }

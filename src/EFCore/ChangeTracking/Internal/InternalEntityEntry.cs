@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetEntityState(EntityState entityState, bool acceptChanges = false,
-            bool forceStateWhenUnknownKey = false)
+        public virtual void SetEntityState(
+            EntityState entityState, bool acceptChanges = false, EntityState? forceStateWhenUnknownKey = null)
         {
             var oldState = _stateData.EntityState;
             var adding = PrepareForAdd(entityState);
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual async Task SetEntityStateAsync(
             EntityState entityState,
             bool acceptChanges,
-            bool forceStateWhenUnknownKey,
+            EntityState? forceStateWhenUnknownKey,
             CancellationToken cancellationToken = default)
         {
             var oldState = _stateData.EntityState;
@@ -112,8 +112,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             SetEntityState(oldState, entityState, acceptChanges);
         }
 
-        private EntityState PropagateToUnknownKey(EntityState oldState, EntityState entityState, bool adding,
-            bool forceStateWhenUnknownKey)
+        private EntityState PropagateToUnknownKey(
+            EntityState oldState, EntityState entityState, bool adding, EntityState? forceStateWhenUnknownKey)
         {
             var keyUnknown = IsKeyUnknown;
 
@@ -123,13 +123,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var principalEntry = StateManager.ValueGenerationManager.Propagate(this);
 
-                if (forceStateWhenUnknownKey
+                if (forceStateWhenUnknownKey.HasValue
                     && keyUnknown
                     && principalEntry != null
                     && principalEntry.EntityState != EntityState.Detached
                     && principalEntry.EntityState != EntityState.Deleted)
                 {
-                    entityState = principalEntry.EntityState;
+                    entityState = principalEntry.EntityState == EntityState.Added
+                        ? EntityState.Added
+                        : forceStateWhenUnknownKey.Value;
                 }
             }
 

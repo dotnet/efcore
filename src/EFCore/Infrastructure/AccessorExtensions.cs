@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <typeparam name="TService"> The type of service to be resolved. </typeparam>
         /// <param name="accessor"> The object exposing the service provider. </param>
         /// <returns> The requested service. </returns>
+        [DebuggerStepThrough]
         public static TService GetService<TService>([NotNull] this IInfrastructure<IServiceProvider> accessor)
             => (TService)InternalAccessorExtensions.GetService<TService>(Check.NotNull(accessor, nameof(accessor)));
 
@@ -59,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <typeparam name="T"> The type of the property being hidden by <see cref="IInfrastructure{T}" />. </typeparam>
         /// <param name="accessor"> The object that exposes the property. </param>
         /// <returns> The object assigned to the property. </returns>
+        [DebuggerStepThrough]
         public static T GetInfrastructure<T>([NotNull] this IInfrastructure<T> accessor)
             => Check.NotNull(accessor, nameof(accessor)).Instance;
     }
