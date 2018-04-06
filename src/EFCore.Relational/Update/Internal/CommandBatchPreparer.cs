@@ -74,13 +74,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var commands = CreateModificationCommands(entries, updateAdapter, parameterNameGenerator.GenerateNext);
             var sortedCommandSets = TopologicalSort(commands);
 
-            foreach (var independentCommandSet in sortedCommandSets)
+            for (var setIndex = 0; setIndex < sortedCommandSets.Count; setIndex++)
             {
+                var independentCommandSet = sortedCommandSets[setIndex];
                 independentCommandSet.Sort(Dependencies.ModificationCommandComparer);
 
-                var batch = Dependencies.ModificationCommandBatchFactory.Create();
-                foreach (var modificationCommand in independentCommandSet)
+                var batch = StartNewBatch(parameterNameGenerator);
+                for (var commandIndex = 0; commandIndex < independentCommandSet.Count; commandIndex++)
                 {
+                    var modificationCommand = independentCommandSet[commandIndex];
                     (modificationCommand as ModificationCommand)?.AssertColumnsNotInitialized();
                     if (modificationCommand.EntityState == EntityState.Modified
                         && !modificationCommand.ColumnModifications.Any(m => m.IsWrite))
@@ -96,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             if (batch.ModificationCommands.Count > 1)
                             {
                                 Dependencies.UpdateLogger.BatchReadyForExecution(
-                                    batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
+                                    batch.ModificationCommands.SelectMany(c => c.Entries),
+                                    batch.ModificationCommands.Count);
                             }
 
                             yield return batch;
@@ -104,9 +107,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         else
                         {
                             Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
-                                batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
+                                batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count,
+                                _minBatchSize);
 
-                            foreach (var command in batch.ModificationCommands)
+                            foreach (var command in batch.ModificationCommands.ToList())
                             {
                                 yield return StartNewBatch(parameterNameGenerator, command);
                             }
@@ -130,9 +134,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 else
                 {
                     Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
-                        batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
+                        batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count,
+                        _minBatchSize);
 
-                    foreach (var command in batch.ModificationCommands)
+                    foreach (var command in batch.ModificationCommands.ToList())
                     {
                         yield return StartNewBatch(parameterNameGenerator, command);
                     }
@@ -140,16 +145,30 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
+        private ModificationCommandBatch _currentBatch;
+        private ModificationCommandBatch StartNewBatch(ParameterNameGenerator parameterNameGenerator)
         private ModificationCommandBatch StartNewBatch(
             ParameterNameGenerator parameterNameGenerator,
             IReadOnlyModificationCommand modificationCommand)
         {
             parameterNameGenerator.Reset();
-            var batch = Dependencies.ModificationCommandBatchFactory.Create();
-            batch.AddCommand(modificationCommand);
-            return batch;
+            var batch = _modificationCommandBatchFactory.Create();
+            if (_currentBatch is ReaderModificationCommandBatch readerBatch)
+            {
+                readerBatch.Clear();
+                _currentBatch = readerBatch;
+            }
+            else
+            {
+                _currentBatch = Dependencies.ModificationCommandBatchFactory.Create();
+            }
+
+            _currentBatch.AddCommand(modificationCommand);
+            return _currentBatch;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

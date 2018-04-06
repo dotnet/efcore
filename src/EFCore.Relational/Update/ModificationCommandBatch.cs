@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     public abstract class ModificationCommandBatch
     {
         /// <summary>
-        ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
+        ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" /> in the batch.
         /// </summary>
         public abstract IReadOnlyList<IReadOnlyModificationCommand> ModificationCommands { get; }
 

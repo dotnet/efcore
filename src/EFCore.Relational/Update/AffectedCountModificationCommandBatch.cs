@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+#if DEBUG
 using System.Linq;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -46,7 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
+#if DEBUG
                 var actualResultSetCount = 0;
+#endif
                 do
                 {
                     while (commandIndex < CommandResultSet.Count
@@ -60,7 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
                             ? ConsumeResultSetWithPropagation(commandIndex, reader)
                             : ConsumeResultSetWithoutPropagation(commandIndex, reader);
+#if DEBUG
                         actualResultSetCount++;
+#endif
                     }
                 }
                 while (commandIndex < CommandResultSet.Count
@@ -112,7 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
+#if DEBUG
                 var actualResultSetCount = 0;
+#endif
                 do
                 {
                     while (commandIndex < CommandResultSet.Count
@@ -126,7 +134,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
                             ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false)
                             : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false);
+#if DEBUG
                         actualResultSetCount++;
+#endif
                     }
                 }
                 while (commandIndex < CommandResultSet.Count

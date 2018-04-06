@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             Check.NotNull(modificationCommand, nameof(modificationCommand));
 
-            if (ModificationCommands.Count == 0)
+            if (_modificationCommands.Count == 0)
             {
                 ResetCommandText();
             }
@@ -107,13 +107,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
+        ///     Removes all commands from this batch.
+        /// </summary>
+        public virtual void Clear()
+        {
+            _modificationCommands.Clear();
+            CommandResultSet.Clear();
+        }
+
+        /// <summary>
         ///     Resets the builder to start building a new batch.
         /// </summary>
         protected virtual void ResetCommandText()
         {
             if (CachedCommandText.Length > 0)
             {
-                CachedCommandText = new StringBuilder();
+                CachedCommandText.Clear();
             }
 
             UpdateSqlGenerator.AppendBatchHeader(CachedCommandText);
@@ -140,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The command text. </returns>
         protected virtual string GetCommandText()
         {
-            for (var i = LastCachedCommandIndex + 1; i < ModificationCommands.Count; i++)
+            for (var i = LastCachedCommandIndex + 1; i < _modificationCommands.Count; i++)
             {
                 UpdateCachedCommandText(i);
             }
@@ -155,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandPosition"> The position of the command to generate command text for. </param>
         protected virtual void UpdateCachedCommandText(int commandPosition)
         {
-            var newModificationCommand = ModificationCommands[commandPosition];
+            var newModificationCommand = _modificationCommands[commandPosition];
 
             switch (newModificationCommand.EntityState)
             {
@@ -181,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <returns> The total parameter count. </returns>
         protected virtual int GetParameterCount()
-            => ModificationCommands.Sum(c => c.ColumnModifications.Count);
+            => _modificationCommands.Sum(c => c.ColumnModifications.Count);
 
         /// <summary>
         ///     Generates a <see cref="RawSqlCommand" /> for the batch.
@@ -196,9 +205,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             var parameterValues = new Dictionary<string, object?>(GetParameterCount());
 
             // ReSharper disable once ForCanBeConvertedToForeach
-            for (var commandIndex = 0; commandIndex < ModificationCommands.Count; commandIndex++)
+            for (var commandIndex = 0; commandIndex < _modificationCommands.Count; commandIndex++)
             {
-                var command = ModificationCommands[commandIndex];
+                var command = _modificationCommands[commandIndex];
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var columnIndex = 0; columnIndex < command.ColumnModifications.Count; columnIndex++)
                 {
