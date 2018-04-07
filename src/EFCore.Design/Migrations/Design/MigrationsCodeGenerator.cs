@@ -207,9 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             };
 
             return items.SelectMany(i => i.GetAnnotations())
-                .Where(
-                    a => a.Value != null
-                         && !ignoredAnnotations.Contains(a.Name)).SelectMany(a => a.Value.GetType().GetNamespaces());
+                .Where(a => a.Value != null
+                            && !ignoredAnnotations.Contains(a.Name)).SelectMany(a => a.Value.GetType().GetNamespaces());
         }
     }
 }

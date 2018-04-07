@@ -995,6 +995,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             foreach (var annotation in annotations)
             {
+                if (annotation.Value == null)
+                {
+                    continue;
+                }
+
                 stringBuilder.AppendLine();
                 GenerateAnnotation(annotation, stringBuilder);
             }

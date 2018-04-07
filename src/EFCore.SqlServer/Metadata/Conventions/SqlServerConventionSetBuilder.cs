@@ -62,6 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             conventionSet.BaseEntityTypeChangedConventions.Add(sqlServerIndexConvention);
 
+            conventionSet.ModelBuiltConventions.Add(valueGenerationStrategyConvention);
+
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
 

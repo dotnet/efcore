@@ -25,14 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConventionalAnnotation AddAnnotation(
-            [NotNull] string name, [NotNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
             => (ConventionalAnnotation)base.AddAnnotation(name, CreateAnnotation(name, value, configurationSource));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public new virtual ConventionalAnnotation AddAnnotation([NotNull] string name, [NotNull] object value)
+        public new virtual ConventionalAnnotation AddAnnotation([NotNull] string name, [CanBeNull] object value)
             => (ConventionalAnnotation)base.AddAnnotation(name, value);
 
         /// <summary>
@@ -40,14 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConventionalAnnotation SetAnnotation(
-            [NotNull] string name, [NotNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
             => (ConventionalAnnotation)base.SetAnnotation(name, CreateAnnotation(name, value, configurationSource));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public new virtual ConventionalAnnotation GetOrAddAnnotation([NotNull] string name, [NotNull] object value)
+        public new virtual ConventionalAnnotation GetOrAddAnnotation([NotNull] string name, [CanBeNull] object value)
             => (ConventionalAnnotation)base.GetOrAddAnnotation(name, value);
 
         /// <summary>

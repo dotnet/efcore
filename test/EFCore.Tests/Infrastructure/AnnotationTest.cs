@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class AnnotationTest
@@ -15,9 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(
                 AbstractionsStrings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => new Annotation("Lie", null));
         }
 
         [Fact]

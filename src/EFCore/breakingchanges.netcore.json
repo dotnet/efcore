@@ -50,6 +50,11 @@
     "Kind": "Addition"
   },
   {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+    "MemberId": "System.Void SetAnnotation(System.String name, System.Object value)",
+    "Kind": "Addition"
+  },
+  {
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
     "MemberId": "System.Boolean get_IsQueryType()",
     "Kind": "Addition"

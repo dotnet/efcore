@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+// ReSharper disable PossibleNullReferenceException
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     internal class AnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<IAnnotation>
@@ -33,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return x.Name == y.Name
                    && (x.Name == CoreAnnotationNames.ValueGeneratorFactoryAnnotation
                        || x.Name == CoreAnnotationNames.TypeMapping
-                       || x.Value.Equals(y.Value));
+                       || Equals(x.Value, y.Value));
         }
 
-        public int GetHashCode(IAnnotation obj) => obj.Name.GetHashCode() ^ obj.Value.GetHashCode();
+        public int GetHashCode(IAnnotation obj) => obj.Name.GetHashCode() ^ obj.Value?.GetHashCode() ?? 0;
     }
 }

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] string annotationName,
             [CanBeNull] object value)
         {
-            ((IMutableAnnotatable)Metadata)[annotationName] = value;
+            ((IMutableAnnotatable)Metadata).SetAnnotation(annotationName, value);
 
             return true;
         }
@@ -56,5 +56,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] string relationalAnnotationName,
             [CanBeNull] object value)
             => true;
+
+        /// <summary>
+        ///     Attempts to remove an annotation with the given name and
+        ///     returns whether or not this was successful.
+        /// </summary>
+        /// <param name="annotationName"> The name of the annotation to remove. </param>
+        /// <returns><c>True</c> if the annotation was removed; <c>false</c> otherwise. </returns>
+        public virtual bool RemoveAnnotation([NotNull] string annotationName)
+        {
+            ((IMutableAnnotatable)Metadata).RemoveAnnotation(annotationName);
+
+            return true;
+        }
     }
 }

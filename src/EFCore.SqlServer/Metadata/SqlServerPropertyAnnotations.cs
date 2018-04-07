@@ -126,11 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The strategy, or <c>null</c> if none was set. </returns>
         public virtual SqlServerValueGenerationStrategy? GetSqlServerValueGenerationStrategy(bool fallbackToModel)
         {
-            var value = (SqlServerValueGenerationStrategy?)Annotations.Metadata[SqlServerAnnotationNames.ValueGenerationStrategy];
-
-            if (value != null)
+            var annotation = Annotations.Metadata.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+            if (annotation != null)
             {
-                return value;
+                return (SqlServerValueGenerationStrategy?)annotation.Value;
             }
 
             var relationalProperty = Property.Relational();

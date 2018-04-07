@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -54,13 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                             && !p.IsForeignKey()))
             {
-                var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
-                var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping);
+                var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionalAnnotation;
+                var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionalAnnotation;
                 if ((type == null
                      && (typeMapping == null
-                         || ConfigurationSource.Convention.Overrides(((ConventionalAnnotation)typeMapping).GetConfigurationSource())))
+                         || ConfigurationSource.Convention.Overrides(typeMapping.GetConfigurationSource())))
                     || (type != null
-                        && ConfigurationSource.Convention.Overrides(((ConventionalAnnotation)type).GetConfigurationSource())))
+                        && ConfigurationSource.Convention.Overrides(type.GetConfigurationSource())))
                 {
                     Dependencies.Logger.DecimalTypeDefaultWarning(property);
                 }
@@ -92,9 +93,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
-                    p =>
-                        ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false) == SqlServerValueGenerationStrategy.SequenceHiLo
-                        && !p.IsKey()))
+                    p => ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false)
+                         == SqlServerValueGenerationStrategy.SequenceHiLo
+                         && !p.IsKey()
+                         && p.ValueGenerated != ValueGenerated.Never
+                         && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionalAnnotation strategy)
+                             || !ConfigurationSource.Convention.Overrides(strategy.GetConfigurationSource()))))
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));

@@ -186,7 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -196,7 +197,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -232,7 +234,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -261,7 +264,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Discriminator"")
             .IsRequired();
@@ -325,7 +329,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Discriminator"")
             .IsRequired();
@@ -381,7 +386,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -446,7 +452,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -480,7 +487,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -511,7 +519,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -548,7 +557,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -558,7 +568,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -610,7 +621,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -621,7 +633,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
     {
         b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
             {
-                b1.Property<int>(""AlternateId"");
+                b1.Property<int>(""AlternateId"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                 b1.Property<int>(""Id"");
 
@@ -636,7 +650,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
                 b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithStringProperty"", b2 =>
                     {
-                        b2.Property<int>(""Id"");
+                        b2.Property<int>(""Id"")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                         b2.Property<string>(""Name"");
 
@@ -757,7 +773,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<Guid>(""Property"");
 
@@ -790,7 +807,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<long>(""Day"");
 
@@ -818,7 +836,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Day"")
             .IsRequired();
@@ -860,7 +879,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd()
-            .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+            .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -884,7 +904,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -904,7 +925,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Name"")
             .IsRequired();
@@ -930,7 +952,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"")
             .ValueGeneratedOnAdd()
@@ -953,7 +976,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Name"")
             .HasMaxLength(100);
@@ -975,7 +999,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Name"")
             .IsUnicode(false);
@@ -997,7 +1022,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Name"")
             .IsFixedLength(true);
@@ -1026,7 +1052,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Name"")
             .HasMaxLength(100)
@@ -1060,7 +1087,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"")
             .IsConcurrencyToken();
@@ -1086,7 +1114,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"")
             .HasColumnName(""CName"");
@@ -1112,7 +1141,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"")
             .HasColumnType(""CType"");
@@ -1138,7 +1168,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"")
             .ValueGeneratedOnAdd()
@@ -1165,7 +1196,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"")
             .ValueGeneratedOnAdd()
@@ -1192,7 +1224,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"")
             .ValueGeneratedOnAddOrUpdate()
@@ -1215,7 +1248,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<long>(""Day"")
             .ValueGeneratedOnAdd()
@@ -1247,7 +1281,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Day"")
             .IsRequired()
@@ -1281,7 +1316,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithNullableEnumType"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<long?>(""Day"");
 
@@ -1303,7 +1339,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<long>(""Day"");
 
@@ -1324,7 +1361,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithNullableEnumType"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Day"");
 
@@ -1349,7 +1387,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"")
             .HasColumnName(""CName"")
@@ -1379,14 +1418,16 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
             Test(
                 builder =>
                     {
-                        builder.Entity<EntityWithTwoProperties>().HasAlternateKey(t => t.AlternateId).HasAnnotation("AnnotationName", "AnnotationValue");
+                        builder.Entity<EntityWithTwoProperties>().HasAlternateKey(t => t.AlternateId)
+                            .HasAnnotation("AnnotationName", "AnnotationValue");
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1414,7 +1455,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1442,7 +1484,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1474,14 +1517,16 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
             Test(
                 builder =>
                     {
-                        builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId).HasAnnotation("AnnotationName", "AnnotationValue");
+                        builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId)
+                            .HasAnnotation("AnnotationName", "AnnotationValue");
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1509,7 +1554,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1537,7 +1583,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1566,7 +1613,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1596,7 +1644,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1633,7 +1682,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Name"");
 
@@ -1669,7 +1719,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -1679,7 +1730,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1730,7 +1782,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Name"")
             .IsRequired();
@@ -1779,7 +1832,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Name"");
 
@@ -1825,7 +1879,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1869,7 +1924,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -1916,7 +1972,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<Guid>(""Property"");
 
@@ -1979,7 +2036,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -1989,7 +2047,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -2030,7 +2089,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -2040,7 +2100,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -2085,7 +2146,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseType"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<string>(""Discriminator"")
             .IsRequired();
@@ -2104,7 +2166,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -2156,7 +2219,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -2208,7 +2272,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 
@@ -2270,7 +2335,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<decimal?>(""OptionalProperty"");
 
@@ -2313,7 +2379,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.HasKey(""Id"");
 
@@ -2327,7 +2394,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
         b.Property<int>(""AlternateId"");
 

@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 foreach (var derivedType in EntityType.GetDerivedTypesInclusive())
                 {
-                    GetAnnotations(derivedType).DiscriminatorValue = null;
+                    GetAnnotations(derivedType).RemoveDiscriminatorValue();
                 }
             }
 
@@ -246,6 +246,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             return Annotations.SetAnnotation(RelationalAnnotationNames.DiscriminatorValue, value);
         }
+
+        /// <summary>
+        ///     Attempts to remove the <see cref="DiscriminatorValue" /> using the semantics of
+        ///     the <see cref="RelationalAnnotations" /> in use.
+        /// </summary>
+        protected virtual bool RemoveDiscriminatorValue()
+            => Annotations.RemoveAnnotation(RelationalAnnotationNames.DiscriminatorValue);
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the currently set <see cref="DiscriminatorValue" />.

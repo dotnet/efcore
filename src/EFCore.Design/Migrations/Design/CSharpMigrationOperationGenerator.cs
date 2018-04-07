@@ -1905,6 +1905,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             foreach (var annotation in annotations)
             {
+                if (annotation.Value == null)
+                {
+                    continue;
+                }
+
                 // TODO: Give providers an opportunity to render these as provider-specific extension methods
                 builder
                     .AppendLine()
