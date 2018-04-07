@@ -409,8 +409,10 @@ namespace Microsoft.EntityFrameworkCore
                                     v => v.Reverse().Skip(2).ToArray()))
                             .HasMaxLength(7);
 
-                        b.Property(e => e.ByteArray9000).HasConversion(
-                            BytesToStringConverter.DefaultInfo.Create());
+                        b.Property(e => e.ByteArray9000)
+                            .HasConversion(
+                                BytesToStringConverter.DefaultInfo.Create())
+                            .HasMaxLength(LongStringLength * 2);
                     });
 
                 modelBuilder.Entity<StringListDataType>(b =>
