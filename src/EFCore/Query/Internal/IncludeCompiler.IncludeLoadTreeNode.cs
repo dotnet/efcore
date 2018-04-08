@@ -333,6 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         nameof(QueryContext.StateManager));
 
                 var blockExpressions = new List<Expression>();
+                var isNullBlockExpressions = new List<Expression>();
 
                 if (trackingQuery)
                 {
@@ -352,6 +353,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             Expression.Constant(Navigation),
                             targetEntityExpression,
                             relatedArrayAccessExpression));
+
+                    isNullBlockExpressions.Add(
+                        Expression.Call(
+                            _setRelationshipIsLoadedMethodInfo,
+                            stateManagerProperty,
+                            Expression.Constant(Navigation),
+                            targetEntityExpression));
                 }
                 else
                 {
@@ -413,6 +421,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var blockType = blockExpressions.Last().Type;
 
+                isNullBlockExpressions.Add(
+                    blockType == typeof(Task)
+                        ? Expression.Constant(Task.CompletedTask)
+                        : (Expression)Expression.Default(blockType));
+
                 return
                     Expression.Condition(
                         Expression.Not(
@@ -423,9 +436,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         Expression.Block(
                             blockType,
                             blockExpressions),
-                        blockType == typeof(Task)
-                            ? Expression.Constant(Task.CompletedTask)
-                            : (Expression)Expression.Default(blockType),
+                        Expression.Block(
+                            blockType,
+                            isNullBlockExpressions),
                         blockType);
             }
 
@@ -444,6 +457,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Debug.Assert(internalEntityEntry != null);
 
                 internalEntityEntry.SetRelationshipSnapshotValue(navigation, value);
+            }
+
+            private static readonly MethodInfo _setRelationshipIsLoadedMethodInfo
+                = typeof(IncludeLoadTreeNode).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(SetRelationshipIsLoaded));
+
+            private static void SetRelationshipIsLoaded(
+                IStateManager stateManager,
+                IPropertyBase navigation,
+                object entity)
+            {
+                var internalEntityEntry = stateManager.TryGetEntry(entity);
+
+                Debug.Assert(internalEntityEntry != null);
+
+                internalEntityEntry.SetIsLoaded((INavigation)navigation);
             }
 
             private static readonly MethodInfo _addToCollectionSnapshotMethodInfo

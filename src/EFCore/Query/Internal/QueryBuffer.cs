@@ -190,6 +190,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (untypedEnumerator == null)
                 {
+                    if (tracking)
+                    {
+                        var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
+
+                        Debug.Assert(internalEntityEntry != null);
+
+                        internalEntityEntry.SetIsLoaded(navigation);
+                    }
+
                     return;
                 }
 
@@ -327,6 +336,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (untypedAsyncEnumerator == null)
                 {
+                    if (tracking)
+                    {
+                        var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
+
+                        Debug.Assert(internalEntityEntry != null);
+
+                        internalEntityEntry.SetIsLoaded(navigation);
+                    }
+
                     return;
                 }
 
@@ -532,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var shouldCorrelate = correlationPredicate(outerKey, enumerator.Current.Item2);
                 if (shouldCorrelate)
                 {
-                    // if origin key changed, we got all child elements for a given parent, even if the correlation predicate matches 
+                    // if origin key changed, we got all child elements for a given parent, even if the correlation predicate matches
                     // e.g. orders.Select(o => o.Customer.Addresses) - if there are 10 orders but only 5 customers, we still need 10 collections of addresses, even though some of the addresses belong to same customer
                     if (!correlatedCollectionMetadataElement.PreviousOriginKey.IsDefault()
                         && !enumerator.Current.Item3.Equals(correlatedCollectionMetadataElement.PreviousOriginKey))
@@ -629,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var shouldCorrelate = correlationPredicate(outerKey, enumerator.Current.Item2);
                 if (shouldCorrelate)
                 {
-                    // if origin key changed, we got all child elements for a given parent, even if the correlation predicate matches 
+                    // if origin key changed, we got all child elements for a given parent, even if the correlation predicate matches
                     // e.g. orders.Select(o => o.Customer.Addresses) - if there are 10 orders but only 5 customers, we still need 10 collections of addresses, even though some of the addresses belong to same customer
                     if (!correlatedCollectionMetadataElement.PreviousOriginKey.IsDefault()
                         && !enumerator.Current.Item3.Equals(correlatedCollectionMetadataElement.PreviousOriginKey))

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -3948,6 +3949,50 @@ namespace Microsoft.EntityFrameworkCore.Query
                         orderDetailsLoaded: false,
                         productLoaded: false);
                 }
+            }
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Include_empty_collection_sets_IsLoaded(bool useString, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var customers = useString
+                    ? context.Customers.Include(nameof(Customer.Orders))
+                    : context.Customers.Include(e => e.Orders);
+
+                var customer = async
+                    ? await customers.SingleAsync(e => e.CustomerID == "FISSA")
+                    : customers.Single(e => e.CustomerID == "FISSA");
+
+                Assert.Empty(customer.Orders);
+                Assert.True(context.Entry(customer).Collection(e => e.Orders).IsLoaded);
+            }
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Include_empty_reference_sets_IsLoaded(bool useString, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var employees = useString
+                    ? context.Employees.Include(nameof(Employee.Manager))
+                    : context.Employees.Include(e => e.Manager);
+
+                var employee = async
+                    ? await employees.FirstAsync(e => e.Manager == null)
+                    : employees.First(e => e.Manager == null);
+
+                Assert.Null(employee.Manager);
+                Assert.True(context.Entry(employee).Reference(e => e.Manager).IsLoaded);
             }
         }
 
