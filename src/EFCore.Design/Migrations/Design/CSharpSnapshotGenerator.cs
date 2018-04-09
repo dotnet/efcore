@@ -1035,54 +1035,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual void GenerateFluentApiForAnnotation(
             [NotNull] ref List<IAnnotation> annotations,
             [NotNull] string annotationName,
-            [NotNull] Func<IAnnotation, object> annotationValueFunc,
-            [NotNull] string fluentApiMethodName,
-            [NotNull] IndentedStringBuilder stringBuilder)
-            => GenerateFluentApiForAnnotation(
-                ref annotations,
-                annotationName,
-                annotationValueFunc,
-                fluentApiMethodName,
-                null,
-                stringBuilder);
-
-        /// <summary>
-        ///     Generates a Fluent API calls for an annotation.
-        /// </summary>
-        /// <param name="annotations"> The list of annotations. </param>
-        /// <param name="annotationName"> The name of the annotation to generate code for. </param>
-        /// <param name="annotationValueFunc"> A delegate to generate the value from the annotation. </param>
-        /// <param name="fluentApiMethodName"> The Fluent API method name. </param>
-        /// <param name="genericTypesFunc"> A delegate to generate the generic types to use for the method call. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateFluentApiForAnnotation(
-            [NotNull] ref List<IAnnotation> annotations,
-            [NotNull] string annotationName,
             [CanBeNull] Func<IAnnotation, object> annotationValueFunc,
             [NotNull] string fluentApiMethodName,
-            [CanBeNull] Func<IAnnotation, IReadOnlyList<Type>> genericTypesFunc,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
             var annotation = annotations.FirstOrDefault(a => a.Name == annotationName);
             var annotationValue = annotationValueFunc?.Invoke(annotation);
-            var genericTypes = genericTypesFunc?.Invoke(annotation);
-            var hasGenericTypes = genericTypes?.All(t => t != null) == true;
 
-            if (annotationValue != null
-                || hasGenericTypes)
+            if (annotationValue != null)
             {
                 stringBuilder
                     .AppendLine()
                     .Append(".")
                     .Append(fluentApiMethodName);
-
-                if (hasGenericTypes)
-                {
-                    stringBuilder
-                        .Append("<")
-                        .Append(string.Join(", ", genericTypes.Select(t => Code.Reference(t))))
-                        .Append(">");
-                }
 
                 stringBuilder.Append("(");
 

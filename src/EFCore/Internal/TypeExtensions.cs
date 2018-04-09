@@ -160,6 +160,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static IEnumerable<string> GetNamespaces([NotNull] this Type type)
         {
+            if (_builtInTypeNames.ContainsKey(type))
+            {
+                yield break;
+            }
+
             yield return type.Namespace;
 
             if (type.GetTypeInfo().IsGenericType)
