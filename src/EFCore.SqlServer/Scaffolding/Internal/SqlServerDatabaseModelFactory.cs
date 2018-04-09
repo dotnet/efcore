@@ -353,7 +353,8 @@ SELECT
     CAST([s].[increment] AS int) AS [increment],
     CAST([s].[start_value] AS bigint) AS [start_value],
     CAST([s].[minimum_value] AS bigint) AS [minimum_value],
-    CAST([s].[maximum_value] AS bigint) AS [maximum_value]
+    CAST([s].[maximum_value] AS bigint) AS [maximum_value],
+    CAST([s].[cache_size] as bigint) as [cache_size]
 FROM [sys].[sequences] AS [s]
 JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]";
 
@@ -378,6 +379,7 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                         var startValue = reader.GetValueOrDefault<long>("start_value");
                         var minValue = reader.GetValueOrDefault<long>("minimum_value");
                         var maxValue = reader.GetValueOrDefault<long>("maximum_value");
+                        var cacheSize = reader.GetValueOrDefault<long>("cache_size");
 
                         // Swap store type if type alias is used
                         if (typeAliases.TryGetValue($"[{storeTypeSchema}].[{storeType}]", out var value))
@@ -387,7 +389,7 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
 
                         storeType = GetStoreType(storeType, maxLength: 0, precision: precision, scale: scale);
 
-                        _logger.SequenceFound(DisplayName(schema, name), storeType, isCyclic, incrementBy, startValue, minValue, maxValue);
+                        _logger.SequenceFound(DisplayName(schema, name), storeType, isCyclic, incrementBy, startValue, minValue, maxValue, cacheSize);
 
                         var sequence = new DatabaseSequence
                         {
@@ -398,15 +400,18 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                             IncrementBy = incrementBy,
                             StartValue = startValue,
                             MinValue = minValue,
-                            MaxValue = maxValue
+                            MaxValue = maxValue,
+                            CacheSize = cacheSize,
                         };
+
+                        // TODO how to handle this? We can either avoid using GetValueOrDefault or keep this check here or use 0 as default value instead of null
+                        sequence.CacheSize = sequence.CacheSize == 0L ? null : sequence.CacheSize;
 
                         if (_defaultSequenceMinMax.ContainsKey(storeType))
                         {
                             var defaultMin = _defaultSequenceMinMax[storeType][0];
                             sequence.MinValue = sequence.MinValue == defaultMin ? null : sequence.MinValue;
                             sequence.StartValue = sequence.StartValue == defaultMin ? null : sequence.StartValue;
-
                             sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1] ? null : sequence.MaxValue;
                         }
 

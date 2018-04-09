@@ -91,6 +91,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return this;
         }
 
+        /// <summary>
+        ///     Sets the value of the cache size used by the sequence.
+        /// </summary>
+        /// <param name="cacheSize"> Specifies the values of the cache size used by the sequence, default to 10. </param>
+        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        public virtual SequenceBuilder CacheSize(long cacheSize = 10)
+        {
+            _sequence.CacheSize = cacheSize;
+
+            return this;
+        }
+
         #region Hidden System.Object members
 
         /// <summary>

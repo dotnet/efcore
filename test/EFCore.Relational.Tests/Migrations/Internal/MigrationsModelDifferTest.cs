@@ -2997,7 +2997,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
-                    .IsCyclic(),
+                    .IsCyclic()
+                    .CacheSize(15),
                 operations =>
                     {
                         Assert.Equal(2, operations.Count);
@@ -3013,6 +3014,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal(1, operation.MinValue);
                         Assert.Equal(4, operation.MaxValue);
                         Assert.True(operation.IsCyclic);
+                        Assert.Equal(15, operation.CacheSize);
                     });
         }
 
@@ -3192,6 +3194,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal(4, operation.MaxValue);
                         Assert.False(operation.IsCyclic);
                     });
+        }
+
+        [Fact]
+        public void Alter_sequence_cache_size()
+        {
+            Execute(
+                source => source.HasSequence<int>("Foxtrot", "dbo")
+                    .StartsAt(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic()
+                    .CacheSize(),
+                source => source.HasSequence<int>("Foxtrot", "dbo")
+                    .StartsAt(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic()
+                    .CacheSize(15),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterSequenceOperation>(operations[0]);
+                    Assert.Equal("Foxtrot", operation.Name);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal(3, operation.IncrementBy);
+                    Assert.Equal(1, operation.MinValue);
+                    Assert.Equal(4, operation.MaxValue);
+                    Assert.True(operation.IsCyclic);
+                    Assert.Equal(15, operation.CacheSize);
+                });
         }
 
         [Fact]

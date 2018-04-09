@@ -1247,6 +1247,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Null(first.MaxValue);
                     Assert.Null(first.MinValue);
                     Assert.False(first.IsCyclic);
+                    Assert.Null(first.CacheSize);
                 });
         }
 

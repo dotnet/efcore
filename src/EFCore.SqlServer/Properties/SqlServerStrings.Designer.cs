@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     _resourceManager.GetString("LogMissingTable")));
 
         /// <summary>
-        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}, cache size: {cacheSize}.
         /// </summary>
         public static readonly FallbackEventDefinition LogFoundSequence
             = new FallbackEventDefinition(

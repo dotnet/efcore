@@ -222,6 +222,7 @@ END;";
             long? minimumValue,
             long? maximumValue,
             bool cycle,
+            long? cacheSize,
             IModel model,
             MigrationCommandListBuilder builder)
         {
@@ -260,6 +261,13 @@ END;";
             }
 
             builder.Append(cycle ? " CYCLE" : " NOCYCLE");
+
+            if (cacheSize.HasValue)
+            {
+                builder
+                    .Append(" CACHE ")
+                    .Append(longTypeMapping.GenerateSqlLiteral(cacheSize));
+            }
         }
 
         protected override void Generate(

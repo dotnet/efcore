@@ -61,6 +61,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        // TODO should we use a default here? What can we use as a reasonable default? 
+        public static readonly long DefaultCacheSize = 10;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Sequence(
             [NotNull] IMutableModel model,
             [NotNull] string annotationName,
@@ -234,6 +241,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual long? CacheSize
+        {
+            get => GetData().CacheSize;
+            set
+            {
+                var data = GetData();
+                if (value <= 0)
+                {
+                    throw new ArgumentException(RelationalStrings.BadCacheSize(value));
+                }
+                data.CacheSize = value;
+                SetData(data);
+            }
+        }
+
         private SequenceData GetData() => SequenceData.Deserialize((string)Model[_annotationName]);
 
         private void SetData(SequenceData data)
@@ -261,6 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public bool IsCyclic { get; set; }
 
+            public long? CacheSize { get; set; }
+
             public string Serialize()
             {
                 var builder = new StringBuilder();
@@ -280,6 +308,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 EscapeAndQuote(builder, ClrType.Name);
                 builder.Append(", ");
                 EscapeAndQuote(builder, IsCyclic);
+                builder.Append(", ");
+                EscapeAndQuote(builder, CacheSize);
 
                 return builder.ToString();
             }
@@ -302,6 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     data.MaxValue = AsLong(ExtractValue(value, ref position));
                     data.ClrType = AsType(ExtractValue(value, ref position));
                     data.IsCyclic = AsBool(ExtractValue(value, ref position));
+                    data.CacheSize = AsLong(ExtractValue(value, ref position));
                     // ReSharper restore PossibleInvalidOperationException
 
                     return data;

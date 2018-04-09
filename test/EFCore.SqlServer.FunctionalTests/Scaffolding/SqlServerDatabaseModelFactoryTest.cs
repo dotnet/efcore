@@ -49,7 +49,8 @@ CREATE SEQUENCE db2.CustomFacetsSequence
     INCREMENT BY 2
     MAXVALUE 8
     MINVALUE -3
-    CYCLE;",
+    CYCLE
+    CACHE 15;",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
@@ -63,6 +64,7 @@ CREATE SEQUENCE db2.CustomFacetsSequence
                         Assert.Null(defaultSequence.StartValue);
                         Assert.Null(defaultSequence.MinValue);
                         Assert.Null(defaultSequence.MaxValue);
+                        Assert.Null(defaultSequence.CacheSize);
 
                         var customSequence = dbModel.Sequences.First(ds => ds.Name == "CustomFacetsSequence");
                         Assert.Equal("db2", customSequence.Schema);
@@ -73,6 +75,7 @@ CREATE SEQUENCE db2.CustomFacetsSequence
                         Assert.Equal(1, customSequence.StartValue);
                         Assert.Equal(-3, customSequence.MinValue);
                         Assert.Equal(8, customSequence.MaxValue);
+                        Assert.Equal(15, customSequence.CacheSize);
                     },
                 @"
 DROP SEQUENCE DefaultFacetsSequence;
@@ -170,6 +173,7 @@ CREATE SEQUENCE [TypeAliasSequence] AS [dbo].[TestTypeAlias];",
                         Assert.Null(sequence.StartValue);
                         Assert.Null(sequence.MinValue);
                         Assert.Null(sequence.MaxValue);
+                        Assert.Null(sequence.CacheSize);
                     },
                 @"
 DROP SEQUENCE [TypeAliasSequence];
@@ -194,6 +198,7 @@ CREATE SEQUENCE [TypeFacetSequence] AS decimal(10, 0);",
                         Assert.Equal("decimal(10, 0)", sequence.StoreType);
                         Assert.False(sequence.IsCyclic);
                         Assert.Equal(1, sequence.IncrementBy);
+                        Assert.Null(sequence.CacheSize);
                     },
                 @"
 DROP SEQUENCE [TypeFacetSequence];");
@@ -219,6 +224,7 @@ CREATE SEQUENCE [db2].[Sequence]",
                         Assert.Equal("bigint", sequence.StoreType);
                         Assert.False(sequence.IsCyclic);
                         Assert.Equal(1, sequence.IncrementBy);
+                        Assert.Null(sequence.CacheSize);
                     },
                 @"
 DROP SEQUENCE [dbo].[Sequence];

@@ -855,6 +855,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add($".{nameof(SequenceBuilder.IsCyclic)}()");
             }
 
+            if (sequence.CacheSize.HasValue)
+            {
+                if (sequence.CacheSize != Sequence.DefaultCacheSize)
+                {
+                    lines.Add($".{nameof(SequenceBuilder.CacheSize)}({sequence.CacheSize})");
+                }
+                else
+                {
+                    lines.Add($".{nameof(SequenceBuilder.CacheSize)}()");
+                }
+            }
+
             if (lines.Count == 2)
             {
                 lines = new List<string>

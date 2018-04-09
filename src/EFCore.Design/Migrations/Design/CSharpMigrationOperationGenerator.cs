@@ -633,6 +633,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("cyclic: true");
                 }
 
+                if (operation.CacheSize.HasValue)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("cacheSize: ")
+                        .Append(Code.Literal(operation.CacheSize));
+                }
+
                 if (operation.OldSequence.IncrementBy != 1)
                 {
                     builder
@@ -662,6 +670,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder
                         .AppendLine(",")
                         .Append("oldCyclic: true");
+                }
+
+                if (operation.OldSequence.CacheSize.HasValue)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldCacheSize: ")
+                        .Append(Code.Literal(operation.OldSequence.CacheSize));
                 }
 
                 builder.Append(")");

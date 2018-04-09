@@ -264,6 +264,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 builder.IsCyclic(sequence.IsCyclic.Value);
             }
 
+            if (sequence.CacheSize.HasValue)
+            {
+                builder.CacheSize(sequence.CacheSize.Value);
+            }
+
             return builder;
         }
 

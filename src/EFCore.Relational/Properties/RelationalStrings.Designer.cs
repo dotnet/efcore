@@ -1013,6 +1013,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     RelationalEventId.ValueConversionSqlLiteralWarning,
                     _resourceManager.GetString("LogValueConversionSqlLiteralWarning")));
 
+        /// <summary>
+        ///     Cannot use {value} as the cache size, the value must be greater than zero
+        /// </summary>
+        public static string BadCacheSize([CanBeNull] object value)
+            => string.Format(
+                GetString("BadCacheSize", nameof(value)),
+                value);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

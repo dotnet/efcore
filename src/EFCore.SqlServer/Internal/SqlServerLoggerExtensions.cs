@@ -375,7 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             int increment,
             long start,
             long min,
-            long max)
+            long max,
+            long cacheSize)
         {
             // No DiagnosticsSource events because these are purely design-time messages
             var definition = SqlServerStrings.LogFoundSequence;
@@ -396,7 +397,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         increment,
                         start,
                         min,
-                        max));
+                        max,
+                        cacheSize));
             }
         }
 
