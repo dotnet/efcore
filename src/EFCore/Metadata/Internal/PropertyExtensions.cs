@@ -170,18 +170,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static IEnumerable<IProperty> FindPrincipals([NotNull] this IProperty property)
+        public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
         {
-            yield return property;
-
-            foreach (var found in FindPrincipals(property, new List<IProperty> { property }))
-            {
-                yield return found;
-            }
+            var principals = new List<IProperty> { property };
+            AddPrincipals(property, principals);
+            return principals;
         }
 
-        private static IEnumerable<IProperty> FindPrincipals(
-            IProperty property, IList<IProperty> visited)
+        private static void AddPrincipals(IProperty property, List<IProperty> visited)
         {
             var concreteProperty = property.AsProperty();
 
@@ -196,14 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             var principal = foreignKey.PrincipalKey.Properties[propertyIndex];
                             if (!visited.Contains(principal))
                             {
-                                yield return principal;
-
                                 visited.Add(principal);
 
-                                foreach (var found in FindPrincipals(principal, visited))
-                                {
-                                    yield return found;
-                                }
+                                AddPrincipals(principal, visited);
                             }
                         }
                     }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
@@ -30,18 +31,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
         public RelationalTypeMappingInfo([NotNull] IProperty property)
+            : this(property.FindPrincipals())
         {
-            _coreTypeMappingInfo = new TypeMappingInfo(property);
+        }
 
-            var principals = property.FindPrincipals().ToList();
+        /// <summary>
+        ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
+        /// </summary>
+        /// <param name="principals"> The principal property chain for the property for which mapping is needed. </param>
+        public RelationalTypeMappingInfo([NotNull] IReadOnlyList<IProperty> principals)
+        {
+            _coreTypeMappingInfo = new TypeMappingInfo(principals);
 
-            var storeTypeName = principals
-                .Select(p => (string)p[RelationalAnnotationNames.ColumnType])
-                .FirstOrDefault(t => t != null);
-
-            var fixedLength = principals
-                .Select(p => p.Relational().IsFixedLength)
-                .FirstOrDefault(t => t);
+            string storeTypeName  = null;
+            var fixedLength = false;
+            for (var i = 0; i < principals.Count; i++)
+            {
+                var principal = principals[i];
+                if (storeTypeName == null)
+                {
+                    var columnType = (string)principal[RelationalAnnotationNames.ColumnType];
+                    if (columnType != null)
+                    {
+                        storeTypeName = columnType;
+                    }
+                }
+                if (!fixedLength)
+                {
+                    var isFixedLength = principal.Relational().IsFixedLength;
+                    if (isFixedLength)
+                    {
+                        fixedLength = true;
+                    }
+                }
+            }
 
             IsFixedLength = fixedLength;
             StoreTypeName = storeTypeName;

@@ -296,18 +296,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
         /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
         public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
-        {
-            Check.NotNull(mappingInfo, nameof(mappingInfo));
-
-            return (mappingInfo.Size != null
-                    && mappingInfo.Size != Size)
-                   || (mappingInfo.StoreTypeName != null
-                       && !string.Equals(mappingInfo.StoreTypeName, StoreType, StringComparison.Ordinal))
+            => (mappingInfo.Size != null
+                && mappingInfo.Size != Size)
+               || (mappingInfo.StoreTypeName != null
+                   && !string.Equals(mappingInfo.StoreTypeName, StoreType, StringComparison.Ordinal))
                 ? Clone(
                     mappingInfo.StoreTypeName ?? StoreType,
                     mappingInfo.Size ?? Size)
                 : this;
-        }
 
         /// <summary>
         ///     Gets the name of the database type.

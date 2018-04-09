@@ -43,13 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
-        {
-            Check.NotNull(mappingInfo, nameof(mappingInfo));
-
-            return _typeMapper.IsTypeMapped(mappingInfo.ClrType)
+            => _typeMapper.IsTypeMapped(mappingInfo.ClrType)
                 ? new ConcreteTypeMapping(mappingInfo.ClrType)
                 : null;
-        }
 
         private class ConcreteTypeMapping : CoreTypeMapping
         {

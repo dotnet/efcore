@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -17,35 +17,63 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public readonly struct TypeMappingInfo : IEquatable<TypeMappingInfo>
     {
-        private readonly Type _providerClrType;
-        private readonly ValueConverter _customConverter;
-
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
         public TypeMappingInfo([NotNull] IProperty property)
+            : this(property.FindPrincipals())
         {
-            Check.NotNull(property, nameof(property));
+        }
 
-            var principals = property.FindPrincipals().ToList();
+        /// <summary>
+        ///     Creates a new instance of <see cref="TypeMappingInfo" />.
+        /// </summary>
+        /// <param name="principals"> The principal property chain for the property for which mapping is needed. </param>
+        public TypeMappingInfo(IReadOnlyList<IProperty> principals)
+        {
+            Check.NotNull(principals, nameof(principals));
 
-            _providerClrType = principals
-                ?.Select(p => p.GetProviderClrType())
-                .FirstOrDefault(t => t != null)
-                ?.UnwrapNullableType();
+            ValueConverter customConverter = null;
+            int? size = null;
+            bool? isUnicode = null;
+            for (var i = 0; i < principals.Count; i++)
+            {
+                var principal = principals[i];
+                if (customConverter == null)
+                {
+                    var converter = principal.GetValueConverter();
+                    if (converter != null)
+                    {
+                        customConverter = converter;
+                    }
+                }
+                if (size == null)
+                {
+                    var maxLength = principal.GetMaxLength();
+                    if (maxLength != null)
+                    {
+                        size = maxLength;
+                    }
+                }
+                if (isUnicode == null)
+                {
+                    var unicode = principal.IsUnicode();
+                    if (unicode != null)
+                    {
+                        isUnicode = unicode;
+                    }
+                }
+            }
 
-            _customConverter = principals
-                ?.Select(p => p.GetValueConverter())
-                .FirstOrDefault(c => c != null);
-
-            var mappingHints = _customConverter?.MappingHints;
+            var mappingHints = customConverter?.MappingHints;
+            var property = principals[0];
 
             IsKeyOrIndex = property.IsKeyOrForeignKey() || property.IsIndex();
-            Size = principals.Select(p => p.GetMaxLength()).FirstOrDefault(t => t != null) ?? mappingHints?.Size;
-            IsUnicode = principals.Select(p => p.IsUnicode()).FirstOrDefault(t => t != null) ?? mappingHints?.IsUnicode;
+            Size = size ?? mappingHints?.Size;
+            IsUnicode = isUnicode ?? mappingHints?.IsUnicode;
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
-            ClrType = (_customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+            ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
             Scale = mappingHints?.Scale;
             Precision = mappingHints?.Precision;
         }
@@ -59,9 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(type, nameof(type));
 
             ClrType = type.UnwrapNullableType();
-
-            _providerClrType = null;
-            _customConverter = null;
 
             IsKeyOrIndex = false;
             Size = null;
@@ -103,9 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             ClrType = type.UnwrapNullableType();
 
-            _providerClrType = null;
-            _customConverter = null;
-
             IsKeyOrIndex = keyOrIndex;
             Size = size;
             IsUnicode = unicode;
@@ -135,8 +157,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             IsRowVersion = source.IsRowVersion;
             IsKeyOrIndex = source.IsKeyOrIndex;
-            _providerClrType = source._providerClrType;
-            _customConverter = source._customConverter;
 
             var mappingHints = converter.MappingHints;
 
@@ -198,8 +218,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public bool Equals(TypeMappingInfo other)
             => ClrType == other.ClrType
-               && _providerClrType == other._providerClrType
-               && _customConverter == other._customConverter
                && IsKeyOrIndex == other.IsKeyOrIndex
                && Size == other.Size
                && IsUnicode == other.IsUnicode
@@ -224,8 +242,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override int GetHashCode()
         {
             var hashCode = ClrType?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ (_providerClrType?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (_customConverter?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
             hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (IsUnicode?.GetHashCode() ?? 0);

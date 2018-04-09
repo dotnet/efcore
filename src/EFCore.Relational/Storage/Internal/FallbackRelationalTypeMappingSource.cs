@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -42,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMappingWithConversion(
             in RelationalTypeMappingInfo mappingInfo,
-            IProperty property)
+            IReadOnlyList<IProperty> principals)
         {
-            _property = property;
+            _property = principals?[0];
 
-            return base.FindMappingWithConversion(mappingInfo, property);
+            return base.FindMappingWithConversion(mappingInfo, principals);
         }
 
         /// <summary>
@@ -55,8 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
-            Check.NotNull(mappingInfo, nameof(mappingInfo));
-
             var mapping = FilterByClrType(FindMappingForProperty(mappingInfo), mappingInfo)
                           ?? FilterByClrType(FindMappingForStoreTypeName(mappingInfo), mappingInfo)
                           ?? FilterByClrType(FindMappingForClrType(mappingInfo), mappingInfo);

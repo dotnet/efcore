@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             if (_disallowedMappings.Contains(relationalMapping?.StoreType))
             {
-                if (property== null)
+                if (property == null)
                 {
                     throw new ArgumentException(SqlServerStrings.UnqualifiedDataType(relationalMapping.StoreType));
                 }

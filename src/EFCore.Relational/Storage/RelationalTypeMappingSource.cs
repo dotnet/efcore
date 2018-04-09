@@ -3,12 +3,13 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 #pragma warning disable 1574
@@ -27,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRelationalTypeMappingSource
     {
-        private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type), RelationalTypeMapping> _explicitMappings
-            = new ConcurrentDictionary<(RelationalTypeMappingInfo, Type), RelationalTypeMapping>();
+        private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type, ValueConverter), RelationalTypeMapping> _explicitMappings
+            = new ConcurrentDictionary<(RelationalTypeMappingInfo, Type, ValueConverter), RelationalTypeMapping>();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -78,26 +79,39 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual RelationalTypeMapping FindMappingWithConversion(
             in RelationalTypeMappingInfo mappingInfo,
-            [CanBeNull] IProperty property)
+            [CanBeNull] IReadOnlyList<IProperty> principals)
         {
-            Check.NotNull(mappingInfo, nameof(mappingInfo));
-
-            var principals = property?.FindPrincipals().ToList();
-
-            var customConverter = principals
-                ?.Select(p => p.GetValueConverter())
-                .FirstOrDefault(c => c != null);
-
-            var providerClrType = principals
-                ?.Select(p => p.GetProviderClrType())
-                .FirstOrDefault(t => t != null)
-                ?.UnwrapNullableType();
+            Type providerClrType = null;
+            ValueConverter customConverter = null;
+            if (principals != null)
+            {
+                for (var i = 0; i < principals.Count; i++)
+                {
+                    var principal = principals[i];
+                    if (providerClrType == null)
+                    {
+                        var providerType = principal.GetProviderClrType();
+                        if (providerType != null)
+                        {
+                            providerClrType = providerType.UnwrapNullableType();
+                        }
+                    }
+                    if (customConverter == null)
+                    {
+                        var converter = principal.GetValueConverter();
+                        if (converter != null)
+                        {
+                            customConverter = converter;
+                        }
+                    }
+                }
+            }
 
             var resolvedMapping = _explicitMappings.GetOrAdd(
-                (mappingInfo, providerClrType),
+                (mappingInfo, providerClrType, customConverter),
                 k =>
                 {
-                    var (info, providerType) = k;
+                    var (info, providerType, converter) = k;
                     var mapping = providerType == null
                                   || providerType == info.ClrType
                         ? FindMapping(info)
@@ -142,16 +156,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         }
                     }
 
+                    if (mapping != null
+                        && converter != null)
+                    {
+                        mapping = (RelationalTypeMapping)mapping.Clone(converter);
+                    }
+
                     return mapping;
                 });
 
-            if (resolvedMapping != null
-                && customConverter != null)
-            {
-                resolvedMapping = (RelationalTypeMapping)resolvedMapping.Clone(customConverter);
-            }
-
-            ValidateMapping(resolvedMapping, property);
+            ValidateMapping(resolvedMapping, principals?[0]);
 
             return resolvedMapping;
         }
@@ -167,8 +181,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(IProperty property)
-            => property.FindRelationalMapping()
-               ?? FindMappingWithConversion(new RelationalTypeMappingInfo(property), property);
+        {
+            var mapping = property.FindRelationalMapping();
+            if (mapping != null)
+            {
+                return mapping;
+            }
+
+            var principals = property.FindPrincipals();
+            return FindMappingWithConversion(new RelationalTypeMappingInfo(principals), principals);
+        }
 
         /// <summary>
         ///     <para>
