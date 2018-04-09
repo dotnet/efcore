@@ -116,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             using (_sb.Indent())
             {
+                GenerateConstructors(contextName);
                 GenerateDbSets(model);
                 GenerateEntityTypeErrors(model);
                 GenerateOnConfiguring(connectionString, suppressConnectionStringWarning);
@@ -123,6 +124,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _sb.AppendLine("}");
+        }
+
+        private void GenerateConstructors(string contextName)
+        {
+            _sb.AppendLine($"public {contextName}()")
+                .AppendLine("{")
+                .AppendLine("}")
+                .AppendLine();
+
+            _sb.AppendLine($"public {contextName}(DbContextOptions<{contextName}> options)")
+                .IncrementIndent()
+                .AppendLine(": base(options)")
+                .DecrementIndent()
+                .AppendLine("{")
+                .AppendLine("}")
+                .AppendLine();
         }
 
         private void GenerateDbSets(IModel model)
@@ -315,6 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             GenerateKey(entityType.FindPrimaryKey(), useDataAnnotations);
 
             var annotations = entityType.GetAnnotations().ToList();
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.ConstructorBinding);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableName);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Schema);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DbSetName);
