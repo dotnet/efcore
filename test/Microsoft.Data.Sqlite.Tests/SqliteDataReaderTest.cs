@@ -126,6 +126,9 @@ namespace Microsoft.Data.Sqlite
 
                     var stream = reader.GetStream(0);
                     Assert.Equal(0x42, stream.ReadByte());
+                    var stream2 = reader.GetStream(0);
+                    Assert.Equal(0x42, stream2.ReadByte());
+                    Assert.Equal(0x7E, stream.ReadByte());
                 }
             }
         }
