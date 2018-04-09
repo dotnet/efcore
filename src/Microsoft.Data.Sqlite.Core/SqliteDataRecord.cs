@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -170,9 +171,20 @@ namespace Microsoft.Data.Sqlite
         }
 
         public virtual long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
-            => throw new NotSupportedException();
+        {
+            var blob = GetBlob(ordinal);
+            Array.Copy(blob, dataOffset, buffer, bufferOffset, length);
+            return length;
+        }
 
         public virtual long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-            => throw new NotSupportedException();
+        {
+            var text = GetString(ordinal);
+            text.CopyTo((int)dataOffset, buffer, bufferOffset, length);
+            return length;
+        }
+
+        public virtual Stream GetStream(int ordinal)
+            => new MemoryStream(GetBlob(ordinal));
     }
 }
