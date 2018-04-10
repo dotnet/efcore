@@ -177,7 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var keyProperties = entityType.FindPrimaryKey().Properties;
             var nullCount = keyProperties.Count;
-            Expression keyAccessExpression = null;
+
+            Expression keyAccessExpression;
 
             // Skipping composite key with subquery since it requires to copy subquery
             // which would cause same subquery to be visited twice
@@ -222,7 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private Expression RewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right)
         {
             var leftProperties = MemberAccessBindingExpressionVisitor
-                    .GetPropertyPath(left, _queryCompilationContext, out var leftQsre);
+                .GetPropertyPath(left, _queryCompilationContext, out var leftQsre);
+
             var rightProperties = MemberAccessBindingExpressionVisitor
                 .GetPropertyPath(right, _queryCompilationContext, out var rightQsre);
 
@@ -243,10 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         CreateNavigationCaller(leftQsre, leftProperties),
                         CreateNavigationCaller(rightQsre, rightProperties)));
                 }
-                else
-                {
-                    return Expression.Constant(false);
-                }
+
+                return Expression.Constant(false);
             }
 
             var entityType = _model.FindEntityType(left.Type)
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private IEntityType GetEntityType(
-            List<IPropertyBase> properties, QuerySourceReferenceExpression querySourceReferenceExpression)
+            IReadOnlyList<IPropertyBase> properties, QuerySourceReferenceExpression querySourceReferenceExpression)
         {
             if (properties.Count > 0)
             {

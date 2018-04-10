@@ -15,6 +15,51 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TFixture Fixture { get; }
 
         [Fact]
+        public virtual void Query_with_owned_entity_equality_operator()
+        {
+            using (var context = CreateContext())
+            {
+                var query
+                    = (from a in context.Set<LeafA>()
+                       from b in context.Set<LeafB>()
+                       where a.LeafAAddress == b.LeafBAddress
+                       select a).ToList();
+
+                Assert.Equal(0, query.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_with_owned_entity_equality_method()
+        {
+            using (var context = CreateContext())
+            {
+                var query
+                    = (from a in context.Set<LeafA>()
+                       from b in context.Set<LeafB>()
+                       where a.LeafAAddress.Equals(b.LeafBAddress)
+                       select a).ToList();
+
+                Assert.Equal(0, query.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Query_with_owned_entity_equality_object_method()
+        {
+            using (var context = CreateContext())
+            {
+                var query
+                    = (from a in context.Set<LeafA>()
+                       from b in context.Set<LeafB>()
+                       where Equals(a.LeafAAddress, b.LeafBAddress)
+                       select a).ToList();
+
+                Assert.Equal(0, query.Count);
+            }
+        }
+        
+        [Fact]
         public virtual void Query_for_base_type_loads_all_owned_navs()
         {
             using (var context = CreateContext())

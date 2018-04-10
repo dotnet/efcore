@@ -315,7 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var leftJoin = leftNavigationJoin?.JoinClause ?? leftNavigationJoin?.GroupJoinClause?.JoinClause;
             var rightJoin = rightNavigationJoin?.JoinClause ?? rightNavigationJoin?.GroupJoinClause?.JoinClause;
 
-            if (leftNavigationJoin != null)
+            if (leftNavigationJoin != null
+                && !leftNavigationJoin.Navigation.GetTargetType().IsOwned())
             {
                 if (newRight.IsNullConstantExpression())
                 {
@@ -338,7 +339,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            if (rightNavigationJoin != null)
+            if (rightNavigationJoin != null
+                && !rightNavigationJoin.Navigation.GetTargetType().IsOwned())
             {
                 if (newLeft.IsNullConstantExpression())
                 {
