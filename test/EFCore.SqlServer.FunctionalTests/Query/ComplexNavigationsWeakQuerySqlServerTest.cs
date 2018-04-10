@@ -7,11 +7,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ComplexNavigationsWeakQuerySqlServerTest : ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQuerySqlServerFixture>
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
         public ComplexNavigationsWeakQuerySqlServerTest(
             ComplexNavigationsWeakQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
+            _testOutputHelper = testOutputHelper;
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
@@ -53,6 +56,8 @@ FROM [Level1] AS [l1]");
 
         public override void Level4_Include()
         {
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(_testOutputHelper);
+
             base.Level4_Include();
 
             AssertSql(
@@ -62,6 +67,8 @@ LEFT JOIN [Level1] AS [l1.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Req
 LEFT JOIN [Level1] AS [l1.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse] ON [l1.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_FK_Inverse].[Level2_Required_Id] = [l1.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse].[Id]
 LEFT JOIN [Level1] AS [OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK] ON [l1.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse].[Id] = [OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK].[Level2_Optional_Id]
 WHERE ([l1].[Id] IS NOT NULL AND [l1].[Id] IS NOT NULL) AND [l1].[Id] IS NOT NULL");
+
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(null);
         }
 
         public override void Nested_group_join_with_take()
