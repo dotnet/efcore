@@ -275,11 +275,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private sealed class QuerySourcePriorityAnalyzer : RelinqExpressionVisitor
             {
                 private readonly List<IQuerySource> _querySources = new List<IQuerySource>();
+                private readonly List<IQuerySource> _querySourcesWithInclude = new List<IQuerySource>();
 
                 public QuerySourcePriorityAnalyzer(Expression expression) => Visit(expression);
 
                 public bool AreLowerPriorityQuerySources(IQuerySource querySource)
                 {
+                    if (!_querySourcesWithInclude.Contains(querySource))
+                    {
+                        return false;
+                    }
+
                     var index = _querySources.IndexOf(querySource);
 
                     return index != -1 && index < _querySources.Count - 1;
@@ -287,6 +293,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 public IEnumerable<IQuerySource> GetHigherPriorityQuerySources(IQuerySource querySource)
                 {
+                    if (!_querySourcesWithInclude.Contains(querySource))
+                    {
+                        yield break;
+                    }
+
                     var index = _querySources.IndexOf(querySource);
 
                     if (index != -1)
@@ -322,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return base.VisitBinary(node);
                 }
 
-                private static IQuerySource ExtractQuerySource(Expression expression)
+                private IQuerySource ExtractQuerySource(Expression expression)
                 {
                     switch (expression)
                     {
@@ -330,7 +341,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return querySourceReferenceExpression.ReferencedQuerySource;
                         case MethodCallExpression methodCallExpression
                         when IsIncludeMethod(methodCallExpression):
-                            return ((QuerySourceReferenceExpression)methodCallExpression.Arguments[1]).ReferencedQuerySource;
+                            var querySource = ((QuerySourceReferenceExpression)methodCallExpression.Arguments[1])
+                                .ReferencedQuerySource;
+                            _querySourcesWithInclude.Add(querySource);
+                            return querySource;
                     }
 
                     return null;

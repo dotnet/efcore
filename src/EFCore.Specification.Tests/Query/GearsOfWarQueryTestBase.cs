@@ -1529,6 +1529,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"),
+                new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
+            };
+
+            AssertIncludeQuery<Gear>(
+                gs => from g1 in gs.Include(g => g.Weapons)
+                      join g2 in gs.Include(g => g.Weapons)
+                          on g1.LeaderNickname equals g2.Nickname into grouping
+                      from g2 in grouping.DefaultIfEmpty()
+                      select new { g1, g2, coalesce = g2 ?? g1 },
+                expectedIncludes,
+                elementSorter: e => e.g1.Nickname,
+                clientProjections: new List<Func<dynamic, object>>
+                {
+                    r => r.g1,
+                    r => r.g2,
+                    r => r.coalesce
+                });
+        }
+
+        [ConditionalFact]
         public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result()
         {
             var expectedIncludes = new List<IExpectedInclude>
@@ -4687,7 +4712,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<Squad>(
                 ss => ss.Include(s => s.Members).OrderBy(s => 42),
                 expectedQuery: ss => ss,
-                new List <IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
+                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
         }
 
         [ConditionalFact]
