@@ -239,9 +239,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private void SetFkPropertiesModified(InternalEntityEntry internalEntityEntry, bool modified)
         {
+            var anyNonPk = Metadata.ForeignKey.Properties.Any(p => !p.IsPrimaryKey());
             foreach (var property in Metadata.ForeignKey.Properties)
             {
-                internalEntityEntry.SetPropertyModified(property, isModified: modified);
+                if (anyNonPk
+                    && !property.IsPrimaryKey())
+                {
+                    internalEntityEntry.SetPropertyModified(property, isModified: modified);
+                }
             }
         }
 

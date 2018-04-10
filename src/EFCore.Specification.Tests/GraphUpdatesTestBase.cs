@@ -1661,6 +1661,53 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
+        [InlineData((int)ChangeMechanism.Dependent)]
+        [InlineData((int)ChangeMechanism.Principal)]
+        [InlineData((int)ChangeMechanism.Fk)]
+        public virtual void Mark_modified_one_to_many_overlapping(ChangeMechanism changeMechanism)
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var root = LoadRequiredCompositeGraph(context);
+                    var parent = root.RequiredCompositeChildren.OrderBy(e => e.Id).First();
+                    var child = parent.CompositeChildren.OrderBy(e => e.Id).First();
+
+                    var childCount = context.Set<OptionalOverlaping2>().Count();
+
+                    if ((changeMechanism & ChangeMechanism.Principal) != 0)
+                    {
+                        context.Entry(parent).Collection(p => p.CompositeChildren).IsModified = true;
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                    {
+                        context.Entry(child).Reference(c => c.Parent).IsModified = true;
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                    {
+                        context.Entry(child).Property(c => c.ParentId).IsModified = true;
+                    }
+
+                    Assert.True(context.ChangeTracker.HasChanges());
+
+                    context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
+
+                    Assert.Same(child, parent.CompositeChildren.OrderBy(e => e.Id).First());
+                    Assert.Same(parent, child.Parent);
+                    Assert.Equal(parent.Id, child.ParentId);
+                    Assert.Equal(parent.ParentAlternateId, child.ParentAlternateId);
+                    Assert.Equal(root.AlternateId, child.ParentAlternateId);
+                    Assert.Same(root, child.Root);
+
+                    Assert.Equal(childCount, context.Set<OptionalOverlaping2>().Count());
+                });
+        }
+
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
