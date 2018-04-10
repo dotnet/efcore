@@ -184,15 +184,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 = !queryModel.BodyClauses.Any()
                   && subQueryModel.ResultOperators.All(
                       ro => ro is CastResultOperator
-                            || ro is ConcatResultOperator
                             || ro is DefaultIfEmptyResultOperator
                             || ro is ExceptResultOperator
-                            || ro is IntersectResultOperator
                             || ro is OfTypeResultOperator
                             || ro is ReverseResultOperator
                             || ro is SkipResultOperator
-                            || ro is TakeResultOperator
-                            || ro is UnionResultOperator);
+                            || ro is TakeResultOperator);
 
             // we can lift distinct however if the outer query has result operator that doesn't care about having correct element count
             var emptyQueryModelWithResultOperatorThatIgnoresElementCountAndDistinctInSubquery

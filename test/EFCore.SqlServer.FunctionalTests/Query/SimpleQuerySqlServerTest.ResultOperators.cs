@@ -2,13 +2,26 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQuerySqlServerTest
     {
+        public override void Union_with_custom_projection()
+        {
+            base.Union_with_custom_projection();
+
+            AssertSql(
+                @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+FROM [Customers] AS [c1]
+WHERE [c1].[CompanyName] LIKE N'A' + N'%' AND (LEFT([c1].[CompanyName], LEN(N'A')) = N'A')",
+                //
+                @"SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+FROM [Customers] AS [c2]
+WHERE [c2].[CompanyName] LIKE N'B' + N'%' AND (LEFT([c2].[CompanyName], LEN(N'B')) = N'B')");
+        }
+
         public override void Select_All()
         {
             base.Select_All();

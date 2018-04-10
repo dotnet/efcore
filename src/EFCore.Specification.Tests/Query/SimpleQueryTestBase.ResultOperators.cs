@@ -19,6 +19,42 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
         [ConditionalFact]
+        public virtual void Union_with_custom_projection()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CompanyName.StartsWith("A"))
+                    .Union(cs.Where(c => c.CompanyName.StartsWith("B")))
+                    .Select(
+                        c => new CustomerDeets
+                        {
+                            Id = c.CustomerID
+                        }));
+        }
+
+        public class CustomerDeets
+        {
+            public string Id { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is null)
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+
+                return obj.GetType() == GetType()
+                       && string.Equals(Id, ((CustomerDeets)obj).Id);
+            }
+
+            public override int GetHashCode() => Id != null ? Id.GetHashCode() : 0;
+        }
+
+        [ConditionalFact]
         public virtual void Select_All()
         {
             using (var context = CreateContext())
