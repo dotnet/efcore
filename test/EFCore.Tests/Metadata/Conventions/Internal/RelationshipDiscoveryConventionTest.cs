@@ -38,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private RelationshipDiscoveryConvention CreateRelationshipDiscoveryConvention()
             => new RelationshipDiscoveryConvention(
-                CreateTypeMapper(),
-                TestServiceFactory.Instance.Create<IParameterBindingFactories>(),
+                CreateMemberClassifier(),
                 CreateLogger());
 
         [Fact]
@@ -904,8 +903,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
             = new List<(LogLevel, EventId, string)>();
 
-        private static ITypeMappingSource CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<FallbackTypeMappingSource>();
+        private static IMemberClassifier CreateMemberClassifier()
+            => new MemberClassifier(
+                TestServiceFactory.Instance.Create<FallbackTypeMappingSource>(),
+                TestServiceFactory.Instance.Create<IParameterBindingFactories>());
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {
@@ -934,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public OneToManyDependent this[int index]
             {
-                get { return null; }
+                get => null;
                 // ReSharper disable once ValueParameterNotUsed
                 set { }
             }

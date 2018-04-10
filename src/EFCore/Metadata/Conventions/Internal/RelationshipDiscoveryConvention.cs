@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -27,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeMemberIgnoredConvention,
         INavigationAddedConvention
     {
-        private readonly ITypeMappingSource _typeMappingSource;
-        private readonly IParameterBindingFactories _parameterBindingFactories;
+        private readonly IMemberClassifier _memberClassifier;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
@@ -36,15 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationshipDiscoveryConvention(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IParameterBindingFactories parameterBindingFactories,
+            [NotNull] IMemberClassifier memberClassifier,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
+            Check.NotNull(memberClassifier, nameof(memberClassifier));
+            Check.NotNull(logger, nameof(logger));
 
-            _typeMappingSource = typeMappingSource;
-            _parameterBindingFactories = parameterBindingFactories;
+            _memberClassifier = memberClassifier;
             _logger = logger;
         }
 
@@ -811,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(_typeMappingSource, _parameterBindingFactories);
+            => _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(EntityType entityType)
         {

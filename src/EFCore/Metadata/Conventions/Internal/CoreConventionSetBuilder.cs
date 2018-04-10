@@ -45,21 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 = new KeyDiscoveryConvention(Dependencies.Logger);
 
             var inversePropertyAttributeConvention
-                = new InversePropertyAttributeConvention(
-                    Dependencies.TypeMappingSource,
-                    Dependencies.ParameterBindingFactories,
-                    Dependencies.Logger);
+                = new InversePropertyAttributeConvention(Dependencies.MemberClassifier, Dependencies.Logger);
 
             var relationshipDiscoveryConvention
-                = new RelationshipDiscoveryConvention(
-                    Dependencies.TypeMappingSource,
-                    Dependencies.ParameterBindingFactories,
-                    Dependencies.Logger);
+                = new RelationshipDiscoveryConvention(Dependencies.MemberClassifier, Dependencies.Logger);
 
             var servicePropertyDiscoveryConvention
-                = new ServicePropertyDiscoveryConvention(
-                    Dependencies.TypeMappingSource,
-                    Dependencies.ParameterBindingFactories);
+                = new ServicePropertyDiscoveryConvention(Dependencies.TypeMappingSource, Dependencies.ParameterBindingFactories);
 
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(new OwnedEntityTypeAttributeConvention());
@@ -125,10 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var cascadeDeleteConvention = new CascadeDeleteConvention();
 
             conventionSet.ForeignKeyAddedConventions.Add(
-                new ForeignKeyAttributeConvention(
-                    Dependencies.TypeMappingSource,
-                    Dependencies.ParameterBindingFactories,
-                    Dependencies.Logger));
+                new ForeignKeyAttributeConvention(Dependencies.MemberClassifier, Dependencies.Logger));
 
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ForeignKeyAddedConventions.Add(keyDiscoveryConvention);
@@ -155,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ModelBuiltConventions.Add(
                 new PropertyMappingValidationConvention(
                     Dependencies.TypeMappingSource,
-                    Dependencies.ParameterBindingFactories));
+                    Dependencies.MemberClassifier));
 
             conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention());
             conventionSet.ModelBuiltConventions.Add(foreignKeyPropertyDiscoveryConvention);

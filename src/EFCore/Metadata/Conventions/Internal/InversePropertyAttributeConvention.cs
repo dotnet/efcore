@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -30,10 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InversePropertyAttributeConvention(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IParameterBindingFactories parameterBindingFactories,
+            [NotNull] IMemberClassifier memberClassifier,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            : base(typeMappingSource, parameterBindingFactories)
+            : base(memberClassifier)
         {
             _logger = logger;
         }

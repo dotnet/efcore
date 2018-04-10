@@ -99,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRegisteredServices), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IPropertyParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IParameterBindingFactories), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMemberClassifier), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityGraphAttacher), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -278,6 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IConstructorBindingFactory, ConstructorBindingFactory>();
             TryAdd<ILazyLoader, LazyLoader>();
             TryAdd<IParameterBindingFactories, ParameterBindingFactories>();
+            TryAdd<IMemberClassifier, MemberClassifier>();
             TryAdd<IPropertyParameterBindingFactory, PropertyParameterBindingFactory>();
             TryAdd<IParameterBindingFactory, LazyLoaderParameterBindingFactory>();
             TryAdd<IParameterBindingFactory, ContextParameterBindingFactory>();

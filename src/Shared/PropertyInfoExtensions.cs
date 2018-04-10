@@ -23,33 +23,6 @@ namespace System.Reflection
                && propertyInfo.GetMethod != null && (!publicOnly || propertyInfo.GetMethod.IsPublic)
                && propertyInfo.GetIndexParameters().Length == 0;
 
-        public static Type FindCandidateNavigationPropertyType(
-            this PropertyInfo propertyInfo,
-            ITypeMappingSource typeMappingSource,
-            IParameterBindingFactories parameterBindingFactories)
-        {
-            var targetType = propertyInfo.PropertyType;
-            var targetSequenceType = targetType.TryGetSequenceType();
-            if (!propertyInfo.IsCandidateProperty(targetSequenceType == null))
-            {
-                return null;
-            }
-
-            targetType = targetSequenceType ?? targetType;
-            targetType = targetType.UnwrapNullableType();
-
-            if (targetType.GetTypeInfo().IsInterface
-                || targetType.GetTypeInfo().IsValueType
-                || targetType == typeof(object)
-                || parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.Name) != null
-                || typeMappingSource.FindMapping(targetType) != null)
-            {
-                return null;
-            }
-
-            return targetType;
-        }
-
         public static PropertyInfo FindGetterProperty([NotNull] this PropertyInfo propertyInfo)
             => propertyInfo.DeclaringType
                 .GetPropertiesInHierarchy(propertyInfo.Name)

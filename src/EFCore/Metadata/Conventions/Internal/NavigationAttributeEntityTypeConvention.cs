@@ -7,7 +7,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -24,22 +23,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeMemberIgnoredConvention
         where TAttribute : Attribute
     {
-        private readonly ITypeMappingSource _typeMappingSource;
-        private readonly IParameterBindingFactories _parameterBindingFactories;
+        private readonly IMemberClassifier _memberClassifier;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected NavigationAttributeEntityTypeConvention(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IParameterBindingFactories parameterBindingFactories)
+            [NotNull] IMemberClassifier memberClassifier)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
+            Check.NotNull(memberClassifier, nameof(memberClassifier));
 
-            _typeMappingSource = typeMappingSource;
-            _parameterBindingFactories = parameterBindingFactories;
+            _memberClassifier = memberClassifier;
         }
 
         /// <summary>
@@ -202,11 +197,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-            => propertyInfo.FindCandidateNavigationPropertyType(_typeMappingSource, _parameterBindingFactories);
+            => _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         private Type FindCandidateNavigationWithAttributePropertyType([NotNull] PropertyInfo propertyInfo)
         {
-            var targetClrType = propertyInfo.FindCandidateNavigationPropertyType(_typeMappingSource, _parameterBindingFactories);
+            var targetClrType = _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
             if (targetClrType == null
                 || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true))
             {

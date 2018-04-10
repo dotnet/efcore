@@ -45,6 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                TestServiceFactory.Instance.Create<IParameterBindingFactories>());
+                TestServiceFactory.Instance.Create<IMemberClassifier>());
     }
 }

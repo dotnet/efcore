@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Local
+// ReSharper disable ClassNeverInstantiated.Local
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class PropertyDiscoveryConventionTest
@@ -132,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public int this[int index]
             {
-                get { return 0; }
+                get => 0;
                 // ReSharper disable once ValueParameterNotUsed
                 set { }
             }

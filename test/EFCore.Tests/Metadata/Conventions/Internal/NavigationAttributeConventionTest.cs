@@ -49,8 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
 
             new RelationshipDiscoveryConvention(
-                CreateTypeMapper(),
-                TestServiceFactory.Instance.Create<IParameterBindingFactories>(),
+                CreateMemberClassifier(),
                 CreateLogger()).Apply(dependentEntityTypeBuilder);
 
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
@@ -273,8 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private InversePropertyAttributeConvention CreateInversePropertyAttributeConvention()
             => new InversePropertyAttributeConvention(
-                CreateTypeMapper(),
-                TestServiceFactory.Instance.Create<IParameterBindingFactories>(),
+                CreateMemberClassifier(),
                 CreateLogger());
 
         [Fact]
@@ -564,8 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private ForeignKeyAttributeConvention CreateForeignKeyAttributeConvention()
             => new ForeignKeyAttributeConvention(
-                CreateTypeMapper(),
-                TestServiceFactory.Instance.Create<IParameterBindingFactories>(),
+                CreateMemberClassifier(),
                 CreateLogger());
 
         [Fact]
@@ -778,6 +775,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
+
+        private static IMemberClassifier CreateMemberClassifier()
+            => new MemberClassifier(CreateTypeMapper(), TestServiceFactory.Instance.Create<IParameterBindingFactories>());
 
         private static ITypeMappingSource CreateTypeMapper()
             => TestServiceFactory.Instance.Create<FallbackTypeMappingSource>();

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class PropertyMappingValidationConvention : IModelBuiltConvention
     {
         private readonly ITypeMappingSource _typeMappingSource;
-        private readonly IParameterBindingFactories _parameterBindingFactories;
+        private readonly IMemberClassifier _memberClassifier;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -28,13 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public PropertyMappingValidationConvention(
             [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IParameterBindingFactories parameterBindingFactories)
+            [NotNull] IMemberClassifier memberClassifier)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
+            Check.NotNull(memberClassifier, nameof(memberClassifier));
 
             _typeMappingSource = typeMappingSource;
-            _parameterBindingFactories = parameterBindingFactories;
+            _memberClassifier = memberClassifier;
         }
 
         /// <summary>
@@ -140,18 +140,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsMappedPrimitiveProperty([NotNull] IProperty property)
-        {
-            return _typeMappingSource.FindMapping(property) != null;
-        }
+        protected virtual bool IsMappedPrimitiveProperty([NotNull] IProperty property)
+            => _typeMappingSource.FindMapping(property) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-        {
-            return propertyInfo.FindCandidateNavigationPropertyType(_typeMappingSource, _parameterBindingFactories);
-        }
+        protected virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+            => _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
     }
 }

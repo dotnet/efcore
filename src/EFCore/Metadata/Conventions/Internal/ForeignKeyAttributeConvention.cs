@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -21,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention
     {
-        private readonly ITypeMappingSource _typeMappingSource;
-        private readonly IParameterBindingFactories _parameterBindingFactories;
+        private readonly IMemberClassifier _memberClassifier;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
@@ -30,15 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ForeignKeyAttributeConvention(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IParameterBindingFactories parameterBindingFactories,
+            [NotNull] IMemberClassifier memberClassifier,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
+            Check.NotNull(memberClassifier, nameof(memberClassifier));
 
-            _typeMappingSource = typeMappingSource;
-            _parameterBindingFactories = parameterBindingFactories;
+            _memberClassifier = memberClassifier;
             _logger = logger;
         }
 
@@ -298,12 +293,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            return propertyInfo.FindCandidateNavigationPropertyType(_typeMappingSource, _parameterBindingFactories);
-        }
+        protected virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+            => _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         private static IReadOnlyList<string> FindCandidateDependentPropertiesThroughNavigation(
             InternalRelationshipBuilder relationshipBuilder,

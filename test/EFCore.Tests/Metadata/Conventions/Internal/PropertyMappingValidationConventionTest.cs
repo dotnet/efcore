@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual PropertyMappingValidationConvention CreateConvention()
             => new PropertyMappingValidationConvention(
                 TestServiceFactory.Instance.Create<FallbackTypeMappingSource>(),
-                TestServiceFactory.Instance.Create<IParameterBindingFactories>());
+                TestServiceFactory.Instance.Create<IMemberClassifier>());
 
         protected class NonPrimitiveNonNavigationAsPropertyEntity
         {
