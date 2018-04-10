@@ -371,21 +371,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var collection = context.Entry(cherry).Collection(e => e.Monkeys);
 
-                Assert.False(collection.IsModified);
-
-                collection.IsModified = true;
-
-                Assert.False(collection.IsModified);
-                Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
-                Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
+                Assert.True(collection.IsModified);
 
                 collection.IsModified = false;
 
-                Assert.False(collection.IsModified);
+                Assert.True(collection.IsModified);
+                Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
+                Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
+
+                collection.IsModified = true;
+
+                Assert.True(collection.IsModified);
                 Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
                 Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
                 Assert.Equal(dependentState, context.Entry(chunky1).State);
                 Assert.Equal(dependentState, context.Entry(chunky2).State);
+
+                if (dependentState == EntityState.Deleted)
+                {
+                    context.Entry(chunky1).State = EntityState.Detached;
+                    context.Entry(chunky2).State = EntityState.Detached;
+                }
+                else
+                {
+                    context.Entry(chunky1).State = EntityState.Unchanged;
+                    context.Entry(chunky2).State = EntityState.Unchanged;
+                }
+
+                Assert.False(collection.IsModified);
+                Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
+                Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
             }
         }
 
