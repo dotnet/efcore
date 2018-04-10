@@ -170,6 +170,43 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [Theory]
+        [InlineData(true, true, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, false, false)]
+        public void Can_insert_with_array_comparer(bool useTypeMapping, bool useStateChange, bool nullValue)
+        {
+            using (var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext())
+            {
+                var value = nullValue ? null : new[] { 1, 2, 3, 4 };
+
+                var baxter = new Baxter
+                {
+                    Id = 1,
+                    Demands = value
+                };
+
+                var entityEntry = context.Entry(baxter);
+
+                if (useStateChange)
+                {
+                    entityEntry.State = EntityState.Added;
+                }
+                else
+                {
+                    context.Add(baxter);
+                }
+
+                Assert.Equal(EntityState.Added, entityEntry.State);
+                Assert.Equal(value, entityEntry.Property(e => e.Demands).CurrentValue);
+            }
+        }
+
+        [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void Detects_scalar_property_change_with_custom_comparer(bool useTypeMapping)
