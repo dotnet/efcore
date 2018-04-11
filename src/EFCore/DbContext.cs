@@ -698,9 +698,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Begins tracking the given entity, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that
-        ///     they will be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that
+        ///         they will be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to add. </param>
@@ -765,6 +770,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to attach. </param>
@@ -799,6 +807,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to update. </param>
@@ -828,6 +839,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Any other reachable entities that are not already being tracked will be tracked in the same way that
         ///         they would be if <see cref="Attach{TEntity}(TEntity)" /> was called before calling this method.
         ///         This allows any cascading actions to be applied when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
@@ -873,9 +887,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Begins tracking the given entity, and any other reachable entities that are
-        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
-        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities that are
+        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
         /// <returns>
@@ -896,9 +918,15 @@ namespace Microsoft.EntityFrameworkCore
         ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///     </para>
+        ///     <para>
         ///         This method is async only to allow special value generators, such as the one used by
         ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
         ///         to access the database asynchronously. For all other cases the non async method should be used.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
@@ -936,6 +964,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
         /// <returns>
@@ -968,6 +999,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
         ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>
         /// <returns>
@@ -995,6 +1029,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Any other reachable entities that are not already being tracked will be tracked in the same way that
         ///         they would be if <see cref="Attach(object)" /> was called before calling this method.
         ///         This allows any cascading actions to be applied when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
         ///     </para>
         /// </remarks>
         /// <param name="entity"> The entity to remove. </param>

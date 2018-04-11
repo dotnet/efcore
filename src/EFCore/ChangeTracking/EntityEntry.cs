@@ -59,6 +59,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Gets or sets that state that this entity is being tracked in.
         ///     </para>
         ///     <para>
+        ///         This method sets only the state of the single entity represented by this entry. It does
+        ///         not change the state of other entities reachable from this one.
+        ///     </para>
+        ///     <para>
         ///         When setting the state, the entity will always end up in the specified state. For example, if you
         ///         change the state to <see cref="EntityState.Deleted" /> the entity will be marked for deletion regardless
         ///         of its current state. This is different than calling <see cref="DbSet{TEntity}.Remove(TEntity)" /> where the entity
