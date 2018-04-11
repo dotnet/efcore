@@ -4763,6 +4763,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Include_collection_OrderBy_aggregate()
+        {
+            AssertIncludeQuery<Gear>(
+                os => os.OfType<Officer>()
+                        .Include(o => o.Reports)
+                        .OrderBy(o => o.Weapons.Count),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_with_complex_OrderBy2()
+        {
+            AssertIncludeQuery<Gear>(
+                os => os.OfType<Officer>()
+                        .Include(o => o.Reports)
+                        .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact(Skip = "See issue#11622")]
+        public virtual void Correlated_collection_with_complex_OrderBy()
+        {
+            AssertQuery<Gear>(
+                os => os.OfType<Officer>()
+                        .OrderBy(o => o.Weapons.Count)
+                        .Select(o => o.Reports.Where(g => g.HasSoulPatch).ToList()));
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

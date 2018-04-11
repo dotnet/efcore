@@ -1584,5 +1584,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CollectionAsserter<string>()(e.Weapons, a.Weapons);
                 });
         }
+
+        [ConditionalFact]
+        public virtual async Task Include_collection_with_complex_OrderBy()
+        {
+            await AssertIncludeQuery<Gear>(
+                os => os.OfType<Officer>()
+                        .Include(o => o.Reports)
+                        .OrderBy(o => o.Weapons.Count),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_collection_with_complex_OrderBy2()
+        {
+            await AssertIncludeQuery<Gear>(
+                os => os.OfType<Officer>()
+                        .Include(o => o.Reports)
+                        .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+
+        [ConditionalFact(Skip = "See issue#11622")]
+        public virtual async Task Correlated_collection_with_complex_OrderBy()
+        {
+            await AssertQuery<Gear>(
+                os => os.OfType<Officer>()
+                        .OrderBy(o => o.Weapons.Count)
+                        .Select(o => o.Reports.Where(g => g.HasSoulPatch).ToList()));
+        }
     }
 }

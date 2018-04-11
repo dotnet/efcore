@@ -2184,6 +2184,103 @@ FROM [Gears] AS [g0]
 WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')");
         }
 
+        public override async Task Include_collection_with_complex_OrderBy()
+        {
+            await base.Include_collection_with_complex_OrderBy();
+
+            // Collection Include query should be lifted
+            AssertSql(
+                @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
+ORDER BY (
+    SELECT COUNT(*)
+    FROM [Weapons] AS [w]
+    WHERE [o].[FullName] = [w].[OwnerFullName]
+), [o].[Nickname], [o].[SquadId]",
+                //
+                @"SELECT [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[AssignedCityName], [o.Reports].[CityOrBirthName], [o.Reports].[Discriminator], [o.Reports].[FullName], [o.Reports].[HasSoulPatch], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId], [o.Reports].[Rank]
+FROM [Gears] AS [o.Reports]
+WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')",
+                //
+                @"SELECT [t].[Nickname], [t].[SquadId], [t].[c], [t].[FullName]
+FROM (
+    SELECT [o0].[Nickname], [o0].[SquadId], (
+        SELECT COUNT(*)
+        FROM [Weapons] AS [w0]
+        WHERE [o0].[FullName] = [w0].[OwnerFullName]
+    ) AS [c], [o0].[FullName]
+    FROM [Gears] AS [o0]
+    WHERE [o0].[Discriminator] = N'Officer'
+) AS [t]",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT COUNT(*)
+FROM [Weapons] AS [w1]
+WHERE @_outer_FullName = [w1].[OwnerFullName]",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT COUNT(*)
+FROM [Weapons] AS [w1]
+WHERE @_outer_FullName = [w1].[OwnerFullName]");
+        }
+
+        public override async Task Include_collection_with_complex_OrderBy2()
+        {
+            await base.Include_collection_with_complex_OrderBy2();
+
+            // Collection Include query should be lifted
+            AssertSql(
+                @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
+ORDER BY COALESCE((
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE [o].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+), 0), [o].[Nickname], [o].[SquadId]",
+                //
+                @"SELECT [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[AssignedCityName], [o.Reports].[CityOrBirthName], [o.Reports].[Discriminator], [o.Reports].[FullName], [o.Reports].[HasSoulPatch], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId], [o.Reports].[Rank]
+FROM [Gears] AS [o.Reports]
+WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')",
+                //
+                @"SELECT [t].[Nickname], [t].[SquadId], [t].[c], [t].[FullName]
+FROM (
+    SELECT [o0].[Nickname], [o0].[SquadId], CAST(COALESCE((
+        SELECT TOP(1) [w0].[IsAutomatic]
+        FROM [Weapons] AS [w0]
+        WHERE [o0].[FullName] = [w0].[OwnerFullName]
+        ORDER BY [w0].[Id]
+    ), 0) AS bit) AS [c], [o0].[FullName]
+    FROM [Gears] AS [o0]
+    WHERE [o0].[Discriminator] = N'Officer'
+) AS [t]",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT TOP(1) [w1].[IsAutomatic]
+FROM [Weapons] AS [w1]
+WHERE @_outer_FullName = [w1].[OwnerFullName]
+ORDER BY [w1].[Id]",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT TOP(1) [w1].[IsAutomatic]
+FROM [Weapons] AS [w1]
+WHERE @_outer_FullName = [w1].[OwnerFullName]
+ORDER BY [w1].[Id]");
+        }
+
+        public override async Task Correlated_collection_with_complex_OrderBy()
+        {
+            await base.Correlated_collection_with_complex_OrderBy();
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

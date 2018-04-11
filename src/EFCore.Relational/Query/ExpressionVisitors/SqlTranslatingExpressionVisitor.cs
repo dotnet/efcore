@@ -642,7 +642,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 var selectExpression
                     = _queryModelVisitor.TryGetQuery(querySourceReferenceExpression.ReferencedQuerySource);
 
-                if (selectExpression != null)
+                if (selectExpression != null
+                    && (_targetSelectExpression == null || _targetSelectExpression == selectExpression))
                 {
                     var projectionIndex
                         = (int)((ConstantExpression)methodCallExpression.Arguments.Single()).Value;
