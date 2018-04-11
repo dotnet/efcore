@@ -851,6 +851,22 @@ WHERE DATEPART(second, [o].[OrderDate]) = 44");
 FROM [Orders] AS [o]
 WHERE DATEPART(millisecond, [o].[OrderDate]) = 88");
         }
+
+        public override void Where_datetimeoffset_now_component()
+        {
+            base.Where_datetimeoffset_now_component();
+            AssertSql(@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] = SYSDATETIMEOFFSET()");
+        }
+
+        public override void Where_datetimeoffset_utcnow_component()
+        {
+            base.Where_datetimeoffset_utcnow_component();
+            AssertSql(@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] = CAST(GETUTCDATE() AS datetimeoffset)");
+        }
 #endif
 
         public override void Where_simple_reversed()
