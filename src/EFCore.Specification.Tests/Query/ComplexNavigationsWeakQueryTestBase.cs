@@ -40,6 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void Level4_Include()
+        {
+            // Due to level 4 being owned, other tests using l4 as root could cause same same query as this one to run
+            // generating different SQL
+        }
+
         #region #8172 - One-to-many not supported yet
 
         public override void Multiple_SelectMany_with_string_based_Include()

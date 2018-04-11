@@ -2168,7 +2168,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<Level4>(
                 l4s => l4s
-                    .Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse)
+                    .Select(l4 => l4.OneToOne_Required_FK_Inverse)
+                    .Select(l3 => l3.OneToOne_Required_FK_Inverse)
                     .Include(l2 => l2.OneToOne_Optional_FK),
                 expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK, "OneToOne_Optional_FK") },
                 elementSorter: e => e.Id);
