@@ -674,27 +674,25 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private async Task SetEntityStateAsync(
+        private Task SetEntityStateAsync(
             InternalEntityEntry entry,
             EntityState entityState,
             CancellationToken cancellationToken)
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                await DbContextDependencies.EntityGraphAttacher.AttachGraphAsync(
+                return DbContextDependencies.EntityGraphAttacher.AttachGraphAsync(
                     entry,
                     entityState,
                     forceStateWhenUnknownKey: true,
                     cancellationToken: cancellationToken);
             }
-            else
-            {
-                await entry.SetEntityStateAsync(
-                    entityState,
-                    acceptChanges: true,
-                    forceStateWhenUnknownKey: entityState,
-                    cancellationToken: cancellationToken);
-            }
+
+            return entry.SetEntityStateAsync(
+                entityState,
+                acceptChanges: true,
+                forceStateWhenUnknownKey: entityState,
+                cancellationToken: cancellationToken);
         }
 
         /// <summary>

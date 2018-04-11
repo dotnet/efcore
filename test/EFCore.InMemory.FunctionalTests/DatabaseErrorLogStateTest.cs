@@ -20,15 +20,15 @@ namespace Microsoft.EntityFrameworkCore
     public class DatabaseErrorLogStateTest
     {
         [Fact]
-        public async Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
+        public Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
         {
-            await SaveChanges_logs_DatabaseErrorLogState_test(async: false);
+            return SaveChanges_logs_DatabaseErrorLogState_test(async: false);
         }
 
         [Fact]
-        public async Task SaveChanges_logs_DatabaseErrorLogState_async()
+        public Task SaveChanges_logs_DatabaseErrorLogState_async()
         {
-            await SaveChanges_logs_DatabaseErrorLogState_test(async: true);
+            return SaveChanges_logs_DatabaseErrorLogState_test(async: true);
         }
 
         private async Task SaveChanges_logs_DatabaseErrorLogState_test(bool async)
