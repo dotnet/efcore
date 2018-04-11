@@ -771,5 +771,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQueryScalar<Customer, bool>(cs => cs.Select(c => c.CustomerID == "ALFKI" ? true : false));
         }
 #endif
+
+        [ConditionalFact]
+        public virtual void Anonymous_projection_AsNoTracking_Selector()
+        {
+            AssertQueryScalar<Order>(
+                os => os.Select(o => new { A = o.CustomerID, B = o.OrderDate })
+                    .AsNoTracking() // Just to cause a subquery
+                    .Select(e => e.B));
+        }
     }
 }

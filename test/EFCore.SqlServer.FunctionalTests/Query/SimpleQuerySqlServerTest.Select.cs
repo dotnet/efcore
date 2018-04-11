@@ -887,5 +887,14 @@ END
 FROM [Customers] AS [c]");
         }
 #endif
+
+        public override void Anonymous_projection_AsNoTracking_Selector()
+        {
+            base.Anonymous_projection_AsNoTracking_Selector();
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [A], [o].[OrderDate] AS [B]
+FROM [Orders] AS [o]");
+        }
     }
 }

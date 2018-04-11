@@ -683,8 +683,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var newExpression = Visit(memberExpression.Expression);
 
-                if (newExpression != null
-                    || memberExpression.Expression == null)
+                if (memberExpression.Expression == null
+                    || (newExpression != null
+                        && newExpression.Type == memberExpression.Expression.Type))
                 {
                     var newMemberExpression
                         = newExpression != memberExpression.Expression
