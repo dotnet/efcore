@@ -1,5 +1,10 @@
 [
   {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
+    "MemberId": "System.String Fragment(Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment fragment)",
+    "Kind": "Addition"
+  },
+  {
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
     "Kind": "Removal"
   },

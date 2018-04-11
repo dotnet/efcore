@@ -261,6 +261,59 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             Assert.Equal(excepted, new CSharpHelper().Namespace(input));
         }
+
+        [Fact]
+        public void Fragment_MethodCallCodeFragment_works()
+        {
+            var method = new MethodCallCodeFragment("Test", true, 42);
+
+            var result = new CSharpHelper().Fragment(method);
+
+            Assert.Equal(".Test(true, 42)", result);
+        }
+
+        [Fact]
+        public void Fragment_MethodCallCodeFragment_works_with_arrays()
+        {
+            var method = new MethodCallCodeFragment("Test", new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { "foo", "bar" });
+
+            var result = new CSharpHelper().Fragment(method);
+
+            Assert.Equal(".Test(new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { \"foo\", \"bar\" })", result);
+        }
+
+        [Fact]
+        public void Fragment_MethodCallCodeFragment_works_when_niladic()
+        {
+            var method = new MethodCallCodeFragment("Test");
+
+            var result = new CSharpHelper().Fragment(method);
+
+            Assert.Equal(".Test()", result);
+        }
+
+        [Fact]
+        public void Fragment_MethodCallCodeFragment_works_when_chaining()
+        {
+            var method = new MethodCallCodeFragment("Test")
+                .Chain("Test");
+
+            var result = new CSharpHelper().Fragment(method);
+
+            Assert.Equal(".Test().Test()", result);
+        }
+
+        [Fact]
+        public void Fragment_MethodCallCodeFragment_works_when_nested_closure()
+        {
+            var method = new MethodCallCodeFragment(
+                "Test",
+                new NestedClosureCodeFragment("x", new MethodCallCodeFragment("Test")));
+
+            var result = new CSharpHelper().Fragment(method);
+
+            Assert.Equal(".Test(x => x.Test())", result);
+        }
     }
 
     internal class Generic<T>

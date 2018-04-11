@@ -13,6 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Design
     public interface ICSharpHelper
     {
         /// <summary>
+        ///     Generates a method call code fragment.
+        /// </summary>
+        /// <param name="fragment"> The method call. </param>
+        /// <returns> The fragment. </returns>
+        string Fragment([NotNull] MethodCallCodeFragment fragment);
+
+        /// <summary>
         ///     Generates a valid C# identifier from the specified string unique to the scope.
         /// </summary>
         /// <param name="name"> The base identifier name. </param>

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private const string EntityLambdaIdentifier = "entity";
         private const string Language = "CSharp";
 
-        private readonly ICSharpUtilities _cSharpUtilities;
+        private readonly ICSharpHelper _code;
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly IScaffoldingProviderCodeGenerator _legacyProviderCodeGenerator;
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -45,12 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning restore CS0618 // Type or member is obsolete
             [NotNull] IEnumerable<IProviderConfigurationCodeGenerator> providerCodeGenerators,
             [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
-            [NotNull] ICSharpUtilities cSharpUtilities)
+            [NotNull] ICSharpHelper cSharpHelper)
         {
             Check.NotNull(legacyProviderCodeGenerators, nameof(legacyProviderCodeGenerators));
             Check.NotNull(providerCodeGenerators, nameof(providerCodeGenerators));
             Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
-            Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
+            Check.NotNull(cSharpHelper, nameof(cSharpHelper));
 
             if (!legacyProviderCodeGenerators.Any() && !providerCodeGenerators.Any())
             {
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _legacyProviderCodeGenerator = legacyProviderCodeGenerators.LastOrDefault();
             _providerConfigurationCodeGenerator = providerCodeGenerators.LastOrDefault();
             _annotationCodeGenerator = annotationCodeGenerator;
-            _cSharpUtilities = cSharpUtilities;
+            _code = cSharpHelper;
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     _sb.Append("optionsBuilder")
                         .Append(
                             _providerConfigurationCodeGenerator != null
-                                ? _cSharpUtilities.Generate(
+                                ? _code.Fragment(
                                     _providerConfigurationCodeGenerator.GenerateUseProvider(connectionString))
 #pragma warning disable CS0618 // Type or member is obsolete
                                 : _legacyProviderCodeGenerator.GenerateUseProvider(connectionString, Language))
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
                         ? _annotationCodeGenerator.GenerateFluentApi(model, annotation, Language)
 #pragma warning restore CS0618 // Type or member is obsolete
-                        : _cSharpUtilities.Generate(methodCall);
+                        : _code.Fragment(methodCall);
 
                     if (line != null)
                     {
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
                         ? _annotationCodeGenerator.GenerateFluentApi(entityType, annotation, Language)
 #pragma warning restore CS0618 // Type or member is obsolete
-                        : _cSharpUtilities.Generate(methodCall);
+                        : _code.Fragment(methodCall);
 
                     if (line != null)
                     {
@@ -455,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (explicitName)
             {
                 lines.Add($".{nameof(RelationalKeyBuilderExtensions.HasName)}" +
-                    $"({_cSharpUtilities.DelimitString(key.Relational().Name)})");
+                    $"({_code.Literal(key.Relational().Name)})");
             }
 
             var annotationsToRemove = new List<IAnnotation>();
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
                         ? _annotationCodeGenerator.GenerateFluentApi(key, annotation, Language)
 #pragma warning restore CS0618 // Type or member is obsolete
-                        : _cSharpUtilities.Generate(methodCall);
+                        : _code.Fragment(methodCall);
 
                     if (line != null)
                     {
@@ -499,10 +499,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (explicitTable)
             {
-                var parameterString = _cSharpUtilities.DelimitString(tableName);
+                var parameterString = _code.Literal(tableName);
                 if (explicitSchema)
                 {
-                    parameterString += ", " + _cSharpUtilities.DelimitString(schema);
+                    parameterString += ", " + _code.Literal(schema);
                 }
 
                 var lines = new List<string>
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 lines.Add(
                     $".{nameof(RelationalIndexBuilderExtensions.HasName)}" +
-                    $"({_cSharpUtilities.DelimitString(index.Relational().Name)})");
+                    $"({_code.Literal(index.Relational().Name)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
@@ -540,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 lines.Add(
                     $".{nameof(RelationalIndexBuilderExtensions.HasFilter)}" +
-                    $"({_cSharpUtilities.DelimitString(index.Relational().Filter)})");
+                    $"({_code.Literal(index.Relational().Filter)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Filter);
             }
 
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
                         ? _annotationCodeGenerator.GenerateFluentApi(index, annotation, Language)
 #pragma warning restore CS0618 // Type or member is obsolete
-                        : _cSharpUtilities.Generate(methodCall);
+                        : _code.Fragment(methodCall);
 
                     if (line != null)
                     {
@@ -609,7 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     lines.Add(
                         $".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}" +
-                        $"({_cSharpUtilities.DelimitString(columnName)})");
+                        $"({_code.Literal(columnName)})");
                 }
 
                 var columnType = property.GetConfiguredColumnType();
@@ -618,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     lines.Add(
                         $".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}" +
-                        $"({_cSharpUtilities.DelimitString(columnType)})");
+                        $"({_code.Literal(columnType)})");
                 }
 
                 var maxLength = property.GetMaxLength();
@@ -627,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     lines.Add(
                         $".{nameof(PropertyBuilder.HasMaxLength)}" +
-                        $"({_cSharpUtilities.GenerateLiteral(maxLength.Value)})");
+                        $"({_code.Literal(maxLength.Value)})");
                 }
             }
 
@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 lines.Add(
                     $".{nameof(PropertyBuilder.IsUnicode)}" +
-                    $"({(property.IsUnicode() == false ? _cSharpUtilities.GenerateLiteral(false) : "")})");
+                    $"({(property.IsUnicode() == false ? "false" : "")})");
             }
 
             if (property.Relational().IsFixedLength)
@@ -648,21 +648,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" +
-                    $"({_cSharpUtilities.GenerateLiteral((dynamic)property.Relational().DefaultValue)})");
+                    $"({_code.UnknownLiteral(property.Relational().DefaultValue)})");
             }
 
             if (property.Relational().DefaultValueSql != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}" +
-                    $"({_cSharpUtilities.DelimitString(property.Relational().DefaultValueSql)})");
+                    $"({_code.Literal(property.Relational().DefaultValueSql)})");
             }
 
             if (property.Relational().ComputedColumnSql != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
-                    $"({_cSharpUtilities.DelimitString(property.Relational().ComputedColumnSql)})");
+                    $"({_code.Literal(property.Relational().ComputedColumnSql)})");
             }
 
             var valueGenerated = property.ValueGenerated;
@@ -717,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
                         ? _annotationCodeGenerator.GenerateFluentApi(property, annotation, Language)
 #pragma warning restore CS0618 // Type or member is obsolete
-                        : _cSharpUtilities.Generate(methodCall);
+                        : _code.Fragment(methodCall);
 
                     if (line != null)
                     {
@@ -779,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canUseDataAnnotations = false;
                 lines.Add(
                     $".{nameof(ReferenceReferenceBuilder.OnDelete)}" +
-                    $"({_cSharpUtilities.GenerateLiteral(foreignKey.DeleteBehavior)})");
+                    $"({_code.Literal(foreignKey.DeleteBehavior)})");
             }
 
             if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
@@ -787,7 +787,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canUseDataAnnotations = false;
                 lines.Add(
                     $".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}" +
-                    $"({_cSharpUtilities.DelimitString(foreignKey.Relational().Name)})");
+                    $"({_code.Literal(foreignKey.Relational().Name)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
@@ -806,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
                         ? _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation, Language)
 #pragma warning restore CS0618 // Type or member is obsolete
-                        : _cSharpUtilities.Generate(methodCall);
+                        : _code.Fragment(methodCall);
 
                     if (line != null)
                     {
@@ -832,15 +832,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (sequence.ClrType != Sequence.DefaultClrType)
             {
-                methodName += $"<{_cSharpUtilities.GetTypeName(sequence.ClrType)}>";
+                methodName += $"<{_code.Reference(sequence.ClrType)}>";
             }
 
-            var parameters = _cSharpUtilities.DelimitString(sequence.Name);
+            var parameters = _code.Literal(sequence.Name);
 
             if (string.IsNullOrEmpty(sequence.Schema)
                 && sequence.Model.Relational().DefaultSchema != sequence.Schema)
             {
-                parameters += $", {_cSharpUtilities.DelimitString(sequence.Schema)}";
+                parameters += $", {_code.Literal(sequence.Schema)}";
             }
 
             var lines = new List<string>
@@ -917,7 +917,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             => annotations.Select(GenerateAnnotation).ToList();
 
         private string GenerateAnnotation(IAnnotation annotation)
-            => $".HasAnnotation({_cSharpUtilities.DelimitString(annotation.Name)}, " +
-            $"{_cSharpUtilities.GenerateLiteral((dynamic)annotation.Value)})";
+            => $".HasAnnotation({_code.Literal(annotation.Name)}, " +
+            $"{_code.UnknownLiteral(annotation.Value)})";
     }
 }

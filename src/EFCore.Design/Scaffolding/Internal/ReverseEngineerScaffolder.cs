@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IDatabaseModelFactory _databaseModelFactory;
         private readonly IScaffoldingModelFactory _factory;
         private readonly ICSharpUtilities _cSharpUtilities;
+        private readonly ICSharpHelper _code;
         private readonly INamedConnectionStringResolver _connectionStringResolver;
         private const string DbContextSuffix = "Context";
         private const string DefaultDbContextName = "Model" + DbContextSuffix;
@@ -38,16 +39,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
             [NotNull] IModelCodeGeneratorSelector modelCodeGeneratorSelector,
             [NotNull] ICSharpUtilities cSharpUtilities,
+            [NotNull] ICSharpHelper cSharpHelper,
             [NotNull] INamedConnectionStringResolver connectionStringResolver)
         {
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
             Check.NotNull(modelCodeGeneratorSelector, nameof(modelCodeGeneratorSelector));
+            Check.NotNull(cSharpHelper, nameof(cSharpHelper));
 
             _databaseModelFactory = databaseModelFactory;
             _factory = scaffoldingModelFactory;
             ModelCodeGeneratorSelector = modelCodeGeneratorSelector;
             _cSharpUtilities = cSharpUtilities;
+            _code = cSharpHelper;
             _connectionStringResolver = connectionStringResolver;
         }
 
@@ -110,10 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var annotatedName = model.Scaffolding().DatabaseName;
                 if (!string.IsNullOrEmpty(annotatedName))
                 {
-                    contextName = _cSharpUtilities.GenerateCSharpIdentifier(
-                        annotatedName + DbContextSuffix,
-                        existingIdentifiers: null,
-                        singularizePluralizer: null);
+                    contextName = _code.Identifier(annotatedName + DbContextSuffix);
                 }
             }
 
