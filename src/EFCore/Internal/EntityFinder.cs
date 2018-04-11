@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task LoadAsync(
+        public virtual async Task LoadAsync(
             INavigation navigation,
             InternalEntityEntry entry,
             CancellationToken cancellationToken = default)
@@ -145,11 +145,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var keyValues = GetLoadValues(navigation, entry);
             if (keyValues != null)
             {
-                return Query(navigation, keyValues).LoadAsync(cancellationToken);
+                await Query(navigation, keyValues).LoadAsync(cancellationToken);
             }
 
             entry.SetIsLoaded(navigation);
-            return Task.CompletedTask;
         }
 
         /// <summary>

@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task SetEntityStateAsync(
+        public virtual async Task SetEntityStateAsync(
             EntityState entityState,
             bool acceptChanges,
             EntityState? forceStateWhenUnknownKey,
@@ -106,11 +106,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (adding)
             {
-                return StateManager.ValueGenerationManager.GenerateAsync(this, cancellationToken);
+                await StateManager.ValueGenerationManager.GenerateAsync(this, cancellationToken);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);
-            return Task.CompletedTask;
         }
 
         private EntityState PropagateToUnknownKey(
