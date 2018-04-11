@@ -54,12 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private Func<QueryContext, TFunc> GetOrAddQueryCore<TFunc>(
             object cacheKey, Func<Func<QueryContext, TFunc>> compiler)
         {
-            Func<QueryContext, TFunc> compiledQuery;
-
             retry:
-            if (!_memoryCache.TryGetValue(cacheKey, out compiledQuery))
+            if (!_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TFunc> compiledQuery))
             {
-                if (!_querySyncObjects.TryAdd(cacheKey, null))
+                if (!_querySyncObjects.TryAdd(cacheKey, value: null))
                 {
                     goto retry;
                 }

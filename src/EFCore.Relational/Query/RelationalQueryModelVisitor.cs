@@ -1201,7 +1201,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.VisitSelectClause(selectClause, queryModel);
 
             if (Expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Select))
+                && (methodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Select)
+                || methodCallExpression.Method.MethodIsClosedFormOf(SelectAsyncMethod)
+                    && selectClause.Selector.Type == typeof(AnonymousObject)))
             {
                 var shapedQuery = methodCallExpression.Arguments[0] as MethodCallExpression;
 
@@ -1227,7 +1229,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             materializer
                                 = Expression.Lambda(
-                                    Expression.Default(materializer.Body.Type),
+                                    Expression.Default(typeof(AnonymousObject)),
                                     materializer.Parameters);
                         }
 

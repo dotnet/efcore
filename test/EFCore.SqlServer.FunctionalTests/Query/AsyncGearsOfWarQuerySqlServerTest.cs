@@ -2188,7 +2188,6 @@ WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')");
         {
             await base.Include_collection_with_complex_OrderBy();
 
-            // Collection Include query should be lifted
             AssertSql(
                 @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
 FROM [Gears] AS [o]
@@ -2201,10 +2200,7 @@ ORDER BY (
                 //
                 @"SELECT [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[AssignedCityName], [o.Reports].[CityOrBirthName], [o.Reports].[Discriminator], [o.Reports].[FullName], [o.Reports].[HasSoulPatch], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId], [o.Reports].[Rank]
 FROM [Gears] AS [o.Reports]
-WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')",
-                //
-                @"SELECT [t].[Nickname], [t].[SquadId], [t].[c], [t].[FullName]
-FROM (
+INNER JOIN (
     SELECT [o0].[Nickname], [o0].[SquadId], (
         SELECT COUNT(*)
         FROM [Weapons] AS [w0]
@@ -2212,26 +2208,15 @@ FROM (
     ) AS [c], [o0].[FullName]
     FROM [Gears] AS [o0]
     WHERE [o0].[Discriminator] = N'Officer'
-) AS [t]",
-                //
-                @"@_outer_FullName='Damon Baird' (Size = 450)
-
-SELECT COUNT(*)
-FROM [Weapons] AS [w1]
-WHERE @_outer_FullName = [w1].[OwnerFullName]",
-                //
-                @"@_outer_FullName='Marcus Fenix' (Size = 450)
-
-SELECT COUNT(*)
-FROM [Weapons] AS [w1]
-WHERE @_outer_FullName = [w1].[OwnerFullName]");
+) AS [t] ON ([o.Reports].[LeaderNickname] = [t].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t].[SquadId])
+WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
 
         public override async Task Include_collection_with_complex_OrderBy2()
         {
             await base.Include_collection_with_complex_OrderBy2();
 
-            // Collection Include query should be lifted
             AssertSql(
                 @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
 FROM [Gears] AS [o]
@@ -2245,10 +2230,7 @@ ORDER BY COALESCE((
                 //
                 @"SELECT [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[AssignedCityName], [o.Reports].[CityOrBirthName], [o.Reports].[Discriminator], [o.Reports].[FullName], [o.Reports].[HasSoulPatch], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId], [o.Reports].[Rank]
 FROM [Gears] AS [o.Reports]
-WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')",
-                //
-                @"SELECT [t].[Nickname], [t].[SquadId], [t].[c], [t].[FullName]
-FROM (
+INNER JOIN (
     SELECT [o0].[Nickname], [o0].[SquadId], CAST(COALESCE((
         SELECT TOP(1) [w0].[IsAutomatic]
         FROM [Weapons] AS [w0]
@@ -2257,21 +2239,9 @@ FROM (
     ), 0) AS bit) AS [c], [o0].[FullName]
     FROM [Gears] AS [o0]
     WHERE [o0].[Discriminator] = N'Officer'
-) AS [t]",
-                //
-                @"@_outer_FullName='Damon Baird' (Size = 450)
-
-SELECT TOP(1) [w1].[IsAutomatic]
-FROM [Weapons] AS [w1]
-WHERE @_outer_FullName = [w1].[OwnerFullName]
-ORDER BY [w1].[Id]",
-                //
-                @"@_outer_FullName='Marcus Fenix' (Size = 450)
-
-SELECT TOP(1) [w1].[IsAutomatic]
-FROM [Weapons] AS [w1]
-WHERE @_outer_FullName = [w1].[OwnerFullName]
-ORDER BY [w1].[Id]");
+) AS [t] ON ([o.Reports].[LeaderNickname] = [t].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t].[SquadId])
+WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
 
         public override async Task Correlated_collection_with_complex_OrderBy()

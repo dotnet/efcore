@@ -1315,7 +1315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             _expression,
                             Expression.Lambda(selector, CurrentParameter))
                         : Expression.Call(
-                            _selectAsync
+                            SelectAsyncMethod
                                 .MakeGenericMethod(CurrentParameter.Type, selector.Type),
                             _expression,
                             Expression.Lambda(
@@ -1325,7 +1325,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private static readonly MethodInfo _selectAsync
+        /// <summary>
+        ///     The _SelectAsync method info.
+        /// </summary>
+        protected static MethodInfo SelectAsyncMethod { get; }
             = typeof(EntityQueryModelVisitor)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(_SelectAsync));

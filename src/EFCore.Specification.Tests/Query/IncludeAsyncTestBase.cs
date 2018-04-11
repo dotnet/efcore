@@ -38,6 +38,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual async Task Include_collection_order_by_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = await context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Where(c => c.CustomerID == "ALFKI")
+                            .OrderBy(c => c.Orders.OrderBy(o => o.EmployeeID).Select(o => o.OrderDate).FirstOrDefault())
+                            .FirstOrDefaultAsync();
+
+                Assert.NotNull(customer);
+                Assert.NotNull(customer.Orders);
+                Assert.Equal(6, customer.Orders.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task Include_closes_reader()
         {
             using (var context = CreateContext())
