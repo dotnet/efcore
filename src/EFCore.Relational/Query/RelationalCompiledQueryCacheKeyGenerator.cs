@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -76,13 +77,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public override bool Equals(object obj)
-                => !(obj is null)
-                   && obj is RelationalCompiledQueryCacheKey
-                   && Equals((RelationalCompiledQueryCacheKey)obj);
+                => obj is RelationalCompiledQueryCacheKey other
+                   && Equals(other);
 
-            private bool Equals(RelationalCompiledQueryCacheKey other)
-                => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
-                   && _useRelationalNulls == other._useRelationalNulls;
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool Equals(in RelationalCompiledQueryCacheKey other)
+                => _useRelationalNulls == other._useRelationalNulls
+                   && _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey);
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

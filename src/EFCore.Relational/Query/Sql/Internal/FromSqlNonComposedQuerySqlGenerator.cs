@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -61,7 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IRelationalValueBufferFactory CreateValueBufferFactory(
-            IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader dataReader)
+            IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory,
+            DbDataReader dataReader,
+            bool richDataErrorHandling)
         {
             Check.NotNull(relationalValueBufferFactoryFactory, nameof(relationalValueBufferFactoryFactory));
             Check.NotNull(dataReader, nameof(dataReader));
@@ -101,12 +104,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                             columnExpression.Type,
                             columnExpression.Property,
                             Dependencies.TypeMappingSource,
-                            readerColumn.Ordinal);
+                            readerColumn.Ordinal,
+                            fromLeftOuterJoin: false);
                     }
                 }
             }
 
-            return relationalValueBufferFactoryFactory.Create(types);
+            return relationalValueBufferFactoryFactory.Create(types, richDataErrorHandling);
         }
     }
 }

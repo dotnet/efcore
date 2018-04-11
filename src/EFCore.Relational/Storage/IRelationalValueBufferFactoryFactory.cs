@@ -42,7 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
         /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
+        /// <param name="richDataErrorHandling"> Generate rich data error handling support. </param>
         /// <returns> The newly created <see cref="IRelationalValueBufferFactoryFactory" />. </returns>
-        IRelationalValueBufferFactory Create([NotNull] IReadOnlyList<TypeMaterializationInfo> types);
+        IRelationalValueBufferFactory Create(
+            [NotNull] IReadOnlyList<TypeMaterializationInfo> types, bool richDataErrorHandling);
     }
 }

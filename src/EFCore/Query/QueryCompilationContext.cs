@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -62,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             LinqOperatorProvider = linqOperatorProvider;
             ContextType = dependencies.CurrentContext.Context.GetType();
+            ContextOptions = dependencies.ContextOptions;
             TrackQueryResults = trackQueryResults;
         }
 
@@ -144,12 +146,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual ILinqOperatorProvider LinqOperatorProvider { get; }
 
         /// <summary>
-        ///     Gets the type of the context./
+        ///     Gets the type of the context.
         /// </summary>
         /// <value>
         ///     The type of the context.
         /// </value>
         public virtual Type ContextType { get; }
+
+        /// <summary>
+        ///     Gets the options for the DbContext.
+        /// </summary>
+        /// <value>
+        ///     The options for the DbContext.
+        /// </value>
+        public virtual IDbContextOptions ContextOptions { get; }
 
         /// <summary>
         ///     Gets a value indicating the default configured tracking behavior.

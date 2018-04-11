@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -59,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The value at the requested index. </returns>
         public object this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _values[_offset + index];
             [param: CanBeNull] set => _values[_offset + index] = value;
         }

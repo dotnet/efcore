@@ -35,11 +35,6 @@
       "Kind": "Removal"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory",
-      "MemberId": "Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactory Create(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.TypeMaterializationInfo> types)",
-      "Kind": "Addition"
-    },
-    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator : Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator",
       "MemberId": "System.String GenerateCreateScript()",
       "Kind": "Addition"
@@ -112,6 +107,26 @@
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
       "MemberId": "System.Reflection.MethodInfo get_FastQueryMethod()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactory CreateValueBufferFactory(Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, System.Data.Common.DbDataReader dataReader)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Query.Sql.DefaultQuerySqlGenerator : Remotion.Linq.Parsing.ThrowingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor, Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+      "MemberId": "public Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactory CreateValueBufferFactory(Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, System.Data.Common.DbDataReader dataReader)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory",
+      "MemberId": "Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactory Create(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.TypeMaterializationInfo> types, System.Boolean richDataErrorHandling)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactory CreateValueBufferFactory(Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, System.Data.Common.DbDataReader dataReader, System.Boolean richDataErrorHandling)",
       "Kind": "Addition"
     }
 ]

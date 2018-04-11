@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -234,7 +235,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .ShapedQueryMethod
                     .MakeGenericMethod(shaper.Type),
                 EntityQueryModelVisitor.QueryContextParameter,
-                Expression.Constant(_shaperCommandContextFactory.Create(querySqlGeneratorFunc)),
+                Expression.Constant(
+                    _shaperCommandContextFactory
+                        .Create(
+                            querySqlGeneratorFunc, 
+                            QueryModelVisitor
+                                .QueryCompilationContext
+                                .ContextOptions
+                                .FindExtension<CoreOptionsExtension>()?.IsRichDataErrorHandingEnabled ?? false)),
                 Expression.Constant(shaper));
         }
 

@@ -241,7 +241,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 using (var context = new NullKeyContext(Fixture.CreateOptions(testStore)))
                 {
                     Assert.Equal(
-                        CoreStrings.InvalidKeyValue("ZeroKey", "Id"),
+                        CoreStrings.ErrorMaterializingPropertyNullReference("ZeroKey", "Id", typeof(int)),
                         Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
                 }
             }
@@ -954,17 +954,17 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             using (CreateDatabase3409())
             {
-                using (var context = new MyContext3409(_options))
-                {
-                    var results = context.Parents
-                        .Include(p => p.ChildCollection)
-                        .ThenInclude(c => c.SelfReferenceCollection)
-                        .ToList();
-
-                    Assert.Equal(1, results.Count);
-                    Assert.Equal(1, results[0].ChildCollection.Count);
-                    Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
-                }
+                 using (var context = new MyContext3409(_options))
+                 {
+                     var results = context.Parents
+                         .Include(p => p.ChildCollection)
+                         .ThenInclude(c => c.SelfReferenceCollection)
+                         .ToList();
+                
+                     Assert.Equal(1, results.Count);
+                     Assert.Equal(1, results[0].ChildCollection.Count);
+                     Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
+                 }
 
                 using (var context = new MyContext3409(_options))
                 {
@@ -982,37 +982,37 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     Assert.Equal(2, results.Count(c => c.ParentBackNavigation != null));
                 }
 
-                using (var context = new MyContext3409(_options))
-                {
-                    var results = context.Children
-                        .Select(
-                            c => new
-                            {
-                                SelfReferenceBackNavigation
-                                = EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
-                                ParentBackNavigationB
-                                = EF.Property<IParent3409>(
-                                    EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
-                                    "ParentBackNavigation")
-                            })
-                        .ToList();
-
-                    Assert.Equal(3, results.Count);
-                    Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
-                    Assert.Equal(2, results.Count(c => c.ParentBackNavigationB != null));
-                }
-
-                using (var context = new MyContext3409(_options))
-                {
-                    var results = context.Children
-                        .Include(c => c.SelfReferenceBackNavigation)
-                        .ThenInclude(c => c.ParentBackNavigation)
-                        .ToList();
-
-                    Assert.Equal(3, results.Count);
-                    Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
-                    Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
-                }
+                 using (var context = new MyContext3409(_options))
+                 {
+                     var results = context.Children
+                         .Select(
+                             c => new
+                             {
+                                 SelfReferenceBackNavigation
+                                 = EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
+                                 ParentBackNavigationB
+                                 = EF.Property<IParent3409>(
+                                     EF.Property<IChild3409>(c, "SelfReferenceBackNavigation"),
+                                     "ParentBackNavigation")
+                             })
+                         .ToList();
+                
+                     Assert.Equal(3, results.Count);
+                     Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                     Assert.Equal(2, results.Count(c => c.ParentBackNavigationB != null));
+                 }
+                
+                 using (var context = new MyContext3409(_options))
+                 {
+                     var results = context.Children
+                         .Include(c => c.SelfReferenceBackNavigation)
+                         .ThenInclude(c => c.ParentBackNavigation)
+                         .ToList();
+                
+                     Assert.Equal(3, results.Count);
+                     Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                     Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
+                 }
             }
         }
 

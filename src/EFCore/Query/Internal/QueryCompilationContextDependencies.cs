@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -26,19 +27,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
-            [NotNull] ICurrentDbContext currentContext)
+            [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IDbContextOptions contextOptions)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
             Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(contextOptions, nameof(contextOptions));
 
             Model = model;
             Logger = logger;
             EntityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
             RequiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
             CurrentContext = currentContext;
+            ContextOptions = contextOptions;
         }
 
         /// <summary>
@@ -75,13 +79,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public IDbContextOptions ContextOptions { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public QueryCompilationContextDependencies With([NotNull] IModel model)
             => new QueryCompilationContextDependencies(
                 model,
                 Logger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
-                CurrentContext);
+                CurrentContext,
+                ContextOptions);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -93,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 logger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
-                CurrentContext);
+                CurrentContext,
+                ContextOptions);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -105,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Logger,
                 entityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
-                CurrentContext);
+                CurrentContext,
+                ContextOptions);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -118,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Logger,
                 EntityQueryModelVisitorFactory,
                 requiresMaterializationExpressionVisitorFactory,
-                CurrentContext);
+                CurrentContext,
+                ContextOptions);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -130,6 +144,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Logger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
-                currentContext);
+                currentContext,
+                ContextOptions);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public QueryCompilationContextDependencies With([NotNull] IDbContextOptions contextOptions)
+            => new QueryCompilationContextDependencies(
+                Model,
+                Logger,
+                EntityQueryModelVisitorFactory,
+                RequiresMaterializationExpressionVisitorFactory,
+                CurrentContext,
+                contextOptions);
     }
 }

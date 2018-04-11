@@ -110,7 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var valueBufferAssignmentExpressions
                             = typedRelationalValueBufferFactoryFactory
-                                .CreateAssignmentExpressions(defaultQuerySqlGenerator.GetTypeMaterializationInfos());
+                                .CreateAssignmentExpressions(
+                                    defaultQuerySqlGenerator.GetTypeMaterializationInfos(),
+                                    QueryCompilationContext.ContextOptions
+                                        .FindExtension<CoreOptionsExtension>()?.IsRichDataErrorHandingEnabled ?? false);
 
                         var materializer = (LambdaExpression)entityShaper.MaterializerExpression;
 

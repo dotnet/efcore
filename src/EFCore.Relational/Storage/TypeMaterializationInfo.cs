@@ -25,11 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The index of the underlying result set that should be used for this type,
         ///     or -1 if no index mapping is needed.
         /// </param>
+        /// <param name="fromLeftOuterJoin"> Whether or not the value is coming from a LEFT OUTER JOIN operation. </param>
         public TypeMaterializationInfo(
             [NotNull] Type modelClrType,
             [CanBeNull] IProperty property,
-            [CanBeNull] IRelationalTypeMappingSource typeMappingSource, 
-            int index = -1)
+            [CanBeNull] IRelationalTypeMappingSource typeMappingSource,
+            int index = -1,
+            bool? fromLeftOuterJoin = null)
         {
             Check.NotNull(modelClrType, nameof(modelClrType));
 
@@ -43,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Mapping = mapping;
             Property = property;
             Index = index;
+            IsFromLeftOuterJoin = fromLeftOuterJoin;
         }
 
         /// <summary>
@@ -72,6 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual int Index { get; }
 
         /// <summary>
+        ///     Whether or not the value is coming from a LEFT OUTER JOIN operation.
+        /// </summary>
+        public virtual bool? IsFromLeftOuterJoin { get; }
+        
+        /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="other"> The object to compare with the current object. </param>
@@ -81,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                && ModelClrType == other.ModelClrType
                && Equals(Mapping, other.Mapping)
                && Equals(Property, other.Property)
-               && Index == other.Index;
+               && Index == other.Index
+               && IsFromLeftOuterJoin == other.IsFromLeftOuterJoin;
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
@@ -107,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 hashCode = (hashCode * 397) ^ (Mapping?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ (Property?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ Index;
+                hashCode = (hashCode * 397) ^ (IsFromLeftOuterJoin?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }

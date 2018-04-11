@@ -47,70 +47,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue TryReadValue<TValue>(
-            in ValueBuffer valueBuffer,
-            int index,
-            IPropertyBase property = null)
-        {
-            var untypedValue = valueBuffer[index];
-            try
-            {
-                return (TValue)untypedValue;
-            }
-            catch (Exception e)
-            {
-                ThrowReadValueException<TValue>(e, untypedValue, property);
-            }
-
-            return default;
-        }
+            in ValueBuffer valueBuffer, int index, IPropertyBase property = null)
+            => (TValue)valueBuffer[index];
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static readonly MethodInfo ThrowReadValueExceptionMethod
-            = typeof(EntityMaterializerSource).GetTypeInfo()
-                .GetDeclaredMethod(nameof(ThrowReadValueException));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TValue ThrowReadValueException<TValue>(
-            Exception exception, object value, IPropertyBase property = null)
-        {
-            var expectedType = typeof(TValue);
-            var actualType = value?.GetType();
-
-            string message;
-
-            if (property != null)
-            {
-                var entityType = property.DeclaringType.DisplayName();
-                var propertyName = property.Name;
-
-                message
-                    = exception is NullReferenceException
-                        ? CoreStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
-                        : exception is InvalidCastException
-                            ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
-                            : CoreStrings.ErrorMaterializingProperty(entityType, propertyName);
-            }
-            else
-            {
-                message
-                    = exception is NullReferenceException
-                        ? CoreStrings.ErrorMaterializingValueNullReference(expectedType)
-                        : exception is InvalidCastException
-                            ? CoreStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
-                            : CoreStrings.ErrorMaterializingValue;
-            }
-
-            throw new InvalidOperationException(message, exception);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Obsolete("Use CreateReadValueExpression making sure to pass bound property if available.")]
+        [Obsolete(message: "Use CreateReadValueExpression making sure to pass bound property if available.")]
         public virtual Expression CreateReadValueCallExpression(Expression valueBuffer, int index)
             => Expression.Call(valueBuffer, ValueBuffer.GetValueMethod, Expression.Constant(index));
 
@@ -137,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (constructorBinding == null)
             {
-                var constructorInfo = entityType.ClrType.GetDeclaredConstructor(null);
+                var constructorInfo = entityType.ClrType.GetDeclaredConstructor(types: null);
 
                 if (constructorInfo == null)
                 {
@@ -165,9 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var properties = new HashSet<IPropertyBase>(
                 entityType.GetServiceProperties().Cast<IPropertyBase>()
-                    .Concat(entityType
-                        .GetProperties()
-                        .Where(p => !p.IsShadowProperty)));
+                    .Concat(
+                        entityType
+                            .GetProperties()
+                            .Where(p => !p.IsShadowProperty)));
 
             foreach (var consumedProperty in constructorBinding
                 .ParameterBindings
@@ -183,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return constructorExpression;
             }
 
-            var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, "instance");
+            var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, name: "instance");
 
             var blockExpressions
                 = new List<Expression>
@@ -192,7 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         instanceVariable,
                         constructorExpression)
                 };
-
 
             blockExpressions.AddRange(
                 from property in properties
@@ -229,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityType, e =>
                     {
                         var materializationContextParameter
-                            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+                            = Expression.Parameter(typeof(MaterializationContext), name: "materializationContext");
 
                         return Expression.Lambda<Func<MaterializationContext, object>>(
                                 CreateMaterializeExpression(e, materializationContextParameter),

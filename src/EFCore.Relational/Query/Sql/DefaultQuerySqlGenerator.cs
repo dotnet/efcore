@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -146,20 +147,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="relationalValueBufferFactoryFactory"> The relational value buffer factory. </param>
         /// <param name="dataReader"> The data reader. </param>
+        /// <param name="richDataErrorHandling"> Generate rich data error handling support. </param>
         /// <returns>
         ///     The new value buffer factory.
         /// </returns>
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
-            IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader dataReader)
+            IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory,
+            DbDataReader dataReader,
+            bool richDataErrorHandling)
         {
             Check.NotNull(relationalValueBufferFactoryFactory, nameof(relationalValueBufferFactoryFactory));
 
             return relationalValueBufferFactoryFactory
-                .Create(SelectExpression.GetMappedProjectionTypes().ToArray());
+                .Create(GetTypeMaterializationInfos(), richDataErrorHandling);
         }
 
         /// <summary>
-        ///     Information about the types being projected by this query.
+        ///     Returns information about the types being projected by this query.
         /// </summary>
         public virtual IReadOnlyList<TypeMaterializationInfo> GetTypeMaterializationInfos()
             => SelectExpression.GetMappedProjectionTypes().ToArray();
