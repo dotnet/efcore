@@ -907,6 +907,17 @@ GROUP BY [od.Order].[CustomerID], [od.Product].[ProductName]");
             AssertSql(" ");
         }
 
+        public override void Select_anonymous_GroupBy_Aggregate()
+        {
+            base.Select_anonymous_GroupBy_Aggregate();
+
+            AssertSql(
+                @"SELECT MIN([o].[OrderDate]) AS [Min], MAX([o].[OrderDate]) AS [Max], SUM([o].[OrderID]) AS [Sum], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300
+GROUP BY [o].[CustomerID]");
+        }
+
         public override void GroupBy_OrderBy_key()
         {
             base.GroupBy_OrderBy_key();
@@ -1403,6 +1414,16 @@ ORDER BY [e].[Title]");
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1
 ORDER BY [e].[EmployeeID]");
+        }
+
+        public override void GroupBy_Select_First_GroupBy()
+        {
+            base.GroupBy_Select_First_GroupBy();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[City]");
         }
 
         public override void Select_GroupBy()

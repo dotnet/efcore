@@ -240,8 +240,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
+                    expression = UnwrapAliasExpression(expression);
                     expression = new ExplicitCastExpression(expression, outputType);
-                    Expression averageExpression = new SqlFunctionExpression("AVG", outputType, new[] { expression });
+                    Expression averageExpression = new SqlFunctionExpression(
+                        "AVG",
+                        outputType,
+                        new[] { expression });
 
                     if (nonNullableInputType == typeof(float))
                     {
@@ -823,7 +827,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-                    var minExpression = new SqlFunctionExpression("MIN", handlerContext.QueryModel.SelectClause.Selector.Type, new[] { expression });
+                    var minExpression = new SqlFunctionExpression(
+                        "MIN",
+                        handlerContext.QueryModel.SelectClause.Selector.Type,
+                        new[] { UnwrapAliasExpression(expression) });
 
                     handlerContext.SelectExpression.SetProjectionExpression(minExpression);
 
@@ -849,7 +856,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-                    var maxExpression = new SqlFunctionExpression("MAX", handlerContext.QueryModel.SelectClause.Selector.Type, new[] { expression });
+                    var maxExpression = new SqlFunctionExpression(
+                        "MAX",
+                        handlerContext.QueryModel.SelectClause.Selector.Type,
+                        new[] { UnwrapAliasExpression(expression) });
 
                     handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
 
@@ -935,7 +945,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
 
                     expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
-                    Expression sumExpression = new SqlFunctionExpression("SUM", inputType, new[] { expression });
+                    Expression sumExpression = new SqlFunctionExpression(
+                        "SUM", inputType, new[] { UnwrapAliasExpression(expression) });
                     if (inputType.UnwrapNullableType() == typeof(float))
                     {
                         sumExpression = new ExplicitCastExpression(sumExpression, inputType);
@@ -1000,6 +1011,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 selectExpression.ExplodeStarProjection();
             }
         }
+
+        private static Expression UnwrapAliasExpression(Expression expression)
+            => (expression as AliasExpression)?.Expression ?? expression;
 
         private static readonly MethodInfo _transformClientExpressionMethodInfo
             = typeof(RelationalResultOperatorHandler).GetTypeInfo()

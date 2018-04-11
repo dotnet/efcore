@@ -1021,6 +1021,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
+        [ConditionalFact]
+        public virtual void Select_anonymous_GroupBy_Aggregate()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderID < 10300)
+                        .Select(o => new { A = o.CustomerID, B = o.OrderDate, C = o.OrderID })
+                        .GroupBy(e => e.A)
+                        .Select(
+                            g => new
+                            {
+                                Min = g.Min(o => o.B),
+                                Max = g.Max(o => o.B),
+                                Sum = g.Sum(o => o.C),
+                                Avg = g.Average(o => o.C)
+                            }));
+        }
+
         #endregion
 
         #region GroupByAggregateComposition
