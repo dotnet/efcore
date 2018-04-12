@@ -495,7 +495,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     t.Name,
                     StringComparison.OrdinalIgnoreCase),
                 (s, t, c) => string.Equals(s.GetRootType().Name, t.GetRootType().Name, StringComparison.OrdinalIgnoreCase),
-                (s, t, c) => s.EntityTypes.Any(se => t.EntityTypes.Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))));
+                (s, t, c) => s.EntityTypes.Any(se => t.EntityTypes.Any(te =>
+                    string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1488,12 +1489,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     foreach (var keyProperty in targetKey.Properties)
                     {
                         var sourceProperty = diffContext.FindSource(keyProperty);
-                        if (sourceProperty?.ClrType != keyProperty.ClrType)
+                        if (sourceProperty == null)
                         {
                             break;
                         }
 
-                        keyPropertiesMap.Add(sourceProperty);
+                        var keySourceProperty = sourceEntityType.GetProperties().FirstOrDefault(p =>
+                            p.ClrType == keyProperty.ClrType
+                            && p.Relational().ColumnName == sourceProperty.Relational().ColumnName);
+                        if (keySourceProperty == null)
+                        {
+                            break;
+                        }
+
+                        keyPropertiesMap.Add(keySourceProperty);
                     }
 
                     if (keyPropertiesMap.Count == targetKey.Properties.Count)

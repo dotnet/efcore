@@ -615,7 +615,13 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                                         eb.HasIndex(e => e.Id);
 
                                         eb.OwnsOne(e => e.EntityWithStringProperty);
-                                    });
+
+                                        eb.HasData(new EntityWithTwoProperties
+                                        {
+                                            AlternateId = 1
+                                        });
+                                    })
+                            .HasData(new EntityWithOneProperty{Id = 1});
                     },
                 GetHeading() + @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
@@ -627,6 +633,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         b.HasKey(""Id"");
 
         b.ToTable(""EntityWithOneProperty"");
+
+        b.HasData(
+            new { Id = 1 }
+        );
     });
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
@@ -663,6 +673,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                             .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Id"")
                             .OnDelete(DeleteBehavior.Cascade);
                     });
+
+                b1.HasData(
+                    new { AlternateId = 1, Id = 0 }
+                );
             });
     });
 ",

@@ -6738,6 +6738,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void SeedData_type_with_ownership_no_changes()
+        {
+            Execute(
+                common =>
+                {
+                    common.Ignore<Customer>();
+                    common.Entity<Order>(
+                        x =>
+                        {
+                            x.Property<int>("_secretId");
+                            x.HasData(new Order(42)
+                            {
+                                Id = 1
+                            });
+                            x.OwnsOne(y => y.Billing).HasData(new
+                            {
+                                OrderId = 1,
+                                AddressLine1 = "billing"
+                            });
+                            x.OwnsOne(y => y.Shipping).HasData(new
+                            {
+                                OrderId = 1,
+                                AddressLine2 = "shipping"
+                            });
+                        });
+                },
+                _ => { },
+                _ => { },
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [Fact]
         public void Move_properties_to_owned_type()
         {
             Execute(

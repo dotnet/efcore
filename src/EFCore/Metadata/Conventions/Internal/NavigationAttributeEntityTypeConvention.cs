@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+        protected virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
             => _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         private Type FindCandidateNavigationWithAttributePropertyType([NotNull] PropertyInfo propertyInfo)
