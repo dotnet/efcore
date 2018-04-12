@@ -56,7 +56,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                             new SqlFunctionExpression("GETDATE", memberExpression.Type);
 
                     case nameof(DateTime.UtcNow):
-                        var getUtcDate = new SqlFunctionExpression("GETUTCDATE", memberExpression.Type);
+                        var getUtcDate = declaringType == typeof(DateTimeOffset) ?
+                            new SqlFunctionExpression("SYSUTCDATETIME", memberExpression.Type) :
+                            new SqlFunctionExpression("GETUTCDATE", memberExpression.Type);
                         return declaringType == typeof(DateTimeOffset)
                             ? (Expression)new ExplicitCastExpression(getUtcDate, typeof(DateTimeOffset))
                             : getUtcDate;

@@ -865,7 +865,7 @@ WHERE [o].[OrderDate] = SYSDATETIMEOFFSET()");
             base.Where_datetimeoffset_utcnow_component();
             AssertSql(@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] = CAST(GETUTCDATE() AS datetimeoffset)");
+WHERE [o].[OrderDate] = CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
 #endif
 

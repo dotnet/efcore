@@ -2909,7 +2909,7 @@ WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()");
             AssertSql(
                 @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE [m].[Timeline] <> CAST(GETUTCDATE() AS datetimeoffset)");
+WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
 #endif
 
