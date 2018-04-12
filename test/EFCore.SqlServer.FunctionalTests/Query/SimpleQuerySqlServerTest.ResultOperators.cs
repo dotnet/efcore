@@ -1140,5 +1140,14 @@ WHERE [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI', N'ANATR')");
 FROM [Customers] AS [c]
 WHERE ([c].[City] = N'México D.F.') AND [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI', N'ANATR')");
         }
+
+        public override void Cast_to_same_Type_Count_works()
+        {
+            base.Cast_to_same_Type_Count_works();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]");
+        }
     }
 }

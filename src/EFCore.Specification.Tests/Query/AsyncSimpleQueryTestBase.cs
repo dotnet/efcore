@@ -3802,5 +3802,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .Contains(o.OrderID)),
                 entryCount: 8);
         }
+
+        [ConditionalFact]
+        public virtual async Task Cast_to_same_Type_CountAsync_works()
+        {
+            await AssertSingleResult<Customer>(cs => cs.Cast<Customer>().CountAsync());
+        }
     }
 }

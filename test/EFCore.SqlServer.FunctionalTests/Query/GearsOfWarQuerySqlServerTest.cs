@@ -6806,6 +6806,16 @@ ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
             AssertSql(" ");
         }
 
+        public override void Cast_to_derived_type_after_OfType_works()
+        {
+            base.Cast_to_derived_type_after_OfType_works();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] = N'Officer'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

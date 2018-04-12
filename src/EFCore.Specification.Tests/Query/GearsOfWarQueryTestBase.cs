@@ -4792,6 +4792,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(o => o.Reports.Where(g => g.HasSoulPatch).ToList()));
         }
 
+        [ConditionalFact]
+        public virtual void Cast_to_derived_type_causes_client_eval()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidCastException>(
+                    () => context.Gears.Cast<Officer>().ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Cast_to_derived_type_after_OfType_works()
+        {
+            AssertQuery<Gear>(
+                gs => gs.OfType<Officer>().Cast<Officer>());
+        }
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

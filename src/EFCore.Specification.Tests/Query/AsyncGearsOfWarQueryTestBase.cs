@@ -1614,5 +1614,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .OrderBy(o => o.Weapons.Count)
                         .Select(o => o.Reports.Where(g => g.HasSoulPatch).ToList()));
         }
+
+        [ConditionalFact]
+        public virtual async Task Cast_to_derived_type_causes_client_eval()
+        {
+            using (var context = CreateContext())
+            {
+                await Assert.ThrowsAsync<InvalidCastException>(
+                    () => context.Gears.Cast<Officer>().ToListAsync());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Cast_to_derived_type_after_OfType_works()
+        {
+            await AssertQuery<Gear>(
+                gs => gs.OfType<Officer>().Cast<Officer>());
+        }
     }
 }
