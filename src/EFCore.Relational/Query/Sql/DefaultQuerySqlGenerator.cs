@@ -270,11 +270,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 _relationalCommandBuilder.Append("GROUP BY ");
                 GenerateList(selectExpression.GroupBy);
+            }
 
-                if (selectExpression.Having != null)
-                {
-                    GenerateHaving(selectExpression.Having);
-                }
+            if (selectExpression.Having != null)
+            {
+                GenerateHaving(selectExpression.Having);
             }
 
             if (selectExpression.OrderBy.Count > 0)
@@ -1993,7 +1993,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 // All current Extension expressions have value type children
                 _isSearchCondition = false;
-                var newExpression = base.VisitExtension(extensionExpression);
+
+                // We skip selectExpression here because it will be processed by outer visitor when generating SQL
+                var newExpression = extensionExpression is SelectExpression
+                    ? extensionExpression
+                    : base.VisitExtension(extensionExpression);
 
                 _isSearchCondition = parentIsSearchCondition;
 

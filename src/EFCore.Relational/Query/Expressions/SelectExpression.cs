@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -85,7 +86,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         internal void DetachContext()
         {
             // TODO: Remove dependency on QCC. #11601
-            _queryCompilationContext = null;
+            if (!Debugger.IsAttached)
+            {
+                _queryCompilationContext = null;
+            }
         }
 
         /// <summary>
@@ -263,6 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     _offset = _offset,
                     _isDistinct = _isDistinct,
                     Predicate = Predicate,
+                    Having = Having,
                     ProjectStarTable = ProjectStarTable,
                     IsProjectStar = IsProjectStar
                 };
@@ -299,6 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _offset = null;
             _isDistinct = false;
             Predicate = null;
+            Having = null;
             ProjectStarTable = null;
             IsProjectStar = false;
         }
@@ -314,6 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             => !IsProjectStar
                && !IsDistinct
                && Predicate == null
+               && Having == null
                && Limit == null
                && Offset == null
                && Projection.Count == 0
@@ -415,8 +422,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                         ? new Ordering(newExpression, ordering.OrderingDirection)
                         : ordering);
             }
-            subquery.Predicate = Predicate;
 
+            subquery.Predicate = Predicate;
+            subquery.Having = Having;
             subquery._limit = _limit;
             subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
@@ -1004,9 +1012,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     TODO
+        ///     Replaces current ordering with expressions passed as parameter
         /// </summary>
         /// <param name="orderings"> The orderings expressions. </param>
+        [Obsolete("If you need to override this method then raise an issue at https://github.com/aspnet/EntityFrameworkCore")]
         public virtual void ReplaceOrderBy([NotNull] IEnumerable<Ordering> orderings)
         {
             Check.NotNull(orderings, nameof(orderings));
@@ -1199,24 +1208,142 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </remarks>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            foreach (var expression in Projection)
+            visitor.Visit(_offset);
+            visitor.Visit(_limit);
+            visitor.Visit(ProjectStarTable);
+
+            foreach (var projection in _starProjection)
             {
-                visitor.Visit(expression);
+                visitor.Visit(projection);
             }
 
-            foreach (var tableExpressionBase in Tables)
+            foreach (var projection in _projection)
             {
-                visitor.Visit(tableExpressionBase);
+                visitor.Visit(projection);
+            }
+
+            foreach (var table in _tables)
+            {
+                visitor.Visit(table);
             }
 
             visitor.Visit(Predicate);
 
-            foreach (var ordering in OrderBy)
+            foreach (var groupBy in _groupBy)
             {
-                visitor.Visit(ordering.Expression);
+                visitor.Visit(groupBy);
+            }
+
+            visitor.Visit(Having);
+
+            foreach (var orderBy in _orderBy)
+            {
+                visitor.Visit(orderBy.Expression);
             }
 
             return this;
+        }
+
+        internal void UpdateTableReference(TableExpressionBase oldTable, TableExpressionBase newTable)
+        {
+            var visitor = new SqlTableReferenceReplacingVisitor(
+                    oldTable,
+                    newTable);
+
+            _offset = visitor.Visit(_offset);
+            _limit = visitor.Visit(_limit);
+
+            ProjectStarTable = (TableExpressionBase)visitor.Visit(ProjectStarTable);
+
+            UpdateProjection(visitor, _starProjection);
+            UpdateProjection(visitor, _projection);
+
+            for (var i = 0; i < _tables.Count; i++)
+            {
+                _tables[i] = (TableExpressionBase)visitor.Visit(_tables[i]);
+            }
+
+            Predicate = visitor.Visit(Predicate);
+
+            for (var i = 0; i < _groupBy.Count; i++)
+            {
+                _groupBy[i] = visitor.Visit(_groupBy[i]);
+            }
+
+            Having = visitor.Visit(Having);
+
+            for (var i = 0; i < _orderBy.Count; i++)
+            {
+                var newOrderBy = visitor.Visit(_orderBy[i].Expression);
+
+                if (newOrderBy != _orderBy[i].Expression)
+                {
+                    _orderBy[i] = new Ordering(newOrderBy, _orderBy[i].OrderingDirection);
+                }
+            }
+        }
+
+        private void UpdateProjection(ExpressionVisitor visitor, List<Expression> projection)
+        {
+            for (var i = 0; i < projection.Count; i++)
+            {
+                var oldProjection = projection[i];
+                projection[i] = visitor.Visit(oldProjection);
+
+                var currentOrderingIndex = _orderBy.FindIndex(e => e.Expression.Equals(oldProjection));
+
+                if (currentOrderingIndex != -1)
+                {
+                    var oldOrdering = _orderBy[currentOrderingIndex];
+
+                    _orderBy.RemoveAt(currentOrderingIndex);
+                    _orderBy.Insert(currentOrderingIndex, new Ordering(projection[i], oldOrdering.OrderingDirection));
+                }
+
+                var memberInfo = _memberInfoProjectionMapping.FirstOrDefault(
+                        kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, oldProjection))
+                    .Key;
+                if (memberInfo != null)
+                {
+                    _memberInfoProjectionMapping[memberInfo] = projection[i];
+                }
+            }
+
+        }
+
+        private class SqlTableReferenceReplacingVisitor : ExpressionVisitor
+        {
+            private readonly TableExpressionBase _oldExpression;
+            private readonly TableExpressionBase _newExpression;
+
+            public SqlTableReferenceReplacingVisitor(
+                TableExpressionBase oldExpression, TableExpressionBase newExpression)
+            {
+                _oldExpression = oldExpression;
+                _newExpression = newExpression;
+            }
+
+            public override Expression Visit(Expression expression)
+            {
+                if (ReferenceEquals(expression, _oldExpression))
+                {
+                    return _newExpression;
+                }
+
+                return base.Visit(expression);
+            }
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                if (node is SelectExpression selectExpression)
+                {
+                    selectExpression.UpdateTableReference(_oldExpression, _newExpression);
+
+                    return selectExpression;
+                }
+
+                return base.VisitExtension(node);
+            }
         }
 
         /// <summary>

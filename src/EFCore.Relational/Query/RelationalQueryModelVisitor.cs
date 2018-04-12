@@ -418,78 +418,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     = _tables.Single(t => !ReferenceEquals(t, joinExpressionBase.TableExpression));
 
                                 selectExpression.RemoveTable(joinExpressionBase);
-
                                 if (ReferenceEquals(selectExpression.ProjectStarTable, joinExpressionBase))
                                 {
-                                    selectExpression.ProjectStarTable = selectExpression.GetTableForQuerySource(newTableExpression.QuerySource);
+                                    selectExpression.ProjectStarTable
+                                        = selectExpression.GetTableForQuerySource(newTableExpression.QuerySource);
                                 }
 
-                                var sqlTableReferenceReplacingVisitor
-                                    = new SqlTableReferenceReplacingVisitor(
-                                        joinExpressionBase.TableExpression,
-                                        newTableExpression);
-
-                                var newProjection
-                                    = selectExpression.Projection
-                                        .Select(expression => sqlTableReferenceReplacingVisitor.Visit(expression))
-                                        .ToList();
-
-                                selectExpression.ReplaceProjection(newProjection);
-
-                                foreach (var tableExpressionBase in selectExpression.Tables)
-                                {
-                                    switch (tableExpressionBase)
-                                    {
-                                        case PredicateJoinExpressionBase predicateJoinExpressionBase:
-                                            predicateJoinExpressionBase.Predicate
-                                                = sqlTableReferenceReplacingVisitor.Visit(predicateJoinExpressionBase.Predicate);
-
-                                            break;
-
-
-                                            // TODO: Visit sub-query (SelectExpression) here?
-                                    }
-                                }
-
-                                selectExpression.Predicate
-                                    = sqlTableReferenceReplacingVisitor.Visit(selectExpression.Predicate);
-
-                                var newOrderBy
-                                    = selectExpression.OrderBy.Select(
-                                            ordering => new Ordering(
-                                                sqlTableReferenceReplacingVisitor.Visit(ordering.Expression), ordering.OrderingDirection))
-                                        .ToList();
-
-                                selectExpression.ReplaceOrderBy(newOrderBy);
+                                selectExpression.UpdateTableReference(joinExpressionBase.TableExpression, newTableExpression);
                             }
                         }
                     }
-                }
-            }
-
-            private class SqlTableReferenceReplacingVisitor : ExpressionVisitor
-            {
-                private readonly TableExpressionBase _oldTableExpression;
-                private readonly TableExpressionBase _newTableExpression;
-
-                public SqlTableReferenceReplacingVisitor(
-                    TableExpressionBase oldTableExpression, TableExpressionBase newTableExpression)
-                {
-                    _oldTableExpression = oldTableExpression;
-                    _newTableExpression = newTableExpression;
-                }
-
-                public override Expression Visit(Expression expression)
-                {
-                    switch (expression)
-                    {
-                        case ColumnExpression columnExpression
-                        when ReferenceEquals(columnExpression.Table, _oldTableExpression):
-                            return new ColumnExpression(
-                                columnExpression.Name, columnExpression.Property, _newTableExpression);
-                    }
-
-                    return base.Visit(expression);
                 }
             }
 
@@ -1046,17 +984,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Visit(sqlPredicateExpression);
 
                     selectExpression.AddToPredicate(sqlPredicateExpression);
+
+                    if (sqlTranslatingExpressionVisitor.ClientEvalPredicate != null)
+                    {
+                        requiresClientFilter = true;
+                        whereClause = new WhereClause(sqlTranslatingExpressionVisitor.ClientEvalPredicate);
+                    }
                 }
                 else
                 {
                     requiresClientFilter = true;
-                }
-
-                if (sqlTranslatingExpressionVisitor.ClientEvalPredicate != null
-                    && selectExpression.Predicate != null)
-                {
-                    requiresClientFilter = true;
-                    whereClause = new WhereClause(sqlTranslatingExpressionVisitor.ClientEvalPredicate);
                 }
             }
 

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// </summary>
     public abstract class JoinExpressionBase : TableExpressionBase
     {
-        private readonly TableExpressionBase _tableExpression;
+        private TableExpressionBase _tableExpression;
 
         /// <summary>
         ///     Specialized constructor for use only by derived class.
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </remarks>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            visitor.Visit(_tableExpression);
+            _tableExpression = (TableExpressionBase)visitor.Visit(_tableExpression);
 
             return this;
         }

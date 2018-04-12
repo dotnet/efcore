@@ -843,10 +843,10 @@ GROUP BY [o].[CustomerID]");
             base.GroupBy_optional_navigation_member_Aggregate();
 
             AssertSql(
-                @"SELECT [o.Customer].[Country]
+                @"SELECT [o.Customer].[Country], COUNT(*) AS [Count]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [o.Customer].[Country]");
+GROUP BY [o.Customer].[Country]");
         }
 
         public override void GroupJoin_complex_GroupBy_Aggregate()
@@ -951,6 +951,41 @@ GROUP BY [o].[CustomerID]
 ORDER BY COUNT(*), [Key]");
         }
 
+        public override void GroupBy_aggregate_Contains()
+        {
+            base.GroupBy_aggregate_Contains();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [e].[CustomerID] AS [Key]
+    FROM [Orders] AS [e]
+    GROUP BY [e].[CustomerID]
+    HAVING COUNT(*) > 30
+)");
+        }
+
+        public override void GroupBy_aggregate_Pushdown()
+        {
+            base.GroupBy_aggregate_Pushdown();
+
+            AssertSql(
+                @"@__p_0='20'
+@__p_1='4'
+
+SELECT [t].*
+FROM (
+    SELECT TOP(@__p_0) [e].[CustomerID] AS [c]
+    FROM [Orders] AS [e]
+    GROUP BY [e].[CustomerID]
+    HAVING COUNT(*) > 10
+    ORDER BY [c]
+) AS [t]
+ORDER BY [t].[c]
+OFFSET @__p_1 ROWS");
+        }
+
         public override void GroupBy_Select_sum_over_unmapped_property()
         {
             base.GroupBy_Select_sum_over_unmapped_property();
@@ -1009,6 +1044,35 @@ FROM [Customers] AS [c]",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[CustomerID]");
+        }
+
+        public override void GroupBy_Aggregate_Join_inverse()
+        {
+            base.GroupBy_Aggregate_Join_inverse();
+
+            AssertContainsSql(
+                @"SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]",
+                //
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
+ORDER BY [o0].[CustomerID]",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
+        public override void GroupBy_Aggregate_Join_inverse2()
+        {
+            base.GroupBy_Aggregate_Join_inverse2();
+
+            AssertContainsSql(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
+ORDER BY [o0].[CustomerID]",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
         }
 
         public override void GroupBy_with_result_selector()

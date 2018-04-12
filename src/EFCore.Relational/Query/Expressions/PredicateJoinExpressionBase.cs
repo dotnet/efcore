@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </value>
         public virtual Expression Predicate
         {
-            get { return _predicate; }
+            get => _predicate;
             [param: NotNull]
             set
             {
@@ -56,8 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </remarks>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            visitor.Visit(TableExpression);
-            visitor.Visit(_predicate);
+            base.VisitChildren(visitor);
+
+            _predicate = visitor.Visit(_predicate);
 
             return this;
         }

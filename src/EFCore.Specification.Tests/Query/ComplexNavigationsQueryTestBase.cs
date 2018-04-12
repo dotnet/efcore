@@ -360,6 +360,38 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Simple_owned_level1_level2_GroupBy_Count()
+        {
+            AssertQueryScalar<Level1>(
+                l1s => l1s.GroupBy(
+                            l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK.Name)
+                        .Select(g => g.Count()),
+                l1s => l1s.GroupBy(
+                            l1 => Maybe(l1.OneToOne_Required_PK,
+                                () => Maybe(l1.OneToOne_Required_PK.OneToOne_Required_PK,
+                                    () => l1.OneToOne_Required_PK.OneToOne_Required_PK.Name)))
+                        .Select(g => g.Count()));
+        }
+
+        [ConditionalFact]
+        public virtual void Simple_owned_level1_level2_GroupBy_Having_Count()
+        {
+            AssertQueryScalar<Level1>(
+                l1s => l1s.GroupBy(
+                            l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK.Name,
+                            l1 => new { Id = ((int?)l1.OneToOne_Required_PK.Id ?? 0) })
+                        .Where(g => g.Min(l1 => l1.Id) > 0)
+                        .Select(g => g.Count()),
+                l1s => l1s.GroupBy(
+                            l1 => Maybe(l1.OneToOne_Required_PK,
+                                () => Maybe(l1.OneToOne_Required_PK.OneToOne_Required_PK,
+                                    () => l1.OneToOne_Required_PK.OneToOne_Required_PK.Name)),
+                            l1 => new { Id = (MaybeScalar<int>(l1.OneToOne_Required_PK, () => l1.OneToOne_Required_PK.Id) ?? 0) })
+                        .Where(g => g.Min(l1 => l1.Id) > 0)
+                        .Select(g => g.Count()));
+        }
+
+        [ConditionalFact]
         public virtual void Simple_owned_level1_level2_level3()
         {
             AssertQuery<Level1>(
@@ -3842,7 +3874,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<InheritanceBase1>(
                 i1s => i1s.Include("ReferenceDifferentType"),
                 expectedIncludes);
-       }
+        }
 
         [ConditionalFact]
         public virtual void String_include_multiple_derived_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()

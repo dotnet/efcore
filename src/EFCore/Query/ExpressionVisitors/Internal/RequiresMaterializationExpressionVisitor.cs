@@ -247,8 +247,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         .FromExpression)
                         .QueryModel.ResultOperators.Last();
 
-                if (MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                    queryModel.SelectClause.Selector, _queryModelVisitor.QueryCompilationContext, out var qsre).Count > 0
+                var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                    queryModel.SelectClause.Selector, _queryModelVisitor.QueryCompilationContext, out var qsre);
+
+                if (qsre != null
                     || groupResultOperator.ElementSelector is MemberInitExpression
                     || groupResultOperator.ElementSelector is NewExpression)
                 {

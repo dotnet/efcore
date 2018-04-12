@@ -7,14 +7,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ComplexNavigationsWeakQuerySqlServerTest : ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQuerySqlServerFixture>
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
         public ComplexNavigationsWeakQuerySqlServerTest(
             ComplexNavigationsWeakQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            _testOutputHelper = testOutputHelper;
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
@@ -43,6 +40,27 @@ FROM [Level1] AS [l]");
             AssertSql(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[Level3_OneToOne_Optional_PK_InverseId]
 FROM [Level1] AS [l1]");
+        }
+
+        public override void Simple_owned_level1_level2_GroupBy_Count()
+        {
+            base.Simple_owned_level1_level2_GroupBy_Count();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Level1] AS [l1]
+GROUP BY [l1].[Level3_Name]");
+        }
+
+        public override void Simple_owned_level1_level2_GroupBy_Having_Count()
+        {
+            base.Simple_owned_level1_level2_GroupBy_Having_Count();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Level1] AS [l1]
+GROUP BY [l1].[Level3_Name]
+HAVING MIN(COALESCE([l1].[Id], 0)) > 0");
         }
 
         public override void Simple_owned_level1_level2_level3()
