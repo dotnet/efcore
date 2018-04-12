@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 CoreStrings.InvalidIncludeLambdaExpression("ThenInclude", lambdaExpression.ToString()),
-                Assert.Throws<ArgumentException>(
+                Assert.Throws<InvalidOperationException>(
                     () =>
                         {
                             using (var context = CreateContext())
