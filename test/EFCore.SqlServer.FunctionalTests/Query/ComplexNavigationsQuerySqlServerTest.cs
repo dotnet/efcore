@@ -1141,7 +1141,7 @@ FROM [LevelThree] AS [e3]
 INNER JOIN [LevelOne] AS [e1] ON [e3].[Id] = (
     SELECT TOP(1) [subQuery30].[Id]
     FROM [LevelTwo] AS [subQuery20]
-    LEFT JOIN [LevelThree] AS [subQuery30] ON [subQuery20].[Id] = [subQuery30].[Level2_Optional_Id]
+    LEFT JOIN [LevelThree] AS [subQuery30] ON ([subQuery20].[Id] = [subQuery30].[Level2_Optional_Id]) OR ([subQuery20].[Id] IS NULL AND [subQuery30].[Level2_Optional_Id] IS NULL)
     ORDER BY [subQuery30].[Id]
 )");
         }

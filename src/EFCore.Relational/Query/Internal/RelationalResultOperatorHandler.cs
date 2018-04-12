@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -497,6 +498,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             key = new[] { sql };
                             break;
 
+                        case NullConditionalExpression nullConditionalExpression:
+                            sql = sqlTranslatingExpressionVisitor.Visit(nullConditionalExpression);
+                            selectExpression.SetProjectionForMemberInfo(groupByKeyMemberInfo, sql);
+                            key = new[] { sql };
+                            break;
 
                         case NewExpression newExpression:
                             key = VisitAndSaveMapping(

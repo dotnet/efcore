@@ -627,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void GroupBy_Constant_with_element_selector_Select_Sum_Min_Key_Max_Avg()
         {
             AssertQuery<Order>(
-                os => os.GroupBy(o => 2, o=> o.OrderID).Select(
+                os => os.GroupBy(o => 2, o => o.OrderID).Select(
                     g =>
                         new
                         {
@@ -1078,6 +1078,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void GroupBy_aggregate_Contains()
+        {
+            AssertQuery<Order>(
+                os => os.Where(
+                    o => os.GroupBy(e => e.CustomerID)
+                        .Where(g => g.Count() > 30)
+                        .Select(g => g.Key)
+                        .Contains(o.CustomerID)),
+                entryCount: 31);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_aggregate_Pushdown()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(e => e.CustomerID)
+                        .Where(g => g.Count() > 10)
+                        .Select(g => g.Key)
+                        .OrderBy(t => t)
+                        .Take(20)
+                        .Skip(4));
+        }
+
+        [ConditionalFact]
         public virtual void GroupBy_Select_sum_over_unmapped_property()
         {
             using (var context = CreateContext())
@@ -1136,6 +1160,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o in os on a.LastOrderID equals o.OrderID
                     select new { c, o },
                 entryCount: 126);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Aggregate_Join_inverse()
+        {
+            AssertQuery<Order, Customer>(
+                (os, cs) =>
+                    from c in cs
+                    join a in os.GroupBy(o => o.CustomerID)
+                                .Where(g => g.Count() > 5)
+                                .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                        on c.CustomerID equals a.CustomerID
+                    join o in os on a.LastOrderID equals o.OrderID
+                    select new { c, o },
+                entryCount: 126);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Aggregate_Join_inverse2()
+        {
+            AssertQuery<Order, Customer>(
+                (os, cs) =>
+                    from c in cs
+                    join a in os.GroupBy(o => o.CustomerID)
+                                .Where(g => g.Count() > 5)
+                                .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                        on c.CustomerID equals a.CustomerID
+                    select new { c, a.LastOrderID },
+                entryCount: 63);
         }
 
         [ConditionalFact]
@@ -1485,7 +1538,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Order>(
                 os =>
-                // TODO: See issue#11215
+                    // TODO: See issue#11215
                     os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
