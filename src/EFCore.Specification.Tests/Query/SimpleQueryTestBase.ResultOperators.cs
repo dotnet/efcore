@@ -1346,5 +1346,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Customer>(cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.All(li => li != c.CustomerID)),
                 entryCount: 4);
         }
+
+        [ConditionalFact]
+        public virtual void Cast_to_same_Type_Count_works()
+        {
+            AssertSingleResult<Customer>(cs => cs.Cast<Customer>().Count());
+        }
     }
 }

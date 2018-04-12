@@ -379,6 +379,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private void AdjustForResultOperators(QueryModel queryModel)
         {
+            var referencedQuerySource
+                = queryModel.SelectClause.Selector.TryGetReferencedQuerySource()
+                  ?? queryModel.MainFromClause.FromExpression.TryGetReferencedQuerySource();
+
+            // If there is any CastResultOperator then we need to do client eval unless it is doing same cast.
+            if (queryModel.ResultOperators.OfType<CastResultOperator>().Any()
+                && referencedQuerySource != null)
+            {
+                PromoteQuerySource(referencedQuerySource);
+
+                return;
+            }
+
             var isSubQuery = _queryModelStack.Count > 0;
             var finalResultOperator = queryModel.ResultOperators.LastOrDefault();
 
@@ -401,10 +414,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return;
                 }
             }
-
-            var referencedQuerySource
-                = queryModel.SelectClause.Selector.TryGetReferencedQuerySource()
-                  ?? queryModel.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
             // The selector may not have been a QSRE but this query model may still have something that needs adjusted.
             // Example:
