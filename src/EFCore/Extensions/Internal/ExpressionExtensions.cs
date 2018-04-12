@@ -146,21 +146,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this LambdaExpression propertyAccessExpression,
             [NotNull] string methodName)
         {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
-
-            var propertyPath
-                = propertyAccessExpression
-                    .Parameters
-                    .Single()
-                    .MatchPropertyAccess(propertyAccessExpression.Body);
-
-            if (propertyPath == null)
+            if (!TryGetComplexPropertyAccess(propertyAccessExpression, out var propertyPath))
             {
                 throw new ArgumentException(
                     CoreStrings.InvalidIncludeLambdaExpression(methodName, propertyAccessExpression));
             }
 
             return propertyPath;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool TryGetComplexPropertyAccess(
+            [NotNull] this LambdaExpression propertyAccessExpression,
+            out IReadOnlyList<PropertyInfo> propertyPath)
+        {
+            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+
+            propertyPath
+                = propertyAccessExpression
+                    .Parameters
+                    .Single()
+                    .MatchPropertyAccess(propertyAccessExpression.Body);
+
+            return propertyPath != null;
         }
 
         private static IReadOnlyList<PropertyInfo> MatchPropertyAccess(

@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             var prm = Expression.Parameter(typeof(object));
             var pathFromQuerySource = Resolve(prm, prm, clauseGenerationContext);
 
-            if (!(NavigationPropertyPathLambda.Body is MemberExpression navigationPropertyPath))
+            if (!NavigationPropertyPathLambda.TryGetComplexPropertyAccess(out var propertyPath))
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidIncludeLambdaExpression(
@@ -57,9 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             }
 
             var includeResultOperator = new IncludeResultOperator(
-                NavigationPropertyPathLambda.GetComplexPropertyAccess(
-                    nameof(EntityFrameworkQueryableExtensions.Include))
-                    .Select(p => p.Name),
+                propertyPath.Select(p => p.Name),
                 pathFromQuerySource);
 
             clauseGenerationContext.AddContextInfo(this, includeResultOperator);
