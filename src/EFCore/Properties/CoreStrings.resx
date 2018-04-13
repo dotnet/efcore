@@ -971,6 +971,10 @@
     <value>An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.</value>
     <comment>Warning CoreEventId.LazyLoadOnDisposedContextWarning string string</comment>
   </data>
+  <data name="LogDetachedLazyLoading" xml:space="preserve">
+    <value>An attempt was made to lazy-load navigation property '{navigation}' on detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking()'.</value>
+    <comment>Warning CoreEventId.DetachedLazyLoadingWarning string string</comment>
+  </data>
   <data name="InvalidSetTypeQuery" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.</value>
   </data>

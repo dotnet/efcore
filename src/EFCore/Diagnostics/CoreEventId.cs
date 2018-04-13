@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LazyLoadOnDisposedContextWarning,
             NavigationLazyLoading,
             ContextDisposed,
+            DetachedLazyLoadingWarning,
 
             // Model events
             ShadowPropertyCreated = CoreBaseId + 600,
@@ -353,6 +354,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId LazyLoadOnDisposedContextWarning = MakeInfraId(Id.LazyLoadOnDisposedContextWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         An attempt was made to lazy-load a property from a detached/no-tracking entity.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="LazyLoadingEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId DetachedLazyLoadingWarning = MakeInfraId(Id.DetachedLazyLoadingWarning);
 
         private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
         private static EventId MakeModelId(Id id) => new EventId((int)id, _modelPrefix + id);

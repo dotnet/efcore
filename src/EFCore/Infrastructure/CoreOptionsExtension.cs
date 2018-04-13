@@ -40,7 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private string _logFragment;
 
         private WarningsConfiguration _warningsConfiguration
-            = new WarningsConfiguration().TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw);
+            = new WarningsConfiguration()
+                .TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw)
+                .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw);
+
         /// <summary>
         ///     Creates a new set of options with everything set to default values.
         /// </summary>

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 : Task.CompletedTask;
         }
 
-        private bool ShouldLoad(object entity, string navigationName, out NavigationEntry entry)
+        private bool ShouldLoad(object entity, string navigationName, out NavigationEntry navigationEntry)
         {
             if (_disposed)
             {
@@ -90,8 +91,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
             else if (Context.ChangeTracker.LazyLoadingEnabled)
             {
-                entry = Context.Entry(entity).Navigation(navigationName);
-                if (!entry.IsLoaded)
+                var entityEntry = Context.Entry(entity);
+                navigationEntry = entityEntry.Navigation(navigationName);
+
+                if (entityEntry.State == EntityState.Detached)
+                {
+                    var value = navigationEntry.CurrentValue;
+                    if (value == null
+                        || (navigationEntry.Metadata.IsCollection()
+                            && !((IEnumerable)value).Any()))
+                    {
+                        Logger.DetachedLazyLoadingWarning(Context, entity, navigationName);
+                    }
+                }
+                else if (!navigationEntry.IsLoaded)
                 {
                     Logger.NavigationLazyLoading(Context, entity, navigationName);
 
@@ -99,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            entry = null;
+            navigationEntry = null;
             return false;
         }
 

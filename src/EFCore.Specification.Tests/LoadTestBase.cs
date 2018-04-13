@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -1232,7 +1233,10 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Children), "Parent"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Children).Message);
             }
@@ -1253,7 +1257,10 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Child.Parent), "Child"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => child.Parent).Message);
             }
@@ -1274,7 +1281,10 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Single), "Parent"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Single).Message);
             }

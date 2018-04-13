@@ -741,6 +741,47 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void DetachedLazyLoadingWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] object entityType,
+            [NotNull] string navigationName)
+        {
+            var definition = CoreStrings.LogDetachedLazyLoading;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigationName, entityType.GetType().ShortDisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new LazyLoadingEventData(
+                        definition,
+                        DetachedLazyLoadingWarning,
+                        context,
+                        entityType,
+                        navigationName));
+            }
+        }
+
+        private static string DetachedLazyLoadingWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (LazyLoadingEventData)payload;
+            return d.GenerateMessage(p.NavigationPropertyName, p.Entity.GetType().ShortDisplayName());
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void ShadowPropertyCreated(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IProperty property)

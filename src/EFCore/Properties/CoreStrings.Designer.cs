@@ -2348,6 +2348,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogLazyLoadOnDisposedContext")));
 
         /// <summary>
+        ///     An attempt was made to lazy-load navigation property '{navigation}' on detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking()'.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogDetachedLazyLoading
+            = new EventDefinition<string, string>(
+                CoreEventId.DetachedLazyLoadingWarning,
+                LogLevel.Warning,
+                "CoreEventId.DetachedLazyLoadingWarning",
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.DetachedLazyLoadingWarning,
+                    _resourceManager.GetString("LogDetachedLazyLoading")));
+
+        /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.
         /// </summary>
         public static string InvalidSetTypeQuery([CanBeNull] object typeName)

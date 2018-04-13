@@ -1395,7 +1395,10 @@ namespace Microsoft.EntityFrameworkCore
                 var parent = context.Set<Parent>().AsNoTracking().Single();
 
                 Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Children), "ParentProxy"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Children).Message);
             }
@@ -1409,7 +1412,10 @@ namespace Microsoft.EntityFrameworkCore
                 var child = context.Set<Child>().AsNoTracking().Single(e => e.Id == 12);
 
                 Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Child.Parent), "ChildProxy"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => child.Parent).Message);
             }
@@ -1423,7 +1429,73 @@ namespace Microsoft.EntityFrameworkCore
                 var parent = context.Set<Parent>().AsNoTracking().Single();
 
                 Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Single), "ParentProxy"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => parent.Single).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_load_collection_for_no_tracking_does_not_throw_if_populated()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var parent = context.Set<Parent>().Include(e => e.Children).AsNoTracking().Single();
+
+                Assert.Same(parent, parent.Children.First().Parent);
+
+                ((ICollection<Child>)parent.Children).Clear();
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Children), "ParentProxy"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => parent.Children).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_load_reference_to_principal_for_no_tracking_does_not_throw_if_populated()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var child = context.Set<Child>().Include(e => e.Parent).AsNoTracking().Single(e => e.Id == 12);
+
+                Assert.Same(child, child.Parent.Children.First());
+
+                child.Parent = null;
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Child.Parent), "ChildProxy"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => child.Parent).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_load_reference_to_dependent_for_no_does_not_throw_if_populated()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var parent = context.Set<Parent>().Include(e => e.Single).AsNoTracking().Single();
+
+                Assert.Same(parent, parent.Single.Parent);
+
+                parent.Single = null;
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Single), "ParentProxy"),
+                        "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Single).Message);
             }
