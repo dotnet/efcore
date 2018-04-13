@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -34,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly bool _generateContextAccessors;
 
         private PartialEvaluationInfo _partialEvaluationInfo;
+        private readonly Dictionary<Expression, ParameterExpression> _parameterDictionary = new Dictionary<Expression, ParameterExpression>(ExpressionEqualityComparer.Instance);
 
         private bool _inLambda;
 
@@ -82,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             finally
             {
                 _partialEvaluationInfo = oldPartialEvaluationInfo;
+                _parameterDictionary.Clear();
             }
         }
 
@@ -427,6 +430,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private Expression TryExtractParameter(Expression expression)
         {
+            if (_parameterDictionary.TryGetValue(expression, out var param))
+            {
+                return param;
+            }
+
             var parameterValue = Evaluate(expression, out var parameterName);
 
             if (parameterName == null
@@ -464,7 +472,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             _parameterValues.AddParameter(parameterName, parameterValue);
 
-            return Expression.Parameter(expression.Type, parameterName);
+            var parameter = Expression.Parameter(expression.Type, parameterName);
+            _parameterDictionary.Add(expression, parameter);
+
+            return parameter;
         }
 
         private class ContextParameterReplacingExpressionVisitor : ExpressionVisitor

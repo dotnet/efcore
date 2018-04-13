@@ -303,13 +303,12 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]");
             base.OrderBy_skip_take_take_take_take();
 
             AssertSql(
-                @"@__p_4='5'
+                @"@__p_0='5'
 @__p_3='8'
 @__p_2='10'
-@__p_0='5'
 @__p_1='15'
 
-SELECT TOP(@__p_4) [t1].*
+SELECT TOP(@__p_0) [t1].*
 FROM (
     SELECT TOP(@__p_3) [t0].*
     FROM (
@@ -338,7 +337,6 @@ ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
 @__p_1='15'
 @__p_2='2'
 @__p_3='8'
-@__p_4='5'
 
 SELECT [t3].*
 FROM (
@@ -359,7 +357,7 @@ FROM (
         WHERE ([t2].[__RowNumber__1] > @__p_2) AND ([t2].[__RowNumber__1] <= (@__p_2 + @__p_3))
     ) AS [t0]
 ) AS [t3]
-WHERE [t3].[__RowNumber__2] > @__p_4");
+WHERE [t3].[__RowNumber__2] > @__p_0");
         }
 
         public override void OrderBy_skip_take_distinct()
@@ -420,11 +418,10 @@ FROM (
             base.OrderBy_coalesce_skip_take_distinct_take();
 
             AssertSql(
-                @"@__p_2='5'
-@__p_0='5'
+                @"@__p_0='5'
 @__p_1='15'
 
-SELECT DISTINCT TOP(@__p_2) [t].*
+SELECT DISTINCT TOP(@__p_0) [t].*
 FROM (
     SELECT [t0].[ProductID], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice], [t0].[UnitsInStock]
     FROM (
