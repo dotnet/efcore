@@ -1384,18 +1384,18 @@ INNER JOIN (
     FROM [Orders] AS [c.Orders0]
     INNER JOIN (
         SELECT TOP(1) [c1].[CustomerID], (
-            SELECT TOP(1) [oo4].[OrderDate]
-            FROM [Orders] AS [oo4]
-            WHERE [c1].[CustomerID] = [oo4].[CustomerID]
-            ORDER BY [oo4].[OrderDate] DESC
-        ) AS [c]
-        FROM [Customers] AS [c1]
-        WHERE [c1].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c1].[CustomerID], LEN(N'W')) = N'W')
-        ORDER BY (
             SELECT TOP(1) [oo3].[OrderDate]
             FROM [Orders] AS [oo3]
             WHERE [c1].[CustomerID] = [oo3].[CustomerID]
             ORDER BY [oo3].[OrderDate] DESC
+        ) AS [c]
+        FROM [Customers] AS [c1]
+        WHERE [c1].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c1].[CustomerID], LEN(N'W')) = N'W')
+        ORDER BY (
+            SELECT TOP(1) [oo2].[OrderDate]
+            FROM [Orders] AS [oo2]
+            WHERE [c1].[CustomerID] = [oo2].[CustomerID]
+            ORDER BY [oo2].[OrderDate] DESC
         ) DESC, [c1].[CustomerID]
     ) AS [t0] ON [c.Orders0].[CustomerID] = [t0].[CustomerID]
 ) AS [t1] ON [c.Orders.OrderDetails].[OrderID] = [t1].[OrderID]

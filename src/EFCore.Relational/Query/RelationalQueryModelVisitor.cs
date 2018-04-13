@@ -1008,6 +1008,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        /// Removes orderings for a given query model.
+        /// </summary>
+        /// <param name="queryModel">Query model to remove orderings on.</param>
+        protected override void RemoveOrderings(QueryModel queryModel)
+        {
+            base.RemoveOrderings(queryModel);
+
+            TryGetQuery(queryModel.MainFromClause)?.ClearOrderBy();
+        }
+
+        /// <summary>
         ///     Visit an order by clause.
         /// </summary>
         /// <param name="orderByClause"> The order by clause. </param>

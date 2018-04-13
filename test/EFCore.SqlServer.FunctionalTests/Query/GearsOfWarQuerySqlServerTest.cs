@@ -6760,7 +6760,7 @@ INNER JOIN (
         SELECT COUNT(*)
         FROM [Weapons] AS [w0]
         WHERE [o0].[FullName] = [w0].[OwnerFullName]
-    ) AS [c], [o0].[FullName]
+    ) AS [c]
     FROM [Gears] AS [o0]
     WHERE [o0].[Discriminator] = N'Officer'
 ) AS [t] ON ([o.Reports].[LeaderNickname] = [t].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t].[SquadId])
@@ -6791,7 +6791,7 @@ INNER JOIN (
         FROM [Weapons] AS [w0]
         WHERE [o0].[FullName] = [w0].[OwnerFullName]
         ORDER BY [w0].[Id]
-    ), 0) AS bit) AS [c], [o0].[FullName]
+    ), 0) AS bit) AS [c]
     FROM [Gears] AS [o0]
     WHERE [o0].[Discriminator] = N'Officer'
 ) AS [t] ON ([o.Reports].[LeaderNickname] = [t].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t].[SquadId])
@@ -6803,7 +6803,81 @@ ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         {
             base.Correlated_collection_with_complex_OrderBy();
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [o].[Nickname], [o].[SquadId]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
+ORDER BY (
+    SELECT COUNT(*)
+    FROM [Weapons] AS [w0]
+    WHERE [o].[FullName] = [w0].[OwnerFullName]
+), [o].[Nickname], [o].[SquadId]",
+                //
+                @"SELECT [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[AssignedCityName], [o.Reports].[CityOrBirthName], [o.Reports].[Discriminator], [o.Reports].[FullName], [o.Reports].[HasSoulPatch], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId], [o.Reports].[Rank], [t].[c], [t].[Nickname], [t].[SquadId]
+FROM [Gears] AS [o.Reports]
+INNER JOIN (
+    SELECT (
+        SELECT COUNT(*)
+        FROM [Weapons] AS [w1]
+        WHERE [o0].[FullName] = [w1].[OwnerFullName]
+    ) AS [c], [o0].[Nickname], [o0].[SquadId]
+    FROM [Gears] AS [o0]
+    WHERE [o0].[Discriminator] = N'Officer'
+) AS [t] ON ([o.Reports].[LeaderNickname] = [t].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t].[SquadId])
+WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[HasSoulPatch] = 0)
+ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
+        }
+
+        public override void Correlated_collection_with_very_complex_order_by()
+        {
+            base.Correlated_collection_with_very_complex_order_by();
+
+            AssertSql(
+                @"SELECT [o].[Nickname], [o].[SquadId]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
+ORDER BY (
+    SELECT COUNT(*)
+    FROM [Weapons] AS [w0]
+    WHERE ([w0].[IsAutomatic] = CASE
+        WHEN CASE
+            WHEN COALESCE((
+                SELECT TOP(1) [g0].[HasSoulPatch]
+                FROM [Gears] AS [g0]
+                WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND ([g0].[Nickname] = N'Marcus')
+            ), 0) = 1
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END = 1
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END) AND ([o].[FullName] = [w0].[OwnerFullName])
+), [o].[Nickname], [o].[SquadId]",
+                //
+                @"SELECT [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[AssignedCityName], [o.Reports].[CityOrBirthName], [o.Reports].[Discriminator], [o.Reports].[FullName], [o.Reports].[HasSoulPatch], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId], [o.Reports].[Rank], [t].[c], [t].[Nickname], [t].[SquadId]
+FROM [Gears] AS [o.Reports]
+INNER JOIN (
+    SELECT (
+        SELECT COUNT(*)
+        FROM [Weapons] AS [w1]
+        WHERE ([w1].[IsAutomatic] = CASE
+            WHEN CASE
+                WHEN CASE
+                    WHEN COALESCE((
+                        SELECT TOP(1) [g1].[HasSoulPatch]
+                        FROM [Gears] AS [g1]
+                        WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND ([g1].[Nickname] = N'Marcus')
+                    ), 0) = 1
+                    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+                END = 1
+                THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            END = 1
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END) AND ([o0].[FullName] = [w1].[OwnerFullName])
+    ) AS [c], [o0].[Nickname], [o0].[SquadId]
+    FROM [Gears] AS [o0]
+    WHERE [o0].[Discriminator] = N'Officer'
+) AS [t] ON ([o.Reports].[LeaderNickname] = [t].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t].[SquadId])
+WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[HasSoulPatch] = 0)
+ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
 
         public override void Cast_to_derived_type_after_OfType_works()

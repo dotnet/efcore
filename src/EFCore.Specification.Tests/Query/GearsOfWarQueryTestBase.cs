@@ -31,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        // Remember to add any new tests to Async version of this test class
+
         [ConditionalFact]
         public virtual void Entity_equality_empty()
         {
@@ -4783,13 +4785,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
         }
 
-        [ConditionalFact(Skip = "See issue#11622")]
+        [ConditionalFact]
         public virtual void Correlated_collection_with_complex_OrderBy()
         {
             AssertQuery<Gear>(
-                os => os.OfType<Officer>()
-                        .OrderBy(o => o.Weapons.Count)
-                        .Select(o => o.Reports.Where(g => g.HasSoulPatch).ToList()));
+                gs => gs.OfType<Officer>()
+                    .OrderBy(o => o.Weapons.Count)
+                    .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_collection_with_very_complex_order_by()
+        {
+            AssertQuery<Gear>(
+                gs => gs.OfType<Officer>()
+                    .OrderBy(o => o.Weapons.Where(w => w.IsAutomatic == gs.Where(g => g.Nickname == "Marcus").Select(g => g.HasSoulPatch).FirstOrDefault()).Count())
+                    .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
         }
 
         [ConditionalFact]

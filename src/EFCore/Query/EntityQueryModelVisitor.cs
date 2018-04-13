@@ -1210,14 +1210,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (correlatedCollectionOptimizer.ParentOrderings.Count > 0)
                 {
-                    var existingOrderByClauses = queryModel.BodyClauses.OfType<OrderByClause>().ToList();
-                    foreach (var existingOrderByClause in existingOrderByClauses)
-                    {
-                        queryModel.BodyClauses.Remove(existingOrderByClause);
-                    }
+                    RemoveOrderings(queryModel);
 
                     var orderByClause = new OrderByClause();
-
                     foreach (var ordering in correlatedCollectionOptimizer.ParentOrderings)
                     {
                         orderByClause.Orderings.Add(ordering);
@@ -1227,6 +1222,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     VisitOrderByClause(orderByClause, queryModel, queryModel.BodyClauses.IndexOf(orderByClause));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Removes orderings for a given query model.
+        /// </summary>
+        /// <param name="queryModel">Query model to remove orderings on.</param>
+        protected virtual void RemoveOrderings(QueryModel queryModel)
+        {
+            var existingOrderByClauses = queryModel.BodyClauses.OfType<OrderByClause>().ToList();
+            foreach (var existingOrderByClause in existingOrderByClauses)
+            {
+                queryModel.BodyClauses.Remove(existingOrderByClause);
             }
         }
 

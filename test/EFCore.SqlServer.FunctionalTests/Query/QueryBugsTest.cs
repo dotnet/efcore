@@ -2688,7 +2688,7 @@ INNER JOIN (
         END AS [c], CASE
             WHEN [b0].[CustomerDetailsId] IS NOT NULL
             THEN [b.CustomerDetails0].[Name] ELSE N''
-        END AS [c0], [b0].[AddressId], [b0].[CustomerDetailsId], [b.CustomerDetails0].[Name]
+        END AS [c0]
         FROM [Customers] AS [b0]
         LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails0] ON [b0].[CustomerDetailsId] = [b.CustomerDetails0].[Id]
         ORDER BY [c], [c0], [b0].[Id]

@@ -1606,13 +1606,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 
-        [ConditionalFact(Skip = "See issue#11622")]
+        [ConditionalFact]
         public virtual async Task Correlated_collection_with_complex_OrderBy()
         {
             await AssertQuery<Gear>(
-                os => os.OfType<Officer>()
-                        .OrderBy(o => o.Weapons.Count)
-                        .Select(o => o.Reports.Where(g => g.HasSoulPatch).ToList()));
+                gs => gs.OfType<Officer>()
+                    .OrderBy(o => o.Weapons.Count)
+                    .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Correlated_collection_with_very_complex_order_by()
+        {
+            await AssertQuery<Gear>(
+                gs => gs.OfType<Officer>()
+                    .OrderBy(o => o.Weapons.Where(w => w.IsAutomatic == gs.Where(g => g.Nickname == "Marcus").Select(g => g.HasSoulPatch).FirstOrDefault()).Count())
+                    .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
         }
 
         [ConditionalFact]

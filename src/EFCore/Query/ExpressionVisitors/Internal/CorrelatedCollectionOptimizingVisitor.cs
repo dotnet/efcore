@@ -189,8 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             // - customer specified orderings on child
 
             var parentOrderings = new List<Ordering>();
-            var exisingParentOrderByClause = _parentQueryModel.BodyClauses.OfType<OrderByClause>().LastOrDefault();
-            if (exisingParentOrderByClause != null)
+            foreach (var exisingParentOrderByClause in _parentQueryModel.BodyClauses.OfType<OrderByClause>())
             {
                 parentOrderings.AddRange(exisingParentOrderByClause.Orderings);
             }
@@ -242,7 +241,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = new QuerySourceReferenceExpression(collectionQueryModel.MainFromClause);
 
             var subQueryProjection = new List<Expression>();
-            subQueryProjection.AddRange(parentOrderings.Select(o => CloningExpressionVisitor.AdjustExpressionAfterCloning(o.Expression, querySourceMapping)));
+            foreach (var exisitingClonedOrdering in clonedParentQueryModel.BodyClauses.OfType<OrderByClause>())
+            {
+                subQueryProjection.AddRange(exisitingClonedOrdering.Orderings.Select(o => o.Expression));
+            }
+
+            foreach (var parentOrdering in parentOrderings.Skip(subQueryProjection.Count))
+            {
+                subQueryProjection.Add(CloningExpressionVisitor.AdjustExpressionAfterCloning(parentOrdering.Expression, querySourceMapping));
+            }
 
             var joinQuerySourceReferenceExpression
                 = CreateJoinToParentQuery(
@@ -255,8 +262,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var lastResultOperator = ProcessResultOperators(clonedParentQueryModel);
 
+            var clonedParentOrderings = new List<Ordering>();
+            for (var i = 0; i < parentOrderings.Count; i++)
+            {
+                clonedParentOrderings.Add(new Ordering(subQueryProjection[i], parentOrderings[i].OrderingDirection));
+            }
+
             ApplyParentOrderings(
-                parentOrderings,
+                clonedParentOrderings,
                 clonedParentQueryModel,
                 querySourceMapping,
                 lastResultOperator);
@@ -660,9 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             foreach (var ordering in parentOrderings)
             {
-                var newExpression
-                    = CloningExpressionVisitor
-                        .AdjustExpressionAfterCloning(ordering.Expression, querySourceMapping);
+                var newExpression = ordering.Expression;
 
                 if (newExpression is MethodCallExpression methodCallExpression
                     && methodCallExpression.Method.IsEFPropertyMethod())
