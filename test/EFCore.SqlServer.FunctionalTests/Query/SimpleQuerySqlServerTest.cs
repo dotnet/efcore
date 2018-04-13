@@ -3179,10 +3179,9 @@ WHERE [o].[OrderDate] IS NOT NULL");
             base.Select_expression_date_add_milliseconds_large_number_divided();
 
             AssertSql(
-                @"@__millisecondsPerDay_1='86400000'
-@__millisecondsPerDay_0='86400000'
+                @"@__millisecondsPerDay_0='86400000'
 
-SELECT DATEADD(millisecond, DATEPART(millisecond, [o].[OrderDate]) % @__millisecondsPerDay_1, DATEADD(day, DATEPART(millisecond, [o].[OrderDate]) / @__millisecondsPerDay_0, [o].[OrderDate])) AS [OrderDate]
+SELECT DATEADD(millisecond, DATEPART(millisecond, [o].[OrderDate]) % @__millisecondsPerDay_0, DATEADD(day, DATEPART(millisecond, [o].[OrderDate]) / @__millisecondsPerDay_0, [o].[OrderDate])) AS [OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3339,13 +3338,12 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]");
             base.OrderBy_skip_take_take_take_take();
 
             AssertSql(
-                @"@__p_4='5'
+                @"@__p_0='5'
 @__p_3='8'
 @__p_2='10'
-@__p_0='5'
 @__p_1='15'
 
-SELECT TOP(@__p_4) [t1].*
+SELECT TOP(@__p_0) [t1].*
 FROM (
     SELECT TOP(@__p_3) [t0].*
     FROM (
@@ -3373,7 +3371,6 @@ ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
 @__p_1='15'
 @__p_2='2'
 @__p_3='8'
-@__p_4='5'
 
 SELECT [t0].*
 FROM (
@@ -3388,7 +3385,7 @@ FROM (
     OFFSET @__p_2 ROWS FETCH NEXT @__p_3 ROWS ONLY
 ) AS [t0]
 ORDER BY [t0].[ContactTitle], [t0].[ContactName]
-OFFSET @__p_4 ROWS");
+OFFSET @__p_0 ROWS");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
@@ -3449,11 +3446,10 @@ FROM (
             base.OrderBy_coalesce_skip_take_distinct_take();
 
             AssertSql(
-                @"@__p_2='5'
-@__p_0='5'
+                @"@__p_0='5'
 @__p_1='15'
 
-SELECT DISTINCT TOP(@__p_2) [t].*
+SELECT DISTINCT TOP(@__p_0) [t].*
 FROM (
     SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]

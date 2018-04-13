@@ -175,18 +175,16 @@ WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND ((@__ef_filter__Tenant_1 
 
             AssertSql(
                 @"@__ef_filter__IsModerated_0='True' (Nullable = true)
-@__ef_filter__IsModerated_1='True' (Nullable = true)
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [ShortCircuitFilter] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
+WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_0 = [x].[IsModerated]))",
                 //
                 @"@__ef_filter__IsModerated_0='False' (Nullable = true)
-@__ef_filter__IsModerated_1='False' (Nullable = true)
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [ShortCircuitFilter] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
+WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_0 = [x].[IsModerated]))",
                 //
                 @"@__ef_filter__IsModerated_0=''
 

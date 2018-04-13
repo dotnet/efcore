@@ -386,10 +386,9 @@ WHERE [c].[Id] = 1");
                 Assert.Equal(3, cust.OrderCount);
 
                 AssertSql(
-                    @"@__customerId_1='1'
-@__customerId_0='1'
+                    @"@__customerId_0='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_1) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
             }
@@ -416,10 +415,9 @@ WHERE [c].[Id] = @__customerId_0");
 
                 AssertSql(
                     @"@__starCount_1='3'
-@__customerId_2='3'
 @__customerId_0='3'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_2)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
 FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
             }
@@ -577,11 +575,10 @@ WHERE [c].[Id] = 2");
 
                 AssertSql(
                     @"@__customerId_0='2'
-@__customerId_1='2'
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_1");
+WHERE [c].[Id] = @__customerId_0");
             }
         }
 
@@ -608,11 +605,10 @@ WHERE [c].[Id] = @__customerId_1");
                 AssertSql(
                     @"@__starCount_0='3'
 @__customerId_1='1'
-@__customerId_2='1'
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_0, [dbo].[CustomerOrderCount](@__customerId_1)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_2");
+WHERE [c].[Id] = @__customerId_1");
             }
         }
 #endif
@@ -1056,10 +1052,9 @@ WHERE [c].[Id] = 1");
                 Assert.Equal(3, cust.OrderCount);
 
                 AssertSql(
-                    @"@__customerId_2='1'
-@__customerId_0='1'
+                    @"@__customerId_0='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_2) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
             }
@@ -1086,10 +1081,9 @@ WHERE [c].[Id] = @__customerId_0");
 
                 AssertSql(
                     @"@__starCount_2='3'
-@__customerId_4='3'
 @__customerId_0='3'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_2, [dbo].[CustomerOrderCount](@__customerId_4)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_2, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
 FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
             }
@@ -1150,11 +1144,11 @@ WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_1) = [c].[Id]");
                 Assert.Equal(custId, 1);
 
                 AssertSql(
-                    @"@__period_2='0'
+                    @"@__period_1='0'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_2))");
+WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_1))");
             }
         }
 
@@ -1247,11 +1241,10 @@ WHERE [c].[Id] = 2");
 
                 AssertSql(
                     @"@__8__locals1_customerId_1='2'
-@__8__locals1_customerId_2='2'
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__8__locals1_customerId_1) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__8__locals1_customerId_2");
+WHERE [c].[Id] = @__8__locals1_customerId_1");
             }
         }
 
@@ -1277,12 +1270,11 @@ WHERE [c].[Id] = @__8__locals1_customerId_2");
 
                 AssertSql(
                     @"@__starCount_1='3'
-@__customerId_3='1'
-@__customerId_4='1'
+@__customerId_2='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_3)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_2)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_4");
+WHERE [c].[Id] = @__customerId_2");
             }
         }
 #endif

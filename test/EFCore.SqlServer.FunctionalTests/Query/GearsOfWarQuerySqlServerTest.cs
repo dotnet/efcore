@@ -938,11 +938,10 @@ WHERE [w].[IsAutomatic] = 1");
             base.Select_comparison_with_null();
 
             AssertSql(
-                @"@__ammunitionType_1='1' (Nullable = true)
-@__ammunitionType_0='1' (Nullable = true)
+                @"@__ammunitionType_0='1' (Nullable = true)
 
 SELECT [w].[Id], CASE
-    WHEN [w].[AmmunitionType] = @__ammunitionType_1
+    WHEN [w].[AmmunitionType] = @__ammunitionType_0
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END AS [Cartidge]
 FROM [Weapons] AS [w]

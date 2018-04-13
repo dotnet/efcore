@@ -41,11 +41,11 @@ CROSS JOIN [Employees] AS [e]");
             base.Client_Join_select_many();
 
             AssertContainsSql(
-                @"@__p_1='2'
+                @"@__p_0='2'
 
 SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title]
 FROM (
-    SELECT TOP(@__p_1) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+    SELECT TOP(@__p_0) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
     FROM [Employees] AS [e0]
 ) AS [t0]",
                 //
