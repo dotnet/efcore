@@ -2899,7 +2899,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
             AssertSql(
                 @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE [m].[Timeline] <> CAST(GETDATE() AS datetimeoffset)");
+WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()");
         }
 
         public override void Where_datetimeoffset_utcnow()
@@ -2909,7 +2909,7 @@ WHERE [m].[Timeline] <> CAST(GETDATE() AS datetimeoffset)");
             AssertSql(
                 @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE [m].[Timeline] <> CAST(GETUTCDATE() AS datetimeoffset)");
+WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
 #endif
 

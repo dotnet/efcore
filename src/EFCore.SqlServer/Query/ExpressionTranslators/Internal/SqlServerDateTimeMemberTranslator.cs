@@ -51,16 +51,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 switch (memberName)
                 {
                     case nameof(DateTime.Now):
-                        var getDate = new SqlFunctionExpression("GETDATE", memberExpression.Type);
-                        return declaringType == typeof(DateTimeOffset)
-                            ? (Expression)new ExplicitCastExpression(getDate, typeof(DateTimeOffset))
-                            : getDate;
+                        return declaringType == typeof(DateTimeOffset) ?
+                            new SqlFunctionExpression("SYSDATETIMEOFFSET", memberExpression.Type) :
+                            new SqlFunctionExpression("GETDATE", memberExpression.Type);
 
                     case nameof(DateTime.UtcNow):
-                        var getUtcDate = new SqlFunctionExpression("GETUTCDATE", memberExpression.Type);
-                        return declaringType == typeof(DateTimeOffset)
-                            ? (Expression)new ExplicitCastExpression(getUtcDate, typeof(DateTimeOffset))
-                            : getUtcDate;
+                        return declaringType == typeof(DateTimeOffset) ?
+                            (Expression)new ExplicitCastExpression(
+                                new SqlFunctionExpression("SYSUTCDATETIME", memberExpression.Type),
+                                typeof(DateTimeOffset)) :
+                            new SqlFunctionExpression("GETUTCDATE", memberExpression.Type);
 
                     case nameof(DateTime.Date):
                         return new SqlFunctionExpression(

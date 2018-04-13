@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public void Dispose()
         {
             //Assert for all tests that OFFSET or FETCH is never used
-            Assert.All(Fixture.TestSqlLoggerFactory.SqlStatements, t => Assert.DoesNotContain("OFFSET", t));
+            Assert.All(Fixture.TestSqlLoggerFactory.SqlStatements, t => Assert.DoesNotMatch("\\W+OFFSET", t));
             Assert.All(Fixture.TestSqlLoggerFactory.SqlStatements, t => Assert.DoesNotContain("FETCH", t));
         }
 

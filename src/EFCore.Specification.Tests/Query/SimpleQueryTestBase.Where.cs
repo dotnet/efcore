@@ -779,6 +779,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Where_datetimeoffset_now_component()
+        {
+            AssertQuery<Order>(
+                oc => oc.Where(o => o.OrderDate == DateTimeOffset.Now));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_utcnow_component()
+        {
+            AssertQuery<Order>(
+                oc => oc.Where(o => o.OrderDate == DateTimeOffset.UtcNow));
+        }
+
+        [ConditionalFact]
         public virtual void Where_simple_reversed()
         {
             AssertQuery<Customer>(
