@@ -4497,6 +4497,23 @@ LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[Custom
 WHERE [o].[OrderID] < 10300");
         }
 
+        public override void Let_subquery_with_multiple_occurences()
+        {
+            base.Let_subquery_with_multiple_occurences();
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [od0]
+    WHERE ([od0].[Quantity] < CAST(10 AS smallint)) AND ([o].[OrderID] = [od0].[OrderID])
+) AS [Count]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Order Details] AS [od]
+    WHERE ([od].[Quantity] < CAST(10 AS smallint)) AND ([o].[OrderID] = [od].[OrderID]))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

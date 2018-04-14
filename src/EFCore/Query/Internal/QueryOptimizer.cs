@@ -220,7 +220,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 string itemName;
 
-                var innerMainFromClause = subQueryExpression.QueryModel.MainFromClause;
+                var querySourceMapping = new QuerySourceMapping();
+                var clonedSubQueryModel = subQueryModel.Clone(querySourceMapping);
+                UpdateQueryAnnotations(subQueryModel, querySourceMapping);
+
+                var innerMainFromClause = clonedSubQueryModel.MainFromClause;
                 var isGeneratedNameOuter = fromClause.HasGeneratedItemName();
 
                 if (innerMainFromClause.HasGeneratedItemName()
@@ -239,9 +243,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 fromClause.CopyFromSource(fromClauseData);
 
-                var newExpression = subQueryExpression.QueryModel.SelectClause.Selector;
+                var newExpression = clonedSubQueryModel.SelectClause.Selector;
                 var newExpressionTypeInfo = newExpression.Type.GetTypeInfo();
-                var castResultOperatorTypes = subQueryModel.ResultOperators.OfType<CastResultOperator>().Select(cre => cre.CastItemType).ToList();
+                var castResultOperatorTypes = clonedSubQueryModel.ResultOperators.OfType<CastResultOperator>().Select(cre => cre.CastItemType).ToList();
                 var type = castResultOperatorTypes.LastOrDefault(t => newExpressionTypeInfo.IsAssignableFrom(t.GetTypeInfo()));
 
                 if (type != null
@@ -255,9 +259,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     fromClause,
                     newExpression);
 
-                InsertBodyClauses(subQueryExpression.QueryModel.BodyClauses, queryModel, destinationIndex);
+                InsertBodyClauses(clonedSubQueryModel.BodyClauses, queryModel, destinationIndex);
 
-                foreach (var resultOperator in subQueryModel.ResultOperators.Where(ro => !(ro is CastResultOperator)).Reverse())
+                foreach (var resultOperator in clonedSubQueryModel.ResultOperators.Where(ro => !(ro is CastResultOperator)).Reverse())
                 {
                     queryModel.ResultOperators.Insert(0, resultOperator);
                 }
@@ -367,6 +371,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 = containsResultOperator.Item
                                     .CreateEFPropertyExpression(primaryKey.Properties[0], makeNullable: false);
                         }
+                    }
+                }
+            }
+        }
+
+        private void UpdateQueryAnnotations(QueryModel queryModel, QuerySourceMapping querySourceMapping)
+        {
+            foreach (var queryAnnotation in _queryCompilationContext.QueryAnnotations)
+            {
+                if (querySourceMapping.ContainsMapping(queryAnnotation.QuerySource))
+                {
+                    queryAnnotation.QuerySource = querySourceMapping.GetExpression(queryAnnotation.QuerySource)
+                        .TryGetReferencedQuerySource();
+                    queryAnnotation.QueryModel = queryModel;
+
+                    if (queryAnnotation is IncludeResultOperator includeAnnotation
+                        && includeAnnotation.PathFromQuerySource != null)
+                    {
+                        includeAnnotation.PathFromQuerySource
+                            = ReferenceReplacingExpressionVisitor
+                            .ReplaceClauseReferences(includeAnnotation.PathFromQuerySource, querySourceMapping, throwOnUnmappedReferences: false);
                     }
                 }
             }
