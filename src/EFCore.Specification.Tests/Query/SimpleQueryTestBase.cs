@@ -4244,5 +4244,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // No verification. Query Compilation check.
             }
         }
+
+        [ConditionalFact]
+        public virtual void Let_subquery_with_multiple_occurences()
+        {
+            AssertQuery<Order>(
+                os => from o in os
+                      let details =
+                            from od in o.OrderDetails
+                            where od.Quantity < 10
+                            select od.Quantity
+                      where details.Any()
+                      select new { Count = details.Count() });
+        }
+
     }
 }
