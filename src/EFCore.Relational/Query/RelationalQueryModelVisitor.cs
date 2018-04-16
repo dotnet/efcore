@@ -840,9 +840,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || !subSelectExpression.IsCorrelated()
                         || !(querySource is AdditionalFromClause)))
                 {
+                    var groupByNotRequiringPushdown = subSelectExpression.GroupBy.Count > 0
+                        && subQueryModel.ResultOperators.LastOrDefault() is GroupResultOperator;
+
                     if (!subSelectExpression.IsIdentityQuery()
-                        // If the query has GroupBy then we don't need to pushdown since we can compose further.
-                        && subSelectExpression.GroupBy.Count == 0)
+                        && !groupByNotRequiringPushdown)
                     {
                         subSelectExpression.PushDownSubquery().QuerySource = querySource;
                     }

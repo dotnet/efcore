@@ -235,9 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (queryModel.MainFromClause.FromExpression.Type.IsGrouping()
                 && queryModel.BodyClauses.Count == 0
                 && queryModel.ResultOperators.Count == 1
-                && !(queryModel.SelectClause.Selector is ConstantExpression)
                 && _aggregateResultOperators.Contains(queryModel.ResultOperators[0].GetType())
-                && _queryModelStack.Count == 1
+                && _queryModelStack.Count > 0
                 && !_queryModelStack.Peek().BodyClauses.OfType<IQuerySource>().Any())
             {
                 var groupResultOperator
@@ -251,6 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     queryModel.SelectClause.Selector, _queryModelVisitor.QueryCompilationContext, out var qsre);
 
                 if (qsre != null
+                    || queryModel.SelectClause.Selector.RemoveConvert() is ConstantExpression
                     || groupResultOperator.ElementSelector is MemberInitExpression
                     || groupResultOperator.ElementSelector is NewExpression)
                 {
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 // If we are selecting from Grouping source but it is not GroupByAggregate Query
                 // then do not demote Grouping source since we still need to create groups.
-                if (referencedQuerySource.ItemType.IsGrouping()
+                if (queryModel.MainFromClause.FromExpression.Type.IsGrouping()
                     && !IsGroupByAggregateSubQuery(queryModel))
                 {
                     return;
