@@ -2082,18 +2082,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             using (var batch = Metadata.Model.ConventionDispatcher.StartBatch())
             {
                 var existingNavigation = Metadata.FindNavigation(navigation.Name);
-
-                var ownershipBuilder = existingNavigation?.ForeignKey.Builder;
-                if (ownershipBuilder != null)
+                if (existingNavigation != null)
                 {
-                    ownershipBuilder = ownershipBuilder.RelatedEntityTypes(
-                        Metadata, ownershipBuilder.Metadata.FindNavigationsFromInHierarchy(Metadata).Single().GetTargetType(),
-                        configurationSource);
-                    ownershipBuilder = ownershipBuilder?.Navigations(inverse, navigation, configurationSource);
-                    ownershipBuilder = ownershipBuilder?.IsRequired(true, configurationSource);
-                    ownershipBuilder = ownershipBuilder?.IsOwnership(true, configurationSource);
+                    if (existingNavigation.GetTargetType().ClrType == targetEntityType.Type)
+                    {
+                        var ownershipBuilder = existingNavigation.ForeignKey.Builder;
+                        ownershipBuilder = ownershipBuilder.RelatedEntityTypes(
+                            Metadata, ownershipBuilder.Metadata.FindNavigationsFromInHierarchy(Metadata).Single().GetTargetType(),
+                            configurationSource);
+                        ownershipBuilder = ownershipBuilder?.Navigations(inverse, navigation, configurationSource);
+                        ownershipBuilder = ownershipBuilder?.IsRequired(true, configurationSource);
+                        ownershipBuilder = ownershipBuilder?.IsOwnership(true, configurationSource);
 
-                    return ownershipBuilder == null ? null : batch.Run(ownershipBuilder);
+                        return ownershipBuilder == null ? null : batch.Run(ownershipBuilder);
+                    }
+
+                    if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
+                        .RemoveForeignKey(existingNavigation.ForeignKey, configurationSource) == null)
+                    {
+                        return null;
+                    }
                 }
 
                 var principalBuilder = this;
@@ -2334,7 +2342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string baseName)
         {
             var newProperties = new Property[propertyCount];
-            var clrProperties =  Metadata.GetRuntimeProperties();
+            var clrProperties = Metadata.GetRuntimeProperties();
             var clrFields = Metadata.GetRuntimeFields();
             var noNewProperties = true;
             using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())

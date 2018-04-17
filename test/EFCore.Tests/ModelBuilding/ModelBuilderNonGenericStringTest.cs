@@ -17,6 +17,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
     {
+        // TODO: See issue#11712
+        //public class NonGenericStringOwnedTypes : OwnedTypesTestBase
+        //{
+        //    protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+        //        => new NonGenericStringTestModelBuilder(testHelpers);
+        //}
+
         public class NonGenericStringOneToManyType : OneToManyTestBase
         {
             [Fact]
