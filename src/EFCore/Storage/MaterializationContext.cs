@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         internal static readonly MethodInfo GetValueBufferMethod
             = typeof(MaterializationContext).GetProperty(nameof(ValueBuffer)).GetMethod;
 
-        internal static readonly MethodInfo GetContextMethod
-            = typeof(MaterializationContext).GetProperty(nameof(Context)).GetMethod;
+        internal static readonly PropertyInfo ContextProperty
+            = typeof(MaterializationContext).GetProperty(nameof(Context));
 
         internal static readonly ConstructorInfo ObsoleteConstructor
             = typeof(MaterializationContext).GetConstructor(new[] { typeof(ValueBuffer) });

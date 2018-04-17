@@ -125,7 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     .MakeGenericMethod(shapedQuery.Method.GetGenericArguments()[0]),
                                 Expression.Convert(QueryContextParameter, typeof(RelationalQueryContext)),
                                 shapedQuery.Arguments[1],
-                                Expression.Lambda(newBody, TypedRelationalValueBufferFactoryFactory.DataReaderParameter),
+                                Expression.Lambda(
+                                    newBody,
+                                    TypedRelationalValueBufferFactoryFactory.DataReaderParameter,
+                                    FastQueryMaterializerCreatingVisitor.DbContextParameter),
                                 Expression.Constant(QueryCompilationContext.ContextType),
                                 Expression.Constant(QueryCompilationContext.Logger));
                     }
@@ -137,10 +140,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private sealed class FastQueryMaterializerCreatingVisitor : ExpressionVisitor
         {
+            public static readonly ParameterExpression DbContextParameter
+                = Expression.Parameter(typeof(DbContext), "context");
+
+            private static readonly MemberInfo _contextProperty
+                = typeof(MaterializationContext).GetProperty(nameof(MaterializationContext.Context));
+
             private readonly IReadOnlyList<Expression> _valueBufferAssignmentExpressions;
 
             public FastQueryMaterializerCreatingVisitor(IReadOnlyList<Expression> valueBufferAssignmentExpressions)
                 => _valueBufferAssignmentExpressions = valueBufferAssignmentExpressions;
+
+            protected override Expression VisitMember(MemberExpression node)
+                => node.Member.Equals(_contextProperty)
+                    ? DbContextParameter
+                    : base.VisitMember(node);
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
