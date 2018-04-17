@@ -1289,6 +1289,19 @@ namespace Microsoft.EntityFrameworkCore
                         () => parent.Single).Message);
             }
         }
+
+        [Fact]
+        public virtual void Lazy_loading_uses_field_access_when_abstract_base_class_navigation()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var product = context.Set<SimpleProduct>().Single();
+                var deposit = product.Deposit;
+
+                Assert.NotNull(deposit);
+                Assert.Same(deposit, product.Deposit);
+            }
+        }
 #endif
 
         [Theory]
@@ -5951,6 +5964,67 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected abstract class RootClass
+        {
+            protected RootClass(Action<object, string> lazyLoader)
+            {
+                LazyLoader = lazyLoader;
+            }
+
+            protected RootClass()
+            {
+            }
+
+            public int Id { get; set; }
+
+            protected Action<object, string> LazyLoader { get; }
+        }
+
+        protected class Deposit : RootClass
+        {
+            private Deposit(Action<object, string> lazyLoader)
+                : base(lazyLoader)
+            {
+            }
+
+            public Deposit()
+            {
+            }
+        }
+
+        protected abstract class Product : RootClass
+        {
+            protected Product(Action<object, string> lazyLoader)
+                : base(lazyLoader)
+            {
+            }
+
+            protected Product()
+            {
+            }
+
+            public int? DepositID { get; set; }
+
+            private Deposit _deposit;
+            public Deposit Deposit
+            {
+                get => LazyLoader.Load(this, ref _deposit);
+                set => _deposit = value;
+            }
+        }
+
+        protected class SimpleProduct : Product
+        {
+            private SimpleProduct(Action<object, string> lazyLoader)
+                : base(lazyLoader)
+            {
+            }
+
+            public SimpleProduct()
+            {
+            }
+        }
+
         protected DbContext CreateContext(bool lazyLoadingEnabled = false, bool noTracking = false)
         {
             var context = Fixture.CreateContext();
@@ -6028,12 +6102,17 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasPrincipalKey<Parent>(e => new { e.AlternateId, e.Id })
                                 .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
                         });
+
+                modelBuilder.Entity<RootClass>();
+                modelBuilder.Entity<Product>();
+                modelBuilder.Entity<Deposit>();
+                modelBuilder.Entity<SimpleProduct>();
             }
 
             protected override void Seed(DbContext context)
             {
                 context.Add(
-                    (object)new Parent
+                    new Parent
                     {
                         Id = 707,
                         AlternateId = "Root",
@@ -6063,6 +6142,13 @@ namespace Microsoft.EntityFrameworkCore
                         },
                         SingleCompositeKey = new SingleCompositeKey { Id = 62 }
                     });
+
+                context.Add(
+                    new SimpleProduct
+                    {
+                        Deposit = new Deposit()
+                    });
+
                 context.SaveChanges();
             }
         }
