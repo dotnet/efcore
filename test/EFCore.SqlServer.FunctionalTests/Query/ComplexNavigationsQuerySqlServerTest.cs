@@ -375,7 +375,7 @@ WHERE ([e1.OneToOne_Optional_FK].[Name] LIKE [e1.OneToOne_Optional_FK].[Name] + 
                 @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_SelfId]
 FROM [LevelOne] AS [e1]
 LEFT JOIN [LevelTwo] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Optional_FK].[Level1_Optional_Id]
-WHERE DATEADD(day, 10E0, [e1.OneToOne_Optional_FK].[Date]) > '2000-02-01T00:00:00.0000000'");
+WHERE DATEADD(day, 10.0E0, [e1.OneToOne_Optional_FK].[Date]) > '2000-02-01T00:00:00.0000000'");
         }
 
         public override void Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability()
@@ -386,7 +386,7 @@ WHERE DATEADD(day, 10E0, [e1.OneToOne_Optional_FK].[Date]) > '2000-02-01T00:00:0
                 @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_SelfId]
 FROM [LevelOne] AS [e1]
 LEFT JOIN [LevelTwo] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Optional_FK].[Level1_Optional_Id]
-WHERE DATEADD(month, 2, DATEADD(day, 15E0, DATEADD(day, 10E0, [e1.OneToOne_Optional_FK].[Date]))) > '2002-02-01T00:00:00.0000000'");
+WHERE DATEADD(month, 2, DATEADD(day, 15.0E0, DATEADD(day, 10.0E0, [e1.OneToOne_Optional_FK].[Date]))) > '2002-02-01T00:00:00.0000000'");
         }
 
         public override void Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments()
@@ -397,7 +397,7 @@ WHERE DATEADD(month, 2, DATEADD(day, 15E0, DATEADD(day, 10E0, [e1.OneToOne_Optio
                 @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_InverseId], [e1].[OneToMany_Required_Self_InverseId], [e1].[OneToOne_Optional_SelfId]
 FROM [LevelOne] AS [e1]
 LEFT JOIN [LevelTwo] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Optional_FK].[Level1_Optional_Id]
-WHERE DATEADD(day, [e1.OneToOne_Optional_FK].[Id], DATEADD(day, 15E0, [e1.OneToOne_Optional_FK].[Date])) > '2002-02-01T00:00:00.0000000'");
+WHERE DATEADD(day, [e1.OneToOne_Optional_FK].[Id], DATEADD(day, 15.0E0, [e1.OneToOne_Optional_FK].[Date])) > '2002-02-01T00:00:00.0000000'");
         }
 #endif
 

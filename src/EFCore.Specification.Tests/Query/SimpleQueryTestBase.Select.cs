@@ -752,6 +752,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Millisecond));
         }
 
+        [ConditionalFact]
+        public virtual void Select_datetime_DayOfWeek_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => (int)o.OrderDate.Value.DayOfWeek));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_Ticks_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.Ticks));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_datetime_TimeOfDay_component()
+        {
+            AssertQueryScalar<Order>(os => os.Select(o => o.OrderDate.Value.TimeOfDay));
+        }
+
 #if !Test20
         [ConditionalFact]
         public virtual void Select_byte_constant()

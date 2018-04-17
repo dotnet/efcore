@@ -1326,7 +1326,7 @@ CREATE TABLE DefaultValues (
     IgnoredDefault21 real NOT NULL DEFAULT 0.0,
     IgnoredDefault22 smallmoney NOT NULL DEFAULT 0.0,
     IgnoredDefault23 real NOT NULL DEFAULT CAST(0 AS real),
-    IgnoredDefault24 float NOT NULL DEFAULT 0E0,
+    IgnoredDefault24 float NOT NULL DEFAULT 0.0E0,
     IgnoredDefault25 date NOT NULL DEFAULT '0001-01-01',
     IgnoredDefault26 datetime NOT NULL DEFAULT '1900-01-01T00:00:00.000',
     IgnoredDefault27 smalldatetime NOT NULL DEFAULT '1900-01-01T00:00:00.000',

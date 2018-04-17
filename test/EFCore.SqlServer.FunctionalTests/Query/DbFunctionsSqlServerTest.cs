@@ -361,7 +361,7 @@ WHERE DATEDIFF(SECOND, [c].[OrderDate], GETDATE()) = 0");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [c]
-WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1E0, GETDATE())) = 0");
+WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1.0E0, GETDATE())) = 0");
             }
         }
 
@@ -377,7 +377,7 @@ WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1E0, GETDATE())) = 0");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [c]
-WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
+WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1.0E0, GETDATE())) = 0");
             }
         }
 
@@ -393,7 +393,7 @@ WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [c]
-WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
+WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, 1.0E0, GETDATE())) = 0");
             }
         }
 #endif

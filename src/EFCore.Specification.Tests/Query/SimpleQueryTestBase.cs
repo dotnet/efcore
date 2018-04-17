@@ -3213,6 +3213,71 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Select_expression_datetime_add_month()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(
+                        o => new Order
+                        {
+                            OrderDate = o.OrderDate.Value.AddMonths(1)
+                        }),
+                e => e.OrderDate);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_datetime_add_hour()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(
+                        o => new Order
+                        {
+                            OrderDate = o.OrderDate.Value.AddHours(1)
+                        }),
+                e => e.OrderDate);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_datetime_add_minute()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(
+                        o => new Order
+                        {
+                            OrderDate = o.OrderDate.Value.AddMinutes(1)
+                        }),
+                e => e.OrderDate);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_datetime_add_second()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(
+                        o => new Order
+                        {
+                            OrderDate = o.OrderDate.Value.AddSeconds(1)
+                        }),
+                e => e.OrderDate);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_expression_datetime_add_ticks()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate != null)
+                    .Select(
+                        o => new Order
+                        {
+                            OrderDate = o.OrderDate.Value.AddTicks(TimeSpan.TicksPerMillisecond)
+                        }),
+                e => e.OrderDate);
+        }
+
+        [ConditionalFact]
         public virtual void Select_expression_date_add_milliseconds_above_the_range()
         {
             AssertQuery<Order>(

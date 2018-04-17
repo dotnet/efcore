@@ -67,7 +67,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
-            return ((double)value).ToString("G17", CultureInfo.InvariantCulture);
+            var doubleValue = (double)value;
+            var literal = doubleValue.ToString("G17", CultureInfo.InvariantCulture);
+
+            if (!literal.Contains("E")
+                && !literal.Contains("e")
+                && !literal.Contains(".")
+                && !double.IsNaN(doubleValue)
+                && !double.IsInfinity(doubleValue))
+            {
+                return literal + ".0";
+            }
+
+            return literal;
         }
     }
 }

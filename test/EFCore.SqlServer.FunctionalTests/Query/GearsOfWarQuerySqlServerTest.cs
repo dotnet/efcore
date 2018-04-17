@@ -3156,7 +3156,7 @@ FROM [Missions] AS [m]");
             base.DateTimeOffset_DateAdd_AddDays();
 
             AssertSql(
-                @"SELECT DATEADD(day, 1E0, [m].[Timeline])
+                @"SELECT DATEADD(day, 1.0E0, [m].[Timeline])
 FROM [Missions] AS [m]");
         }
 
@@ -3165,7 +3165,7 @@ FROM [Missions] AS [m]");
             base.DateTimeOffset_DateAdd_AddHours();
 
             AssertSql(
-                @"SELECT DATEADD(hour, 1E0, [m].[Timeline])
+                @"SELECT DATEADD(hour, 1.0E0, [m].[Timeline])
 FROM [Missions] AS [m]");
         }
 
@@ -3174,7 +3174,7 @@ FROM [Missions] AS [m]");
             base.DateTimeOffset_DateAdd_AddMinutes();
 
             AssertSql(
-                @"SELECT DATEADD(minute, 1E0, [m].[Timeline])
+                @"SELECT DATEADD(minute, 1.0E0, [m].[Timeline])
 FROM [Missions] AS [m]");
         }
 
@@ -3183,7 +3183,7 @@ FROM [Missions] AS [m]");
             base.DateTimeOffset_DateAdd_AddSeconds();
 
             AssertSql(
-                @"SELECT DATEADD(second, 1E0, [m].[Timeline])
+                @"SELECT DATEADD(second, 1.0E0, [m].[Timeline])
 FROM [Missions] AS [m]");
         }
 
@@ -3192,7 +3192,7 @@ FROM [Missions] AS [m]");
             base.DateTimeOffset_DateAdd_AddMilliseconds();
 
             AssertSql(
-                @"SELECT DATEADD(millisecond, 300E0, [m].[Timeline])
+                @"SELECT DATEADD(millisecond, 300.0E0, [m].[Timeline])
 FROM [Missions] AS [m]");
         }
 

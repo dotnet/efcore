@@ -3114,6 +3114,46 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
 
+        public override void Select_expression_datetime_add_month()
+        {
+            base.Select_expression_datetime_add_month();
+
+            AssertSql(
+                @"SELECT DATEADD(month, 1, [o].[OrderDate]) AS [OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL");
+        }
+
+        public override void Select_expression_datetime_add_hour()
+        {
+            base.Select_expression_datetime_add_hour();
+
+            AssertSql(
+                @"SELECT DATEADD(hour, 1.0E0, [o].[OrderDate]) AS [OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL");
+        }
+
+        public override void Select_expression_datetime_add_minute()
+        {
+            base.Select_expression_datetime_add_minute();
+
+            AssertSql(
+                @"SELECT DATEADD(minute, 1.0E0, [o].[OrderDate]) AS [OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL");
+        }
+
+        public override void Select_expression_datetime_add_second()
+        {
+            base.Select_expression_datetime_add_second();
+
+            AssertSql(
+                @"SELECT DATEADD(second, 1.0E0, [o].[OrderDate]) AS [OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL");
+        }
+
         public override void Select_expression_date_add_milliseconds_above_the_range()
         {
             base.Select_expression_date_add_milliseconds_above_the_range();

@@ -164,7 +164,7 @@ WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE ((strftime('%f', ""o"".""OrderDate"") * 1000) % 1000) = 88");
+WHERE ((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) = 88");
         }
 #endif
 
@@ -679,8 +679,128 @@ FROM ""Orders"" AS ""o""");
             base.Select_datetime_millisecond_component();
 
             AssertSql(
-                @"SELECT (strftime('%f', ""o"".""OrderDate"") * 1000) % 1000
+                @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000
 FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_DayOfWeek_component()
+        {
+            base.Select_datetime_DayOfWeek_component();
+
+            AssertSql(
+                @"SELECT CAST(strftime('%w', ""o"".""OrderDate"") AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_Ticks_component()
+        {
+            base.Select_datetime_Ticks_component();
+
+            AssertSql(
+                @"SELECT CAST((julianday(""o"".""OrderDate"") - 1721425.5) * 864000000000 AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_datetime_TimeOfDay_component()
+        {
+            base.Select_datetime_TimeOfDay_component();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate""), '0'), '.')
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override void Select_expression_date_add_year()
+        {
+            base.Select_expression_date_add_year();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override void Select_expression_datetime_add_month()
+        {
+            base.Select_expression_datetime_add_month();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' months'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override void Select_expression_datetime_add_hour()
+        {
+            base.Select_expression_datetime_add_hour();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1.0 AS TEXT) || ' hours'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override void Select_expression_datetime_add_minute()
+        {
+            base.Select_expression_datetime_add_minute();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1.0 AS TEXT) || ' minutes'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override void Select_expression_datetime_add_second()
+        {
+            base.Select_expression_datetime_add_second();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1.0 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override void Select_expression_datetime_add_ticks()
+        {
+            base.Select_expression_datetime_add_ticks();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(10000 / 10000000.0 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override void Select_expression_date_add_milliseconds_above_the_range()
+        {
+            base.Select_expression_date_add_milliseconds_above_the_range();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1000000000000.0 / 1000 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override void Select_expression_date_add_milliseconds_below_the_range()
+        {
+            base.Select_expression_date_add_milliseconds_below_the_range();
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(-1000000000000.0 / 1000 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
+        }
+
+        public override void Select_expression_date_add_milliseconds_large_number_divided()
+        {
+            base.Select_expression_date_add_milliseconds_large_number_divided();
+
+            AssertSql(
+                @"@__millisecondsPerDay_0='86400000' (DbType = String)
+@__millisecondsPerDay_1='86400000' (DbType = String)
+
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) / @__millisecondsPerDay_0 AS TEXT) || ' days'), '0'), '.'), CAST((((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) % @__millisecondsPerDay_1) / 1000 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
 #endif
 

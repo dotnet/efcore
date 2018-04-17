@@ -56,8 +56,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             var literal = base.GenerateNonNullSqlLiteral(value);
 
+            var doubleValue = (double)value;
             if (!literal.Contains("E")
-                && !literal.Contains("e"))
+                && !literal.Contains("e")
+                && !double.IsNaN(doubleValue)
+                && !double.IsInfinity(doubleValue))
             {
                 return literal + "E0";
             }
