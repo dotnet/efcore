@@ -48,7 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type parameterType,
             string parameterName)
         {
-            entityType.SetNavigationAccessMode(PropertyAccessMode.Field);
+            var baseType = entityType;
+            do
+            {
+                baseType.SetNavigationAccessMode(PropertyAccessMode.Field);
+                baseType = baseType.BaseType;
+            }
+            while (baseType != null);
 
             return parameterType == typeof(ILazyLoader)
                 ? new DefaultServiceParameterBinding(
