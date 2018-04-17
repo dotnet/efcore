@@ -182,10 +182,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
                 }
 
                 var subQuery = selectExpression.PushDownSubquery();
-
-                foreach (var projection in subQuery.Projection)
+                if (subQuery.Projection.Count > 0)
                 {
-                    selectExpression.AddToProjection(projection.LiftExpressionFromSubquery(subQuery));
+                    selectExpression.ExplodeStarProjection();
                 }
 
                 if (subQuery.OrderBy.Count == 0)
