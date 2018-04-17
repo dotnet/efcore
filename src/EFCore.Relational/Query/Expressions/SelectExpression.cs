@@ -381,20 +381,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             foreach (var expression in projectionsToAdd)
             {
-                var expressionToAdd = subquery.CreateUniqueProjection(expression);
-
-                if (expression is AliasExpression aliasExpression)
+                var expressionToAdd = expression;
+                // To de-dup same projections from table splitting case
+                var projectionIndex = subquery.FindProjectionIndex(expressionToAdd);
+                if (projectionIndex == -1)
                 {
-                    aliasExpressionMap.Add(aliasExpression, expressionToAdd);
-                }
+                    expressionToAdd = subquery.CreateUniqueProjection(expression);
+                    if (expression is AliasExpression aliasExpression)
+                    {
+                        aliasExpressionMap.Add(aliasExpression, expressionToAdd);
+                    }
 
-                if (IsProjectStar)
-                {
-                    subquery._starProjection.Add(expressionToAdd);
+                    if (IsProjectStar)
+                    {
+                        subquery._starProjection.Add(expressionToAdd);
+                    }
+                    else
+                    {
+                        subquery._projection.Add(expressionToAdd);
+                    }
                 }
                 else
                 {
-                    subquery._projection.Add(expressionToAdd);
+                    expressionToAdd = subquery.Projection[projectionIndex];
                 }
 
                 var outerProjection = expressionToAdd.LiftExpressionFromSubquery(subquery);
@@ -609,10 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 }
             }
 
-            var projectionIndex
-                = _projection.FindIndex(
-                    e => ExpressionEqualityComparer.Instance.Equals(e, expression)
-                         || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, expression));
+            var projectionIndex = FindProjectionIndex(expression);
 
             if (projectionIndex != -1)
             {
@@ -649,6 +655,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             return _projection.Count - 1;
+        }
+
+        private int FindProjectionIndex(Expression expression)
+        {
+            return _projection.FindIndex(
+                e => ExpressionEqualityComparer.Instance.Equals(e, expression)
+                    || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, expression));
         }
 
         /// <summary>
@@ -738,10 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private Expression CreateUniqueProjection(Expression expression, string newAlias = null)
         {
-            var currentProjectionIndex
-                = _projection.FindIndex(
-                    e => ExpressionEqualityComparer.Instance.Equals(e, expression)
-                         || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, expression));
+            var currentProjectionIndex = FindProjectionIndex(expression);
 
             if (currentProjectionIndex != -1)
             {
@@ -858,10 +868,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             var projectedExpressionToSearch = BindProperty(property, querySource);
 
-            return _projection
-                .FindIndex(
-                    e => ExpressionEqualityComparer.Instance.Equals(e, projectedExpressionToSearch)
-                         || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, projectedExpressionToSearch));
+            return FindProjectionIndex(projectedExpressionToSearch);
         }
 
         /// <summary>

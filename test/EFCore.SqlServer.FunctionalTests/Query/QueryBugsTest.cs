@@ -3079,21 +3079,39 @@ ORDER BY [t].[Id]");
         {
             using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureClean();
+                context.Add(new Note
+                {
+                    Text = "Foo Bar",
+                    User = new User10168
+                    {
+                        Fullname = "Full1",
+                        Email = "abc@def.com"
+                    }
+                });
 
+                context.SaveChanges();
                 ClearLog();
+            }
 
-                var queryableObj = context.Note.Where(x => x.Text == "Foo Bar").AsQueryable();
+            using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
+            {
+                var query = context.Note.Where(x => x.Text == "Foo Bar")
+                                .Skip(0)
+                                .Take(100)
+                                .ToList();
 
-                queryableObj.Skip(0).Take(100).ToList();
+                var result = Assert.Single(query);
+                Assert.NotNull(result.User);
+                Assert.Equal("Full1", result.User.Fullname);
 
                 AssertSql(
                     @"@__p_0='?' (DbType = Int32)
 @__p_1='?' (DbType = Int32)
 
-SELECT [t].[Id], [t].[Text], [t].[Id0], [t].[User_Email], [t].[User_Fullname]
+SELECT [t].[Id], [t].[Text], [t].[Id], [t].[User_Email], [t].[User_Fullname]
 FROM (
-    SELECT [x].[Id], [x].[Text], [x].[Id] AS [Id0], [x].[User_Email], [x].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+    SELECT [x].[Id], [x].[Text], [x].[User_Email], [x].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
     FROM [Note] AS [x]
     WHERE [x].[Text] = N'Foo Bar'
 ) AS [t]
@@ -3137,6 +3155,7 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
 
         public class User10168
         {
+            public Guid Id { get; set; }
             public string Fullname { get; set; }
             public string Email { get; set; }
         }
