@@ -6890,6 +6890,39 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] = N'Officer'");
         }
 
+        public override void Cast_subquery_to_base_type_using_typed_ToList()
+        {
+            base.Cast_subquery_to_base_type_using_typed_ToList();
+
+            AssertSql(
+                @"SELECT [c].[Name]
+FROM [Cities] AS [c]
+WHERE [c].[Name] = N'Ephyra'",
+                //
+                @"@_outer_Name='Ephyra' (Size = 450)
+
+SELECT [g].[CityOrBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (@_outer_Name = [g].[AssignedCityName])");
+        }
+
+        public override void Cast_ordered_subquery_to_base_type_using_typed_ToArray()
+        {
+            base.Cast_ordered_subquery_to_base_type_using_typed_ToArray();
+
+            AssertSql(
+                @"SELECT [c].[Name]
+FROM [Cities] AS [c]
+WHERE [c].[Name] = N'Ephyra'",
+                //
+                @"@_outer_Name='Ephyra' (Size = 450)
+
+SELECT [g].[CityOrBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (@_outer_Name = [g].[AssignedCityName])
+ORDER BY [g].[Nickname] DESC");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

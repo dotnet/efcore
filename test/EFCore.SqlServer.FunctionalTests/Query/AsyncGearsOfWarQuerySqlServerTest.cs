@@ -2273,7 +2273,6 @@ WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[Has
 ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
 
-
         public override async Task Correlated_collection_with_very_complex_order_by()
         {
             await base.Correlated_collection_with_very_complex_order_by();
