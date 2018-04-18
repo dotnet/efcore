@@ -292,6 +292,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var newEntry = _internalEntityEntryFactory.Create(
                 this,
                 baseEntityType.ClrType == clrType
+                || baseEntityType.HasDefiningNavigation()
                     ? baseEntityType
                     : _model.FindRuntimeEntityType(clrType),
                 entity, valueBuffer);

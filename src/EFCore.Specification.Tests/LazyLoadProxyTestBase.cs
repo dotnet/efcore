@@ -1543,6 +1543,25 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [Fact]
+        public virtual void Lazy_loading_finds_correct_entity_type_with_already_loaded_owned_types()
+        {
+            using (var context = CreateContext())
+            {
+                var blogs = context.Set<Blog>().ToList();
+
+                Assert.Equal(1, blogs.Count);
+
+                Assert.Equal("firstNameReader", blogs[0].Reader.FirstName);
+                Assert.Equal("lastNameReader", blogs[0].Reader.LastName);
+
+                Assert.Equal("firstNameWriter", blogs[0].Writer.FirstName);
+                Assert.Equal("lastNameWriter", blogs[0].Writer.LastName);
+
+                Assert.Equal("127.0.0.1", blogs[0].Host.HostName);
+            }
+        }
+
         public class Parent
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1644,6 +1663,25 @@ namespace Microsoft.EntityFrameworkCore
             public string ParentAlternateId { get; set; }
 
             public virtual Parent Parent { get; set; }
+        }
+
+        public class Blog
+        {
+            public int Id { get; set; }
+            public virtual Person Writer { get; set; }
+            public virtual Person Reader { get; set; }
+            public virtual Host Host { get; set; }
+        }
+
+        public class Person
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
+        public class Host
+        {
+            public string HostName { get; set; }
         }
 
         protected DbContext CreateContext(bool lazyLoadingEnabled = false)
@@ -1748,12 +1786,20 @@ namespace Microsoft.EntityFrameworkCore
                                     e.ParentId
                                 });
                     });
+
+                modelBuilder.Entity<Blog>(
+                    e =>
+                    {
+                        e.OwnsOne(x => x.Writer);
+                        e.OwnsOne(x => x.Reader);
+                        e.OwnsOne(x => x.Host);
+                    });
             }
 
             protected override void Seed(DbContext context)
             {
                 context.Add(
-                    (object)new Parent
+                    new Parent
                     {
                         Id = 707,
                         AlternateId = "Root",
@@ -1783,6 +1829,26 @@ namespace Microsoft.EntityFrameworkCore
                         },
                         SingleCompositeKey = new SingleCompositeKey { Id = 62 }
                     });
+
+                context.Add(
+                    new Blog
+                    {
+                        Writer = new Person
+                        {
+                            FirstName = "firstNameWriter",
+                            LastName = "lastNameWriter"
+                        },
+                        Reader = new Person
+                        {
+                            FirstName = "firstNameReader",
+                            LastName = "lastNameReader"
+                        },
+                        Host = new Host
+                        {
+                            HostName = "127.0.0.1"
+                        }
+                    });
+
                 context.SaveChanges();
             }
         }
