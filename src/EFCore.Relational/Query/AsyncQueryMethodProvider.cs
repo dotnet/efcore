@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static IAsyncEnumerable<TEntity> _FastQuery<TEntity>(
             RelationalQueryContext relationalQueryContext,
             ShaperCommandContext shaperCommandContext,
-            Func<DbDataReader, TEntity> materializer,
+            Func<DbDataReader, DbContext, TEntity> materializer,
             Type contextType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             => new FastQueryAsyncEnumerable<TEntity>(
@@ -54,14 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly ShaperCommandContext _shaperCommandContext;
-            private readonly Func<DbDataReader, TEntity> _materializer;
+            private readonly Func<DbDataReader, DbContext, TEntity> _materializer;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
             public FastQueryAsyncEnumerable(
                 RelationalQueryContext relationalQueryContext,
                 ShaperCommandContext shaperCommandContext,
-                Func<DbDataReader, TEntity> materializer,
+                Func<DbDataReader, DbContext, TEntity> materializer,
                 Type contextType,
                 IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             {
@@ -77,38 +77,48 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private class FastQueryAsyncEnumerator : IAsyncEnumerator<TEntity>
             {
-                private readonly FastQueryAsyncEnumerable<TEntity> _state;
-
+                private readonly RelationalQueryContext _relationalQueryContext;
+                private readonly ShaperCommandContext _shaperCommandContext;
+                private readonly Func<DbDataReader, DbContext, TEntity> _materializer;
+                private readonly Type _contextType;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                
                 private RelationalDataReader _dataReader;
                 private DbDataReader _dbDataReader;
 
                 private bool _disposed;
 
                 public FastQueryAsyncEnumerator(FastQueryAsyncEnumerable<TEntity> state)
-                    => _state = state;
+                {
+                    _relationalQueryContext = state._relationalQueryContext;
+                    _shaperCommandContext = state._shaperCommandContext;
+                    _materializer = state._materializer;
+                    _contextType = state._contextType;
+                    _logger = state._logger;
+                }
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
                     if (_dataReader == null)
                     {
-                        await _state._relationalQueryContext.Connection.OpenAsync(cancellationToken);
+                        await _relationalQueryContext.Connection.OpenAsync(cancellationToken);
 
                         try
                         {
                             var relationalCommand
-                                = _state._shaperCommandContext
-                                    .GetRelationalCommand(_state._relationalQueryContext.ParameterValues);
+                                = _shaperCommandContext
+                                    .GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
                             _dataReader
                                 = await relationalCommand.ExecuteReaderAsync(
-                                    _state._relationalQueryContext.Connection,
-                                    _state._relationalQueryContext.ParameterValues, cancellationToken);
+                                    _relationalQueryContext.Connection,
+                                    _relationalQueryContext.ParameterValues, cancellationToken);
                         }
                         catch
                         {
                             //  If failure happens creating the data reader, then it won't be available to
                             //  handle closing the connection, so do it explicitly here to preserve ref counting.
-                            _state._relationalQueryContext.Connection.Close();
+                            _relationalQueryContext.Connection.Close();
 
                             throw;
                         }
@@ -116,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _dbDataReader = _dataReader.DbDataReader;
                     }
 
-                    using (await _state._relationalQueryContext.ConcurrencyDetector
+                    using (await _relationalQueryContext.ConcurrencyDetector
                         .EnterCriticalSectionAsync(cancellationToken))
                     {
                         bool hasNext;
@@ -127,14 +137,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                         catch (Exception exception)
                         {
-                            _state._logger.QueryIterationFailed(_state._contextType, exception);
+                            _logger.QueryIterationFailed(_contextType, exception);
 
                             throw;
                         }
 
                         Current
                             = hasNext
-                                ? _state._materializer(_dbDataReader)
+                                ? _materializer(_dbDataReader, _relationalQueryContext.Context)
                                 : default;
 
                         return hasNext;
@@ -149,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         try
                         {
-                            _state._relationalQueryContext.Connection.Semaphore.Wait();
+                            _relationalQueryContext.Connection.Semaphore.Wait();
 
                             if (_dataReader != null)
                             {
@@ -157,17 +167,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 _dataReader = null;
                                 _dbDataReader = null;
 
-                                _state._relationalQueryContext.Connection?.Close();
+                                _relationalQueryContext.Connection?.Close();
                             }
 
                             _disposed = true;
                         }
                         finally
                         {
-                            _state._relationalQueryContext.Connection.Semaphore.Release();
+                            _relationalQueryContext.Connection.Semaphore.Release();
                         }
 
-                        _state._relationalQueryContext.Dispose();
+                        _relationalQueryContext.Dispose();
                     }
                 }
             }

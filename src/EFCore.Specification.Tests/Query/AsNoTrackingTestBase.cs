@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -145,6 +146,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToList();
 
                 Assert.Equal(6, employees.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Query_fast_path_when_ctor_binding()
+        {
+            using (var context = CreateContext())
+            {
+                var employees
+                    = context.Set<Customer>()
+                        .AsNoTracking()
+                        .ToList();
+
+                Assert.Equal(91, employees.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Query_fast_path_when_ctor_binding_async()
+        {
+            using (var context = CreateContext())
+            {
+                var employees
+                    = await context.Set<Customer>()
+                        .AsNoTracking()
+                        .ToListAsync();
+
+                Assert.Equal(91, employees.Count);
             }
         }
 

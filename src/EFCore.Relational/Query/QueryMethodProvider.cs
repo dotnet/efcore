@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static IEnumerable<TEntity> _FastQuery<TEntity>(
             RelationalQueryContext relationalQueryContext,
             ShaperCommandContext shaperCommandContext,
-            Func<DbDataReader, TEntity> materializer,
+            Func<DbDataReader, DbContext, TEntity> materializer,
             Type contextType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             if (hasNext)
                             {
-                                yield return materializer(dbDataReader);
+                                yield return materializer(dbDataReader, relationalQueryContext.Context);
                             }
                             else
                             {

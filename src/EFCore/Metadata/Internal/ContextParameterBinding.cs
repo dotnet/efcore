@@ -33,10 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Expression materializationExpression,
             Expression entityTypeExpression,
             Expression entityExpression)
-            => Expression.TypeAs(
-                Expression.Call(
+        {
+            var propertyExpression
+                = Expression.Property(
                     materializationExpression,
-                    MaterializationContext.GetContextMethod),
-                ServiceType);
+                    MaterializationContext.ContextProperty);
+
+            return ServiceType != typeof(DbContext)
+                ? (Expression)Expression.TypeAs(propertyExpression, ServiceType)
+                : propertyExpression;
+        }
     }
 }

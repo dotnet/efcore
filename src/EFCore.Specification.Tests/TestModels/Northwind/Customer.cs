@@ -3,11 +3,24 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+
+// ReSharper disable UnusedParameter.Local
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class Customer
     {
+        public Customer()
+        {
+        }
+
+        // Custom ctor binding
+        public Customer(DbContext context, ILazyLoader lazyLoader, string customerID)
+        {
+            CustomerID = customerID;
+        }
+
         public string CustomerID { get; set; }
         public string CompanyName { get; set; }
         public string ContactName { get; set; }
@@ -21,6 +34,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public string Fax { get; set; }
 
         public virtual List<Order> Orders { get; set; }
+
+        public NorthwindContext Context { get; set; } 
 
         [NotMapped]
         public bool IsLondon => City == "London";

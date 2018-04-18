@@ -43,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => Expression.Call(
                 _getServiceMethod.MakeGenericMethod(ServiceType),
                 Expression.Convert(
-                    Expression.Call(
+                    Expression.Property(
                         materializationExpression,
-                        MaterializationContext.GetContextMethod),
+                        MaterializationContext.ContextProperty),
                     typeof(IInfrastructure<IServiceProvider>)));
     }
 }
