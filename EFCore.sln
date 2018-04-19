@@ -38,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Abstractions", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Design", "src\EFCore.Design\EFCore.Design.csproj", "{D3D0A8E8-EC2F-4E01-8650-8554E186A66F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.DocumentDb", "src\EFCore.DocumentDb\EFCore.DocumentDb.csproj", "{5E9511F2-945C-4DAE-B42C-C11DB048F0E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.Sql", "src\EFCore.Cosmos.Sql\EFCore.Cosmos.Sql.csproj", "{5E9511F2-945C-4DAE-B42C-C11DB048F0E8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.InMemory", "src\EFCore.InMemory\EFCore.InMemory.csproj", "{6B102CC4-4396-4A7B-9F72-2C6B5C4D8310}"
 EndProject
@@ -67,9 +67,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.CrossStore.Functiona
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Design.Tests", "test\EFCore.Design.Tests\EFCore.Design.Tests.csproj", "{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.DocumentDb.FunctionalTests", "test\EFCore.DocumentDb.FunctionalTests\EFCore.DocumentDb.FunctionalTests.csproj", "{3A6D7836-00B2-4F8D-B047-D44DA6BEE2D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.Sql.FunctionalTests", "test\EFCore.Cosmos.Sql.FunctionalTests\EFCore.Cosmos.Sql.FunctionalTests.csproj", "{3A6D7836-00B2-4F8D-B047-D44DA6BEE2D6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.DocumentDb.Tests", "test\EFCore.DocumentDb.Tests\EFCore.DocumentDb.Tests.csproj", "{BF5E23C7-27CD-4195-AD90-236BC0FF11A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.Sql.Tests", "test\EFCore.Cosmos.Sql.Tests\EFCore.Cosmos.Sql.Tests.csproj", "{BF5E23C7-27CD-4195-AD90-236BC0FF11A0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.InMemory.FunctionalTests", "test\EFCore.InMemory.FunctionalTests\EFCore.InMemory.FunctionalTests.csproj", "{305B30D3-0E30-46E9-BA9D-060E0B79BE98}"
 EndProject
