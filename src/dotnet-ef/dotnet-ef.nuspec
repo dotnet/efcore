@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>$authors$</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>$licenseUrl$</licenseUrl>
+    <projectUrl>$projectUrl$</projectUrl>
+    <iconUrl>$iconUrl$</iconUrl>
+    <description>$description$</description>
+    <copyright>$copyright$</copyright>
+    <tags>$tags$</tags>
+    <packageTypes>
+      <packageType name="$packageType$" />
+    </packageTypes>
+    <repository type="git" url="$repositoryUrl$" commit="$repositoryCommit$" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp2.0" />
+    </dependencies>
+  </metadata>
+
+  <files>
+    <file src="$SettingsFile$" target="tools\$targetFramework$\any" />
+    <file src="$Output$" target="tools\$targetFramework$\any" />
+    <file src="$OutputBinary$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />
+    <file src="$OutputRuntimeConfig$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />
+    <file src="$OutputSymbol$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />
+    <file src="$OutputExe$" target="tools\$targetFramework$\any\tools\net461\any" />
+    <file src="$OutputExeSymbol$" target="tools\$targetFramework$\any\tools\net461\any" />
+    <file src="$OutputX86Exe$" target="tools\$targetFramework$\any\tools\net461\win-x86" />
+    <file src="$OutputX86ExeSymbol$" target="tools\$targetFramework$\any\tools\net461\win-x86" />
+  </files>
+</package>
