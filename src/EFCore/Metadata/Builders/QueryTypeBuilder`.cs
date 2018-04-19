@@ -112,27 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             (QueryTypeBuilder<TQuery>)base.HasQueryFilter(filter);
 
         /// <summary>
-        ///     Configures an index on the specified properties. If there is an existing index on the given
-        ///     set of properties, then the existing index will be returned for configuration.
-        /// </summary>
-        /// <param name="indexExpression">
-        ///     <para>
-        ///         A lambda expression representing the property(s) to be included in the index
-        ///         (<c>blog => blog.Url</c>).
-        ///     </para>
-        ///     <para>
-        ///         If the index is made up of multiple properties then specify an anonymous type including the
-        ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
-        ///     </para>
-        /// </param>
-        /// <returns> An object that can be used to configure the index. </returns>
-        public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TQuery, object>> indexExpression) =>
-            new IndexBuilder(
-                Builder.HasIndex(
-                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(),
-                    ConfigurationSource.Explicit));
-
-        /// <summary>
         ///     Configures a query used to provide data for a query type.
         /// </summary>
         /// <param name="query"> The query that will provider the underlying data for the query type. </param>

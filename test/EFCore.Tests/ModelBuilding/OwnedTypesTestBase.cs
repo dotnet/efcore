@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -504,6 +505,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details);
 
                 Assert.Equal(2, modelBuilder.Model.GetEntityTypes(typeof(CustomerDetails)).Count);
+            }
+
+            [Fact]
+            public virtual void OwnedType_can_derive_from_Collection()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<PrincipalEntity>().OwnsOne(o => o.InverseNav);
+
+                Assert.Single(modelBuilder.Model.GetEntityTypes(typeof(List<DependentEntity>)));
             }
         }
     }

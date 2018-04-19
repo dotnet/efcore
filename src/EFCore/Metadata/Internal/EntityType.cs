@@ -1128,8 +1128,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
-            foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
+            if (!IsQueryType)
+            {
+                foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
+                foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
+            }
 
             PropertyMetadataChanged();
 

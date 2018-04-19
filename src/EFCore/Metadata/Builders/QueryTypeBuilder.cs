@@ -187,18 +187,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures an index on the specified properties. If there is an existing index on the given
-        ///     set of properties, then the existing index will be returned for configuration.
-        /// </summary>
-        /// <param name="propertyNames"> The names of the properties that make up the index. </param>
-        /// <returns> An object that can be used to configure the index. </returns>
-        public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
-        {
-            return new IndexBuilder(Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)),
-                ConfigurationSource.Explicit));
-        }
-
-        /// <summary>
         ///     <para>
         ///         Configures a relationship where this query type has a reference that points
         ///         to a single instance of the other type in the relationship.
