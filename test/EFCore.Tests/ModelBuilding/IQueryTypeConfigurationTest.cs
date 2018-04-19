@@ -70,6 +70,54 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
             }
 
+            [Fact]
+            public void Can_use_shadow_property_for_fk_on_queryType()
+            {
+                var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                builder.Entity<Value>();
+                builder.Query<QueryResult>().HasOne(x => x.Value).WithMany().HasForeignKey("DataValueId");
+
+                var fk = Assert.Single(builder.Model.FindEntityType(typeof(QueryResult)).GetForeignKeys());
+                Assert.Equal("DataValueId", fk.Properties[0].Name);
+            }
+
+            [Fact]
+            public void Can_use_clr_property_for_fk_on_queryType()
+            {
+                var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                builder.Entity<Value>();
+                builder.Query<QueryResult>().HasOne(x => x.Value).WithMany().HasForeignKey(e => e.ValueFk);
+
+                var fk = Assert.Single(builder.Model.FindEntityType(typeof(QueryResult)).GetForeignKeys());
+                Assert.Equal("ValueFk", fk.Properties[0].Name);
+            }
+
+            [Fact]
+            public void Can_use_different_clr_property_for_fk_on_queryType()
+            {
+                var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                builder.Entity<Value>();
+                builder.Query<QueryCoreResult>().HasOne(x => x.Value).WithMany().HasForeignKey(e => e.ValueFk);
+
+                var fk = Assert.Single(builder.Model.FindEntityType(typeof(QueryCoreResult)).GetForeignKeys());
+                Assert.Equal("ValueFk", fk.Properties[0].Name);
+            }
+
+            [Fact]
+            public void Can_use_alternate_key()
+            {
+                var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                builder.Entity<Value>();
+                builder.Query<QueryResult>().HasOne(x => x.Value).WithMany().HasPrincipalKey(e => e.AlternateId);
+
+                var fk = Assert.Single(builder.Model.FindEntityType(typeof(QueryResult)).GetForeignKeys());
+                Assert.Equal("AlternateId", fk.PrincipalKey.Properties[0].Name);
+            }
+
             private class CustomerConfiguration : IQueryTypeConfiguration<Customer>
             {
                 public void Configure(QueryTypeBuilder<Customer> builder)

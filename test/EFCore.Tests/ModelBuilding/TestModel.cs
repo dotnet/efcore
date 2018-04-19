@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         [Owned]
-        public class StreetAddress
+        protected class StreetAddress
         {
             public string Street { get; set; }
             public string City { get; set; }
@@ -548,12 +548,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
         }
 
-        public class StringIdBase
+        protected class StringIdBase
         {
             public string Id { get; set; }
         }
 
-        public class StringIdDerived : StringIdBase
+        protected class StringIdDerived : StringIdBase
         {
         }
 
@@ -572,6 +572,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public int Id { get; set; }
             public IList<Friendship> Friendships { get; set; }
+        }
+
+        protected class QueryResult
+        {
+            public int ValueFk { get; set; }
+            public Value Value { get; set; }
+        }
+
+        protected class Value
+        {
+            public int Id { get; set; }
+            public int AlternateId { get; set; }
+        }
+
+        protected class QueryCoreResult
+        {
+            public int ValueFk { get; set; }
+            public int ValueId { get; set; }
+            public Value Value { get; set; }
         }
     }
 }
