@@ -4258,5 +4258,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { Count = details.Count() });
         }
 
+        [ConditionalFact]
+        public virtual void Let_entity_equality_to_null()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs.Where(c => c.CustomerID.StartsWith("A"))
+                      let o = c.Orders.OrderBy(e => e.OrderDate).FirstOrDefault()
+                      where o != null
+                      select new
+                      {
+                          c.CustomerID,
+                          o.OrderDate
+                      });
+        }
+
+        [ConditionalFact]
+        public virtual void Let_entity_equality_to_other_entity()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs.Where(c => c.CustomerID.StartsWith("A"))
+                      let o = c.Orders.OrderBy(e => e.OrderDate).FirstOrDefault()
+                      where o != new Order()
+                      select new
+                      {
+                          c.CustomerID,
+                          A = (o != null ? o.OrderDate : null)
+                      });
+        }
     }
 }

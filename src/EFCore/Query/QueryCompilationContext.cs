@@ -65,6 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             TrackQueryResults = trackQueryResults;
         }
 
+        internal ISet<QueryModel> DuplicateQueryModels = new HashSet<QueryModel>();
+
         /// <summary>
         ///     Registers a mapping between correlated collection query models and metadata needed to process them.
         /// </summary>

@@ -196,6 +196,37 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected override Expression VisitBinary(BinaryExpression node)
+            => node.Update(
+                VisitBinaryOperand(node.Left, node.NodeType),
+                node.Conversion,
+                VisitBinaryOperand(node.Right, node.NodeType));
+
+        private Expression VisitBinaryOperand(Expression operand, ExpressionType comparison)
+        {
+            if (comparison == ExpressionType.Equal
+                || comparison == ExpressionType.NotEqual)
+            {
+                if (operand is SubQueryExpression subQueryExpression
+                    && _queryModelVisitor.QueryCompilationContext.DuplicateQueryModels.Contains(subQueryExpression.QueryModel))
+                {
+                    _queryModelStack.Push(subQueryExpression.QueryModel);
+
+                    subQueryExpression.QueryModel.TransformExpressions(Visit);
+
+                    _queryModelStack.Pop();
+
+                    return operand;
+                }
+            }
+
+            return Visit(operand);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             if (!IsGroupByAggregateSubQuery(expression.QueryModel))

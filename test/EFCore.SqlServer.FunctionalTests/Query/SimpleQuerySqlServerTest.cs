@@ -4514,6 +4514,120 @@ WHERE EXISTS (
     WHERE ([od].[Quantity] < CAST(10 AS smallint)) AND ([o].[OrderID] = [od].[OrderID]))");
         }
 
+        public override void Let_entity_equality_to_null()
+        {
+            base.Let_entity_equality_to_null();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], (
+    SELECT TOP(1) [e0].[OrderDate]
+    FROM [Orders] AS [e0]
+    WHERE [c].[CustomerID] = [e0].[CustomerID]
+    ORDER BY [e0].[OrderDate]
+) AS [OrderDate]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
+                //
+                @"@_outer_CustomerID='ALFKI' (Size = 5)
+
+SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE @_outer_CustomerID = [e].[CustomerID]
+ORDER BY [e].[OrderDate]",
+                //
+                @"@_outer_CustomerID='ANATR' (Size = 5)
+
+SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE @_outer_CustomerID = [e].[CustomerID]
+ORDER BY [e].[OrderDate]",
+                //
+                @"@_outer_CustomerID='ANTON' (Size = 5)
+
+SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE @_outer_CustomerID = [e].[CustomerID]
+ORDER BY [e].[OrderDate]",
+                //
+                @"@_outer_CustomerID='AROUT' (Size = 5)
+
+SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE @_outer_CustomerID = [e].[CustomerID]
+ORDER BY [e].[OrderDate]");
+        }
+
+        public override void Let_entity_equality_to_other_entity()
+        {
+            base.Let_entity_equality_to_other_entity();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], (
+    SELECT TOP(1) [e2].[OrderDate]
+    FROM [Orders] AS [e2]
+    WHERE [c].[CustomerID] = [e2].[CustomerID]
+    ORDER BY [e2].[OrderDate]
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
+                //
+                @"@_outer_CustomerID='ALFKI' (Size = 5)
+
+SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE @_outer_CustomerID = [e].[CustomerID]
+ORDER BY [e].[OrderDate]",
+                //
+                @"@_outer_CustomerID1='ALFKI' (Size = 5)
+
+SELECT TOP(1) [e1].[OrderID], [e1].[CustomerID], [e1].[EmployeeID], [e1].[OrderDate]
+FROM [Orders] AS [e1]
+WHERE @_outer_CustomerID1 = [e1].[CustomerID]
+ORDER BY [e1].[OrderDate]",
+                //
+                @"@_outer_CustomerID='ANATR' (Size = 5)
+
+SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE @_outer_CustomerID = [e].[CustomerID]
+ORDER BY [e].[OrderDate]",
+                //
+                @"@_outer_CustomerID1='ANATR' (Size = 5)
+
+SELECT TOP(1) [e1].[OrderID], [e1].[CustomerID], [e1].[EmployeeID], [e1].[OrderDate]
+FROM [Orders] AS [e1]
+WHERE @_outer_CustomerID1 = [e1].[CustomerID]
+ORDER BY [e1].[OrderDate]",
+                //
+                @"@_outer_CustomerID='ANTON' (Size = 5)
+
+SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE @_outer_CustomerID = [e].[CustomerID]
+ORDER BY [e].[OrderDate]",
+                //
+                @"@_outer_CustomerID1='ANTON' (Size = 5)
+
+SELECT TOP(1) [e1].[OrderID], [e1].[CustomerID], [e1].[EmployeeID], [e1].[OrderDate]
+FROM [Orders] AS [e1]
+WHERE @_outer_CustomerID1 = [e1].[CustomerID]
+ORDER BY [e1].[OrderDate]",
+                //
+                @"@_outer_CustomerID='AROUT' (Size = 5)
+
+SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
+FROM [Orders] AS [e]
+WHERE @_outer_CustomerID = [e].[CustomerID]
+ORDER BY [e].[OrderDate]",
+                //
+                @"@_outer_CustomerID1='AROUT' (Size = 5)
+
+SELECT TOP(1) [e1].[OrderID], [e1].[CustomerID], [e1].[EmployeeID], [e1].[OrderDate]
+FROM [Orders] AS [e1]
+WHERE @_outer_CustomerID1 = [e1].[CustomerID]
+ORDER BY [e1].[OrderDate]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
