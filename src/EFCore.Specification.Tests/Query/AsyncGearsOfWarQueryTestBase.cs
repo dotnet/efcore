@@ -1644,5 +1644,44 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Gear>(
                 gs => gs.OfType<Officer>().Cast<Officer>());
         }
+
+        [ConditionalFact]
+        public virtual async Task Cast_subquery_to_base_type_using_typed_ToList()
+        {
+            await AssertQuery<City>(
+                cs => cs.Where(c => c.Name == "Ephyra").Select(c => c.StationedGears.Select(g => new Officer
+                {
+                    CityOrBirthName = g.CityOrBirthName,
+                    FullName = g.FullName,
+                    HasSoulPatch = g.HasSoulPatch,
+                    LeaderNickname = g.LeaderNickname,
+                    LeaderSquadId = g.LeaderSquadId,
+                    Nickname = g.Nickname,
+                    Rank = g.Rank,
+                    SquadId = g.SquadId
+                }).ToList<Gear>()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+        }
+
+
+        [ConditionalFact]
+        public virtual async Task Cast_ordered_subquery_to_base_type_using_typed_ToArray()
+        {
+            await AssertQuery<City>(
+                cs => cs.Where(c => c.Name == "Ephyra").Select(c => c.StationedGears.OrderByDescending(g => g.Nickname).Select(g => new Officer
+                {
+                    CityOrBirthName = g.CityOrBirthName,
+                    FullName = g.FullName,
+                    HasSoulPatch = g.HasSoulPatch,
+                    LeaderNickname = g.LeaderNickname,
+                    LeaderSquadId = g.LeaderSquadId,
+                    Nickname = g.Nickname,
+                    Rank = g.Rank,
+                    SquadId = g.SquadId
+                }).ToArray<Gear>()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+        }
     }
 }
