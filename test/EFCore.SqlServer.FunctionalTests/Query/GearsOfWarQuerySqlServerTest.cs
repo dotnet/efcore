@@ -784,6 +784,40 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((1 & COALESCE((
 ), 0))");
         }
 
+        public override void Where_enum_has_flag_subquery_with_pushdown()
+        {
+            base.Where_enum_has_flag_subquery_with_pushdown();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & (
+    SELECT TOP(1) [x].[Rank]
+    FROM [Gears] AS [x]
+    WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
+    ORDER BY [x].[Nickname], [x].[SquadId]
+)) = (
+    SELECT TOP(1) [x].[Rank]
+    FROM [Gears] AS [x]
+    WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
+    ORDER BY [x].[Nickname], [x].[SquadId]
+))",
+                //
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((1 & (
+    SELECT TOP(1) [x].[Rank]
+    FROM [Gears] AS [x]
+    WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
+    ORDER BY [x].[Nickname], [x].[SquadId]
+)) = (
+    SELECT TOP(1) [x].[Rank]
+    FROM [Gears] AS [x]
+    WHERE [x].[Discriminator] IN (N'Officer', N'Gear')
+    ORDER BY [x].[Nickname], [x].[SquadId]
+))");
+        }
+
         public override void Where_enum_has_flag_subquery_client_eval()
         {
             base.Where_enum_has_flag_subquery_client_eval();
@@ -1517,6 +1551,21 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (COALESCE((
 ), 0) = 1)");
         }
 
+        public override void Where_subquery_boolean_with_pushdown()
+        {
+            base.Where_subquery_boolean_with_pushdown();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+) = 1)");
+        }
+
         public override void Where_subquery_distinct_firstordefault_boolean()
         {
             base.Where_subquery_distinct_firstordefault_boolean();
@@ -1533,6 +1582,24 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1)
     ) AS [t]
     ORDER BY [t].[Id]
 ), 0) = 1))");
+        }
+
+        public override void Where_subquery_distinct_firstordefault_boolean_with_pushdown()
+        {
+            base.Where_subquery_distinct_firstordefault_boolean_with_pushdown();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1) AND ((
+    SELECT TOP(1) [t].[IsAutomatic]
+    FROM (
+        SELECT DISTINCT [w].*
+        FROM [Weapons] AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]
+    ) AS [t]
+    ORDER BY [t].[Id]
+) = 1))");
         }
 
         public override void Where_subquery_distinct_first_boolean()
@@ -1566,9 +1633,61 @@ FROM (
 ORDER BY [t0].[Id]");
         }
 
-        public override void Where_subquery_distinct_singleordefault_boolean()
+        public override void Where_subquery_distinct_singleordefault_boolean1()
         {
-            base.Where_subquery_distinct_singleordefault_boolean();
+            base.Where_subquery_distinct_singleordefault_boolean1();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)
+ORDER BY [g].[Nickname]",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT TOP(2) [t0].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w0].*
+    FROM [Weapons] AS [w0]
+    WHERE (CHARINDEX(N'Lancer', [w0].[Name]) > 0) AND (@_outer_FullName = [w0].[OwnerFullName])
+) AS [t0]",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT TOP(2) [t0].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w0].*
+    FROM [Weapons] AS [w0]
+    WHERE (CHARINDEX(N'Lancer', [w0].[Name]) > 0) AND (@_outer_FullName = [w0].[OwnerFullName])
+) AS [t0]");
+        }
+
+        public override void Where_subquery_distinct_singleordefault_boolean2()
+        {
+            base.Where_subquery_distinct_singleordefault_boolean2();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)
+ORDER BY [g].[Nickname]",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT DISTINCT TOP(2) [w0].[IsAutomatic]
+FROM [Weapons] AS [w0]
+WHERE (CHARINDEX(N'Lancer', [w0].[Name]) > 0) AND (@_outer_FullName = [w0].[OwnerFullName])",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT DISTINCT TOP(2) [w0].[IsAutomatic]
+FROM [Weapons] AS [w0]
+WHERE (CHARINDEX(N'Lancer', [w0].[Name]) > 0) AND (@_outer_FullName = [w0].[OwnerFullName])");
+        }
+
+        public override void Where_subquery_distinct_singleordefault_boolean_with_pushdown()
+        {
+            base.Where_subquery_distinct_singleordefault_boolean_with_pushdown();
 
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
@@ -1627,6 +1746,24 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1)
     ) AS [t]
     ORDER BY [t].[Id]
 ), 0) = 1))");
+        }
+
+        public override void Where_subquery_distinct_orderby_firstordefault_boolean_with_pushdown()
+        {
+            base.Where_subquery_distinct_orderby_firstordefault_boolean_with_pushdown();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1) AND ((
+    SELECT TOP(1) [t].[IsAutomatic]
+    FROM (
+        SELECT DISTINCT [w].*
+        FROM [Weapons] AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]
+    ) AS [t]
+    ORDER BY [t].[Id]
+) = 1))");
         }
 
         public override void Where_subquery_union_firstordefault_boolean()
@@ -6776,6 +6913,37 @@ ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
                 @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
 FROM [Gears] AS [o]
 WHERE [o].[Discriminator] = N'Officer'
+ORDER BY (
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE [o].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+), [o].[Nickname], [o].[SquadId]",
+                //
+                @"SELECT [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[AssignedCityName], [o.Reports].[CityOrBirthName], [o.Reports].[Discriminator], [o.Reports].[FullName], [o.Reports].[HasSoulPatch], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId], [o.Reports].[Rank]
+FROM [Gears] AS [o.Reports]
+INNER JOIN (
+    SELECT [o0].[Nickname], [o0].[SquadId], (
+        SELECT TOP(1) [w0].[IsAutomatic]
+        FROM [Weapons] AS [w0]
+        WHERE [o0].[FullName] = [w0].[OwnerFullName]
+        ORDER BY [w0].[Id]
+    ) AS [c]
+    FROM [Gears] AS [o0]
+    WHERE [o0].[Discriminator] = N'Officer'
+) AS [t] ON ([o.Reports].[LeaderNickname] = [t].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t].[SquadId])
+WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
+        }
+
+        public override void Include_collection_with_complex_OrderBy3()
+        {
+            base.Include_collection_with_complex_OrderBy3();
+
+            AssertSql(
+                @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
 ORDER BY COALESCE((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
@@ -6888,6 +7056,222 @@ ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] = N'Officer'");
+        }
+
+        public override void Select_subquery_boolean()
+        {
+            base.Select_subquery_boolean();
+
+            AssertSql(
+                @"SELECT CAST(COALESCE((
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+), 0) AS bit)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Select_subquery_boolean_with_pushdown()
+        {
+            base.Select_subquery_boolean_with_pushdown();
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Select_subquery_boolean_empty()
+        {
+            base.Select_subquery_boolean_empty();
+
+            AssertSql(
+                @"SELECT CAST(COALESCE((
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE ([w].[Name] = N'BFG') AND ([g].[FullName] = [w].[OwnerFullName])
+    ORDER BY [w].[Id]
+), 0) AS bit)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Select_subquery_boolean_empty_with_pushdown()
+        {
+            base.Select_subquery_boolean_empty_with_pushdown();
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE ([w].[Name] = N'BFG') AND ([g].[FullName] = [w].[OwnerFullName])
+    ORDER BY [w].[Id]
+)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Select_subquery_distinct_singleordefault_boolean1()
+        {
+            base.Select_subquery_distinct_singleordefault_boolean1();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT TOP(2) [t0].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w0].*
+    FROM [Weapons] AS [w0]
+    WHERE (CHARINDEX(N'Lancer', [w0].[Name]) > 0) AND (@_outer_FullName = [w0].[OwnerFullName])
+) AS [t0]",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT TOP(2) [t0].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w0].*
+    FROM [Weapons] AS [w0]
+    WHERE (CHARINDEX(N'Lancer', [w0].[Name]) > 0) AND (@_outer_FullName = [w0].[OwnerFullName])
+) AS [t0]");
+        }
+
+        public override void Select_subquery_distinct_singleordefault_boolean2()
+        {
+            base.Select_subquery_distinct_singleordefault_boolean2();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT DISTINCT TOP(2) [w0].[IsAutomatic]
+FROM [Weapons] AS [w0]
+WHERE (CHARINDEX(N'Lancer', [w0].[Name]) > 0) AND (@_outer_FullName = [w0].[OwnerFullName])",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT DISTINCT TOP(2) [w0].[IsAutomatic]
+FROM [Weapons] AS [w0]
+WHERE (CHARINDEX(N'Lancer', [w0].[Name]) > 0) AND (@_outer_FullName = [w0].[OwnerFullName])");
+        }
+
+        public override void Select_subquery_distinct_singleordefault_boolean_with_pushdown()
+        {
+            base.Select_subquery_distinct_singleordefault_boolean_with_pushdown();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT TOP(2) [t1].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w1].*
+    FROM [Weapons] AS [w1]
+    WHERE (CHARINDEX(N'Lancer', [w1].[Name]) > 0) AND (@_outer_FullName = [w1].[OwnerFullName])
+) AS [t1]",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT TOP(2) [t1].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w1].*
+    FROM [Weapons] AS [w1]
+    WHERE (CHARINDEX(N'Lancer', [w1].[Name]) > 0) AND (@_outer_FullName = [w1].[OwnerFullName])
+) AS [t1]");
+        }
+
+        public override void Select_subquery_distinct_singleordefault_boolean_empty1()
+        {
+            base.Select_subquery_distinct_singleordefault_boolean_empty1();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT TOP(2) [t0].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w0].*
+    FROM [Weapons] AS [w0]
+    WHERE ([w0].[Name] = N'BFG') AND (@_outer_FullName = [w0].[OwnerFullName])
+) AS [t0]",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT TOP(2) [t0].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w0].*
+    FROM [Weapons] AS [w0]
+    WHERE ([w0].[Name] = N'BFG') AND (@_outer_FullName = [w0].[OwnerFullName])
+) AS [t0]");
+        }
+
+        public override void Select_subquery_distinct_singleordefault_boolean_empty2()
+        {
+            base.Select_subquery_distinct_singleordefault_boolean_empty2();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT DISTINCT TOP(2) [w0].[IsAutomatic]
+FROM [Weapons] AS [w0]
+WHERE ([w0].[Name] = N'BFG') AND (@_outer_FullName = [w0].[OwnerFullName])",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT DISTINCT TOP(2) [w0].[IsAutomatic]
+FROM [Weapons] AS [w0]
+WHERE ([w0].[Name] = N'BFG') AND (@_outer_FullName = [w0].[OwnerFullName])");
+        }
+
+        public override void Select_subquery_distinct_singleordefault_boolean_empty_with_pushdown()
+        {
+            base.Select_subquery_distinct_singleordefault_boolean_empty_with_pushdown();
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT TOP(2) [t0].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w0].*
+    FROM [Weapons] AS [w0]
+    WHERE ([w0].[Name] = N'BFG') AND (@_outer_FullName = [w0].[OwnerFullName])
+) AS [t0]",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT TOP(2) [t0].[IsAutomatic]
+FROM (
+    SELECT DISTINCT [w0].*
+    FROM [Weapons] AS [w0]
+    WHERE ([w0].[Name] = N'BFG') AND (@_outer_FullName = [w0].[OwnerFullName])
+) AS [t0]");
         }
 
         private void AssertSql(params string[] expected)

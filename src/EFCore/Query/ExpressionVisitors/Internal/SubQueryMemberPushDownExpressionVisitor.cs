@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -55,6 +56,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         _queryCompilationContext.UpdateMapping(querySourceMapping);
 
                         subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subQueryModel.SelectClause.Selector));
+
+                        var selector = subQueryModel.SelectClause.Selector;
+                        if (IsFirstSingleLastOrDefault(subQueryExpression.QueryModel.ResultOperators.LastOrDefault())
+                            && !selector.Type.IsNullableType())
+                        {
+                            var oldType = selector.Type;
+                            subQueryModel.SelectClause.Selector
+                                = Expression.Convert(
+                                    selector,
+                                    selector.Type.MakeNullable());
+
+                            subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
+
+                            return Expression.Convert(
+                                new SubQueryExpression(subQueryModel),
+                                oldType);
+                        }
+
                         subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
 
                         return new SubQueryExpression(subQueryModel);
@@ -72,21 +91,44 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         var newSubQueryExpression = new SubQueryExpression(queryModel);
 
                         var mainFromClause = new MainFromClause(queryModel.GetNewName("subquery"), queryModel.SelectClause.Selector.Type, newSubQueryExpression);
-                        var selector = Expression.MakeMemberAccess(
+                        Expression selector = Expression.MakeMemberAccess(
                             new QuerySourceReferenceExpression(mainFromClause),
                             memberExpression.Member);
 
-                        var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selector));
-                        subqueryModel.ResultOperators.Add(finalResultOperator);
-                        var subqueryExpression = new SubQueryExpression(subqueryModel);
+                        if (IsFirstSingleLastOrDefault(finalResultOperator)
+                            && !selector.Type.IsNullableType())
+                        {
+                            var oldType = selector.Type;
+                            selector = Expression.Convert(
+                                selector,
+                                selector.Type.MakeNullable());
 
-                        return subqueryExpression;
+                            var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selector));
+                            subqueryModel.ResultOperators.Add(finalResultOperator);
+
+                            return Expression.Convert(
+                                new SubQueryExpression(subqueryModel),
+                                oldType);
+                        }
+                        else
+                        {
+                            var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selector));
+                            subqueryModel.ResultOperators.Add(finalResultOperator);
+                            var subqueryExpression = new SubQueryExpression(subqueryModel);
+
+                            return subqueryExpression;
+                        }
                     }
                 }
             }
 
             return memberExpression.Update(newExpression);
         }
+
+        private bool IsFirstSingleLastOrDefault(ResultOperatorBase resultOperator)
+            => (resultOperator is FirstResultOperator first && first.ReturnDefaultWhenEmpty)
+            || (resultOperator is SingleResultOperator single && single.ReturnDefaultWhenEmpty)
+            || (resultOperator is LastResultOperator last && last.ReturnDefaultWhenEmpty);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -120,6 +162,32 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return newMethodCallExpression;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            // remove double convert that could be introduced in the member pushdown (when we introduce cast to nullable for FirstOrDefault cases)
+            if (unaryExpression.NodeType == ExpressionType.Convert
+                || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+            {
+                var newOperand = Visit(unaryExpression.Operand);
+                if (newOperand is UnaryExpression innerUnaryExpression
+                    && (innerUnaryExpression.NodeType == ExpressionType.Convert
+                        || innerUnaryExpression.NodeType == ExpressionType.ConvertChecked)
+                    && innerUnaryExpression.Operand.Type == unaryExpression.Type
+                    && innerUnaryExpression.Operand.Type != typeof(object))
+                {
+                    return innerUnaryExpression.Operand;
+                }
+
+                return unaryExpression.Update(newOperand);
+            }
+
+            return base.VisitUnary(unaryExpression);
         }
     }
 }

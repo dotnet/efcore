@@ -2221,6 +2221,37 @@ ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
                 @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
 FROM [Gears] AS [o]
 WHERE [o].[Discriminator] = N'Officer'
+ORDER BY (
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE [o].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+), [o].[Nickname], [o].[SquadId]",
+                //
+                @"SELECT [o.Reports].[Nickname], [o.Reports].[SquadId], [o.Reports].[AssignedCityName], [o.Reports].[CityOrBirthName], [o.Reports].[Discriminator], [o.Reports].[FullName], [o.Reports].[HasSoulPatch], [o.Reports].[LeaderNickname], [o.Reports].[LeaderSquadId], [o.Reports].[Rank]
+FROM [Gears] AS [o.Reports]
+INNER JOIN (
+    SELECT [o0].[Nickname], [o0].[SquadId], (
+        SELECT TOP(1) [w0].[IsAutomatic]
+        FROM [Weapons] AS [w0]
+        WHERE [o0].[FullName] = [w0].[OwnerFullName]
+        ORDER BY [w0].[Id]
+    ) AS [c]
+    FROM [Gears] AS [o0]
+    WHERE [o0].[Discriminator] = N'Officer'
+) AS [t] ON ([o.Reports].[LeaderNickname] = [t].[Nickname]) AND ([o.Reports].[LeaderSquadId] = [t].[SquadId])
+WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
+        }
+
+        public override async Task Include_collection_with_complex_OrderBy3()
+        {
+            await base.Include_collection_with_complex_OrderBy3();
+
+            AssertSql(
+                @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
 ORDER BY COALESCE((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]

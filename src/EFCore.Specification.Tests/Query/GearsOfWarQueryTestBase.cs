@@ -619,6 +619,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_enum_has_flag_subquery()
         {
             AssertQuery<Gear>(
+                gs => gs.Where(g => g.Rank.HasFlag(gs.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).Select(x => x.Rank).FirstOrDefault())));
+
+            AssertQuery<Gear>(
+                gs => gs.Where(g => MilitaryRank.Corporal.HasFlag(gs.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).Select(x => x.Rank).FirstOrDefault())));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_enum_has_flag_subquery_with_pushdown()
+        {
+            AssertQuery<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag(gs.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).FirstOrDefault().Rank)));
 
             AssertQuery<Gear>(
@@ -1092,11 +1102,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_subquery_boolean()
         {
             AssertQuery<Gear>(
+                gs => gs.Where(g => g.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_boolean_with_pushdown()
+        {
+            AssertQuery<Gear>(
                 gs => gs.Where(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
         public virtual void Where_subquery_distinct_firstordefault_boolean()
+        {
+            AssertQuery<Gear>(
+                gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_distinct_firstordefault_boolean_with_pushdown()
         {
             AssertQuery<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
@@ -1111,7 +1135,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_singleordefault_boolean()
+        public virtual void Where_subquery_distinct_singleordefault_boolean1()
+        {
+            AssertQuery<Gear>(
+                gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().Select(w => w.IsAutomatic).SingleOrDefault()),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_distinct_singleordefault_boolean2()
+        {
+            AssertQuery<Gear>(
+                gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Where(w => w.Name.Contains("Lancer")).Select(w => w.IsAutomatic).Distinct().SingleOrDefault()),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_distinct_singleordefault_boolean_with_pushdown()
         {
             AssertQuery<Gear>(
                 gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().SingleOrDefault().IsAutomatic),
@@ -1155,6 +1195,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalFact]
         public virtual void Where_subquery_distinct_orderby_firstordefault_boolean()
+        {
+            AssertQuery<Gear>(
+                gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_distinct_orderby_firstordefault_boolean_with_pushdown()
         {
             AssertQuery<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
@@ -4786,6 +4833,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Include_collection_with_complex_OrderBy3()
+        {
+            AssertIncludeQuery<Gear>(
+                os => os.OfType<Officer>()
+                        .Include(o => o.Reports)
+                        .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
         public virtual void Correlated_collection_with_complex_OrderBy()
         {
             AssertQuery<Gear>(
@@ -4823,6 +4880,83 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Gear>(
                 gs => gs.OfType<Officer>().Cast<Officer>());
         }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_boolean()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Select(g => g.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_boolean_with_pushdown()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Select(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_boolean_empty()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Select(g => g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_boolean_empty_with_pushdown()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
+                gs => gs.Select(g => (bool?)null));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_distinct_singleordefault_boolean1()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().Select(w => w.IsAutomatic).SingleOrDefault()),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_distinct_singleordefault_boolean2()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Select(w => w.IsAutomatic).Distinct().SingleOrDefault()),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_distinct_singleordefault_boolean_with_pushdown()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().SingleOrDefault().IsAutomatic),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_distinct_singleordefault_boolean_empty1()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name == "BFG").Distinct().Select(w => w.IsAutomatic).SingleOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_distinct_singleordefault_boolean_empty2()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name == "BFG").Select(w => w.IsAutomatic).Distinct().SingleOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_distinct_singleordefault_boolean_empty_with_pushdown()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Where(g => g.HasSoulPatch).Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").Distinct().SingleOrDefault().IsAutomatic),
+                gs => gs.Where(g => g.HasSoulPatch).Select(g => (bool?)null),
+                assertOrder: true);
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
