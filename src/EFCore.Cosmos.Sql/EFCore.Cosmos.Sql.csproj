@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>DocumentDb provider for Entity Framework Core.</Description>
+    <Description>Cosmos SQL API provider for Entity Framework Core.</Description>
     <VersionPrefix Condition="'$(ExperimentalVersionPrefix)' != ''">$(ExperimentalVersionPrefix)</VersionPrefix>
     <VersionSuffix Condition="'$(ExperimentalVersionSuffix)' != ''">$(ExperimentalVersionSuffix)</VersionSuffix>
     <VerifyVersion Condition="'$(ExperimentalVersionPrefix)' != ''">false</VerifyVersion>
     <PackageVersion Condition="'$(ExperimentalPackageVersion)' != ''">$(ExperimentalPackageVersion)</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
-    <AssemblyName>Microsoft.EntityFrameworkCore.DocumentDb</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Cosmos.Sql</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Cosmos.Sql</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTags>$(PackageTags);CosmosDb;DocumentDb</PackageTags>
+    <PackageTags>$(PackageTags);CosmosDb;SQL API</PackageTags>
     <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
     <EnableApiCheck>false</EnableApiCheck>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -31,9 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Properties\DocumentDbStrings.Designer.tt">
+    <None Update="Properties\CosmosSqlStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DocumentDbStrings.Designer.cs</LastGenOutput>
+      <LastGenOutput>CosmosSqlStrings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
@@ -42,16 +42,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Properties\DocumentDbStrings.resx">
+    <EmbeddedResource Update="Properties\CosmosSqlStrings.resx">
       <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\DocumentDbStrings.Designer.cs">
+    <Compile Update="Properties\CosmosSqlStrings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>DocumentDbStrings.Designer.tt</DependentUpon>
+      <DependentUpon>CosmosSqlStrings.Designer.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

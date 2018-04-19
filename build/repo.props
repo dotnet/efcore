@@ -10,8 +10,8 @@
     <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp21PackageVersion)" />
 
     <ExcludeFromTest Include="$(RepositoryRoot)samples\OracleProvider\test\OracleProvider.FunctionalTests\*.csproj" />
-    <!-- DocumentDb FunctionalTests are explicitly disabled due to excessively long execution time. -->
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.DocumentDb.FunctionalTests\*.csproj" />
+    <!-- Cosmos.Sql FunctionalTests are explicitly disabled due to excessively long execution time. -->
+    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Cosmos.Sql.FunctionalTests\*.csproj" />
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Runtime.sln" />
   </ItemGroup>
   <PropertyGroup>
