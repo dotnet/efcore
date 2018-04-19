@@ -90,20 +90,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        TCollection CorrelateSubquery<TInner, TCollection>(
+        TCollection CorrelateSubquery<TInner, TOut, TCollection>(
             int correlatedCollectionId,
             [NotNull] INavigation navigation,
             [NotNull] Func<INavigation, TCollection> resultCollectionFactory,
             in MaterializedAnonymousObject outerKey,
             bool tracking,
             [NotNull] Func<IEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
-            [NotNull] Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate) where TCollection : ICollection<TInner>;
+            [NotNull] Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate)
+            where TCollection : ICollection<TOut>
+            where TInner : TOut;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Task<TCollection> CorrelateSubqueryAsync<TInner, TCollection>(
+        Task<TCollection> CorrelateSubqueryAsync<TInner, TOut, TCollection>(
             int correlatedCollectionId,
             [NotNull] INavigation navigation,
             [NotNull] Func<INavigation, TCollection> resultCollectionFactory,
@@ -111,6 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             bool tracking,
             [NotNull] Func<IAsyncEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
             [NotNull] Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate,
-            CancellationToken cancellationToken) where TCollection : ICollection<TInner>;
+            CancellationToken cancellationToken)
+            where TCollection : ICollection<TOut>
+            where TInner : TOut;
     }
 }
