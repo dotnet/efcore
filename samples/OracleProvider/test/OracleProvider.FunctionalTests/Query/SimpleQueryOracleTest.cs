@@ -1081,7 +1081,7 @@ ORDER BY ""e1"".""EmployeeID"" NULLS FIRST");
             base.Select_DTO_distinct_translated_to_server();
 
             AssertSql(
-                @"SELECT DISTINCT 1
+                @"SELECT 1
 FROM ""Orders"" ""o""
 WHERE ""o"".""OrderID"" < 10300");
         }

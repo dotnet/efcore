@@ -4789,7 +4789,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
-                    CollectionAsserter<string>()(e.Weapons, a.Weapons);
+                    CollectionAsserter<string>(ee => ee)(e.Weapons, a.Weapons);
                 });
         }
 
