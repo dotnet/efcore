@@ -265,6 +265,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        private class DuplicateQueryModelIdentifyingExpressionVisitor : RelinqExpressionVisitor
+        {
+            private readonly QueryCompilationContext _queryCompilationContext;
+            private ISet<QueryModel> _queryModels = new HashSet<QueryModel>();
+
+            public DuplicateQueryModelIdentifyingExpressionVisitor(QueryCompilationContext queryCompilationContext)
+            {
+                _queryCompilationContext = queryCompilationContext;
+            }
+
+            protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+            {
+                var subQueryModel = subQueryExpression.QueryModel;
+                if (_queryModels.Contains(subQueryModel))
+                {
+                    _queryCompilationContext.DuplicateQueryModels.Add(subQueryModel);
+                }
+                else
+                {
+                    _queryModels.Add(subQueryModel);
+                }
+
+                subQueryModel.TransformExpressions(Visit);
+
+                return base.VisitSubQuery(subQueryExpression);
+            }
+        }
+
         /// <summary>
         ///     Applies optimizations to the query.
         /// </summary>
@@ -275,6 +303,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool asyncQuery)
         {
             Check.NotNull(queryModel, nameof(queryModel));
+
+            queryModel.TransformExpressions(
+                new DuplicateQueryModelIdentifyingExpressionVisitor(_queryCompilationContext).Visit);
 
             ExtractQueryAnnotations(queryModel);
 

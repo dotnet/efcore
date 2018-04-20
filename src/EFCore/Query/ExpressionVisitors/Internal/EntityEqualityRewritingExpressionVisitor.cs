@@ -166,6 +166,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     Expression.Constant(null)));
             }
 
+            if (IsInvalidSubQueryExpression(nonNullExpression))
+            {
+                return null;
+            }
+
             var entityType = _model.FindEntityType(nonNullExpression.Type)
                 ?? GetEntityType(properties, qsre);
 
@@ -220,6 +225,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return Expression.MakeBinary(nodeType, keyAccessExpression, nullConstantExpression);
         }
 
+        private bool IsInvalidSubQueryExpression(Expression expression)
+            => expression is SubQueryExpression subQuery
+                && _queryCompilationContext.DuplicateQueryModels.Contains(subQuery.QueryModel);
+
         private Expression RewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right)
         {
             var leftProperties = MemberAccessBindingExpressionVisitor
@@ -247,6 +256,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 return Expression.Constant(false);
+            }
+
+            if (IsInvalidSubQueryExpression(left)
+                || IsInvalidSubQueryExpression(right))
+            {
+                return null;
             }
 
             var entityType = _model.FindEntityType(left.Type)
