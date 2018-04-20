@@ -1605,6 +1605,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
         }
 
+        [ConditionalFact]
+        public virtual async Task Include_collection_with_complex_OrderBy3()
+        {
+            await AssertIncludeQuery<Gear>(
+                os => os.OfType<Officer>()
+                        .Include(o => o.Reports)
+                        .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
 
         [ConditionalFact]
         public virtual async Task Correlated_collection_with_complex_OrderBy()
