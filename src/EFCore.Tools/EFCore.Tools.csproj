@@ -30,6 +30,9 @@ Update-Database
 
   <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
     <PropertyGroup>
+      <!-- Make sure we create a symbols.nupkg -->
+      <IncludeSymbols>true</IncludeSymbols>
+      
       <NuspecProperties>
         id=$(PackageId);
         version=$(PackageVersion);

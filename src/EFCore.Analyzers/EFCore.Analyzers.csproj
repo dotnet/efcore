@@ -11,6 +11,7 @@
     <EnableApiCheck>false</EnableApiCheck>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
+    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,8 +23,29 @@
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers\dotnet\cs\" Visible="false" />
-  </ItemGroup>
+  <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
+
+    <PropertyGroup>
+      <!-- Make sure we create a symbols.nupkg. -->
+      <IncludeSymbols>true</IncludeSymbols>
+
+      <NuspecProperties>
+        id=$(PackageId);
+        version=$(PackageVersion);
+        authors=$(Authors);
+        description=$(Description);
+        tags=$(PackageTags.Replace(';', ' '));
+        licenseUrl=$(PackageLicenseUrl);
+        projectUrl=$(PackageProjectUrl);
+        iconUrl=$(PackageIconUrl);
+        repositoryUrl=$(RepositoryUrl);
+        repositoryCommit=$(RepositoryCommit);
+        copyright=$(Copyright);
+
+        OutputBinary=$(OutputPath)$(AssemblyName).dll;
+        OutputSymbol=$(OutputPath)$(AssemblyName).pdb;
+      </NuspecProperties>
+    </PropertyGroup>
+  </Target>
 
 </Project>

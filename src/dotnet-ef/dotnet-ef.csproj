@@ -17,8 +17,8 @@ dotnet ef database update
     <PackAsTool>true</PackAsTool>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
-    <IncludeSymbols>false</IncludeSymbols>
     <EnableApiCheck>false</EnableApiCheck>
+    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -72,23 +72,39 @@ dotnet ef database update
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\ef\bin\$(Configuration)\net461\ef.exe">
-      <Pack>True</Pack>
-      <PackagePath>tools\$(TargetFramework)\any\tools\net461\any</PackagePath>
-    </None>
-    <None Include="..\ef\bin\x86\$(Configuration)\net461\ef.exe">
-      <Pack>True</Pack>
-      <PackagePath>tools\$(TargetFramework)\any\tools\net461\win-x86</PackagePath>
-    </None>
-    <None Include="..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll">
-      <Pack>True</Pack>
-      <PackagePath>tools\$(TargetFramework)\any\tools\netcoreapp2.0\any</PackagePath>
-    </None>
-    <None Include="..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json">
-      <Pack>True</Pack>
-      <PackagePath>tools\$(TargetFramework)\any\tools\netcoreapp2.0\any</PackagePath>
-    </None>
-  </ItemGroup>
+  <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
+
+    <PropertyGroup>
+      <!-- Make sure we create a symbols.nupkg. -->
+      <IncludeSymbols>true</IncludeSymbols>
+
+      <NuspecProperties>
+        id=$(PackageId);
+        version=$(PackageVersion);
+        authors=$(Authors);
+        description=$(Description);
+        tags=$(PackageTags.Replace(';', ' '));
+        licenseUrl=$(PackageLicenseUrl);
+        projectUrl=$(PackageProjectUrl);
+        iconUrl=$(PackageIconUrl);
+        repositoryUrl=$(RepositoryUrl);
+        repositoryCommit=$(RepositoryCommit);
+        copyright=$(Copyright);
+        packageType=$(PackageType);
+        AssemblyName=$(AssemblyName);
+        targetFramework=$(TargetFramework);
+
+        SettingsFile=$(_ToolsSettingsFilePath);
+        Output=$(PublishDir)**\*;
+        OutputBinary=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll;
+        OutputRuntimeConfig=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json;
+        OutputSymbol=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.pdb;
+        OutputExe=..\ef\bin\$(Configuration)\net461\ef.exe;
+        OutputExeSymbol=..\ef\bin\$(Configuration)\net461\ef.pdb;
+        OutputX86Exe=..\ef\bin\x86\$(Configuration)\net461\ef.exe;
+        OutputX86ExeSymbol=..\ef\bin\x86\$(Configuration)\net461\ef.pdb;
+      </NuspecProperties>
+    </PropertyGroup>
+  </Target>
 
 </Project>

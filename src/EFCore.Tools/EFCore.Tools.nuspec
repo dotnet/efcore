@@ -25,8 +25,11 @@
     <file src="lib/**/*" target="" />
     <file src="tools/**/*" target=""/>
     <file src="../ef/bin/$configuration$/net461/ef.exe" target="tools/net461/any/" />
+    <file src="../ef/bin/$configuration$/net461/ef.pdb" target="tools/net461/any/" />
     <file src="../ef/bin/x86/$configuration$/net461/ef.exe" target="tools/net461/win-x86/" />
+    <file src="../ef/bin/x86/$configuration$/net461/ef.pdb" target="tools/net461/win-x86/" />
     <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/any/" />
+    <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.pdb" target="tools/netcoreapp2.0/any/" />
     <file src="../ef/bin/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/any/" />
   </files>
 </package>
