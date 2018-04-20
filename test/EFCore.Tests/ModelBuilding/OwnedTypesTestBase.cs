@@ -158,7 +158,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Can_configure_one_to_one_relationship_from_an_owned_type()
             {
-                var modelBuilder = CreateModelBuilder();
+                Can_configure_one_to_one_relationship_from_an_owned_type(CreateModelBuilder());
+            }
+
+            public virtual void Can_configure_one_to_one_relationship_from_an_owned_type(TestModelBuilder modelBuilder)
+            {
                 var model = modelBuilder.Model;
 
                 modelBuilder.Ignore<Customer>();

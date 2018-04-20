@@ -2105,30 +2105,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var principalBuilder = this;
-                ownedEntityType = targetEntityType.Type == null
-                    ? ModelBuilder.Metadata.FindEntityType(targetEntityType.Name)?.Builder
-                    : ModelBuilder.Metadata.FindEntityType(targetEntityType.Type)?.Builder;
+                var targetTypeName = targetEntityType.Name;
+                var targetType = targetEntityType.Type
+                                 ?? existingNavigation?.GetIdentifyingMemberInfo()?.GetMemberType();
+
+                ownedEntityType = targetType == null
+                    ? ModelBuilder.Metadata.FindEntityType(targetTypeName)?.Builder
+                    : ModelBuilder.Metadata.FindEntityType(targetType)?.Builder;
                 if (ownedEntityType == null)
                 {
-                    if (Metadata.Model.HasEntityTypeWithDefiningNavigation(targetEntityType.Name))
+                    if (Metadata.Model.HasEntityTypeWithDefiningNavigation(targetTypeName))
                     {
                         if (!configurationSource.Overrides(ConfigurationSource.Explicit)
-                            && (targetEntityType.Type == null
-                                ? Metadata.IsInDefinitionPath(targetEntityType.Name)
-                                : Metadata.IsInDefinitionPath(targetEntityType.Type)))
+                            && (targetType == null
+                                ? Metadata.IsInDefinitionPath(targetTypeName)
+                                : Metadata.IsInDefinitionPath(targetType)))
                         {
                             return null;
                         }
 
-                        ownedEntityType = targetEntityType.Type == null
-                            ? ModelBuilder.Entity(targetEntityType.Name, navigation.Name, Metadata, configurationSource)
-                            : ModelBuilder.Entity(targetEntityType.Type, navigation.Name, Metadata, configurationSource);
+                        ownedEntityType = targetType == null
+                            ? ModelBuilder.Entity(targetTypeName, navigation.Name, Metadata, configurationSource)
+                            : ModelBuilder.Entity(targetType, navigation.Name, Metadata, configurationSource);
                     }
                     else
                     {
-                        ownedEntityType = targetEntityType.Type == null
-                            ? ModelBuilder.Entity(targetEntityType.Name, configurationSource)
-                            : ModelBuilder.Entity(targetEntityType.Type, configurationSource);
+                        ownedEntityType = targetType == null
+                            ? ModelBuilder.Entity(targetTypeName, configurationSource)
+                            : ModelBuilder.Entity(targetType, configurationSource);
                     }
 
                     if (ownedEntityType == null)
@@ -2142,9 +2146,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (otherOwnership != null)
                     {
                         if (!configurationSource.Overrides(ConfigurationSource.Explicit)
-                            && (targetEntityType.Type == null
-                                ? Metadata.IsInDefinitionPath(targetEntityType.Name)
-                                : Metadata.IsInDefinitionPath(targetEntityType.Type)))
+                            && (targetType == null
+                                ? Metadata.IsInDefinitionPath(targetTypeName)
+                                : Metadata.IsInDefinitionPath(targetType)))
                         {
                             return null;
                         }
@@ -2160,9 +2164,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             principalBuilder = newOtherOwnership.Metadata.DeclaringEntityType.Builder;
                         }
 
-                        ownedEntityType = targetEntityType.Type == null
-                            ? ModelBuilder.Entity(targetEntityType.Name, navigation.Name, principalBuilder.Metadata, configurationSource)
-                            : ModelBuilder.Entity(targetEntityType.Type, navigation.Name, principalBuilder.Metadata, configurationSource);
+                        ownedEntityType = targetType == null
+                            ? ModelBuilder.Entity(targetTypeName, navigation.Name, principalBuilder.Metadata, configurationSource)
+                            : ModelBuilder.Entity(targetType, navigation.Name, principalBuilder.Metadata, configurationSource);
                     }
                 }
 

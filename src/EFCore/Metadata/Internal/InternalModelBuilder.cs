@@ -200,7 +200,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var clrType = type.Type;
+            var clrType = type.Type
+                          ?? Metadata.FindClrType(type.Name);
+
             var weakEntityType = clrType == null
                 ? Metadata.FindEntityType(type.Name, definingNavigationName, definingEntityType)
                 : Metadata.FindEntityType(clrType, definingNavigationName, definingEntityType);

@@ -17,12 +17,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
     {
-        // TODO: See issue#11712
-        //public class NonGenericStringOwnedTypes : OwnedTypesTestBase
-        //{
-        //    protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-        //        => new NonGenericStringTestModelBuilder(testHelpers);
-        //}
+        public class NonGenericStringOwnedTypes : OwnedTypesTestBase
+        {
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericStringTestModelBuilder(testHelpers);
+
+            public override void Can_configure_one_to_one_relationship_from_an_owned_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                // Test issue: HasOne<SpecialCustomer> in the base test is adding a shadow entity type when strings are
+                // used. This would not normally happen, but it happens here because no navigation property
+                // or type to do otherwise.
+                modelBuilder.Entity<SpecialCustomer>();
+
+                Can_configure_one_to_one_relationship_from_an_owned_type(modelBuilder);
+            }
+        }
 
         public class NonGenericStringOneToManyType : OneToManyTestBase
         {
