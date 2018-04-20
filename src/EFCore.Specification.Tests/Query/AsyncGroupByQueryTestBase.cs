@@ -906,10 +906,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (from c in cs
                      join o in os
                          on c.CustomerID equals o.CustomerID into grouping
-                     from o in grouping
+                     from o in grouping.DefaultIfEmpty()
+                     where o != null
                      select o)
                     .GroupBy(o => o.CustomerID)
-                    .Select(g => new { g.Key, Count = g.Average(o => o.OrderID) }),
+                    .Select(g => new { g.Key, Average = g.Average(o => o.OrderID) }),
                 e => e.Key);
         }
 
@@ -921,10 +922,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (from c in cs
                      join o in os
                          on c.CustomerID equals o.CustomerID into grouping
-                     from o in grouping
+                     from o in grouping.DefaultIfEmpty()
                      select c)
                     .GroupBy(c => c.CustomerID)
-                    .Select(g => new { g.Key, Count = g.Max(c => c.City) }),
+                    .Select(g => new { g.Key, Max = g.Max(c => c.City) }),
                 e => e.Key);
         }
 
@@ -936,11 +937,41 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (from o in os
                      join c in cs
                          on o.CustomerID equals c.CustomerID into grouping
-                     from c in grouping
+                     from c in grouping.DefaultIfEmpty()
                      select o)
                     .GroupBy(o => o.CustomerID)
-                    .Select(g => new { g.Key, Count = g.Average(o => o.OrderID) }),
+                    .Select(g => new { g.Key, Average = g.Average(o => o.OrderID) }),
                 e => e.Key);
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupJoin_GroupBy_Aggregate_4()
+        {
+            await AssertQuery<Order, Customer>(
+                (os, cs) =>
+                    (from c in cs
+                     join o in os
+                         on c.CustomerID equals o.CustomerID into grouping
+                     from o in grouping.DefaultIfEmpty()
+                     select c)
+                    .GroupBy(c => c.CustomerID)
+                    .Select(g => new { Value = g.Key, Max = g.Max(c => c.City) }),
+                e => e.Value);
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupJoin_GroupBy_Aggregate_5()
+        {
+            await AssertQuery<Order, Customer>(
+                (os, cs) =>
+                    (from o in os
+                     join c in cs
+                         on o.CustomerID equals c.CustomerID into grouping
+                     from c in grouping.DefaultIfEmpty()
+                     select o)
+                    .GroupBy(o => o.OrderID)
+                    .Select(g => new { Value = g.Key, Average = g.Average(o => o.OrderID) }),
+                e => e.Value);
         }
 
         [ConditionalFact]

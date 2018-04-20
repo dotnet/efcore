@@ -810,9 +810,10 @@ GROUP BY [t0].[CustomerID]");
             base.GroupJoin_GroupBy_Aggregate();
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], AVG(CAST([o].[OrderID] AS float)) AS [Count]
+                @"SELECT [o].[CustomerID] AS [Key], AVG(CAST([o].[OrderID] AS float)) AS [Average]
 FROM [Customers] AS [c]
-INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [o].[OrderID] IS NOT NULL
 GROUP BY [o].[CustomerID]");
         }
 
@@ -821,9 +822,9 @@ GROUP BY [o].[CustomerID]");
             base.GroupJoin_GroupBy_Aggregate_2();
 
             AssertSql(
-                @"SELECT [c].[CustomerID] AS [Key], MAX([c].[City]) AS [Count]
+                @"SELECT [c].[CustomerID] AS [Key], MAX([c].[City]) AS [Max]
 FROM [Customers] AS [c]
-INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 GROUP BY [c].[CustomerID]");
         }
 
@@ -832,10 +833,33 @@ GROUP BY [c].[CustomerID]");
             base.GroupJoin_GroupBy_Aggregate_3();
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], AVG(CAST([o].[OrderID] AS float)) AS [Count]
+                @"SELECT [o].[CustomerID] AS [Key], AVG(CAST([o].[OrderID] AS float)) AS [Average]
 FROM [Orders] AS [o]
-INNER JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[CustomerID]");
+        }
+
+        public override void GroupJoin_GroupBy_Aggregate_4()
+        {
+            base.GroupJoin_GroupBy_Aggregate_4();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Value], MAX([c].[City]) AS [Max]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+GROUP BY [c].[CustomerID]");
+        }
+
+        public override void GroupJoin_GroupBy_Aggregate_5()
+        {
+            base.GroupJoin_GroupBy_Aggregate_5();
+
+            AssertSql(
+                @"SELECT [o].[OrderID] AS [Value], AVG(CAST([o].[OrderID] AS float)) AS [Average]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[OrderID]");
+
         }
 
         public override void GroupBy_optional_navigation_member_Aggregate()

@@ -760,16 +760,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             var updatedExpression = expression;
 
-            if (!(expression is ColumnReferenceExpression
-                || expression is ColumnExpression
-                || expression is AliasExpression)
+            // All subquery projections are required to be ColumnExpression/ColumnReferenceExpression/AliasExpression
+            if (!(updatedExpression is ColumnExpression
+                  || updatedExpression is ColumnReferenceExpression
+                  || updatedExpression is AliasExpression)
                 || !string.Equals(currentAlias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
             {
-                updatedExpression = new AliasExpression(uniqueAlias, (expression as AliasExpression)?.Expression ?? expression);
+                var newExpression = new NameReplacingExpressionVisitor(currentAlias, uniqueAlias)
+                    .Visit(updatedExpression);
+                updatedExpression = newExpression != updatedExpression
+                    ? newExpression
+                    : new AliasExpression(uniqueAlias, updatedExpression);
             }
 
             var currentOrderingIndex = _orderBy.FindIndex(e => e.Expression.Equals(expression));
-
             if (currentOrderingIndex != -1)
             {
                 var oldOrdering = _orderBy[currentOrderingIndex];
@@ -784,6 +788,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             return updatedExpression;
+        }
+
+        private class NameReplacingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly string _oldName;
+            private readonly string _newName;
+
+            public NameReplacingExpressionVisitor(string oldName, string newName)
+            {
+                _oldName = oldName;
+                _newName = newName;
+            }
+
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                switch (extensionExpression)
+                {
+                    case AliasExpression aliasExpression
+                    when string.Equals(aliasExpression.Alias, _oldName, StringComparison.OrdinalIgnoreCase):
+                        return new AliasExpression(_newName, aliasExpression.Expression);
+                }
+
+                return base.VisitExtension(extensionExpression);
+            }
         }
 
         private static string GetColumnName(Expression expression)
