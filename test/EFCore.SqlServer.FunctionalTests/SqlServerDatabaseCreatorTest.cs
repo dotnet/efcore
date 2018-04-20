@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     // Tests are split into classes to enable parallel execution
     // Some combinations are skipped to reduce run time
+    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -104,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
+    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -213,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
+    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -386,6 +389,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
+    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -450,6 +454,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
+    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -519,6 +524,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
+    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -634,6 +640,7 @@ namespace Microsoft.EntityFrameworkCore
         private static readonly string _eol = Environment.NewLine;
     }
 
+    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -700,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorTest
     {
 
