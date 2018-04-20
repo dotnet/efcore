@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 && innerMethodCallExpression.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo)
                 && innerMethodCallExpression.Arguments[1] is SubQueryExpression subQueryExpression1)
             {
-                return TryRewrite(subQueryExpression1, /*forceToListResult*/ true, out var result)
+                return TryRewrite(subQueryExpression1, /*forceToListResult*/ true, methodCallExpression.Type.GetSequenceType(),  out var result)
                     ? result
                     : methodCallExpression;
             }
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (methodCallExpression.Method.MethodIsClosedFormOf(_toListMethodInfo)
                 && methodCallExpression.Arguments[0] is SubQueryExpression subQueryExpression2)
             {
-                return TryRewrite(subQueryExpression2, /*forceToListResult*/ true, out var result)
+                return TryRewrite(subQueryExpression2, /*forceToListResult*/ true, methodCallExpression.Type.GetSequenceType(), out var result)
                     ? result
                     : methodCallExpression;
             }
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (methodCallExpression.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo)
                 && methodCallExpression.Arguments[1] is SubQueryExpression subQueryExpression3)
             {
-                return TryRewrite(subQueryExpression3, /*forceToListResult*/ false, out var result)
+                return TryRewrite(subQueryExpression3, /*forceToListResult*/ false, /* listResultElementType */ null, out var result)
                     ? result
                     : methodCallExpression;
             }
@@ -120,11 +120,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
-            => TryRewrite(subQueryExpression, /*forceToListResult*/ false, out var result)
+            => TryRewrite(subQueryExpression, /*forceToListResult*/ false, /* listResultElementType */ null, out var result)
                 ? result
                 : base.VisitSubQuery(subQueryExpression);
 
-        private bool TryRewrite(SubQueryExpression subQueryExpression, bool forceToListResult, out Expression result)
+        private bool TryRewrite(SubQueryExpression subQueryExpression, bool forceToListResult, Type listResultElementType, out Expression result)
         {
             if (_queryCompilationContext.TryGetCorrelatedSubqueryMetadata(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata))
             {
@@ -135,7 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     correlatedSubqueryMetadata.CollectionNavigation,
                     correlatedSubqueryMetadata.TrackingQuery,
                     parentQsre,
-                    forceToListResult);
+                    forceToListResult,
+                    listResultElementType);
 
                 return true;
             }
@@ -151,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             INavigation navigation,
             bool trackingQuery,
             QuerySourceReferenceExpression originQuerySource,
-            bool forceListResult)
+            bool forceListResult,
+            Type listResultElementType)
         {
             var querySourceReferenceFindingExpressionTreeVisitor
                 = new QuerySourceReferenceFindingExpressionVisitor();
@@ -294,8 +296,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var newOriginKeyElements = ((NewArrayExpression)(((NewExpression)newOriginKey).Arguments[0])).Expressions;
             var remappedOriginKeyElements = RemapOriginKeyExpressions(newOriginKeyElements, joinQuerySourceReferenceExpression, subQueryProjection);
 
+            var collectionQueryModelSelectorType = collectionQueryModel.SelectClause.Selector.Type;
+
             var tupleCtor = typeof(Tuple<,,>).MakeGenericType(
-                collectionQueryModel.SelectClause.Selector.Type,
+                collectionQueryModelSelectorType,
                 typeof(MaterializedAnonymousObject),
                 typeof(MaterializedAnonymousObject)).GetConstructors().FirstOrDefault();
 
@@ -307,14 +311,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             Expression resultCollectionFactoryExpressionBody;
             if (forceListResult
-                || navigation.ForeignKey.DeclaringEntityType.ClrType != collectionQueryModel.SelectClause.Selector.Type)
+                || navigation.ForeignKey.DeclaringEntityType.ClrType != collectionQueryModelSelectorType)
             {
-                var resultCollectionType = typeof(List<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type);
+                listResultElementType = listResultElementType ?? collectionQueryModelSelectorType;
+                var resultCollectionType = typeof(List<>).MakeGenericType(listResultElementType);
                 var resultCollectionCtor = resultCollectionType.GetTypeInfo().GetDeclaredConstructor(Array.Empty<Type>());
 
                 correlateSubqueryMethod = correlateSubqueryMethod.MakeGenericMethod(
-                        collectionQueryModel.SelectClause.Selector.Type,
-                        typeof(List<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type));
+                    collectionQueryModelSelectorType,
+                    listResultElementType,
+                    typeof(List<>).MakeGenericType(listResultElementType));
 
                 resultCollectionFactoryExpressionBody = Expression.New(resultCollectionCtor);
 
@@ -323,8 +329,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             else
             {
                 correlateSubqueryMethod = correlateSubqueryMethod.MakeGenericMethod(
-                        collectionQueryModel.SelectClause.Selector.Type,
-                        navigation.GetCollectionAccessor().CollectionType);
+                    collectionQueryModelSelectorType,
+                    collectionQueryModelSelectorType,
+                    navigation.GetCollectionAccessor().CollectionType);
 
                 resultCollectionFactoryExpressionBody
                     = Expression.Convert(
@@ -352,12 +359,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 remappedOriginKeyElements))
                     });
 
-            var collectionModelSelectorType = collectionQueryModel.SelectClause.Selector.Type;
+            collectionQueryModelSelectorType = collectionQueryModel.SelectClause.Selector.Type;
 
             // Enumerable or OrderedEnumerable
             collectionQueryModel.ResultTypeOverride = collectionQueryModel.BodyClauses.OfType<OrderByClause>().Any()
-                ? typeof(IOrderedEnumerable<>).MakeGenericType(collectionModelSelectorType)
-                : typeof(IEnumerable<>).MakeGenericType(collectionModelSelectorType);
+                ? typeof(IOrderedEnumerable<>).MakeGenericType(collectionQueryModelSelectorType)
+                : typeof(IEnumerable<>).MakeGenericType(collectionQueryModelSelectorType);
 
             var lambda = (Expression)Expression.Lambda(new SubQueryExpression(collectionQueryModel));
             if (_queryCompilationContext.IsAsyncQuery)
@@ -365,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 lambda = Expression.Convert(
                     lambda,
                     typeof(Func<>).MakeGenericType(
-                        typeof(IAsyncEnumerable<>).MakeGenericType(collectionModelSelectorType)));
+                        typeof(IAsyncEnumerable<>).MakeGenericType(collectionQueryModelSelectorType)));
             }
 
             // since we cloned QM, we need to check if it's query sources require materialization (e.g. TypeIs operation for InMemory)

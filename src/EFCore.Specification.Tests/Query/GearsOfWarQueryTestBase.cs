@@ -4957,6 +4957,44 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
+        [ConditionalFact]
+        public virtual void Cast_subquery_to_base_type_using_typed_ToList()
+        {
+            AssertQuery<City>(
+                cs => cs.Where(c => c.Name == "Ephyra").Select(c => c.StationedGears.Select(g => new Officer
+                {
+                    CityOrBirthName = g.CityOrBirthName,
+                    FullName = g.FullName,
+                    HasSoulPatch = g.HasSoulPatch,
+                    LeaderNickname = g.LeaderNickname,
+                    LeaderSquadId = g.LeaderSquadId,
+                    Nickname = g.Nickname,
+                    Rank = g.Rank,
+                    SquadId = g.SquadId
+                }).ToList<Gear>()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+        }
+
+        [ConditionalFact]
+        public virtual void Cast_ordered_subquery_to_base_type_using_typed_ToArray()
+        {
+            AssertQuery<City>(
+                cs => cs.Where(c => c.Name == "Ephyra").Select(c => c.StationedGears.OrderByDescending(g => g.Nickname).Select(g => new Officer
+                {
+                    CityOrBirthName = g.CityOrBirthName,
+                    FullName = g.FullName,
+                    HasSoulPatch = g.HasSoulPatch,
+                    LeaderNickname = g.LeaderNickname,
+                    LeaderSquadId = g.LeaderSquadId,
+                    Nickname = g.Nickname,
+                    Rank = g.Rank,
+                    SquadId = g.SquadId
+                }).ToArray<Gear>()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

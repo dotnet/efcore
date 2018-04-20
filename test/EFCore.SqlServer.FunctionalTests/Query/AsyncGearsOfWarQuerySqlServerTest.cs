@@ -2357,6 +2357,48 @@ WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[Has
 ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
 
+        public override async Task Cast_subquery_to_base_type_using_typed_ToList()
+        {
+            await base.Cast_subquery_to_base_type_using_typed_ToList();
+
+            AssertSql(
+                @"SELECT [c].[Name]
+FROM [Cities] AS [c]
+WHERE [c].[Name] = N'Ephyra'
+ORDER BY [c].[Name]",
+                //
+                @"SELECT [t].[Name], [c.StationedGears].[CityOrBirthName], [c.StationedGears].[FullName], [c.StationedGears].[HasSoulPatch], [c.StationedGears].[LeaderNickname], [c.StationedGears].[LeaderSquadId], [c.StationedGears].[Nickname], [c.StationedGears].[Rank], [c.StationedGears].[SquadId], [c.StationedGears].[AssignedCityName]
+FROM [Gears] AS [c.StationedGears]
+INNER JOIN (
+    SELECT [c0].[Name]
+    FROM [Cities] AS [c0]
+    WHERE [c0].[Name] = N'Ephyra'
+) AS [t] ON [c.StationedGears].[AssignedCityName] = [t].[Name]
+WHERE [c.StationedGears].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[Name]");
+        }
+
+        public override async Task Cast_ordered_subquery_to_base_type_using_typed_ToArray()
+        {
+            await base.Cast_ordered_subquery_to_base_type_using_typed_ToArray();
+
+            AssertSql(
+                @"SELECT [c].[Name]
+FROM [Cities] AS [c]
+WHERE [c].[Name] = N'Ephyra'
+ORDER BY [c].[Name]",
+                //
+                @"SELECT [t].[Name], [c.StationedGears].[CityOrBirthName], [c.StationedGears].[FullName], [c.StationedGears].[HasSoulPatch], [c.StationedGears].[LeaderNickname], [c.StationedGears].[LeaderSquadId], [c.StationedGears].[Nickname], [c.StationedGears].[Rank], [c.StationedGears].[SquadId], [c.StationedGears].[AssignedCityName]
+FROM [Gears] AS [c.StationedGears]
+INNER JOIN (
+    SELECT [c0].[Name]
+    FROM [Cities] AS [c0]
+    WHERE [c0].[Name] = N'Ephyra'
+) AS [t] ON [c.StationedGears].[AssignedCityName] = [t].[Name]
+WHERE [c.StationedGears].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[Name], [c.StationedGears].[Nickname] DESC");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

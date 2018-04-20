@@ -498,14 +498,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual TCollection CorrelateSubquery<TInner, TCollection>(
+        public virtual TCollection CorrelateSubquery<TInner, TOut, TCollection>(
             int correlatedCollectionId,
             INavigation navigation,
             Func<INavigation, TCollection> resultCollectionFactory,
             in MaterializedAnonymousObject outerKey,
             bool tracking,
             Func<IEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
-            Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate) where TCollection : ICollection<TInner>
+            Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate)
+            where TCollection : ICollection<TOut>
+            where TInner: TOut
         {
             IDisposable untypedEnumerator = null;
             IEnumerator<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>> enumerator = null;
@@ -594,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual async Task<TCollection> CorrelateSubqueryAsync<TInner, TCollection>(
+        public virtual async Task<TCollection> CorrelateSubqueryAsync<TInner, TOut, TCollection>(
             int correlatedCollectionId,
             INavigation navigation,
             Func<INavigation, TCollection> resultCollectionFactory,
@@ -602,7 +604,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             bool tracking,
             Func<IAsyncEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
             Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate,
-            CancellationToken cancellationToken) where TCollection : ICollection<TInner>
+            CancellationToken cancellationToken)
+            where TCollection : ICollection<TOut>
+            where TInner: TOut
         {
             IDisposable untypedEnumerator = null;
             IAsyncEnumerator<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>> enumerator = null;
