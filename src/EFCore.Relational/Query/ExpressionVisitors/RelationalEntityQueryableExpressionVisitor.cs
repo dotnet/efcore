@@ -191,7 +191,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 var useQueryComposition
                     = trimmedSql.StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase)
                       || trimmedSql.StartsWith("SELECT" + Environment.NewLine, StringComparison.OrdinalIgnoreCase)
-                      || trimmedSql.StartsWith("SELECT\t", StringComparison.OrdinalIgnoreCase);
+                      || trimmedSql.StartsWith("SELECT\t", StringComparison.OrdinalIgnoreCase)
+					  || trimmedSql.StartsWith("WITH ", StringComparison.OrdinalIgnoreCase)
+					  || trimmedSql.StartsWith("WITH" + Environment.NewLine, StringComparison.OrdinalIgnoreCase)
+					  || trimmedSql.StartsWith("WITH\t", StringComparison.OrdinalIgnoreCase);
 
                 var requiresClientEval = !useQueryComposition;
 
