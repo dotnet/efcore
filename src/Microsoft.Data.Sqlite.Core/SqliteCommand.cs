@@ -527,7 +527,8 @@ namespace Microsoft.Data.Sqlite
             var tail = _commandText;
             do
             {
-                while (IsBusy(rc = raw.sqlite3_prepare_v2(_connection.Handle, tail, out stmt, out tail)))
+                string nextTail;
+                while (IsBusy(rc = raw.sqlite3_prepare_v2(_connection.Handle, tail, out stmt, out nextTail)))
                 {
                     if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
                     {
@@ -536,6 +537,7 @@ namespace Microsoft.Data.Sqlite
 
                     Thread.Sleep(150);
                 }
+                tail = nextTail;
 
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
 
