@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(DeveloperBuild)'!='true'">$(TargetFrameworks);netcoreapp2.0</TargetFrameworks>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
   </PropertyGroup>
 
