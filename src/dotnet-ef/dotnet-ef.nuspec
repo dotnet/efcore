@@ -16,7 +16,7 @@
     </packageTypes>
     <repository type="git" url="$repositoryUrl$" commit="$repositoryCommit$" />
     <dependencies>
-      <group targetFramework=".NETCoreApp2.0" />
+      <group targetFramework=".NETCoreApp2.1" />
     </dependencies>
   </metadata>
 
