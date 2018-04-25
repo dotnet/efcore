@@ -1078,4 +1078,7 @@
   <data name="ErrorInvalidQueryable" xml:space="preserve">
     <value>Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
+  <data name="DerivedQueryTypeDefiningQuery" xml:space="preserve">
+    <value>The query type '{queryType}' cannot have a defining query bacause it is derived from '{baseType}'. Only base query types can have a defining query.</value>
+  </data>
 </root>

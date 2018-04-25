@@ -465,6 +465,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 ValidateDiscriminatorValues(rootEntityType);
             }
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                if (entityType.BaseType != null
+                    && entityType.IsQueryType
+                    && entityType[RelationalAnnotationNames.TableName] != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.DerivedQueryTypeView(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                }
+            }
         }
 
         private static void ValidateDiscriminator(IEntityType entityType)

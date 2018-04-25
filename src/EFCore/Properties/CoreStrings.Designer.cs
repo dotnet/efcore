@@ -2663,6 +2663,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string ErrorInvalidQueryable
             => GetString("ErrorInvalidQueryable");
 
+        /// <summary>
+        ///     The query type '{queryType}' cannot have a defining query bacause it is derived from '{baseType}'. Only base query types can have a defining query.
+        /// </summary>
+        public static string DerivedQueryTypeDefiningQuery([CanBeNull] object queryType, [CanBeNull] object baseType)
+            => string.Format(
+                GetString("DerivedQueryTypeDefiningQuery", nameof(queryType), nameof(baseType)),
+                queryType, baseType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
