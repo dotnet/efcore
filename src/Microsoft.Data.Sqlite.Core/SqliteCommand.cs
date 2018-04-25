@@ -201,10 +201,7 @@ namespace Microsoft.Data.Sqlite
         /// </param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                DisposePreparedStatements();
-            }
+            DisposePreparedStatements(disposing);
 
             base.Dispose(disposing);
         }
@@ -559,20 +556,24 @@ namespace Microsoft.Data.Sqlite
             while (!string.IsNullOrEmpty(tail));
         }
 
-        private void DisposePreparedStatements()
+        private void DisposePreparedStatements(bool disposing = true)
         {
-            if (DataReader != null)
+            if (disposing
+                && DataReader != null)
             {
                 DataReader.Dispose();
                 DataReader = null;
             }
 
-            foreach (var stmt in _preparedStatements)
+            if (_preparedStatements != null)
             {
-                stmt.Dispose();
-            }
+                foreach (var stmt in _preparedStatements)
+                {
+                    stmt.Dispose();
+                }
 
-            _preparedStatements.Clear();
+                _preparedStatements.Clear();
+            }
         }
 
         private static bool IsBusy(int rc)
