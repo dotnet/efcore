@@ -938,6 +938,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(memberInfo, nameof(memberInfo));
             Check.NotNull(projection, nameof(projection));
 
+            var existingMemberInfo = _memberInfoProjectionMapping.FirstOrDefault(
+                        kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, projection))
+                    .Key;
+
+            if (existingMemberInfo != null)
+            {
+                _memberInfoProjectionMapping.Remove(existingMemberInfo);
+            }
+
             _memberInfoProjectionMapping[memberInfo] = CreateUniqueProjection(projection, memberInfo.Name);
         }
 

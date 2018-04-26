@@ -1254,6 +1254,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual async Task Join_GroupBy_Aggregate_on_key()
+        {
+            await AssertQuery<Order, Customer>(
+                   (os, cs) =>
+                       (from c in cs
+                        join a in os.GroupBy(o => o.CustomerID)
+                                    .Where(g => g.Count() > 5)
+                                    .Select(g => new { g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                            on c.CustomerID equals a.Key
+                        select new { c, a.LastOrderID }),
+                   e => e.c.CustomerID,
+                   entryCount: 63);
+        }
+
+        [ConditionalFact]
         public virtual async Task GroupBy_with_result_selector()
         {
             await AssertQuery<Order>(

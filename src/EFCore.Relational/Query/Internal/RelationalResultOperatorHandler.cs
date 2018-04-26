@@ -489,32 +489,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // TODO: InjectParameters type Expression.
                     Expression[] key = null;
                     var groupByKeyMemberInfo = groupResultOperator.ItemType.GetMember("Key")[0];
+                    var memberInfoMappings = new Dictionary<MemberInfo, Expression>();
 
                     switch (groupResultOperator.KeySelector)
                     {
                         case MemberExpression memberExpression:
                             var sql = sqlTranslatingExpressionVisitor.Visit(memberExpression);
-                            selectExpression.SetProjectionForMemberInfo(groupByKeyMemberInfo, sql);
+                            memberInfoMappings[groupByKeyMemberInfo] = sql;
                             key = new[] { sql };
                             break;
 
                         case NullConditionalExpression nullConditionalExpression:
                             sql = sqlTranslatingExpressionVisitor.Visit(nullConditionalExpression);
-                            selectExpression.SetProjectionForMemberInfo(groupByKeyMemberInfo, sql);
+                            memberInfoMappings[groupByKeyMemberInfo] = sql;
                             key = new[] { sql };
                             break;
 
                         case NewExpression newExpression:
                             key = VisitAndSaveMapping(
                                 sqlTranslatingExpressionVisitor,
-                                selectExpression,
+                                memberInfoMappings,
                                 newExpression);
                             break;
 
                         case MemberInitExpression memberInitExpression:
                             key = VisitAndSaveMapping(
                                 sqlTranslatingExpressionVisitor,
-                                selectExpression,
+                                memberInfoMappings,
                                 memberInitExpression);
                             break;
                     }
@@ -535,6 +536,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             }
                         }
 
+                        foreach (var keyValue in memberInfoMappings)
+                        {
+                            selectExpression.SetProjectionForMemberInfo(keyValue.Key, keyValue.Value);
+                        }
+
                         if (key == null)
                         {
                             var constantOrParameter = groupResultOperator.KeySelector;
@@ -550,6 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             }
 
                             var projectionIndex = subquery.AddToProjection(constantOrParameter, resetProjectStar: false);
+
                             subquery.SetProjectionForMemberInfo(groupByKeyMemberInfo, constantOrParameter);
 
                             var projection = subquery.Projection[projectionIndex].LiftExpressionFromSubquery(subquery);
@@ -600,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression[] VisitAndSaveMapping(
             SqlTranslatingExpressionVisitor sqlTranslator,
-            SelectExpression selectExpression,
+            Dictionary<MemberInfo, Expression> memberInfoMappings,
             NewExpression newExpression)
         {
             var translation = new Expression[newExpression.Arguments.Count];
@@ -625,9 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (memberInfo != null)
                 {
-                    selectExpression.SetProjectionForMemberInfo(
-                        memberInfo,
-                        sqlExpression);
+                    memberInfoMappings[memberInfo] = sqlExpression;
                 }
 
                 translation[i] = sqlExpression;
@@ -638,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression[] VisitAndSaveMapping(
             SqlTranslatingExpressionVisitor sqlTranslator,
-            SelectExpression selectExpression,
+            Dictionary<MemberInfo, Expression> memberInfoMappings,
             MemberInitExpression memberInitExpression)
         {
             var translation = new Expression[memberInitExpression.Bindings.Count];
@@ -662,9 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (memberInfo != null)
                     {
-                        selectExpression.SetProjectionForMemberInfo(
-                            memberInfo,
-                            sqlExpression);
+                        memberInfoMappings[memberInfo] = sqlExpression;
                     }
 
                     translation[i] = sqlExpression;
