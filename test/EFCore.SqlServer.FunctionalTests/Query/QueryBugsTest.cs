@@ -3311,6 +3311,116 @@ WHERE [b].[IsTwo] IN (1, 0)");
 
         #endregion
 
+        #region Bug11818_11831
+
+        [Fact]
+        public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination()
+        {
+            using (CreateDatabase11818())
+            {
+                using (var context = new MyContext11818(_options))
+                {
+                    var query = (from e in context.Set<Entity11818>()
+                                  join a in context.Set<AnotherEntity11818>()
+                                    on e.Id equals a.Id into grouping
+                                  from a in grouping.DefaultIfEmpty()
+                                  select new { ename = e.Name, aname = a.Name })
+                                  .GroupBy(g => g.aname)
+                                  .Select(g => new { g.Key, cnt = g.Count() + 5 })
+                                  .ToList();
+
+                    AssertSql(
+                        @"SELECT [e].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
+FROM [Table] AS [e]
+GROUP BY [e].[Name]");
+                }
+            }
+        }
+
+        [Fact(Skip = "See issue#11831")]
+        public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_2()
+        {
+            using (CreateDatabase11818())
+            {
+                using (var context = new MyContext11818(_options))
+                {
+                    var query = (from e in context.Set<Entity11818>()
+                                 join a in context.Set<AnotherEntity11818>()
+                                   on e.Id equals a.Id into grouping
+                                 from a in grouping.DefaultIfEmpty()
+                                 join m in context.Set<MaumarEntity11818>()
+                                   on e.Id equals m.Id into grouping2
+                                 from m in grouping2.DefaultIfEmpty()
+                                 select new { aname = a.Name, mname = m.Name })
+                                  .GroupBy(g => new { g.aname, g.mname })
+                                  .Select(g => new { MyKey = g.Key.aname, cnt = g.Count() + 5 })
+                                  .ToList();
+
+                    AssertSql(
+                        @"SELECT [e].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
+FROM [Table] AS [e]
+GROUP BY [e].[Name]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11818()
+        {
+            return CreateTestStore(
+                () => new MyContext11818(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext11818 : DbContext
+        {
+            public MyContext11818(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Entity11818>().ToTable("Table");
+                modelBuilder.Entity<AnotherEntity11818>().ToTable("Table");
+                modelBuilder.Entity<MaumarEntity11818>().ToTable("Table");
+
+                modelBuilder.Entity<Entity11818>()
+                    .HasOne<AnotherEntity11818>()
+                    .WithOne()
+                    .HasForeignKey<AnotherEntity11818>(b => b.Id);
+
+                modelBuilder.Entity<Entity11818>()
+                    .HasOne<MaumarEntity11818>()
+                    .WithOne()
+                    .HasForeignKey<MaumarEntity11818>(b => b.Id);
+            }
+        }
+
+        public class Entity11818
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class AnotherEntity11818
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class MaumarEntity11818
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

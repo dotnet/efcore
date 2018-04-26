@@ -1295,6 +1295,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             UpdateProjection(visitor, _starProjection);
             UpdateProjection(visitor, _projection);
 
+            foreach (var kvp in _memberInfoProjectionMapping.ToList())
+            {
+                _memberInfoProjectionMapping[kvp.Key] = visitor.Visit(kvp.Value);
+            }
+
             for (var i = 0; i < _tables.Count; i++)
             {
                 _tables[i] = (TableExpressionBase)visitor.Visit(_tables[i]);
