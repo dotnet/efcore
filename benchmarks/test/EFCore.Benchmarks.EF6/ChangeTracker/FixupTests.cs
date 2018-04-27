@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EF6.Models.Orders;
@@ -56,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             }
         }
 
+        [DisplayName(nameof(ChildVariations))]
         public abstract class ChildVariations : FixupBase
         {
             [IterationSetup]
@@ -91,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             }
         }
 
+        [DisplayName(nameof(ParentVariations))]
         public abstract class ParentVariations : FixupBase
         {
             [IterationSetup]
@@ -121,12 +124,14 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
         }
 
         [SingleRunBenchmarkJob]
+        [Description("AutoDetectChanges=True")]
         public class ChildVariationsWithAutoDetectChangesOn : ChildVariations
         {
             protected override bool AutoDetectChanges => true;
         }
 
         [SingleRunBenchmarkJob]
+        [Description("AutoDetectChanges=True")]
         public class ParentVariationsWithAutoDetectChangesOn : ParentVariations
         {
             protected override bool AutoDetectChanges => true;
@@ -134,6 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
 
         [BenchmarkJob]
         [MemoryDiagnoser]
+        [Description("AutoDetectChanges=False")]
         public class ChildVariationsWithAutoDetectChangesOff : ChildVariations
         {
             protected override bool AutoDetectChanges => false;
@@ -141,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
 
         [BenchmarkJob]
         [MemoryDiagnoser]
+        [Description("AutoDetectChanges=False")]
         public class ParentVariationsWithAutoDetectChangesOff : ParentVariations
         {
             protected override bool AutoDetectChanges => false;

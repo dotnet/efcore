@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
+    [DisplayName(nameof(QueryCompilationTests))]
     public abstract class QueryCompilationTests
     {
         private OrdersContextBase _context;

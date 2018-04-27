@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.ComponentModel;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
@@ -10,6 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
+    [DisplayName(nameof(FuncletizationTests))]
     public abstract class FuncletizationTests
     {
         private OrdersContextBase _context;

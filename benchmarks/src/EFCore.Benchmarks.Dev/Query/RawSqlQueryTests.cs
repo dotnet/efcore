@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
@@ -12,6 +13,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
+    [DisplayName(nameof(RawSqlQueryTests))]
     public abstract class RawSqlQueryTests
     {
         private OrdersContextBase _context;

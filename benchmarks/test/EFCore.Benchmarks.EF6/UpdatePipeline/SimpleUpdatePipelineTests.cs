@@ -27,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.UpdatePipeline
             [Params(true, false)]
             public bool Async;
 
+            // NB: Unused. Only here for comparison to EF Core
+            [Params(true, false)]
+            public bool Batching;
+
             [IterationSetup]
             public virtual void InitializeContext()
             {

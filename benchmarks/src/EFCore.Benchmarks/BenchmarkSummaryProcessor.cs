@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Reports;
 using Microsoft.Extensions.Configuration;
@@ -44,6 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
                 {
                     if (benchmarkReport.ResultStatistics != null)
                     {
+                        var testClass = benchmarkReport.Benchmark.Target.Type;
+                        var displayName = testClass.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
+                        var description = testClass.GetCustomAttribute<DescriptionAttribute>()?.Description;
                         var benchmarkResult = new BenchmarkResult
                         {
                             MachineName = _machineName,
@@ -52,19 +57,20 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
                             EfVersion = _benchmarkConfig.ProductVersion,
                             CustomData = _benchmarkConfig.CustomData,
                             ReportingTime = DateTime.UtcNow,
-                            Variation = string.Join(
-                                ", ",
-                                benchmarkReport.Benchmark.Parameters.Items
-                                    .OrderBy(pi => pi.Name)
-                                    .Select(pi => $"{pi.Name}={pi.Value}")),
+                            Variation = description
+                                ?? string.Join(
+                                    ", ",
+                                    benchmarkReport.Benchmark.Parameters.Items
+                                        .OrderBy(pi => pi.Name)
+                                        .Select(pi => $"{pi.Name}={pi.Value}")),
                             TimeElapsedMean = benchmarkReport.ResultStatistics.Mean / 1E6,
                             TimeElapsedPercentile90 = benchmarkReport.ResultStatistics.Percentiles.P90 / 1E6,
                             TimeElapsedPercentile95 = benchmarkReport.ResultStatistics.Percentiles.P95 / 1E6,
                             TimeElapsedStandardDeviation = benchmarkReport.ResultStatistics.StandardDeviation / 1E6,
                             TimeElapsedStandardError = benchmarkReport.ResultStatistics.StandardError / 1E6,
                             MemoryAllocated = benchmarkReport.GcStats.BytesAllocatedPerOperation * 1.0 / 1024,
-                            TestClassFullName = benchmarkReport.Benchmark.Target.Type.FullName,
-                            TestClass = benchmarkReport.Benchmark.Target.Type.Name,
+                            TestClassFullName = testClass.FullName,
+                            TestClass = displayName ?? testClass.Name,
                             TestMethodName = benchmarkReport.Benchmark.Target.Method.Name,
                             WarmupIterations = benchmarkReport.AllMeasurements.Count(m => m.IterationMode == IterationMode.MainWarmup),
                             MainIterations = benchmarkReport.AllMeasurements.Count(m => m.IterationMode == IterationMode.MainTarget)

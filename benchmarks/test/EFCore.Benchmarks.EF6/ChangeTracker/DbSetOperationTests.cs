@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Entity;
 using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EF6.Models.Orders;
@@ -47,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             }
         }
 
+        [DisplayName(nameof(AddDataVariations))]
         public abstract class AddDataVariations : DbSetOperationBase
         {
             [Benchmark]
@@ -77,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             //       API for bulk attach in EF6.x
         }
 
+        [DisplayName(nameof(ExistingDataVariations))]
         public abstract class ExistingDataVariations : DbSetOperationBase
         {
             [IterationSetup]
@@ -115,12 +118,14 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
         }
 
         [SingleRunBenchmarkJob]
+        [Description("AutoDetectChanges=True")]
         public class AddDataVariationsWithAutoDetectChangesOn : AddDataVariations
         {
             protected override bool AutoDetectChanges => true;
         }
 
         [SingleRunBenchmarkJob]
+        [Description("AutoDetectChanges=True")]
         public class ExistingDataVariationsWithAutoDetectChangesOn : ExistingDataVariations
         {
             protected override bool AutoDetectChanges => true;
@@ -128,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
 
         [BenchmarkJob]
         [MemoryDiagnoser]
+        [Description("AutoDetectChanges=False")]
         public class AddDataVariationsWithAutoDetectChangesOff : AddDataVariations
         {
             protected override bool AutoDetectChanges => false;
@@ -135,6 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
 
         [BenchmarkJob]
         [MemoryDiagnoser]
+        [Description("AutoDetectChanges=False")]
         public class ExistingDataVariationsWithAutoDetectChangesOff : ExistingDataVariations
         {
             protected override bool AutoDetectChanges => false;

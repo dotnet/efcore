@@ -1,12 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.ComponentModel;
 using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
 {
+    [DisplayName("InitializationTests")]
     public abstract class InitializationTests<T>
         where T : ColdStartEnabledTests, new()
     {
