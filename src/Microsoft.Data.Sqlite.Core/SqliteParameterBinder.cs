@@ -23,8 +23,7 @@ namespace Microsoft.Data.Sqlite
         protected override void BindBlob(byte[] value)
         {
             var blob = value;
-            if (_size.HasValue
-                && (value.Length > _size.Value))
+            if (ShouldTruncate(value.Length))
             {
                 blob = new byte[_size.Value];
                 Array.Copy(value, blob, _size.Value);
@@ -43,15 +42,16 @@ namespace Microsoft.Data.Sqlite
             => raw.sqlite3_bind_null(_stmt, _index);
 
         protected override void BindText(string value)
-        {
-            var text = value;
-            if (_size.HasValue
-                && (value.Length > _size.Value))
-            {
-                text = value.Substring(0, _size.Value);
-            }
+            => raw.sqlite3_bind_text(
+                _stmt,
+                _index,
+                ShouldTruncate(value.Length)
+                    ? value.Substring(0, _size.Value)
+                    : value);
 
-            raw.sqlite3_bind_text(_stmt, _index, text);
-        }
+        private bool ShouldTruncate(int length)
+            => _size.HasValue
+                && length > _size.Value
+                && _size.Value != -1;
     }
 }
