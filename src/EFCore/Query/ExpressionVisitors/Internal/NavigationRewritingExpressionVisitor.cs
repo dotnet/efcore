@@ -492,7 +492,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 // if qsre is pointing to a subquery, look for DefaulIfEmpty result operators inside
                 // if such operator is found then we need to add null-compensation logic
-                if (subQuery != null)
+                // unless the query model has a GroupBy operator - qsre coming from groupby can never be null
+                if (subQuery != null && !(subQuery.QueryModel.ResultOperators.LastOrDefault() is GroupResultOperator))
                 {
                     var containsDefaultIfEmptyChecker = new ContainsDefaultIfEmptyCheckingVisitor();
                     containsDefaultIfEmptyChecker.VisitQueryModel(subQuery.QueryModel);
