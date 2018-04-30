@@ -904,9 +904,9 @@ SELECT * FROM query")
                         EOL +
                         EOL +
                         @"WITH" + EOL +
-                        @"query AS (" +
-                        @"SELECT * FROM ""Customers""" +
-                        @")" +
+                        @"query AS (" + EOL +
+                        @"SELECT * FROM ""Customers""" + EOL +
+                        @")" + EOL +
                         @"SELECT * FROM query")
                     .Where(c => c.ContactName.Contains("z"))
                     .ToArray();
