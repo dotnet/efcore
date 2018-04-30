@@ -860,6 +860,135 @@ AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")")
             }
         }
 
+        [Fact]
+        public virtual void From_sql_cte_queryable_simple()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(@"WITH query AS ( SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%') SELECT * FROM query")
+                    .ToArray();
+
+                Assert.Equal(14, actual.Length);
+                Assert.Equal(14, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_cte_queryable_multiple_line_query()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(@"WITH
+query AS (
+    SELECT * FROM ""Customers""
+)
+SELECT * FROM query")
+                    .ToArray();
+
+                Assert.Equal(91, actual.Length);
+                Assert.Equal(91, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_cte_queryable_composed_after_removing_whitespaces()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(
+                        EOL +
+                        @"    " + EOL +
+                        EOL +
+                        EOL +
+                        @"WITH" + EOL +
+                        @"query AS (" +
+                        @"SELECT * FROM ""Customers""" +
+                        @")" +
+                        @"SELECT * FROM query")
+                    .Where(c => c.ContactName.Contains("z"))
+                    .ToArray();
+
+                Assert.Equal(14, actual.Length);
+            }
+        }
+
+        public virtual void From_sql_cte_queryable_simple_include()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(@"WITH query AS ( SELECT * FROM ""Customers"" ) SELECT * FROM query")
+                    .Include(c => c.Orders)
+                    .ToArray();
+
+                Assert.Equal(830, actual.SelectMany(c => c.Orders).Count());
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_cte_queryable_composed()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(@"WITH query AS ( SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%') SELECT * FROM query")
+                    .Where(c => c.ContactName.Contains("z"))
+                    .ToArray();
+
+                Assert.Equal(14, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_cte_queryable_simple_columns_out_of_order_and_not_enough_columns_throws()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    RelationalStrings.FromSqlMissingColumn("Region"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Set<Customer>()
+                            .FromSql(@"WITH
+query AS (
+    SELECT * FROM ""Customers""
+)
+SELECT ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM query")
+                            .ToArray()
+                    ).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_cte_queryable_with_parameters()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(
+                        @"WITH
+first as (
+    SELECT * FROM ""Customers"" WHERE ""City"" = {0}
+),
+second as (
+    SELECT * FROM first WHERE ""ContactTitle"" = {1}
+)
+SELECT * FROM second",
+                        city,
+                        contactTitle)
+                    .ToArray();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == city));
+                Assert.True(actual.All(c => c.ContactTitle == contactTitle));
+            }
+        }
+
         protected abstract DbParameter CreateDbParameter(string name, object value);
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
