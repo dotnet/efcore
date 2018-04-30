@@ -932,19 +932,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
                             newRelationshipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
                     }
+
+                    newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.RemoveNonOwnershipRelationships(configurationSource);
                 }
                 else
                 {
                     newRelationshipBuilder.Metadata.SetIsOwnership(false, configurationSource);
-                }
-
-                foreach (var derivedForeignKey in newRelationshipBuilder.Metadata.DeclaringEntityType.GetDerivedForeignKeys()
-                        .Where(fk => fk.PrincipalToDependent != null)
-                        .Concat(newRelationshipBuilder.Metadata.DeclaringEntityType.GetDerivedReferencingForeignKeys()
-                            .Where(fk => fk.DependentToPrincipal != null)).ToList())
-                {
-                    derivedForeignKey.DeclaringEntityType.Builder
-                        .RemoveForeignKey(derivedForeignKey, configurationSource);
                 }
 
                 return batch.Run(newRelationshipBuilder);

@@ -2193,6 +2193,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void RemoveNonOwnershipRelationships(ConfigurationSource configurationSource)
+        {
+            foreach (var foreignKey in Metadata.GetDerivedForeignKeysInclusive()
+                .Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null)
+                .Concat(Metadata.GetDerivedReferencingForeignKeysInclusive()
+                    .Where(fk => !fk.IsOwnership && fk.DependentToPrincipal != null)).ToList())
+            {
+                foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Navigation(
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] string navigationName,

@@ -2081,6 +2081,32 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void OwnedEntityTypeAttribute_configures_one_reference_as_owned()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Order>();
+
+            Validate(modelBuilder);
+
+            Assert.True(model.FindEntityType(typeof(Order)).FindNavigation(nameof(Order.ShippingAddress)).ForeignKey.IsOwnership);
+        }
+
+        [Owned]
+        public class StreetAddress
+        {
+            public string Street { get; set; }
+            public string City { get; set; }
+        }
+
+        public class Order
+        {
+            public int Id { get; set; }
+            public StreetAddress ShippingAddress { get; set; }
+        }
+
+        [Fact]
         public virtual void OwnedEntityTypeAttribute_configures_all_references_as_owned()
         {
             var modelBuilder = CreateModelBuilder();

@@ -498,6 +498,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
+        public virtual void Detects_owned_entity_type_without_ownership()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
+            modelBuilder.Owned(typeof(A), ConfigurationSource.Convention);
+
+            VerifyError(CoreStrings.OwnerlessOwnedType(nameof(A)), modelBuilder.Metadata);
+        }
+
+        [Fact]
         public virtual void Detects_ForeignKey_on_inherited_generated_key_property()
         {
             var modelBuilder = CreateModelBuilder();
