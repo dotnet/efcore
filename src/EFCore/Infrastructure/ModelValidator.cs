@@ -53,30 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateOwnership(model);
             ValidateForeignKeys(model);
             ValidateFieldMapping(model);
+            ValidateQueryTypes(model);
             ValidateQueryFilters(model);
             ValidateData(model);
             LogShadowProperties(model);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void ValidateQueryFilters([NotNull] IModel model)
-        {
-            Check.NotNull(model, nameof(model));
-
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                if (entityType.QueryFilter != null)
-                {
-                    if (entityType.BaseType != null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.BadFilterDerivedType(entityType.QueryFilter, entityType.DisplayName()));
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -492,6 +472,47 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         errorMessage: out errorMessage))
                     {
                         throw new InvalidOperationException(errorMessage);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ValidateQueryTypes([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                if (entityType.IsQueryType
+                    && entityType.BaseType != null
+                    && entityType.DefiningQuery != null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.DerivedQueryTypeDefiningQuery(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ValidateQueryFilters([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                if (entityType.QueryFilter != null)
+                {
+                    if (entityType.BaseType != null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.BadFilterDerivedType(entityType.QueryFilter, entityType.DisplayName()));
                     }
                 }
             }

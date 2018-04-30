@@ -523,6 +523,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
+        [Fact]
+        public virtual void Detects_ToQuery_on_derived_query_types()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var context = new DbContext(new DbContextOptions<DbContext>());
+            modelBuilder.Query<Abstract>().ToQuery(() => context.Set<Abstract>());
+            modelBuilder.Query<Generic<int>>().ToQuery(() => context.Set<Generic<int>>());
+
+            VerifyError(
+                CoreStrings.DerivedQueryTypeDefiningQuery("Generic<int>", nameof(Abstract)),
+                modelBuilder.Model);
+        }
+
         [Theory]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]

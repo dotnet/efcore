@@ -477,4 +477,7 @@
     <value>A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.</value>
     <comment>Warning RelationalEventId.ValueConversionSqlLiteralWarning object object</comment>
   </data>
+  <data name="DerivedQueryTypeView" xml:space="preserve">
+    <value>The query type '{queryType}' cannot be mapped to a view bacause it is derived from '{baseType}'. Only base query types can be mapped to a view.</value>
+  </data>
 </root>

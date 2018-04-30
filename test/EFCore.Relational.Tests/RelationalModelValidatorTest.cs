@@ -839,6 +839,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Detects_ToView_on_derived_query_types()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Query<Animal>().ToView("Animal");
+            modelBuilder.Query<Cat>().ToView("Cat");
+
+            VerifyError(
+                RelationalStrings.DerivedQueryTypeView(nameof(Cat), nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
         public void Detects_function_with_invalid_return_type_throws()
         {
             var modelBuilder = CreateConventionalModelBuilder();
