@@ -61,19 +61,20 @@ namespace Microsoft.Data.Sqlite
                 (byte)1);
 
         [Fact]
-        public void GetBytes_not_supported()
+        public void GetBytes_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT x'7E57';"))
+                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
                     var buffer = new byte[2];
-                    Assert.Throws<NotSupportedException>(() => reader.GetBytes(0, 0, buffer, 0, buffer.Length));
+                    reader.GetBytes(0, 1, buffer, 0, buffer.Length);
+                    Assert.Equal(new byte[2] { 0x7E, 0x57 }, buffer);
                 }
             }
         }
@@ -93,7 +94,7 @@ namespace Microsoft.Data.Sqlite
                 'A');
 
         [Fact]
-        public void GetChars_not_supported()
+        public void GetChars_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
@@ -104,8 +105,30 @@ namespace Microsoft.Data.Sqlite
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    var buffer = new char[4];
-                    Assert.Throws<NotSupportedException>(() => reader.GetChars(0, 0, buffer, 0, buffer.Length));
+                    var buffer = new char[2];
+                    reader.GetChars(0, 1, buffer, 0, buffer.Length);
+                    Assert.Equal(new char[2] { 'e', 's' }, buffer);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetStream_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var stream = reader.GetStream(0);
+                    Assert.Equal(0x42, stream.ReadByte());
+                    var stream2 = reader.GetStream(0);
+                    Assert.Equal(0x42, stream2.ReadByte());
+                    Assert.Equal(0x7E, stream.ReadByte());
                 }
             }
         }

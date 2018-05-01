@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -10,10 +11,12 @@ namespace Microsoft.Data.Sqlite
     internal class SqliteDataRecord : SqliteValueReader
     {
         private readonly sqlite3_stmt _stmt;
+        private readonly byte[][] _blobCache;
 
         public SqliteDataRecord(sqlite3_stmt stmt)
         {
             _stmt = stmt;
+            _blobCache = new byte[FieldCount][];
         }
 
         public virtual object this[string name]
@@ -170,9 +173,38 @@ namespace Microsoft.Data.Sqlite
         }
 
         public virtual long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
-            => throw new NotSupportedException();
+        {
+            var blob = GetCachedBlob(ordinal);
+            Array.Copy(blob, dataOffset, buffer, bufferOffset, length);
+            return length;
+        }
 
         public virtual long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-            => throw new NotSupportedException();
+        {
+            var text = GetString(ordinal);
+            text.CopyTo((int)dataOffset, buffer, bufferOffset, length);
+            return length;
+        }
+
+        public virtual Stream GetStream(int ordinal)
+            => new MemoryStream(GetCachedBlob(ordinal), false);
+
+        private byte[] GetCachedBlob(int ordinal)
+        {
+            if (ordinal < 0 || ordinal >= FieldCount)
+            {
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
+            }
+
+            var blob = _blobCache[ordinal];
+            if (blob == null)
+            {
+                blob = GetBlob(ordinal);
+                _blobCache[ordinal] = blob;
+            }
+
+            return blob;
+        }
     }
 }
