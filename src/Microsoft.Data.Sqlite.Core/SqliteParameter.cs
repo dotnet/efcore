@@ -149,9 +149,23 @@ namespace Microsoft.Data.Sqlite
         /// <value>The maximum size, in bytes, of the parameter.</value>
         public override int Size
         {
-            get => _size ?? (
-                       _value is string stringValue ? stringValue.Length : _value is byte[] byteArray ? byteArray.Length : 0);
-            set => _size = value;
+            get => _size
+                ?? (_value is string stringValue
+                    ? stringValue.Length
+                    : _value is byte[] byteArray
+                        ? byteArray.Length
+                        : 0);
+
+            set
+            {
+                if (value < -1)
+                {
+                    // NB: Message is provided by the framework
+                    throw new ArgumentOutOfRangeException(nameof(value), value, message: null);
+                }
+
+                _size = value;
+            }
         }
 
         /// <summary>

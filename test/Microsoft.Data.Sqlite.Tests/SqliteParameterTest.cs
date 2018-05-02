@@ -47,6 +47,17 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Size_validates_argument()
+        {
+            var parameter = new SqliteParameter();
+
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => parameter.Size = -2);
+
+            Assert.Equal("value", ex.ParamName);
+            Assert.Equal(-2, ex.ActualValue);
+        }
+
+        [Fact]
         public void SqliteType_defaults_to_text()
         {
             Assert.Equal(SqliteType.Text, new SqliteParameter().SqliteType);
@@ -321,6 +332,22 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Bind_with_sentinel_size_works_on_string_values()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT $value;";
+                command.Parameters.AddWithValue("$value", "TEST").Size = -1;
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal("TEST", result);
+            }
+        }
+
+        [Fact]
         public void Bind_with_restricted_size_works_on_blob_values()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -333,6 +360,22 @@ namespace Microsoft.Data.Sqlite
                 var result = command.ExecuteScalar();
 
                 Assert.Equal(new byte[] { 1, 2, 3 }, result);
+            }
+        }
+
+        [Fact]
+        public void Bind_with_sentinel_size_works_on_blob_values()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT $value;";
+                command.Parameters.AddWithValue("$value", new byte[] { 0x7E, 0x57 }).Size = -1;
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal(new byte[] { 0x7E, 0x57 }, result);
             }
         }
 
