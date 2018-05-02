@@ -3440,6 +3440,88 @@ GROUP BY [e].[Name]");
 
         #endregion
 
+        #region Bug11803
+
+        [Fact]
+        public virtual void Query_filter_with_db_set_should_not_block_other_filters()
+        {
+            using (CreateDatabase11803())
+            {
+                using (var context = new MyContext11803(_options))
+                {
+                    context.Factions.ToList();
+                    
+                    AssertSql(
+                        @"SELECT [f].[Id], [f].[Name]
+FROM [Factions] AS [f]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Leaders] AS [l]
+    WHERE ([l].[Name] LIKE N'Bran' + N'%' AND (LEFT([l].[Name], LEN(N'Bran')) = N'Bran')) AND ([l].[Name] = N'Crach an Craite'))");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11803()
+        {
+            return CreateTestStore(
+                () => new MyContext11803(_options),
+                context =>
+                {
+                    var f1 = new Faction { Name = "Skeliege" };
+                    var f2 = new Faction { Name = "Monsters" };
+                    var f3 = new Faction { Name = "Nilfgaard" };
+                    var f4 = new Faction { Name = "Northern Realms" };
+                    var f5 = new Faction { Name = "Scioia'tael" };
+
+                    var l11 = new Leader { Faction = f1, Name = "Bran Tuirseach" };
+                    var l12 = new Leader { Faction = f1, Name = "Crach an Craite" };
+                    var l13 = new Leader { Faction = f1, Name = "Eist Tuirseach" };
+                    var l14 = new Leader { Faction = f1, Name = "Harald the Cripple" };
+
+                    context.Factions.AddRange(f1, f2, f3, f4, f5);
+                    context.Leaders.AddRange(l11, l12, l13, l14);
+                    
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext11803 : DbContext
+        {
+            public DbSet<Faction> Factions { get; set; }
+            public DbSet<Leader> Leaders { get; set; }
+
+            public MyContext11803(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Leader>().HasQueryFilter(l => l.Name.StartsWith("Bran")); // this one is ignored
+                modelBuilder.Entity<Faction>().HasQueryFilter(f => Leaders.Any(l => l.Name == "Crach an Craite"));
+            }
+        }
+
+        public class Faction
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<Leader> Leaders { get; set; }
+        }
+
+        public class Leader
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public Faction Faction { get; set; }
+        }
+
+        #endregion
+        
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

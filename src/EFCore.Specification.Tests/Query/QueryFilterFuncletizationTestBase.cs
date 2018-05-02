@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_field_is_parametrized()
+        public virtual void DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_property_is_parametrized()
+        public virtual void DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_method_call_is_parametrized()
+        public virtual void DbContext_method_call_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_list_is_parametrized()
+        public virtual void DbContext_list_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_property_chain_is_parametrized()
+        public virtual void DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_property_method_call_is_parametrized()
+        public virtual void DbContext_property_method_call_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_method_call_chain_is_parametrized()
+        public virtual void DbContext_method_call_chain_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_complex_expression_is_parametrized()
+        public virtual void DbContext_complex_expression_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void EntityTypeConfiguration_DbContext_field_is_parametrized()
+        public virtual void EntityTypeConfiguration_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void EntityTypeConfiguration_DbContext_property_is_parametrized()
+        public virtual void EntityTypeConfiguration_DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void EntityTypeConfiguration_DbContext_method_call_is_parametrized()
+        public virtual void EntityTypeConfiguration_DbContext_method_call_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void EntityTypeConfiguration_DbContext_property_chain_is_parametrized()
+        public virtual void EntityTypeConfiguration_DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Local_method_DbContext_field_is_parametrized()
+        public virtual void Local_method_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Local_static_method_DbContext_property_is_parametrized()
+        public virtual void Local_static_method_DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Remote_method_DbContext_property_method_call_is_parametrized()
+        public virtual void Remote_method_DbContext_property_method_call_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Extension_method_DbContext_field_is_parametrized()
+        public virtual void Extension_method_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Extension_method_DbContext_property_chain_is_parametrized()
+        public virtual void Extension_method_DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
             {

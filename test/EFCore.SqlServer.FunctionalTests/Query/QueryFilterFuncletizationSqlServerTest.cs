@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -31,9 +32,9 @@ FROM [FieldFilter] AS [e]
 WHERE ([e].[IsEnabled] = @__ef_filter__Field_0) AND ([e].[IsEnabled] = @__Field_0)");
         }
 
-        public override void DbContext_field_is_parametrized()
+        public override void DbContext_field_is_parameterized()
         {
-            base.DbContext_field_is_parametrized();
+            base.DbContext_field_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Field_0='False'
@@ -49,9 +50,9 @@ FROM [FieldFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Field_0");
         }
 
-        public override void DbContext_property_is_parametrized()
+        public override void DbContext_property_is_parameterized()
         {
-            base.DbContext_property_is_parametrized();
+            base.DbContext_property_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Property_0='False'
@@ -67,9 +68,9 @@ FROM [PropertyFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Property_0");
         }
 
-        public override void DbContext_method_call_is_parametrized()
+        public override void DbContext_method_call_is_parameterized()
         {
-            base.DbContext_method_call_is_parametrized();
+            base.DbContext_method_call_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__ef_filter_0='2'
@@ -79,9 +80,9 @@ FROM [MethodCallFilter] AS [e]
 WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
         }
 
-        public override void DbContext_list_is_parametrized()
+        public override void DbContext_list_is_parameterized()
         {
-            base.DbContext_list_is_parametrized();
+            base.DbContext_list_is_parameterized();
 
             AssertSql(
                 @"SELECT [e].[Id], [e].[Tenant]
@@ -97,9 +98,9 @@ FROM [ListFilter] AS [e]
 WHERE [e].[Tenant] IN (2, 3)");
         }
 
-        public override void DbContext_property_chain_is_parametrized()
+        public override void DbContext_property_chain_is_parameterized()
         {
-            base.DbContext_property_chain_is_parametrized();
+            base.DbContext_property_chain_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Enabled_0='False'
@@ -115,9 +116,9 @@ FROM [PropertyChainFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Enabled_0");
         }
 
-        public override void DbContext_property_method_call_is_parametrized()
+        public override void DbContext_property_method_call_is_parameterized()
         {
-            base.DbContext_property_method_call_is_parametrized();
+            base.DbContext_property_method_call_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__ef_filter_0='2'
@@ -127,9 +128,9 @@ FROM [PropertyMethodCallFilter] AS [e]
 WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
         }
 
-        public override void DbContext_method_call_chain_is_parametrized()
+        public override void DbContext_method_call_chain_is_parameterized()
         {
-            base.DbContext_method_call_chain_is_parametrized();
+            base.DbContext_method_call_chain_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__ef_filter_0='2'
@@ -139,9 +140,9 @@ FROM [MethodCallChainFilter] AS [e]
 WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
         }
 
-        public override void DbContext_complex_expression_is_parametrized()
+        public override void DbContext_complex_expression_is_parameterized()
         {
-            base.DbContext_complex_expression_is_parametrized();
+            base.DbContext_complex_expression_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Property_0='False'
@@ -195,9 +196,9 @@ FROM [ShortCircuitFilter] AS [x]
 WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [x].[IsModerated] IS NULL)");
         }
 
-        public override void EntityTypeConfiguration_DbContext_field_is_parametrized()
+        public override void EntityTypeConfiguration_DbContext_field_is_parameterized()
         {
-            base.EntityTypeConfiguration_DbContext_field_is_parametrized();
+            base.EntityTypeConfiguration_DbContext_field_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Field_0='False'
@@ -213,9 +214,9 @@ FROM [EntityTypeConfigurationFieldFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Field_0");
         }
 
-        public override void EntityTypeConfiguration_DbContext_property_is_parametrized()
+        public override void EntityTypeConfiguration_DbContext_property_is_parameterized()
         {
-            base.EntityTypeConfiguration_DbContext_property_is_parametrized();
+            base.EntityTypeConfiguration_DbContext_property_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Property_0='False'
@@ -231,9 +232,9 @@ FROM [EntityTypeConfigurationPropertyFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Property_0");
         }
 
-        public override void EntityTypeConfiguration_DbContext_method_call_is_parametrized()
+        public override void EntityTypeConfiguration_DbContext_method_call_is_parameterized()
         {
-            base.EntityTypeConfiguration_DbContext_method_call_is_parametrized();
+            base.EntityTypeConfiguration_DbContext_method_call_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__ef_filter_0='2'
@@ -243,9 +244,9 @@ FROM [EntityTypeConfigurationMethodCallFilter] AS [e]
 WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
         }
 
-        public override void EntityTypeConfiguration_DbContext_property_chain_is_parametrized()
+        public override void EntityTypeConfiguration_DbContext_property_chain_is_parameterized()
         {
-            base.EntityTypeConfiguration_DbContext_property_chain_is_parametrized();
+            base.EntityTypeConfiguration_DbContext_property_chain_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Enabled_0='False'
@@ -261,9 +262,9 @@ FROM [EntityTypeConfigurationPropertyChainFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Enabled_0");
         }
 
-        public override void Local_method_DbContext_field_is_parametrized()
+        public override void Local_method_DbContext_field_is_parameterized()
         {
-            base.Local_method_DbContext_field_is_parametrized();
+            base.Local_method_DbContext_field_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Field_0='False'
@@ -279,9 +280,9 @@ FROM [LocalMethodFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Field_0");
         }
 
-        public override void Local_static_method_DbContext_property_is_parametrized()
+        public override void Local_static_method_DbContext_property_is_parameterized()
         {
-            base.Local_static_method_DbContext_property_is_parametrized();
+            base.Local_static_method_DbContext_property_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Property_0='False'
@@ -297,9 +298,9 @@ FROM [LocalMethodParamsFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Property_0");
         }
 
-        public override void Remote_method_DbContext_property_method_call_is_parametrized()
+        public override void Remote_method_DbContext_property_method_call_is_parameterized()
         {
-            base.Remote_method_DbContext_property_method_call_is_parametrized();
+            base.Remote_method_DbContext_property_method_call_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__ef_filter_0='2'
@@ -309,9 +310,9 @@ FROM [RemoteMethodParamsFilter] AS [e]
 WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
         }
 
-        public override void Extension_method_DbContext_field_is_parametrized()
+        public override void Extension_method_DbContext_field_is_parameterized()
         {
-            base.Extension_method_DbContext_field_is_parametrized();
+            base.Extension_method_DbContext_field_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Field_0='False'
@@ -327,9 +328,9 @@ FROM [ExtensionBuilderFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Field_0");
         }
 
-        public override void Extension_method_DbContext_property_chain_is_parametrized()
+        public override void Extension_method_DbContext_property_chain_is_parameterized()
         {
-            base.Extension_method_DbContext_property_chain_is_parametrized();
+            base.Extension_method_DbContext_property_chain_is_parameterized();
 
             AssertSql(
                 @"@__ef_filter__Enabled_0='False'
@@ -345,6 +346,7 @@ FROM [ExtensionContextFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Enabled_0");
         }
 
+        [Fact(Skip = "#11879")]
         public override void Using_DbSet_in_filter_works()
         {
             base.Using_DbSet_in_filter_works();
@@ -358,6 +360,7 @@ WHERE EXISTS (
     WHERE [d].[PrincipalSetFilterId] = [p].[Id])");
         }
 
+        [Fact(Skip = "#11879")]
         public override void Using_Context_set_method_in_filter_works()
         {
             base.Using_Context_set_method_in_filter_works();
