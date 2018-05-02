@@ -1024,7 +1024,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     typeof(bool)));
         }
 
-        private static void PrepareSelectExpressionForAggregate(SelectExpression selectExpression)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected static void PrepareSelectExpressionForAggregate(SelectExpression selectExpression)
         {
             if (selectExpression.IsDistinct
                 || selectExpression.Limit != null

@@ -7,9 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
     public class NavigationsQuerySqliteTests : NavigationsQueryTests
     {
-        // Work around issue #10534
-        protected override int UnfilteredCount => 586;
-
         protected override AdventureWorksContextBase CreateContext()
         {
             return AdventureWorksFixture.CreateContext();

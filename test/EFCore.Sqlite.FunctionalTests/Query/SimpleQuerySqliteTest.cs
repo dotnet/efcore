@@ -606,7 +606,7 @@ WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
             base.Sum_with_coalesce();
 
             AssertSql(
-                @"SELECT SUM(COALESCE(""p"".""UnitPrice"", '0.0'))
+                @"SELECT COALESCE(""p"".""UnitPrice"", '0.0')
 FROM ""Products"" AS ""p""
 WHERE ""p"".""ProductID"" < 40");
         }
