@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -19,12 +20,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IProperty property)
         {
             var principalProperty = property;
+            HashSet<IEntityType> visitedTypes = null;
             while (true)
             {
                 var linkingRelationship = principalProperty.FindSharedTableLink();
                 if (linkingRelationship == null)
                 {
                     break;
+                }
+
+                if (visitedTypes == null)
+                {
+                    visitedTypes = new HashSet<IEntityType>
+                    {
+                        linkingRelationship.DeclaringEntityType
+                    };
+                }
+
+                if (!visitedTypes.Add(linkingRelationship.PrincipalEntityType))
+                {
+                    return null;
                 }
 
                 principalProperty = linkingRelationship.PrincipalKey.Properties[linkingRelationship.Properties.IndexOf(principalProperty)];

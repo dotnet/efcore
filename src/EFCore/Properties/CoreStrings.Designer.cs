@@ -2671,6 +2671,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("DerivedQueryTypeDefiningQuery", nameof(queryType), nameof(baseType)),
                 queryType, baseType);
 
+        /// <summary>
+        ///     The owned entity type '{ownedType}' requires to be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}'.
+        /// </summary>
+        public static string OwnerlessOwnedType([CanBeNull] object ownedType)
+            => string.Format(
+                GetString("OwnerlessOwnedType", nameof(ownedType)),
+                ownedType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

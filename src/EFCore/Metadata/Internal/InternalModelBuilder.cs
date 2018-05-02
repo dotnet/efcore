@@ -276,6 +276,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var clrType = type.Type;
+            if (clrType == null)
+            {
+                Metadata.Unignore(type.Name);
+
+                Metadata.MarkAsOwnedType(type.Name);
+            }
+            else
+            {
+                Metadata.Unignore(type.Name);
+
+                Metadata.MarkAsOwnedType(clrType);
+            }
+
             var entityType = clrType == null
                 ? Metadata.FindEntityType(type.Name)
                 : Metadata.FindEntityType(clrType);
@@ -296,20 +309,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     fk.PrincipalToDependent != null
                     && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
                     && !fk.PrincipalEntityType.IsInDefinitionPath(clrType));
-                ownership?.Builder.IsOwnership(true, configurationSource);
-            }
-
-            if (clrType == null)
-            {
-                Metadata.Unignore(type.Name);
-
-                Metadata.MarkAsOwnedType(type.Name);
-            }
-            else
-            {
-                Metadata.Unignore(type.Name);
-
-                Metadata.MarkAsOwnedType(clrType);
+                if (ownership != null)
+                {
+                    ownership.Builder.IsOwnership(true, configurationSource);
+                }
+                else
+                {
+                    using (Metadata.ConventionDispatcher.StartBatch())
+                    {
+                        entityType.Builder.RemoveNonOwnershipRelationships(configurationSource);
+                    }
+                }
             }
 
             return true;

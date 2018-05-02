@@ -1081,4 +1081,7 @@
   <data name="DerivedQueryTypeDefiningQuery" xml:space="preserve">
     <value>The query type '{queryType}' cannot have a defining query bacause it is derived from '{baseType}'. Only base query types can have a defining query.</value>
   </data>
+  <data name="OwnerlessOwnedType" xml:space="preserve">
+    <value>The owned entity type '{ownedType}' requires to be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}'.</value>
+  </data>
 </root>

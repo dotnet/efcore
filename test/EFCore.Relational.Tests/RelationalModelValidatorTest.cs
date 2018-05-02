@@ -192,6 +192,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Detects_shared_table_root_cycle()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<B>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(
+                CoreStrings.IdentifyingRelationshipCycle(nameof(A)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
         public virtual void Passes_for_compatible_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
