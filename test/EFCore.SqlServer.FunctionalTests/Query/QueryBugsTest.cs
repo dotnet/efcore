@@ -3491,7 +3491,7 @@ GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
 
         #endregion
 
-        #region Bug11803
+        #region Bug11803_11791
 
         [Fact]
         public virtual void Query_filter_with_db_set_should_not_block_other_filters()
@@ -3509,6 +3509,27 @@ WHERE EXISTS (
     SELECT 1
     FROM [Leaders] AS [l]
     WHERE ([l].[Name] LIKE N'Bran' + N'%' AND (LEFT([l].[Name], LEN(N'Bran')) = N'Bran')) AND ([l].[Name] = N'Crach an Craite'))");
+                }
+            }
+        }
+        
+        [Fact]
+        public virtual void Query_type_used_inside_defining_query()
+        {
+            using (CreateDatabase11803())
+            {
+                using (var context = new MyContext11803(_options))
+                {
+                    context.LeadersQuery.ToList();
+                    
+                    AssertSql(
+                        @"SELECT [t].[Name]
+FROM (
+    SELECT [l].[Name]
+    FROM [Leaders] AS [l]
+    WHERE ([l].[Name] LIKE N'Bran' + N'%' AND (LEFT([l].[Name], LEN(N'Bran')) = N'Bran')) AND (([l].[Name] <> N'Foo') OR [l].[Name] IS NULL)
+) AS [t]
+WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                 }
             }
         }
@@ -3543,7 +3564,8 @@ WHERE EXISTS (
         {
             public DbSet<Faction> Factions { get; set; }
             public DbSet<Leader> Leaders { get; set; }
-
+            public DbQuery<LeaderQuery> LeadersQuery { get; set; }
+            
             public MyContext11803(DbContextOptions options)
                 : base(options)
             {
@@ -3553,6 +3575,20 @@ WHERE EXISTS (
             {
                 modelBuilder.Entity<Leader>().HasQueryFilter(l => l.Name.StartsWith("Bran")); // this one is ignored
                 modelBuilder.Entity<Faction>().HasQueryFilter(f => Leaders.Any(l => l.Name == "Crach an Craite"));
+                
+                modelBuilder
+                    .Query<FactionQuery>()
+                    .ToQuery(
+                        () => Set<Leader>()
+                            .Where(lq => lq.Name != "Foo")
+                            .Select(lq => new FactionQuery { Name = lq.Name }));
+
+                modelBuilder
+                    .Query<LeaderQuery>()
+                    .ToQuery(
+                        () => Query<FactionQuery>()
+                            .Where(fq => fq.Name != "Bar")
+                            .Select(fq => new LeaderQuery { Name = "Not Bar" }));
             }
         }
 
@@ -3570,7 +3606,17 @@ WHERE EXISTS (
             public string Name { get; set; }
             public Faction Faction { get; set; }
         }
-
+        
+        public class FactionQuery
+        {
+            public string Name { get; set; }
+        }
+       
+        public class LeaderQuery
+        {
+            public string Name { get; set; }
+        }
+        
         #endregion
         
         private DbContextOptions _options;
