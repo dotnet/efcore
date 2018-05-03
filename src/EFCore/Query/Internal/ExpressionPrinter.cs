@@ -104,6 +104,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool PrintConnections { get; set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool GenerateUniqueQsreIds { get; set; }
 
         /// <summary>
@@ -136,7 +142,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Print(Expression expression, bool removeFormatting = false, int? characterLimit = null)
+        public virtual string Print(
+            Expression expression,
+            bool removeFormatting = false,
+            int? characterLimit = null,
+            bool printConnections = true)
         {
             return PrintInternal(
                 expression,
@@ -144,7 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 characterLimit,
                 highlightNonreducibleNodes: false,
                 reduceBeforePrinting: false,
-                generateUniqueQsreIds: false);
+                generateUniqueQsreIds: false,
+                printConnections: printConnections);
         }
 
         /// <summary>
@@ -155,7 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Expression expression,
             bool highlightNonreducibleNodes = true,
             bool reduceBeforePrinting = true,
-            bool generateUniqueQsreIds = true)
+            bool generateUniqueQsreIds = true,
+            bool printConnections = true)
         {
             return PrintInternal(
                 expression,
@@ -163,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 characterLimit: null,
                 highlightNonreducibleNodes: highlightNonreducibleNodes,
                 reduceBeforePrinting: reduceBeforePrinting,
-                generateUniqueQsreIds: generateUniqueQsreIds);
+                generateUniqueQsreIds: generateUniqueQsreIds,
+                printConnections: printConnections);
         }
 
         private string PrintInternal(
@@ -172,7 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             int? characterLimit,
             bool highlightNonreducibleNodes,
             bool reduceBeforePrinting,
-            bool generateUniqueQsreIds)
+            bool generateUniqueQsreIds,
+            bool printConnections)
         {
             _stringBuilder.Clear();
             _parametersInScope.Clear();
@@ -180,6 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             RemoveFormatting = removeFormatting;
             CharacterLimit = characterLimit;
             GenerateUniqueQsreIds = generateUniqueQsreIds;
+            PrintConnections = printConnections;
+
             _highlightNonreducibleNodes = highlightNonreducibleNodes;
             _reduceBeforePrinting = reduceBeforePrinting;
 
@@ -361,6 +377,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Expression VisitBlock(BlockExpression blockExpression)
         {
             AppendLine();
+
+            if (PrintConnections)
+            {
+                _stringBuilder.SuspendCurrentNode();
+            }
+
             AppendLine("{");
             _stringBuilder.IncrementIndent();
 
@@ -390,7 +412,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             _stringBuilder.DecrementIndent();
-            AppendLine("}");
+            Append("}");
+
+            if (PrintConnections)
+            {
+                _stringBuilder.ReconnectCurrentNode();
+            }
 
             return blockExpression;
         }
@@ -420,12 +447,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
+            if (PrintConnections)
+            {
+                _stringBuilder.SuspendCurrentNode();
+            }
+
             foreach (var constantPrinter in _constantPrinters)
             {
                 if (constantPrinter.TryPrintConstant(constantExpression, _stringBuilder, RemoveFormatting))
                 {
                     break;
                 }
+            }
+
+            if (PrintConnections)
+            {
+                _stringBuilder.ReconnectCurrentNode();
             }
 
             return constantExpression;
@@ -566,6 +603,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             "ReferenceEquals"
         };
 
+        private static readonly List<string> _nonConnectableMethods = new List<string>
+        {
+            "GetValueFromEntity",
+            "StartTracking",
+            "SetRelationshipSnapshotValue",
+            "SetRelationshipIsLoaded",
+        };
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -600,7 +645,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         ? methodCallExpression.Method.GetParameters().Select(p => p.Name).ToList()
                         : new List<string>();
 
-                _stringBuilder.IncrementIndent();
+                if (!isSimpleMethodOrProperty)
+                {
+                    var shouldPrintConnections = PrintConnections && !_nonConnectableMethods.Contains(methodCallExpression.Method.Name);
+                    _stringBuilder.IncrementIndent(shouldPrintConnections);
+                }
+
                 for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
                 {
                     var argument = methodCallExpression.Arguments[i];
@@ -608,6 +658,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (!isSimpleMethodOrProperty)
                     {
                         _stringBuilder.Append(argumentNames[i] + ": ");
+                    }
+
+                    if (i == methodCallExpression.Arguments.Count - 1 && !isSimpleMethodOrProperty)
+                    {
+                        _stringBuilder.DisconnectCurrentNode();
                     }
 
                     Visit(argument);
@@ -618,7 +673,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
-                _stringBuilder.DecrementIndent();
+                if (!isSimpleMethodOrProperty)
+                {
+                    _stringBuilder.DecrementIndent();
+                }
             }
 
             Append(")");
@@ -635,12 +693,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _stringBuilder.Append("new ");
             _stringBuilder.Append(newExpression.Type.ShortDisplayName());
 
-            var appendAction = newExpression.Arguments.Count > 1 ? (Action<string>)AppendLine : Append;
+            var isComplex = newExpression.Arguments.Count > 1;
+            var appendAction = isComplex ? (Action<string>)AppendLine : Append;
+
+            if (PrintConnections)
+            {
+                _stringBuilder.SuspendCurrentNode();
+            }
+
             appendAction("(");
-            _stringBuilder.IncrementIndent();
-            VisitArguments(newExpression.Arguments, appendAction);
-            _stringBuilder.DecrementIndent();
+
+            if (isComplex)
+            {
+                _stringBuilder.IncrementIndent(PrintConnections);
+            }
+
+            VisitArguments(newExpression.Arguments, appendAction, areConnected: isComplex);
+
+            if (isComplex)
+            {
+                _stringBuilder.DecrementIndent();
+            }
+
             _stringBuilder.Append(")");
+
+            if (PrintConnections)
+            {
+                _stringBuilder.ReconnectCurrentNode();
+            }
 
             return newExpression;
         }
@@ -651,13 +731,36 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
         {
-            var appendAction = newArrayExpression.Expressions.Count > 1 ? (Action<string>)AppendLine : Append;
+            var isComplex = newArrayExpression.Expressions.Count > 1;
+            var appendAction = isComplex ? (Action<string>)AppendLine : Append;
+
             appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
+
+            if (PrintConnections)
+            {
+                _stringBuilder.SuspendCurrentNode();
+            }
+
             appendAction("{ ");
-            _stringBuilder.IncrementIndent();
+
+            if (isComplex)
+            {
+                _stringBuilder.IncrementIndent();
+            }
+
             VisitArguments(newArrayExpression.Expressions, appendAction, lastSeparator: " ");
-            _stringBuilder.DecrementIndent();
+
+            if (isComplex)
+            {
+                _stringBuilder.DecrementIndent();
+            }
+
             Append("}");
+
+            if (PrintConnections)
+            {
+                _stringBuilder.ReconnectCurrentNode();
+            }
 
             return newArrayExpression;
         }
@@ -838,10 +941,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _stringBuilder.Append(subqueryExpression.QueryModel.Print());
         }
 
-        private void VisitArguments(IList<Expression> arguments, Action<string> appendAction, string lastSeparator = "")
+        private void VisitArguments(IList<Expression> arguments, Action<string> appendAction, string lastSeparator = "", bool areConnected = false)
         {
             for (var i = 0; i < arguments.Count; i++)
             {
+                if (areConnected && i == arguments.Count - 1)
+                {
+                    Append("");
+                    _stringBuilder.DisconnectCurrentNode();
+                }
+
                 Visit(arguments[i]);
                 appendAction(i == arguments.Count - 1 ? lastSeparator : ", ");
             }
@@ -960,7 +1069,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     stringBuilder.DecrementIndent();
-                    appendAction(stringBuilder, "}");
+
+                    stringBuilder.Append("}");
 
                     return;
                 }

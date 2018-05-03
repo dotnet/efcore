@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _expressionPrinter.RemoveFormatting = removeFormatting;
             _expressionPrinter.CharacterLimit = characterLimit;
             _expressionPrinter.GenerateUniqueQsreIds = generateUniqueQsreIds;
+            _expressionPrinter.PrintConnections = false;
 
             _queryModelPrintingVisitor.VisitQueryModel(queryModel);
 
