@@ -63,6 +63,13 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                         var proxyType = _proxyFactory.CreateLazyLoadingProxyType(entityType);
 
+                        foreach (var conflictingProperty in entityType.GetDerivedTypes()
+                            .SelectMany(e => e.GetDeclaredServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
+                            .ToList())
+                        {
+                            conflictingProperty.DeclaringEntityType.RemoveServiceProperty(conflictingProperty.Name);
+                        }
+
                         var serviceProperty = entityType.GetServiceProperties().FirstOrDefault(e => e.ClrType == typeof(ILazyLoader));
                         if (serviceProperty == null)
                         {

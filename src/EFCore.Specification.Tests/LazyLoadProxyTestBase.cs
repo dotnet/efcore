@@ -1546,19 +1546,50 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_already_loaded_owned_types()
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(lazyLoadingEnabled: true))
             {
-                var blogs = context.Set<Blog>().ToList();
+                var blogs = context.Set<Blog>().OrderBy(e => e.Host.HostName).ToList();
 
-                Assert.Equal(1, blogs.Count);
+                Assert.Equal(3, blogs.Count);
 
-                Assert.Equal("firstNameReader", blogs[0].Reader.FirstName);
-                Assert.Equal("lastNameReader", blogs[0].Reader.LastName);
+                for (var i = 0; i < 3; i++)
+                {
+                    Assert.Equal($"firstNameReader{i}", blogs[i].Reader.FirstName);
+                    Assert.Equal($"lastNameReader{i}", blogs[i].Reader.LastName);
 
-                Assert.Equal("firstNameWriter", blogs[0].Writer.FirstName);
-                Assert.Equal("lastNameWriter", blogs[0].Writer.LastName);
+                    Assert.Equal($"firstNameWriter{i}", blogs[i].Writer.FirstName);
+                    Assert.Equal($"lastNameWriter{i}", blogs[i].Writer.LastName);
 
-                Assert.Equal("127.0.0.1", blogs[0].Host.HostName);
+                    Assert.Equal($"127.0.0.{i + 1}", blogs[i].Host.HostName);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_loading_shares_service__property_on_derived_types()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var parson = context.Set<Parson>().Single();
+
+                Assert.Equal(2, parson.ParsonNoses.Count);
+                Assert.Equal(
+                    new[] { "Large", "Medium" },
+                    parson.ParsonNoses.Select(b => b.Size).OrderBy(h => h));
+
+                var company = context.Set<Company>().Single();
+
+                Assert.Equal(2, company.CompanyNoses.Count);
+                Assert.Equal(
+                    new[] { "Large", "Small" },
+                    company.CompanyNoses.Select(b => b.Size).OrderBy(h => h));
+
+                var entity = context.Set<Entity>().ToList().Except(new Entity[] { parson, company }).Single();
+
+                Assert.Equal(3, entity.BaseNoses.Count);
+                Assert.Equal(
+                    new[] { "Large", "Medium", "Small" },
+                    entity.BaseNoses.Select(b => b.Size).OrderBy(h => h));
             }
         }
 
@@ -1673,10 +1704,33 @@ namespace Microsoft.EntityFrameworkCore
             public virtual Host Host { get; set; }
         }
 
+        public class Nose
+        {
+            public int Id { get; set; }
+            public string Size { get; set; }
+        }
+
         public class Person
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
+        }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+
+            public virtual ICollection<Nose> BaseNoses { get; set; }
+        }
+
+        public class Company : Entity
+        {
+            public virtual ICollection<Nose> CompanyNoses { get; set; }
+        }
+
+        public class Parson : Entity
+        {
+            public virtual ICollection<Nose> ParsonNoses { get; set; }
         }
 
         public class Host
@@ -1715,6 +1769,10 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
+                modelBuilder.Entity<Entity>();
+                modelBuilder.Entity<Company>();
+                modelBuilder.Entity<Parson>();
+
                 modelBuilder.Entity<SingleShadowFk>()
                     .Property<int?>("ParentId");
 
@@ -1835,17 +1893,101 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Writer = new Person
                         {
-                            FirstName = "firstNameWriter",
-                            LastName = "lastNameWriter"
+                            FirstName = "firstNameWriter0",
+                            LastName = "lastNameWriter0"
                         },
                         Reader = new Person
                         {
-                            FirstName = "firstNameReader",
-                            LastName = "lastNameReader"
+                            FirstName = "firstNameReader0",
+                            LastName = "lastNameReader0"
                         },
                         Host = new Host
                         {
                             HostName = "127.0.0.1"
+                        }
+                    });
+
+                context.Add(
+                    new Blog
+                    {
+                        Writer = new Person
+                        {
+                            FirstName = "firstNameWriter1",
+                            LastName = "lastNameWriter1"
+                        },
+                        Reader = new Person
+                        {
+                            FirstName = "firstNameReader1",
+                            LastName = "lastNameReader1"
+                        },
+                        Host = new Host
+                        {
+                            HostName = "127.0.0.2"
+                        }
+                    });
+
+                context.Add(
+                    new Blog
+                    {
+                        Writer = new Person
+                        {
+                            FirstName = "firstNameWriter2",
+                            LastName = "lastNameWriter2"
+                        },
+                        Reader = new Person
+                        {
+                            FirstName = "firstNameReader2",
+                            LastName = "lastNameReader2"
+                        },
+                        Host = new Host
+                        {
+                            HostName = "127.0.0.3"
+                        }
+                    });
+
+                var nose1 = new Nose
+                {
+                    Size = "Small"
+                };
+
+                var nose2 = new Nose
+                {
+                    Size = "Medium"
+                };
+
+                var nose3 = new Nose
+                {
+                    Size = "Large"
+                };
+
+                context.Add(
+                    new Entity
+                    {
+                        BaseNoses = new List<Nose>
+                        {
+                            nose1,
+                            nose2,
+                            nose3
+                        }
+                    });
+
+                context.Add(
+                    new Parson
+                    {
+                        ParsonNoses = new List<Nose>
+                        {
+                            nose2,
+                            nose3
+                        }
+                    });
+
+                context.Add(
+                    new Company
+                    {
+                        CompanyNoses = new List<Nose>
+                        {
+                            nose1,
+                            nose3
                         }
                     });
 
