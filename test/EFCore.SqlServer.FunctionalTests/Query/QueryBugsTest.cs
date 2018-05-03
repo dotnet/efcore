@@ -3340,10 +3340,10 @@ WHERE [b].[IsTwo] IN (1, 0)");
                 using (var context = new MyContext11818(_options))
                 {
                     var query = (from e in context.Set<Entity11818>()
-                                  join a in context.Set<AnotherEntity11818>()
-                                    on e.Id equals a.Id into grouping
-                                  from a in grouping.DefaultIfEmpty()
-                                  select new { ename = e.Name, aname = a.Name })
+                                 join a in context.Set<AnotherEntity11818>()
+                                   on e.Id equals a.Id into grouping
+                                 from a in grouping.DefaultIfEmpty()
+                                 select new { ename = e.Name, aname = a.Name })
                                   .GroupBy(g => g.aname)
                                   .Select(g => new { g.Key, cnt = g.Count() + 5 })
                                   .ToList();
@@ -3356,7 +3356,7 @@ GROUP BY [e].[Name]");
             }
         }
 
-        [Fact(Skip = "See issue#11831")]
+        [Fact]
         public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_2()
         {
             using (CreateDatabase11818())
@@ -3376,9 +3376,60 @@ GROUP BY [e].[Name]");
                                   .ToList();
 
                     AssertSql(
-                        @"SELECT [e].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
+                        @"SELECT [e].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [e]
-GROUP BY [e].[Name]");
+GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
+                }
+            }
+        }
+
+        [Fact(Skip = "Issue #11870")]
+        public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_3()
+        {
+            using (CreateDatabase11818())
+            {
+                using (var context = new MyContext11818(_options))
+                {
+                    var query = (from e in context.Set<Entity11818>()
+                                 join a in context.Set<AnotherEntity11818>()
+                                   on e.Id equals a.Id into grouping
+                                 from a in grouping.DefaultIfEmpty()
+                                 join m in context.Set<MaumarEntity11818>()
+                                   on e.Id equals m.Id into grouping2
+                                 from m in grouping2.DefaultIfEmpty()
+                                 select new { aname = a.Name, mname = m.Name })
+                                  .GroupBy(g => new { g.aname, g.mname }).DefaultIfEmpty()
+                                  .Select(g => new { MyKey = g.Key.aname, cnt = g.Count() + 5 })
+                                  .ToList();
+
+                    AssertSql(
+                        @"");
+                }
+            }
+        }
+
+        [Fact(Skip = "Issue #11871")]
+        public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_4()
+        {
+            using (CreateDatabase11818())
+            {
+                using (var context = new MyContext11818(_options))
+                {
+                    var query = (from e in context.Set<Entity11818>()
+                                 join a in context.Set<AnotherEntity11818>()
+                                   on e.Id equals a.Id into grouping
+                                 from a in grouping.DefaultIfEmpty()
+                                 join m in context.Set<MaumarEntity11818>()
+                                   on e.Id equals m.Id into grouping2
+                                 from m in grouping2.DefaultIfEmpty()
+                                 select new { aname = a.Name, mname = m.Name })
+                                  .OrderBy(g => g.aname)
+                                  .GroupBy(g => new { g.aname, g.mname }).FirstOrDefault()
+                                  .Select(g => new { MyKey = g.aname, cnt = g.mname })
+                                  .ToList();
+
+                    AssertSql(
+                        @"");
                 }
             }
         }
