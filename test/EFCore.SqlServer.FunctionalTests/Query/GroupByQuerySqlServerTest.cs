@@ -859,7 +859,6 @@ GROUP BY [c].[CustomerID]");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[OrderID]");
-
         }
 
         public override void GroupBy_optional_navigation_member_Aggregate()
@@ -1137,6 +1136,21 @@ INNER JOIN (
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10400");
+        }
+
+        public override void Join_GroupBy_Aggregate_on_key()
+        {
+            base.Join_GroupBy_Aggregate_on_key();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[Key], [t].[LastOrderID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o].[CustomerID] AS [Key], MAX([o].[OrderID]) AS [LastOrderID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 5
+) AS [t] ON [c].[CustomerID] = [t].[Key]");
         }
 
         public override void GroupBy_with_result_selector()

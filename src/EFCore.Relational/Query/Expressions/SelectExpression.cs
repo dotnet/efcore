@@ -945,6 +945,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(memberInfo, nameof(memberInfo));
             Check.NotNull(projection, nameof(projection));
 
+            var existingMemberInfo = _memberInfoProjectionMapping.FirstOrDefault(
+                        kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, projection))
+                    .Key;
+
+            if (existingMemberInfo != null)
+            {
+                _memberInfoProjectionMapping.Remove(existingMemberInfo);
+            }
+
             _memberInfoProjectionMapping[memberInfo] = CreateUniqueProjection(projection, memberInfo.Name);
         }
 
@@ -1292,6 +1301,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             UpdateProjection(visitor, _starProjection);
             UpdateProjection(visitor, _projection);
+
+            foreach (var kvp in _memberInfoProjectionMapping.ToList())
+            {
+                _memberInfoProjectionMapping[kvp.Key] = visitor.Visit(kvp.Value);
+            }
 
             for (var i = 0; i < _tables.Count; i++)
             {
