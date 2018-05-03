@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -37,13 +38,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Print(QueryModel queryModel, bool removeFormatting = false, int? characterLimit = null)
+        public virtual string Print(
+            QueryModel queryModel,
+            bool removeFormatting = false,
+            int? characterLimit = null,
+            bool generateUniqueQsreIds = false)
+            => PrintInternal(queryModel, removeFormatting, characterLimit, generateUniqueQsreIds);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string PrintDebug(
+            QueryModel queryModel,
+            bool removeFormatting = false,
+            int? characterLimit = null,
+            bool generateUniqueQsreIds = true)
+            => PrintInternal(queryModel, removeFormatting, characterLimit, generateUniqueQsreIds);
+
+        private string PrintInternal(
+            QueryModel queryModel,
+            bool removeFormatting = false,
+            int? characterLimit = null,
+            bool generateUniqueQsreIds = false)
         {
             _expressionPrinter.StringBuilder.Clear();
 
             _queryModelPrintingVisitor.RemoveFormatting = removeFormatting;
             _expressionPrinter.RemoveFormatting = removeFormatting;
             _expressionPrinter.CharacterLimit = characterLimit;
+            _expressionPrinter.GenerateUniqueQsreIds = generateUniqueQsreIds;
+
             _queryModelPrintingVisitor.VisitQueryModel(queryModel);
 
             var result = _expressionPrinter.StringBuilder.ToString();
@@ -113,21 +138,68 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     TransformingVisitor.StringBuilder.Append("(");
                 }
 
-                TransformingVisitor.StringBuilder.Append($"from {fromClause.ItemType.ShortDisplayName()} {fromClause.ItemName} in ");
+                if (TransformingVisitor.GenerateUniqueQsreIds)
+                {
+                    var i = TransformingVisitor.VisitedQuerySources.IndexOf(fromClause);
+                    if (i == -1)
+                    {
+                        i = TransformingVisitor.VisitedQuerySources.Count;
+                        TransformingVisitor.VisitedQuerySources.Add(fromClause);
+                    }
+
+                    TransformingVisitor.StringBuilder.Append($"from {fromClause.ItemType.ShortDisplayName()} {fromClause.ItemName}{{{i}}} in ");
+                }
+                else
+                {
+                    TransformingVisitor.StringBuilder.Append($"from {fromClause.ItemType.ShortDisplayName()} {fromClause.ItemName} in ");
+                }
+
                 base.VisitMainFromClause(fromClause, queryModel);
             }
 
             public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
             {
                 AppendLine();
-                TransformingVisitor.StringBuilder.Append($"from {fromClause.ItemType.ShortDisplayName()} {fromClause.ItemName} in ");
+
+                if (TransformingVisitor.GenerateUniqueQsreIds)
+                {
+                    var i = TransformingVisitor.VisitedQuerySources.IndexOf(fromClause);
+                    if (i == -1)
+                    {
+                        i = TransformingVisitor.VisitedQuerySources.Count;
+                        TransformingVisitor.VisitedQuerySources.Add(fromClause);
+                    }
+
+                    TransformingVisitor.StringBuilder.Append($"from {fromClause.ItemType.ShortDisplayName()} {fromClause.ItemName}{{{i}}} in ");
+                }
+                else
+                {
+                    TransformingVisitor.StringBuilder.Append($"from {fromClause.ItemType.ShortDisplayName()} {fromClause.ItemName} in ");
+                }
+
                 base.VisitAdditionalFromClause(fromClause, queryModel, index);
             }
 
             public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
             {
                 AppendLine();
-                TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName} in ");
+
+                if (TransformingVisitor.GenerateUniqueQsreIds)
+                {
+                    var i = TransformingVisitor.VisitedQuerySources.IndexOf(joinClause);
+                    if (i == -1)
+                    {
+                        i = TransformingVisitor.VisitedQuerySources.Count;
+                        TransformingVisitor.VisitedQuerySources.Add(joinClause);
+                    }
+
+                    TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName}{{{i}}} in ");
+                }
+                else
+                {
+                    TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName} in ");
+                }
+
                 TransformingVisitor.Visit(joinClause.InnerSequence);
                 AppendLine();
                 TransformingVisitor.StringBuilder.Append("on ");
@@ -138,7 +210,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
             {
-                TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName} in ");
+                if (TransformingVisitor.GenerateUniqueQsreIds)
+                {
+                    var i = TransformingVisitor.VisitedQuerySources.IndexOf(joinClause);
+                    if (i == -1)
+                    {
+                        i = TransformingVisitor.VisitedQuerySources.Count;
+                        TransformingVisitor.VisitedQuerySources.Add(joinClause);
+                    }
+
+                    TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName}{{{i}}} in ");
+
+                }
+                else
+                {
+                    TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName} in ");
+                }
+
                 TransformingVisitor.Visit(joinClause.InnerSequence);
                 AppendLine();
                 TransformingVisitor.StringBuilder.Append("on ");

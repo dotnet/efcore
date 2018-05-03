@@ -4,6 +4,8 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -12,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// <summary>
     ///     Represents a discriminator predicate.
     /// </summary>
-    public class DiscriminatorPredicateExpression : Expression
+    public class DiscriminatorPredicateExpression : Expression, IPrintable
     {
         private readonly Expression _predicate;
 
@@ -126,6 +128,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             {
                 return (_predicate.GetHashCode() * 397) ^ (QuerySource?.GetHashCode() ?? 0);
             }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.Visit(_predicate);
         }
 
         /// <summary>

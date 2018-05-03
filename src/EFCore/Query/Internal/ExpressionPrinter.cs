@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -49,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         };
 
         private bool _highlightNonreducibleNodes;
+        private bool _reduceBeforePrinting;
 
         private const string HighlightLeft = " ---> ";
         private const string HighlightRight = " <--- ";
@@ -102,6 +104,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool GenerateUniqueQsreIds { get; set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual List<IQuerySource> VisitedQuerySources { get; private set; } = new List<IQuerySource>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void Append([NotNull] string message) => _stringBuilder.Append(message);
 
         /// <summary>
@@ -124,34 +138,50 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual string Print(Expression expression, bool removeFormatting = false, int? characterLimit = null)
         {
-            return PrintInternal(expression, removeFormatting, characterLimit, highlightNonreducibleNodes: false);
+            return PrintInternal(
+                expression,
+                removeFormatting,
+                characterLimit,
+                highlightNonreducibleNodes: false,
+                reduceBeforePrinting: false,
+                generateUniqueQsreIds: false);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string PrintDebug(Expression expression, bool highlightNonreducibleNodes = true)
+        public virtual string PrintDebug(
+            Expression expression,
+            bool highlightNonreducibleNodes = true,
+            bool reduceBeforePrinting = true,
+            bool generateUniqueQsreIds = true)
         {
             return PrintInternal(
                 expression,
                 removeFormatting: false,
                 characterLimit: null,
-                highlightNonreducibleNodes: highlightNonreducibleNodes);
+                highlightNonreducibleNodes: highlightNonreducibleNodes,
+                reduceBeforePrinting: reduceBeforePrinting,
+                generateUniqueQsreIds: generateUniqueQsreIds);
         }
 
         private string PrintInternal(
             Expression expression,
             bool removeFormatting,
             int? characterLimit,
-            bool highlightNonreducibleNodes)
+            bool highlightNonreducibleNodes,
+            bool reduceBeforePrinting,
+            bool generateUniqueQsreIds)
         {
             _stringBuilder.Clear();
             _parametersInScope.Clear();
 
             RemoveFormatting = removeFormatting;
             CharacterLimit = characterLimit;
+            GenerateUniqueQsreIds = generateUniqueQsreIds;
             _highlightNonreducibleNodes = highlightNonreducibleNodes;
+            _reduceBeforePrinting = reduceBeforePrinting;
 
             Visit(expression);
 
@@ -756,6 +786,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 StringBuilder.Append(HighlightLeft);
             }
 
+            if (_reduceBeforePrinting && extensionExpression.CanReduce)
+            {
+                var reduced = extensionExpression.Reduce();
+                Visit(reduced);
+
+                return extensionExpression;
+            }
+
             if (extensionExpression is IPrintable printable)
             {
                 printable.Print(this);
@@ -765,7 +803,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 switch (extensionExpression)
                 {
                     case QuerySourceReferenceExpression qsre:
-                        StringBuilder.Append(qsre);
+                        if (GenerateUniqueQsreIds)
+                        {
+                            var index = VisitedQuerySources.IndexOf(qsre.ReferencedQuerySource);
+                            StringBuilder.Append("[" + qsre.ReferencedQuerySource.ItemName + "{" + index + "}]");
+                        }
+                        else
+                        {
+                            StringBuilder.Append(qsre);
+                        }
+
                         break;
 
                     case SubQueryExpression subqueryExpression:
