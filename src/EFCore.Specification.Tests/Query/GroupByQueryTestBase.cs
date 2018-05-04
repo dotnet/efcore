@@ -1856,5 +1856,36 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region DoubleGroupBy
+
+        [ConditionalFact]
+        public virtual void Double_GroupBy_with_aggregate()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Order>()
+                    .GroupBy(o => new { o.OrderID, o.OrderDate })
+                    .GroupBy(g => g.Key.OrderDate)
+                    .Select(g => new { g.Key, Lastest = g.OrderBy(e => e.Key.OrderID).FirstOrDefault() })
+                    .ToList();
+
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
+                    .GroupBy(o => new { o.OrderID, o.OrderDate })
+                    .GroupBy(g => g.Key.OrderDate)
+                    .Select(g => new { g.Key, Lastest = g.OrderBy(e => e.Key.OrderID).FirstOrDefault() })
+                    .ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Key, actual[i].Key);
+                    Assert.Equal(expected[i].Lastest.Key, actual[i].Lastest.Key);
+                    Assert.Equal(expected[i].Lastest.Count(), actual[i].Lastest.Count());
+                }
+            }
+        }
+
+        #endregion
     }
 }

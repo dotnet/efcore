@@ -3996,6 +3996,73 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Theory(Skip = "Issue #11916")]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        // async blocked by issue #11917
+        //[InlineData(false, true)] 
+        //[InlineData(true, true)]
+        public virtual async Task Include_with_double_group_by(bool useString, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var groups = (useString
+                    ? context.Orders.Include(nameof(Order.OrderDetails))
+                    : context.Orders.Include(e => e.OrderDetails))
+                    .GroupBy(o => new { o.OrderID, o.OrderDate })
+                    .GroupBy(g => g.Key.OrderDate);
+
+                var employee = async
+                    ? await groups.ToListAsync()
+                    : groups.ToList();
+            }
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        // async blocked by issue #11917
+        //[InlineData(false, true)] 
+        //[InlineData(true, true)]
+        public virtual async Task Include_with_double_group_by_no_tracking(bool useString, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var groups = (useString
+                    ? context.Orders.Include(nameof(Order.OrderDetails)).AsNoTracking()
+                    : context.Orders.Include(e => e.OrderDetails)).AsNoTracking()
+                    .GroupBy(o => new { o.OrderID, o.OrderDate })
+                    .GroupBy(g => g.Key.OrderDate);
+
+                var employee = async
+                    ? await groups.ToListAsync()
+                    : groups.ToList();
+            }
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        // async blocked by issue #11917
+        //[InlineData(false, true)] 
+        //[InlineData(true, true)]
+        public virtual async Task Include_with_double_group_by_and_aggregate(bool useString, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var groups = (useString
+                    ? context.Orders.Include(nameof(Order.OrderDetails))
+                    : context.Orders.Include(e => e.OrderDetails))
+                    .GroupBy(o => new { o.OrderID, o.OrderDate })
+                    .GroupBy(g => g.Key.OrderDate)
+                    .Select(g => new { g.Key, Lastest = g.OrderBy(e => e.Key.OrderID).FirstOrDefault() });
+
+                var query = async
+                    ? await groups.ToListAsync()
+                    : groups.ToList();
+            }
+        }
+
         private static void CheckIsLoaded(
             NorthwindContext context,
             Customer customer,
