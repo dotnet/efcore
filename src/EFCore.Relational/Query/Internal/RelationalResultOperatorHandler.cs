@@ -471,110 +471,124 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var sqlExpression
                 = sqlTranslatingExpressionVisitor.Visit(groupResultOperator.KeySelector);
 
-            if (sqlExpression != null)
-            {
-                var selectExpression = handlerContext.SelectExpression;
-
-                PrepareSelectExpressionForAggregate(selectExpression);
-
-                if (!handlerContext.QueryModelVisitor.QueryCompilationContext
+            if ((sqlExpression != null || groupResultOperator.KeySelector is ConstantExpression)
+                && !handlerContext.QueryModelVisitor.QueryCompilationContext
                         .QuerySourceRequiresMaterialization(groupResultOperator)
                     && (groupResultOperator.ElementSelector is QuerySourceReferenceExpression elementQsre
                         || sqlTranslatingExpressionVisitor.Visit(groupResultOperator.ElementSelector) != null)
                     && handlerContext.QueryModelVisitor.Expression is MethodCallExpression shapedQueryMethod
                     && shapedQueryMethod.Method.MethodIsClosedFormOf(
                         handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+            {
+                var selectExpression = handlerContext.SelectExpression;
+                PrepareSelectExpressionForAggregate(selectExpression);
+
+                // GroupBy Aggregate
+                // TODO: InjectParameters type Expression.
+                Expression[] key = null;
+                var groupByKeyMemberInfo = groupResultOperator.ItemType.GetMember("Key")[0];
+                var memberInfoMappings = new Dictionary<MemberInfo, Expression>();
+
+                switch (groupResultOperator.KeySelector)
                 {
-                    // GroupBy Aggregate
-                    // TODO: InjectParameters type Expression.
-                    Expression[] key = null;
-                    var groupByKeyMemberInfo = groupResultOperator.ItemType.GetMember("Key")[0];
-                    var memberInfoMappings = new Dictionary<MemberInfo, Expression>();
+                    case MemberExpression memberExpression:
+                        var sql = sqlTranslatingExpressionVisitor.Visit(memberExpression);
+                        memberInfoMappings[groupByKeyMemberInfo] = sql;
+                        key = new[] { sql };
+                        break;
 
-                    switch (groupResultOperator.KeySelector)
-                    {
-                        case MemberExpression memberExpression:
-                            var sql = sqlTranslatingExpressionVisitor.Visit(memberExpression);
-                            memberInfoMappings[groupByKeyMemberInfo] = sql;
-                            key = new[] { sql };
-                            break;
+                    case NullConditionalExpression nullConditionalExpression:
+                        sql = sqlTranslatingExpressionVisitor.Visit(nullConditionalExpression);
+                        memberInfoMappings[groupByKeyMemberInfo] = sql;
+                        key = new[] { sql };
+                        break;
 
-                        case NullConditionalExpression nullConditionalExpression:
-                            sql = sqlTranslatingExpressionVisitor.Visit(nullConditionalExpression);
-                            memberInfoMappings[groupByKeyMemberInfo] = sql;
-                            key = new[] { sql };
-                            break;
+                    case NewExpression newExpression:
+                        key = VisitAndSaveMapping(
+                            sqlTranslatingExpressionVisitor,
+                            memberInfoMappings,
+                            newExpression);
+                        break;
 
-                        case NewExpression newExpression:
-                            key = VisitAndSaveMapping(
-                                sqlTranslatingExpressionVisitor,
-                                memberInfoMappings,
-                                newExpression);
-                            break;
-
-                        case MemberInitExpression memberInitExpression:
-                            key = VisitAndSaveMapping(
-                                sqlTranslatingExpressionVisitor,
-                                memberInfoMappings,
-                                memberInitExpression);
-                            break;
-                    }
-
-                    if (key != null
-                        || groupResultOperator.KeySelector is ConstantExpression
-                        || groupResultOperator.KeySelector is ParameterExpression)
-                    {
-                        if (!(groupResultOperator.ElementSelector is QuerySourceReferenceExpression))
-                        {
-                            handlerContext.QueryModelVisitor.VisitSelectClause(
-                                new SelectClause(groupResultOperator.ElementSelector),
-                                handlerContext.QueryModel);
-
-                            if (selectExpression.Projection.Count > 1)
-                            {
-                                selectExpression.ClearProjection();
-                            }
-                        }
-
-                        foreach (var keyValue in memberInfoMappings)
-                        {
-                            selectExpression.SetProjectionForMemberInfo(keyValue.Key, keyValue.Value);
-                        }
-
-                        if (key == null)
-                        {
-                            var constantOrParameter = groupResultOperator.KeySelector;
-                            var subquery = selectExpression.PushDownSubquery();
-
-                            if (subquery.Projection.Count == 0)
-                            {
-                                selectExpression.IsProjectStar = false;
-                            }
-                            else
-                            {
-                                selectExpression.ExplodeStarProjection();
-                            }
-
-                            var projectionIndex = subquery.AddToProjection(constantOrParameter, resetProjectStar: false);
-
-                            subquery.SetProjectionForMemberInfo(groupByKeyMemberInfo, constantOrParameter);
-
-                            var projection = subquery.Projection[projectionIndex].LiftExpressionFromSubquery(subquery);
-                            selectExpression.SetProjectionForMemberInfo(groupByKeyMemberInfo, projection);
-
-                            key = new[] { projection };
-                        }
-
-                        selectExpression.AddToGroupBy(key);
-
-                        return Expression.Call(
-                            handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider
-                                .ShapedQueryMethod.MakeGenericMethod(typeof(ValueBuffer)),
-                            shapedQueryMethod.Arguments[0],
-                            shapedQueryMethod.Arguments[1],
-                            Expression.Constant(new ValueBufferShaper(groupResultOperator)));
-                    }
+                    case MemberInitExpression memberInitExpression:
+                        key = VisitAndSaveMapping(
+                            sqlTranslatingExpressionVisitor,
+                            memberInfoMappings,
+                            memberInitExpression);
+                        break;
                 }
+
+                if (key != null
+                    || groupResultOperator.KeySelector is ConstantExpression
+                    || groupResultOperator.KeySelector is ParameterExpression)
+                {
+                    if (!(groupResultOperator.ElementSelector is QuerySourceReferenceExpression))
+                    {
+                        handlerContext.QueryModelVisitor.VisitSelectClause(
+                            new SelectClause(groupResultOperator.ElementSelector),
+                            handlerContext.QueryModel);
+
+                        if (selectExpression.Projection.Count > 1)
+                        {
+                            selectExpression.ClearProjection();
+                        }
+                    }
+
+                    foreach (var keyValue in memberInfoMappings)
+                    {
+                        selectExpression.SetProjectionForMemberInfo(keyValue.Key, keyValue.Value);
+                    }
+
+                    if (key == null)
+                    {
+                        var constantOrParameter = sqlTranslatingExpressionVisitor.Visit(groupResultOperator.KeySelector);
+                        var saveMapping = constantOrParameter != null;
+                        if (!saveMapping)
+                        {
+                            constantOrParameter = Expression.Constant(1);
+                        }
+
+                        var subquery = selectExpression.PushDownSubquery();
+
+                        if (subquery.Projection.Count == 0)
+                        {
+                            selectExpression.IsProjectStar = false;
+                        }
+                        else
+                        {
+                            selectExpression.ExplodeStarProjection();
+                        }
+
+                        var projectionIndex = subquery.AddToProjection(constantOrParameter, resetProjectStar: false);
+
+                        subquery.SetProjectionForMemberInfo(groupByKeyMemberInfo, constantOrParameter);
+
+                        var projection = subquery.Projection[projectionIndex].LiftExpressionFromSubquery(subquery);
+                        if (saveMapping)
+                        {
+                            selectExpression.SetProjectionForMemberInfo(groupByKeyMemberInfo, projection);
+                        }
+
+                        key = new[] { projection };
+                    }
+
+                    selectExpression.AddToGroupBy(key);
+
+                    return Expression.Call(
+                        handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider
+                            .ShapedQueryMethod.MakeGenericMethod(typeof(ValueBuffer)),
+                        shapedQueryMethod.Arguments[0],
+                        shapedQueryMethod.Arguments[1],
+                        Expression.Constant(new ValueBufferShaper(groupResultOperator)));
+
+                }
+            }
+
+            if (sqlExpression != null)
+            {
+                var selectExpression = handlerContext.SelectExpression;
+
+                PrepareSelectExpressionForAggregate(selectExpression);
 
                 sqlExpression
                     = sqlTranslatingExpressionVisitor.Visit(groupResultOperator.KeySelector);

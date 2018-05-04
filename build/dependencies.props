@@ -28,7 +28,7 @@
     <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
     <OracleManagedDataAccessPackageVersion>12.2.1100</OracleManagedDataAccessPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
-    <SQLitePCLRawBundleGreenPackageVersion>1.1.10</SQLitePCLRawBundleGreenPackageVersion>
+    <SQLitePCLRawBundleGreenPackageVersion>1.1.11</SQLitePCLRawBundleGreenPackageVersion>
     <StyleCopAnalyzersPackageVersion>1.0.0</StyleCopAnalyzersPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.5.0-preview3-26423-04</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.5.0-preview3-26423-04</SystemComponentModelAnnotationsPackageVersion>

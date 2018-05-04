@@ -659,6 +659,32 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override void GroupBy_empty_key_Aggregate()
+        {
+            base.GroupBy_empty_key_Aggregate();
+
+            AssertSql(
+                @"SELECT SUM([t].[OrderID])
+FROM (
+    SELECT [o].*, 1 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
+        public override void GroupBy_empty_key_Aggregate_Key()
+        {
+            base.GroupBy_empty_key_Aggregate_Key();
+
+            AssertSql(
+                @"SELECT SUM([t].[OrderID]) AS [Sum]
+FROM (
+    SELECT [o].*, 1 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
         public override void OrderBy_GroupBy_Aggregate()
         {
             base.OrderBy_GroupBy_Aggregate();

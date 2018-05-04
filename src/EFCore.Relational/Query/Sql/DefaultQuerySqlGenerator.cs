@@ -391,16 +391,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         var inValues = ProcessInExpressionValues(inExpression.Values);
                         var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
 
-                        if (inValues.Count != inValuesNotNull.Count)
-                        {
-                            return Expression.OrElse(
-                                new InExpression(inExpression.Operand, inValuesNotNull),
-                                new IsNullExpression(inExpression.Operand));
-                        }
-
-                        return inValuesNotNull.Count > 0
+                        var updatedInExpression = inValuesNotNull.Count > 0
                             ? new InExpression(inExpression.Operand, inValuesNotNull)
                             : (Expression)Expression.Constant(false);
+
+                        return inValues.Count != inValuesNotNull.Count
+                            ? Expression.OrElse(
+                                updatedInExpression,
+                                new IsNullExpression(inExpression.Operand))
+                            : updatedInExpression;
                     }
                 }
 

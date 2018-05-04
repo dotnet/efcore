@@ -833,6 +833,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Contains_with_local_list_closure_all_null()
+        {
+            var ids = new List<string> { null, null };
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID)));
+        }
+
+        [ConditionalFact]
         public virtual void Contains_with_local_list_inline()
         {
             AssertQuery<Customer>(

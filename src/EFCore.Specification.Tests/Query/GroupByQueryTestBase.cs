@@ -783,6 +783,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupByAfterComposition
 
         [ConditionalFact]
+        public virtual void GroupBy_empty_key_Aggregate()
+        {
+            AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => new { })
+                        .Select(g => g.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_empty_key_Aggregate_Key()
+        {
+            AssertQuery<Order>(
+                os =>
+                    os.GroupBy(o => new { })
+                        .Select(g => new { g.Key, Sum = g.Sum(o => o.OrderID) }));
+        }
+
+        [ConditionalFact]
         public virtual void OrderBy_GroupBy_Aggregate()
         {
             AssertQueryScalar<Order>(
@@ -1246,11 +1264,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (os, cs) =>
                     from o in os.Where(o => o.OrderID < 10400)
                     join i in (from c in cs
-                                join a in os.GroupBy(o => o.CustomerID)
-                                            .Where(g => g.Count() > 5)
-                                            .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
-                                    on c.CustomerID equals a.CustomerID
-                                select new { c, a.LastOrderID })
+                               join a in os.GroupBy(o => o.CustomerID)
+                                           .Where(g => g.Count() > 5)
+                                           .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                                   on c.CustomerID equals a.CustomerID
+                               select new { c, a.LastOrderID })
                         on o.CustomerID equals i.c.CustomerID
                     select new { o, i.c, i.c.CustomerID },
                 entryCount: 133);

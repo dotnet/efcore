@@ -780,6 +780,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupByAfterComposition
 
         [ConditionalFact]
+        public virtual async Task GroupBy_empty_key_Aggregate()
+        {
+            await AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => new { })
+                        .Select(g => g.Sum(o => o.OrderID)));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_empty_key_Aggregate_Key()
+        {
+            await AssertQuery<Order>(
+                os =>
+                    os.GroupBy(o => new { })
+                        .Select(g => new { g.Key, Sum = g.Sum(o => o.OrderID) }));
+        }
+
+        [ConditionalFact]
         public virtual async Task OrderBy_GroupBy_Aggregate()
         {
             await AssertQueryScalar<Order>(
