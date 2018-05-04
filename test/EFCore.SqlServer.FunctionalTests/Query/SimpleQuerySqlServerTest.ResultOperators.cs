@@ -776,6 +776,16 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
         }
 
+        public override void Contains_with_local_list_closure_all_null()
+        {
+            base.Contains_with_local_list_closure_all_null();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IS NULL");
+        }
+
         public override void Contains_with_local_list_inline()
         {
             base.Contains_with_local_list_inline();

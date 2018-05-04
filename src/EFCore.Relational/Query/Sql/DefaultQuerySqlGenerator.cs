@@ -393,9 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                         if (inValues.Count != inValuesNotNull.Count)
                         {
-                            return Expression.OrElse(
+                            return Visit(Expression.OrElse(
                                 new InExpression(inExpression.Operand, inValuesNotNull),
-                                new IsNullExpression(inExpression.Operand));
+                                new IsNullExpression(inExpression.Operand)));
                         }
 
                         return inValuesNotNull.Count > 0
