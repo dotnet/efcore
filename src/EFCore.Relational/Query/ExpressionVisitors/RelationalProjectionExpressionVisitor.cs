@@ -210,7 +210,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         = (GroupResultOperator)((SubQueryExpression)((FromClauseBase)_querySource).FromExpression)
                             .QueryModel.ResultOperators.Last();
 
-                    if (groupResultOperator.KeySelector is NewExpression)
+                    var sqlTranslation
+                        = _sqlTranslatingExpressionVisitorFactory
+                            .Create(
+                                QueryModelVisitor,
+                                _isGroupAggregate ? _groupAggregateTargetSelectExpression : _targetSelectExpression,
+                                inProjection: true)
+                            .Visit(expression);
+
+                    if (sqlTranslation == null)
                     {
                         // If the key is composite then we need to visit actual keySelector to construct the type.
                         // Since we are mapping translating actual KeySelector now, we need to re-map QuerySources
