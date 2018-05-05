@@ -1293,16 +1293,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                         queryModel.BodyClauses.Add(orderByClause);
                     }
 
-                    foreach (var groupResultOperator in groupResultOperators)
-                    {
-                        var groupKeys = groupResultOperator.KeySelector is NewExpression compositeGroupKey
-                            ? compositeGroupKey.Arguments.Reverse()
-                            : new[] { groupResultOperator.KeySelector };
+                    var firstGroupResultOperator = groupResultOperators[0];
 
-                        foreach (var groupKey in groupKeys)
-                        {
-                            orderByClause.Orderings.Insert(0, new Ordering(groupKey, OrderingDirection.Asc));
-                        }
+                    var groupKeys = firstGroupResultOperator.KeySelector is NewExpression compositeGroupKey
+                        ? compositeGroupKey.Arguments.Reverse()
+                        : new[] { firstGroupResultOperator.KeySelector };
+
+                    foreach (var groupKey in groupKeys)
+                    {
+                        orderByClause.Orderings.Insert(0, new Ordering(groupKey, OrderingDirection.Asc));
                     }
                 }
             }

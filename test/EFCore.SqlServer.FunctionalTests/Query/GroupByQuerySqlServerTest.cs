@@ -1655,6 +1655,16 @@ INNER JOIN (
 ) AS [t2] ON [t1].[CustomerID] = [t2].[CustomerID]");
         }
 
+        public override void Double_GroupBy_with_aggregate()
+        {
+            base.Double_GroupBy_with_aggregate();
+
+            AssertSql(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
+ORDER BY [o0].[OrderID], [o0].[OrderDate]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

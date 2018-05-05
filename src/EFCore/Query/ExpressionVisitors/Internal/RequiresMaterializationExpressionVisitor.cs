@@ -428,7 +428,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var isSubQuery = _queryModelStack.Count > 0;
             var finalResultOperator = queryModel.ResultOperators.LastOrDefault();
 
-            if (isSubQuery && finalResultOperator is GroupResultOperator groupResultOperator)
+            if (isSubQuery
+                && finalResultOperator is GroupResultOperator groupResultOperator
+                && queryModel.ResultOperators.OfType<GroupResultOperator>().Count() == 1)
             {
                 if (!(groupResultOperator.KeySelector is MemberInitExpression))
                 {
