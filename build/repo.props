@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <Import Project="dependencies.props" />
 
   <PropertyGroup>
@@ -6,8 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp20PackageVersion)" />
-    <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp21PackageVersion)" />
+    <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp22PackageVersion)" />
 
     <ExcludeFromTest Include="$(RepositoryRoot)samples\OracleProvider\test\OracleProvider.FunctionalTests\*.csproj" />
     <!-- Cosmos.Sql FunctionalTests are explicitly disabled due to excessively long execution time. -->
