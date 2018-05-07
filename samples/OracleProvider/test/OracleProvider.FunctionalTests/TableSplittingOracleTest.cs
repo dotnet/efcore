@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -11,6 +12,12 @@ namespace Microsoft.EntityFrameworkCore
         public TableSplittingOracleTest(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
+        }
+
+        [Fact(Skip = "Issue: 11910")]
+        public override void Can_use_with_redundant_relationships()
+        {
+            base.Can_use_with_redundant_relationships();
         }
 
         protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
