@@ -266,9 +266,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(" IN (");
                                 tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
-                                tableFilterBuilder.Append(") AND CONCAT(");
+                                tableFilterBuilder.Append(") AND (");
                                 tableFilterBuilder.Append(s);
-                                tableFilterBuilder.Append(", N'.', ");
+                                tableFilterBuilder.Append(" + N'.' + ");
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(") IN (");
                                 tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
