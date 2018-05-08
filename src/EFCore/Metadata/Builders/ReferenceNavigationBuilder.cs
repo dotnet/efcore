@@ -128,8 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] PropertyInfo navigationProperty)
-            => WithManyBuilder(PropertyIdentity.Create(navigationProperty));
+        protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] MemberInfo navigationMember)
+            => WithManyBuilder(PropertyIdentity.Create(navigationMember));
 
         private InternalRelationshipBuilder WithManyBuilder(PropertyIdentity collection)
         {
@@ -194,8 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
-            => WithOneBuilder(PropertyIdentity.Create(navigationProperty));
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] MemberInfo navigationMember)
+            => WithOneBuilder(PropertyIdentity.Create(navigationMember));
 
         private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)
         {

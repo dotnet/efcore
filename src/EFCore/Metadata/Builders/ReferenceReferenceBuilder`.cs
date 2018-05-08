@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 HasForeignKeyBuilder(
                     ResolveEntityType(typeof(TDependentEntity)),
                     typeof(TDependentEntity).ShortDisplayName(),
-                    Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
+                    Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyOrFieldAccessList()),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
                 foreignKeySet: true);
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(typeof(TPrincipalEntity)),
                     typeof(TPrincipalEntity).ShortDisplayName(),
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyOrFieldAccessList()),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),
                 principalKeySet: true);

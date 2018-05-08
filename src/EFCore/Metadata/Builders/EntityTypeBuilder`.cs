@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual KeyBuilder HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
             => new KeyBuilder(
                 Builder.HasKey(
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyOrFieldAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Returns an object that can be used to configure a property of the entity type.
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TEntity, object>> indexExpression)
             => new IndexBuilder(
                 Builder.HasIndex(
-                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyOrFieldAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
             [NotNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
             where TRelatedEntity : class
-            => OwnsOneBuilder<TRelatedEntity>(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess());
+            => OwnsOneBuilder<TRelatedEntity>(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyOrFieldAccess());
 
         /// <summary>
         ///     <para>
@@ -227,12 +227,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(navigationExpression.GetPropertyAccess()));
+                buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(navigationExpression.GetPropertyOrFieldAccess()));
                 return this;
             }
         }
 
-        private ReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOneBuilder<TRelatedEntity>(PropertyInfo navigation)
+        private ReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOneBuilder<TRelatedEntity>(MemberInfo navigation)
             where TRelatedEntity : class
         {
             InternalRelationshipBuilder relationship;

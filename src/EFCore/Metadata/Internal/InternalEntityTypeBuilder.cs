@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-            => HasKeyInternal(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
+        public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<MemberInfo> clrMembers, ConfigurationSource configurationSource)
+            => HasKeyInternal(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1477,8 +1477,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-            => HasIndex(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
+        public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<MemberInfo> clrMembers, ConfigurationSource configurationSource)
+            => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -2058,10 +2058,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Owns(
             [NotNull] string targetEntityTypeName,
-            [NotNull] PropertyInfo navigationProperty,
+            [NotNull] MemberInfo navigationMember,
             ConfigurationSource configurationSource)
             => Owns(
-                new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationProperty),
+                new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationMember),
                 inverse: null, configurationSource: configurationSource);
 
         /// <summary>
@@ -2084,11 +2084,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Owns(
             [NotNull] Type targetEntityType,
-            [NotNull] PropertyInfo navigationProperty,
+            [NotNull] MemberInfo navigationMember,
             ConfigurationSource configurationSource)
             => Owns(
                 new TypeIdentity(targetEntityType, Metadata.Model),
-                PropertyIdentity.Create(navigationProperty),
+                PropertyIdentity.Create(navigationMember),
                 inverse: null,
                 configurationSource: configurationSource);
 

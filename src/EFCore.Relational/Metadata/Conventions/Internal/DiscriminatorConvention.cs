@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && oldBaseType.BaseType == null
                 && oldBaseType.GetDirectlyDerivedTypes().Count == 0)
             {
-                oldBaseType.Builder?.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
+                oldBaseType.Builder?.Relational(ConfigurationSource.Convention).HasDiscriminator(memberInfo: null);
             }
 
             var entityType = entityTypeBuilder.Metadata;
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 if (!derivedEntityTypes.Any())
                 {
-                    entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
+                    entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(memberInfo: null);
                     return true;
                 }
 
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
             else
             {
-                if (entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null) == null)
+                if (entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(memberInfo: null) == null)
                 {
                     return true;
                 }
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && oldBaseType.BaseType == null
                 && oldBaseType.GetDirectlyDerivedTypes().Count == 0)
             {
-                oldBaseType.Builder?.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
+                oldBaseType.Builder?.Relational(ConfigurationSource.Convention).HasDiscriminator(memberInfo: null);
             }
 
             return true;

@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore
 
             return new DiscriminatorBuilder<TDiscriminator>(
                 queryTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
-                    .Relational(ConfigurationSource.Explicit).HasDiscriminator(propertyExpression.GetPropertyAccess()));
+                    .Relational(ConfigurationSource.Explicit).HasDiscriminator(propertyExpression.GetPropertyOrFieldAccess()));
         }
     }
 }

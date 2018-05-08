@@ -122,27 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static IReadOnlyList<MemberInfo> GetPropertyOrFieldAccessList([NotNull] this LambdaExpression lambdaExpression)
-        {
-            Debug.Assert(lambdaExpression.Parameters.Count == 1);
-
-            var memberPaths
-                = MatchPropertyOrFieldAccessList(lambdaExpression, (p, e) => e.MatchSimplePropertyOrFieldAccess(p));
-
-            if (memberPaths == null)
-            {
-                throw new ArgumentException(
-                    CoreStrings.InvalidPropertiesExpression(lambdaExpression),
-                    nameof(lambdaExpression));
-            }
-
-            return memberPaths;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static IReadOnlyList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
@@ -158,6 +137,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             return propertyPaths;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IReadOnlyList<MemberInfo> GetPropertyOrFieldAccessList([NotNull] this LambdaExpression lambdaExpression)
+        {
+            Debug.Assert(lambdaExpression.Parameters.Count == 1);
+
+            var memberPaths
+                = MatchPropertyOrFieldAccessList(lambdaExpression, (p, e) => e.MatchSimplePropertyOrFieldAccess(p));
+
+            if (memberPaths == null)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidPropertiesExpression(lambdaExpression),
+                    nameof(lambdaExpression));
+            }
+
+            return memberPaths;
         }
 
         /// <summary>

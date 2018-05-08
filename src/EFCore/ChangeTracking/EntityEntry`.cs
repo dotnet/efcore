@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyOrFieldAccess().Name);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyOrFieldAccess().Name);
         }
 
         /// <summary>

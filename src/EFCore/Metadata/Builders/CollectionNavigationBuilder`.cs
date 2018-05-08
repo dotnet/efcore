@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationExpression?.GetPropertyAccess()));
+                WithOneBuilder(navigationExpression?.GetPropertyOrFieldAccess()));
 
         /// <summary>
         ///     Configures this as a one-to-many relationship.
