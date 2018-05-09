@@ -1029,7 +1029,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(expression, nameof(expression));
 
-            if (expression.Value == null)
+            if (expression.Value == null
+                && expression.Type == typeof(object))
             {
                 return expression;
             }

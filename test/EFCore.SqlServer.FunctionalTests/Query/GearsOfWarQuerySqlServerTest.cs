@@ -6856,6 +6856,104 @@ INNER JOIN (
 ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
         }
 
+        public override void Select_subquery_projecting_single_constant_null_of_non_mapped_type() 
+        {
+            base.Select_subquery_projecting_single_constant_null_of_non_mapped_type();
+
+            AssertSql(
+                @"SELECT [s].[Name], [s].[Id]
+FROM [Squads] AS [s]",
+                //
+                @"@_outer_Id='1'
+
+SELECT TOP(1) 1
+FROM [Gears] AS [g]
+WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)) AND (@_outer_Id = [g].[SquadId])",
+                //
+                @"@_outer_Id='2'
+
+SELECT TOP(1) 1
+FROM [Gears] AS [g]
+WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)) AND (@_outer_Id = [g].[SquadId])");
+        }
+
+        public override void Select_subquery_projecting_single_constant_of_non_mapped_type()
+        {
+            base.Select_subquery_projecting_single_constant_of_non_mapped_type();
+
+            AssertSql(
+                @"SELECT [s].[Name], [s].[Id]
+FROM [Squads] AS [s]",
+                //
+                @"@_outer_Id='1'
+
+SELECT TOP(1) 1
+FROM [Gears] AS [g]
+WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)) AND (@_outer_Id = [g].[SquadId])",
+                //
+                @"@_outer_Id='2'
+
+SELECT TOP(1) 1
+FROM [Gears] AS [g]
+WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)) AND (@_outer_Id = [g].[SquadId])");
+        }
+
+        public override void Include_with_order_by_constant_null_of_non_mapped_type()
+        {
+            base.Include_with_order_by_constant_null_of_non_mapped_type();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Include_groupby_constant_null_of_non_mapped_type()
+        {
+            base.Include_groupby_constant_null_of_non_mapped_type();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Correlated_collection_order_by_constant_null_of_non_mapped_type()
+        {
+            base.Correlated_collection_order_by_constant_null_of_non_mapped_type();
+
+            AssertSql(
+                @"SELECT [s].[Nickname], [s].[FullName]
+FROM [Gears] AS [s]
+WHERE [s].[Discriminator] IN (N'Officer', N'Gear')",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT [w].[Name]
+FROM [Weapons] AS [w]
+WHERE @_outer_FullName = [w].[OwnerFullName]",
+                //
+                @"@_outer_FullName='Augustus Cole' (Size = 450)
+
+SELECT [w].[Name]
+FROM [Weapons] AS [w]
+WHERE @_outer_FullName = [w].[OwnerFullName]",
+                //
+                @"@_outer_FullName='Dominic Santiago' (Size = 450)
+
+SELECT [w].[Name]
+FROM [Weapons] AS [w]
+WHERE @_outer_FullName = [w].[OwnerFullName]",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT [w].[Name]
+FROM [Weapons] AS [w]
+WHERE @_outer_FullName = [w].[OwnerFullName]",
+                //
+                @"@_outer_FullName='Garron Paduk' (Size = 450)
+
+SELECT [w].[Name]
+FROM [Weapons] AS [w]
+WHERE @_outer_FullName = [w].[OwnerFullName]");
+        }
+
         public override void GroupBy_composite_key_with_Include()
         {
             base.GroupBy_composite_key_with_Include();
