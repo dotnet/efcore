@@ -7088,6 +7088,51 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
         }
 
+        public override void Select_subquery_int_with_inside_cast_and_coalesce()
+        {
+            base.Select_subquery_int_with_inside_cast_and_coalesce();
+
+            AssertSql(
+                @"SELECT COALESCE((
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+), 42)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Select_subquery_int_with_outside_cast_and_coalesce()
+        {
+            base.Select_subquery_int_with_outside_cast_and_coalesce();
+
+            AssertSql(
+                @"SELECT COALESCE(COALESCE((
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+), 0), 42)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Select_subquery_int_with_pushdown_and_coalesce()
+        {
+            base.Select_subquery_int_with_pushdown_and_coalesce();
+
+            AssertSql(
+                @"SELECT COALESCE((
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+), 42)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
         public override void Select_subquery_boolean_empty()
         {
             base.Select_subquery_boolean_empty();

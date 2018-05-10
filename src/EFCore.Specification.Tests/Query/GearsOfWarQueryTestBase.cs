@@ -4896,6 +4896,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Select_subquery_int_with_inside_cast_and_coalesce()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Select(g => g.Weapons.OrderBy(w => w.Id).Select(w => (int?)w.Id).FirstOrDefault() ?? 42));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_int_with_outside_cast_and_coalesce()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Select(g => (int?)g.Weapons.OrderBy(w => w.Id).Select(w => w.Id).FirstOrDefault() ?? 42));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_int_with_pushdown_and_coalesce()
+        {
+            AssertQueryScalar<Gear>(
+                gs => gs.Select(g => (int?)g.Weapons.OrderBy(w => w.Id).FirstOrDefault().Id ?? 42));
+        }
+
+        [ConditionalFact]
         public virtual void Select_subquery_boolean_empty()
         {
             AssertQueryScalar<Gear>(
