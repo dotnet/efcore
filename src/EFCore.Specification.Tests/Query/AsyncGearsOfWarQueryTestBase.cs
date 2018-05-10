@@ -1691,5 +1691,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
+
+        [ConditionalFact]
+        public virtual async Task Select_subquery_int_with_inside_cast_and_coalesce()
+        {
+            await AssertQueryScalar<Gear>(
+                gs => gs.Select(g => g.Weapons.OrderBy(w => w.Id).Select(w => (int?)w.Id).FirstOrDefault() ?? 42));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_subquery_int_with_outside_cast_and_coalesce()
+        {
+            await AssertQueryScalar<Gear>(
+                gs => gs.Select(g => (int?)g.Weapons.OrderBy(w => w.Id).Select(w => w.Id).FirstOrDefault() ?? 42));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_subquery_int_with_pushdown_and_coalesce()
+        {
+            await AssertQueryScalar<Gear>(
+                gs => gs.Select(g => (int?)g.Weapons.OrderBy(w => w.Id).FirstOrDefault().Id ?? 42));
+        }
     }
 }
