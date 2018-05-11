@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable CheckNamespace
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class ScaffoldingTypeMapperSqlServerTest
@@ -79,14 +81,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Maps_normal_binary_max_column()
-        {
-            var mapping = CreateMapper().FindMapping("binary(max)", keyOrIndex: false, rowVersion: false);
-
-            AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: true);
-        }
-
-        [Fact]
         public void Maps_normal_binary_sized_column()
         {
             var mapping = CreateMapper().FindMapping("binary(200)", keyOrIndex: false, rowVersion: false);
@@ -116,14 +110,6 @@ namespace Microsoft.EntityFrameworkCore
             var mapping = CreateMapper().FindMapping("varbinary(900)", keyOrIndex: true, rowVersion: false);
 
             AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
-        }
-
-        [Fact]
-        public void Maps_key_binary_max_column()
-        {
-            var mapping = CreateMapper().FindMapping("binary(max)", keyOrIndex: true, rowVersion: false);
-
-            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: true);
         }
 
         [Fact]
@@ -277,14 +263,6 @@ namespace Microsoft.EntityFrameworkCore
 
             AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: false, fixedLength: null);
         }
-        
-        [Fact]
-        public void Maps_normal_nchar_max_column()
-        {
-            var mapping = CreateMapper().FindMapping("nchar(max)", keyOrIndex: false, rowVersion: false);
-
-            AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: true);
-        }
 
         [Fact]
         public void Maps_normal_nchar_sized_column()
@@ -292,14 +270,6 @@ namespace Microsoft.EntityFrameworkCore
             var mapping = CreateMapper().FindMapping("nchar(200)", keyOrIndex: false, rowVersion: false);
 
             AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: true);
-        }
-
-        [Fact]
-        public void Maps_normal_char_max_column()
-        {
-            var mapping = CreateMapper().FindMapping("char(max)", keyOrIndex: false, rowVersion: false);
-
-            AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: false, fixedLength: true);
         }
 
         [Fact]

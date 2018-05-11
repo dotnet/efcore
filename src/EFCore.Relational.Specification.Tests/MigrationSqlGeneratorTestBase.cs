@@ -715,11 +715,11 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-        private readonly TestHelpers _testHelpers;
+        protected TestHelpers TestHelpers { get; }
 
         protected MigrationSqlGeneratorTestBase(TestHelpers testHelpers)
         {
-            _testHelpers = testHelpers;
+            TestHelpers = testHelpers;
         }
 
         protected virtual void Generate(params MigrationOperation[] operation)
@@ -727,10 +727,10 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
         {
-            var modelBuilder = _testHelpers.CreateConventionBuilder();
+            var modelBuilder = TestHelpers.CreateConventionBuilder();
             buildAction(modelBuilder);
 
-            var batch = _testHelpers.CreateContextServices().GetRequiredService<IMigrationsSqlGenerator>()
+            var batch = TestHelpers.CreateContextServices().GetRequiredService<IMigrationsSqlGenerator>()
                 .Generate(operation, modelBuilder.Model);
 
             Sql = string.Join(

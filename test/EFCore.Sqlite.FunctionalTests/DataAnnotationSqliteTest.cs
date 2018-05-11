@@ -3,10 +3,9 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 #if Test20
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-#else
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 #endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -71,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
 #if Test20
             var storeType = TestServiceFactory.Instance.Create<SqliteTypeMapper>().FindMapping(property).StoreType;
 #else
-            var storeType = TestServiceFactory.Instance.Create<SqliteTypeMappingSource>().GetMapping(property).StoreType;
+            var storeType = property.FindRelationalMapping().StoreType;
 #endif
             Assert.Equal("TEXT", storeType);
 
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
 #if Test20
             var storeType = TestServiceFactory.Instance.Create<SqliteTypeMapper>().FindMapping(property).StoreType;
 #else
-            var storeType = TestServiceFactory.Instance.Create<SqliteTypeMappingSource>().GetMapping(property).StoreType;
+            var storeType = property.FindRelationalMapping().StoreType;
 #endif
             Assert.Equal("BLOB", storeType);
 

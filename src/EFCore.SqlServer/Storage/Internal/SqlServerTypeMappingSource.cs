@@ -38,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly SqlServerByteArrayTypeMapping _rowversion
             = new SqlServerByteArrayTypeMapping(
                 "rowversion",
-                DbType.Binary,
                 size: 8,
                 comparer: new ValueComparer<byte[]>(
                     (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
@@ -53,31 +52,40 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new BoolTypeMapping("bit");
 
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
-            = new SqlServerStringTypeMapping("nchar", dbType: DbType.String, unicode: true, fixedLength: true);
+            = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
 
         private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
-            = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true);
+            = new SqlServerStringTypeMapping(unicode: true);
+
+        private readonly SqlServerStringTypeMapping _variableLengthMaxUnicodeString
+            = new SqlServerStringTypeMapping("nvarchar(max)", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
-            = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiString, fixedLength: true);
+            = new SqlServerStringTypeMapping(fixedLength: true);
 
         private readonly SqlServerStringTypeMapping _variableLengthAnsiString
-            = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString);
+            = new SqlServerStringTypeMapping();
+
+        private readonly SqlServerStringTypeMapping _variableLengthMaxAnsiString
+            = new SqlServerStringTypeMapping("varchar(max)", storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
-            = new SqlServerByteArrayTypeMapping("varbinary");
+            = new SqlServerByteArrayTypeMapping();
+
+        private readonly SqlServerByteArrayTypeMapping _variableLengthMaxBinary
+            = new SqlServerByteArrayTypeMapping("varbinary(max)", storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
-            = new SqlServerByteArrayTypeMapping("binary", fixedLength: true);
+            = new SqlServerByteArrayTypeMapping(fixedLength: true);
 
         private readonly SqlServerDateTimeTypeMapping _date
-            = new SqlServerDateTimeTypeMapping("date", dbType: DbType.Date);
+            = new SqlServerDateTimeTypeMapping("date", DbType.Date);
 
         private readonly SqlServerDateTimeTypeMapping _datetime
-            = new SqlServerDateTimeTypeMapping("datetime", dbType: DbType.DateTime);
+            = new SqlServerDateTimeTypeMapping("datetime", DbType.DateTime);
 
         private readonly SqlServerDateTimeTypeMapping _datetime2
-            = new SqlServerDateTimeTypeMapping("datetime2", dbType: DbType.DateTime2);
+            = new SqlServerDateTimeTypeMapping("datetime2", DbType.DateTime2);
 
         private readonly DoubleTypeMapping _double
             = new SqlServerDoubleTypeMapping("float");
@@ -89,13 +97,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new GuidTypeMapping("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
-            = new SqlServerDecimalTypeMapping("decimal(18, 2)", null, 18, 2);
+            = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
+
+        private readonly DecimalTypeMapping _money
+            = new SqlServerDecimalTypeMapping("money");
 
         private readonly TimeSpanTypeMapping _time
             = new SqlServerTimeSpanTypeMapping("time");
 
         private readonly SqlServerStringTypeMapping _xml
-            = new SqlServerStringTypeMapping("xml", dbType: null, unicode: true);
+            = new SqlServerStringTypeMapping("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
@@ -176,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "float", _double },
                     { "image", _variableLengthBinary },
                     { "int", _int },
-                    { "money", _decimal },
+                    { "money", _money },
                     { "national char varying", _variableLengthUnicodeString },
                     { "national character varying", _variableLengthUnicodeString },
                     { "national character", _fixedLengthUnicodeString },
@@ -184,11 +195,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "ntext", _variableLengthUnicodeString },
                     { "numeric", _decimal },
                     { "nvarchar", _variableLengthUnicodeString },
+                    { "nvarchar(max)", _variableLengthMaxUnicodeString },
                     { "real", _real },
                     { "rowversion", _rowversion },
                     { "smalldatetime", _datetime },
                     { "smallint", _short },
-                    { "smallmoney", _decimal },
+                    { "smallmoney", _money },
                     { "sql_variant", _sqlVariant },
                     { "text", _variableLengthAnsiString },
                     { "time", _time },
@@ -196,7 +208,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "tinyint", _byte },
                     { "uniqueidentifier", _uniqueidentifier },
                     { "varbinary", _variableLengthBinary },
+                    { "varbinary(max)", _variableLengthMaxBinary },
                     { "varchar", _variableLengthAnsiString },
+                    { "varchar(max)", _variableLengthMaxAnsiString },
                     { "xml", _xml }
                 };
         }
@@ -270,25 +284,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 {
                     var isAnsi = mappingInfo.IsUnicode == false;
                     var isFixedLength = mappingInfo.IsFixedLength == true;
-                    var baseName = (isAnsi ? "" : "n") + (isFixedLength ? "char" : "varchar");
                     var maxSize = isAnsi ? 8000 : 4000;
 
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
                     if (size > maxSize)
                     {
-                        size = null;
+                        size = isFixedLength ? maxSize : (int?)null;
                     }
 
-                    var dbType = isAnsi
-                        ? (isFixedLength ? DbType.AnsiStringFixedLength : DbType.AnsiString)
-                        : (isFixedLength ? DbType.StringFixedLength : (DbType?)null);
-
-                    return new SqlServerStringTypeMapping(
-                        baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
-                        dbType,
-                        !isAnsi,
-                        size,
-                        isFixedLength);
+                    return size == null
+                        ? isAnsi ? _variableLengthMaxAnsiString : _variableLengthMaxUnicodeString
+                        : new SqlServerStringTypeMapping(
+                            unicode: !isAnsi,
+                            size: size,
+                            fixedLength: isFixedLength);
                 }
 
                 if (clrType == typeof(byte[]))
@@ -298,18 +307,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         return _rowversion;
                     }
 
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
                     if (size > 8000)
                     {
-                        size = null;
+                        size = isFixedLength ? 8000 : (int?)null;
                     }
 
-                    var isFixedLength = mappingInfo.IsFixedLength == true;
-
-                    return new SqlServerByteArrayTypeMapping(
-                        (isFixedLength ? "binary(" : "varbinary(") + (size == null ? "max" : size.ToString()) + ")",
-                        DbType.Binary,
-                        size);
+                    return size == null
+                        ? _variableLengthMaxBinary
+                        : new SqlServerByteArrayTypeMapping(size: size, fixedLength: isFixedLength);
                 }
             }
 

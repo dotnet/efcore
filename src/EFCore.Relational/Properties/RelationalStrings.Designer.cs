@@ -1005,6 +1005,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("DerivedQueryTypeView", nameof(queryType), nameof(baseType)),
                 queryType, baseType);
 
+        /// <summary>
+        ///     The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.
+        /// </summary>
+        public static string RelationalCloneNotImplemented([CanBeNull] object mapping)
+            => string.Format(
+                GetString("RelationalCloneNotImplemented", nameof(mapping)),
+                mapping);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

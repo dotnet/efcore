@@ -178,7 +178,7 @@ FROM [Orders] AS [o]");
             base.Average_with_division_on_decimal();
 
             AssertSql(
-                @"SELECT AVG(CAST([od].[Quantity] / 2.09 AS decimal(18, 2)))
+                @"SELECT AVG(CAST([od].[Quantity] / 2.09 AS decimal(18,2)))
 FROM [Order Details] AS [od]");
         }
 
@@ -187,7 +187,7 @@ FROM [Order Details] AS [od]");
             base.Average_with_division_on_decimal_no_significant_digits();
 
             AssertSql(
-                @"SELECT AVG(CAST([od].[Quantity] / 2.0 AS decimal(18, 2)))
+                @"SELECT AVG(CAST([od].[Quantity] / 2.0 AS decimal(18,2)))
 FROM [Order Details] AS [od]");
         }
 
@@ -196,7 +196,7 @@ FROM [Order Details] AS [od]");
             base.Average_with_coalesce();
 
             AssertSql(
-                @"SELECT AVG(CAST(COALESCE([p].[UnitPrice], 0.0) AS decimal(18, 2)))
+                @"SELECT AVG(CAST(COALESCE([p].[UnitPrice], 0.0) AS decimal(18,2)))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40");
         }

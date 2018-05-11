@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] ISingletonUpdateSqlGenerator updateSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
 #pragma warning disable 618
-            [NotNull] IRelationalTypeMapper typeMapper,
+            [CanBeNull] IRelationalTypeMapper typeMapper,
 #pragma warning restore 618
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {

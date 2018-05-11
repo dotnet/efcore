@@ -96,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotEmpty(storeTypeName, nameof(storeTypeName));
 
             _coreTypeMappingInfo = new TypeMappingInfo();
-            IsFixedLength = false;
             StoreTypeName = storeTypeName;
             StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
+            IsFixedLength = _parsedSize != null;
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _isMax = false;
             }
 
-            IsFixedLength = false;
+            IsFixedLength = _parsedSize != null;
         }
 
         /// <summary>

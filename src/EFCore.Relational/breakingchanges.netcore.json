@@ -113,5 +113,100 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.IQueryMethodProvider",
       "MemberId": "System.Reflection.MethodInfo get_FastQueryMethod()",
       "Kind": "Addition"
+    },    
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.BoolTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ByteArrayTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.CharTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DateTimeOffsetTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DateTimeTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DecimalTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.DoubleTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.FloatTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.GuidTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.IntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.LongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.SByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.StringTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.TimeSpanTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.UIntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ULongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.UShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
+      "Kind": "Removal"
     }
 ]

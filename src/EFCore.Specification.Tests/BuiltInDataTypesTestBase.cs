@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Can_perform_query_with_ansi_strings_test()
         {
             var shortString = Fixture.SupportsUnicodeToAnsiConversion ? "Ϩky" : "sky";
-            var longString = new string('Ϩ', Fixture.LongStringLength);
+            var longString = Fixture.SupportsUnicodeToAnsiConversion ? new string('Ϩ', Fixture.LongStringLength) : new string('s', Fixture.LongStringLength);
 
             using (var context = CreateContext())
             {

@@ -4,7 +4,6 @@
 using System.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -22,12 +21,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             [NotNull] string storeType,
             DbType? dbType = null,
             int? precision = null,
-            int? scale = null)
+            int? scale = null,
+            StoreTypePostfix storeTypePostfix = StoreTypePostfix.None)
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(decimal)),
                     storeType,
-                    StoreTypePostfix.PrecisionAndScale,
+                    storeTypePostfix,
                     dbType,
                     precision: precision,
                     scale: scale))
@@ -47,14 +47,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerDecimalTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerDecimalTypeMapping(Parameters.WithComposedConverter(converter));
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new SqlServerDecimalTypeMapping(parameters);
     }
 }

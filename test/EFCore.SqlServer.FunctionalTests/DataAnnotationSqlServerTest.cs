@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 #if Test20
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-#else
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 #endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -93,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
 #if Test20
             var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMapper>().FindMapping(property).StoreType;
 #else
-            var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMappingSource>().GetMapping(property).StoreType;
+            var storeType = property.FindRelationalMapping().StoreType;
 #endif
             Assert.Equal("nvarchar(64)", storeType);
 
@@ -108,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
 #if Test20
             var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMapper>().FindMapping(property).StoreType;
 #else
-            var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMappingSource>().GetMapping(property).StoreType;
+            var storeType = property.FindRelationalMapping().StoreType;
 #endif
             Assert.Equal("rowversion", storeType);
 

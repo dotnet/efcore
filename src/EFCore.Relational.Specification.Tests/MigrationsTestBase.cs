@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         protected string ActiveProvider { get; private set; }
 
         [ConditionalFact]
-        public void Can_apply_all_migrations()
+        public virtual void Can_apply_all_migrations()
         {
             using (var db = Fixture.CreateContext())
             {
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_apply_one_migration()
+        public virtual void Can_apply_one_migration()
         {
             using (var db = Fixture.CreateContext())
             {
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_revert_all_migrations()
+        public virtual void Can_revert_all_migrations()
         {
             using (var db = Fixture.CreateContext())
             {
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_revert_one_migrations()
+        public virtual void Can_revert_one_migrations()
         {
             using (var db = Fixture.CreateContext())
             {
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public async Task Can_apply_all_migrations_async()
+        public virtual async Task Can_apply_all_migrations_async()
         {
             using (var db = Fixture.CreateContext())
             {

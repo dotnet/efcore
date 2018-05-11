@@ -4,7 +4,6 @@
 #if !Test20
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -13,6 +12,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
@@ -203,16 +203,16 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         public class SqlServerStringsTypeMappingSource : RelationalTypeMappingSource
         {
             private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
-                = new SqlServerStringTypeMapping("nchar", dbType: DbType.String, unicode: true);
+                = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
 
             private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
-                = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true);
+                = new SqlServerStringTypeMapping(unicode: true);
 
             private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
-                = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiString);
+                = new SqlServerStringTypeMapping(fixedLength: true);
 
             private readonly SqlServerStringTypeMapping _variableLengthAnsiString
-                = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString);
+                = new SqlServerStringTypeMapping();
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
@@ -269,20 +269,22 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     if (clrType == typeof(string))
                     {
                         var isAnsi = mappingInfo.IsUnicode == false;
+                        var isFixedLength = mappingInfo.IsFixedLength == true;
                         var baseName = isAnsi ? "varchar" : "nvarchar";
                         var maxSize = isAnsi ? 8000 : 4000;
 
                         var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
                         if (size > maxSize)
                         {
-                            size = null;
+                            size = isFixedLength ? maxSize : (int?)null;
                         }
 
                         return new SqlServerStringTypeMapping(
                             baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
-                            isAnsi ? DbType.AnsiString : (DbType?)null,
                             !isAnsi,
-                            size);
+                            size,
+                            isFixedLength,
+                            storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
                     }
                 }
 
