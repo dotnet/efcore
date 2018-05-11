@@ -4793,6 +4793,64 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        public class MyDTO
+        {
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_projecting_single_constant_null_of_non_mapped_type()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => (MyDTO)null).FirstOrDefault() }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_subquery_projecting_single_constant_of_non_mapped_type()
+        {
+            AssertQuery<Squad>(
+                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new MyDTO()).FirstOrDefault() }),
+                elementSorter: e => e.Name,
+                elementAsserter: (e, a) => Assert.Equal(e.Name, a.Name));
+        }
+
+        [ConditionalFact(Skip = "issue #11567")]
+        public virtual void Include_with_order_by_constant_null_of_non_mapped_type()
+        {
+            AssertIncludeQuery<Squad>(
+                ss => ss.Include(s => s.Members).OrderBy(s => (MyDTO)null),
+                expectedQuery: ss => ss,
+                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
+        }
+
+        [ConditionalFact(Skip = "issue #11567")]
+        public virtual void Include_groupby_constant_null_of_non_mapped_type()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Squads.Include(s => s.Members).GroupBy(s => (MyDTO)null);
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                var bucket = result[0].ToList();
+                Assert.Equal(2, bucket.Count);
+                Assert.NotNull(bucket[0].Members);
+                Assert.NotNull(bucket[1].Members);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_collection_order_by_constant_null_of_non_mapped_type()
+        {
+            AssertQuery<Gear>(
+                gs => gs.OrderByDescending(s => (MyDTO)null).Select(g => new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }),
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Nickname, a.Nickname);
+                    CollectionAsserter<string>() (e.Weapons, a.Weapons);
+                });
+        }
+
         [ConditionalFact]
         public virtual void GroupBy_composite_key_with_Include()
         {

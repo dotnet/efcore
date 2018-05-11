@@ -204,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 case MemberExpression memberExpression
                 when memberExpression.Expression.TryGetReferencedQuerySource() == _querySource
                     && _querySource.ItemType.IsGrouping()
-                    && memberExpression.Member.Name == nameof(IGrouping<int, int>.Key):
+                    && memberExpression.Member.Name == nameof(IGrouping<int, int>.Key)
+                    && QueryModelVisitor.IsShapedQueryExpression(QueryModelVisitor.Expression):
 
                     var groupResultOperator
                         = (GroupResultOperator)((SubQueryExpression)((FromClauseBase)_querySource).FromExpression)
