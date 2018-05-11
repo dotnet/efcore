@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-#if NETCOREAPP2_0 || NETCOREAPP2_1
+#if NETCOREAPP2_0 || NETCOREAPP2_2
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 using IOPath = System.IO.Path;
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 new[] { MetadataReference.CreateFromFile(assembly.Location) },
                 copyLocal,
                 new Uri(assembly.CodeBase).LocalPath);
-#elif NETCOREAPP2_0 || NETCOREAPP2_1
+#elif NETCOREAPP2_0 || NETCOREAPP2_2
             var references = Enumerable.ToList(
                 from l in DependencyContext.Default.CompileLibraries
                 from r in l.ResolveReferencePaths()

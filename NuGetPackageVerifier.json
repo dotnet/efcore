@@ -9,26 +9,20 @@
                     "DotnetTool"
                 ],
                 "Exclusions": {
-                    "NEUTRAL_RESOURCES_LANGUAGE": {
-                        "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "External"
-                    },
                     "SERVICING_ATTRIBUTE": {
-                        "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "External"
-                    },
-                    "VERSION_INFORMATIONALVERSION": {
-                        "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "External"
+                        "tools/netcoreapp2.2/any/Newtonsoft.Json.dll": "External"
                     },
                     "WRONG_PUBLICKEYTOKEN": {
-                        "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "External"
+                        "tools/netcoreapp2.2/any/Newtonsoft.Json.dll": "External"
                     },
                     "ASSEMBLY_INFORMATIONAL_VERSION_MISMATCH": {
-                        "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "External"
+                        "tools/netcoreapp2.2/any/Newtonsoft.Json.dll": "External"
                     },
                     "ASSEMBLY_FILE_VERSION_MISMATCH": {
-                      "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "External"
+                      "tools/netcoreapp2.2/any/Newtonsoft.Json.dll": "External"
                     },
                     "ASSEMBLY_VERSION_MISMATCH": {
-                      "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "External"
+                      "tools/netcoreapp2.2/any/Newtonsoft.Json.dll": "External"
                     }
                 }
             },

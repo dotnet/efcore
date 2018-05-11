@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private const string ConvertParams =
 #if NET461
             null;
-#elif NETCOREAPP2_0 || NETCOREAPP2_1
+#elif NETCOREAPP2_0 || NETCOREAPP2_2
             ", Object";
 #else
 #error target frameworks need to be updated.

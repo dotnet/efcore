@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 #if NET461
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
-#elif NETCOREAPP2_0 || NETCOREAPP2_1 // CoreCLR internal constructor has an additional parameter
+#elif NETCOREAPP2_0 || NETCOREAPP2_2 // CoreCLR internal constructor has an additional parameter
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
 #else

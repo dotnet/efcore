@@ -15,7 +15,7 @@ dotnet ef dbcontext scaffold
 dotnet ef database drop
 dotnet ef database update
     </Description>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <GenerateToolShims>true</GenerateToolShims>
