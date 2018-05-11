@@ -3472,6 +3472,62 @@ GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
 
         #endregion
 
+        #region Bug11955
+
+        [Fact]
+        public virtual void GroupBy_aggregate_with_byte()
+        {
+            using (CreateDatabase11955())
+            {
+                using (var context = new MyContext11955(_options))
+                {
+                    var query = context.Groups
+                        .GroupBy(g => new { g.Id })
+                        .Select(g => new
+                        {
+                            g.Key,
+                            Sum = g.Sum(e => e.Status)
+                        })
+                        .ToList();
+
+                    AssertSql(
+                        @"SELECT [g].[Id], SUM([g].[Status]) AS [Sum]
+FROM [Groups] AS [g]
+GROUP BY [g].[Id]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11955()
+        {
+            return CreateTestStore(
+                () => new MyContext11955(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext11955 : DbContext
+        {
+            public DbSet<Group11955> Groups { get; set; }
+
+            public MyContext11955(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        public class Group11955
+        {
+            public int Id { get; set; }
+            public byte Status { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

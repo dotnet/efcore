@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         .QueryModel.ResultOperators.Last();
 
                 var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                    queryModel.SelectClause.Selector, _queryModelVisitor.QueryCompilationContext, out var qsre);
+                    queryModel.SelectClause.Selector.RemoveConvert(), _queryModelVisitor.QueryCompilationContext, out var qsre);
 
                 if (qsre != null
                     || queryModel.SelectClause.Selector.RemoveConvert() is ConstantExpression
