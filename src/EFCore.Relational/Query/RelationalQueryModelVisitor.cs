@@ -1403,7 +1403,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Flattening
 
-        private bool IsShapedQueryExpression(Expression expression)
+        internal bool IsShapedQueryExpression(Expression expression)
         {
             if (!(expression is MethodCallExpression methodCallExpression))
             {

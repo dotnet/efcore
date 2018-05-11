@@ -1700,6 +1700,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.max);
         }
 
+        [ConditionalFact]
+        public virtual async Task GroupBy_anonymous_key_without_aggregate()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = (await context.Set<Order>()
+                    .GroupBy(o => new { o.CustomerID })
+                    .Select(g => new { g.Key, g })
+                    .ToListAsync())
+                    .OrderBy(g => g.Key + " " + g.g.Count()).ToList();
+
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
+                    .GroupBy(o => new { o.CustomerID })
+                    .Select(g => new { g.Key, g })
+                    .ToList()
+                    .OrderBy(g => g.Key + " " + g.g.Count()).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Key, actual[i].Key);
+                    Assert.Equal(expected[i].g.Count(), actual[i].g.Count());
+                }
+            }
+        }
+
         #endregion
 
         #region GroupBySelectFirst

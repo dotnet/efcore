@@ -1571,6 +1571,16 @@ FROM [Customers] AS [i.Customer0]",
 FROM [Customers] AS [i.Customer0]");
         }
 
+        public override void GroupBy_anonymous_key_without_aggregate()
+        {
+            base.GroupBy_anonymous_key_without_aggregate();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
+        }
+
         public override void GroupBy_Shadow()
         {
             base.GroupBy_Shadow();
