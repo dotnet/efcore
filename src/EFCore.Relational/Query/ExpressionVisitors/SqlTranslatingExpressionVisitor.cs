@@ -1004,7 +1004,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                         _queryModelVisitor.LiftInjectedParameters(subQueryModelVisitor);
 
-                        return selectExpression;
+                        return expression.Type != selectExpression.Type
+                            && expression.Type.IsNullableType()
+                            && !selectExpression.Type.IsNullableType()
+                            && expression.Type.UnwrapNullableType() == selectExpression.Type
+                            ? Expression.Convert(selectExpression, expression.Type)
+                            : (Expression)selectExpression;
                     }
 
                     subQueryModel.RecreateQueryModelFromMapping(queryModelMapping);
