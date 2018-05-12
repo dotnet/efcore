@@ -1550,18 +1550,70 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var blogs = context.Set<Blog>().OrderBy(e => e.Host.HostName).ToList();
 
-                Assert.Equal(3, blogs.Count);
+                VerifyBlogs(blogs);
+            }
+        }
 
-                for (var i = 0; i < 3; i++)
-                {
-                    Assert.Equal($"firstNameReader{i}", blogs[i].Reader.FirstName);
-                    Assert.Equal($"lastNameReader{i}", blogs[i].Reader.LastName);
+        private static void VerifyBlogs(List<Blog> blogs)
+        {
+            Assert.Equal(3, blogs.Count);
 
-                    Assert.Equal($"firstNameWriter{i}", blogs[i].Writer.FirstName);
-                    Assert.Equal($"lastNameWriter{i}", blogs[i].Writer.LastName);
+            for (var i = 0; i < 3; i++)
+            {
+                Assert.Equal($"firstNameReader{i}", blogs[i].Reader.FirstName);
+                Assert.Equal($"lastNameReader{i}", blogs[i].Reader.LastName);
 
-                    Assert.Equal($"127.0.0.{i + 1}", blogs[i].Host.HostName);
-                }
+                Assert.Equal($"firstNameWriter{i}", blogs[i].Writer.FirstName);
+                Assert.Equal($"lastNameWriter{i}", blogs[i].Writer.LastName);
+
+                Assert.Equal($"127.0.0.{i + 1}", blogs[i].Host.HostName);
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var blogs = context.Set<Blog>().Where(_ => true);
+
+                VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
+                Assert.Equal(12, context.ChangeTracker.Entries().Count());
+
+                VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
+                Assert.Equal(12, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_loading_finds_correct_entity_type_with_opaque_predicate_and_multiple_queries()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                Func<Blog, bool> opaquePredicate = _ => true;
+
+                var blogs = context.Set<Blog>().Where(opaquePredicate);
+
+                VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
+                Assert.Equal(12, context.ChangeTracker.Entries().Count());
+
+                VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
+                Assert.Equal(12, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries_using_Count()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var blogs = context.Set<Blog>().Where(_ => true);
+
+                Assert.Equal(3, blogs.Count());
+                Assert.Empty(context.ChangeTracker.Entries());
+
+                Assert.Equal(3, blogs.Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -1590,6 +1642,106 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     new[] { "Large", "Medium", "Small" },
                     entity.BaseNoses.Select(b => b.Size).OrderBy(h => h));
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_loading_finds_correct_entity_type_with_alternate_model()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var person = context.Set<Pyrson>().Single();
+
+                Assert.NotNull(person.Name.FirstName);
+                Assert.NotNull(person.Name.LastName);
+                Assert.NotNull(person.Address);
+
+                var applicant = context.Set<Applicant>().Single();
+
+                Assert.NotNull(applicant.Name);
+
+                var address = context.Set<Address>().Single();
+
+                Assert.NotNull(address.Line1);
+                Assert.NotNull(address.Line2);
+
+                Assert.Same(address, person.Address);
+            }
+        }
+
+        public class Address
+        {
+            public int AddressId { get; set; }
+            public string Line1 { get; set; }
+            public string Line2 { get; set; }
+            public int PyrsonId { get; set; }
+        }
+
+        public class Applicant
+        {
+            public int ApplicantId { get; set; }
+            public virtual FullName Name { get; set; }
+
+            protected Applicant() { }
+            public Applicant(FullName name)
+            {
+                Name = name ?? throw new ArgumentNullException(nameof(name));
+            }
+        }
+
+        public class FirstName
+        {
+            private string _value;
+
+            protected FirstName() { }
+            private FirstName(string value)
+            {
+                _value = value;
+            }
+
+            public static FirstName Create(string firstName)
+            {
+                return new FirstName(firstName);
+            }
+        }
+
+        public class LastName
+        {
+            private string _value;
+
+            protected LastName() { }
+            private LastName(string value)
+            {
+                _value = value;
+            }
+
+            public static LastName Create(string lastName)
+            {
+                return new LastName(lastName);
+            }
+        }
+
+        public class Pyrson
+        {
+            public int PyrsonId { get; set; }
+            public virtual FullName Name { get; set; }
+            public virtual Address Address { get; set; }
+            protected Pyrson() { }
+            public Pyrson(FullName name)
+            {
+                Name = name ?? throw new ArgumentNullException(nameof(name));
+            }
+        }
+        public class FullName
+        {
+            public virtual FirstName FirstName { get; private set; }
+            public virtual LastName LastName { get; private set; }
+
+            protected FullName() { }
+            public FullName(FirstName firstName, LastName lastName)
+            {
+                FirstName = firstName ?? throw new ArgumentNullException(nameof(firstName));
+                LastName = lastName ?? throw new ArgumentNullException(nameof(lastName));
             }
         }
 
@@ -1852,6 +2004,78 @@ namespace Microsoft.EntityFrameworkCore
                         e.OwnsOne(x => x.Reader);
                         e.OwnsOne(x => x.Host);
                     });
+
+                modelBuilder.Entity<Blog>(
+                    e =>
+                    {
+                        e.OwnsOne(x => x.Writer);
+                        e.OwnsOne(x => x.Reader);
+                        e.OwnsOne(x => x.Host);
+                    });
+
+                modelBuilder.Entity<Address>(
+                    builder =>
+                    {
+                        builder.HasKey(prop => prop.AddressId);
+
+                        builder.Property(prop => prop.Line1)
+                            .IsRequired()
+                            .HasMaxLength(50);
+
+                        builder.Property(prop => prop.Line2)
+                            .IsRequired(false)
+                            .HasMaxLength(50);
+                    });
+
+                modelBuilder.Entity<Applicant>(
+                    builder =>
+                    {
+                        builder.HasKey(prop => prop.ApplicantId);
+
+                        builder.OwnsOne(
+                            prop => prop.Name, name =>
+                            {
+                                name
+                                    .OwnsOne(prop => prop.FirstName)
+                                    .Property("_value")
+                                    .HasMaxLength(50)
+                                    .IsRequired();
+
+                                name
+                                    .OwnsOne(prop => prop.LastName)
+                                    .Property("_value")
+                                    .HasMaxLength(50)
+                                    .IsRequired();
+                            });
+
+                    });
+
+                modelBuilder.Entity<Pyrson>(
+                    builder =>
+                    {
+                        builder.HasKey(prop => prop.PyrsonId);
+
+                        builder.OwnsOne(
+                            prop => prop.Name, name =>
+                            {
+                                name
+                                    .OwnsOne(prop => prop.FirstName)
+                                    .Property("_value")
+                                    .HasMaxLength(50)
+                                    .IsRequired();
+
+                                name
+                                    .OwnsOne(prop => prop.LastName)
+                                    .Property("_value")
+                                    .HasMaxLength(50)
+                                    .IsRequired();
+                            });
+
+                        builder.HasOne(prop => prop.Address)
+                            .WithOne()
+                            .HasForeignKey<Address>(prop => prop.PyrsonId);
+
+                    });
             }
 
             protected override void Seed(DbContext context)
@@ -1863,29 +2087,68 @@ namespace Microsoft.EntityFrameworkCore
                         AlternateId = "Root",
                         Children = new List<Child>
                         {
-                            new Child { Id = 11 },
-                            new Child { Id = 12 }
+                            new Child
+                            {
+                                Id = 11
+                            },
+                            new Child
+                            {
+                                Id = 12
+                            }
                         },
-                        SinglePkToPk = new SinglePkToPk { Id = 707 },
-                        Single = new Single { Id = 21 },
+                        SinglePkToPk = new SinglePkToPk
+                        {
+                            Id = 707
+                        },
+                        Single = new Single
+                        {
+                            Id = 21
+                        },
                         ChildrenAk = new List<ChildAk>
                         {
-                            new ChildAk { Id = 31 },
-                            new ChildAk { Id = 32 }
+                            new ChildAk
+                            {
+                                Id = 31
+                            },
+                            new ChildAk
+                            {
+                                Id = 32
+                            }
                         },
-                        SingleAk = new SingleAk { Id = 42 },
+                        SingleAk = new SingleAk
+                        {
+                            Id = 42
+                        },
                         ChildrenShadowFk = new List<ChildShadowFk>
                         {
-                            new ChildShadowFk { Id = 51 },
-                            new ChildShadowFk { Id = 52 }
+                            new ChildShadowFk
+                            {
+                                Id = 51
+                            },
+                            new ChildShadowFk
+                            {
+                                Id = 52
+                            }
                         },
-                        SingleShadowFk = new SingleShadowFk { Id = 62 },
+                        SingleShadowFk = new SingleShadowFk
+                        {
+                            Id = 62
+                        },
                         ChildrenCompositeKey = new List<ChildCompositeKey>
                         {
-                            new ChildCompositeKey { Id = 51 },
-                            new ChildCompositeKey { Id = 52 }
+                            new ChildCompositeKey
+                            {
+                                Id = 51
+                            },
+                            new ChildCompositeKey
+                            {
+                                Id = 52
+                            }
                         },
-                        SingleCompositeKey = new SingleCompositeKey { Id = 62 }
+                        SingleCompositeKey = new SingleCompositeKey
+                        {
+                            Id = 62
+                        }
                     });
 
                 context.Add(
@@ -1990,6 +2253,19 @@ namespace Microsoft.EntityFrameworkCore
                             nose3
                         }
                     });
+
+                context.Add(
+                    new Applicant(
+                        new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga"))));
+
+                context.Add(new Pyrson(new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga")))
+                {
+                    Address = new Address
+                    {
+                        Line1 = "Line1",
+                        Line2 = "Line2"
+                    }
+                });
 
                 context.SaveChanges();
             }
