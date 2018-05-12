@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var keyValue in _dependentTypeReferenceMap)
             {
                 // ReSharper disable once CheckForReferenceEqualityInstead.2
-                if (Equals(keyValue.Key.ClrType, type)
+                if (keyValue.Key.ClrType.IsAssignableFrom(type)
                     && keyValue.Value.TryGetValue(entity, out var foundEntry))
                 {
                     if (found)
