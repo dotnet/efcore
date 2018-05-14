@@ -1421,6 +1421,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Where(e => e.OrderID < 10300).Count());
         }
 
+        [ConditionalFact]
+        public virtual void GroupBy_Key_as_part_of_element_selector()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.OrderID, o => new { o.OrderID, o.OrderDate })
+                        .Select(g => new
+                        {
+                            g.Key,
+                            Avg = g.Average(e => e.OrderID),
+                            Max = g.Max(o => o.OrderDate)
+                        }));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_composite_Key_as_part_of_element_selector()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => new { o.OrderID, o.CustomerID }, o => new { o.OrderID, o.OrderDate })
+                        .Select(g => new
+                        {
+                            g.Key,
+                            Avg = g.Average(e => e.OrderID),
+                            Max = g.Max(o => o.OrderDate)
+                        }));
+        }
+
         #endregion
 
         #region GroupByWithoutAggregate

@@ -408,13 +408,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                 var outerProjection = expressionToAdd.LiftExpressionFromSubquery(subquery);
 
-                var memberInfo = _memberInfoProjectionMapping.FirstOrDefault(
-                        kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, expression))
-                    .Key;
-
-                if (memberInfo != null)
+                foreach (var memberInfoMapping
+                            in _memberInfoProjectionMapping.Where(
+                                kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, expression))
+                                .ToList())
                 {
-                    _memberInfoProjectionMapping[memberInfo] = outerProjection;
+                    _memberInfoProjectionMapping[memberInfoMapping.Key] = outerProjection;
                 }
 
                 outerProjections.Add(outerProjection);
@@ -945,15 +944,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(memberInfo, nameof(memberInfo));
             Check.NotNull(projection, nameof(projection));
 
-            var existingMemberInfo = _memberInfoProjectionMapping.FirstOrDefault(
-                        kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, projection))
-                    .Key;
-
-            if (existingMemberInfo != null)
-            {
-                _memberInfoProjectionMapping.Remove(existingMemberInfo);
-            }
-
             _memberInfoProjectionMapping[memberInfo] = CreateUniqueProjection(projection, memberInfo.Name);
         }
 
@@ -1349,15 +1339,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     _orderBy.Insert(currentOrderingIndex, new Ordering(projection[i], oldOrdering.OrderingDirection));
                 }
 
-                var memberInfo = _memberInfoProjectionMapping.FirstOrDefault(
-                        kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, oldProjection))
-                    .Key;
-                if (memberInfo != null)
+                foreach (var memberInfoMapping
+                            in _memberInfoProjectionMapping.Where(
+                                kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, oldProjection))
+                                .ToList())
                 {
-                    _memberInfoProjectionMapping[memberInfo] = projection[i];
+                    _memberInfoProjectionMapping[memberInfoMapping.Key] = projection[i];
                 }
             }
-
         }
 
         private class SqlTableReferenceReplacingVisitor : ExpressionVisitor
