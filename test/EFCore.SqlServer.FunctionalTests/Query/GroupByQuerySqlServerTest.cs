@@ -462,6 +462,45 @@ FROM (
 GROUP BY [t].[Key]");
         }
 
+        public override void GroupBy_Constant_with_element_selector_Select_Sum()
+        {
+            base.GroupBy_Constant_with_element_selector_Select_Sum();
+
+            AssertSql(
+                @"SELECT SUM([t].[OrderID]) AS [Sum]
+FROM (
+    SELECT [o].[OrderID], [o].[OrderDate], 2 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
+        public override void GroupBy_Constant_with_element_selector_Select_Sum2()
+        {
+            base.GroupBy_Constant_with_element_selector_Select_Sum2();
+
+            AssertSql(
+                @"SELECT SUM([t].[OrderID]) AS [Sum]
+FROM (
+    SELECT [o].[OrderID], 2 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
+        public override void GroupBy_Constant_with_element_selector_Select_Sum3()
+        {
+            base.GroupBy_Constant_with_element_selector_Select_Sum3();
+
+            AssertSql(
+                @"SELECT SUM([t].[OrderID]) AS [Sum]
+FROM (
+    SELECT [o].[OrderID], [o].[OrderDate], [o].[CustomerID], 2 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
         public override void GroupBy_after_predicate_Constant_Select_Sum_Min_Key_Max_Avg()
         {
             base.GroupBy_after_predicate_Constant_Select_Sum_Min_Key_Max_Avg();
@@ -499,6 +538,51 @@ GROUP BY [t].[Key]");
 SELECT SUM([t].[OrderID]) AS [Sum], MIN([t].[OrderID]) AS [Min], [t].[Key], MAX([t].[OrderID]) AS [Max], AVG(CAST([t].[OrderID] AS float)) AS [Avg]
 FROM (
     SELECT [o].*, @__a_0 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
+        public override void GroupBy_param_with_element_selector_Select_Sum()
+        {
+            base.GroupBy_param_with_element_selector_Select_Sum();
+
+            AssertSql(
+                @"@__a_0='2'
+
+SELECT SUM([t].[OrderID]) AS [Sum]
+FROM (
+    SELECT [o].[OrderID], [o].[OrderDate], @__a_0 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
+        public override void GroupBy_param_with_element_selector_Select_Sum2()
+        {
+            base.GroupBy_param_with_element_selector_Select_Sum2();
+
+            AssertSql(
+                @"@__a_0='2'
+
+SELECT SUM([t].[OrderID]) AS [Sum]
+FROM (
+    SELECT [o].[OrderID], @__a_0 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
+        public override void GroupBy_param_with_element_selector_Select_Sum3()
+        {
+            base.GroupBy_param_with_element_selector_Select_Sum3();
+
+            AssertSql(
+                @"@__a_0='2'
+
+SELECT SUM([t].[OrderID]) AS [Sum]
+FROM (
+    SELECT [o].[OrderID], [o].[OrderDate], [o].[CustomerID], @__a_0 AS [Key]
     FROM [Orders] AS [o]
 ) AS [t]
 GROUP BY [t].[Key]");

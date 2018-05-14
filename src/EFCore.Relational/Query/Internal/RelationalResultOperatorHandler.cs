@@ -527,11 +527,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         handlerContext.QueryModelVisitor.VisitSelectClause(
                             new SelectClause(groupResultOperator.ElementSelector),
                             handlerContext.QueryModel);
-
-                        if (selectExpression.Projection.Count > 1)
-                        {
-                            selectExpression.ClearProjection();
-                        }
                     }
 
                     foreach (var keyValue in memberInfoMappings)
@@ -570,6 +565,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
 
                         key = new[] { projection };
+                    }
+
+                    if (selectExpression.Projection.Count > 1)
+                    {
+                        selectExpression.ClearProjection();
                     }
 
                     selectExpression.AddToGroupBy(key);
