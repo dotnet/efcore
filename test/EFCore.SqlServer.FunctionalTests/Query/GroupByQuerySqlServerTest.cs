@@ -1289,6 +1289,26 @@ FROM [Orders] AS [o]
 ORDER BY [o].[CustomerID]");
         }
 
+        public override void GroupBy_Key_as_part_of_element_selector()
+        {
+            base.GroupBy_Key_as_part_of_element_selector();
+
+            AssertSql(
+                @"SELECT [o].[OrderID] AS [Key], AVG(CAST([o].[OrderID] AS float)) AS [Avg], MAX([o].[OrderDate]) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]");
+        }
+
+        public override void GroupBy_composite_Key_as_part_of_element_selector()
+        {
+            base.GroupBy_composite_Key_as_part_of_element_selector();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], AVG(CAST([o].[OrderID] AS float)) AS [Avg], MAX([o].[OrderDate]) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID], [o].[CustomerID]");
+        }
+
         public override void GroupBy_anonymous()
         {
             base.GroupBy_anonymous();
