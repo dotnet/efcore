@@ -73,8 +73,34 @@ namespace Microsoft.Data.Sqlite
                     Assert.True(hasData);
 
                     var buffer = new byte[2];
-                    reader.GetBytes(0, 1, buffer, 0, buffer.Length);
+                    long bytesRead = reader.GetBytes(0, 1, buffer, 0, buffer.Length);
+                    Assert.Equal(2, bytesRead);
                     Assert.Equal(new byte[2] { 0x7E, 0x57 }, buffer);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetBytes_works_with_overflow()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var hugeBuffer = new byte[1024];
+                    long bytesRead = reader.GetBytes(0, 1, hugeBuffer, 0, hugeBuffer.Length);
+                    Assert.Equal(3, bytesRead);
+
+                    var correctBytes = new byte[3] { 0x7E, 0x57, 0x43 };
+                    for(int i = 0; i < bytesRead; i++)
+                    {
+                        Assert.Equal(correctBytes[i], hugeBuffer[i]);
+                    }
                 }
             }
         }
@@ -108,6 +134,31 @@ namespace Microsoft.Data.Sqlite
                     var buffer = new char[2];
                     reader.GetChars(0, 1, buffer, 0, buffer.Length);
                     Assert.Equal(new char[2] { 'e', 's' }, buffer);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetChars_works_with_overflow()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var hugeBuffer = new char[1024];
+                    long charsRead = reader.GetChars(0, 1, hugeBuffer, 0, hugeBuffer.Length);
+                    Assert.Equal(3, charsRead);
+
+                    var correctBytes = new char[3] { 'e', 's', 't' };
+                    for(int i = 0; i < charsRead; i++)
+                    {
+                        Assert.Equal(correctBytes[i], hugeBuffer[i]);
+                    }
                 }
             }
         }

@@ -175,15 +175,21 @@ namespace Microsoft.Data.Sqlite
         public virtual long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
             var blob = GetCachedBlob(ordinal);
-            Array.Copy(blob, dataOffset, buffer, bufferOffset, length);
-            return length;
+
+            long bytesToRead = (long)blob.Length - dataOffset;
+            bytesToRead = System.Math.Min(bytesToRead, length);
+            Array.Copy(blob, dataOffset, buffer, bufferOffset, bytesToRead);
+            return bytesToRead;
         }
 
         public virtual long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
             var text = GetString(ordinal);
-            text.CopyTo((int)dataOffset, buffer, bufferOffset, length);
-            return length;
+
+            int charsToRead = text.Length - (int)dataOffset;
+            charsToRead = System.Math.Min(charsToRead, length);
+            text.CopyTo((int)dataOffset, buffer, bufferOffset, charsToRead);
+            return charsToRead;
         }
 
         public virtual Stream GetStream(int ordinal)
