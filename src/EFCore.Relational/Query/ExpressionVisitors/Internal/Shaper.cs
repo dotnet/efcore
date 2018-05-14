@@ -114,8 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Shaper Unwrap([NotNull] IQuerySource querySource)
-        {
-            return _querySource == querySource ? this : null;
-        }
+            => _querySource == querySource ? this : null;
     }
 }

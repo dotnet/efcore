@@ -35,11 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="relationalValueBufferFactoryFactory"> The relational value buffer factory. </param>
         /// <param name="dataReader"> The data reader. </param>
+        /// <param name="richDataErrorHandling"> Generate rich data error handling support. </param>
         /// <returns>
         ///     The new value buffer factory.
         /// </returns>
         IRelationalValueBufferFactory CreateValueBufferFactory(
             [NotNull] IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory,
-            [NotNull] DbDataReader dataReader);
+            [NotNull] DbDataReader dataReader,
+            bool richDataErrorHandling);
     }
 }

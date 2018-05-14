@@ -187,6 +187,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void EnableRichDataErrorHandling_on_generic_builder_returns_generic_builder()
+        {
+            GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableRichDataErrorHandling());
+        }
+
+        [Fact]
         public void UseQueryTrackingBehavior_on_generic_builder_returns_generic_builder()
         {
             var optionsBuilder = GenericCheck(

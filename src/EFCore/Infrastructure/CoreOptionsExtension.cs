@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private ILoggerFactory _loggerFactory;
         private IMemoryCache _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
+        private bool _richDataErrorHandingEnabled;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private IDictionary<Type, Type> _replacedServices;
         private int? _maxPoolSize;
@@ -63,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _loggerFactory = copyFrom.LoggerFactory;
             _memoryCache = copyFrom.MemoryCache;
             _sensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
+            _richDataErrorHandingEnabled = copyFrom.IsRichDataErrorHandingEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
@@ -173,6 +175,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
+        /// <param name="richDataErrorHandingEnabled"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual CoreOptionsExtension WithRichDataErrorHandling(bool richDataErrorHandingEnabled)
+        {
+            var clone = Clone();
+
+            clone._richDataErrorHandingEnabled = richDataErrorHandingEnabled;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
         /// <param name="queryTrackingBehavior"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual CoreOptionsExtension WithQueryTrackingBehavior(QueryTrackingBehavior queryTrackingBehavior)
@@ -239,6 +256,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The option set from the <see cref="DbContextOptionsBuilder.EnableSensitiveDataLogging" /> method.
         /// </summary>
         public virtual bool IsSensitiveDataLoggingEnabled => _sensitiveDataLoggingEnabled;
+
+        /// <summary>
+        ///     The option set from the <see cref="DbContextOptionsBuilder.EnableRichDataErrorHandling" /> method.
+        /// </summary>
+        public virtual bool IsRichDataErrorHandingEnabled => _richDataErrorHandingEnabled;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseModel" /> method.
@@ -401,6 +423,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (_sensitiveDataLoggingEnabled)
                     {
                         builder.Append("SensitiveDataLoggingEnabled ");
+                    }
+
+                    if (_richDataErrorHandingEnabled)
+                    {
+                        builder.Append("RichDataErrorHandlingEnabled ");
                     }
 
                     if (_maxPoolSize != null)

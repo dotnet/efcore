@@ -79,6 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private IRelationalValueBufferFactory _valueBufferFactory;
+        
+        private readonly bool _richDataErrorHandling;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -86,10 +88,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public ShaperCommandContext(
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] Func<IQuerySqlGenerator> querySqlGeneratorFactory)
+            [NotNull] Func<IQuerySqlGenerator> querySqlGeneratorFactory,
+            bool richDataErrorHandling)
         {
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
+            
+            _richDataErrorHandling = richDataErrorHandling;
         }
 
         /// <summary>
@@ -144,19 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => NonCapturingLazyInitializer
                 .EnsureInitialized(
                     ref _valueBufferFactory,
-                    new FactoryAndReader(ValueBufferFactoryFactory, dataReader),
-                    s => QuerySqlGeneratorFactory().CreateValueBufferFactory(s.Factory, s.Reader));
-
-        private readonly struct FactoryAndReader
-        {
-            public readonly IRelationalValueBufferFactoryFactory Factory;
-            public readonly DbDataReader Reader;
-
-            public FactoryAndReader(IRelationalValueBufferFactoryFactory factory, DbDataReader reader)
-            {
-                Factory = factory;
-                Reader = reader;
-            }
-        }
+                    (ValueBufferFactoryFactory, dataReader, _richDataErrorHandling),
+                    vt => QuerySqlGeneratorFactory().CreateValueBufferFactory(
+                        vt.ValueBufferFactoryFactory, vt.dataReader, vt._richDataErrorHandling));
     }
 }

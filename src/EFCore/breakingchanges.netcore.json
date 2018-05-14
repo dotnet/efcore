@@ -113,5 +113,15 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
     "MemberId": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IServiceProperty> GetServiceProperties()",
     "Kind": "Addition"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGeneratorDependencies",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext currentContext)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "protected struct Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGenerator+CompiledQueryCacheKey",
+    "MemberId": "public .ctor(System.Linq.Expressions.Expression query, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.QueryTrackingBehavior queryTrackingBehavior, System.Boolean async)",                                                                                                                               
+    "Kind": "Removal"
   }
 ]

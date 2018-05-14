@@ -93,15 +93,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var mappingSource = Dependencies.TypeMappingSource;
 
             return Create(valueTypes.Select(
-                (t, i) => new TypeMaterializationInfo(t, null, mappingSource, indexMap?[i] ?? -1)).ToList());
+                (t, i) => new TypeMaterializationInfo(t, null, mappingSource, indexMap?[i] ?? -1)).ToList(), true);
         }
 
         /// <summary>
         ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
         /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
+        /// <param name="richDataErrorHandling"> Generate rich data error handling support. </param>
         /// <returns> The newly created <see cref="IRelationalValueBufferFactoryFactory" />. </returns>
-        public virtual IRelationalValueBufferFactory Create(IReadOnlyList<TypeMaterializationInfo> types)
+        public virtual IRelationalValueBufferFactory Create(
+            IReadOnlyList<TypeMaterializationInfo> types, bool richDataErrorHandling)
         {
             Check.NotNull(types, nameof(types));
 

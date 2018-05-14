@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -46,13 +47,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="model"> The model that queries will be written against. </param>
         /// <param name="currentContext"> The context that queries will be executed for. </param>
-        public CompiledQueryCacheKeyGeneratorDependencies([NotNull] IModel model, [NotNull] ICurrentDbContext currentContext)
+        /// <param name="contextOptions"> Options for the current <see cref="DbContext" /> instance. </param>
+        public CompiledQueryCacheKeyGeneratorDependencies(
+            [NotNull] IModel model,
+            [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IDbContextOptions contextOptions)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(contextOptions, nameof(contextOptions));
 
             Model = model;
             Context = currentContext;
+            ContextOptions = contextOptions;
         }
 
         /// <summary>
@@ -66,12 +73,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         public ICurrentDbContext Context { get; }
 
         /// <summary>
+        ///     Options for the current <see cref="DbContext" /> instance.
+        /// </summary>
+        public IDbContextOptions ContextOptions { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="model"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IModel model)
-            => new CompiledQueryCacheKeyGeneratorDependencies(model, Context);
+            => new CompiledQueryCacheKeyGeneratorDependencies(model, Context, ContextOptions);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -79,6 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new CompiledQueryCacheKeyGeneratorDependencies(Model, currentContext);
+            => new CompiledQueryCacheKeyGeneratorDependencies(Model, currentContext, ContextOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="contextOptions"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IDbContextOptions contextOptions)
+            => new CompiledQueryCacheKeyGeneratorDependencies(Model, Context, contextOptions);
     }
 }

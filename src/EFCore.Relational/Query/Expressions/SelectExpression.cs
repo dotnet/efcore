@@ -726,16 +726,65 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                                 ? ((UnaryExpression)e).Operand.Type
                                 : e.Type;
 
+                            bool? fromLeftOuterJoin = null;
+                            
+                            var originatingColumnExpression = e.FindOriginatingColumnExpression();
+
+                            if (originatingColumnExpression != null)
+                            {
+                                var tablePath = new Stack<TableExpressionBase>();
+                            
+                                ComputeTablePath(this, originatingColumnExpression, tablePath);
+                                
+                                fromLeftOuterJoin = tablePath.Any(t => t is LeftOuterJoinExpression);
+                            }
+                            
                             return new TypeMaterializationInfo(
                                 queryType,
                                 e.FindProperty(queryType),
-                                Dependencies.TypeMappingSource);
+                                Dependencies.TypeMappingSource,
+                                fromLeftOuterJoin: fromLeftOuterJoin);
                         }))
                 {
                     yield return typeMaterializationInfo;
                 }
             }
         }
+
+        private static bool ComputeTablePath(
+            TableExpressionBase tableExpression, 
+            ColumnExpression columnExpression, 
+            Stack<TableExpressionBase> tablePath)
+        {
+            tablePath.Push(tableExpression);
+            
+            if (tableExpression == columnExpression.Table)
+            {
+                return true;
+            }
+            
+            switch (tableExpression)
+            {
+                case SelectExpression selectExpression:
+                    foreach (var table in selectExpression._tables)
+                    {
+                        if (ComputeTablePath(table, columnExpression, tablePath))
+                        {
+                            return true;   
+                        }
+                    }
+                
+                    break;
+                
+                case JoinExpressionBase joinExpression:
+                    return ComputeTablePath(joinExpression.TableExpression, columnExpression, tablePath);
+            }
+            
+            tablePath.Pop();
+            
+            return false;
+        }
+        
 
         /// <summary>
         ///     Sets an expression as the single projected expression in this SelectExpression.
