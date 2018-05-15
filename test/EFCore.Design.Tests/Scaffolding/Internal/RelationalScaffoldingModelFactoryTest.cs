@@ -1644,6 +1644,41 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").Relational().ColumnType);
         }
 
+        [Fact]
+        public void Unmapped_column_with_underlying_store_type_is_ignored()
+        {
+            var columnWithUnknownType = new DatabaseColumn
+            {
+                Name = "ColumnWithUnknownStoreType",
+                StoreType = "unknown_type_alias"
+            };
+
+            columnWithUnknownType.SetUnderlyingStoreType("unknown_type");
+
+            var dbModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "Table",
+                        Columns =
+                        {
+                            IdColumn,
+                            columnWithUnknownType
+                        },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+
+            var model = _factory.Create(dbModel, false);
+
+            var columns = model.FindEntityType("Table").GetProperties().ToList();
+
+            Assert.Equal(1, columns.Count);
+        }
+
         public class FakePluralizer : IPluralizer
         {
             public string Pluralize(string name)
