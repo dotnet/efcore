@@ -98,6 +98,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
+        public virtual void Include_bad_navigation_property_simple()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.IncludeBadNavigation("ArcticMonkeys", nameof(Order)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Set<Order>().Include("ArcticMonkeys").ToList()).Message);
+            }
+        }
+
+        [Fact]
         public virtual void Include_property_expression_invalid()
         {
             var anonymousType = new { Customer = default(Customer), OrderDetails = default(ICollection<OrderDetail>) }.GetType();
