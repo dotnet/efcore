@@ -4664,6 +4664,18 @@ WHERE @_outer_CustomerID1 = [e1].[CustomerID]
 ORDER BY [e1].[OrderDate]");
         }
 
+        public override void SelectMany_after_client_method()
+        {
+            base.SelectMany_after_client_method();
+
+            AssertContainsSql(
+                @"SELECT [c.Orders0].[CustomerID], [c.Orders0].[OrderDate]
+FROM [Orders] AS [c.Orders0]",
+                //
+                @"SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM [Customers] AS [c0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

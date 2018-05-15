@@ -4350,5 +4350,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                           A = (o != null ? o.OrderDate : null)
                       });
         }
+
+        [ConditionalFact]
+        public virtual void SelectMany_after_client_method()
+        {
+            AssertQueryScalar<Customer>(
+                cs => cs.OrderBy(c => ClientOrderBy(c))
+                        .SelectMany(c => c.Orders)
+                        .Distinct()
+                        .Select(o => o.OrderDate));
+        }
+
+        private static string ClientOrderBy(Customer c) => c.CustomerID;
     }
 }

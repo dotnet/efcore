@@ -57,6 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientOrderBy;
         private bool _requiresClientResultOperator;
 
+        private QueryModel _queryModel;
+
         private readonly List<GroupJoinClause> _unflattenedGroupJoinClauses = new List<GroupJoinClause>();
         private readonly List<AdditionalFromClause> _flattenedAdditionalFromClauses = new List<AdditionalFromClause>();
 
@@ -375,6 +377,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void VisitQueryModel(QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
+
+            _queryModel = queryModel;
 
             base.VisitQueryModel(queryModel);
 
@@ -2152,7 +2156,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         if (!subQueryModelVisitor.RequiresClientProjection)
                         {
-                            selectExpression = subQueryModelVisitor.Queries.SingleOrDefault();
+                            selectExpression
+                                = subQueryModelVisitor.Queries.Count == 1
+                                    ? subQueryModelVisitor.Queries.First()
+                                    : subQueryModelVisitor.TryGetQuery(
+                                        subQueryModelVisitor._queryModel.SelectClause.Selector
+                                            .TryGetReferencedQuerySource());
 
                             selectExpression?
                                 .AddToProjection(
