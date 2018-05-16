@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
-    <AssemblyName>Microsoft.EntityFrameworkCore.DocumentDb.Tests</AssemblyName>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Cosmos.Sql.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
   </PropertyGroup>
 
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.DocumentDb.FunctionalTests\EFCore.DocumentDb.FunctionalTests.csproj" />
+    <ProjectReference Include="..\EFCore.Cosmos.Sql.FunctionalTests\EFCore.Cosmos.Sql.FunctionalTests.csproj" />
     <ProjectReference Include="..\EFCore.Tests\EFCore.Tests.csproj" />
   </ItemGroup>
 
