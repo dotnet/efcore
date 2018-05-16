@@ -2,5 +2,10 @@
   {
     "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqliteOptionsExtension>",
     "Kind": "Removal"
-  }
+  },  
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
+      "MemberId": "protected override System.Void ColumnDefinition(System.String schema, System.String table, System.String name, System.Type clrType, System.String type, System.Nullable<System.Boolean> unicode, System.Nullable<System.Int32> maxLength, System.Boolean rowVersion, System.Boolean nullable, System.Object defaultValue, System.String defaultValueSql, System.String computedColumnSql, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable annotatable, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder)",
+      "Kind": "Removal"
+    }
 ]

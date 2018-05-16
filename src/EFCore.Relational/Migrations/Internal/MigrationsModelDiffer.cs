@@ -958,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             columnOperation.ColumnType = property.GetConfiguredColumnType();
             columnOperation.MaxLength = property.GetMaxLength();
             columnOperation.IsUnicode = property.IsUnicode();
-            columnOperation.IsFixedLength = property.Relational().IsFixedLength;
+            columnOperation.IsFixedLength = annotations.IsFixedLength;
             columnOperation.IsRowVersion = property.ClrType == typeof(byte[])
                                            && property.IsConcurrencyToken
                                            && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
