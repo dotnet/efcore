@@ -10,7 +10,11 @@
     <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp22PackageVersion)" />
 
     <ExcludeFromTest Include="$(RepositoryRoot)samples\OracleProvider\test\OracleProvider.FunctionalTests\*.csproj" />
+    <ExcludeFromPack Include="$(RepositoryRoot)src\EFCore.Cosmos.Sql\*.csproj" />
+    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Cosmos.Sql.FunctionalTests\*.csproj" />
+    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Cosmos.Sql.Tests\*.csproj" />
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Runtime.sln" />
+    <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Cosmos.sln" />
   </ItemGroup>
   <PropertyGroup>
     <!-- These properties are use by the automation that updates dependencies.props -->
