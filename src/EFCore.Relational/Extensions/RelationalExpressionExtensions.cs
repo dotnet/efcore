@@ -115,5 +115,29 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return null;
         }
+        
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static ColumnExpression FindOriginatingColumnExpression([NotNull] this Expression expression)
+        {
+            switch (expression)
+            {
+                case ColumnExpression columnExpression:
+                    return columnExpression;
+                
+                case ColumnReferenceExpression columnReferenceExpression:
+                    return columnReferenceExpression.Expression.FindOriginatingColumnExpression();
+                
+                case AliasExpression aliasExpression:
+                    return aliasExpression.Expression.FindOriginatingColumnExpression();
+                
+                case UnaryExpression unaryExpression:
+                    return unaryExpression.Operand.FindOriginatingColumnExpression();
+            }
+
+            return null;
+        }
     }
 }

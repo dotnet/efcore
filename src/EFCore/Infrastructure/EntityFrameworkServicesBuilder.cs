@@ -84,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(INodeTypeProviderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISingletonOptionsInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ILoggingOptions), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ICoreSingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelValidator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICompiledQueryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQueryAnnotationExtractor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -261,7 +262,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ISingletonOptionsInitializer, SingletonOptionsInitializer>();
             TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
             TryAdd<ILoggingOptions, LoggingOptions>();
+            TryAdd<ICoreSingletonOptions, CoreSingletonOptions>();
             TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());
+            TryAdd<ISingletonOptions, ICoreSingletonOptions>(p => p.GetService<ICoreSingletonOptions>());
             TryAdd(p => GetContextServices(p).Model);
             TryAdd(p => GetContextServices(p).CurrentContext);
             TryAdd(p => GetContextServices(p).ContextOptions);

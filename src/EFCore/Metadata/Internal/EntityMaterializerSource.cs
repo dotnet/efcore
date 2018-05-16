@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -47,64 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue TryReadValue<TValue>(
-            in ValueBuffer valueBuffer,
-            int index,
-            IPropertyBase property = null)
-        {
-            var untypedValue = valueBuffer[index];
-            try
-            {
-                return (TValue)untypedValue;
-            }
-            catch (Exception e)
-            {
-                ThrowReadValueException<TValue>(e, untypedValue, property);
-            }
-
-            return default;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static readonly MethodInfo ThrowReadValueExceptionMethod
-            = typeof(EntityMaterializerSource).GetTypeInfo()
-                .GetDeclaredMethod(nameof(ThrowReadValueException));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TValue ThrowReadValueException<TValue>(
-            Exception exception, object value, IPropertyBase property = null)
-        {
-            var expectedType = typeof(TValue);
-            var actualType = value?.GetType();
-
-            string message;
-
-            if (property != null)
-            {
-                var entityType = property.DeclaringType.DisplayName();
-                var propertyName = property.Name;
-
-                message
-                    = exception is NullReferenceException
-                        ? CoreStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
-                        : exception is InvalidCastException
-                            ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
-                            : CoreStrings.ErrorMaterializingProperty(entityType, propertyName);
-            }
-            else
-            {
-                message
-                    = exception is NullReferenceException
-                        ? CoreStrings.ErrorMaterializingValueNullReference(expectedType)
-                        : exception is InvalidCastException
-                            ? CoreStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
-                            : CoreStrings.ErrorMaterializingValue;
-            }
-
-            throw new InvalidOperationException(message, exception);
-        }
+            in ValueBuffer valueBuffer, int index, IPropertyBase property)
+            => (TValue)valueBuffer[index];
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

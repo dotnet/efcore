@@ -241,7 +241,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 using (var context = new NullKeyContext(Fixture.CreateOptions(testStore)))
                 {
                     Assert.Equal(
-                        CoreStrings.InvalidKeyValue("ZeroKey", "Id"),
+                        CoreStrings.ErrorMaterializingPropertyNullReference("ZeroKey", "Id", typeof(int)),
                         Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
                 }
             }

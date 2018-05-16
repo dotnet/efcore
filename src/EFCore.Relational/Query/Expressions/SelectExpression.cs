@@ -657,11 +657,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         private int FindProjectionIndex(Expression expression)
-        {
-            return _projection.FindIndex(
+            => _projection.FindIndex(
                 e => ExpressionEqualityComparer.Instance.Equals(e, expression)
-                    || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, expression));
-        }
+                     || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, expression));
 
         /// <summary>
         ///     Replace the projection expressions in this SelectExpression.
@@ -725,10 +723,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                                 ? ((UnaryExpression)e).Operand.Type
                                 : e.Type;
 
+                            bool? fromLeftOuterJoin = null;
+                            
+                            var originatingColumnExpression = e.FindOriginatingColumnExpression();
+
+                            if (originatingColumnExpression != null)
+                            {
+                                var tablePath = new Stack<TableExpressionBase>();
+                            
+                                ComputeTablePath(this, originatingColumnExpression, tablePath);
+                                
+                                fromLeftOuterJoin = tablePath.Any(t => t is LeftOuterJoinExpression);
+                            }
+                            
                             return new TypeMaterializationInfo(
                                 queryType,
                                 e.FindProperty(queryType),
-                                Dependencies.TypeMappingSource);
+                                Dependencies.TypeMappingSource,
+                                fromLeftOuterJoin);
                         }))
                 {
                     yield return typeMaterializationInfo;
@@ -736,6 +748,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        private static bool ComputeTablePath(
+            TableExpressionBase tableExpression, 
+            ColumnExpression columnExpression, 
+            Stack<TableExpressionBase> tablePath)
+        {
+            tablePath.Push(tableExpression);
+            
+            if (tableExpression == columnExpression.Table)
+            {
+                return true;
+            }
+            
+            switch (tableExpression)
+            {
+                case SelectExpression selectExpression:
+                    foreach (var table in selectExpression._tables)
+                    {
+                        if (ComputeTablePath(table, columnExpression, tablePath))
+                        {
+                            return true;   
+                        }
+                    }
+                
+                    break;
+                
+                case JoinExpressionBase joinExpression:
+                    return ComputeTablePath(joinExpression.TableExpression, columnExpression, tablePath);
+            }
+            
+            tablePath.Pop();
+            
+            return false;
+        }
+        
         /// <summary>
         ///     Sets an expression as the single projected expression in this SelectExpression.
         /// </summary>

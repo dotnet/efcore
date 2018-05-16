@@ -90,6 +90,28 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Enables rich error handling of data value exceptions that occur during processing of store query results. Such errors
+        ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
+        ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated
+        ///         at runtime during processing of the data value. When this option is enabled and a data error is encountered, the
+        ///         generated exception will include details of the specific entity property that generated the error.
+        ///     </para>
+        ///     <para>
+        ///         Enabling this option incurs a small performance overhead during query execution.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> EnableRichDataErrorHandling(bool richDataErrorHandlingEnabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableRichDataErrorHandling(richDataErrorHandlingEnabled);
+        
+        /// <summary>
+        ///     <para>
         ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context. It is never
         ///         necessary to call this method since EF can obtain or create a memory cache automatically.
         ///     </para>

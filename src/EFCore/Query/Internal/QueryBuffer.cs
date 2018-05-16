@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly Dictionary<int, IDisposable> _includedCollections
             = new Dictionary<int, IDisposable>(); // IDisposable as IEnumerable/IAsyncEnumerable
 
-        private Dictionary<int, (IDisposable Enumerator, MaterializedAnonymousObject PreviousOriginKey)> _correlatedCollectionMetadata
+        private readonly Dictionary<int, (IDisposable Enumerator, MaterializedAnonymousObject PreviousOriginKey)> 
+            _correlatedCollectionMetadata
             = new Dictionary<int, (IDisposable, MaterializedAnonymousObject)>();
 
         /// <summary>
