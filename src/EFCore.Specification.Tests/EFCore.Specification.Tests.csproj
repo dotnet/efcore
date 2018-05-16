@@ -14,7 +14,7 @@
   <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
    <DefineConstants>$(DefineConstants);Test21</DefineConstants>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore\EFCore.csproj" />
     <ProjectReference Include="..\EFCore.Proxies\EFCore.Proxies.csproj" />
