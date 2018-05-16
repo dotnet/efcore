@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public static Shaper Create(
             [NotNull] Shaper originalShaper,
-            [NotNull] LambdaExpression materializer)
+            [NotNull] LambdaExpression materializer,
+            bool storeMaterializerExpression)
         {
             Check.NotNull(originalShaper, nameof(originalShaper));
             Check.NotNull(materializer, nameof(materializer));
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         new object[]
                         {
                             originalShaper,
-                            materializer.Compile()
+                            materializer.Compile(),
+                            storeMaterializerExpression ? materializer : null
                         });
 
             return shaper;
@@ -58,9 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         [UsedImplicitly]
         private static TypedProjectionShaper<TShaper, TIn, TOut> CreateShaperMethod<TShaper, TIn, TOut>(
             TShaper shaper,
-            Func<QueryContext, TIn, TOut> selector)
+            Func<QueryContext, TIn, TOut> selector,
+            Expression materializerExpression)
             where TShaper : Shaper, IShaper<TIn>
-            => new TypedProjectionShaper<TShaper, TIn, TOut>(shaper, selector);
+            => new TypedProjectionShaper<TShaper, TIn, TOut>(shaper, selector, materializerExpression);
 
         private class TypedProjectionShaper<TShaper, TIn, TOut> : Shaper, IShaper<TOut>
             where TShaper : Shaper, IShaper<TIn>
@@ -70,8 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public TypedProjectionShaper(
                 TShaper shaper,
-                Func<QueryContext, TIn, TOut> selector)
-                : base(shaper.QuerySource)
+                Func<QueryContext, TIn, TOut> selector,
+                Expression materializerExpression)
+                : base(shaper.QuerySource, materializerExpression)
             {
                 _shaper = shaper;
                 _selector = selector;
@@ -99,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public override Shaper WithOffset(int offset)
                 => new TypedProjectionShaper<TShaper, TIn, TOut>(
                     _shaper,
-                    _selector).AddOffset(offset);
+                    _selector,
+                    MaterializerExpression).AddOffset(offset);
 
             public override Shaper AddOffset(int offset)
             {

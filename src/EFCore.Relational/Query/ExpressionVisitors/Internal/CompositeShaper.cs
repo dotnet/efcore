@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             [NotNull] Shaper outerShaper,
             [NotNull] Shaper innerShaper,
-            [NotNull] LambdaExpression materializer)
+            [NotNull] LambdaExpression materializer,
+            bool storeMaterializerExpression)
         {
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(outerShaper, nameof(outerShaper));
@@ -47,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             querySource,
                             outerShaper,
                             innerShaper,
-                            materializer.Compile()
+                            materializer.Compile(),
+                            storeMaterializerExpression ? materializer : null
                         });
 
             return compositeShaper;
@@ -84,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             querySource,
                             outerShaper,
                             innerShaper,
-                            materializer
+                            materializer,
+                            null
                         });
 
             return compositeShaper;
@@ -100,11 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 IQuerySource querySource,
                 TOuterShaper outerShaper,
                 TInnerShaper innerShaper,
-                Func<TOuter, TInner, TResult> materializer)
+                Func<TOuter, TInner, TResult> materializer,
+                Expression materializerExpression)
             where TOuterShaper : Shaper, IShaper<TOuter>
             where TInnerShaper : Shaper, IShaper<TInner>
             => new TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>(
-                querySource, outerShaper, innerShaper, materializer);
+                querySource, outerShaper, innerShaper, materializer, materializerExpression);
 
         private class TypedCompositeShaper<TOuterShaper, TOuter, TInnerShaper, TInner, TResult>
             : Shaper, IShaper<TResult>
@@ -123,8 +127,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 IQuerySource querySource,
                 TOuterShaper outerShaper,
                 TInnerShaper innerShaper,
-                Func<TOuter, TInner, TResult> materializer)
-                : base(querySource)
+                Func<TOuter, TInner, TResult> materializer,
+                Expression materializerExpression)
+                : base(querySource, materializerExpression)
             {
                 _outerShaper = outerShaper;
                 _innerShaper = innerShaper;
@@ -158,7 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     QuerySource,
                     _outerShaper,
                     _innerShaper,
-                    _materializer).AddOffset(offset);
+                    _materializer,
+                    MaterializerExpression).AddOffset(offset);
 
             public override Shaper AddOffset(int offset)
             {
