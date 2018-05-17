@@ -344,32 +344,37 @@ FROM [ExtensionContextFilter] AS [e]
 WHERE [e].[IsEnabled] = @__ef_filter__Enabled_0");
         }
 
-        [Fact(Skip = "#11879")]
         public override void Using_DbSet_in_filter_works()
         {
             base.Using_DbSet_in_filter_works();
 
             AssertSql(
-                @"SELECT [p].[Id]
+                @"@__ef_filter__Property_0='False'
+
+SELECT [p].[Id]
 FROM [PrincipalSetFilter] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM [Dependents] AS [d]
-    WHERE [d].[PrincipalSetFilterId] = [p].[Id])");
+    FROM [Dependents] AS [p0]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [MultiContextFilter] AS [e]
+        WHERE (([e].[IsEnabled] = @__ef_filter__Property_0) AND ([e].[BossId] = 1)) AND ([e].[BossId] = [p0].[PrincipalSetFilterId])) AND ([p0].[PrincipalSetFilterId] = [p].[Id]))");
         }
 
-        [Fact(Skip = "#11879")]
         public override void Using_Context_set_method_in_filter_works()
         {
             base.Using_Context_set_method_in_filter_works();
 
             AssertSql(
-                @"SELECT [p].[Id], [p].[PrincipalSetFilterId]
+                @"@__ef_filter__Property_0='False'
+
+SELECT [p].[Id], [p].[PrincipalSetFilterId]
 FROM [Dependents] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM [PrincipalSetFilter] AS [b]
-    WHERE [b].[Id] = [p].[PrincipalSetFilterId])");
+    FROM [MultiContextFilter] AS [e]
+    WHERE (([e].[IsEnabled] = @__ef_filter__Property_0) AND ([e].[BossId] = 1)) AND ([e].[BossId] = [p].[PrincipalSetFilterId]))");
         }
 
         public override void Static_member_from_dbContext_is_inlined()

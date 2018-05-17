@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static void SetDependentFilter(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<DependentSetFilter>()
-                .HasQueryFilter(p => context.Set<PrincipalSetFilter>().Any(b => b.Id == p.PrincipalSetFilterId));
+                .HasQueryFilter(p => context.Set<MultiContextFilter>().Any(b => b.BossId == p.PrincipalSetFilterId));
         }
 
         #region EntityTypeConfigs
