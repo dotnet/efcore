@@ -3,9 +3,11 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -22,15 +24,16 @@ namespace Microsoft.Extensions.DependencyInjection
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosSqlDbOptionsExtension>>()
                 .TryAdd<IQueryContextFactory, CosmosSqlQueryContextFactory>()
-                    .TryAdd<IDatabase, CosmosSqlDatabase>()
-                    .TryAdd<IDatabaseCreator, CosmosSqlDatabaseCreator>()
-                    .TryAdd<IEntityQueryModelVisitorFactory, CosmosSqlEntityQueryModelVisitorFactory>()
-                    .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosSqlEntityQueryableExpressionVisitorFactory>()
-                    .TryAddProviderSpecificServices(
-                        b => b
-                            .TryAddScoped<CosmosClient, CosmosClient>()
+                .TryAdd<IDatabase, CosmosSqlDatabase>()
+                .TryAdd<IConventionSetBuilder, CosmosSqlConventionSetBuilder>()
+                .TryAdd<IDatabaseCreator, CosmosSqlDatabaseCreator>()
+                .TryAdd<IEntityQueryModelVisitorFactory, CosmosSqlEntityQueryModelVisitorFactory>()
+                .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosSqlEntityQueryableExpressionVisitorFactory>()
+                .TryAddProviderSpecificServices(
+                    b => b
+                        .TryAddScoped<CosmosClient, CosmosClient>()
 
-                    );
+                );
 
             builder.TryAddCoreServices();
 
