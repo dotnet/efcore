@@ -142,7 +142,7 @@
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure()' to the 'UseSqlServer' call.</value>
   </data>
   <data name="LogDefaultDecimalTypeColumn" xml:space="preserve">
-    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'ForHasColumnType()'.</value>
+    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()'.</value>
     <comment>Warning SqlServerEventId.DecimalTypeDefaultWarning string string</comment>
   </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">
