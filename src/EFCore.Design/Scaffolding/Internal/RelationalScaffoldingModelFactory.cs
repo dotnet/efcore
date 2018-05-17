@@ -856,6 +856,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 column.IsKeyOrIndex(),
                 column.IsRowVersion());
 
+            if (typeScaffoldingInfo == null)
+            {
+                return null;
+            }
+
             if (column.GetUnderlyingStoreType() != null)
             {
                 return new TypeScaffoldingInfo(
