@@ -34,8 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly bool _parameterize;
         private readonly bool _generateContextAccessors;
 
+        private readonly Dictionary<Expression, (ParameterExpression Parameter, int RefCount)> _parameterCache 
+            = new Dictionary<Expression, (ParameterExpression, int)>(ExpressionEqualityComparer.Instance);
+
         private PartialEvaluationInfo _partialEvaluationInfo;
-        private readonly Dictionary<Expression, ParameterExpression> _parameterDictionary = new Dictionary<Expression, ParameterExpression>(ExpressionEqualityComparer.Instance);
 
         private bool _inLambda;
 
@@ -84,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             finally
             {
                 _partialEvaluationInfo = oldPartialEvaluationInfo;
-                _parameterDictionary.Clear();
+                _parameterCache.Clear();
             }
         }
 
@@ -98,10 +100,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var declaringType = methodInfo.DeclaringType;
 
             if (declaringType == typeof(Queryable)
-                || declaringType == typeof(EntityFrameworkQueryableExtensions)
+                || (declaringType == typeof(EntityFrameworkQueryableExtensions)
                 && (!methodInfo.IsGenericMethod
                     || !methodInfo.GetGenericMethodDefinition()
-                        .Equals(EntityFrameworkQueryableExtensions.StringIncludeMethodInfo)))
+                        .Equals(EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
+                    && !methodInfo.GetGenericMethodDefinition()
+                        .Equals(EntityFrameworkQueryableExtensions.WithTagMethodInfo)))
             {
                 return base.VisitMethodCall(methodCallExpression);
             }
@@ -172,8 +176,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         if (newArgument.RemoveConvert() is ParameterExpression parameter)
                         {
-                            var parameterValue = _parameterValues.RemoveParameter(parameter.Name);
-
+                            var parameterValue = _parameterValues.ParameterValues[parameter.Name];
+                            
+                            if (_parameterCache.TryGetValue(argument, out var cachedParameter))
+                            {
+                                if (cachedParameter.RefCount == 1)
+                                {
+                                    _parameterCache.Remove(argument);
+                                    _parameterValues.RemoveParameter(parameter.Name);
+                                }
+                                else
+                                {
+                                    _parameterCache[argument] = (cachedParameter.Parameter, cachedParameter.RefCount - 1);
+                                }
+                            }
+                            
                             if (parameter.Type == typeof(FormattableString))
                             {
                                 if (Evaluate(methodCallExpression, out _) is IQueryable queryable)
@@ -430,9 +447,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private Expression TryExtractParameter(Expression expression)
         {
-            if (_parameterDictionary.TryGetValue(expression, out var param))
+            if (_parameterCache.TryGetValue(expression, out var cachedParameter))
             {
-                return param;
+                _parameterCache[expression] 
+                    = (cachedParameter.Parameter, cachedParameter.RefCount + 1);
+                
+                return cachedParameter.Parameter;
             }
 
             var parameterValue = Evaluate(expression, out var parameterName);
@@ -473,7 +493,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _parameterValues.AddParameter(parameterName, parameterValue);
 
             var parameter = Expression.Parameter(expression.Type, parameterName);
-            _parameterDictionary.Add(expression, parameter);
+            
+            _parameterCache.Add(expression, (parameter, 1));
 
             return parameter;
         }

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -40,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         // NB: Currently unsafe to access this outside of compiler. #11601
         private RelationalQueryCompilationContext _queryCompilationContext;
 
+        private IReadOnlyCollection<string> _tags;
+        
         private Expression _limit;
         private Expression _offset;
         private TableExpressionBase _projectStarTable;
@@ -251,6 +254,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         public virtual IReadOnlyList<Ordering> OrderBy => _orderBy;
 
+        /// <summary>
+        ///     Any tags associated with this SelectExpression.
+        /// </summary>
+        public virtual IReadOnlyCollection<string> Tags
+        {
+            get
+            {
+                if (_tags == null)
+                {
+                    _tags = _queryCompilationContext?.QueryAnnotations != null
+                                ? _queryCompilationContext.QueryAnnotations
+                                    .OfType<TagResultOperator>()
+                                    .Select(tro => tro.Tag)
+                                    .Distinct()
+                                    .ToArray()
+                                : Array.Empty<string>();
+                }
+                
+                return _tags;
+            }
+        }
+        
         /// <summary>
         ///     Makes a copy of this SelectExpression.
         /// </summary>

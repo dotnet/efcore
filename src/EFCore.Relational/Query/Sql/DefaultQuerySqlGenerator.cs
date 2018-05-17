@@ -134,11 +134,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _parametersValues = parameterValues;
             _nullComparisonTransformingVisitor = new NullComparisonTransformingVisitor(parameterValues);
             _inExpressionValuesExpandingVisitor = new InExpressionValuesExpandingVisitor(parameterValues);
+            
             IsCacheable = true;
 
+            GenerateTagsHeaderComment();
+            
             Visit(SelectExpression);
 
             return _relationalCommandBuilder.Build();
+        }
+
+        /// <summary>
+        ///     Generates the tags header comment.
+        /// </summary>
+        protected virtual void GenerateTagsHeaderComment()
+        {
+            if (SelectExpression.Tags.Count > 0)
+            {
+                _relationalCommandBuilder
+                    .Append(SingleLineComment)
+                    .Append(" EFCore: (#")
+                    .Append(SelectExpression.Tags.Join(", #"))
+                    .AppendLine(")");
+            }
         }
 
         /// <summary>
@@ -183,6 +201,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     The default alias separator.
         /// </summary>
         protected virtual string AliasSeparator { get; } = " AS ";
+        
+        /// <summary>
+        ///     The default single line comment prefix.
+        /// </summary>
+        protected virtual string SingleLineComment { get; } = "--";
 
         /// <summary>
         ///     Visit a top-level SelectExpression.
