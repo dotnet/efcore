@@ -159,8 +159,23 @@ namespace Microsoft.EntityFrameworkCore
                 var param3 = -1234567890123456789L;
                 Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<long>(e, nameof(BuiltInDataTypes.TestInt64)) == param3).ToList().Single());
 
-                var param4 = -1.23456789;
-                Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) == param4).ToList().Single());
+                double? param4 = -1.23456789;
+                if (Fixture.StrictEquality)
+                {
+                    Assert.Same(entity, set.Where(e => e.Id == 11
+                                                       && EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) == param4).ToList().Single());
+
+                }
+                else
+                {
+                    double? param4l = -1.234567891;
+                    double? param4h = -1.234567889;
+                    Assert.Same(entity, set.Where(e => e.Id == 11
+                                                       && (EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) == param4
+                                                           || (EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) > param4l
+                                                               && EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) < param4h)))
+                        .ToList().Single());
+                }
 
                 var param5 = -1234567890.01M;
                 Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<decimal>(e, nameof(BuiltInDataTypes.TestDecimal)) == param5).ToList().Single());
@@ -181,7 +196,20 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 var param9 = -1.234F;
-                Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) == param9).ToList().Single());
+                if (Fixture.StrictEquality)
+                {
+                    Assert.Same(entity, set.Where(e => e.Id == 11
+                                                       && EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) == param9).ToList().Single());
+                }
+                else
+                {
+                    var param9l = -1.2341F;
+                    var param9h = -1.2339F;
+                    Assert.Same(entity, set.Where(e => e.Id == 11
+                                                       && (EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) == param9
+                                                           || (EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) > param9l
+                                                               && EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) < param9h))).ToList().Single());
+                }
 
                 var param10 = true;
                 Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<bool>(e, nameof(BuiltInDataTypes.TestBoolean)) == param10).ToList().Single());
@@ -270,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private EntityEntry<TEntity> AddTestBuiltInDataTypes<TEntity>(DbSet<TEntity> set)
+        protected EntityEntry<TEntity> AddTestBuiltInDataTypes<TEntity>(DbSet<TEntity> set)
             where TEntity : BuiltInDataTypesBase, new()
         {
             var entityEntry = set.Add(new TEntity { Id = 11 });
@@ -354,7 +382,22 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<long?>(e, nameof(BuiltInNullableDataTypes.TestNullableInt64)) == param3).ToList().Single());
 
                 double? param4 = -1.23456789;
-                Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) == param4).ToList().Single());
+                if (Fixture.StrictEquality)
+                {
+                    Assert.Same(entity, set.Where(e => e.Id == 11
+                                                       && EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) == param4).ToList().Single());
+
+                }
+                else
+                {
+                    double? param4l = -1.234567891;
+                    double? param4h = -1.234567889;
+                    Assert.Same(entity, set.Where(e => e.Id == 11
+                                                       && (EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) == param4
+                                                           || (EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) > param4l
+                                                               && EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) < param4h)))
+                        .ToList().Single());
+                }
 
                 decimal? param5 = -1234567890.01M;
                 Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<decimal?>(e, nameof(BuiltInNullableDataTypes.TestNullableDecimal)) == param5).ToList().Single());
@@ -375,7 +418,22 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 float? param9 = -1.234F;
-                Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) == param9).ToList().Single());
+                if (Fixture.StrictEquality)
+                {
+                    Assert.Same(entity, set.Where(e => e.Id == 11
+                                                       && EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) == param9).ToList().Single());
+
+                }
+                else
+                {
+                    float? param9l = -1.2341F;
+                    float? param9h = -1.2339F;
+                    Assert.Same(entity, set.Where(e => e.Id == 11
+                                                       && (EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) == param9
+                                                           || (EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) > param9l
+                                                               && EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) < param9h)))
+                        .ToList().Single());
+                }
 
                 bool? param10 = true;
                 Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<bool?>(e, nameof(BuiltInNullableDataTypes.TestNullableBoolean)) == param10).ToList().Single());
@@ -464,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private EntityEntry<TEntity> AddTestBuiltInNullableDataTypes<TEntity>(DbSet<TEntity> set)
+        protected EntityEntry<TEntity> AddTestBuiltInNullableDataTypes<TEntity>(DbSet<TEntity> set)
             where TEntity : BuiltInNullableDataTypesBase, new()
         {
             var entityEntry = set.Add(new TEntity { Id = 11 });
@@ -557,7 +615,9 @@ namespace Microsoft.EntityFrameworkCore
                     entity,
                     Fixture.StrictEquality
                         ? context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableDouble == -1.23456789).ToList().Single()
-                        : context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && -e.TestNullableDouble + -1.23456789 < 1E-5).ToList().Single());
+                        : context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12
+                                                                             && -e.TestNullableDouble + -1.23456789 < 1E-5
+                                                                             && -e.TestNullableDouble + -1.23456789 > -1E-5).ToList().Single());
 
                 Assert.Same(
                     entity,

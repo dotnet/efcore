@@ -1171,7 +1171,7 @@ WHERE 0 = 1");
             AssertSql(
                 @"SELECT [c].[Id], [c].[BoolA], [c].[BoolB], [c].[BoolC], [c].[IntA], [c].[IntB], [c].[IntC], [c].[NullableBoolA], [c].[NullableBoolB], [c].[NullableBoolC], [c].[NullableIntA], [c].[NullableIntB], [c].[NullableIntC], [c].[NullableStringA], [c].[NullableStringB], [c].[NullableStringC], [c].[StringA], [c].[StringB], [c].[StringC]
 FROM (
-    SELECT * FROM ""Entities1""
+    SELECT * FROM Entities1
 ) AS [c]
 WHERE [c].[StringA] = [c].[StringB]");
         }

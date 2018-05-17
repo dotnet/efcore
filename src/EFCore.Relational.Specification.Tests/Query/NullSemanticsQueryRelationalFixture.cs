@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class NullSemanticsQueryRelationalFixture : SharedStoreFixtureBase<NullSemanticsContext>
     {
+        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
         protected override string StoreName { get; } = "NullSemanticsQueryTest";
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 

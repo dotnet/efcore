@@ -63,7 +63,7 @@ FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [o].[CustomerID]
     FROM (
-        select * from ""Orders""
+        select * from Orders
     ) AS [o]
 ) AS [t]
 WHERE [t].[CustomerID] = [c].[CustomerID]");
@@ -78,7 +78,7 @@ WHERE [t].[CustomerID] = [c].[CustomerID]");
 FROM (
     SELECT [o].[CustomerID]
     FROM (
-        select * from ""Orders""
+        select * from Orders
     ) AS [o]
 ) AS [t]
 WHERE [t].[CustomerID] = N'ALFKI'");
@@ -93,7 +93,7 @@ WHERE [t].[CustomerID] = N'ALFKI'");
 FROM (
     SELECT [o].[CustomerID]
     FROM (
-        select * from ""Orders""
+        select * from Orders
     ) AS [o]
 ) AS [t]
 LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[CustomerID]
@@ -109,7 +109,7 @@ WHERE [t].[CustomerID] = N'ALFKI'");
 FROM (
     SELECT [o].[CustomerID]
     FROM (
-        select * from ""Orders""
+        select * from Orders
     ) AS [o]
 ) AS [t]
 LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[CustomerID]
@@ -123,7 +123,7 @@ INNER JOIN (
     FROM (
         SELECT [o0].[CustomerID]
         FROM (
-            select * from ""Orders""
+            select * from Orders
         ) AS [o0]
     ) AS [t0]
     LEFT JOIN [Customers] AS [ov.Customer0] ON [t0].[CustomerID] = [ov.Customer0].[CustomerID]
@@ -141,7 +141,7 @@ ORDER BY [t1].[CustomerID]");
 FROM (
     SELECT [o].[CustomerID]
     FROM (
-        select * from ""Orders""
+        select * from Orders
     ) AS [o]
 ) AS [t]
 LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[CustomerID]
@@ -157,7 +157,7 @@ WHERE [ov.Customer].[City] = N'Seattle'");
 FROM (
     SELECT [o].[CustomerID]
     FROM (
-        select * from ""Orders""
+        select * from Orders
     ) AS [o]
 ) AS [t]
 LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[CustomerID]

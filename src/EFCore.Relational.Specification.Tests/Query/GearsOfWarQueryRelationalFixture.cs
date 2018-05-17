@@ -10,6 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
     {
+        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

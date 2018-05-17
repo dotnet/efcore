@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             modelBuilder
                 .Query<OrderQuery>()
                 .ToQuery(() => Orders
-                    .FromSql("select * from \"Orders\"")
+                    .FromSql("select * from Orders")
                     .Select(
                         o => new OrderQuery
                         {
