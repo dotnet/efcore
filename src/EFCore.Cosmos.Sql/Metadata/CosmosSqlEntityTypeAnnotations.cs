@@ -45,5 +45,86 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata
                 CosmosSqlAnnotationNames.CollectionName,
                 Check.NullButNotEmpty(value, nameof(value)));
         }
+
+        public virtual IProperty DiscriminatorProperty
+        {
+            get
+            {
+                if (EntityType.BaseType != null)
+                {
+                    return GetAnnotations(EntityType.RootType()).DiscriminatorProperty;
+                }
+
+                var propertyName = (string)Annotations.Metadata[CosmosSqlAnnotationNames.DiscriminatorProperty];
+
+                return propertyName == null ? null : EntityType.FindProperty(propertyName);
+            }
+            [param: CanBeNull]
+            set => SetDiscriminatorProperty(value);
+        }
+
+        protected virtual bool SetDiscriminatorProperty([CanBeNull] IProperty value)
+            => SetDiscriminatorProperty(value, DiscriminatorProperty?.ClrType);
+
+        protected virtual bool SetDiscriminatorProperty([CanBeNull] IProperty value, [CanBeNull] Type oldDiscriminatorType)
+        {
+            if (value != null)
+            {
+                if (EntityType != EntityType.RootType())
+                {
+                    //throw new InvalidOperationException(
+                    //    RelationalStrings.DiscriminatorPropertyMustBeOnRoot(EntityType.DisplayName()));
+                }
+
+                if (value.DeclaringEntityType != EntityType)
+                {
+                    //throw new InvalidOperationException(
+                    //    RelationalStrings.DiscriminatorPropertyNotFound(value.Name, EntityType.DisplayName()));
+                }
+            }
+
+            if (value == null
+                || value.ClrType != oldDiscriminatorType)
+            {
+                foreach (var derivedType in EntityType.GetDerivedTypesInclusive())
+                {
+                    GetAnnotations(derivedType).RemoveDiscriminatorValue();
+                }
+            }
+
+            return Annotations.SetAnnotation(
+                CosmosSqlAnnotationNames.DiscriminatorProperty,
+                value?.Name);
+        }
+
+        protected virtual bool RemoveDiscriminatorValue()
+            => Annotations.RemoveAnnotation(CosmosSqlAnnotationNames.DiscriminatorValue);
+
+        public virtual object DiscriminatorValue
+        {
+            get => Annotations.Metadata[CosmosSqlAnnotationNames.DiscriminatorValue];
+            [param: CanBeNull]
+            set => SetDiscriminatorValue(value);
+        }
+
+        protected virtual bool SetDiscriminatorValue([CanBeNull] object value)
+        {
+            if (value != null
+                && DiscriminatorProperty == null)
+            {
+                //throw new InvalidOperationException(
+                //    RelationalStrings.NoDiscriminatorForValue(EntityType.DisplayName(), EntityType.RootType().DisplayName()));
+            }
+
+            if (value != null
+                && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+            {
+                //throw new InvalidOperationException(
+                //    RelationalStrings.DiscriminatorValueIncompatible(
+                //        value, DiscriminatorProperty.Name, DiscriminatorProperty.ClrType));
+            }
+
+            return Annotations.SetAnnotation(CosmosSqlAnnotationNames.DiscriminatorValue, value);
+        }
     }
 }

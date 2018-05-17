@@ -8,5 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata
     public interface ICosmosSqlEntityTypeAnnotations
     {
         string CollectionName { get; }
+        IProperty DiscriminatorProperty { get; }
+        object DiscriminatorValue { get; }
     }
 }
