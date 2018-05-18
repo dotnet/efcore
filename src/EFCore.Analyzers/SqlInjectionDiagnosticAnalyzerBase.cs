@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -15,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore
         public const string MessageFormat
             = "The SQL expression passed to '{0}' embeds data that will not be parameterized."
               + " Review for potential SQL injection vulnerability. See https://go.microsoft.com/fwlink/?linkid=871170 for more information.";
+
+        public const int RecursionLimit = 30;
 
         protected const string DefaultTitle = "Possible SQL injection vulnerability.";
         protected const string Category = "Security";
@@ -46,7 +49,12 @@ namespace Microsoft.EntityFrameworkCore
             MemberAccessExpressionSyntax memberAccessExpressionSyntax);
 
         protected bool CheckPossibleInjection(
-            SyntaxNodeAnalysisContext analysisContext, SyntaxNode syntaxNode, string identifier, Location location)
+            SyntaxNodeAnalysisContext analysisContext,
+            SyntaxNode syntaxNode,
+            string identifier,
+            Location location,
+            ISet<SyntaxNode> visited,
+            ref int depth)
         {
             if (UsesUnsafeInterpolation(analysisContext, syntaxNode)
                 || UsesUnsafeStringOperation(analysisContext, syntaxNode))
@@ -57,61 +65,80 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            var rootSyntaxNode
-                = syntaxNode.Ancestors().First(n => n is MemberDeclarationSyntax);
-
-            foreach (var identifierNameSyntax
-                in syntaxNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
+            if (visited.Contains(syntaxNode)
+                || ++depth > RecursionLimit)
             {
-                var symbol = analysisContext.GetSymbol(identifierNameSyntax);
+                return false;
+            }
 
-                if (symbol is ILocalSymbol
-                    || symbol is IParameterSymbol)
+            visited.Add(syntaxNode);
+
+            try
+            {
+                var rootSyntaxNode
+                    = syntaxNode.Ancestors().First(n => n is MemberDeclarationSyntax);
+
+                foreach (var identifierNameSyntax
+                    in syntaxNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
                 {
-                    foreach (var descendantNode in rootSyntaxNode.DescendantNodes())
+                    var symbol = analysisContext.GetSymbol(identifierNameSyntax);
+
+                    if (symbol is ILocalSymbol
+                        || symbol is IParameterSymbol)
                     {
-                        if (descendantNode == syntaxNode)
+                        foreach (var descendantNode in rootSyntaxNode.DescendantNodes())
                         {
-                            break;
-                        }
-
-                        switch (descendantNode)
-                        {
-                            case AssignmentExpressionSyntax assignmentExpressionSyntax
-                                when assignmentExpressionSyntax.Left is IdentifierNameSyntax
-                                     && Equals(analysisContext.GetSymbol(assignmentExpressionSyntax.Left), symbol):
+                            if (descendantNode == syntaxNode)
                             {
-                                if (CheckPossibleInjection(
-                                    analysisContext,
-                                    assignmentExpressionSyntax.Right,
-                                    identifier,
-                                    location))
-                                {
-                                    return true;
-                                }
-
                                 break;
                             }
-                            case VariableDeclaratorSyntax variableDeclaratorSyntax
-                                when Equals(analysisContext.SemanticModel.GetDeclaredSymbol(variableDeclaratorSyntax), symbol):
-                            {
-                                if (CheckPossibleInjection(
-                                    analysisContext,
-                                    variableDeclaratorSyntax.Initializer,
-                                    identifier,
-                                    location))
-                                {
-                                    return true;
-                                }
 
-                                break;
+                            switch (descendantNode)
+                            {
+                                case AssignmentExpressionSyntax assignmentExpressionSyntax
+                                    when assignmentExpressionSyntax.Left is IdentifierNameSyntax
+                                         && Equals(analysisContext.GetSymbol(assignmentExpressionSyntax.Left), symbol):
+                                {
+                                    if (CheckPossibleInjection(
+                                        analysisContext,
+                                        assignmentExpressionSyntax.Right,
+                                        identifier,
+                                        location,
+                                        visited,
+                                        ref depth))
+                                    {
+                                        return true;
+                                    }
+
+                                    break;
+                                }
+                                case VariableDeclaratorSyntax variableDeclaratorSyntax
+                                    when Equals(analysisContext.SemanticModel.GetDeclaredSymbol(variableDeclaratorSyntax), symbol):
+                                {
+                                    if (CheckPossibleInjection(
+                                        analysisContext,
+                                        variableDeclaratorSyntax.Initializer,
+                                        identifier,
+                                        location,
+                                        visited,
+                                        ref depth))
+                                    {
+                                        return true;
+                                    }
+
+                                    break;
+                                }
                             }
                         }
                     }
                 }
+            
+                return false;
             }
-
-            return false;
+            finally
+            {
+                --depth;
+            }
         }
 
         protected static bool UsesUnsafeInterpolation(
