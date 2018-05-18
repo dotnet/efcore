@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -65,11 +66,15 @@ namespace Microsoft.EntityFrameworkCore
                             return;
                     }
 
+                    var depth = 0;
+
                     CheckPossibleInjection(
                         analysisContext,
                         sqlArgumentExpressionSyntax,
                         identifierValueText,
-                        invocationExpressionSyntax.GetLocation());
+                        invocationExpressionSyntax.GetLocation(),
+                        visited: new HashSet<SyntaxNode>(),
+                        ref depth);
                 }
             }
         }
