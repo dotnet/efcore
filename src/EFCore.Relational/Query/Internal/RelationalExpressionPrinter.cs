@@ -148,7 +148,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 bool removeFormatting)
             {
                 if (constantExpression.Value is Shaper shaper
-                    && !(shaper is EntityShaper)
                     && shaper.MaterializerExpression != null)
                 {
                     _expressionPrinter.Visit(shaper.MaterializerExpression);
