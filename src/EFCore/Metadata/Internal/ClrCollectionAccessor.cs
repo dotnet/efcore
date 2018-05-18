@@ -58,8 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!collection.Contains(element))
             {
                 collection.Add(element);
+
                 return true;
             }
+
             return false;
         }
 

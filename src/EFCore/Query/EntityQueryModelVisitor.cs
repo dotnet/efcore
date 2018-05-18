@@ -814,7 +814,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <typeparam name="TResults"> The type of results that the query returns. </typeparam>
         /// <returns> An action that returns the results of the query. </returns>
-        /// >
         protected virtual Func<QueryContext, TResults> CreateExecutorLambda<TResults>()
         {
             var expression = _expression;

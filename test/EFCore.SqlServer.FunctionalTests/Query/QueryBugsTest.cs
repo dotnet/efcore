@@ -3616,9 +3616,181 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
         {
             public string Name { get; set; }
         }
-        
+
         #endregion
-        
+
+        #region Bug11923
+
+        public static bool ClientMethod11923(int id) => true;
+
+        [Fact]
+        public virtual void Collection_without_setter_materialized_correctly()
+        {
+            using (CreateDatabase11923())
+            {
+                using (var context = new MyContext11923(_options))
+                {
+                    var query1 = context.Blogs
+                        .Select(b => new
+                    {
+                        Collection1 = b.Posts1,
+                        Collection2 = b.Posts2,
+                        Collection3 = b.Posts3,
+                    }).ToList();
+
+                    var query2 = context.Blogs
+                        .Select(b => new
+                    {
+                        Collection1 = b.Posts1.OrderBy(p => p.Id).First().Comments.Count,
+                        Collection2 = b.Posts2.OrderBy(p => p.Id).First().Comments.Count,
+                        Collection3 = b.Posts3.OrderBy(p => p.Id).First().Comments.Count,
+                    }).ToList();
+
+                    var query3 = context.Blogs
+                        .Select(b => new
+                    {
+                        Collection1 = b.Posts1.OrderBy(p => p.Id),
+                        Collection2 = b.Posts2.OrderBy(p => p.Id),
+                        Collection3 = b.Posts3.OrderBy(p => p.Id),
+                    }).ToList();
+
+                    var query4 = context.Blogs
+                        .Where(b => ClientMethod11923(b.Id))
+                        .Select(b => new
+                    {
+                        Collection1 = b.Posts1,
+                        Collection2 = b.Posts2,
+                        Collection3 = b.Posts3,
+                    }).ToList();
+
+                    var query5 = context.Blogs
+                        .Where(b => ClientMethod11923(b.Id))
+                        .Select(b => new
+                    {
+                        Collection1 = b.Posts1.OrderBy(p => p.Id).First().Comments.Count,
+                        Collection2 = b.Posts2.OrderBy(p => p.Id).First().Comments.Count,
+                        Collection3 = b.Posts3.OrderBy(p => p.Id).First().Comments.Count,
+                    }).ToList();
+
+                    var query6 = context.Blogs
+                        .Where(b => ClientMethod11923(b.Id))
+                        .Select(b => new
+                    {
+                        Collection1 = b.Posts1.OrderBy(p => p.Id),
+                        Collection2 = b.Posts2.OrderBy(p => p.Id),
+                        Collection3 = b.Posts3.OrderBy(p => p.Id),
+                    }).ToList();
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11923()
+        {
+            return CreateTestStore(
+                () => new MyContext11923(_options),
+                context =>
+                {
+                    var p111 = new Post11923 { Name = "P111" };
+                    var p112 = new Post11923 { Name = "P112" };
+                    var p121 = new Post11923 { Name = "P121" };
+                    var p122 = new Post11923 { Name = "P122" };
+                    var p123 = new Post11923 { Name = "P123" };
+                    var p131 = new Post11923 { Name = "P131" };
+
+                    var p211 = new Post11923 { Name = "P211" };
+                    var p212 = new Post11923 { Name = "P212" };
+                    var p221 = new Post11923 { Name = "P221" };
+                    var p222 = new Post11923 { Name = "P222" };
+                    var p223 = new Post11923 { Name = "P223" };
+                    var p231 = new Post11923 { Name = "P231" };
+
+                    var b1 = new Blog11923 { Name = "B1" };
+                    var b2 = new Blog11923 { Name = "B2" };
+
+                    b1.Posts1.AddRange(new[] { p111, p112 });
+                    b1.Posts2.AddRange(new[] { p121, p122, p123 });
+                    b1.Posts3.Add(p131);
+
+                    b2.Posts1.AddRange(new[] { p211, p212 });
+                    b2.Posts2.AddRange(new[] { p221, p222, p223 });
+                    b2.Posts3.Add(p231);
+
+                    context.Blogs.AddRange(b1, b2);
+                    context.Posts.AddRange(p111, p112, p121, p122, p123, p131, p211, p212, p221, p222, p223, p231);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext11923 : DbContext
+        {
+            public DbSet<Blog11923> Blogs { get; set; }
+            public DbSet<Post11923> Posts { get; set; }
+            public DbSet<Comment11923> Comments { get; set; }
+
+            public MyContext11923(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog11923>(
+                    b =>
+                    {
+                        b.HasMany(e => e.Posts1).WithOne().HasForeignKey("BlogId1");
+                        b.HasMany(e => e.Posts2).WithOne().HasForeignKey("BlogId2");
+                        b.HasMany(e => e.Posts3).WithOne().HasForeignKey("BlogId3");
+                    });
+
+                modelBuilder.Entity<Post11923>();
+            }
+        }
+
+        public class Blog11923
+        {
+            public Blog11923()
+            {
+                Posts1 = new List<Post11923>();
+                Posts2 = new CustomCollection11923();
+                Posts3 = new HashSet<Post11923>();
+            }
+
+            public Blog11923(List<Post11923> posts1, CustomCollection11923 posts2, HashSet<Post11923> posts3)
+            {
+                Posts1 = posts1;
+                Posts2 = posts2;
+                Posts3 = posts3;
+            }
+
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<Post11923> Posts1 { get; }
+            public CustomCollection11923 Posts2 { get; }
+            public HashSet<Post11923> Posts3 { get; }
+        }
+
+        public class Post11923
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<Comment11923> Comments { get; set; }
+        }
+
+        public class Comment11923
+        {
+            public int Id { get; set; }
+        }
+
+        public class CustomCollection11923 : List<Post11923>
+        {
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

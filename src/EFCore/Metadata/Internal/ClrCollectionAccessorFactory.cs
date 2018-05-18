@@ -101,20 +101,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     valueParameter).Compile();
             }
 
-            if (setterDelegate != null)
+            var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TEntity), typeof(TCollection));
+            if (concreteType != null)
             {
-                var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TEntity), typeof(TCollection));
-
-                if (concreteType != null)
+                if (setterDelegate != null)
                 {
+
                     createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)_createAndSet
                         .MakeGenericMethod(typeof(TEntity), typeof(TCollection), concreteType)
                         .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));
-
-                    createDelegate = (Func<TCollection>)_create
-                        .MakeGenericMethod(typeof(TCollection), concreteType)
-                        .CreateDelegate(typeof(Func<TCollection>));
                 }
+
+                createDelegate = (Func<TCollection>)_create
+                    .MakeGenericMethod(typeof(TCollection), concreteType)
+                    .CreateDelegate(typeof(Func<TCollection>));
             }
 
             return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
