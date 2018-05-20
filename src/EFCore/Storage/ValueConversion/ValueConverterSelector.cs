@@ -151,8 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             }
             else if (underlyingModelType == typeof(string))
             {
-                if (underlyingProviderType == null
-                    || underlyingProviderType.IsEnum)
+                if (underlyingProviderType?.IsEnum == true)
                 {
                     yield return _converters.GetOrAdd(
                         (typeof(string), underlyingProviderType),
@@ -165,12 +164,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 if (underlyingProviderType == null
                     || _numerics.Contains(underlyingProviderType))
                 {
-                    yield return _converters.GetOrAdd(
-                        (typeof(string), underlyingProviderType),
-                        k => (ValueConverterInfo)typeof(StringToNumberConverter<>)
-                            .MakeGenericType(k.ProviderClrType)
-                            .GetAnyProperty("DefaultInfo")
-                            .GetValue(null));
+                    foreach (var converterInfo in FindNumericConvertions(
+                        typeof(string),
+                        underlyingProviderType,
+                        typeof(StringToNumberConverter<>),
+                        null))
+                    {
+                        yield return converterInfo;
+                    }
                 }
 
                 if (underlyingProviderType == null
