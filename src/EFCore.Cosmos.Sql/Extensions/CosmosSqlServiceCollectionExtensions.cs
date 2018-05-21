@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure;
-using Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata;
-using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query;
-using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Query;

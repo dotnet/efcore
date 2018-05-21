@@ -3,10 +3,10 @@
 
 using System.Linq;
 using Microsoft.Azure.Documents.Client;
-using Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
 {
     public class CosmosClient
     {

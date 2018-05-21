@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Internal
 {
     public class CosmosSqlEntityQueryableExpressionVisitorFactory : IEntityQueryableExpressionVisitorFactory
     {

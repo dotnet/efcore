@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.ValueGeneration.Internal
 {
     public class DiscriminatorValueGenerator : ValueGenerator
     {
