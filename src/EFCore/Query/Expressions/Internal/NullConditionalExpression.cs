@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Parsing.ExpressionVisitors;
@@ -137,8 +138,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             {
                 expressionPrinter.Visit(Caller);
                 expressionPrinter.StringBuilder.Append("?." + memberExpression.Member.Name);
+
+                return;
             }
-            else if (AccessOperation is MethodCallExpression methodCallExpression)
+
+            if (AccessOperation is MethodCallExpression methodCallExpression)
             {
                 if (methodCallExpression.Object != null)
                 {
@@ -146,22 +150,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                     expressionPrinter.StringBuilder.Append("?." + methodCallExpression.Method.Name + "(");
                     VisitArguments(expressionPrinter, methodCallExpression.Arguments);
                     expressionPrinter.StringBuilder.Append(")");
+
+                    return;
                 }
+                else if (methodCallExpression.Method.IsEFPropertyMethod())
+                {
+                    var method = methodCallExpression.Method;
 
-                var method = methodCallExpression.Method;
+                    expressionPrinter.StringBuilder.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
+                    expressionPrinter.Visit(Caller);
+                    expressionPrinter.StringBuilder.Append("?, ");
+                    expressionPrinter.Visit(methodCallExpression.Arguments[1]);
+                    expressionPrinter.StringBuilder.Append(")");
 
-                expressionPrinter.StringBuilder.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
-                expressionPrinter.Visit(Caller);
-                expressionPrinter.StringBuilder.Append("?, ");
-                VisitArguments(expressionPrinter, methodCallExpression.Arguments.Skip(1).ToList());
-                expressionPrinter.StringBuilder.Append(")");
+                    return;
+                }
             }
-            else
-            {
-                expressionPrinter.StringBuilder.Append("?");
-                expressionPrinter.Visit(AccessOperation);
-                expressionPrinter.StringBuilder.Append("?");
-            }
+
+            expressionPrinter.StringBuilder.Append("?");
+            expressionPrinter.Visit(Caller);
+            expressionPrinter.StringBuilder.Append(" | ");
+            expressionPrinter.Visit(AccessOperation);
+            expressionPrinter.StringBuilder.Append("?");
         }
 
         private static void VisitArguments(ExpressionPrinter expressionPrinter, IList<Expression> arguments)
@@ -196,13 +206,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                 }
 
                 var method = methodCallExpression.Method;
-
-                return method.DeclaringType?.Name + "." + method.Name
-                       + "(?" + Caller + "?, "
-                       + string.Join(",", methodCallExpression.Arguments.Skip(1)) + ")";
+                if (method.IsEFPropertyMethod())
+                {
+                    return method.DeclaringType?.Name + "." + method.Name
+                           + "(?" + Caller + "?, " + methodCallExpression.Arguments[1] + ")";
+                }
             }
 
-            return $"?{AccessOperation}?";
+            return $"?{Caller} | {AccessOperation}?";
         }
     }
 }
