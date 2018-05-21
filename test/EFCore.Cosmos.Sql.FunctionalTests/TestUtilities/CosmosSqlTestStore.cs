@@ -4,8 +4,9 @@
 using System;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
 {
     public class CosmosSqlTestStore : TestStore
     {

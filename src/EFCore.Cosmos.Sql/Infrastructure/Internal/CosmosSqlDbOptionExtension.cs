@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure.Internal
 {
     public class CosmosSqlDbOptionsExtension : IDbContextOptionsExtension
     {

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Internal
 {
     public class CosmosSqlAnnotations
     {
