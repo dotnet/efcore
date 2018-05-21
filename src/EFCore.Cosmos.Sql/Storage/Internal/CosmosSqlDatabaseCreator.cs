@@ -7,11 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
 {
     public class CosmosSqlDatabaseCreator : IDatabaseCreator
     {

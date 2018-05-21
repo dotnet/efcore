@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal
 {
     public class CosmosSqlConventionSetBuilder : IConventionSetBuilder
     {

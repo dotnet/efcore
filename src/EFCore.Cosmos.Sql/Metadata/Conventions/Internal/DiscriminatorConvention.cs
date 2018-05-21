@@ -3,11 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal
 {
     public class DiscriminatorConvention : IEntityTypeAddedConvention, IBaseTypeChangedConvention
     {

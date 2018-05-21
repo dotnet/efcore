@@ -5,7 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
 {
     public class CosmosSqlEntityQueryModelVisitorFactory : EntityQueryModelVisitorFactory
     {

@@ -4,7 +4,7 @@
 using System.IO;
 using Microsoft.Extensions.Configuration;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
 {
     public static class TestEnvironment
     {
