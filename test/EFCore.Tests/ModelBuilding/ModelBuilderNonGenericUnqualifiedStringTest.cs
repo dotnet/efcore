@@ -62,8 +62,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return this;
             }
 
-            public override void Owned<TEntity>()
-                => ModelBuilder.Owned<TEntity>();
+            public override TestQueryTypeBuilder<TQuery> Query<TQuery>()
+                => new NonGenericTestQueryTypeBuilder<TQuery>(ModelBuilder.Query(typeof(TQuery)));
+
+            public override TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
+                => new NonGenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned(typeof(TEntity)));
 
             public override TestModelBuilder Ignore<TEntity>()
             {

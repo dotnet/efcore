@@ -25,19 +25,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public abstract class ModelBuilderTestBase
         {
-            [Fact]
-            public void Entity_throws_when_called_for_query()
-            {
-                var modelBuilder = CreateModelBuilder();
-
-                modelBuilder.Query<Customer>();
-
-                Assert.Equal(
-                    CoreStrings.CannotAccessQueryAsEntity(nameof(Customer)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<Customer>()).Message);
-            }
-
             protected void AssertEqual(
                 IEnumerable<string> expectedNames,
                 IEnumerable<string> actualNames,
@@ -166,16 +153,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 where TEntity : class;
 
-
-            public abstract void Owned<TEntity>()
+            public abstract TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
                 where TEntity : class;
 
             public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 where TEntity : class;
 
-            public virtual void Query<TQuery>()
-                where TQuery : class
-                => ModelBuilder.Query<TQuery>();
+            public abstract TestQueryTypeBuilder<TQuery> Query<TQuery>()
+                where TQuery : class;
 
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
@@ -243,11 +228,48 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
                 where TRelatedEntity : class;
 
+            public abstract TestEntityTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>> filter);
+
             public abstract TestEntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
 
             public abstract TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
             public abstract DataBuilder<TEntity> HasData(params TEntity[] data);
+        }
+
+        public abstract class TestOwnedEntityTypeBuilder<TEntity>
+            where TEntity : class
+        {
+        }
+
+        public abstract class TestQueryTypeBuilder<TEntity>
+            where TEntity : class
+        {
+            public abstract IMutableEntityType Metadata { get; }
+            public abstract TestQueryTypeBuilder<TEntity> HasAnnotation(string annotation, object value);
+
+            public abstract TestQueryTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
+                where TBaseEntity : class;
+
+            public abstract TestQueryTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
+                Expression<Func<TEntity, TProperty>> propertyExpression);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+
+            public abstract TestQueryTypeBuilder<TEntity> Ignore(
+                Expression<Func<TEntity, object>> propertyExpression);
+
+            public abstract TestQueryTypeBuilder<TEntity> Ignore(string propertyName);
+
+            public abstract TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
+                Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
+                where TRelatedEntity : class;
+
+            public abstract TestQueryTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>> filter);
+
+            public abstract TestQueryTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         }
 
         public class TestKeyBuilder

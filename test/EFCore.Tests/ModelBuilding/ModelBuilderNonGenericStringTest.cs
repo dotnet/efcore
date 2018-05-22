@@ -211,8 +211,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public NonGenericStringTestEntityTypeBuilder Entity(string name)
                 => new NonGenericStringTestEntityTypeBuilder(ModelBuilder.Entity(name));
 
-            public override void Owned<TEntity>()
-                => ModelBuilder.Owned(typeof(TEntity));
+            public override TestQueryTypeBuilder<TQuery> Query<TQuery>()
+                => new NonGenericTestQueryTypeBuilder<TQuery>(ModelBuilder.Query(typeof(TQuery)));
+
+            public override TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
+                => new NonGenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned(typeof(TEntity)));
 
             public override TestModelBuilder Ignore<TEntity>()
             {
@@ -242,11 +245,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
                 Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
-                => Wrap(
-                    EntityTypeBuilder.OwnsOne(
-                        typeof(TRelatedEntity).FullName,
-                        navigationExpression.GetPropertyAccess().Name,
-                        r => buildAction(new NonGenericStringTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+                => Wrap(EntityTypeBuilder.OwnsOne(
+                    typeof(TRelatedEntity).FullName,
+                    navigationExpression.GetPropertyAccess().Name,
+                    r => buildAction(new NonGenericStringTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)

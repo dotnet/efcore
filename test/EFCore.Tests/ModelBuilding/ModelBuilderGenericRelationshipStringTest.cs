@@ -43,14 +43,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
-                ModelBuilder.Entity<TEntity>(
-                    entityTypeBuilder =>
-                        buildAction(new GenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
+                    buildAction(new GenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
                 return this;
             }
 
-            public override void Owned<TEntity>()
-                => ModelBuilder.Owned<TEntity>();
+            public override TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
+                => new GenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned<TEntity>());
+
+            public override TestQueryTypeBuilder<TQuery> Query<TQuery>()
+                => new GenericTestQueryTypeBuilder<TQuery>(ModelBuilder.Query<TQuery>());
 
             public override TestModelBuilder Ignore<TEntity>()
             {
@@ -79,10 +81,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
                 Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
-                => Wrap(
-                    EntityTypeBuilder.OwnsOne(
-                        navigationExpression,
-                        r => buildAction(new GenericStringTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+                => Wrap(EntityTypeBuilder.OwnsOne(
+                    navigationExpression,
+                    r => buildAction(new GenericStringTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)

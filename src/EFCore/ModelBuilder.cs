@@ -197,9 +197,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the query type. </returns>
         public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
             where TQuery : class
-        {
-            return new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery)));
-        }
+            => new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery)));
 
         /// <summary>
         ///     Returns an object that can be used to configure a given query type in the model.
