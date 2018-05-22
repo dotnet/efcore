@@ -153,11 +153,6 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(RelationalStrings.LogExplicitTransactionEnlisted.GenerateMessage("Serializable"), Fixture.Log.Single().Message);
-
-                using (var context = CreateContext())
-                {
-                    Assert.NotNull(await context.Set<TransactionCustomer>().FindAsync(77));
-                }
             }
 
             AssertStoreInitialState();
@@ -289,15 +284,13 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(RelationalStrings.LogAmbientTransactionEnlisted.GenerateMessage("Serializable"), Fixture.Log.Single().Message);
+            }
 
-                if (closeConnection)
+            if (closeConnection)
+            {
+                using (var context = CreateContext())
                 {
-                    // This could start a distributed transaction of the connection is reopened
-                    using (var context = CreateContext())
-                    {
-                        Assert.NotNull(context.Set<TransactionCustomer>().Find(77));
-                        context.Database.OpenConnection();
-                    }
+                    context.Database.OpenConnection();
                 }
             }
 
@@ -337,10 +330,6 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
-
-                    Assert.Equal(ConnectionState.Open, connection.State);
-
-                    Assert.NotNull(context.Set<TransactionCustomer>().FirstOrDefault(c => c.Id == 77));
 
                     Assert.Equal(ConnectionState.Open, connection.State);
                 }
