@@ -11,16 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
     public class OracleDoubleTypeMapping : DoubleTypeMapping
     {
         public OracleDoubleTypeMapping(
-            [NotNull] string storeType,
-            [CanBeNull] DbType? dbType = null)
-            : this(
-                new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(
-                        typeof(double)),
-                    storeType,
-                    StoreTypePostfix.Size,
-                    dbType,
-                    size: 49))
+             [NotNull] string storeType,
+             DbType? dbType = null)
+             : base(storeType, dbType)
         {
         }
 
@@ -29,18 +22,18 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
         {
         }
 
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleDoubleTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleDoubleTypeMapping(Parameters.WithComposedConverter(converter));
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new OracleDoubleTypeMapping(parameters);
 
         protected override string GenerateNonNullSqlLiteral(object value)
         {
             var literal = base.GenerateNonNullSqlLiteral(value);
 
+            var doubleValue = (double)value;
             if (!literal.Contains("E")
-                && !literal.Contains("e"))
+                && !literal.Contains("e")
+                && !double.IsNaN(doubleValue)
+                && !double.IsInfinity(doubleValue))
             {
                 return literal + "E0";
             }
