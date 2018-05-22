@@ -1519,6 +1519,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _typeMapping = null;
 
+            GenerateSqlFunctionName(sqlFunctionExpression);
+
+            _relationalCommandBuilder.Append("(");
+
+            _typeMapping = null;
+
+            GenerateList(sqlFunctionExpression.Arguments);
+
+            _relationalCommandBuilder.Append(")");
+            _typeMapping = parentTypeMapping;
+
+            return sqlFunctionExpression;
+        }
+
+        /// <summary>
+        ///     Generates the name part of a SQL function call.
+        /// </summary>
+        /// <param name="sqlFunctionExpression"> The SqlFunctionExpression </param>
+        protected virtual void GenerateSqlFunctionName(SqlFunctionExpression sqlFunctionExpression)
+        {
             var wroteSchema = false;
 
             if (sqlFunctionExpression.Instance != null)
@@ -1541,17 +1561,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     wroteSchema
                         ? SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName)
                         : sqlFunctionExpression.FunctionName);
-
-            _relationalCommandBuilder.Append("(");
-
-            _typeMapping = null;
-
-            GenerateList(sqlFunctionExpression.Arguments);
-
-            _relationalCommandBuilder.Append(")");
-            _typeMapping = parentTypeMapping;
-
-            return sqlFunctionExpression;
         }
 
         /// <summary>

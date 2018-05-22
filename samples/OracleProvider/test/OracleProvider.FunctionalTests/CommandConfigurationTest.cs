@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
             return matchQuery.Count();
         }
 
-        private class ChipsContext : DbContext
+        private class ChipsContext : PoolableDbContext
         {
             public ChipsContext(DbContextOptions options)
                 : base(options)

@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         #region Scalar Tests

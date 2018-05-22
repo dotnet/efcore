@@ -9,14 +9,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using System.Globalization;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class UdfDbFunctionOracleTests : UdfDbFunctionTestBase<UdfDbFunctionOracleTests.OracleUdfFixture>
+    public class UdfDbFunctionOracleTest : UdfDbFunctionTestBase<UdfDbFunctionOracleTest.OracleUdfFixture>
     {
-        public UdfDbFunctionOracleTests(OracleUdfFixture fixture)
+        public UdfDbFunctionOracleTest(OracleUdfFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public class OracleUdfFixture : SharedStoreFixtureBase<DbContext>
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 context.Database.EnsureCreated();
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE FUNCTION CustomerOrderCount (customerId INTEGER)
+                    @"CREATE OR REPLACE FUNCTION ""CustomerOrderCount"" (customerId INTEGER)
 RETURN INTEGER IS
   result INTEGER;
 BEGIN
@@ -50,21 +52,28 @@ BEGIN
 END;");
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE FUNCTION StarValue (starCount INTEGER, value NVARCHAR2)
+                    @"CREATE OR REPLACE FUNCTION ""StarValue"" (starCount INTEGER, value NVARCHAR2)
 RETURN NVARCHAR2 IS
 BEGIN
   RETURN LPAD(value, starCount + LENGTH(value), '*');
 END;");
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE FUNCTION GetReportingPeriodStartDate (period INTEGER)
+                    @"CREATE OR REPLACE FUNCTION ""DollarValue"" (starCount INTEGER, value NVARCHAR2)
+RETURN NVARCHAR2 IS
+BEGIN
+  RETURN LPAD(value, starCount + LENGTH(value), '$');
+END;");
+
+                context.Database.ExecuteSqlCommand(
+                    @"CREATE OR REPLACE FUNCTION ""GetReportingPeriodStartDate"" (period INTEGER)
 RETURN TIMESTAMP IS
 BEGIN
 	RETURN TO_TIMESTAMP('01/01/1998', 'MM/DD/YYYY');
 END;");
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE FUNCTION GetCustomerWithMostOrdersAfterDate (searchDate TIMESTAMP)
+                    @"CREATE OR REPLACE FUNCTION ""GetCustomerWithMostOrdersAfterDate"" (searchDate TIMESTAMP)
 RETURN INTEGER IS
   result INTEGER;
 BEGIN
@@ -79,7 +88,7 @@ BEGIN
 END;");
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE FUNCTION IsTopCustomer (customerId INTEGER)
+                    @"CREATE OR REPLACE FUNCTION ""IsTopCustomer"" (customerId INTEGER)
 RETURN INTEGER IS
 BEGIN
   IF (customerId = 1) THEN
@@ -90,19 +99,26 @@ BEGIN
 END;");
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE FUNCTION IsDate (value NVARCHAR2)
+                    @"CREATE OR REPLACE FUNCTION ""IsDate"" (value NVARCHAR2)
 RETURN INTEGER IS
 BEGIN
   RETURN 0;
 END;");
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE FUNCTION Len (value NVARCHAR2)
+                    @"CREATE OR REPLACE FUNCTION ""len"" (value NVARCHAR2)
 RETURN INTEGER IS
 BEGIN
   RETURN LENGTH(value);
 END;");
 
+                context.Database.ExecuteSqlCommand(
+                    @"CREATE OR REPLACE FUNCTION ""IdentityString"" (customerName NVARCHAR2)
+RETURN NVARCHAR2 IS
+BEGIN
+    RETURN customerName;
+END;");                
+                
                 var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = DateTime.Parse("1/20/2000", CultureInfo.InvariantCulture) };
                 var order12 = new Order { Name = "Order12", ItemCount = 8, OrderDate = DateTime.Parse("2/21/2000", CultureInfo.InvariantCulture) };
                 var order13 = new Order { Name = "Order13", ItemCount = 15, OrderDate = DateTime.Parse("3/20/2000", CultureInfo.InvariantCulture) };

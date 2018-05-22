@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -168,6 +169,33 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
             Sql.Append(" FROM DUAL");
         }
 
+        private static readonly HashSet<string> _builtInFunctions 
+            = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "MAX",
+                "MIN",
+                "SUM",
+                "SUBSTR",
+                "INSTR",
+                "LENGTH",
+                "COUNT"
+            };
+        
+        protected override void GenerateSqlFunctionName(SqlFunctionExpression sqlFunctionExpression)
+        {
+            if (sqlFunctionExpression.Instance != null)
+            {
+                Visit(sqlFunctionExpression.Instance);
+
+                Sql.Append(".");
+            }
+            
+            Sql.Append(
+                _builtInFunctions.Contains(sqlFunctionExpression.FunctionName)
+                    ? sqlFunctionExpression.FunctionName
+                    : SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName));
+        }
+        
         public override Expression VisitCrossJoinLateral(CrossJoinLateralExpression crossJoinLateralExpression)
         {
             Check.NotNull(crossJoinLateralExpression, nameof(crossJoinLateralExpression));
@@ -264,11 +292,9 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
         }
 
         private static Expression ExplicitCastToBool(Expression expression)
-        {
-            return (expression as BinaryExpression)?.NodeType == ExpressionType.Coalesce
-                   && expression.Type.UnwrapNullableType() == typeof(bool)
+            => (expression as BinaryExpression)?.NodeType == ExpressionType.Coalesce
+               && expression.Type.UnwrapNullableType() == typeof(bool)
                 ? new ExplicitCastExpression(expression, expression.Type)
                 : expression;
-        }
     }
 }
