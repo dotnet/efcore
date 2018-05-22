@@ -2,12 +2,10 @@
 
   <PropertyGroup>
     <Description>Microsoft sample Oracle database provider for Entity Framework Core.</Description>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.Oracle</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <PackageTags>$(PackageTags);Oracle</PackageTags>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Oracle</RootNamespace>
+    <TargetFrameworks>net461</TargetFrameworks>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <CodeAnalysisRuleSet>..\..\..\..\src\EFCore.ruleset</CodeAnalysisRuleSet>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -22,9 +20,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftExtensionsDependencyInjectionPackageVersion)" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="$(OracleManagedDataAccessCorePackageVersion)" />
     <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
-
+    <PackageReference Include="Oracle.ManagedDataAccess" Version="$(OracleManagedDataAccessPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
