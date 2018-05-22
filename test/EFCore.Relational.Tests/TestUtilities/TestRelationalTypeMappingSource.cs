@@ -64,11 +64,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
             }
 
-            public override RelationalTypeMapping Clone(string storeType, int? size)
-                => new IntArrayTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-            public override CoreTypeMapping Clone(ValueConverter converter)
-                => new IntArrayTypeMapping(Parameters.WithComposedConverter(converter));
+            protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+                => new IntArrayTypeMapping(parameters);
         }
 
         private static readonly RelationalTypeMapping _intArray

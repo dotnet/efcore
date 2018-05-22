@@ -226,10 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
             }
 
-            public override RelationalTypeMapping Clone(string storeType, int? size)
-                => this;
-
-            public override CoreTypeMapping Clone(ValueConverter converter)
+            protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
                 => this;
         }
 

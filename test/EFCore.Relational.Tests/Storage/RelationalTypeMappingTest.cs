@@ -243,12 +243,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     unicode: unicide,
                     fixedLength: fixedLength);
             }
-
-            public override RelationalTypeMapping Clone(string storeType, int? size)
-                => throw new NotImplementedException();
-
-            public override CoreTypeMapping Clone(ValueConverter converter)
-                => new FakeTypeMapping(Parameters.WithComposedConverter(converter));
         }
 
         [Fact]
