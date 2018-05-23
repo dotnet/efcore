@@ -2128,7 +2128,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotNull(ownership2.DeclaringEntityType.FindProperty(nameof(Details.Name)));
         }
 
-        public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "DataAnnotations";
 
@@ -2141,7 +2141,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Book>().Property(d => d.Id).ValueGeneratedNever();
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.Set<One>().Add(new One
                 {

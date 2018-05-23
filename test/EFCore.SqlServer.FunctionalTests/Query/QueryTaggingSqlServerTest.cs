@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Single_query_tag()
         {
             base.Single_query_tag();
-            
+
             AssertSql(
                 @"-- EFCore: (#Yanni)
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -30,7 +30,7 @@ ORDER BY [c].[CustomerID]");
         public override void Single_query_multiple_tags()
         {
             base.Single_query_multiple_tags();
-            
+
             AssertSql(
                 @"-- EFCore: (#Yanni, #Enya)
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -41,7 +41,7 @@ ORDER BY [c].[CustomerID]");
         public override void Tags_on_subquery()
         {
             base.Tags_on_subquery();
-            
+
             AssertSql(
                 @"-- EFCore: (#Yanni, #Laurel)
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -57,7 +57,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         public override void Duplicate_tags()
         {
             base.Duplicate_tags();
-            
+
             AssertSql(
                 @"-- EFCore: (#Yanni)
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -68,7 +68,7 @@ ORDER BY [c].[CustomerID]");
         public override void Tag_on_include_query()
         {
             base.Tag_on_include_query();
-            
+
             AssertSql(
                 @"-- EFCore: (#Yanni)
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]

@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private ChipsContext CreateChipsContext() => (ChipsContext)CreateContext();
 
-        private class ChipsContext : DbContext
+        private class ChipsContext : PoolableDbContext
         {
             public ChipsContext(DbContextOptions options)
                 : base(options)

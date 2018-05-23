@@ -3783,6 +3783,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entry.State = EntityState.Detached;
 
                 Assert.Empty(context.ChangeTracker.Entries());
+
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             }
         }
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public Customer Customer { get; set; }
         }
 
-        protected class UDFSqlContext : DbContext
+        protected class UDFSqlContext : PoolableDbContext
         {
             #region DbSets
 

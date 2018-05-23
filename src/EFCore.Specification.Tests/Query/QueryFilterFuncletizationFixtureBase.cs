@@ -7,6 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "QueryFilterFuncletizationTest";
 
+        protected override bool UsePooling => false;
+
         protected override void Seed(QueryFilterFuncletizationContext context)
             => QueryFilterFuncletizationContext.SeedData(context);
     }

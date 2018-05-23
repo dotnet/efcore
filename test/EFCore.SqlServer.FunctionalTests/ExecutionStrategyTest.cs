@@ -568,6 +568,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ExecutionStrategyFixture : SharedStoreFixtureBase<DbContext>
         {
+            protected override bool UsePooling => false;
             protected override string StoreName { get; } = nameof(ExecutionStrategyTest);
             public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();

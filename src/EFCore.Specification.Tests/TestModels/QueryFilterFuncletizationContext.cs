@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryFilterFuncletizationContext : DbContext

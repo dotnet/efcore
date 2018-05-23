@@ -1255,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class StoreGeneratedFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class StoreGeneratedFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "StoreGeneratedTest";
 

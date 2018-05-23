@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels
 {
-    public abstract class MonsterContext : DbContext
+    public abstract class MonsterContext : PoolableDbContext
     {
         protected MonsterContext(DbContextOptions options)
             : base(options)

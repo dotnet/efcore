@@ -6045,7 +6045,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public abstract class LoadFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class LoadFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "LoadTest";
 
@@ -6109,7 +6109,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<SimpleProduct>();
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.Add(
                     new Parent
@@ -6142,7 +6142,7 @@ namespace Microsoft.EntityFrameworkCore
                         },
                         SingleCompositeKey = new SingleCompositeKey { Id = 62 }
                     });
-                    
+
                 context.Add(
                     new SimpleProduct
                     {

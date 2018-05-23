@@ -2089,7 +2089,7 @@ DROP TABLE PrincipalTable;");
             }
         }
 
-        public class SqlServerDatabaseModelFixture : SharedStoreFixtureBase<DbContext>
+        public class SqlServerDatabaseModelFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = nameof(SqlServerDatabaseModelFactoryTest);
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;

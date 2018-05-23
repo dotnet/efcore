@@ -1559,7 +1559,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public class WithConstructorsContext : DbContext
+        public class WithConstructorsContext : PoolableDbContext
         {
             public WithConstructorsContext(DbContextOptions options)
                 : base(options)

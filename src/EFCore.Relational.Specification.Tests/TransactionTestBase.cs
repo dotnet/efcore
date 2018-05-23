@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore
                 context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
             using (var context = CreateContext())
@@ -68,13 +70,9 @@ namespace Microsoft.EntityFrameworkCore
                 context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
-                try
-                {
-                    await context.SaveChangesAsync();
-                }
-                catch (DbUpdateException)
-                {
-                }
+                await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
             using (var context = CreateContext())
@@ -90,6 +88,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
+                Assert.True(context.Database.AutoTransactionsEnabled);
+
                 context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
@@ -104,6 +104,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
+                Assert.True(context.Database.AutoTransactionsEnabled);
+
                 context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
@@ -150,6 +152,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
+
+                    context.Database.AutoTransactionsEnabled = true;
                 }
 
                 Assert.Equal(RelationalStrings.LogExplicitTransactionEnlisted.GenerateMessage("Serializable"), Fixture.Log.Single().Message);
@@ -179,6 +183,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
                     context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    context.Database.AutoTransactionsEnabled = true;
                 }
 
                 using (var transaction = new CommittableTransaction(TimeSpan.FromMinutes(10)))
@@ -233,6 +239,8 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     context.Database.CloseConnection();
+
+                    context.Database.AutoTransactionsEnabled = true;
                 }
             }
 
@@ -281,6 +289,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
+
+                    context.Database.AutoTransactionsEnabled = true;
                 }
 
                 Assert.Equal(RelationalStrings.LogAmbientTransactionEnlisted.GenerateMessage("Serializable"), Fixture.Log.Single().Message);
@@ -332,6 +342,8 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     Assert.Equal(ConnectionState.Open, connection.State);
+
+                    context.Database.AutoTransactionsEnabled = true;
                 }
             }
 
@@ -410,8 +422,6 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(ConnectionState.Open, connection.State);
 
-                context.Database.AutoTransactionsEnabled = true;
-
                 context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
                 context.SaveChanges();
 
@@ -436,8 +446,6 @@ namespace Microsoft.EntityFrameworkCore
                 context.Database.OpenConnection();
 
                 Assert.Equal(ConnectionState.Open, connection.State);
-
-                context.Database.AutoTransactionsEnabled = true;
 
                 context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
                 await context.SaveChangesAsync();
@@ -472,6 +480,8 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(EntityState.Detached, firstEntry.State);
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
             AssertStoreInitialState();
@@ -499,6 +509,8 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.AcceptAllChanges();
 
                 Assert.Equal(EntityState.Detached, firstEntry.State);
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
             AssertStoreInitialState();
@@ -522,6 +534,8 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(EntityState.Detached, firstEntry.State);
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
             AssertStoreInitialState();
@@ -549,6 +563,8 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.AcceptAllChanges();
 
                 Assert.Equal(EntityState.Detached, firstEntry.State);
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
             AssertStoreInitialState();
@@ -582,6 +598,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Added, lastEntry.State);
                     Assert.NotNull(transaction.GetDbTransaction().Connection);
                 }
+
+                context.Database.AutoTransactionsEnabled = true;
             }
         }
 
@@ -613,6 +631,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Added, lastEntry.State);
                     Assert.NotNull(transaction.GetDbTransaction().Connection);
                 }
+
+                context.Database.AutoTransactionsEnabled = true;
             }
         }
 
@@ -631,6 +651,8 @@ namespace Microsoft.EntityFrameworkCore
                     await context.SaveChangesAsync();
                     transaction.Commit();
                 }
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
             using (var context = CreateContext())
@@ -654,6 +676,8 @@ namespace Microsoft.EntityFrameworkCore
                     await context.SaveChangesAsync();
                     context.Database.CommitTransaction();
                 }
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
             using (var context = CreateContext())
@@ -679,6 +703,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertStoreInitialState();
                 }
+
+                context.Database.AutoTransactionsEnabled = true;
             }
         }
 
@@ -699,6 +725,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertStoreInitialState();
                 }
+
+                context.Database.AutoTransactionsEnabled = true;
             }
         }
 
@@ -737,6 +765,8 @@ namespace Microsoft.EntityFrameworkCore
                                 Assert.Equal(Customers, innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToList());
                             }
                         }
+
+                        innerContext.Database.AutoTransactionsEnabled = true;
                     }
 
                     using (var innerContext = CreateContext())
@@ -745,8 +775,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         innerContext.Database.UseTransaction(transaction.GetDbTransaction());
                         Assert.Equal(Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
+
+                        innerContext.Database.AutoTransactionsEnabled = true;
                     }
                 }
+
+                context.Database.AutoTransactionsEnabled = true;
             }
         }
 
@@ -785,6 +819,8 @@ namespace Microsoft.EntityFrameworkCore
                                 Assert.Equal(Customers, await innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToListAsync());
                             }
                         }
+
+                        innerContext.Database.AutoTransactionsEnabled = true;
                     }
 
                     using (var innerContext = CreateContext())
@@ -793,8 +829,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         innerContext.Database.UseTransaction(transaction.GetDbTransaction());
                         Assert.Equal(Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
+
+                        innerContext.Database.AutoTransactionsEnabled = true;
                     }
                 }
+
+                context.Database.AutoTransactionsEnabled = true;
             }
         }
 
@@ -813,6 +853,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
+
+                    context.Database.AutoTransactionsEnabled = true;
                 }
             }
 
@@ -1172,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected abstract DbContext CreateContextWithConnectionString();
 
-        public abstract class TransactionFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class TransactionFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             public List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
             protected override string StoreName { get; } = "TransactionTest";
@@ -1191,7 +1233,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.AddRange(Customers);
                 context.SaveChanges();

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -2283,7 +2284,7 @@ namespace Microsoft.EntityFrameworkCore
             return context;
         }
 
-        public abstract class PropertyValuesFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class PropertyValuesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "PropertyValues";
 
@@ -2331,7 +2332,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 var buildings = new List<Building>
                 {

@@ -6,31 +6,30 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class CompositeKeyEndToEndTest : IDisposable
+    public abstract class CompositeKeyEndToEndTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : CompositeKeyEndToEndTestBase<TFixture>.CompositeKeyEndToEndFixtureBase
     {
-        [Fact]
-        public async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkOracle()
-                .BuildServiceProvider();
+        protected CompositeKeyEndToEndTestBase(TFixture fixture) => Fixture = fixture;
 
+        private TFixture Fixture { get; }
+
+        [Fact]
+        public virtual async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
+        {
             var ticks = DateTime.UtcNow.Ticks;
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
-                context.Database.EnsureCreated();
-
                 context.Add(new Pegasus { Id1 = ticks, Id2 = ticks + 1, Name = "Rainbow Dash" });
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 var pegasus = context.Pegasuses.Single(e => e.Id1 == ticks && e.Id2 == ticks + 1);
 
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 var pegasus = context.Pegasuses.Single(e => e.Id1 == ticks && e.Id2 == ticks + 1);
 
@@ -50,30 +49,26 @@ namespace Microsoft.EntityFrameworkCore
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 Assert.Equal(0, context.Pegasuses.Count(e => e.Id1 == ticks && e.Id2 == ticks + 1));
             }
         }
 
         [Fact]
-        public async Task Can_use_generated_values_in_composite_key_end_to_end()
+        public virtual async Task Can_use_generated_values_in_composite_key_end_to_end()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkOracle()
-                .BuildServiceProvider();
-
             long id1;
             var id2 = DateTime.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture);
             Guid id3;
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 context.Database.EnsureCreated();
 
                 var added = context.Add(new Unicorn { Id2 = id2, Name = "Rarity" }).Entity;
 
-                Assert.True(added.Id1 < 0);
+                Assert.True(added.Id1 != 0);
                 Assert.NotEqual(Guid.Empty, added.Id3);
 
                 await context.SaveChangesAsync();
@@ -84,12 +79,12 @@ namespace Microsoft.EntityFrameworkCore
                 id3 = added.Id3;
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 Assert.Equal(1, context.Unicorns.Count(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3));
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 var unicorn = context.Unicorns.Single(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3);
 
@@ -98,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 var unicorn = context.Unicorns.Single(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3);
 
@@ -109,28 +104,22 @@ namespace Microsoft.EntityFrameworkCore
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 Assert.Equal(0, context.Unicorns.Count(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3));
             }
         }
 
         [Fact]
-        public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniquness()
+        public virtual async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniqueness()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkOracle()
-                .BuildServiceProvider();
-
             var ids = new int[3];
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
-                await context.Database.EnsureCreatedAsync();
-
-                var pony1 = context.Add(new EarthPony { Id2 = 7, Name = "Apple Jack 1" }).Entity;
-                var pony2 = context.Add(new EarthPony { Id2 = 7, Name = "Apple Jack 2" }).Entity;
-                var pony3 = context.Add(new EarthPony { Id2 = 7, Name = "Apple Jack 3" }).Entity;
+                var pony1 = context.Add(new EarthPony { Id1 = 1, Id2 = 7, Name = "Apple Jack 1" }).Entity;
+                var pony2 = context.Add(new EarthPony { Id1 = 2, Id2 = 7, Name = "Apple Jack 2" }).Entity;
+                var pony3 = context.Add(new EarthPony { Id1 = 3, Id2 = 7, Name = "Apple Jack 3" }).Entity;
 
                 await context.SaveChangesAsync();
 
@@ -139,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
                 ids[2] = pony3.Id1;
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 var ponies = context.EarthPonies.ToList();
                 Assert.Equal(ponies.Count, ponies.Count(e => e.Name == "Apple Jack 1") * 3);
@@ -153,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 var ponies = context.EarthPonies.ToArray();
                 Assert.Equal(ponies.Length, ponies.Count(e => e.Name == "Apple Jack 1") * 3);
@@ -167,68 +156,76 @@ namespace Microsoft.EntityFrameworkCore
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new BronieContext(serviceProvider, TestStore.Name))
+            using (var context = CreateContext())
             {
                 Assert.Equal(0, context.EarthPonies.Count());
             }
         }
 
-        private class BronieContext : DbContext
-        {
-            private readonly IServiceProvider _serviceProvider;
-            private readonly string _databaseName;
+        protected BronieContext CreateContext() => (BronieContext)Fixture.CreateContext();
 
-            public BronieContext(IServiceProvider serviceProvider, string databaseName)
+        public abstract class CompositeKeyEndToEndFixtureBase : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = "CompositeKeyEndToEndTest";
+            //protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override Type ContextType { get; } = typeof(BronieContext);
+        }
+
+        protected class BronieContext : PoolableDbContext
+        {
+            public BronieContext(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
-                _databaseName = databaseName;
             }
 
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
             public DbSet<Pegasus> Pegasuses { get; set; }
             public DbSet<Unicorn> Unicorns { get; set; }
-            public DbSet<EarthPony> EarthPonies { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseOracle(OracleTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_serviceProvider);
+            public DbSet<EarthPony> EarthPonies { get; set; }
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Pegasus>(
                     b =>
+                    {
+                        b.HasKey(e => new
                         {
-                            b.ToTable("Pegasus");
-                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            e.Id1,
+                            e.Id2
                         });
+                    });
 
                 modelBuilder.Entity<Unicorn>(
                     b =>
-                        {
-                            b.ToTable("Unicorn");
-                            b.HasKey(e => new { e.Id1, e.Id2, e.Id3 });
-                            b.Property(e => e.Id1).UseOracleIdentityColumn();
-                            b.Property(e => e.Id3).ValueGeneratedOnAdd();
-                        });
+                    {
+                        b.HasKey(e => new { e.Id1, e.Id2, e.Id3 });
+                        b.Property(e => e.Id1).ValueGeneratedOnAdd();
+                        b.Property(e => e.Id3).ValueGeneratedOnAdd();
+                    });
 
                 modelBuilder.Entity<EarthPony>(
                     b =>
+                    {
+                        b.HasKey(e => new
                         {
-                            b.ToTable("EarthPony");
-                            b.HasKey(e => new { e.Id1, e.Id2 });
-                            b.Property(e => e.Id1).UseOracleIdentityColumn();
+                            e.Id1,
+                            e.Id2
                         });
+                        b.Property(e => e.Id1);
+                    });
             }
         }
 
-        private class Pegasus
+        protected class Pegasus
         {
             public long Id1 { get; set; }
             public long Id2 { get; set; }
             public string Name { get; set; }
         }
 
-        private class Unicorn
+        protected class Unicorn
         {
             public int Id1 { get; set; }
             public string Id2 { get; set; }
@@ -236,20 +233,11 @@ namespace Microsoft.EntityFrameworkCore
             public string Name { get; set; }
         }
 
-        private class EarthPony
+        protected class EarthPony
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
             public string Name { get; set; }
         }
-
-        public CompositeKeyEndToEndTest()
-        {
-            TestStore = OracleTestStore.CreateInitialized("CompositeKeyEndToEndTest");
-        }
-
-        protected OracleTestStore TestStore { get; }
-
-        public virtual void Dispose() => TestStore.Dispose();
     }
 }

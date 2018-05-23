@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override string StoreName { get; } = "F1Test";
 
+        // #12126
+        protected override bool UsePooling => false;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });

@@ -91,11 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 34);
         }
 
-        public async Task Skip_when_no_order_by()
-        {
-            await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
-        }
-
         [Fact]
         public async Task Single_Predicate_Cancellation()
         {

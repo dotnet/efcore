@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "#12138")]
         public virtual async Task Throws_on_concurrent_command_async()
         {
             using (var context = CreateContext())

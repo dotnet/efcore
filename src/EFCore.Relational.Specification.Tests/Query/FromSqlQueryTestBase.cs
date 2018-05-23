@@ -783,7 +783,7 @@ AND ((]UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "#12128")]
         public virtual void Include_closed_connection_opened_by_it_when_buffering()
         {
             Fixture.TestStore.CloseConnection();

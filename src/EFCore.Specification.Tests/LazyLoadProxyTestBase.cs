@@ -1590,6 +1590,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                // ReSharper disable once ConvertToLocalFunction
                 Func<Blog, bool> opaquePredicate = _ => true;
 
                 var blogs = context.Set<Blog>().Where(opaquePredicate);

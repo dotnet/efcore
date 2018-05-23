@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -151,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "OwnedQueryTest";
 
@@ -277,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(wcb => wcb.Throw());
 
-            public override DbContext CreateContext()
+            public override PoolableDbContext CreateContext()
             {
                 var context = base.CreateContext();
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;

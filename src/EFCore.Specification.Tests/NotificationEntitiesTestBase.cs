@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -111,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class NotificationEntitiesFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class NotificationEntitiesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "NotificationEntities";
 
@@ -121,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Post>().Property(e => e.Id).ValueGeneratedNever();
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.Add(
                     new Blog

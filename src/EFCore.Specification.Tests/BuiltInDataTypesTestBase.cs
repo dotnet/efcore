@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
@@ -1194,7 +1195,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";
 

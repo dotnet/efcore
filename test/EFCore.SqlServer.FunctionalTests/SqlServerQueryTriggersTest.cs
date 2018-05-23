@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected QueryTriggersContext CreateContext() => (QueryTriggersContext)Fixture.CreateContext();
 
-        protected class QueryTriggersContext : DbContext
+        protected class QueryTriggersContext : PoolableDbContext
         {
             public QueryTriggersContext(DbContextOptions options)
                 : base(options)

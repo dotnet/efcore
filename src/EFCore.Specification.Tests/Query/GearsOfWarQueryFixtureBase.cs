@@ -288,8 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
-                c => c
-                    .Log(CoreEventId.IncludeIgnoredWarning));
+                c => c.Log(CoreEventId.IncludeIgnoredWarning));
 
         public override GearsOfWarContext CreateContext()
         {

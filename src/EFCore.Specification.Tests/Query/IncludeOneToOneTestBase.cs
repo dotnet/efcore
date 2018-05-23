@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -157,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class OneToOneQueryFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class OneToOneQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "OneToOneQueryTest";
 
@@ -176,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .HasForeignKey<Address2>("PersonId"));
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 var address1 = new Address { Street = "3 Dragons Way", City = "Meereen" };
                 var address2 = new Address { Street = "42 Castle Black", City = "The Wall" };

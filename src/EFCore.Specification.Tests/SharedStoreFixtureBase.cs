@@ -48,9 +48,17 @@ namespace Microsoft.EntityFrameworkCore
             TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c));
         }
 
-        public virtual TContext CreateContext() => UsePooling
-            ? (TContext)ContextPool.Rent()
-            : (TContext)ServiceProvider.GetRequiredService(ContextType);
+        public virtual TContext CreateContext()
+        {
+            if (UsePooling)
+            {
+                var context = (PoolableDbContext)ContextPool.Rent();
+                context.SetPool(ContextPool);
+                return (TContext)(object)context;
+            }
+
+            return (TContext)ServiceProvider.GetRequiredService(ContextType);
+        }
 
         public DbContextOptions CreateOptions()
             => ConfigureOptions(ServiceProvider, new DbContextOptionsBuilder()).Options;

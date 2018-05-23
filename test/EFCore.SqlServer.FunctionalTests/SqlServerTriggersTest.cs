@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TriggersContext CreateContext() => (TriggersContext)Fixture.CreateContext();
 
-        protected class TriggersContext : DbContext
+        protected class TriggersContext : PoolableDbContext
         {
             public TriggersContext(DbContextOptions options)
                 : base(options)
@@ -138,13 +138,13 @@ namespace Microsoft.EntityFrameworkCore
             public virtual string Name { get; set; }
         }
 
-        public class SqlServerTriggersFixture : SharedStoreFixtureBase<DbContext>
+        public class SqlServerTriggersFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "SqlServerTriggers";
             protected override Type ContextType { get; } = typeof(TriggersContext);
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.Database.EnsureCreated();
 

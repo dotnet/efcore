@@ -141,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(2, context.Owners.Count()));
         }
 
-
 #if !Test20
         [Theory]
         [InlineData(3)]
@@ -150,12 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var expectedBlogs = new List<Blog>();
             TestHelpers.ExecuteWithStrategyInTransaction(
-                () =>
-                    {
-                        var optionsBuilder = new DbContextOptionsBuilder(Fixture.CreateOptions());
-                        new SqlServerDbContextOptionsBuilder(optionsBuilder).MinBatchSize(minBatchSize);
-                        return new BloggingContext(optionsBuilder.Options);
-                    },
+                () => (BloggingContext)Fixture.CreateContext(minBatchSize),
                 UseTransaction,
                 context =>
                     {
@@ -220,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore
         protected void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
-        private class BloggingContext : DbContext
+        private class BloggingContext : PoolableDbContext
         {
             public BloggingContext(DbContextOptions options)
                 : base(options)
@@ -264,20 +258,27 @@ namespace Microsoft.EntityFrameworkCore
             public byte[] Version { get; set; }
         }
 
-        public class BatchingTestFixture : SharedStoreFixtureBase<DbContext>
+        public class BatchingTestFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
             protected override string StoreName { get; } = "BatchingTest";
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(BloggingContext);
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.Database.EnsureCreated();
                 context.Database.ExecuteSqlCommand(
                     @"
 ALTER TABLE dbo.Owners
     ALTER COLUMN Name nvarchar(MAX);");
+            }
+
+            public DbContext CreateContext(int minBatchSize)
+            {
+                var optionsBuilder = new DbContextOptionsBuilder(CreateOptions());
+                new SqlServerDbContextOptionsBuilder(optionsBuilder).MinBatchSize(minBatchSize);
+                return new BloggingContext(optionsBuilder.Options);
             }
         }
     }

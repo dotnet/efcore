@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override Type ContextType => typeof(BatContext);
         }
 
-        protected class BatContext : DbContext
+        protected class BatContext : PoolableDbContext
         {
             public BatContext(DbContextOptions options)
                 : base(options)

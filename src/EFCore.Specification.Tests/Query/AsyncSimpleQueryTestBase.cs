@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 groups = await context.Orders.GroupBy(o => o.CustomerID).ToListAsync();
             }
 
-            groups[0].First();
+            var _ = groups[0].First();
         }
 
         [ConditionalFact]
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var results = await context.Customers
+                var _ = await context.Customers
                     .Select(
                         c => new
                         {
@@ -2747,16 +2747,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Distinct_Scalar()
         {
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Select(c => c.City).Distinct());
+                cs => cs.Select(c => c.City).Distinct());
         }
 
         [ConditionalFact]
         public virtual async Task OrderBy_Distinct()
         {
             await AssertQuery<Customer>(
-                cs =>
-                    cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct());
+                cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct());
         }
 
         [ConditionalFact]
@@ -2903,6 +2901,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // ReSharper disable once ReplaceWithSingleCallToLast
                 cs => cs.Where(c => c.CustomerID == "ALFKI").LastAsync(),
                 entryCount: 1);
+        }
+
+        [ConditionalFact(Skip = "12129")]
+        public virtual async Task Skip_when_no_order_by()
+        {
+            await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
         }
 
         [ConditionalFact]
@@ -3235,16 +3239,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+                cs => cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_array_inline()
         {
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+                cs => cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -3252,16 +3254,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new List<string> { "ABCDE", "ALFKI" };
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+                cs => cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_list_inline()
         {
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+                cs => cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -3269,8 +3269,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var alfki = "ALFKI";
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => new List<string> { "ABCDE", alfki }.Contains(c.CustomerID)), entryCount: 1);
+                cs => cs.Where(c => new List<string> { "ABCDE", alfki }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -3278,8 +3277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
+                cs => cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
         }
 
         [ConditionalFact]
@@ -3287,8 +3285,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
+                cs => cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -3296,8 +3293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"), entryCount: 1);
+                cs => cs.Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -3314,8 +3310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID) && c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE"));
+                cs => cs.Where(c => ids.Contains(c.CustomerID) && c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE"));
         }
 
         [ConditionalFact]
@@ -3323,8 +3318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ALFKI", "ABC')); GO; DROP TABLE Orders; GO; --" };
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"), entryCount: 1);
+                cs => cs.Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -3333,16 +3327,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             var ids = Array.Empty<string>();
 
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID)));
+                cs => cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_empty_inline()
         {
             await AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => !new List<string>().Contains(c.CustomerID)), entryCount: 91);
+                cs => cs.Where(c => !new List<string>().Contains(c.CustomerID)), entryCount: 91);
         }
 
         [ConditionalFact]
@@ -3360,7 +3352,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#12138")]
         public virtual async Task Throws_on_concurrent_query_list()
         {
             using (var context = CreateContext())
@@ -3395,7 +3387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#12138")]
         public virtual async Task Throws_on_concurrent_query_first()
         {
             using (var context = CreateContext())

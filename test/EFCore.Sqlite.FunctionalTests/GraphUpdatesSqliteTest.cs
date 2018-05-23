@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
                 protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
                 protected virtual bool AutoDetectChanges => false;
 
-                public override DbContext CreateContext()
+                public override PoolableDbContext CreateContext()
                 {
                     var context = base.CreateContext();
                     context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;

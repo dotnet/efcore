@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -213,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public WithAllNullableIntKey Principal { get; set; }
         }
 
-        public abstract class NullKeysFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class NullKeysFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "NullKeysTest";
 
@@ -265,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Property(e => e.Id).ValueGeneratedNever();
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.Add(new WithStringKey { Id = "Stereo" });
                 context.Add(new WithStringKey { Id = "Fire" });

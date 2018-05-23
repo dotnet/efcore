@@ -1387,7 +1387,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "FieldMapping";
 
@@ -1532,7 +1532,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.Add(CreateBlogAndPosts<BlogAuto, PostAuto>());
                 context.AddRange(CreatePostsAndBlog<BlogAuto, PostAuto>());

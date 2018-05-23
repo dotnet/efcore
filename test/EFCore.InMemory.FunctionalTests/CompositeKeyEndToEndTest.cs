@@ -5,6 +5,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -164,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class BronieContext : DbContext
+        private class BronieContext : PoolableDbContext
         {
             private readonly IServiceProvider _serviceProvider;
 

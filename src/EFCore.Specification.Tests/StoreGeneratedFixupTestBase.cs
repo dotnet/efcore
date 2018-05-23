@@ -4230,7 +4230,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class StoreGeneratedFixupFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class StoreGeneratedFixupFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "StoreGeneratedFixup";
 

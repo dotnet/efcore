@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Three
         }
 
-        public abstract class MappingQueryFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class MappingQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected abstract string DatabaseSchema { get; }
             protected override string StoreName { get; } = "Northwind";
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         });
             }
 
-            public override DbContext CreateContext()
+            public override PoolableDbContext CreateContext()
             {
                 var context = base.CreateContext();
 

@@ -3,11 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 {
-    public class TransportationContext : DbContext
+    public class TransportationContext : PoolableDbContext
     {
         public TransportationContext(DbContextOptions options)
             : base(options)
