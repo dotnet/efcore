@@ -436,6 +436,37 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
         }
 
+        [Fact]
+        public void Sql_variant()
+        {
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "MyTable",
+                        Columns =
+                        {
+                            IdColumn,
+                            new DatabaseColumn
+                            {
+                                Name = "MyColumn",
+                                StoreType = "sql_variant"
+                            }
+                        },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+
+            var model = _factory.Create(databaseModel, useDatabaseNames: true);
+
+            var property = model.FindEntityType("MyTable").GetProperty("MyColumn");
+            Assert.Equal(typeof(object), property.ClrType);
+            Assert.Equal("sql_variant", property.Relational().ColumnType);
+        }
+
         [Theory]
         [InlineData(new[] { "Id" }, 1)]
         [InlineData(new[] { "Id", "AltId" }, 2)]
