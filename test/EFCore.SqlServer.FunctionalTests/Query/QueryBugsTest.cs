@@ -4325,6 +4325,158 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
 
         #endregion
 
+        #region Bug11885
+
+        [Fact]
+        public virtual void Average_with_cast()
+        {
+            using (CreateDatabase11885())
+            {
+                using (var context = new MyContext11885(_options))
+                {
+                    var prices = context.Prices.ToList();
+
+                    ClearLog();
+
+                    Assert.Equal(prices.Average(e => e.Price), context.Prices.Average(e => e.Price));
+                    Assert.Equal(prices.Average(e => e.IntColumn), context.Prices.Average(e => e.IntColumn));
+                    Assert.Equal(prices.Average(e => e.NullableIntColumn), context.Prices.Average(e => e.NullableIntColumn));
+                    Assert.Equal(prices.Average(e => e.LongColumn), context.Prices.Average(e => e.LongColumn));
+                    Assert.Equal(prices.Average(e => e.NullableLongColumn), context.Prices.Average(e => e.NullableLongColumn));
+                    Assert.Equal(prices.Average(e => e.FloatColumn), context.Prices.Average(e => e.FloatColumn));
+                    Assert.Equal(prices.Average(e => e.NullableFloatColumn), context.Prices.Average(e => e.NullableFloatColumn));
+                    Assert.Equal(prices.Average(e => e.DoubleColumn), context.Prices.Average(e => e.DoubleColumn));
+                    Assert.Equal(prices.Average(e => e.NullableDoubleColumn), context.Prices.Average(e => e.NullableDoubleColumn));
+                    Assert.Equal(prices.Average(e => e.DecimalColumn), context.Prices.Average(e => e.DecimalColumn));
+                    Assert.Equal(prices.Average(e => e.NullableDecimalColumn), context.Prices.Average(e => e.NullableDecimalColumn));
+
+                    AssertSql(
+                        @"SELECT AVG([e].[Price])
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT AVG(CAST([e].[IntColumn] AS float))
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT AVG(CAST([e].[NullableIntColumn] AS float))
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT AVG(CAST([e].[LongColumn] AS float))
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT AVG(CAST([e].[NullableLongColumn] AS float))
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT CAST(AVG([e].[FloatColumn]) AS real)
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT CAST(AVG([e].[NullableFloatColumn]) AS real)
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT AVG([e].[DoubleColumn])
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT AVG([e].[NullableDoubleColumn])
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT AVG([e].[DecimalColumn])
+FROM [Prices] AS [e]",
+                        //
+                        @"SELECT AVG([e].[NullableDecimalColumn])
+FROM [Prices] AS [e]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11885()
+        {
+            return CreateTestStore(
+                () => new MyContext11885(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Price11885 {
+                            IntColumn = 1,
+                            NullableIntColumn = 1,
+                            LongColumn = 1000,
+                            NullableLongColumn = 1000,
+                            FloatColumn = 0.1F,
+                            NullableFloatColumn = 0.1F,
+                            DoubleColumn = 0.000001,
+                            NullableDoubleColumn = 0.000001,
+                            DecimalColumn = 1.0m,
+                            NullableDecimalColumn = 1.0m,
+                            Price = 0.00112000m
+                        },
+                        new Price11885
+                        {
+                            IntColumn = 2,
+                            NullableIntColumn = 2,
+                            LongColumn = 2000,
+                            NullableLongColumn = 2000,
+                            FloatColumn = 0.2F,
+                            NullableFloatColumn = 0.2F,
+                            DoubleColumn = 0.000002,
+                            NullableDoubleColumn = 0.000002,
+                            DecimalColumn = 2.0m,
+                            NullableDecimalColumn = 2.0m,
+                            Price = 0.00232111m
+                        },
+                        new Price11885
+                        {
+                            IntColumn = 3,
+                            LongColumn = 3000,
+                            FloatColumn = 0.3F,
+                            DoubleColumn = 0.000003,
+                            DecimalColumn = 3.0m,
+                            Price = 0.00345223m
+                        }
+                        );
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext11885 : DbContext
+        {
+            public DbSet<Price11885> Prices { get; set; }
+
+            public MyContext11885(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Price11885>(
+                    b =>
+                    {
+                        b.Property(e => e.Price).HasColumnType("DECIMAL(18, 8)");
+                        b.Property(e => e.DecimalColumn).HasColumnType("DECIMAL(18, 2)");
+                        b.Property(e => e.NullableDecimalColumn).HasColumnType("DECIMAL(18, 2)");
+                    });
+            }
+        }
+
+        public class Price11885
+        {
+            public int Id { get; set; }
+            public int IntColumn { get; set; }
+            public int? NullableIntColumn { get; set; }
+            public long LongColumn { get; set; }
+            public long? NullableLongColumn { get; set; }
+            public float FloatColumn { get; set; }
+            public float? NullableFloatColumn { get; set; }
+            public double DoubleColumn { get; set; }
+            public double? NullableDoubleColumn { get; set; }
+            public decimal DecimalColumn { get; set; }
+            public decimal? NullableDecimalColumn { get; set; }
+            public decimal Price { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

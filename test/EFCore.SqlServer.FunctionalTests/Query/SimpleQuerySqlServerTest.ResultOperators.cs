@@ -178,7 +178,7 @@ FROM [Orders] AS [o]");
             base.Average_with_division_on_decimal();
 
             AssertSql(
-                @"SELECT AVG(CAST([od].[Quantity] / 2.09 AS decimal(18,2)))
+                @"SELECT AVG([od].[Quantity] / 2.09)
 FROM [Order Details] AS [od]");
         }
 
@@ -187,7 +187,7 @@ FROM [Order Details] AS [od]");
             base.Average_with_division_on_decimal_no_significant_digits();
 
             AssertSql(
-                @"SELECT AVG(CAST([od].[Quantity] / 2.0 AS decimal(18,2)))
+                @"SELECT AVG([od].[Quantity] / 2.0)
 FROM [Order Details] AS [od]");
         }
 
@@ -196,7 +196,7 @@ FROM [Order Details] AS [od]");
             base.Average_with_coalesce();
 
             AssertSql(
-                @"SELECT AVG(CAST(COALESCE([p].[UnitPrice], 0.0) AS decimal(18,2)))
+                @"SELECT AVG(COALESCE([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40");
         }
@@ -219,7 +219,7 @@ FROM [Customers] AS [c]");
             base.Average_on_float_column();
 
             AssertSql(
-                @"SELECT CAST(AVG(CAST([od].[Discount] AS real)) AS real)
+                @"SELECT CAST(AVG([od].[Discount]) AS real)
 FROM [Order Details] AS [od]
 WHERE [od].[ProductID] = 1");
         }
@@ -235,7 +235,7 @@ WHERE [o].[OrderID] < 10300",
                 //
                 @"@_outer_OrderID='10248'
 
-SELECT CAST(AVG(CAST([od0].[Discount] AS real)) AS real)
+SELECT CAST(AVG([od0].[Discount]) AS real)
 FROM [Order Details] AS [od0]
 WHERE @_outer_OrderID = [od0].[OrderID]");
 
@@ -250,7 +250,7 @@ WHERE @_outer_OrderID = [od0].[OrderID]");
 
             AssertSql(
                 @"SELECT [o].[OrderID], (
-    SELECT CAST(AVG(CAST([od].[Discount] AS real)) AS real)
+    SELECT CAST(AVG([od].[Discount]) AS real)
     FROM [Order Details] AS [od]
     WHERE [o].[OrderID] = [od].[OrderID]
 ) AS [Sum]

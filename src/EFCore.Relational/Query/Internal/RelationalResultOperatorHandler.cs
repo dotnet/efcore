@@ -230,19 +230,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
+                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
+                    expression = UnwrapAliasExpression(expression);
+
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
                     var outputType = inputType;
-
                     var nonNullableInputType = inputType.UnwrapNullableType();
                     if (nonNullableInputType == typeof(int)
                         || nonNullableInputType == typeof(long))
                     {
                         outputType = inputType.IsNullableType() ? typeof(double?) : typeof(double);
+                        expression = new ExplicitCastExpression(expression, outputType);
                     }
 
-                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
-                    expression = UnwrapAliasExpression(expression);
-                    expression = new ExplicitCastExpression(expression, outputType);
                     Expression averageExpression = new SqlFunctionExpression(
                         "AVG",
                         outputType,
