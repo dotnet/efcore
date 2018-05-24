@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private static readonly ParameterExpression _resultsParameter
             = Expression.Parameter(typeof(object[]), name: "results");
+
         private static readonly ParameterExpression _dummyCancellationToken
             = Expression.Parameter(typeof(CancellationToken), name: "ct");
 
@@ -89,21 +90,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             task.ContinueWith(
                 t =>
+                {
+                    if (t.IsFaulted)
                     {
-                        if (t.IsFaulted)
-                        {
-                            // ReSharper disable once PossibleNullReferenceException
-                            tcs.TrySetException(t.Exception.InnerExceptions);
-                        }
-                        else if (t.IsCanceled)
-                        {
-                            tcs.TrySetCanceled();
-                        }
-                        else
-                        {
-                            tcs.TrySetResult(t.Result);
-                        }
-                    },
+                        // ReSharper disable once PossibleNullReferenceException
+                        tcs.TrySetException(t.Exception.InnerExceptions);
+                    }
+                    else if (t.IsCanceled)
+                    {
+                        tcs.TrySetCanceled();
+                    }
+                    else
+                    {
+                        tcs.TrySetResult(t.Result);
+                    }
+                },
                 TaskContinuationOptions.ExecuteSynchronously);
 
             return tcs.Task;

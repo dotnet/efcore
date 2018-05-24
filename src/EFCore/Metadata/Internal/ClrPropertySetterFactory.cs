@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
                 writeExpression = Expression.Block(
-                    new[] { converted }, 
+                    new[] { converted },
                     new List<Expression>
                     {
                         Expression.Assign(

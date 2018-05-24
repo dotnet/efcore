@@ -22,24 +22,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             = new ConcurrentDictionary<(Type, Type), ValueConverterInfo>();
 
         private static readonly Type[] _signedPreferred =
-        {
-            typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal)
-        };
+            { typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal) };
 
         private static readonly Type[] _unsignedPreferred =
-        {
-            typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(decimal)
-        };
+            { typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
 
         private static readonly Type[] _floatingPreferred =
-        {
-            typeof(float), typeof(double), typeof(decimal)
-        };
+            { typeof(float), typeof(double), typeof(decimal) };
 
         private static readonly Type[] _charPreferred =
-        {
-            typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal)
-        };
+            { typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
 
         private static readonly Type[] _numerics =
         {
@@ -168,8 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 }
             }
             else if (underlyingModelType == typeof(DateTime)
-                || underlyingModelType == typeof(DateTimeOffset)
-                || underlyingModelType == typeof(TimeSpan))
+                     || underlyingModelType == typeof(DateTimeOffset)
+                     || underlyingModelType == typeof(TimeSpan))
             {
                 if (underlyingProviderType == null
                     || underlyingProviderType == typeof(string))
@@ -307,7 +299,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                             i => toNumber.Create().ComposeWith(toBytes.Create()),
                             toBytes.MappingHints);
                     });
-
             }
         }
 
@@ -343,7 +334,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             Type converterType,
             Func<Type, Type, IEnumerable<ValueConverterInfo>> afterPreferred)
         {
-            var usedTypes = new List<Type> { modelType }; // List not hash because few members
+            var usedTypes = new List<Type>
+            {
+                modelType
+            }; // List not hash because few members
             var underlyingModelType = modelType.UnwrapEnumType();
 
             if (modelType.IsEnum)

@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         case QuerySourceReferenceExpression querySourceReferenceExpression:
                             return querySourceReferenceExpression.ReferencedQuerySource;
                         case MethodCallExpression methodCallExpression
-                        when IsIncludeMethod(methodCallExpression):
+                            when IsIncludeMethod(methodCallExpression):
                             var querySource = ((QuerySourceReferenceExpression)methodCallExpression.Arguments[1])
                                 .ReferencedQuerySource;
                             _querySourcesWithInclude.Add(querySource);
@@ -527,37 +527,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             orderingExpressionName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                         }
 
-                        if (orderingExpressionQsre != null && orderingExpressionName != null)
+                        if (orderingExpressionQsre != null
+                            && orderingExpressionName != null)
                         {
                             projectionIndex
                                 = subQueryProjection
                                     .FindIndex(
                                         e =>
+                                        {
+                                            var expressionWithoutConvert = e.RemoveConvert();
+                                            var projectionExpression = (expressionWithoutConvert as NullConditionalExpression)?.AccessOperation
+                                                                       ?? expressionWithoutConvert;
+
+                                            if (projectionExpression is MethodCallExpression methodCall
+                                                && methodCall.Method.IsEFPropertyMethod())
                                             {
-                                                var expressionWithoutConvert = e.RemoveConvert();
-                                                var projectionExpression = (expressionWithoutConvert as NullConditionalExpression)?.AccessOperation
-                                                                           ?? expressionWithoutConvert;
+                                                var properyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0].RemoveConvert();
+                                                var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
 
-                                                if (projectionExpression is MethodCallExpression methodCall
-                                                    && methodCall.Method.IsEFPropertyMethod())
-                                                {
-                                                    var properyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0].RemoveConvert();
-                                                    var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
+                                                return properyQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
+                                                       && propertyName == orderingExpressionName;
+                                            }
 
-                                                    return properyQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
-                                                           && propertyName == orderingExpressionName;
-                                                }
+                                            if (projectionExpression is MemberExpression projectionMemberExpression)
+                                            {
+                                                var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression.RemoveConvert();
 
-                                                if (projectionExpression is MemberExpression projectionMemberExpression)
-                                                {
-                                                    var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression.RemoveConvert();
+                                                return projectionMemberQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
+                                                       && projectionMemberExpression.Member.Name == orderingExpressionName;
+                                            }
 
-                                                    return projectionMemberQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
-                                                           && projectionMemberExpression.Member.Name == orderingExpressionName;
-                                                }
-
-                                                return false;
-                                            });
+                                            return false;
+                                        });
                         }
                         else
                         {

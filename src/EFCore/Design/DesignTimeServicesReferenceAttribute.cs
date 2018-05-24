@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     Gets the assembly-qualified name of the type that can be used to add additional design time services to a <see cref="ServiceCollection" />.
+        ///     Gets the assembly-qualified name of the type that can be used to add additional design time services to a
+        ///     <see cref="ServiceCollection" />.
         ///     This type should implement <see cref="IDesignTimeServices" />.
         /// </summary>
         public string TypeName { get; }

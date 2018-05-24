@@ -369,8 +369,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return entityTypesWithSameType
-                .FirstOrDefault(e => e.DefiningNavigationName == definingNavigationName
-                                     && e.DefiningEntityType.Name == definingEntityTypeName);
+                .FirstOrDefault(
+                    e => e.DefiningNavigationName == definingNavigationName
+                         && e.DefiningEntityType.Name == definingEntityTypeName);
         }
 
         /// <summary>

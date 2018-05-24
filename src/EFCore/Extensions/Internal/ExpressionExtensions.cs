@@ -233,7 +233,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return expression;
         }
 
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -285,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
-            && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
+               && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -399,10 +398,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     Expression.NewArrayInit(
                         typeof(object),
                         properties
-                            .Select(p =>
-                                Expression.Convert(
-                                    target.CreateEFPropertyExpression(p),
-                                    typeof(object)))
+                            .Select(
+                                p =>
+                                    Expression.Convert(
+                                        target.CreateEFPropertyExpression(p),
+                                        typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
         }

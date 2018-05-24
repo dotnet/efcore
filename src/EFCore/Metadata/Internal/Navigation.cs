@@ -54,7 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalNavigationBuilder Builder { [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set; }
+        public virtual InternalNavigationBuilder Builder
+        {
+            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -126,6 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.NavigationToShadowEntity(navigationName, sourceType.DisplayName(), targetType.DisplayName()));
                 }
+
                 return false;
             }
 
@@ -152,6 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.NoClrNavigation(
                             navigationProperty.Name, sourceClrType.ShortDisplayName()));
                 }
+
                 return false;
             }
 
@@ -171,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 navigationProperty.GetMemberType().ShortDisplayName(),
                                 targetClrType.ShortDisplayName()));
                     }
+
                     return false;
                 }
 
@@ -185,6 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 navigationProperty.GetMemberType().ShortDisplayName(),
                                 targetClrType.ShortDisplayName()));
                     }
+
                     return false;
                 }
             }
@@ -211,10 +221,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IClrCollectionAccessor CollectionAccessor
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _collectionAccessor, this, n =>
-                !n.IsCollection() || n.IsShadowProperty
-                    ? null
-                    : new ClrCollectionAccessorFactory().Create(n));
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _collectionAccessor, this, n =>
+                    !n.IsCollection() || n.IsShadowProperty
+                        ? null
+                        : new ClrCollectionAccessorFactory().Create(n));
 
         IForeignKey INavigation.ForeignKey => ForeignKey;
         IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;

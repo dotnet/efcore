@@ -110,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 return true;
             }
+
             return false;
         }
     }

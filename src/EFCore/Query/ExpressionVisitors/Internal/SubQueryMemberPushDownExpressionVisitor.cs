@@ -127,8 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private bool IsFirstSingleLastOrDefault(ResultOperatorBase resultOperator)
             => (resultOperator is FirstResultOperator first && first.ReturnDefaultWhenEmpty)
-            || (resultOperator is SingleResultOperator single && single.ReturnDefaultWhenEmpty)
-            || (resultOperator is LastResultOperator last && last.ReturnDefaultWhenEmpty);
+               || (resultOperator is SingleResultOperator single && single.ReturnDefaultWhenEmpty)
+               || (resultOperator is LastResultOperator last && last.ReturnDefaultWhenEmpty);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
             => property[CoreAnnotationNames.ProviderClrType] = providerClrType;
 
         /// <summary>
-        ///     Sets the custom <see cref="ValueConverter"/> for this property.
+        ///     Sets the custom <see cref="ValueConverter" /> for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="converter"> The converter, or <c>null</c> to remove any previously set converter. </param>
@@ -127,18 +127,19 @@ namespace Microsoft.EntityFrameworkCore
             if (converter != null
                 && converter.ModelClrType.UnwrapNullableType() != property.ClrType.UnwrapNullableType())
             {
-                throw new ArgumentException(CoreStrings.ConverterPropertyMismatch(
-                    converter.ModelClrType.ShortDisplayName(),
-                    property.DeclaringEntityType.DisplayName(),
-                    property.Name,
-                    property.ClrType.ShortDisplayName()));
+                throw new ArgumentException(
+                    CoreStrings.ConverterPropertyMismatch(
+                        converter.ModelClrType.ShortDisplayName(),
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        property.ClrType.ShortDisplayName()));
             }
 
             property[CoreAnnotationNames.ValueConverter] = converter;
         }
 
         /// <summary>
-        ///     Sets the custom <see cref="ValueComparer"/> for this property.
+        ///     Sets the custom <see cref="ValueComparer" /> for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
@@ -150,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Sets the custom <see cref="ValueComparer"/> for this property when performing key comparisons..
+        ///     Sets the custom <see cref="ValueComparer" /> for this property when performing key comparisons..
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>

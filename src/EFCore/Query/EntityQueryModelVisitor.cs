@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class DuplicateQueryModelIdentifyingExpressionVisitor : RelinqExpressionVisitor
         {
             private readonly QueryCompilationContext _queryCompilationContext;
-            private ISet<QueryModel> _queryModels = new HashSet<QueryModel>();
+            private readonly ISet<QueryModel> _queryModels = new HashSet<QueryModel>();
 
             public DuplicateQueryModelIdentifyingExpressionVisitor(QueryCompilationContext queryCompilationContext)
             {
@@ -486,7 +486,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _queryModelVisitor.BindMemberExpression(fromMember, (p, qs) => isModelProperty = qs != null && p != null);
                 }
 
-                if (!isModelProperty && expression is MethodCallExpression fromMethodCall)
+                if (!isModelProperty
+                    && expression is MethodCallExpression fromMethodCall)
                 {
                     _queryModelVisitor.BindMethodCallExpression(fromMethodCall, (p, qs) => isModelProperty = qs != null && p != null);
                 }
@@ -517,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class EntityQsreToKeyAccessConvertingQueryModelVisitor : QueryModelVisitorBase
         {
-            private QueryCompilationContext _queryCompilationContext;
+            private readonly QueryCompilationContext _queryCompilationContext;
 
             public EntityQsreToKeyAccessConvertingQueryModelVisitor(QueryCompilationContext queryCompilationContext)
             {
@@ -607,12 +608,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private static bool IsNavigationSubquery(SubQueryExpression subQueryExpression)
                 => subQueryExpression != null
-                ? subQueryExpression.QueryModel.BodyClauses.OfType<WhereClause>().Where(c => c.Predicate is NullSafeEqualExpression).Any()
-                    && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression selectorQsre
-                    && subQueryExpression.QueryModel.ResultOperators.Count == 1
-                    && subQueryExpression.QueryModel.ResultOperators[0] is FirstResultOperator firstResultOperator
-                    && firstResultOperator.ReturnDefaultWhenEmpty
-                : false;
+                    ? subQueryExpression.QueryModel.BodyClauses.OfType<WhereClause>().Where(c => c.Predicate is NullSafeEqualExpression).Any()
+                      && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression selectorQsre
+                      && subQueryExpression.QueryModel.ResultOperators.Count == 1
+                      && subQueryExpression.QueryModel.ResultOperators[0] is FirstResultOperator firstResultOperator
+                      && firstResultOperator.ReturnDefaultWhenEmpty
+                    : false;
 
             private bool TryGetEntityPrimaryKeys(IQuerySource querySource, out IReadOnlyList<IProperty> keyProperties)
             {
@@ -1220,7 +1221,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(ordering.OrderingDirection));
         }
 
-
         private void TryOptimizeCorrelatedCollections([NotNull] QueryModel queryModel)
         {
             // TODO: disabled for cross joins - problem is outer query containing cross join can produce duplicate results
@@ -1256,7 +1256,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        /// Removes orderings for a given query model.
+        ///     Removes orderings for a given query model.
         /// </summary>
         /// <param name="queryModel">Query model to remove orderings on.</param>
         protected virtual void RemoveOrderings(QueryModel queryModel)
@@ -1539,7 +1539,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     RescopeTransparentAccess(bodyClause, outerAccessExpression);
 
-                    if (bodyClause is GroupJoinClause groupJoinClause && QueryCompilationContext.QuerySourceMapping
+                    if (bodyClause is GroupJoinClause groupJoinClause
+                        && QueryCompilationContext.QuerySourceMapping
                             .ContainsMapping(groupJoinClause.JoinClause))
                     {
                         RescopeTransparentAccess(groupJoinClause.JoinClause, outerAccessExpression);
@@ -1740,11 +1741,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             BindMemberExpression(
                 memberExpression, null,
                 (property, querySource) =>
-                    {
-                        memberBinder(property, querySource);
+                {
+                    memberBinder(property, querySource);
 
-                        return default(object);
-                    });
+                    return default(object);
+                });
         }
 
         /// <summary>
@@ -1768,13 +1769,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindPropertyExpressionCore(
                 memberExpression, querySource,
                 (ps, qs) =>
-                    {
-                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
+                {
+                    var property = ps.Count == 1 ? ps[0] as IProperty : null;
 
-                        return property != null
-                            ? memberBinder(property, qs)
-                            : default;
-                    });
+                    return property != null
+                        ? memberBinder(property, qs)
+                        : default;
+                });
         }
 
         /// <summary>
@@ -1798,13 +1799,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindPropertyExpressionCore(
                 methodCallExpression, querySource,
                 (ps, qs) =>
-                    {
-                        var property = ps.Count == 1 ? ps[0] as IProperty : null;
+                {
+                    var property = ps.Count == 1 ? ps[0] as IProperty : null;
 
-                        return property != null
-                            ? methodCallBinder(property, qs)
-                            : default;
-                    });
+                    return property != null
+                        ? methodCallBinder(property, qs)
+                        : default;
+                });
         }
 
         private TResult BindPropertyExpressionCore<TResult>(
@@ -1868,11 +1869,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             BindMethodCallExpression(
                 methodCallExpression, null,
                 (property, querySource) =>
-                    {
-                        methodCallBinder(property, querySource);
+                {
+                    methodCallBinder(property, querySource);
 
-                        return default(object);
-                    });
+                    return default(object);
+                });
         }
 
         #endregion

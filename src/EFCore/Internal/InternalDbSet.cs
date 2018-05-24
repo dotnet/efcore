@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(typeof(TEntity).ShortDisplayName()));
                     }
+
                     throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
                 }
 

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="precision"> The suggested precision of the mapped data type. </param>
         /// <param name="scale"> The suggested scale of the mapped data type. </param>
         /// <param name="unicode"> Whether or not the mapped data type should support Unicode. </param>
-        /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator"/>. </param>
+        /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
         public ConverterMappingHints(
             int? size = null,
             int? precision = null,
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public virtual bool? IsUnicode { get; }
 
         /// <summary>
-        ///     An optional factory for creating a specific <see cref="ValueGenerator"/> to use for model
+        ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use for model
         ///     values when this converter is being used.
         /// </summary>
         public virtual Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }

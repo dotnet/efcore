@@ -218,15 +218,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableProperty RemoveProperty([NotNull] string name);
 
         /// <summary>
-        ///     Adds a <see cref="IMutableServiceProperty"/> to this entity.
+        ///     Adds a <see cref="IMutableServiceProperty" /> to this entity.
         /// </summary>
-        /// <param name="memberInfo"> The <see cref="PropertyInfo"/> or <see cref="FieldInfo"/> of the property to add. </param>
+        /// <param name="memberInfo"> The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property to add. </param>
         /// <returns> The newly created property. </returns>
         IMutableServiceProperty AddServiceProperty([NotNull] MemberInfo memberInfo);
 
         /// <summary>
         ///     <para>
-        ///         Gets the <see cref="IMutableServiceProperty"/> with a given name. Returns null if no property with the given name is defined.
+        ///         Gets the <see cref="IMutableServiceProperty" /> with a given name. Returns null if no property with the given name is defined.
         ///     </para>
         ///     <para>
         ///         This API only finds service properties and does not find scalar or navigation properties.
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets all the <see cref="IMutableServiceProperty"/> defined on this entity.
+        ///         Gets all the <see cref="IMutableServiceProperty" /> defined on this entity.
         ///     </para>
         ///     <para>
         ///         This API only returns service properties and does not return scalar or navigation properties.
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IMutableServiceProperty> GetServiceProperties();
 
         /// <summary>
-        ///     Removes an <see cref="IMutableServiceProperty"/> from this entity.
+        ///     Removes an <see cref="IMutableServiceProperty" /> from this entity.
         /// </summary>
         /// <param name="name"> The name of the property to remove. </param>
         /// <returns> The property that was removed. </returns>

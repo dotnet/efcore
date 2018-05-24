@@ -229,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     {
                                         hashCode += (hashCode * 397) ^ GetHashCode(memberListBinding.Initializers[j].Arguments);
                                     }
+
                                     break;
                                 default:
                                     throw new NotImplementedException();

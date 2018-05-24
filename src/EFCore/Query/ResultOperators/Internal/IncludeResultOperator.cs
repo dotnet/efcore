@@ -35,7 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         public IncludeResultOperator(
             [NotNull] INavigation[] navigationPath, [NotNull] Expression pathFromQuerySource, bool implicitLoad = false)
         {
-            _navigationPaths = new List<INavigation[]> { navigationPath };
+            _navigationPaths = new List<INavigation[]>
+            {
+                navigationPath
+            };
             _navigationPropertyPaths = new List<string>();
             _pathFromQuerySource = pathFromQuerySource;
 

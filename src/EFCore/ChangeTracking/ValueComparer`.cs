@@ -188,7 +188,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return Expression.Lambda<Func<T, int>>(expression, param);
         }
 
-
         /// <summary>
         ///     Compares the two instances to determine if they are equal.
         /// </summary>
@@ -293,6 +292,5 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public new virtual Expression<Func<T, T>> SnapshotExpression
             => (Expression<Func<T, T>>)base.SnapshotExpression;
-
     }
 }

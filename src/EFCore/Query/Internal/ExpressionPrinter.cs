@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual List<IQuerySource> VisitedQuerySources { get; private set; } = new List<IQuerySource>();
+        public virtual List<IQuerySource> VisitedQuerySources { get; } = new List<IQuerySource>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -669,7 +669,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _stringBuilder.Append(argumentNames[i] + ": ");
                     }
 
-                    if (i == methodCallExpression.Arguments.Count - 1 && !isSimpleMethodOrProperty)
+                    if (i == methodCallExpression.Arguments.Count - 1
+                        && !isSimpleMethodOrProperty)
                     {
                         _stringBuilder.DisconnectCurrentNode();
                     }
@@ -695,8 +696,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static bool IsAnonymousType(Type type)
             => type.Name.StartsWith("<>")
-                && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
-                && type.Name.Contains("AnonymousType");
+               && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
+               && type.Name.Contains("AnonymousType");
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

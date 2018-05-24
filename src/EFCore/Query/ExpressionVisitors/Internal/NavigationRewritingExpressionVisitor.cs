@@ -436,22 +436,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var result = _queryModelVisitor.BindNavigationPathPropertyExpression(
                 node,
                 (ps, qs) =>
+                {
+                    if (qs != null)
                     {
-                        if (qs != null)
-                        {
-                            return RewriteNavigationProperties(
-                                ps,
-                                qs,
-                                node,
-                                node.Expression,
-                                node.Member.Name,
-                                node.Type,
-                                e => e.MakeMemberAccess(node.Member),
-                                e => new NullConditionalExpression(e, e.MakeMemberAccess(node.Member)));
-                        }
+                        return RewriteNavigationProperties(
+                            ps,
+                            qs,
+                            node,
+                            node.Expression,
+                            node.Member.Name,
+                            node.Type,
+                            e => e.MakeMemberAccess(node.Member),
+                            e => new NullConditionalExpression(e, e.MakeMemberAccess(node.Member)));
+                    }
 
-                        return null;
-                    });
+                    return null;
+                });
 
             if (result != null)
             {
@@ -493,7 +493,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 // if qsre is pointing to a subquery, look for DefaulIfEmpty result operators inside
                 // if such operator is found then we need to add null-compensation logic
                 // unless the query model has a GroupBy operator - qsre coming from groupby can never be null
-                if (subQuery != null && !(subQuery.QueryModel.ResultOperators.LastOrDefault() is GroupResultOperator))
+                if (subQuery != null
+                    && !(subQuery.QueryModel.ResultOperators.LastOrDefault() is GroupResultOperator))
                 {
                     var containsDefaultIfEmptyChecker = new ContainsDefaultIfEmptyCheckingVisitor();
                     containsDefaultIfEmptyChecker.VisitQueryModel(subQuery.QueryModel);
@@ -587,28 +588,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var result = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     node,
                     (ps, qs) =>
+                    {
+                        if (qs != null)
                         {
-                            if (qs != null)
-                            {
-                                return RewriteNavigationProperties(
-                                    ps,
-                                    qs,
-                                    node,
-                                    node.Arguments[0],
-                                    (string)((ConstantExpression)node.Arguments[1]).Value,
-                                    node.Type,
-                                    e => node.Arguments[0].Type != e.Type
-                                        ? Expression.Call(node.Method, Expression.Convert(e, node.Arguments[0].Type), node.Arguments[1])
-                                        : Expression.Call(node.Method, e, node.Arguments[1]),
-                                    e => node.Arguments[0].Type != e.Type
-                                        ? new NullConditionalExpression(
-                                            Expression.Convert(e, node.Arguments[0].Type),
-                                            Expression.Call(node.Method, Expression.Convert(e, node.Arguments[0].Type), node.Arguments[1]))
-                                        : new NullConditionalExpression(e, Expression.Call(node.Method, e, node.Arguments[1])));
-                            }
+                            return RewriteNavigationProperties(
+                                ps,
+                                qs,
+                                node,
+                                node.Arguments[0],
+                                (string)((ConstantExpression)node.Arguments[1]).Value,
+                                node.Type,
+                                e => node.Arguments[0].Type != e.Type
+                                    ? Expression.Call(node.Method, Expression.Convert(e, node.Arguments[0].Type), node.Arguments[1])
+                                    : Expression.Call(node.Method, e, node.Arguments[1]),
+                                e => node.Arguments[0].Type != e.Type
+                                    ? new NullConditionalExpression(
+                                        Expression.Convert(e, node.Arguments[0].Type),
+                                        Expression.Call(node.Method, Expression.Convert(e, node.Arguments[0].Type), node.Arguments[1]))
+                                    : new NullConditionalExpression(e, Expression.Call(node.Method, e, node.Arguments[1])));
+                        }
 
-                            return null;
-                        });
+                        return null;
+                    });
 
                 if (result != null)
                 {
@@ -874,7 +875,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var parentDeclaringExpression
                         = declaringExpression is MethodCallExpression declaringMethodCallExpression
-                        && declaringMethodCallExpression.Method.IsEFPropertyMethod()
+                          && declaringMethodCallExpression.Method.IsEFPropertyMethod()
                             ? declaringMethodCallExpression.Arguments[0]
                             : (declaringExpression as MemberExpression)?.Expression;
 
@@ -1076,7 +1077,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             querySourceReferenceExpression,
                             null,
                             new List<IBodyClause>(),
-                            new List<ResultOperatorBase> { new DefaultIfEmptyResultOperator(null) },
+                            new List<ResultOperatorBase>
+                            {
+                                new DefaultIfEmptyResultOperator(null)
+                            },
                             out navigationJoin);
                     }
                     else

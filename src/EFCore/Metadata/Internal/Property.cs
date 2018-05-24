@@ -90,7 +90,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalPropertyBuilder Builder { [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set; }
+        public virtual InternalPropertyBuilder Builder
+        {
+            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -373,6 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 PropertyMetadataChanged();
             }
+
             UpdateIsConcurrencyTokenConfigurationSource(configurationSource);
         }
 
@@ -476,13 +483,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(properties, nameof(properties));
             Check.NotNull(entityType, nameof(entityType));
 
-            return properties.All(property =>
-                property.IsShadowProperty
-                || (entityType.HasClrType()
-                    && ((property.PropertyInfo != null
-                         && entityType.GetRuntimeProperties().ContainsKey(property.Name))
-                        || (property.FieldInfo != null
-                            && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
+            return properties.All(
+                property =>
+                    property.IsShadowProperty
+                    || (entityType.HasClrType()
+                        && ((property.PropertyInfo != null
+                             && entityType.GetRuntimeProperties().ContainsKey(property.Name))
+                            || (property.FieldInfo != null
+                                && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
         }
 
         /// <summary>

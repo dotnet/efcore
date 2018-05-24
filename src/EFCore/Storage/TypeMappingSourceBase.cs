@@ -109,6 +109,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public abstract CoreTypeMapping FindMapping(MemberInfo member);
-
     }
 }

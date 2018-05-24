@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 constructorExpression = CreateSnapshotExpression(entityType.ClrType, parameter, types, propertyBases);
             }
+
             return constructorExpression;
         }
 
@@ -139,7 +140,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return UseEntityVariable
                    && entityVariable != null
                 ? (Expression)Expression.Block(
-                    new List<ParameterExpression> { entityVariable },
+                    new List<ParameterExpression>
+                    {
+                        entityVariable
+                    },
                     new List<Expression>
                     {
                         Expression.Assign(

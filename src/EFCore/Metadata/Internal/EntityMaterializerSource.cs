@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -110,9 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var properties = new HashSet<IPropertyBase>(
                 entityType.GetServiceProperties().Cast<IPropertyBase>()
-                    .Concat(entityType
-                        .GetProperties()
-                        .Where(p => !p.IsShadowProperty)));
+                    .Concat(
+                        entityType
+                            .GetProperties()
+                            .Where(p => !p.IsShadowProperty)));
 
             foreach (var consumedProperty in constructorBinding
                 .ParameterBindings
@@ -137,7 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         instanceVariable,
                         constructorExpression)
                 };
-
 
             blockExpressions.AddRange(
                 from property in properties
@@ -172,14 +171,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Func<MaterializationContext, object> GetMaterializer(IEntityType entityType)
             => Materializers.GetOrAdd(
                 entityType, e =>
-                    {
-                        var materializationContextParameter
-                            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+                {
+                    var materializationContextParameter
+                        = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
-                        return Expression.Lambda<Func<MaterializationContext, object>>(
-                                CreateMaterializeExpression(e, materializationContextParameter),
-                                materializationContextParameter)
-                            .Compile();
-                    });
+                    return Expression.Lambda<Func<MaterializationContext, object>>(
+                            CreateMaterializeExpression(e, materializationContextParameter),
+                            materializationContextParameter)
+                        .Compile();
+                });
     }
 }

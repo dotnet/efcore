@@ -45,9 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                var unmappedProperty = entityType.GetProperties().FirstOrDefault(p =>
-                    (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()) || !p.IsShadowProperty)
-                    && !IsMappedPrimitiveProperty(p));
+                var unmappedProperty = entityType.GetProperties().FirstOrDefault(
+                    p =>
+                        (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()) || !p.IsShadowProperty)
+                        && !IsMappedPrimitiveProperty(p));
 
                 if (unmappedProperty != null)
                 {
@@ -84,10 +85,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var propertyType = actualProperty.PropertyType;
                     var targetSequenceType = propertyType.TryGetSequenceType();
 
-                    if (modelBuilder.IsIgnored(modelBuilder.Metadata.GetDisplayName(propertyType),
-                        ConfigurationSource.Convention)
+                    if (modelBuilder.IsIgnored(
+                            modelBuilder.Metadata.GetDisplayName(propertyType),
+                            ConfigurationSource.Convention)
                         || (targetSequenceType != null
-                            && modelBuilder.IsIgnored(modelBuilder.Metadata.GetDisplayName(targetSequenceType),
+                            && modelBuilder.IsIgnored(
+                                modelBuilder.Metadata.GetDisplayName(targetSequenceType),
                                 ConfigurationSource.Convention)))
                     {
                         continue;

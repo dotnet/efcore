@@ -145,10 +145,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Disconnected = 0,
             Connected = 1,
-            Suspended = 2,
-        };
+            Suspended = 2
+        }
 
-        private List<NodeConnectionState> _nodeConnectionStates = new List<NodeConnectionState>();
+        private readonly List<NodeConnectionState> _nodeConnectionStates = new List<NodeConnectionState>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -177,7 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual void DisconnectCurrentNode()
         {
-            if (_indent > 0 && _nodeConnectionStates.Count >= _indent)
+            if (_indent > 0
+                && _nodeConnectionStates.Count >= _indent)
             {
                 _nodeConnectionStates[_indent - 1] = NodeConnectionState.Disconnected;
             }
@@ -250,7 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         indentString += _disconnectedIndent;
                     }
-                    else if (i == _nodeConnectionStates.Count -1 && _nodeConnectionStates[i] == NodeConnectionState.Connected)
+                    else if (i == _nodeConnectionStates.Count - 1
+                             && _nodeConnectionStates[i] == NodeConnectionState.Connected)
                     {
                         indentString += _connectedIndent;
                     }

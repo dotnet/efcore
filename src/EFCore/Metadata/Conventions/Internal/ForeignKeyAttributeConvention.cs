@@ -67,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     return null;
                 }
+
                 fkPropertyOnPrincipal = null;
             }
 
@@ -87,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     return null;
                 }
+
                 fkPropertiesOnPrincipalToDependent = null;
             }
 
@@ -217,24 +219,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             return foreignKey.PrincipalEntityType.Builder.Relationship(
-                foreignKey.DeclaringEntityType.Builder,
-                principalToDepedentNavigationName,
-                null,
-                ConfigurationSource.DataAnnotation) == null
+                       foreignKey.DeclaringEntityType.Builder,
+                       principalToDepedentNavigationName,
+                       null,
+                       ConfigurationSource.DataAnnotation) == null
                 ? null
                 : relationshipBuilder;
         }
 
         private static InversePropertyAttribute GetInversePropertyAttributeOnNavigation(Navigation navigation)
             => navigation.DeclaringEntityType.GetRuntimeProperties()?.Values
-                .FirstOrDefault(p => string.Equals(p.Name, navigation.Name, StringComparison.OrdinalIgnoreCase)
-                                     && Attribute.IsDefined(p, typeof(InversePropertyAttribute), inherit: true))
+                .FirstOrDefault(
+                    p => string.Equals(p.Name, navigation.Name, StringComparison.OrdinalIgnoreCase)
+                         && Attribute.IsDefined(p, typeof(InversePropertyAttribute), inherit: true))
                 ?.GetCustomAttribute<InversePropertyAttribute>(inherit: true);
 
         private static ForeignKeyAttribute GetForeignKeyAttribute(TypeBase entityType, string propertyName)
             => entityType.GetRuntimeProperties()?.Values
-                .FirstOrDefault(p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase)
-                                     && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
+                .FirstOrDefault(
+                    p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase)
+                         && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
                 ?.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
 
         [ContractAnnotation("navigationName:null => null")]
@@ -268,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (candidateProperty != null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.CompositeFkOnProperty(navigationName,entityType.DisplayName()));
+                        CoreStrings.CompositeFkOnProperty(navigationName, entityType.DisplayName()));
                 }
 
                 candidateProperty = memberInfo;

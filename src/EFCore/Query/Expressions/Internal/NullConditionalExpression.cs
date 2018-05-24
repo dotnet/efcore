@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
@@ -153,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
 
                     return;
                 }
-                else if (methodCallExpression.Method.IsEFPropertyMethod())
+
+                if (methodCallExpression.Method.IsEFPropertyMethod())
                 {
                     var method = methodCallExpression.Method;
 

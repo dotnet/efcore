@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Takes the <see cref="HashCodeExpression"/> and replaces the parameter with the given expression,
+        ///     Takes the <see cref="HashCodeExpression" /> and replaces the parameter with the given expression,
         ///     returning the transformed body.
         /// </summary>
         /// <param name="expression"> The new expression. </param>
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Takes the <see cref="SnapshotExpression"/> and replaces the parameter with the given expression,
+        ///     Takes the <see cref="SnapshotExpression" /> and replaces the parameter with the given expression,
         ///     returning the transformed body.
         /// </summary>
         /// <param name="expression"> The new expression. </param>

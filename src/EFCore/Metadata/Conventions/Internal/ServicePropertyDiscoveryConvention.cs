@@ -178,10 +178,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (entityType.FindProperty(duplicateServiceProperty.Name) == null
                             && entityType.FindNavigation(duplicateServiceProperty.Name) == null)
                         {
-                            throw new InvalidOperationException(CoreStrings.AmbiguousServiceProperty(
-                                duplicateServiceProperty.Name,
-                                duplicateServiceProperty.GetMemberType().ShortDisplayName(),
-                                entityType.DisplayName()));
+                            throw new InvalidOperationException(
+                                CoreStrings.AmbiguousServiceProperty(
+                                    duplicateServiceProperty.Name,
+                                    duplicateServiceProperty.GetMemberType().ShortDisplayName(),
+                                    entityType.DisplayName()));
                         }
                     }
                 }

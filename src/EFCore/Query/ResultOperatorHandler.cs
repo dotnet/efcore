@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         (choiceResultOperator.ReturnDefaultWhenEmpty
                                             ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
                                             : entityQueryModelVisitor.LinqOperatorProvider.Last)
-                                            .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
+                                        .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
                                         methodCallExpression.Arguments[0]))),
                             methodCallExpression.Arguments[1]
                         });

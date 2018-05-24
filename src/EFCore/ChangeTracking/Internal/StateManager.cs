@@ -178,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 _entityReferenceMap[entity] = entry;
             }
+
             return entry;
         }
 
@@ -196,6 +197,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 AddToReferenceMap(entry);
             }
+
             return entry;
         }
 
@@ -215,6 +217,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? value
                     : property.ClrType.GetDefaultValue();
             }
+
             var valueBuffer = new ValueBuffer(valuesArray);
 
             var entity = entityType.HasClrType()
@@ -359,6 +362,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 entity.GetType().ShortDisplayName(),
                                 "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
                     }
+
                     entry = foundEntry;
                     found = true;
                 }
@@ -413,6 +417,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 identityMap = key.GetIdentityMapFactory()(SensitiveLoggingEnabled);
                 _identityMaps[key] = identityMap;
             }
+
             return identityMap;
         }
 
@@ -443,6 +448,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 return null;
             }
+
             return identityMap;
         }
 
@@ -452,8 +458,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values
             .Concat(_dependentTypeReferenceMap.Values.SelectMany(e => e.Values))
-            .Where(e => e.EntityState != EntityState.Detached
-                        && (e.SharedIdentityEntry == null || e.EntityState != EntityState.Deleted));
+            .Where(
+                e => e.EntityState != EntityState.Detached
+                     && (e.SharedIdentityEntry == null || e.EntityState != EntityState.Deleted));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -602,6 +609,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 danglers = new List<Tuple<INavigation, InternalEntityEntry>>();
                 _referencedUntrackedEntities.Value.Add(referencedEntity, danglers);
             }
+
             danglers.Add(Tuple.Create(navigation, referencedFromEntry));
         }
 
@@ -618,6 +626,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     _referencedUntrackedEntities.Value.Remove(referencedEntity);
                 }
+
                 return danglers;
             }
 
@@ -785,6 +794,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     entry.DiscardStoreGeneratedValues();
                 }
+
                 throw;
             }
         }
@@ -905,6 +915,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     entry.DiscardStoreGeneratedValues();
                 }
+
                 throw;
             }
         }
@@ -943,9 +954,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void AcceptAllChanges()
         {
             var changedEntries = Entries
-                .Where(e => e.EntityState == EntityState.Added
-                            || e.EntityState == EntityState.Modified
-                            || e.EntityState == EntityState.Deleted)
+                .Where(
+                    e => e.EntityState == EntityState.Added
+                         || e.EntityState == EntityState.Modified
+                         || e.EntityState == EntityState.Deleted)
                 .ToList();
 
             AcceptAllChanges(changedEntries);

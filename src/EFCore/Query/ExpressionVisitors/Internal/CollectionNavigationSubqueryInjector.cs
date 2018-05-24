@@ -78,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 newMemberExpression = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     memberExpression,
                     (properties, querySource) =>
-                        {
-                            var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
+                    {
+                        var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
 
-                            return collectionNavigation != null
-                                ? InjectSubquery(memberExpression, collectionNavigation)
-                                : default;
-                        });
+                        return collectionNavigation != null
+                            ? InjectSubquery(memberExpression, collectionNavigation)
+                            : default;
+                    });
             }
 
             return newMemberExpression ?? base.VisitMember(memberExpression);
@@ -117,13 +117,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 newMethodCallExpression = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     methodCallExpression,
                     (properties, querySource) =>
-                        {
-                            var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
+                    {
+                        var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
 
-                            return collectionNavigation != null
-                                ? InjectSubquery(methodCallExpression, collectionNavigation)
-                                : default;
-                        });
+                        return collectionNavigation != null
+                            ? InjectSubquery(methodCallExpression, collectionNavigation)
+                            : default;
+                    });
             }
 
             try

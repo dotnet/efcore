@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -221,7 +220,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     TransformingVisitor.StringBuilder.Append($"join {joinClause.ItemType.ShortDisplayName()} {joinClause.ItemName}{{{i}}} in ");
-
                 }
                 else
                 {
@@ -314,6 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             TransformingVisitor.Visit(group.ElementSelector);
                             TransformingVisitor.StringBuilder.Append(")");
                         }
+
                         break;
 
                     case CastResultOperator cast:

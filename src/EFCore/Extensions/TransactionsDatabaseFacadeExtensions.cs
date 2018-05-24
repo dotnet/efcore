@@ -47,10 +47,8 @@ namespace System.Transactions
             {
                 return transactionManager.EnlistedTransaction;
             }
-            else
-            {
-                throw new NotSupportedException(CoreStrings.TransactionsNotSupported);
-            }
+
+            throw new NotSupportedException(CoreStrings.TransactionsNotSupported);
         }
     }
 }

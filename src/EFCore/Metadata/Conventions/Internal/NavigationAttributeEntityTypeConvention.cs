@@ -189,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -207,6 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 return null;
             }
+
             return targetClrType;
         }
 

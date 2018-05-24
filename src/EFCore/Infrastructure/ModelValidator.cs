@@ -177,7 +177,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -243,8 +242,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             throw new InvalidOperationException(
                                 CoreStrings.InconsistentInheritance(entityType.DisplayName(), baseEntityType.DisplayName()));
                         }
+
                         break;
                     }
+
                     baseClrType = baseClrType.GetTypeInfo().BaseType;
                 }
             }
@@ -550,9 +551,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             {
                                 throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
                             }
-                        } else if (property.RequiresValueGenerator()
-                                   && property.IsKey()
-                                   && property.ClrType.IsDefaultValue(value))
+                        }
+                        else if (property.RequiresValueGenerator()
+                                 && property.IsKey()
+                                 && property.ClrType.IsDefaultValue(value))
                         {
                             throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
                         }
@@ -560,11 +562,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         {
                             if (sensitiveDataLogged)
                             {
-                                throw new InvalidOperationException(CoreStrings.SeedDatumIncompatibleValueSensitive(
-                                    entityType.DisplayName(), value, property.Name, property.ClrType.DisplayName()));
+                                throw new InvalidOperationException(
+                                    CoreStrings.SeedDatumIncompatibleValueSensitive(
+                                        entityType.DisplayName(), value, property.Name, property.ClrType.DisplayName()));
                             }
-                            throw new InvalidOperationException(CoreStrings.SeedDatumIncompatibleValue(
-                                entityType.DisplayName(), property.Name, property.ClrType.DisplayName()));
+
+                            throw new InvalidOperationException(
+                                CoreStrings.SeedDatumIncompatibleValue(
+                                    entityType.DisplayName(), property.Name, property.ClrType.DisplayName()));
                         }
                     }
 
@@ -582,19 +587,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         {
                             if (sensitiveDataLogged)
                             {
-                                throw new InvalidOperationException(CoreStrings.SeedDatumNavigationSensitive(
+                                throw new InvalidOperationException(
+                                    CoreStrings.SeedDatumNavigationSensitive(
+                                        entityType.DisplayName(),
+                                        string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
+                                        navigation.Name,
+                                        navigation.GetTargetType().DisplayName(),
+                                        Property.Format(navigation.ForeignKey.Properties)));
+                            }
+
+                            throw new InvalidOperationException(
+                                CoreStrings.SeedDatumNavigation(
                                     entityType.DisplayName(),
-                                    string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
                                     navigation.Name,
                                     navigation.GetTargetType().DisplayName(),
                                     Property.Format(navigation.ForeignKey.Properties)));
-                            }
-
-                            throw new InvalidOperationException(CoreStrings.SeedDatumNavigation(
-                                entityType.DisplayName(),
-                                navigation.Name,
-                                navigation.GetTargetType().DisplayName(),
-                                Property.Format(navigation.ForeignKey.Properties)));
                         }
                     }
 
@@ -612,11 +619,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         if (sensitiveDataLogged)
                         {
-                            throw new InvalidOperationException(CoreStrings.SeedDatumDuplicateSensitive(
-                                entityType.DisplayName(), string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i]))));
+                            throw new InvalidOperationException(
+                                CoreStrings.SeedDatumDuplicateSensitive(
+                                    entityType.DisplayName(), string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i]))));
                         }
-                        throw new InvalidOperationException(CoreStrings.SeedDatumDuplicate(
-                            entityType.DisplayName(), Property.Format(key.Properties)));
+
+                        throw new InvalidOperationException(
+                            CoreStrings.SeedDatumDuplicate(
+                                entityType.DisplayName(), Property.Format(key.Properties)));
                     }
 
                     entry = new InternalShadowEntityEntry(null, entityType);

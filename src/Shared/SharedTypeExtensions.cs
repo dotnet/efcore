@@ -196,6 +196,7 @@ namespace System
                 {
                     yield return propertyInfo;
                 }
+
                 type = typeInfo.BaseType;
             }
             while (type != null);

@@ -243,6 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
                 }
+
                 return this;
             }
 
@@ -412,6 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return false;
                 }
+
                 navigation = PropertyIdentity.Create(navigationProperty);
             }
 
@@ -636,6 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return false;
                 }
+
                 shouldInvert = true;
             }
 
@@ -652,6 +655,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return false;
                 }
+
                 shouldInvert = true;
             }
 
@@ -784,6 +788,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     break;
                 }
+
                 Debug.Assert(requiredSet || (isRequired != true));
             }
 
@@ -872,8 +877,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (declaringType.HasDefiningNavigation())
                     {
-                        Debug.Assert(Metadata.PrincipalToDependent == null
-                                     || declaringType.DefiningNavigationName == Metadata.PrincipalToDependent.Name);
+                        Debug.Assert(
+                            Metadata.PrincipalToDependent == null
+                            || declaringType.DefiningNavigationName == Metadata.PrincipalToDependent.Name);
 
                         if (otherOwnerships.Any(fk => !configurationSource.Overrides(fk.GetIsOwnershipConfigurationSource())))
                         {
@@ -1055,6 +1061,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         return null;
                     }
                 }
+
                 builder = builder.Metadata.SetIsUnique(unique, configurationSource)?.Builder;
                 if (builder == null)
                 {
@@ -1234,7 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? configurationSource)
         {
             if ((Metadata.PrincipalEntityType == principalEntityType
-                && Metadata.DeclaringEntityType == dependentEntityType)
+                 && Metadata.DeclaringEntityType == dependentEntityType)
                 || (Metadata.PrincipalEntityType == principalEntityType.LeastDerivedType(Metadata.PrincipalEntityType)
                     && Metadata.DeclaringEntityType == dependentEntityType.LeastDerivedType(Metadata.DeclaringEntityType)))
             {
@@ -1866,6 +1873,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     newRelationshipConfigurationSource = newRelationshipConfigurationSource.Max(configurationSource);
                 }
+
                 newRelationshipBuilder.Metadata.UpdateConfigurationSource(newRelationshipConfigurationSource);
 
                 var resetToPrincipal = newRelationshipBuilder.Metadata.DependentToPrincipal != null
@@ -1921,6 +1929,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                  ?? newRelationshipBuilder;
                     }
                 }
+
                 if (principalProperties != null
                     && principalProperties.Any())
                 {
@@ -1940,6 +1949,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                  ?? newRelationshipBuilder;
                     }
                 }
+
                 if (isUnique.HasValue)
                 {
                     var isUniqueConfigurationSource = configurationSource;
@@ -1956,6 +1966,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                  ?? newRelationshipBuilder;
                     }
                 }
+
                 if (isRequired.HasValue)
                 {
                     var isRequiredConfigurationSource = configurationSource;
@@ -1972,6 +1983,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                  ?? newRelationshipBuilder;
                     }
                 }
+
                 if (deleteBehavior.HasValue)
                 {
                     var deleteBehaviorConfigurationSource = configurationSource;
@@ -1988,6 +2000,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                  ?? newRelationshipBuilder;
                     }
                 }
+
                 if (navigationToPrincipal != null)
                 {
                     var navigationToPrincipalConfigurationSource = configurationSource;
@@ -2016,6 +2029,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
                 }
+
                 if (navigationToDependent != null)
                 {
                     var navigationToDependentConfigurationSource = configurationSource;
@@ -2044,6 +2058,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
                 }
+
                 if (isOwnership.HasValue)
                 {
                     var isOwnershipConfigurationSource = configurationSource;
@@ -2055,8 +2070,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (isOwnershipConfigurationSource.HasValue)
                     {
                         newRelationshipBuilder = newRelationshipBuilder.IsOwnership(
-                            isOwnership.Value,
-                            isOwnershipConfigurationSource.Value)
+                                                     isOwnership.Value,
+                                                     isOwnershipConfigurationSource.Value)
                                                  ?? newRelationshipBuilder;
                     }
                 }
@@ -2064,8 +2079,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                          && Metadata.GetIsOwnershipConfigurationSource().HasValue)
                 {
                     newRelationshipBuilder = newRelationshipBuilder.IsOwnership(
-                        Metadata.IsOwnership,
-                        Metadata.GetIsOwnershipConfigurationSource().Value)
+                                                 Metadata.IsOwnership,
+                                                 Metadata.GetIsOwnershipConfigurationSource().Value)
                                              ?? newRelationshipBuilder;
                 }
 
@@ -2134,6 +2149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 inverseNavigationRemoved = true;
                             }
+
                             resolution |= Resolution.ResetToPrincipal;
                             sameConfigurationSource = true;
                         }
@@ -2161,6 +2177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 inverseNavigationRemoved = true;
                             }
+
                             resolution |= Resolution.ResetToDependent;
                             sameConfigurationSource = true;
                         }
@@ -2192,6 +2209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 inverseNavigationRemoved = true;
                             }
+
                             resolution |= Resolution.ResetToDependent;
                             sameConfigurationSource = true;
                         }
@@ -2219,6 +2237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 inverseNavigationRemoved = true;
                             }
+
                             resolution |= Resolution.ResetToPrincipal;
                             sameConfigurationSource = true;
                         }
@@ -2329,6 +2348,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     continue;
                 }
+
                 if (principalProperties != null
                     && !Property.AreCompatible(principalProperties, candidateRelationship.Metadata.PrincipalEntityType))
                 {
@@ -3028,6 +3048,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     shouldResetToPrincipal = true;
                 }
+
                 if (inverted)
                 {
                     shouldBeUnique = invertedShouldBeUnique;

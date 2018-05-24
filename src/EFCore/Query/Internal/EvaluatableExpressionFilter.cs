@@ -39,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
 
         private static readonly MethodInfo _randomNextOneArg
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new Type[] { typeof(int) });
+            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });
 
         private static readonly MethodInfo _randomNextTwoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new Type[] { typeof(int), typeof(int) });
+            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

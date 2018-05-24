@@ -1156,8 +1156,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
-            return d.GenerateMessage(string.Join(
-                ", ", p.FirstPropertyCollection.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1.Name)),
+            return d.GenerateMessage(
+                string.Join(
+                    ", ", p.FirstPropertyCollection.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1.Name)),
                 p.SecondPropertyCollection.First().Item1.Name);
         }
 

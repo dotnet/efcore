@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableRichDataErrorHandling(bool richDataErrorHandlingEnabled = true)
             => (DbContextOptionsBuilder<TContext>)base.EnableRichDataErrorHandling(richDataErrorHandlingEnabled);
-        
+
         /// <summary>
         ///     <para>
         ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context. It is never

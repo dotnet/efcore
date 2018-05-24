@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var fromExpression = subQueryModel.MainFromClause.FromExpression;
 
             if ((fromExpression.NodeType == ExpressionType.Parameter
-                || fromExpression.NodeType == ExpressionType.Constant
-                || fromExpression.NodeType == ExpressionType.ListInit
-                || fromExpression.NodeType == ExpressionType.NewArrayInit)
+                 || fromExpression.NodeType == ExpressionType.Constant
+                 || fromExpression.NodeType == ExpressionType.ListInit
+                 || fromExpression.NodeType == ExpressionType.NewArrayInit)
                 && subQueryModel.ResultOperators.Count == 1)
             {
                 if (subQueryModel.BodyClauses.Count == 0
@@ -68,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         return new SubQueryExpression(subQueryModel);
                     }
                 }
-
             }
 
             return expression;
@@ -106,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         right = methodCallExpression.Arguments[0];
                     }
                     else if (methodCallExpression.Arguments.Count == 2
-                        && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
+                             && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
                     {
                         left = methodCallExpression.Arguments[0];
                         right = methodCallExpression.Arguments[1];

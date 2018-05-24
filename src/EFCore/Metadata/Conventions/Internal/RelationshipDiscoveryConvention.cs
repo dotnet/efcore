@@ -139,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             continue;
                         }
                     }
-                } else if (// #8172
+                }
+                else if ( // #8172
                     //ownership != null &&
                     navigationPropertyInfo.PropertyType.TryGetSequenceType() != null)
                 {
@@ -271,8 +272,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             {
                                 relationshipCandidate.NavigationProperties.Add(nextSelfRefCandidate);
                             }
+
                             relationshipCandidate.InverseProperties.Remove(nextSelfRefCandidate);
                         }
+
                         continue;
                     }
 
@@ -303,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 {
                                     compatibleInverse
                                 })
-                            );
+                        );
 
                         if (relationshipCandidate.TargetTypeBuilder.Metadata == entityTypeBuilder.Metadata
                             && relationshipCandidate.NavigationProperties.Count == 0
@@ -314,8 +317,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             {
                                 relationshipCandidate.NavigationProperties.Add(nextSelfRefCandidate);
                             }
+
                             relationshipCandidate.InverseProperties.Remove(nextSelfRefCandidate);
                         }
+
                         continue;
                     }
 
@@ -829,6 +834,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
             }
+
             navigationCandidates = dictionaryBuilder.ToImmutable();
             SetNavigationCandidates(entityType.Builder, navigationCandidates);
             return navigationCandidates;
@@ -879,6 +885,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 return true;
             }
+
             return false;
         }
 

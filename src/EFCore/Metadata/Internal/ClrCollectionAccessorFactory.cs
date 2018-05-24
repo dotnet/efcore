@@ -106,7 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (setterDelegate != null)
                 {
-
                     createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)_createAndSet
                         .MakeGenericMethod(typeof(TEntity), typeof(TCollection), concreteType)
                         .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));

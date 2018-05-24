@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             && (!oldTargetEntry.EntityType.HasDefiningNavigation()
                                 || entry.EntityType.GetNavigations().All(
                                     n => n == navigation
-                                    || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
+                                         || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                         {
                             SetNavigation(oldTargetEntry, inverse, null);
                         }
@@ -543,19 +543,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             if (_sensitiveLoggingEnabled)
                             {
-                                throw new InvalidOperationException(CoreStrings.IncompatiblePrincipalEntrySensitive(
-                                    entry.BuildCurrentValuesString(foreignKey.Properties),
-                                    entityType.DisplayName(),
-                                    entry.BuildOriginalValuesString(entityType.FindPrimaryKey().Properties),
-                                    principalEntry.EntityType.DisplayName(),
-                                    foreignKey.PrincipalEntityType.DisplayName()));
+                                throw new InvalidOperationException(
+                                    CoreStrings.IncompatiblePrincipalEntrySensitive(
+                                        entry.BuildCurrentValuesString(foreignKey.Properties),
+                                        entityType.DisplayName(),
+                                        entry.BuildOriginalValuesString(entityType.FindPrimaryKey().Properties),
+                                        principalEntry.EntityType.DisplayName(),
+                                        foreignKey.PrincipalEntityType.DisplayName()));
                             }
 
-                            throw new InvalidOperationException(CoreStrings.IncompatiblePrincipalEntry(
-                                Property.Format(foreignKey.Properties),
-                                entityType.DisplayName(),
-                                principalEntry.EntityType.DisplayName(),
-                                foreignKey.PrincipalEntityType.DisplayName()));
+                            throw new InvalidOperationException(
+                                CoreStrings.IncompatiblePrincipalEntry(
+                                    Property.Format(foreignKey.Properties),
+                                    entityType.DisplayName(),
+                                    principalEntry.EntityType.DisplayName(),
+                                    foreignKey.PrincipalEntityType.DisplayName()));
                         }
 
                         // Set navigation to principal based on FK properties
@@ -829,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 for (var i = 0; i < foreignKey.Properties.Count; i++)
                 {
                     if (!PrincipalValueEqualsDependentValue(
-                        principalProperties[i], 
+                        principalProperties[i],
                         dependentEntry[dependentProperties[i]],
                         principalEntry[principalProperties[i]]))
                     {
@@ -886,6 +888,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     _changeDetector.Resume();
                 }
+
                 entry.SetRelationshipSnapshotValue(navigation, entity);
             }
         }
@@ -920,6 +923,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _changeDetector.Resume();
             }
+
             entry.RemoveFromCollectionSnapshot(navigation, value.Entity);
         }
 

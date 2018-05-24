@@ -90,13 +90,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     </para>
         /// </summary>
         public CoreConventionSetBuilderDependencies(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
-            [CanBeNull] IParameterBindingFactories parameterBindingFactories,
-            [CanBeNull] IMemberClassifier memberClassifier,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
+                [NotNull] ITypeMappingSource typeMappingSource,
+                [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
+                [CanBeNull] IParameterBindingFactories parameterBindingFactories,
+                [CanBeNull] IMemberClassifier memberClassifier,
+                [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
 #pragma warning disable 618
-            [CanBeNull] ITypeMapper _ = null) // Only needed for D.I. to resolve this constructor
+                [CanBeNull] ITypeMapper _ = null) // Only needed for D.I. to resolve this constructor
 #pragma warning restore 618
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));

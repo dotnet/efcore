@@ -62,51 +62,51 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return _configurations.GetOrAdd(
                 key,
                 k =>
+                {
+                    var services = new ServiceCollection();
+                    var hasProvider = ApplyServices(options, services);
+
+                    var replacedServices = options.FindExtension<CoreOptionsExtension>()?.ReplacedServices;
+                    if (replacedServices != null)
                     {
-                        var services = new ServiceCollection();
-                        var hasProvider = ApplyServices(options, services);
-
-                        var replacedServices = options.FindExtension<CoreOptionsExtension>()?.ReplacedServices;
-                        if (replacedServices != null)
+                        // For replaced services we use the service collection to obtain the lifetime of
+                        // the service to replace. The replaced services are added to a new collection, after
+                        // which provider and core services are applied. This ensures that any patching happens
+                        // to the replaced service.
+                        var updatedServices = new ServiceCollection();
+                        foreach (var descriptor in services)
                         {
-                            // For replaced services we use the service collection to obtain the lifetime of
-                            // the service to replace. The replaced services are added to a new collection, after
-                            // which provider and core services are applied. This ensures that any patching happens
-                            // to the replaced service.
-                            var updatedServices = new ServiceCollection();
-                            foreach (var descriptor in services)
+                            if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
                             {
-                                if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
-                                {
-                                    ((IList<ServiceDescriptor>)updatedServices).Add(
-                                        new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
-                                }
+                                ((IList<ServiceDescriptor>)updatedServices).Add(
+                                    new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
                             }
-
-                            ApplyServices(options, updatedServices);
-                            services = updatedServices;
                         }
 
-                        var serviceProvider = services.BuildServiceProvider();
+                        ApplyServices(options, updatedServices);
+                        services = updatedServices;
+                    }
 
-                        if (hasProvider)
-                        {
-                            serviceProvider
-                                .GetRequiredService<ISingletonOptionsInitializer>()
-                                .EnsureInitialized(serviceProvider, options);
-                        }
+                    var serviceProvider = services.BuildServiceProvider();
 
-                        var logger = serviceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+                    if (hasProvider)
+                    {
+                        serviceProvider
+                            .GetRequiredService<ISingletonOptionsInitializer>()
+                            .EnsureInitialized(serviceProvider, options);
+                    }
 
-                        logger.ServiceProviderCreated(serviceProvider);
+                    var logger = serviceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
 
-                        if (_configurations.Count >= 20)
-                        {
-                            logger.ManyServiceProvidersCreatedWarning(_configurations.Values);
-                        }
+                    logger.ServiceProviderCreated(serviceProvider);
 
-                        return serviceProvider;
-                    });
+                    if (_configurations.Count >= 20)
+                    {
+                        logger.ManyServiceProvidersCreatedWarning(_configurations.Values);
+                    }
+
+                    return serviceProvider;
+                });
         }
 
         private static bool ApplyServices(IDbContextOptions options, ServiceCollection services)

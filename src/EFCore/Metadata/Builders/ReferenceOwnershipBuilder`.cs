@@ -510,6 +510,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return new DataBuilder<TRelatedEntity>();
         }
-
     }
 }

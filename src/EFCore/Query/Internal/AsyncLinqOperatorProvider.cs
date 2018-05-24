@@ -159,6 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 _innerEnumerator = _exceptionInterceptor._innerAsyncEnumerable.GetEnumerator();
                             }
+
                             return await _innerEnumerator.MoveNext(cancellationToken);
                         }
                         catch (Exception exception)
@@ -202,34 +203,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _Select(
                 results,
                 result =>
+                {
+                    if (result != null)
                     {
-                        if (result != null)
+                        for (var i = 0; i < entityTrackingInfos.Count; i++)
                         {
-                            for (var i = 0; i < entityTrackingInfos.Count; i++)
+                            var entityOrCollection = entityAccessors[i](result as TIn);
+
+                            if (entityOrCollection != null)
                             {
-                                var entityOrCollection = entityAccessors[i](result as TIn);
+                                var entityTrackingInfo = entityTrackingInfos[i];
 
-                                if (entityOrCollection != null)
+                                if (entityTrackingInfo.IsEnumerableTarget)
                                 {
-                                    var entityTrackingInfo = entityTrackingInfos[i];
-
-                                    if (entityTrackingInfo.IsEnumerableTarget)
+                                    foreach (var entity in (IEnumerable)entityOrCollection)
                                     {
-                                        foreach (var entity in (IEnumerable)entityOrCollection)
-                                        {
-                                            queryContext.StartTracking(entity, entityTrackingInfos[i]);
-                                        }
+                                        queryContext.StartTracking(entity, entityTrackingInfos[i]);
                                     }
-                                    else
-                                    {
-                                        queryContext.StartTracking(entityOrCollection, entityTrackingInfos[i]);
-                                    }
+                                }
+                                else
+                                {
+                                    queryContext.StartTracking(entityOrCollection, entityTrackingInfos[i]);
                                 }
                             }
                         }
+                    }
 
-                        return result;
-                    });
+                    return result;
+                });
         }
 
         /// <summary>

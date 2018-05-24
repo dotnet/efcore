@@ -256,6 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     throw new ArgumentException(
                         CoreStrings.FindNotCompositeKey(typeof(TEntity).ShortDisplayName(), keyValues.Length));
                 }
+
                 throw new ArgumentException(
                     CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), keyProperties.Count, keyValues.Length));
             }
@@ -351,6 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 predicate = predicate == null ? equalsExpression : Expression.AndAlso(predicate, equalsExpression);
             }
+
             return predicate;
         }
 

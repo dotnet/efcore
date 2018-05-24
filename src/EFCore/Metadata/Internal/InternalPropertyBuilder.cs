@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Debug.Assert(removed.HasValue);
                     }
                 }
+
                 Metadata.SetIsNullable(!isRequired, configurationSource);
 
                 return true;
@@ -106,17 +107,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return HasValueGenerator(
                 (_, __)
                     =>
+                {
+                    try
                     {
-                        try
-                        {
-                            return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
-                        }
-                    }, configurationSource);
+                        return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
+                    }
+                }, configurationSource);
         }
 
         /// <summary>
@@ -194,11 +195,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (valueConverter != null
                 && valueConverter.ModelClrType.UnwrapNullableType() != Metadata.ClrType.UnwrapNullableType())
             {
-                throw new ArgumentException(CoreStrings.ConverterPropertyMismatch(
-                    valueConverter.ModelClrType.ShortDisplayName(),
-                    Metadata.DeclaringEntityType.DisplayName(),
-                    Metadata.Name,
-                    Metadata.ClrType.ShortDisplayName()));
+                throw new ArgumentException(
+                    CoreStrings.ConverterPropertyMismatch(
+                        valueConverter.ModelClrType.ShortDisplayName(),
+                        Metadata.DeclaringEntityType.DisplayName(),
+                        Metadata.Name,
+                        Metadata.ClrType.ShortDisplayName()));
             }
 
             return HasAnnotation(CoreAnnotationNames.ValueConverter, valueConverter, configurationSource);

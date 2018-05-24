@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     index.Builder.IsUnique(false, ConfigurationSource.Convention);
                 }
+
                 return;
             }
 
@@ -264,6 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 indexBuilder?.IsUnique(true, ConfigurationSource.Convention);
             }
+
             return indexBuilder?.Metadata;
         }
 
@@ -285,6 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 _logger.RedundantIndexRemoved(index.Properties, coveringProperties);
             }
+
             index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
         }
     }

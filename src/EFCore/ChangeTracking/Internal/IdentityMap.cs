@@ -245,6 +245,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             return;
                         }
+
                         ThrowIdentityConflict(entry);
                     }
                 }
@@ -273,6 +274,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             map.Remove(existingEntry);
                         }
+
                         map.Add(entry);
                     }
                 }

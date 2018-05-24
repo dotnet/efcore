@@ -40,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 key = default;
                 return false;
             }
+
             key = (TKey)value;
             return true;
         }

@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly Dictionary<int, IDisposable> _includedCollections
             = new Dictionary<int, IDisposable>(); // IDisposable as IEnumerable/IAsyncEnumerable
 
-        private readonly Dictionary<int, (IDisposable Enumerator, MaterializedAnonymousObject PreviousOriginKey)> 
+        private readonly Dictionary<int, (IDisposable Enumerator, MaterializedAnonymousObject PreviousOriginKey)>
             _correlatedCollectionMetadata
-            = new Dictionary<int, (IDisposable, MaterializedAnonymousObject)>();
+                = new Dictionary<int, (IDisposable, MaterializedAnonymousObject)>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<IEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
             Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate)
             where TCollection : ICollection<TOut>
-            where TInner: TOut
+            where TInner : TOut
         {
             IDisposable untypedEnumerator = null;
             IEnumerator<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>> enumerator = null;
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate,
             CancellationToken cancellationToken)
             where TCollection : ICollection<TOut>
-            where TInner: TOut
+            where TInner : TOut
         {
             IDisposable untypedEnumerator = null;
             IAsyncEnumerator<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>> enumerator = null;

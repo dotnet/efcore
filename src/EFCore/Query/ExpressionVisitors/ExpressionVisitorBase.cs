@@ -56,9 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             var newBody = Visit(node.Body);
-            
-            return newBody == node.Body 
-                ? node 
+
+            return newBody == node.Body
+                ? node
                 : Expression.Lambda(newBody, node.Name, node.TailCall, node.Parameters);
         }
     }

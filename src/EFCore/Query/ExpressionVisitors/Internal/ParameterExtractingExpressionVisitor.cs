@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly bool _parameterize;
         private readonly bool _generateContextAccessors;
 
-        private readonly Dictionary<Expression, (ParameterExpression Parameter, int RefCount)> _parameterCache 
+        private readonly Dictionary<Expression, (ParameterExpression Parameter, int RefCount)> _parameterCache
             = new Dictionary<Expression, (ParameterExpression, int)>(ExpressionEqualityComparer.Instance);
 
         private PartialEvaluationInfo _partialEvaluationInfo;
@@ -101,9 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (declaringType == typeof(Queryable)
                 || (declaringType == typeof(EntityFrameworkQueryableExtensions)
-                && (!methodInfo.IsGenericMethod
-                    || !methodInfo.GetGenericMethodDefinition()
-                        .Equals(EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
+                    && (!methodInfo.IsGenericMethod
+                        || !methodInfo.GetGenericMethodDefinition()
+                            .Equals(EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
                     && !methodInfo.GetGenericMethodDefinition()
                         .Equals(EntityFrameworkQueryableExtensions.WithTagMethodInfo)))
             {
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         if (newArgument.RemoveConvert() is ParameterExpression parameter)
                         {
                             var parameterValue = _parameterValues.ParameterValues[parameter.Name];
-                            
+
                             if (_parameterCache.TryGetValue(argument, out var cachedParameter))
                             {
                                 if (cachedParameter.RefCount == 1)
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     _parameterCache[argument] = (cachedParameter.Parameter, cachedParameter.RefCount - 1);
                                 }
                             }
-                            
+
                             if (parameter.Type == typeof(FormattableString))
                             {
                                 if (Evaluate(methodCallExpression, out _) is IQueryable queryable)
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
                    && !_inLambda
                    && !(value is IQueryable)
-                || _inLambda
+                   || _inLambda
                    && value is IQueryable
                    && !(constantExpressionType.IsGenericType
                         && constantExpressionType.BaseType.IsGenericType
@@ -449,9 +449,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             if (_parameterCache.TryGetValue(expression, out var cachedParameter))
             {
-                _parameterCache[expression] 
+                _parameterCache[expression]
                     = (cachedParameter.Parameter, cachedParameter.RefCount + 1);
-                
+
                 return cachedParameter.Parameter;
             }
 
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _parameterValues.AddParameter(parameterName, parameterValue);
 
             var parameter = Expression.Parameter(expression.Type, parameterName);
-            
+
             _parameterCache.Add(expression, (parameter, 1));
 
             return parameter;
@@ -543,9 +543,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (newExpression != expression)
                 {
                     parameterName = QueryFilterPrefix + "__"
-                                    + (expression is MemberExpression memberExpression
-                                        ? memberExpression.Member.Name
-                                        : QueryFilterPrefix);
+                                                      + (expression is MemberExpression memberExpression
+                                                          ? memberExpression.Member.Name
+                                                          : QueryFilterPrefix);
 
                     return Expression.Lambda(
                         newExpression,

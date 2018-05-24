@@ -10,4 +10,3 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     {
     }
 }
-

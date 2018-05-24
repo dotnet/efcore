@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         includeAnnotation.PathFromQuerySource
                             = ReferenceReplacingExpressionVisitor
-                            .ReplaceClauseReferences(includeAnnotation.PathFromQuerySource, querySourceMapping, throwOnUnmappedReferences: false);
+                                .ReplaceClauseReferences(includeAnnotation.PathFromQuerySource, querySourceMapping, throwOnUnmappedReferences: false);
                     }
                 }
             }
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         includeAnnotation.PathFromQuerySource
                             = ReferenceReplacingExpressionVisitor
-                              .ReplaceClauseReferences(includeAnnotation.PathFromQuerySource, querySourceMapping, throwOnUnmappedReferences: false);
+                                .ReplaceClauseReferences(includeAnnotation.PathFromQuerySource, querySourceMapping, throwOnUnmappedReferences: false);
                     }
                 }
             }

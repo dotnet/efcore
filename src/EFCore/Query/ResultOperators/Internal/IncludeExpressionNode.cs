@@ -24,9 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
-        {
-            EntityFrameworkQueryableExtensions.IncludeMethodInfo
-        };
+            { EntityFrameworkQueryableExtensions.IncludeMethodInfo };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

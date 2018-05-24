@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
                 index++;
             }
+
             return result;
         }
 

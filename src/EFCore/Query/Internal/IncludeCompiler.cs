@@ -237,28 +237,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static void WalkNavigations(
             IEntityType entityType, IReadOnlyList<string> navigationPropertyPaths, IncludeLoadTree includeLoadTree)
         {
-            var longestMatchFound 
+            var longestMatchFound
                 = WalkNavigationsInternal(
-                    entityType, 
-                    navigationPropertyPaths, 
-                    includeLoadTree, 
-                    new Stack<INavigation>(), 
+                    entityType,
+                    navigationPropertyPaths,
+                    includeLoadTree,
+                    new Stack<INavigation>(),
                     (0, entityType));
 
             if (longestMatchFound.Depth < navigationPropertyPaths.Count)
             {
                 throw new InvalidOperationException(
                     CoreStrings.IncludeBadNavigation(
-                        navigationPropertyPaths[longestMatchFound.Depth], 
+                        navigationPropertyPaths[longestMatchFound.Depth],
                         longestMatchFound.EntityType.DisplayName()));
             }
         }
 
         private static (int Depth, IEntityType EntityType) WalkNavigationsInternal(
-            IEntityType entityType, 
-            IReadOnlyList<string> navigationPropertyPaths, 
-            IncludeLoadTree includeLoadTree, 
-            Stack<INavigation> stack, 
+            IEntityType entityType,
+            IReadOnlyList<string> navigationPropertyPaths,
+            IncludeLoadTree includeLoadTree,
+            Stack<INavigation> stack,
             (int Depth, IEntityType EntityType) longestMatchFound)
         {
             var outboundNavigations
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && stack.Count > 0)
             {
                 includeLoadTree.AddLoadPath(stack.Reverse().ToArray());
-                
+
                 if (stack.Count > longestMatchFound.Depth)
                 {
                     longestMatchFound = (stack.Count, entityType);
@@ -283,12 +283,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     stack.Push(navigation);
 
-                    longestMatchFound 
+                    longestMatchFound
                         = WalkNavigationsInternal(
-                            navigation.GetTargetType(), 
-                            navigationPropertyPaths, 
-                            includeLoadTree, 
-                            stack, 
+                            navigation.GetTargetType(),
+                            navigationPropertyPaths,
+                            includeLoadTree,
+                            stack,
                             longestMatchFound);
 
                     stack.Pop();

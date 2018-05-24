@@ -143,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && ownership.PrincipalEntityType == targetEntityTypeBuilder.Metadata
                 && ownership.PrincipalToDependent?.GetIdentifyingMemberInfo() != inverseNavigationPropertyInfo)
             {
-                _logger.NonOwnershipInverseNavigationWarning(entityType, navigationMemberInfo,
+                _logger.NonOwnershipInverseNavigationWarning(
+                    entityType, navigationMemberInfo,
                     targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
                     ownership.PrincipalToDependent.GetIdentifyingMemberInfo());
                 return null;
@@ -152,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (entityType.DefiningEntityType == targetEntityTypeBuilder.Metadata
                 && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.Name)
             {
-                _logger.NonDefiningInverseNavigationWarning(entityType, navigationMemberInfo,
+                _logger.NonDefiningInverseNavigationWarning(
+                    entityType, navigationMemberInfo,
                     targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
                     targetEntityTypeBuilder.Metadata.GetRuntimeProperties()[entityType.DefiningNavigationName]);
                 return null;
@@ -200,6 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 Apply(leastDerivedEntityType, navigationPropertyInfo, targetClrType, attribute);
             }
+
             return true;
         }
 
@@ -369,6 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         tuplesToRemove = new List<Tuple<MemberInfo, Type>>();
                     }
+
                     tuplesToRemove.Add(referencingTuple);
                     continue;
                 }
@@ -468,6 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         {
                             inverseNavigations.Remove(inverseNavigation);
                         }
+
                         if (referencingNavigationsWithAttribute.Count == 1)
                         {
                             var clrType = referencingNavigationsWithAttribute[0].Item2;

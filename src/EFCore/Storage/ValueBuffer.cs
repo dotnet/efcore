@@ -62,9 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _values[_offset + index];
-            
-            [param: CanBeNull] 
-            set => _values[_offset + index] = value;
+
+            [param: CanBeNull] set => _values[_offset + index] = value;
         }
 
         internal static readonly MethodInfo GetValueMethod

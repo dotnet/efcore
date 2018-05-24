@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(query, nameof(query));
 
             query = _queryModelGenerator.ExtractParameters(
-                _logger, query, _queryContextFactory.Create(),  parameterize: false);
+                _logger, query, _queryContextFactory.Create(), parameterize: false);
 
             return CompileQueryCore<TResult>(query, _queryModelGenerator, _database, _logger, _contextType);
         }

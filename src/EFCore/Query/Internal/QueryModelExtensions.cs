@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public static string PrintDebug(
             [NotNull] this QueryModel queryModel,
             bool removeFormatting = false, int?
-            characterLimit = null,
+                characterLimit = null,
             bool generateUniqueQsreIds = true)
             => new QueryModelPrinter().PrintDebug(queryModel, removeFormatting, characterLimit, generateUniqueQsreIds);
 

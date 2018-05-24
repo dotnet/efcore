@@ -128,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             newRelationship.Metadata.ResolveOtherEntityType(entityTypeBuilder.Metadata).Builder);
                     }
                 }
+
                 foreach (var detachedRelationshipTuple in Relationships.Where(r => r.Item2 == null))
                 {
                     detachedRelationshipTuple.Item1.Attach(entityTypeBuilder);

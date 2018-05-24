@@ -193,10 +193,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             nameof(QueryContext.QueryBuffer)),
                         includeCollectionMethodInfo
                             .MakeGenericMethod(
-                            targetEntityExpression.Type,
+                                targetEntityExpression.Type,
                                 targetClrType,
                                 clrCollectionAccessor.CollectionType.TryGetSequenceType()
-                                    ?? targetClrType),
+                                ?? targetClrType),
                         arguments);
 
                 return
@@ -223,15 +223,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     || foreignKeyProperties.Any(p => p.IsShadowProperty))
                 {
                     return
-                        Expression.Default(typeof(Func<,,>)
-                            .MakeGenericType(targetType, relatedType, typeof(bool)));
+                        Expression.Default(
+                            typeof(Func<,,>)
+                                .MakeGenericType(targetType, relatedType, typeof(bool)));
                 }
 
                 var targetEntityParameter = Expression.Parameter(targetType, "p");
                 var relatedEntityParameter = Expression.Parameter(relatedType, "d");
 
                 return Expression.Lambda(
-                    primaryKeyProperties.Zip(foreignKeyProperties,
+                    primaryKeyProperties.Zip(
+                            foreignKeyProperties,
                             (pk, fk) =>
                             {
                                 Expression pkMemberAccess

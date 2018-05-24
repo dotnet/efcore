@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     break;
                 }
+
                 root = root.DefiningEntityType;
                 path.Push("#");
                 path.Push(definingNavigationName);
@@ -78,14 +79,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return builder.ToString();
         }
 
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         // Issue#11266 This method is being used by provider code. Do not break.
         public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
-            => new List<IEntityType>(GetAllBaseTypes(entityType)) { entityType };
+            => new List<IEntityType>(GetAllBaseTypes(entityType))
+            {
+                entityType
+            };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -167,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 return null;
             }
+
             var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
             return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
         }
@@ -191,6 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return root;
                 }
+
                 root = root.DefiningEntityType;
             }
 
@@ -217,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return root;
                 }
+
                 root = root.DefiningEntityType;
             }
 
@@ -703,8 +709,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             name, entityType.DisplayName(),
                             nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
                 }
+
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, entityType.DisplayName()));
             }
+
             return property;
         }
 

@@ -227,19 +227,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the <see cref="EntityEntry.State" /> must be set.
         /// </param>
         public virtual void TrackGraph(
-             [NotNull] object rootEntity,
-             [NotNull] Action<EntityEntryGraphNode> callback)
-             => TrackGraph(rootEntity, callback, (n, c) =>
-             {
-                 if (n.Entry.State != EntityState.Detached)
-                 {
-                     return false;
-                 }
+            [NotNull] object rootEntity,
+            [NotNull] Action<EntityEntryGraphNode> callback)
+            => TrackGraph(
+                rootEntity, callback, (n, c) =>
+                {
+                    if (n.Entry.State != EntityState.Detached)
+                    {
+                        return false;
+                    }
 
-                 c(n);
+                    c(n);
 
-                 return n.Entry.State != EntityState.Detached;
-             });
+                    return n.Entry.State != EntityState.Detached;
+                });
 
         /// <summary>
         ///     <para>
@@ -259,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     <para>
         ///         Typically traversal of the graph should stop whenever an already tracked entity is encountered or when
         ///         an entity is reached that should not be tracked. For this typical behavior, use the
-        ///         <see cref="TrackGraph(object,Action{EntityEntryGraphNode})"/> overload. This overload, on the other hand,
+        ///         <see cref="TrackGraph(object,Action{EntityEntryGraphNode})" /> overload. This overload, on the other hand,
         ///         allows the callback to decide when traversal will end, but the onus is then on the caller to ensure that
         ///         traversal will not enter an infinite loop.
         ///     </para>

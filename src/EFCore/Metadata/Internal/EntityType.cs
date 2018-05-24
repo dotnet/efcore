@@ -124,7 +124,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Builder { [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set; }
+        public virtual InternalEntityTypeBuilder Builder
+        {
+            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -336,6 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : null;
                 currentTypeIndex++;
             }
+
             return derivedTypes;
         }
 
@@ -762,6 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
             }
+
             return key;
         }
 
@@ -1254,7 +1262,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (duplicateProperty != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ConflictingPropertyOrNavigation(name, this.DisplayName(),
+                    CoreStrings.ConflictingPropertyOrNavigation(
+                        name, this.DisplayName(),
                         duplicateProperty.DeclaringType.DisplayName()));
             }
 
@@ -1629,7 +1638,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (conflictingMember != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ConflictingPropertyOrNavigation(name, this.DisplayName(),
+                    CoreStrings.ConflictingPropertyOrNavigation(
+                        name, this.DisplayName(),
                         conflictingMember.DeclaringType.DisplayName()));
             }
 
@@ -1880,7 +1890,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (duplicateMember != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ConflictingPropertyOrNavigation(name, this.DisplayName(),
+                    CoreStrings.ConflictingPropertyOrNavigation(
+                        name, this.DisplayName(),
                         duplicateMember.DeclaringType.DisplayName()));
             }
 
@@ -2062,6 +2073,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 valueConverter = property.FindMapping()?.Converter
                                                  ?? property.GetValueConverter();
                             }
+
                             valueConverters[memberInfo.Name] = valueConverter;
                         }
                     }
@@ -2098,8 +2110,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && ClrType != entity.GetType()
                     && ClrType.GetTypeInfo().IsAssignableFrom(entity.GetType().GetTypeInfo()))
                 {
-                    throw new InvalidOperationException(CoreStrings.SeedDatumDerivedType(
-                        this.DisplayName(), entity.GetType().ShortDisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.SeedDatumDerivedType(
+                            this.DisplayName(), entity.GetType().ShortDisplayName()));
                 }
             }
 
@@ -2107,6 +2120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 _data = new List<object>();
             }
+
             _data.AddRange(data);
         }
 
@@ -2203,6 +2217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [DebuggerStepThrough]
         IEnumerable<IMutableProperty> IMutableEntityType.GetProperties() => GetProperties();
+
         IMutableProperty IMutableEntityType.RemoveProperty(string name) => RemoveProperty(name);
 
         IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo) => AddServiceProperty(memberInfo);
@@ -2304,10 +2319,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Properties.Add(indexes);
                 }
+
                 if (keys != null)
                 {
                     Properties.Add(keys);
                 }
+
                 if (relationships != null)
                 {
                     Properties.Add(relationships);

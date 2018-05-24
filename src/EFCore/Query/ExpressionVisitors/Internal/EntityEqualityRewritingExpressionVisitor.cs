@@ -119,10 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 var leftEntityType = _model.FindEntityType(newLeftExpression.Type)
-                    ?? MemberAccessBindingExpressionVisitor.GetEntityType(newLeftExpression, _queryCompilationContext);
+                                     ?? MemberAccessBindingExpressionVisitor.GetEntityType(newLeftExpression, _queryCompilationContext);
                 var rightEntityType = _model.FindEntityType(newRightExpression.Type)
-                    ?? MemberAccessBindingExpressionVisitor.GetEntityType(newRightExpression, _queryCompilationContext);
-                if (leftEntityType != null && rightEntityType != null)
+                                      ?? MemberAccessBindingExpressionVisitor.GetEntityType(newRightExpression, _queryCompilationContext);
+                if (leftEntityType != null
+                    && rightEntityType != null)
                 {
                     if (leftEntityType.RootType() == rightEntityType.RootType())
                     {
@@ -160,10 +161,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 _queryCompilationContext.Logger
                     .PossibleUnintendedCollectionNavigationNullComparisonWarning(properties);
 
-                return Visit(Expression.MakeBinary(
-                    nodeType,
-                    CreateNavigationCaller(qsre, properties),
-                    Expression.Constant(null)));
+                return Visit(
+                    Expression.MakeBinary(
+                        nodeType,
+                        CreateNavigationCaller(qsre, properties),
+                        Expression.Constant(null)));
             }
 
             if (IsInvalidSubQueryExpression(nonNullExpression))
@@ -172,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             var entityType = _model.FindEntityType(nonNullExpression.Type)
-                ?? GetEntityType(properties, qsre);
+                             ?? GetEntityType(properties, qsre);
 
             if (entityType == null
                 || entityType.IsOwned())
@@ -198,9 +200,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 && navigation2.IsDependentToPrincipal())
             {
                 keyAccessExpression = CreateKeyAccessExpression(
-                            CreateNavigationCaller(qsre, properties),
-                            navigation2.ForeignKey.Properties,
-                            nullComparison: false);
+                    CreateNavigationCaller(qsre, properties),
+                    navigation2.ForeignKey.Properties,
+                    nullComparison: false);
                 nullCount = navigation2.ForeignKey.Properties.Count;
             }
             else
@@ -227,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private bool IsInvalidSubQueryExpression(Expression expression)
             => expression is SubQueryExpression subQuery
-                && _queryCompilationContext.DuplicateQueryModels.Contains(subQuery.QueryModel);
+               && _queryCompilationContext.DuplicateQueryModels.Contains(subQuery.QueryModel);
 
         private Expression RewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right)
         {
@@ -249,10 +251,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     // Log a warning that comparing 2 collections causes reference comparison
                     _queryCompilationContext.Logger.PossibleUnintendedReferenceComparisonWarning(left, right);
 
-                    return Visit(Expression.MakeBinary(
-                        nodeType,
-                        CreateNavigationCaller(leftQsre, leftProperties),
-                        CreateNavigationCaller(rightQsre, rightProperties)));
+                    return Visit(
+                        Expression.MakeBinary(
+                            nodeType,
+                            CreateNavigationCaller(leftQsre, leftProperties),
+                            CreateNavigationCaller(rightQsre, rightProperties)));
                 }
 
                 return Expression.Constant(false);
@@ -265,9 +268,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             var entityType = _model.FindEntityType(left.Type)
-                ?? _model.FindEntityType(right.Type)
-                ?? GetEntityType(leftProperties, leftQsre)
-                ?? GetEntityType(rightProperties, rightQsre);
+                             ?? _model.FindEntityType(right.Type)
+                             ?? GetEntityType(leftProperties, leftQsre)
+                             ?? GetEntityType(rightProperties, rightQsre);
 
             if (entityType == null
                 || entityType.IsOwned())

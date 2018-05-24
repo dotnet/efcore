@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to access the database asynchronously. For all other cases the non async method should be used.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         This allows any cascading actions to be applied when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </remarks>
         /// <param name="entity"> The entity to remove. </param>
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>

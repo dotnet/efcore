@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
             /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
             /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
-            /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator"/>. </param>
+            /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
             public CoreTypeMappingParameters(
                 [NotNull] Type clrType,
                 [CanBeNull] ValueConverter converter = null,
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public ValueComparer KeyComparer { get; }
 
             /// <summary>
-            ///     An optional factory for creating a specific <see cref="ValueGenerator"/> to use with
+            ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
             ///     this mapping.
             /// </summary>
             public Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             ValueGeneratorFactory = parameters.ValueGeneratorFactory
-                                     ?? converter?.MappingHints?.ValueGeneratorFactory;
+                                    ?? converter?.MappingHints?.ValueGeneratorFactory;
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual ValueConverter Converter => Parameters.Converter;
 
         /// <summary>
-        ///     An optional factory for creating a specific <see cref="ValueGenerator"/> to use with
+        ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
         ///     this mapping.
         /// </summary>
         public virtual Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }

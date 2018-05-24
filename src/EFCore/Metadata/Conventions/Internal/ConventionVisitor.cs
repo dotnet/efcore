@@ -26,12 +26,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         continue;
                     }
+
                     if (visitedNodes == null)
                     {
                         visitedNodes = new List<ConventionNode>();
                     }
+
                     visitedNodes.Add(visitedNode);
                 }
+
                 return (visitedNodes?.Count ?? 0) == 0 ? null : new ConventionScope(node.Parent, visitedNodes);
             }
 

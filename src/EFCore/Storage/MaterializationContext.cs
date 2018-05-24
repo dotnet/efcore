@@ -59,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The <see cref="ValueBuffer" /> to use to materialize an entity.
         /// </summary>
         public ValueBuffer ValueBuffer
-        { 
+        {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get; 
+            get;
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         An entity is being tracked by the <see cref="DbContext"/>.
+        ///         An entity is being tracked by the <see cref="DbContext" />.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
@@ -674,8 +674,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         An entity tracked by the <see cref="DbContext"/> is changing from one
-        ///         <see cref="EntityState"/> to another.
+        ///         An entity tracked by the <see cref="DbContext" /> is changing from one
+        ///         <see cref="EntityState" /> to another.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
@@ -732,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         <see cref="DbContext.SaveChanges()"/> or one of its overloads started.
+        ///         <see cref="DbContext.SaveChanges()" /> or one of its overloads started.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
@@ -746,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         <see cref="DbContext.SaveChanges()"/> or one of its overloads has completed.
+        ///         <see cref="DbContext.SaveChanges()" /> or one of its overloads has completed.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         The <see cref="DbContext"/> is being disposed.
+        ///         The <see cref="DbContext" /> is being disposed.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.

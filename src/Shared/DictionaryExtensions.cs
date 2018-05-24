@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 value = new TValue();
                 source.Add(key, value);
             }
+
             return value;
         }
 

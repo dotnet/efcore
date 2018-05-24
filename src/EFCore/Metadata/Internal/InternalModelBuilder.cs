@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (Metadata.ShouldBeOwnedType(type.Name)
                         && Metadata.HasEntityTypeWithDefiningNavigation(type.Name))
                     {
-                        Debug.Assert(configurationSource == ConfigurationSource.Explicit,
+                        Debug.Assert(
+                            configurationSource == ConfigurationSource.Explicit,
                             "If a type is marked as an owned entity it can only be configured as a non-owned entity type explicitly");
 
                         Metadata.UnmarkAsOwnedType(type.Name);
@@ -98,7 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (Metadata.ShouldBeOwnedType(clrType)
                         && Metadata.HasEntityTypeWithDefiningNavigation(clrType))
                     {
-                        Debug.Assert(configurationSource == ConfigurationSource.Explicit,
+                        Debug.Assert(
+                            configurationSource == ConfigurationSource.Explicit,
                             "If a type is marked as an owned entity it can only be configured as a non-owned entity type explicitly");
 
                         Metadata.UnmarkAsOwnedType(clrType);
@@ -307,10 +309,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
                 }
 
-                var ownership = entityType.GetForeignKeys().FirstOrDefault(fk =>
-                    fk.PrincipalToDependent != null
-                    && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
-                    && !fk.PrincipalEntityType.IsInDefinitionPath(clrType));
+                var ownership = entityType.GetForeignKeys().FirstOrDefault(
+                    fk =>
+                        fk.PrincipalToDependent != null
+                        && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
+                        && !fk.PrincipalEntityType.IsInDefinitionPath(clrType));
                 if (ownership != null)
                 {
                     ownership.Builder.IsOwnership(true, configurationSource);
@@ -378,6 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Metadata.Ignore(name, configurationSource);
                 }
+
                 return true;
             }
 

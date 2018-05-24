@@ -169,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             errorMessage = GetNoFieldErrorMessage(propertyBase);
                             return false;
                         }
+
                         return true;
                     }
                 }
@@ -245,6 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
                         return false;
                     }
+
                     return true;
                 }
 
