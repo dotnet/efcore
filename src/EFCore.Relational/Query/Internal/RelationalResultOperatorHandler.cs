@@ -567,7 +567,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         key = new[] { projection };
                     }
 
-                    if (selectExpression.Projection.Count > 1)
+                    if (groupResultOperator.ElementSelector.NodeType == ExpressionType.New
+                        || groupResultOperator.ElementSelector.NodeType == ExpressionType.MemberInit)
                     {
                         selectExpression.ClearProjection();
                     }

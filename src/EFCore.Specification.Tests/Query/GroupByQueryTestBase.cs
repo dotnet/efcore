@@ -1043,6 +1043,38 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum + " " + e.Avg);
         }
 
+        [ConditionalFact]
+        public virtual void GroupBy_element_selector_complex_aggregate()
+        {
+            AssertQueryScalar<Order>(
+                os => os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
+                        .Select(g => g.Sum(e => e.OrderID + 1)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_element_selector_complex_aggregate2()
+        {
+            AssertQueryScalar<Order>(
+                os => os.GroupBy(o => o.CustomerID, o => new { o.OrderID, o.OrderDate })
+                        .Select(g => g.Sum(e => e.OrderID + 1)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_element_selector_complex_aggregate3()
+        {
+            AssertQueryScalar<Order>(
+                os => os.GroupBy(o => o.CustomerID, o => o.OrderID)
+                        .Select(g => g.Sum(e => e + 1)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_element_selector_complex_aggregate4()
+        {
+            AssertQueryScalar<Order>(
+                os => os.GroupBy(o => o.CustomerID, o => o.OrderID + 1)
+                        .Select(g => g.Sum(e => e)));
+        }
+
         #endregion
 
         #region GroupByAfterComposition

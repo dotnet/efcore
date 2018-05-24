@@ -282,8 +282,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (qsre != null
                     || queryModel.SelectClause.Selector.RemoveConvert() is ConstantExpression
-                    || groupResultOperator.ElementSelector is MemberInitExpression
-                    || groupResultOperator.ElementSelector is NewExpression)
+                    || groupResultOperator.ElementSelector.NodeType == ExpressionType.New
+                    || groupResultOperator.ElementSelector.NodeType == ExpressionType.MemberInit)
                 {
                     return true;
                 }

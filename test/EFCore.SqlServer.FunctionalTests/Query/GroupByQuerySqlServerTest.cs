@@ -743,6 +743,46 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override void GroupBy_element_selector_complex_aggregate()
+        {
+            base.GroupBy_element_selector_complex_aggregate();
+
+            AssertSql(
+                @"SELECT SUM([o].[OrderID] + 1)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override void GroupBy_element_selector_complex_aggregate2()
+        {
+            base.GroupBy_element_selector_complex_aggregate2();
+
+            AssertSql(
+                @"SELECT SUM([o].[OrderID] + 1)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override void GroupBy_element_selector_complex_aggregate3()
+        {
+            base.GroupBy_element_selector_complex_aggregate3();
+
+            AssertSql(
+                @"SELECT [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
+        }
+
+        public override void GroupBy_element_selector_complex_aggregate4()
+        {
+            base.GroupBy_element_selector_complex_aggregate4();
+
+            AssertSql(
+                @"SELECT SUM([o].[OrderID] + 1)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
         public override void GroupBy_empty_key_Aggregate()
         {
             base.GroupBy_empty_key_Aggregate();
