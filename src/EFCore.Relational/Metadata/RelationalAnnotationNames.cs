@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Filter = Prefix + "Filter";
 
         /// <summary>
-        ///     The name for <see cref="RelationalTypeMapping"/> annotations.
+        ///     The name for <see cref="RelationalTypeMapping" /> annotations.
         /// </summary>
         [Obsolete("Use CoreAnnotationNames.TypeMapping")]
         public const string TypeMapping = Prefix + "TypeMapping";

@@ -366,18 +366,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     _queryModelVisitor.BindMethodCallExpression(
                         methodCallExpression,
                         (p, qs) =>
-                            {
-                                _querySource = qs;
-                                _propertyName = p.Name;
+                        {
+                            _querySource = qs;
+                            _propertyName = p.Name;
 
-                                if ((_queryModelVisitor.QueryCompilationContext.FindEntityType(_querySource)
-                                     ?? _queryModelVisitor.QueryCompilationContext.Model.FindEntityType(_querySource.ItemType))
-                                    ?.FindProperty(_propertyName)?.IsPrimaryKey()
-                                    ?? false)
-                                {
-                                    _propertyName = null;
-                                }
-                            });
+                            if ((_queryModelVisitor.QueryCompilationContext.FindEntityType(_querySource)
+                                 ?? _queryModelVisitor.QueryCompilationContext.Model.FindEntityType(_querySource.ItemType))
+                                ?.FindProperty(_propertyName)?.IsPrimaryKey()
+                                ?? false)
+                            {
+                                _propertyName = null;
+                            }
+                        });
                 }
             }
 
@@ -756,18 +756,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var boundExpression = binder(
                 sourceExpression, _queryModelVisitor, (property, querySource, selectExpression) =>
+                {
+                    var boundPropertyExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
+
+                    if (_targetSelectExpression != null
+                        && selectExpression != _targetSelectExpression)
                     {
-                        var boundPropertyExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
+                        selectExpression.AddToProjection(boundPropertyExpression);
+                        return null;
+                    }
 
-                        if (_targetSelectExpression != null
-                            && selectExpression != _targetSelectExpression)
-                        {
-                            selectExpression.AddToProjection(boundPropertyExpression);
-                            return null;
-                        }
-
-                        return boundPropertyExpression;
-                    });
+                    return boundPropertyExpression;
+                });
 
             if (boundExpression != null)
             {
@@ -842,7 +842,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     }
 
                     break;
-
             }
 
             return null;
@@ -875,7 +874,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
             else if (expression.Type == typeof(AnonymousObject)
-                || expression.Type == typeof(MaterializedAnonymousObject))
+                     || expression.Type == typeof(MaterializedAnonymousObject))
             {
                 var propertyCallExpressions
                     = ((NewArrayExpression)expression.Arguments.Single()).Expressions;
@@ -1005,9 +1004,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         _queryModelVisitor.LiftInjectedParameters(subQueryModelVisitor);
 
                         return expression.Type != selectExpression.Type
-                            && expression.Type.IsNullableType()
-                            && !selectExpression.Type.IsNullableType()
-                            && expression.Type.UnwrapNullableType() == selectExpression.Type
+                               && expression.Type.IsNullableType()
+                               && !selectExpression.Type.IsNullableType()
+                               && expression.Type.UnwrapNullableType() == selectExpression.Type
                             ? Expression.Convert(selectExpression, expression.Type)
                             : (Expression)selectExpression;
                     }

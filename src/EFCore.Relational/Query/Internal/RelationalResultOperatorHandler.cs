@@ -473,12 +473,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if ((sqlExpression != null || groupResultOperator.KeySelector is ConstantExpression)
                 && !handlerContext.QueryModelVisitor.QueryCompilationContext
-                        .QuerySourceRequiresMaterialization(groupResultOperator)
-                    && (groupResultOperator.ElementSelector is QuerySourceReferenceExpression elementQsre
-                        || sqlTranslatingExpressionVisitor.Visit(groupResultOperator.ElementSelector) != null)
-                    && handlerContext.QueryModelVisitor.Expression is MethodCallExpression shapedQueryMethod
-                    && shapedQueryMethod.Method.MethodIsClosedFormOf(
-                        handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+                    .QuerySourceRequiresMaterialization(groupResultOperator)
+                && (groupResultOperator.ElementSelector is QuerySourceReferenceExpression elementQsre
+                    || sqlTranslatingExpressionVisitor.Visit(groupResultOperator.ElementSelector) != null)
+                && handlerContext.QueryModelVisitor.Expression is MethodCallExpression shapedQueryMethod
+                && shapedQueryMethod.Method.MethodIsClosedFormOf(
+                    handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
             {
                 var selectExpression = handlerContext.SelectExpression;
                 PrepareSelectExpressionForAggregate(selectExpression);
@@ -580,7 +580,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         shapedQueryMethod.Arguments[0],
                         shapedQueryMethod.Arguments[1],
                         Expression.Constant(new ValueBufferShaper(groupResultOperator)));
-
                 }
             }
 
@@ -618,7 +617,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : oldGroupByCall;
         }
 
-
         private static Expression[] VisitAndSaveMapping(
             SqlTranslatingExpressionVisitor sqlTranslator,
             Dictionary<MemberInfo, Expression> memberInfoMappings,
@@ -640,7 +638,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // Encountered anonymous object inside anonymous object so abort
                     return null;
                 }
-
 
                 var memberInfo = newExpression.Members?[i];
 
@@ -757,7 +754,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var currentKey = _groupByAsyncEnumerable._keySelector(_sourceEnumerator.Current);
                         var element = await _groupByAsyncEnumerable._elementSelector(_sourceEnumerator.Current, cancellationToken);
-                        var grouping = new Grouping<TKey, TElement>(currentKey) { element };
+                        var grouping = new Grouping<TKey, TElement>(currentKey)
+                        {
+                            element
+                        };
 
                         while (true)
                         {

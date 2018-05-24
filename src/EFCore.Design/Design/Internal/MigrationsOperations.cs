@@ -135,7 +135,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 var idGenerator = services.GetRequiredService<IMigrationsIdGenerator>();
 
                 return from id in migrationsAssembly.Migrations.Keys
-                       select new MigrationInfo { Id = id, Name = idGenerator.GetName(id) };
+                       select new MigrationInfo
+                       {
+                           Id = id,
+                           Name = idGenerator.GetName(id)
+                       };
             }
         }
 

@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
                         }
                     }
                 }
-            
+
                 return false;
             }
             finally

@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqlServerDbFunctionsExtensions
     {
         /// <summary>
-        /// <para>
-        ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
-        /// </para>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
+        ///     </para>
         /// </summary>
         /// <remarks>
         ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
@@ -34,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore
             => FreeTextCore(propertyReference, freeText, languageTerm);
 
         /// <summary>
-        /// <para>
-        ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
-        /// </para>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
+        ///     </para>
         /// </summary>
         /// <remarks>
         ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///    Counts the number of year boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(YEAR,startDate,endDate).
+        ///     Counts the number of year boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(YEAR,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore
             => endDate.Year - startDate.Year;
 
         /// <summary>
-        ///    Counts the number of year boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(YEAR,startDate,endDate).
+        ///     Counts the number of year boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(YEAR,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -87,8 +87,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of year boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(YEAR,startDate,endDate).
+        ///     Counts the number of year boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(YEAR,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -101,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffYear(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of year boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(YEAR,startDate,endDate).
+        ///     Counts the number of year boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(YEAR,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of month boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MONTH,startDate,endDate).
+        ///     Counts the number of month boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MONTH,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -131,8 +131,8 @@ namespace Microsoft.EntityFrameworkCore
             => 12 * (endDate.Year - startDate.Year) + endDate.Month - startDate.Month;
 
         /// <summary>
-        ///    Counts the number of month boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MONTH,startDate,endDate).
+        ///     Counts the number of month boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MONTH,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -147,8 +147,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of month boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MONTH,startDate,endDate).
+        ///     Counts the number of month boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MONTH,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -161,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffMonth(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of month boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MONTH,startDate,endDate).
+        ///     Counts the number of month boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MONTH,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -177,8 +177,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of day boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(DAY,startDate,endDate).
+        ///     Counts the number of day boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(DAY,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -191,8 +191,8 @@ namespace Microsoft.EntityFrameworkCore
             => (endDate.Date - startDate.Date).Days;
 
         /// <summary>
-        ///    Counts the number of day boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(DAY,startDate,endDate).
+        ///     Counts the number of day boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(DAY,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -207,8 +207,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of day boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(DAY,startDate,endDate).
+        ///     Counts the number of day boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(DAY,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -221,8 +221,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffDay(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of day boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(DAY,startDate,endDate).
+        ///     Counts the number of day boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(DAY,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -237,8 +237,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of hour boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(HOUR,startDate,endDate).
+        ///     Counts the number of hour boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(HOUR,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -256,8 +256,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///    Counts the number of hour boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(HOUR,startDate,endDate).
+        ///     Counts the number of hour boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(HOUR,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -272,8 +272,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of hour boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(HOUR,startDate,endDate).
+        ///     Counts the number of hour boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(HOUR,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -286,8 +286,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffHour(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of hour boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(HOUR,startDate,endDate).
+        ///     Counts the number of hour boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(HOUR,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -302,8 +302,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of minute boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MINUTE,startDate,endDate).
+        ///     Counts the number of minute boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MINUTE,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -321,8 +321,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///    Counts the number of minute boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MINUTE,startDate,endDate).
+        ///     Counts the number of minute boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MINUTE,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -337,8 +337,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of minute boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MINUTE,startDate,endDate).
+        ///     Counts the number of minute boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MINUTE,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -351,8 +351,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffMinute(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of minute boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MINUTE,startDate,endDate).
+        ///     Counts the number of minute boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MINUTE,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -367,8 +367,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of second boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(SECOND,startDate,endDate).
+        ///     Counts the number of second boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(SECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -386,8 +386,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///    Counts the number of second boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(SECOND,startDate,endDate).
+        ///     Counts the number of second boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(SECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -402,8 +402,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of second boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(SECOND,startDate,endDate).
+        ///     Counts the number of second boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(SECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -416,8 +416,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffSecond(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of second boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(SECOND,startDate,endDate).
+        ///     Counts the number of second boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(SECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -432,8 +432,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of millisecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MILLISECOND,startDate,endDate).
+        ///     Counts the number of millisecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MILLISECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -451,8 +451,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///    Counts the number of millisecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MILLISECOND,startDate,endDate).
+        ///     Counts the number of millisecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MILLISECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -467,8 +467,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of millisecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MILLISECOND,startDate,endDate).
+        ///     Counts the number of millisecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MILLISECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -481,8 +481,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffMillisecond(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of millisecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MILLISECOND,startDate,endDate).
+        ///     Counts the number of millisecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MILLISECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -497,8 +497,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of microsecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MICROSECOND,startDate,endDate).
+        ///     Counts the number of microsecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MICROSECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -516,8 +516,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///    Counts the number of microsecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MICROSECOND,startDate,endDate).
+        ///     Counts the number of microsecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MICROSECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -532,8 +532,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of microsecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MICROSECOND,startDate,endDate).
+        ///     Counts the number of microsecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MICROSECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -546,8 +546,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffMicrosecond(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of microsecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(MICROSECOND,startDate,endDate).
+        ///     Counts the number of microsecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(MICROSECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -562,8 +562,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of nanosecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(NANOSECOND,startDate,endDate).
+        ///     Counts the number of nanosecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(NANOSECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -581,8 +581,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///    Counts the number of nanosecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(NANOSECOND,startDate,endDate).
+        ///     Counts the number of nanosecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(NANOSECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -597,8 +597,8 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///    Counts the number of nanosecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(NANOSECOND,startDate,endDate).
+        ///     Counts the number of nanosecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(NANOSECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -611,8 +611,8 @@ namespace Microsoft.EntityFrameworkCore
             => DateDiffNanosecond(_, startDate.UtcDateTime, endDate.UtcDateTime);
 
         /// <summary>
-        ///    Counts the number of nanosecond boundaries crossed between the startDate and endDate.
-        ///    Corresponds to SQL Server's DATEDIFF(NANOSECOND,startDate,endDate).
+        ///     Counts the number of nanosecond boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(NANOSECOND,startDate,endDate).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>

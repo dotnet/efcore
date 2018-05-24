@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public RelationalExpressionPrinter()
         {
-            ConstantPrinters.InsertRange(0,
+            ConstantPrinters.InsertRange(
+                0,
                 new List<ConstantPrinterBase>
                 {
                     new CommandBuilderPrinter(),
@@ -135,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class ShaperPrinter : ConstantPrinterBase
         {
-            private RelationalExpressionPrinter _expressionPrinter;
+            private readonly RelationalExpressionPrinter _expressionPrinter;
 
             public ShaperPrinter(RelationalExpressionPrinter expressionPrinter)
             {

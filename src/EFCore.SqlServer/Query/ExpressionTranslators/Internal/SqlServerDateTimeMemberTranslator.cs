@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 { nameof(DateTime.Hour), "hour" },
                 { nameof(DateTime.Minute), "minute" },
                 { nameof(DateTime.Second), "second" },
-                { nameof(DateTime.Millisecond), "millisecond" },
+                { nameof(DateTime.Millisecond), "millisecond" }
             };
 
         /// <summary>
@@ -51,16 +51,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 switch (memberName)
                 {
                     case nameof(DateTime.Now):
-                        return declaringType == typeof(DateTimeOffset) ?
-                            new SqlFunctionExpression("SYSDATETIMEOFFSET", memberExpression.Type) :
-                            new SqlFunctionExpression("GETDATE", memberExpression.Type);
+                        return declaringType == typeof(DateTimeOffset) ? new SqlFunctionExpression("SYSDATETIMEOFFSET", memberExpression.Type) : new SqlFunctionExpression("GETDATE", memberExpression.Type);
 
                     case nameof(DateTime.UtcNow):
-                        return declaringType == typeof(DateTimeOffset) ?
-                            (Expression)new ExplicitCastExpression(
+                        return declaringType == typeof(DateTimeOffset)
+                            ? (Expression)new ExplicitCastExpression(
                                 new SqlFunctionExpression("SYSUTCDATETIME", memberExpression.Type),
-                                typeof(DateTimeOffset)) :
-                            new SqlFunctionExpression("GETUTCDATE", memberExpression.Type);
+                                typeof(DateTimeOffset))
+                            : new SqlFunctionExpression("GETUTCDATE", memberExpression.Type);
 
                     case nameof(DateTime.Date):
                         return new SqlFunctionExpression(

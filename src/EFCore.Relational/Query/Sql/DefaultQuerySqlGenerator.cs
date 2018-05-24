@@ -134,11 +134,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _parametersValues = parameterValues;
             _nullComparisonTransformingVisitor = new NullComparisonTransformingVisitor(parameterValues);
             _inExpressionValuesExpandingVisitor = new InExpressionValuesExpandingVisitor(parameterValues);
-            
+
             IsCacheable = true;
 
             GenerateTagsHeaderComment();
-            
+
             Visit(SelectExpression);
 
             return _relationalCommandBuilder.Build();
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     The default alias separator.
         /// </summary>
         protected virtual string AliasSeparator { get; } = " AS ";
-        
+
         /// <summary>
         ///     The default single line comment prefix.
         /// </summary>
@@ -402,6 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public bool IsParameterDependent { get; private set; }
+
             public InExpressionValuesExpandingVisitor(IReadOnlyDictionary<string, object> parameterValues)
                 => _parametersValues = parameterValues;
 
@@ -460,12 +461,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                                 IsParameterDependent = true;
                             }
+
                             break;
 
                         case ListInitExpression listInitExpression:
                             inConstants.AddRange(
-                                    ProcessInExpressionValues(
-                                        listInitExpression.Initializers.SelectMany(i => i.Arguments)));
+                                ProcessInExpressionValues(
+                                    listInitExpression.Initializers.SelectMany(i => i.Arguments)));
                             break;
 
                         case NewArrayExpression newArrayExpression:
@@ -506,6 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             {
                                 inValuesNotNull.Add(inValue);
                             }
+
                             break;
 
                         case ParameterExpression parameterExpression:
@@ -516,6 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                                     inValuesNotNull.Add(inValue);
                                 }
                             }
+
                             break;
                     }
                 }
@@ -620,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 var processedExperssion = ApplyOptimizations(orderingExpression, searchCondition: false);
                 if (processedExperssion is ConstantExpression
-                     || processedExperssion is ParameterExpression)
+                    || processedExperssion is ParameterExpression)
                 {
                     _relationalCommandBuilder.Append("(SELECT 1)");
                 }
@@ -731,18 +735,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         _relationalCommandBuilder.AddCompositeParameter(
                             parameterExpression.Name,
                             builder =>
+                            {
+                                for (var i = 0; i < argumentValuesFromParameter.Length; i++)
                                 {
-                                    for (var i = 0; i < argumentValuesFromParameter.Length; i++)
-                                    {
-                                        var parameterName = _parameterNameGenerator.GenerateNext();
+                                    var parameterName = _parameterNameGenerator.GenerateNext();
 
-                                        substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+                                    substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
 
-                                        builder.AddParameter(
-                                            parameterName,
-                                            substitutions[i]);
-                                    }
-                                });
+                                    builder.AddParameter(
+                                        parameterName,
+                                        substitutions[i]);
+                                }
+                            });
                     }
 
                     break;
@@ -1038,6 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                             IsCacheable = false;
                         }
+
                         break;
                     case ListInitExpression inListInit:
                         inConstants.AddRange(
@@ -1711,7 +1716,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 var typeMapping
                     = _typeMapping
-                        ?? Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type);
+                      ?? Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type);
 
                 LogValueConversionWarning(typeMapping);
 

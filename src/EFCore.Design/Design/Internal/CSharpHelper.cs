@@ -272,6 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     uniqueIdentifier = identifier + qualifier++;
                 }
+
                 scope.Add(uniqueIdentifier);
                 identifier = uniqueIdentifier;
             }
@@ -302,6 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         .Append('.');
                 }
             }
+
             return @namespace.Length > 0 ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
         }
 
@@ -640,10 +642,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return ch <= 'Z'
                        || ch == '_';
             }
+
             if (ch <= 'z')
             {
                 return true;
             }
+
             if (ch <= '\u007F') // max ASCII
             {
                 return false;
@@ -665,10 +669,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return ch <= 'Z'
                        || ch == '_';
             }
+
             if (ch <= 'z')
             {
                 return true;
             }
+
             if (ch <= '\u007F')
             {
                 return false;

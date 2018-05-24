@@ -4,8 +4,8 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {

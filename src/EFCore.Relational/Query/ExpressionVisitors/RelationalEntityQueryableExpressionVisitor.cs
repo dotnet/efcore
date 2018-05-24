@@ -312,10 +312,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     materializer,
                     typeIndexMap);
 
-
         private static void FindPaths(
-                IEntityType entityType, ICollection<IEntityType> sharedTypes,
-                Stack<IEntityType> currentPath, ICollection<List<IEntityType>> result)
+            IEntityType entityType, ICollection<IEntityType> sharedTypes,
+            Stack<IEntityType> currentPath, ICollection<List<IEntityType>> result)
         {
             var identifyingFks = entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties)
                 .Where(

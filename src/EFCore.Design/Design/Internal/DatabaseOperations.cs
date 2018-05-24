@@ -99,8 +99,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _language,
                 MakeDirRelative(outputDir, outputContextDir),
                 dbContextClassName,
-                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames },
-                new ModelCodeGenerationOptions { UseDataAnnotations = useDataAnnotations });
+                new ModelReverseEngineerOptions
+                {
+                    UseDatabaseNames = useDatabaseNames
+                },
+                new ModelCodeGenerationOptions
+                {
+                    UseDataAnnotations = useDataAnnotations
+                });
 
             return scaffolder.Save(
                 scaffoldedModel,

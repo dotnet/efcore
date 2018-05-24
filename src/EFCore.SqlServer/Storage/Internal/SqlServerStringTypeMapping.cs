@@ -43,12 +43,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         }
 
         private static string GetStoreName(bool unicode, bool fixedLength) => unicode
-                ? fixedLength ? "nchar" : "nvarchar"
-                : fixedLength ? "char" : "varchar";
+            ? fixedLength ? "nchar" : "nvarchar"
+            : fixedLength
+                ? "char"
+                : "varchar";
 
         private static DbType? GetDbType(bool unicode, bool fixedLength) => unicode
-                ? (fixedLength ? System.Data.DbType.String : (DbType?)null)
-                : System.Data.DbType.AnsiString;
+            ? (fixedLength ? System.Data.DbType.String : (DbType?)null)
+            : System.Data.DbType.AnsiString;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

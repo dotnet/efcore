@@ -323,6 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 entries.AddRange(ModificationCommands[i].Entries);
             }
+
             return entries;
         }
 

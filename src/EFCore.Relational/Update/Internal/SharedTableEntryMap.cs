@@ -109,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         principalList.Add(foreignKey.PrincipalEntityType);
                     }
                 }
+
                 principals[entityType] = principalList;
 
                 var dependentList = new List<IEntityType>();
@@ -123,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         dependentList.Add(referencingForeignKey.DeclaringEntityType);
                     }
                 }
+
                 dependents[entityType] = dependentList;
             }
 

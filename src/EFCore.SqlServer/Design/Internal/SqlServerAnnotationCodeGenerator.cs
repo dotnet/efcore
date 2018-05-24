@@ -38,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             {
                 return string.Equals("dbo", (string)annotation.Value);
             }
+
             if (annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy)
             {
                 return (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;

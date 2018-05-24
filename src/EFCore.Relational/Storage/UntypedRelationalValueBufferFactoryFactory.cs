@@ -92,8 +92,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var mappingSource = Dependencies.TypeMappingSource;
 
-            return Create(valueTypes.Select(
-                (t, i) => new TypeMaterializationInfo(t, null, mappingSource, indexMap?[i] ?? -1)).ToList());
+            return Create(
+                valueTypes.Select(
+                    (t, i) => new TypeMaterializationInfo(t, null, mappingSource, indexMap?[i] ?? -1)).ToList());
         }
 
         /// <summary>
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static Action<object[]> CreateValueProcessor(CacheKey cacheKey)
         {
             var valuesParam = Expression.Parameter(typeof(object[]), "values");
-            var conversions = new List<Expression>();   
+            var conversions = new List<Expression>();
             var materializationInfo = cacheKey.TypeMaterializationInfo;
 
             for (var i = 0; i < materializationInfo.Count; i++)

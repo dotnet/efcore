@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object.
             /// </summary>
-            /// <param name="coreParameters"> Parameters for the <see cref="CoreTypeMapping"/> base class. </param>
+            /// <param name="coreParameters"> Parameters for the <see cref="CoreTypeMapping" /> base class. </param>
             /// <param name="storeType"> The name of the database type. </param>
             /// <param name="storeTypePostfix"> Indicates which values should be appended to the store type name. </param>
             /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             /// <summary>
-            ///     Parameters for the <see cref="CoreTypeMapping"/> base class.
+            ///     Parameters for the <see cref="CoreTypeMapping" /> base class.
             /// </summary>
             public CoreTypeMappingParameters CoreParameters { get; }
 
@@ -297,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : this(new RelationalTypeMappingParameters(
+            : this(
+                new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
         {
         }
@@ -334,8 +335,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => Clone(Parameters.WithPrecisionAndScale(precision, scale));
 
         /// <summary>
-        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
-        ///    added.
+        ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
+        ///     added.
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>

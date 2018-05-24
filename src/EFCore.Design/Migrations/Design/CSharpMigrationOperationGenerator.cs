@@ -1579,6 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("schema: ")
                         .Append(Code.Literal(operation.Schema));
                 }
+
                 builder
                     .AppendLine(",")
                     .Append("startValue: ")

@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly MethodInfo _throwReadValueExceptionMethod
             = typeof(TypedRelationalValueBufferFactoryFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(ThrowReadValueException));
-        
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="TypedRelationalValueBufferFactoryFactory" /> class.
         /// </summary>
@@ -110,8 +110,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var mappingSource = Dependencies.TypeMappingSource;
 
-            return Create(valueTypes.Select(
-                (t, i) => new TypeMaterializationInfo(t, null, mappingSource, indexMap?[i] ?? -1)).ToList());
+            return Create(
+                valueTypes.Select(
+                    (t, i) => new TypeMaterializationInfo(t, null, mappingSource, indexMap?[i] ?? -1)).ToList());
         }
 
         /// <summary>
@@ -124,10 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(types, nameof(types));
 
             return _cache.GetOrAdd(
-                    new CacheKey(types),
-                    k => new TypedRelationalValueBufferFactory(
-                        Dependencies, 
-                        CreateArrayInitializer(k, Dependencies.CoreOptions.IsRichDataErrorHandingEnabled)));
+                new CacheKey(types),
+                k => new TypedRelationalValueBufferFactory(
+                    Dependencies,
+                    CreateArrayInitializer(k, Dependencies.CoreOptions.IsRichDataErrorHandingEnabled)));
         }
 
         /// <summary>
@@ -199,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             throw new InvalidOperationException(message, exception);
         }
-        
+
         private static Expression CreateGetValueExpression(
             Expression dataReaderExpression,
             int index,
@@ -207,10 +208,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool richDataErrorHandling,
             bool box = true)
         {
-             var getMethod = materializationInfo.Mapping.GetDataReaderMethod();
+            var getMethod = materializationInfo.Mapping.GetDataReaderMethod();
 
             index = materializationInfo.Index == -1 ? index : materializationInfo.Index;
-            
+
             var indexExpression = Expression.Constant(index);
 
             Expression expression
@@ -245,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 = Expression.Parameter(typeof(Exception), name: "e");
 
             var property = materializationInfo.Property;
-            
+
             if (richDataErrorHandling)
             {
                 var catchBlock
@@ -271,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             if (property == null
-                || property.IsNullable 
+                || property.IsNullable
                 || property.DeclaringEntityType.BaseType != null
                 || materializationInfo.IsFromLeftOuterJoin != false)
             {

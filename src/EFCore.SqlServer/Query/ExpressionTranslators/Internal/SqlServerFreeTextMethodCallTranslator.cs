@@ -45,20 +45,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 return new SqlFunctionExpression(
                     FunctionName,
                     typeof(bool),
-                    new Expression[]
+                    new[]
                     {
                         methodCallExpression.Arguments[1],
                         methodCallExpression.Arguments[2]
                     });
             }
-            else if (Equals(methodCallExpression.Method, _methodInfoWithLanguage))
+
+            if (Equals(methodCallExpression.Method, _methodInfoWithLanguage))
             {
                 ValidatePropertyReference(methodCallExpression.Arguments[1]);
 
                 return new SqlFunctionExpression(
                     FunctionName,
                     typeof(bool),
-                    new Expression[]
+                    new[]
                     {
                         methodCallExpression.Arguments[1],
                         methodCallExpression.Arguments[2],

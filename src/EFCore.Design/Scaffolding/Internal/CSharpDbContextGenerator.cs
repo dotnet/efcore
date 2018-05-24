@@ -52,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
 
-            if (!legacyProviderCodeGenerators.Any() && !providerCodeGenerators.Any())
+            if (!legacyProviderCodeGenerators.Any()
+                && !providerCodeGenerators.Any())
             {
                 throw new ArgumentException(AbstractionsStrings.CollectionArgumentIsEmpty(nameof(providerCodeGenerators)));
             }
@@ -215,6 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 _sb.AppendLine("}");
             }
+
             _sb.AppendLine("}");
 
             _sb.AppendLine();
@@ -454,7 +456,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (explicitName)
             {
-                lines.Add($".{nameof(RelationalKeyBuilderExtensions.HasName)}" +
+                lines.Add(
+                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}" +
                     $"({_code.Literal(key.Relational().Name)})");
             }
 
@@ -919,6 +922,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private string GenerateAnnotation(IAnnotation annotation)
             => $".HasAnnotation({_code.Literal(annotation.Name)}, " +
-            $"{_code.UnknownLiteral(annotation.Value)})";
+               $"{_code.UnknownLiteral(annotation.Value)})";
     }
 }

@@ -54,10 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => EntityTypes.SingleOrDefault(
                 t => t.BaseType == null
                      && t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
-                         .All(fk => !fk.PrincipalKey.IsPrimaryKey()
-                                    || fk.PrincipalEntityType.RootType() == t
-                                    || t.Relational().TableName != fk.PrincipalEntityType.Relational().TableName
-                                    || t.Relational().Schema != fk.PrincipalEntityType.Relational().Schema));
+                         .All(
+                             fk => !fk.PrincipalKey.IsPrimaryKey()
+                                   || fk.PrincipalEntityType.RootType() == t
+                                   || t.Relational().TableName != fk.PrincipalEntityType.Relational().TableName
+                                   || t.Relational().Schema != fk.PrincipalEntityType.Relational().Schema));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

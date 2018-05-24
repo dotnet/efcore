@@ -226,10 +226,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return ch <= 'Z'
                        || ch == '_';
             }
+
             if (ch <= 'z')
             {
                 return true;
             }
+
             if (ch <= '\u007F') // max ASCII
             {
                 return false;
@@ -251,10 +253,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return ch <= 'Z'
                        || ch == '_';
             }
+
             if (ch <= 'z')
             {
                 return true;
             }
+
             if (ch <= '\u007F')
             {
                 return false;

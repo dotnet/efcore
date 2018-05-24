@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="DateTimeOffsetTypeMapping" /> class.
         /// </summary>
-        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping"/>. </param>
+        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping" />. </param>
         protected DateTimeOffsetTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
         {

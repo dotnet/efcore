@@ -173,13 +173,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEvaluatableExpressionFilter, RelationalEvaluatableExpressionFilter>();
             TryAdd<IRelationalTransactionFactory, RelationalTransactionFactory>();
 
-            TryAdd<ISingletonUpdateSqlGenerator>(p =>
-            {
-                using (var scope = p.CreateScope())
+            TryAdd<ISingletonUpdateSqlGenerator>(
+                p =>
                 {
-                    return scope.ServiceProvider.GetService<IUpdateSqlGenerator>();
-                }
-            });
+                    using (var scope = p.CreateScope())
+                    {
+                        return scope.ServiceProvider.GetService<IUpdateSqlGenerator>();
+                    }
+                });
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalCompositeMemberTranslatorDependencies>()

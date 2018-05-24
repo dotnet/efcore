@@ -52,8 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
-                            && !p.IsForeignKey()))
+                .Where(
+                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                         && !p.IsForeignKey()))
             {
                 var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionalAnnotation;
                 var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionalAnnotation;

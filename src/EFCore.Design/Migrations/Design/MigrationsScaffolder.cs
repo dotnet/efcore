@@ -259,6 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Dependencies.OperationReporter.WriteWarning(
                             DesignStrings.ForceRemoveMigration(migration.GetId(), ex.Message));
                     }
+
                     if (applied)
                     {
                         if (force)

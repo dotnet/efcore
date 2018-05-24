@@ -66,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 for (var index = 0; index < properties.Count; index++)
                 {
-                    if (properties[index].IsConcurrencyToken && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
+                    if (properties[index].IsConcurrencyToken
+                        && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
                     {
                         concurrencyConflicts.Add(properties[index], _rows[key][index]);
                     }
@@ -101,11 +102,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 for (var index = 0; index < valueBuffer.Length; index++)
                 {
-                    if (properties[index].IsConcurrencyToken && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
+                    if (properties[index].IsConcurrencyToken
+                        && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
                     {
                         concurrencyConflicts.Add(properties[index], _rows[key][index]);
                         continue;
                     }
+
                     valueBuffer[index] = entry.IsModified(properties[index])
                         ? entry.GetCurrentValue(properties[index])
                         : _rows[key][index];

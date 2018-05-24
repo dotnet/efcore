@@ -111,18 +111,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         protected virtual Func<object, object, int> GetComparer([NotNull] Type type)
             => _comparers.GetOrAdd(
                 type, t =>
-                    {
-                        var xParameter = Expression.Parameter(typeof(object), name: "x");
-                        var yParameter = Expression.Parameter(typeof(object), name: "y");
-                        return Expression.Lambda<Func<object, object, int>>(
-                                Expression.Call(
-                                    null, _compareMethod.MakeGenericMethod(t),
-                                    Expression.Convert(xParameter, t),
-                                    Expression.Convert(yParameter, t)),
-                                xParameter,
-                                yParameter)
-                            .Compile();
-                    });
+                {
+                    var xParameter = Expression.Parameter(typeof(object), name: "x");
+                    var yParameter = Expression.Parameter(typeof(object), name: "y");
+                    return Expression.Lambda<Func<object, object, int>>(
+                            Expression.Call(
+                                null, _compareMethod.MakeGenericMethod(t),
+                                Expression.Convert(xParameter, t),
+                                Expression.Convert(yParameter, t)),
+                            xParameter,
+                            yParameter)
+                        .Compile();
+                });
 
         private static readonly MethodInfo _compareMethod
             = typeof(ModificationCommandComparer).GetTypeInfo().GetDeclaredMethod(nameof(CompareValue));

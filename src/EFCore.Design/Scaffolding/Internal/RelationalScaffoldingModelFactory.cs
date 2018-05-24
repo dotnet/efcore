@@ -367,7 +367,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 clrType = clrType.MakeNullable();
             }
 
-            if (clrType == typeof(bool) && column.DefaultValueSql != null)
+            if (clrType == typeof(bool)
+                && column.DefaultValueSql != null)
             {
                 _reporter.WriteWarning(
                     DesignStrings.NonNullableBoooleanColumnHasDefaultConstraint(column.DisplayName()));
@@ -733,6 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             .ToList()
                             .ForEach(tuple => tuple.property.IsNullable = false);
                     }
+
                     principalKey = principalEntityType.AddKey(principalProperties);
                 }
                 else

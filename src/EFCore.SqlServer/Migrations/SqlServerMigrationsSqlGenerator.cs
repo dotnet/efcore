@@ -349,8 +349,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             Rename(
                 Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema) +
-                    "." +
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                "." +
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
                 operation.NewName,
                 "INDEX",
                 builder);
@@ -569,7 +569,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 base.Generate(operation, model, builder, terminate: false);
 
-                if (operation.Filter == null && UseLegacyIndexFilters(model))
+                if (operation.Filter == null
+                    && UseLegacyIndexFilters(model))
                 {
                     var clustered = operation[SqlServerAnnotationNames.Clustered] as bool?;
                     if (operation.IsUnique
@@ -645,8 +646,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
                         "CREATE SCHEMA " +
-                            Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name) +
-                            Dependencies.SqlGenerationHelper.StatementTerminator))
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name) +
+                        Dependencies.SqlGenerationHelper.StatementTerminator))
                 .Append(")")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand();
@@ -893,6 +894,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     builder.AppendLine("END");
                 }
+
                 builder.AppendLine("END");
             }
 
@@ -1057,8 +1059,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             Rename(
                 Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema) +
-                    "." +
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                "." +
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
                 operation.NewName,
                 "COLUMN",
                 builder);
@@ -1162,8 +1164,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(" [name] IN (")
                 .Append(string.Join(", ", operation.Columns.Select(stringTypeMapping.GenerateSqlLiteral)))
                 .Append(") AND [object_id] = OBJECT_ID(")
-                .Append(stringTypeMapping.GenerateSqlLiteral(
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
+                .Append(
+                    stringTypeMapping.GenerateSqlLiteral(
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
                 .AppendLine("))");
 
             using (builder.Indent())
@@ -1321,6 +1324,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model,
                 builder);
         }
+
         /// <summary>
         ///     Generates a SQL fragment for a column definition for the given column metadata.
         /// </summary>
@@ -1364,7 +1368,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IAnnotatable annotatable,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-            => ColumnDefinition(schema, table, name, clrType, type, unicode, maxLength, null,
+            => ColumnDefinition(
+                schema, table, name, clrType, type, unicode, maxLength, null,
                 rowVersion, nullable, defaultValue, defaultValueSql, computedColumnSql, identity, annotatable, model, builder);
 
         /// <summary>
@@ -1620,8 +1625,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
                         "ALTER TABLE " +
-                            Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) +
-                            " DROP CONSTRAINT ["))
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) +
+                        " DROP CONSTRAINT ["))
                 .Append(" + ")
                 .Append(variable)
                 .Append(" + ']")
@@ -1719,7 +1724,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Checks whether or not <see cref="CreateIndexOperation"/> should have a filter generated for it by
+        ///     Checks whether or not <see cref="CreateIndexOperation" /> should have a filter generated for it by
         ///     Migrations.
         /// </summary>
         /// <param name="model"> The target model. </param>

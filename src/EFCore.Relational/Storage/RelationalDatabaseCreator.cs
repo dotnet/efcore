@@ -176,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Delete();
                 return true;
             }
+
             return false;
         }
 
@@ -202,6 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 return true;
             }
+
             return false;
         }
 

@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string DbSetName
         {
             get => (string)Annotations.Metadata[ScaffoldingAnnotationNames.DbSetName]
-                ?? EntityType.Name;
+                   ?? EntityType.Name;
 
             [param: CanBeNull]
             set => Annotations.SetAnnotation(

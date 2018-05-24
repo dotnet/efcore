@@ -93,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             return new SqlFunctionExpression(
                 "rtrim",
                 typeof(DateTime),
-                new Expression[] {
+                new Expression[]
+                {
                     new SqlFunctionExpression(
                         "rtrim",
                         typeof(DateTime),

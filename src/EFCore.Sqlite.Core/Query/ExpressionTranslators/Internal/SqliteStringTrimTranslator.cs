@@ -40,7 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                 || _methodInfoWithCharArg?.Equals(methodInfo) == true
                 || _methodInfoWithCharArrayArg.Equals(methodInfo))
             {
-                var sqlArguments = new List<Expression> { methodCallExpression.Object };
+                var sqlArguments = new List<Expression>
+                {
+                    methodCallExpression.Object
+                };
 
                 if (methodCallExpression.Arguments.Count == 1)
                 {

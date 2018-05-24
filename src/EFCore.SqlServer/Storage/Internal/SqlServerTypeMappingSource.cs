@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     return mapping;
                 }
 
-                if(_namedClrMappings.TryGetValue(clrType.FullName, out var mappingFunc))
+                if (_namedClrMappings.TryGetValue(clrType.FullName, out var mappingFunc))
                 {
                     return mappingFunc(clrType);
                 }

@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public TypeMaterializationInfo(
             [NotNull] Type modelClrType,
             [CanBeNull] IProperty property,
-            [CanBeNull] IRelationalTypeMappingSource typeMappingSource, 
+            [CanBeNull] IRelationalTypeMappingSource typeMappingSource,
             int index = -1)
             : this(modelClrType, property, typeMappingSource, null, index)
         {

@@ -376,13 +376,13 @@ namespace Microsoft.EntityFrameworkCore
         public static IDbContextTransaction BeginTransaction([NotNull] this DatabaseFacade databaseFacade, IsolationLevel isolationLevel)
             => databaseFacade.CreateExecutionStrategy().Execute(
                 databaseFacade, database =>
-                    {
-                        var transactionManager = database.GetTransactionManager();
+                {
+                    var transactionManager = database.GetTransactionManager();
 
-                        return transactionManager is IRelationalTransactionManager relationalTransactionManager
-                            ? relationalTransactionManager.BeginTransaction(isolationLevel)
-                            : transactionManager.BeginTransaction();
-                    });
+                    return transactionManager is IRelationalTransactionManager relationalTransactionManager
+                        ? relationalTransactionManager.BeginTransaction(isolationLevel)
+                        : transactionManager.BeginTransaction();
+                });
 
         /// <summary>
         ///     Asynchronously starts a new transaction with a given <see cref="IsolationLevel" />.
@@ -400,13 +400,13 @@ namespace Microsoft.EntityFrameworkCore
             CancellationToken cancellationToken = default)
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
                 databaseFacade, (database, ct) =>
-                    {
-                        var transactionManager = database.GetTransactionManager();
+                {
+                    var transactionManager = database.GetTransactionManager();
 
-                        return transactionManager is IRelationalTransactionManager relationalTransactionManager
-                            ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
-                            : transactionManager.BeginTransactionAsync(ct);
-                    }, cancellationToken);
+                    return transactionManager is IRelationalTransactionManager relationalTransactionManager
+                        ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
+                        : transactionManager.BeginTransactionAsync(ct);
+                }, cancellationToken);
 
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.

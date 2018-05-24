@@ -27,10 +27,28 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private static readonly IDictionary<Type, IReadOnlyCollection<Type>> _restrictedOperators
             = new Dictionary<Type, IReadOnlyCollection<Type>>
             {
-                [typeof(AverageResultOperator)] = new HashSet<Type> { typeof(decimal) },
-                [typeof(MaxResultOperator)] = new HashSet<Type> { typeof(DateTimeOffset), typeof(decimal), typeof(TimeSpan), typeof(ulong) },
-                [typeof(MinResultOperator)] = new HashSet<Type> { typeof(DateTimeOffset), typeof(decimal), typeof(TimeSpan), typeof(ulong) },
-                [typeof(SumResultOperator)] = new HashSet<Type> { typeof(decimal) }
+                [typeof(AverageResultOperator)] = new HashSet<Type>
+                {
+                    typeof(decimal)
+                },
+                [typeof(MaxResultOperator)] = new HashSet<Type>
+                {
+                    typeof(DateTimeOffset),
+                    typeof(decimal),
+                    typeof(TimeSpan),
+                    typeof(ulong)
+                },
+                [typeof(MinResultOperator)] = new HashSet<Type>
+                {
+                    typeof(DateTimeOffset),
+                    typeof(decimal),
+                    typeof(TimeSpan),
+                    typeof(ulong)
+                },
+                [typeof(SumResultOperator)] = new HashSet<Type>
+                {
+                    typeof(decimal)
+                }
             };
 
         private readonly IResultOperatorHandler _resultOperatorHandler;

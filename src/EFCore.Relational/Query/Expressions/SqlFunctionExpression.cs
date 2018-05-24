@@ -30,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string functionName,
             [NotNull] Type returnType)
             : this(
-                  Check.NotEmpty(functionName, nameof(functionName)),
-                  Check.NotNull(returnType, nameof(returnType)),
-                  Enumerable.Empty<Expression>())
+                Check.NotEmpty(functionName, nameof(functionName)),
+                Check.NotNull(returnType, nameof(returnType)),
+                Enumerable.Empty<Expression>())
         {
         }
 
@@ -47,10 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] Type returnType,
             [NotNull] IEnumerable<Expression> arguments)
             : this(
-                  Check.NotEmpty(functionName, nameof(functionName)),
-                  Check.NotNull(returnType, nameof(returnType)),
-                  /*schema*/ null,
-                  Check.NotNull(arguments, nameof(arguments)))
+                Check.NotEmpty(functionName, nameof(functionName)),
+                Check.NotNull(returnType, nameof(returnType)),
+                /*schema*/ null,
+                Check.NotNull(arguments, nameof(arguments)))
         {
         }
 
@@ -67,11 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [CanBeNull] string schema,
             [NotNull] IEnumerable<Expression> arguments)
             : this(
-                  /*instance*/ null,
-                  Check.NotEmpty(functionName, nameof(functionName)),
-                  schema,
-                  Check.NotNull(returnType, nameof(returnType)),
-                  Check.NotNull(arguments, nameof(arguments)))
+                /*instance*/ null,
+                Check.NotEmpty(functionName, nameof(functionName)),
+                schema,
+                Check.NotNull(returnType, nameof(returnType)),
+                Check.NotNull(arguments, nameof(arguments)))
         {
         }
 
@@ -88,11 +88,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] Type returnType,
             [NotNull] IEnumerable<Expression> arguments)
             : this(
-                  Check.NotNull(instance, nameof(instance)),
-                  Check.NotEmpty(functionName, nameof(functionName)),
-                  /*schema*/ null,
-                  Check.NotNull(returnType, nameof(returnType)),
-                  Check.NotNull(arguments, nameof(arguments)))
+                Check.NotNull(instance, nameof(instance)),
+                Check.NotEmpty(functionName, nameof(functionName)),
+                /*schema*/ null,
+                Check.NotNull(returnType, nameof(returnType)),
+                Check.NotNull(arguments, nameof(arguments)))
         {
         }
 
@@ -211,9 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                && string.Equals(Schema, other.Schema)
                && _arguments.SequenceEqual(other._arguments)
                && (Instance == null && other.Instance == null
-                    || Instance?.Equals(other.Instance) == true);
-
-            
+                   || Instance?.Equals(other.Instance) == true);
 
         /// <summary>
         ///     Returns a hash code for this object.
@@ -240,6 +238,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>A <see cref="string" /> representation of the Expression.</returns>
         public override string ToString()
             => (Instance != null ? Instance + "." : Schema != null ? Schema + "." : "") +
-            $"{FunctionName}({string.Join("", "", Arguments)}";
+               $"{FunctionName}({string.Join("", "", Arguments)}";
     }
 }

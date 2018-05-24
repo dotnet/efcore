@@ -173,12 +173,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private bool Equals(InExpression other)
             => Operand.Equals(other.Operand)
-                && (Values == null
-                    ? other.Values == null
-                    : Values.SequenceEqual(other.Values))
-                && (SubQuery == null
-                    ? other.SubQuery == null
-                    : SubQuery.Equals(other.SubQuery));
+               && (Values == null
+                   ? other.Values == null
+                   : Values.SequenceEqual(other.Values))
+               && (SubQuery == null
+                   ? other.SubQuery == null
+                   : SubQuery.Equals(other.SubQuery));
 
         /// <summary>
         ///     Returns a hash code for this object.

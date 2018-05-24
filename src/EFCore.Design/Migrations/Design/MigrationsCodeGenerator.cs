@@ -140,8 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         {
                             yield return ns;
                         }
-
-                        continue;
                     }
                 }
             }
@@ -245,9 +243,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             };
 
             return items.SelectMany(i => i.GetAnnotations())
-                .Where(a => a.Value != null
-                            && !ignoredAnnotations.Contains(a.Name)
-                            && !ignoredAnnotationTypes.Any(p => a.Name.StartsWith(p, StringComparison.Ordinal)))
+                .Where(
+                    a => a.Value != null
+                         && !ignoredAnnotations.Contains(a.Name)
+                         && !ignoredAnnotationTypes.Any(p => a.Name.StartsWith(p, StringComparison.Ordinal)))
                 .SelectMany(a => a.Value.GetType().GetNamespaces());
         }
     }

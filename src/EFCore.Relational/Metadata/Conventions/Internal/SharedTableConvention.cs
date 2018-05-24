@@ -92,9 +92,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var maxLength = modelBuilder.Relational(ConfigurationSource.Convention).MaxIdentifierLength;
             var tables = new Dictionary<(string, string),
                 (Dictionary<string, Property> Columns,
-                    Dictionary<string, Key> Keys,
-                    Dictionary<string, ForeignKey> ForeignKeys,
-                    Dictionary<string, Index> Indexes)>();
+                Dictionary<string, Key> Keys,
+                Dictionary<string, ForeignKey> ForeignKeys,
+                Dictionary<string, Index> Indexes)>();
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 if (entityType.IsQueryType)

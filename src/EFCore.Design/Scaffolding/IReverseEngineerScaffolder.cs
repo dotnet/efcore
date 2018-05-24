@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="namespace"> The namespace of the model. </param>
         /// <param name="language"> The programming language to scaffold for. </param>
         /// <param name="contextDir"> The DbContext output dirctory. </param>
-        /// <param name="contextName"> The <see cref="DbContext"/> name. </param>
+        /// <param name="contextName"> The <see cref="DbContext" /> name. </param>
         /// <param name="modelOptions"> The options to use when reverse engineering a model from the database. </param>
         /// <param name="codeOptions"> The options to use when generating code for the model. </param>
         /// <returns> The scaffolded model. </returns>

@@ -32,10 +32,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
     public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
-        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
+
+        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string>
+        {
+            "datetimeoffset",
+            "datetime2",
+            "time"
+        };
 
         private static readonly ISet<string> _maxLengthRequiredTypes
-            = new HashSet<string> { "binary", "varbinary", "char", "varchar", "nchar", "nvarchar" };
+            = new HashSet<string>
+            {
+                "binary",
+                "varbinary",
+                "char",
+                "varchar",
+                "nchar",
+                "nvarchar"
+            };
 
         private const string NamePartRegex
             = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
@@ -104,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             {
                 connection.Open();
             }
+
             try
             {
                 databaseModel.DatabaseName = connection.Database;
@@ -185,14 +200,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             if (schemas.Any())
             {
                 return s =>
-                    {
-                        var schemaFilterBuilder = new StringBuilder();
-                        schemaFilterBuilder.Append(s);
-                        schemaFilterBuilder.Append(" IN (");
-                        schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
-                        schemaFilterBuilder.Append(")");
-                        return schemaFilterBuilder.ToString();
-                    };
+                {
+                    var schemaFilterBuilder = new StringBuilder();
+                    schemaFilterBuilder.Append(s);
+                    schemaFilterBuilder.Append(" IN (");
+                    schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
+                    schemaFilterBuilder.Append(")");
+                    return schemaFilterBuilder.ToString();
+                };
             }
 
             return null;
@@ -221,68 +236,69 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 || tables.Any())
             {
                 return (s, t) =>
-                    {
-                        var tableFilterBuilder = new StringBuilder();
+                {
+                    var tableFilterBuilder = new StringBuilder();
 
-                        var openBracket = false;
-                        if (schemaFilter != null)
+                    var openBracket = false;
+                    if (schemaFilter != null)
+                    {
+                        tableFilterBuilder
+                            .Append("(")
+                            .Append(schemaFilter(s));
+                        openBracket = true;
+                    }
+
+                    if (tables.Any())
+                    {
+                        if (openBracket)
                         {
                             tableFilterBuilder
-                                .Append("(")
-                                .Append(schemaFilter(s));
+                                .AppendLine()
+                                .Append("OR ");
+                        }
+                        else
+                        {
+                            tableFilterBuilder.Append("(");
                             openBracket = true;
                         }
 
-                        if (tables.Any())
+                        var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
+                        if (tablesWithoutSchema.Any())
                         {
-                            if (openBracket)
-                            {
-                                tableFilterBuilder
-                                    .AppendLine()
-                                    .Append("OR ");
-                            }
-                            else
-                            {
-                                tableFilterBuilder.Append("(");
-                                openBracket = true;
-                            }
-
-                            var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                            if (tablesWithoutSchema.Any())
-                            {
-                                tableFilterBuilder.Append(t);
-                                tableFilterBuilder.Append(" IN (");
-                                tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
-                                tableFilterBuilder.Append(")");
-                            }
-
-                            var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                            if (tablesWithSchema.Any())
-                            {
-                                if (tablesWithoutSchema.Any())
-                                {
-                                    tableFilterBuilder.Append(" OR ");
-                                }
-                                tableFilterBuilder.Append(t);
-                                tableFilterBuilder.Append(" IN (");
-                                tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
-                                tableFilterBuilder.Append(") AND (");
-                                tableFilterBuilder.Append(s);
-                                tableFilterBuilder.Append(" + N'.' + ");
-                                tableFilterBuilder.Append(t);
-                                tableFilterBuilder.Append(") IN (");
-                                tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
-                                tableFilterBuilder.Append(")");
-                            }
-                        }
-
-                        if (openBracket)
-                        {
+                            tableFilterBuilder.Append(t);
+                            tableFilterBuilder.Append(" IN (");
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
                             tableFilterBuilder.Append(")");
                         }
 
-                        return tableFilterBuilder.ToString();
-                    };
+                        var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
+                        if (tablesWithSchema.Any())
+                        {
+                            if (tablesWithoutSchema.Any())
+                            {
+                                tableFilterBuilder.Append(" OR ");
+                            }
+
+                            tableFilterBuilder.Append(t);
+                            tableFilterBuilder.Append(" IN (");
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
+                            tableFilterBuilder.Append(") AND (");
+                            tableFilterBuilder.Append(s);
+                            tableFilterBuilder.Append(" + N'.' + ");
+                            tableFilterBuilder.Append(t);
+                            tableFilterBuilder.Append(") IN (");
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
+                            tableFilterBuilder.Append(")");
+                        }
+                    }
+
+                    if (openBracket)
+                    {
+                        tableFilterBuilder.Append(")");
+                    }
+
+                    return tableFilterBuilder.ToString();
+                };
             }
 
             return null;
@@ -640,10 +656,12 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
             {
                 return null;
             }
+
             if (nullable)
             {
                 return defaultValue;
             }
+
             if (defaultValue == "((0))")
             {
                 if (dataTypeName == "bigint"
@@ -674,13 +692,13 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                 }
             }
             else if ((defaultValue == "(CONVERT([real],(0)))" && dataTypeName == "real")
-                || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
-                || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
-                || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
-                || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
-                || (defaultValue == "('0001-01-01T00:00:00.000+00:00')" && dataTypeName == "datetimeoffset")
-                || (defaultValue == "('00:00:00')" && dataTypeName == "time")
-                || (defaultValue == "('00000000-0000-0000-0000-000000000000')" && dataTypeName == "uniqueidentifier"))
+                     || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
+                     || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
+                     || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
+                     || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
+                     || (defaultValue == "('0001-01-01T00:00:00.000+00:00')" && dataTypeName == "datetimeoffset")
+                     || (defaultValue == "('00:00:00')" && dataTypeName == "time")
+                     || (defaultValue == "('00000000-0000-0000-0000-000000000000')" && dataTypeName == "uniqueidentifier"))
             {
                 return null;
             }
@@ -767,7 +785,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             .GroupBy(
                                 ddr =>
                                     (Name: ddr.GetValueOrDefault<string>("index_name"),
-                                    TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
+                                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
                             .ToArray();
 
                         if (primaryKeyGroups.Length == 1)
@@ -805,7 +823,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             .GroupBy(
                                 ddr =>
                                     (Name: ddr.GetValueOrDefault<string>("index_name"),
-                                    TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
+                                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
                             .ToArray();
 
                         foreach (var uniqueConstraintGroup in uniqueConstraintGroups)
@@ -843,10 +861,10 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             .GroupBy(
                                 ddr =>
                                     (Name: ddr.GetValueOrDefault<string>("index_name"),
-                                    TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
-                                    IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
-                                    HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
-                                    FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition")))
+                                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                                        IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
+                                        HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
+                                        FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition")))
                             .ToArray();
 
                         foreach (var indexGroup in indexGroups)

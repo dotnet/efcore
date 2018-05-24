@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     /// <summary>
-    /// Extension methods for <see cref="DatabaseColumn"/>.
+    ///     Extension methods for <see cref="DatabaseColumn" />.
     /// </summary>
     public static class DatabaseColumnExtensions
     {
         /// <summary>
-        /// Gets the underlying store/database type for the given column.
+        ///     Gets the underlying store/database type for the given column.
         /// </summary>
         /// <param name="column"> The column. </param>
         /// <returns> The database/store type, or <c>null</c> if none has been set. </returns>
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
             => (string)Check.NotNull(column, nameof(column))[ScaffoldingAnnotationNames.UnderlyingStoreType];
 
         /// <summary>
-        /// Sets the underlying store/database type for the given column.
+        ///     Sets the underlying store/database type for the given column.
         /// </summary>
         /// <param name="column"> The column. </param>
         /// <param name="value"> The database/store type, or <c>null</c> if none. </param>

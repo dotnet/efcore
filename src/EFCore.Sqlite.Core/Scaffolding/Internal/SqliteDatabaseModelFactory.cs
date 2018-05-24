@@ -83,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 connection.Open();
             }
+
             try
             {
                 databaseModel.DatabaseName = GetDatabaseName(connection);
@@ -162,7 +163,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                         _logger.TableFound(name);
 
-                        var table = new DatabaseTable { Name = name };
+                        var table = new DatabaseTable
+                        {
+                            Name = name
+                        };
 
                         foreach (var column in GetColumns(connection, name))
                         {
@@ -262,6 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 return null;
             }
+
             if (notNull && defaultValue == "0")
             {
                 var normalizedType = _typeMappingSource.FindMapping(dataType).StoreType;
@@ -298,6 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 {
                     return GetRowidPrimaryKey(connection, table, columns);
                 }
+
                 if (!name.StartsWith("sqlite_", StringComparison.Ordinal))
                 {
                     primaryKey.Name = name;
@@ -363,7 +369,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                     Debug.Assert(!reader.Read(), "Unexpected composite primary key.");
 
-                    return new DatabasePrimaryKey { Columns = { column } };
+                    return new DatabasePrimaryKey
+                    {
+                        Columns =
+                        {
+                            column
+                        }
+                    };
                 }
             }
         }

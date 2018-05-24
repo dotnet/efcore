@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Obsolete("Use IRelationalTypeMappingSource.")]
         public RelationalModelValidatorDependencies With([NotNull] IRelationalTypeMapper typeMapper)
             => new RelationalModelValidatorDependencies(typeMapper, TypeMappingSource);
-        
+
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>

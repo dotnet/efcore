@@ -55,13 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                                         Expression.Constant("%f"),
                                         memberExpression.Expression
                                     }),
-                                    typeof(double)),
+                                typeof(double)),
                             Expression.Convert(
                                 Expression.Constant(1000),
                                 typeof(double))),
                         typeof(int)),
                     Expression.Constant(1000));
             }
+
             if (memberName == nameof(DateTime.Ticks))
             {
                 return new ExplicitCastExpression(
@@ -77,13 +78,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                             typeof(double))),
                     typeof(long));
             }
+
             if (_datePartMapping.TryGetValue(memberName, out var datePart))
             {
                 return new ExplicitCastExpression(
                     new SqlFunctionExpression(
                         "strftime",
                         typeof(string),
-                        new[] {
+                        new[]
+                        {
                             Expression.Constant(datePart),
                             memberExpression.Expression
                         }),
@@ -132,7 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             return new SqlFunctionExpression(
                 "rtrim",
                 memberExpression.Type,
-                new Expression[] {
+                new Expression[]
+                {
                     new SqlFunctionExpression(
                         "rtrim",
                         memberExpression.Type,

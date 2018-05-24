@@ -39,9 +39,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             bool fixedLength = false,
             int? precision = null,
             int? scale = null)
-            : base(new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(
-                    clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength, precision, scale))
+            : base(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(
+                        clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength, precision, scale))
 
         {
             UdtTypeName = udtTypeName ?? storeType;

@@ -40,7 +40,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public virtual ISqlServerConnection CreateMasterConnection()
         {
-            var connectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString) { InitialCatalog = "master" };
+            var connectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString)
+            {
+                InitialCatalog = "master"
+            };
             connectionStringBuilder.Remove("AttachDBFilename");
 
             var contextOptions = new DbContextOptionsBuilder()

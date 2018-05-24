@@ -197,9 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 if (mappedType.BaseType != null
                     || mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
-                        .Any(fk => fk.PrincipalKey.IsPrimaryKey()
-                                   && fk.PrincipalEntityType.RootType() != mappedType
-                                   && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
+                        .Any(
+                            fk => fk.PrincipalKey.IsPrimaryKey()
+                                  && fk.PrincipalEntityType.RootType() != mappedType
+                                  && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
                 {
                     continue;
                 }
@@ -212,6 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             mappedType.DisplayName(),
                             root.DisplayName()));
                 }
+
                 root = mappedType;
             }
 
@@ -223,9 +225,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var entityType = typesToValidate.Dequeue();
                 var typesToValidateLeft = typesToValidate.Count;
-                var directlyConnectedTypes = unvalidatedTypes.Where(unvalidatedType =>
-                    entityType.IsAssignableFrom(unvalidatedType)
-                    || IsIdentifyingPrincipal(unvalidatedType, entityType));
+                var directlyConnectedTypes = unvalidatedTypes.Where(
+                    unvalidatedType =>
+                        entityType.IsAssignableFrom(unvalidatedType)
+                        || IsIdentifyingPrincipal(unvalidatedType, entityType));
                 foreach (var nextEntityType in directlyConnectedTypes)
                 {
                     var key = entityType.FindPrimaryKey();
@@ -270,8 +273,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
         {
             return dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
-                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
-                    && fk.PrincipalEntityType == principalEntityType);
+                .Any(
+                    fk => fk.PrincipalKey.IsPrimaryKey()
+                          && fk.PrincipalEntityType == principalEntityType);
         }
 
         /// <summary>
@@ -486,6 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 throw new InvalidOperationException(
                     RelationalStrings.NoDiscriminatorProperty(entityType.DisplayName()));
             }
+
             if (annotations.DiscriminatorValue == null)
             {
                 throw new InvalidOperationException(
@@ -518,6 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         RelationalStrings.DuplicateDiscriminatorValue(
                             derivedType.DisplayName(), discriminatorValue, duplicateEntityType.DisplayName()));
                 }
+
                 discriminatorValues[discriminatorValue] = derivedType;
             }
         }

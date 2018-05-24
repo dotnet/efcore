@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///    Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
+        ///     Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
@@ -96,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             providerClrType = providerType.UnwrapNullableType();
                         }
                     }
+
                     if (customConverter == null)
                     {
                         var converter = principal.GetValueConverter();

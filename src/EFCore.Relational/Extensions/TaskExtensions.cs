@@ -12,21 +12,21 @@ namespace System.Threading.Tasks
 
             task.ContinueWith(
                 t =>
+                {
+                    if (t.IsFaulted)
                     {
-                        if (t.IsFaulted)
-                        {
-                            // ReSharper disable once PossibleNullReferenceException
-                            taskCompletionSource.TrySetException(t.Exception.InnerExceptions);
-                        }
-                        else if (t.IsCanceled)
-                        {
-                            taskCompletionSource.TrySetCanceled();
-                        }
-                        else
-                        {
-                            taskCompletionSource.TrySetResult((TDerived)t.Result);
-                        }
-                    },
+                        // ReSharper disable once PossibleNullReferenceException
+                        taskCompletionSource.TrySetException(t.Exception.InnerExceptions);
+                    }
+                    else if (t.IsCanceled)
+                    {
+                        taskCompletionSource.TrySetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletionSource.TrySetResult((TDerived)t.Result);
+                    }
+                },
                 TaskContinuationOptions.ExecuteSynchronously);
 
             return taskCompletionSource.Task;

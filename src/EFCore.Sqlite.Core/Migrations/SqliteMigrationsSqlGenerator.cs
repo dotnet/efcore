@@ -65,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 operations.Add(operation);
             }
+
             return operations.AsReadOnly();
         }
 
@@ -162,7 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.NewName != null && operation.NewName != operation.Name)
+            if (operation.NewName != null
+                && operation.NewName != operation.Name)
             {
                 builder
                     .Append("ALTER TABLE ")
@@ -198,6 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         columnOp.AddAnnotation(SqliteAnnotationNames.InlinePrimaryKeyName, operation.PrimaryKey.Name);
                     }
+
                     operation.PrimaryKey = null;
                 }
             }
@@ -288,6 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .Append(" CONSTRAINT ")
                         .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(inlinePkName));
                 }
+
                 builder.Append(" PRIMARY KEY");
                 var autoincrement = annotatable[SqliteAnnotationNames.Autoincrement] as bool?
                                     // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461

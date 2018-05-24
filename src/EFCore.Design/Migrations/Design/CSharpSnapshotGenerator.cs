@@ -82,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 entityTypeGraph.AddEdge(entityType.BaseType, entityType, 0);
             }
+
             return entityTypeGraph.TopologicalSort();
         }
 
@@ -100,8 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(entityTypes, nameof(entityTypes));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            foreach (var entityType in entityTypes.Where(e => !e.HasDefiningNavigation()
-                                                              && e.FindOwnership() == null))
+            foreach (var entityType in entityTypes.Where(
+                e => !e.HasDefiningNavigation()
+                     && e.FindOwnership() == null))
             {
                 stringBuilder.AppendLine();
 
@@ -723,8 +725,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     var discriminatorProperty = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value);
                     var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
-                            .MakeNullable(discriminatorProperty.IsNullable)
-                        ?? discriminatorProperty.ClrType;
+                                              .MakeNullable(discriminatorProperty.IsNullable)
+                                          ?? discriminatorProperty.ClrType;
                     stringBuilder
                         .Append("<")
                         .Append(Code.Reference(propertyClrType))
@@ -1132,7 +1134,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var firstProperty = true;
                     foreach (var property in propertiesToOutput)
                     {
-                        if (o.TryGetValue(property.Name, out var value) && value != null)
+                        if (o.TryGetValue(property.Name, out var value)
+                            && value != null)
                         {
                             if (!firstProperty)
                             {

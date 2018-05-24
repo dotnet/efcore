@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             _coreTypeMappingInfo = new TypeMappingInfo(principals);
 
-            string storeTypeName  = null;
+            string storeTypeName = null;
             var fixedLength = false;
             for (var i = 0; i < principals.Count; i++)
             {
@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         storeTypeName = columnType;
                     }
                 }
+
                 if (!fixedLength)
                 {
                     var isFixedLength = principal.Relational().IsFixedLength;

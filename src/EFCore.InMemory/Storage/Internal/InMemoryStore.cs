@@ -123,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     }
                 }
             }
+
             return data;
         }
 

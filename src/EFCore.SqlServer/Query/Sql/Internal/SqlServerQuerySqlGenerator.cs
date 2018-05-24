@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Sql;
@@ -147,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
 
         private static Expression ExplicitCastToBool(Expression expression)
             => ((expression as BinaryExpression)?.NodeType == ExpressionType.Coalesce || expression.NodeType == ExpressionType.Constant)
-                && expression.Type.UnwrapNullableType() == typeof(bool)
+               && expression.Type.UnwrapNullableType() == typeof(bool)
                 ? new ExplicitCastExpression(expression, expression.Type)
                 : expression;
 

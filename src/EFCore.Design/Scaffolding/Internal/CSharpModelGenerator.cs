@@ -77,7 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             // output DbContext .cs file
             var dbContextFileName = contextName + FileExtension;
-            resultingFiles.ContextFile = new ScaffoldedFile { Path = Path.Combine(contextDir, dbContextFileName), Code = generatedCode };
+            resultingFiles.ContextFile = new ScaffoldedFile
+            {
+                Path = Path.Combine(contextDir, dbContextFileName),
+                Code = generatedCode
+            };
 
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -85,7 +89,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;
-                resultingFiles.AdditionalFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+                resultingFiles.AdditionalFiles.Add(
+                    new ScaffoldedFile
+                    {
+                        Path = entityTypeFileName,
+                        Code = generatedCode
+                    });
             }
 
             return resultingFiles;

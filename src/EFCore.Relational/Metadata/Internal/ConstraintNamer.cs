@@ -113,6 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             builder = new StringBuilder();
                         }
+
                         builder.Insert(0, "_");
                         builder.Insert(0, ownership.PrincipalToDependent.Name);
                         entityType = ownerType;
@@ -154,6 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(name.Substring(0, maxNameLength - 1));
                 builder.Append("~");
             }
+
             if (uniquifier != null)
             {
                 builder.Append(uniquifier.Value);

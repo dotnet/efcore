@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return property.DeclaringEntityType.FindPrimaryKey()?.Properties.First()
-                ?.FindSharedTableLink()?.PrincipalEntityType.BaseType != null;
+                       ?.FindSharedTableLink()?.PrincipalEntityType.BaseType != null;
         }
     }
 }

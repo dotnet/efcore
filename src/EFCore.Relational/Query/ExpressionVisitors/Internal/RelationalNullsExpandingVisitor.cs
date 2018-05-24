@@ -117,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static Expression UnwrapConvertExpression(Expression expression, out Type conversionResultType)
         {
-            if (expression is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
+            if (expression is UnaryExpression unary
+                && unary.NodeType == ExpressionType.Convert)
             {
                 conversionResultType = unary.Type;
 

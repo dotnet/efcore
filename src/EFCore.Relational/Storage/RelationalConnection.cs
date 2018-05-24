@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -126,9 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         _enlistedTransaction = null;
                     }
                 }
+
                 return _enlistedTransaction;
             }
-            [param: CanBeNull] protected set { _enlistedTransaction = value; }
+            [param: CanBeNull] protected set => _enlistedTransaction = value;
         }
 
         /// <summary>
@@ -175,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> The newly created transaction. </returns>
         [NotNull]
-        public virtual IDbContextTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
+        // ReSharper disable once RedundantNameQualifier
+        public virtual IDbContextTransaction BeginTransaction() => BeginTransaction(System.Data.IsolationLevel.Unspecified);
 
         /// <summary>
         ///     Asynchronously begins a new transaction.
@@ -186,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-            => await BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
+            // ReSharper disable once RedundantNameQualifier
+            => await BeginTransactionAsync(System.Data.IsolationLevel.Unspecified, cancellationToken);
 
         /// <summary>
         ///     Begins a new transaction.
@@ -194,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <returns> The newly created transaction. </returns>
         [NotNull]
-        public virtual IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
+        // ReSharper disable once RedundantNameQualifier
+        public virtual IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel)
         {
             Open();
 
@@ -213,7 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
-            IsolationLevel isolationLevel,
+            // ReSharper disable once RedundantNameQualifier
+            System.Data.IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
         {
             await OpenAsync(cancellationToken);
@@ -241,7 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private IDbContextTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
+        // ReSharper disable once RedundantNameQualifier
+        private IDbContextTransaction BeginTransactionWithNoPreconditions(System.Data.IsolationLevel isolationLevel)
         {
             var dbTransaction = DbConnection.BeginTransaction(isolationLevel);
 
@@ -398,6 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
                 _ambientTransaction = null;
             }
+
             _openedCount = previousOpenedCount;
         }
 
@@ -508,6 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
                     _openedCount--;
                 }
+
                 if (current != null)
                 {
                     _openedCount++;
@@ -583,6 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         throw;
                     }
                 }
+
                 _openedInternally = false;
             }
 

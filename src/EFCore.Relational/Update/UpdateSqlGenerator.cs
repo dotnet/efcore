@@ -320,18 +320,18 @@ namespace Microsoft.EntityFrameworkCore.Update
                     operations,
                     SqlGenerationHelper,
                     (sb, o, helper) =>
+                    {
+                        helper.DelimitIdentifier(sb, o.ColumnName);
+                        sb.Append(" = ");
+                        if (!o.UseCurrentValueParameter)
                         {
-                            helper.DelimitIdentifier(sb, o.ColumnName);
-                            sb.Append(" = ");
-                            if (!o.UseCurrentValueParameter)
-                            {
-                                AppendSqlLiteral(sb, o.Value, o.Property);
-                            }
-                            else
-                            {
-                                helper.GenerateParameterName(sb, o.ParameterName);
-                            }
-                        });
+                            AppendSqlLiteral(sb, o.Value, o.Property);
+                        }
+                        else
+                        {
+                            helper.GenerateParameterName(sb, o.ParameterName);
+                        }
+                    });
         }
 
         /// <summary>
@@ -410,23 +410,23 @@ namespace Microsoft.EntityFrameworkCore.Update
                         operations,
                         SqlGenerationHelper,
                         (sb, o, helper) =>
+                        {
+                            if (o.IsWrite)
                             {
-                                if (o.IsWrite)
+                                if (!o.UseCurrentValueParameter)
                                 {
-                                    if (!o.UseCurrentValueParameter)
-                                    {
-                                        AppendSqlLiteral(sb, o.Value, o.Property);
-                                    }
-                                    else
-                                    {
-                                        helper.GenerateParameterName(sb, o.ParameterName);
-                                    }
+                                    AppendSqlLiteral(sb, o.Value, o.Property);
                                 }
                                 else
                                 {
-                                    sb.Append("DEFAULT");
+                                    helper.GenerateParameterName(sb, o.ParameterName);
                                 }
-                            })
+                            }
+                            else
+                            {
+                                sb.Append("DEFAULT");
+                            }
+                        })
                     .Append(")");
             }
         }
@@ -476,19 +476,19 @@ namespace Microsoft.EntityFrameworkCore.Update
                     .Append(" AND ")
                     .AppendJoin(
                         operations, (sb, v) =>
+                        {
+                            if (v.IsKey)
                             {
-                                if (v.IsKey)
+                                if (v.IsRead)
                                 {
-                                    if (v.IsRead)
-                                    {
-                                        AppendIdentityWhereCondition(sb, v);
-                                    }
-                                    else
-                                    {
-                                        AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
-                                    }
+                                    AppendIdentityWhereCondition(sb, v);
                                 }
-                            }, " AND ");
+                                else
+                                {
+                                    AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
+                                }
+                            }
+                        }, " AND ");
             }
         }
 
@@ -537,9 +537,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
                 else
                 {
-                    SqlGenerationHelper.GenerateParameterName(commandStringBuilder, useOriginalValue
-                        ? columnModification.OriginalParameterName
-                        : columnModification.ParameterName);
+                    SqlGenerationHelper.GenerateParameterName(
+                        commandStringBuilder, useOriginalValue
+                            ? columnModification.OriginalParameterName
+                            : columnModification.ParameterName);
                 }
             }
         }

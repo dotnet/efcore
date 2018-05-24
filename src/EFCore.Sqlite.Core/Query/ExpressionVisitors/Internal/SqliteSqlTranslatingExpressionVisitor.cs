@@ -63,15 +63,65 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionVisitors.Internal
         private static readonly IReadOnlyDictionary<ExpressionType, IReadOnlyCollection<Type>> _restrictedBinaryExpressions
             = new Dictionary<ExpressionType, IReadOnlyCollection<Type>>
             {
-                [ExpressionType.Add] = new HashSet<Type> { typeof(DateTime), typeof(DateTimeOffset), typeof(decimal), typeof(TimeSpan) },
-                [ExpressionType.Divide] = new HashSet<Type> { typeof(decimal), typeof(TimeSpan), typeof(ulong) },
-                [ExpressionType.GreaterThan] = new HashSet<Type> { typeof(DateTimeOffset), typeof(decimal), typeof(TimeSpan), typeof(ulong) },
-                [ExpressionType.GreaterThanOrEqual] = new HashSet<Type> { typeof(DateTimeOffset), typeof(decimal), typeof(TimeSpan), typeof(ulong) },
-                [ExpressionType.LessThan] = new HashSet<Type> { typeof(DateTimeOffset), typeof(decimal), typeof(TimeSpan), typeof(ulong) },
-                [ExpressionType.LessThanOrEqual] = new HashSet<Type> { typeof(DateTimeOffset), typeof(decimal), typeof(TimeSpan), typeof(ulong) },
-                [ExpressionType.Modulo] = new HashSet<Type> { typeof(decimal), typeof(ulong) },
-                [ExpressionType.Multiply] = new HashSet<Type> { typeof(decimal), typeof(TimeSpan), typeof(ulong) },
-                [ExpressionType.Subtract] = new HashSet<Type> { typeof(DateTime), typeof(DateTimeOffset), typeof(decimal), typeof(TimeSpan) }
+                [ExpressionType.Add] = new HashSet<Type>
+                {
+                    typeof(DateTime),
+                    typeof(DateTimeOffset),
+                    typeof(decimal),
+                    typeof(TimeSpan)
+                },
+                [ExpressionType.Divide] = new HashSet<Type>
+                {
+                    typeof(decimal),
+                    typeof(TimeSpan),
+                    typeof(ulong)
+                },
+                [ExpressionType.GreaterThan] = new HashSet<Type>
+                {
+                    typeof(DateTimeOffset),
+                    typeof(decimal),
+                    typeof(TimeSpan),
+                    typeof(ulong)
+                },
+                [ExpressionType.GreaterThanOrEqual] = new HashSet<Type>
+                {
+                    typeof(DateTimeOffset),
+                    typeof(decimal),
+                    typeof(TimeSpan),
+                    typeof(ulong)
+                },
+                [ExpressionType.LessThan] = new HashSet<Type>
+                {
+                    typeof(DateTimeOffset),
+                    typeof(decimal),
+                    typeof(TimeSpan),
+                    typeof(ulong)
+                },
+                [ExpressionType.LessThanOrEqual] = new HashSet<Type>
+                {
+                    typeof(DateTimeOffset),
+                    typeof(decimal),
+                    typeof(TimeSpan),
+                    typeof(ulong)
+                },
+                [ExpressionType.Modulo] = new HashSet<Type>
+                {
+                    typeof(decimal),
+                    typeof(ulong)
+                },
+                [ExpressionType.Multiply] = new HashSet<Type>
+                {
+                    typeof(decimal),
+                    typeof(TimeSpan),
+                    typeof(ulong)
+                },
+                [ExpressionType.Subtract] = new HashSet<Type>
+                {
+                    typeof(DateTime),
+                    typeof(DateTimeOffset),
+                    typeof(decimal),
+                    typeof(TimeSpan)
+                }
             };
 
         /// <summary>
