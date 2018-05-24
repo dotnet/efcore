@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var customer 
+                var customer
                     = context.Set<Customer>()
                         .OrderBy(c => c.CustomerID)
                         .WithTag("Yanni")
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var customer 
+                var customer
                     = context.Set<Customer>()
                         .OrderBy(c => c.CustomerID)
                         .WithTag("Yanni")
@@ -49,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(customer);
             }
         }
-        
+
         [ConditionalFact]
         public virtual void Duplicate_tags()
         {
             using (var context = CreateContext())
             {
-                var customer 
+                var customer
                     = context.Set<Customer>()
                         .OrderBy(c => c.CustomerID)
                         .WithTag("Yanni")
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(customer);
             }
         }
-        
+
         [ConditionalFact]
         public virtual void Tags_on_subquery()
         {
@@ -79,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(5, customers.Count);
             }
         }
-        
+
         [ConditionalFact]
         public virtual void Tag_on_include_query()
         {
             using (var context = CreateContext())
             {
-                var customer 
+                var customer
                     = context.Set<Customer>()
                         .Include(c => c.Orders)
                         .OrderBy(c => c.CustomerID)
@@ -95,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(customer);
             }
         }
-        
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }

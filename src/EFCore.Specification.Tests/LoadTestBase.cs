@@ -225,7 +225,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-
         [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -237,7 +236,8 @@ namespace Microsoft.EntityFrameworkCore
                 var child = context.Attach(
                     new Child(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, ParentId = null
+                        Id = 767,
+                        ParentId = null
                     }).Entity;
 
                 ClearLog();
@@ -271,7 +271,8 @@ namespace Microsoft.EntityFrameworkCore
                 var single = context.Attach(
                     new Single(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, ParentId = null
+                        Id = 767,
+                        ParentId = null
                     }).Entity;
 
                 ClearLog();
@@ -295,7 +296,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-
         [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -307,7 +307,8 @@ namespace Microsoft.EntityFrameworkCore
                 var parent = context.Attach(
                     new Parent(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, AlternateId = "NewRoot"
+                        Id = 767,
+                        AlternateId = "NewRoot"
                     }).Entity;
 
                 ClearLog();
@@ -341,7 +342,8 @@ namespace Microsoft.EntityFrameworkCore
                 var child = context.Attach(
                     new Child(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, ParentId = 787
+                        Id = 767,
+                        ParentId = 787
                     }).Entity;
 
                 ClearLog();
@@ -375,7 +377,8 @@ namespace Microsoft.EntityFrameworkCore
                 var single = context.Attach(
                     new Single(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, ParentId = 787
+                        Id = 767,
+                        ParentId = 787
                     }).Entity;
 
                 ClearLog();
@@ -410,7 +413,8 @@ namespace Microsoft.EntityFrameworkCore
                 var parent = context.Attach(
                     new Parent(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, AlternateId = "NewRoot"
+                        Id = 767,
+                        AlternateId = "NewRoot"
                     }).Entity;
 
                 ClearLog();
@@ -433,7 +437,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent.Single);
             }
         }
-
 
         [Theory]
         [InlineData(EntityState.Unchanged)]
@@ -637,7 +640,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-
         [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -740,7 +742,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-
         [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -752,7 +753,8 @@ namespace Microsoft.EntityFrameworkCore
                 var child = context.Attach(
                     new ChildAk(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, ParentId = null
+                        Id = 767,
+                        ParentId = null
                     }).Entity;
 
                 ClearLog();
@@ -786,7 +788,8 @@ namespace Microsoft.EntityFrameworkCore
                 var single = context.Attach(
                     new SingleAk(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, ParentId = null
+                        Id = 767,
+                        ParentId = null
                     }).Entity;
 
                 ClearLog();
@@ -809,7 +812,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(single.Parent);
             }
         }
-
 
         [Theory]
         [InlineData(EntityState.Unchanged)]
@@ -1014,7 +1016,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-
         [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -1160,7 +1161,8 @@ namespace Microsoft.EntityFrameworkCore
                 var child = context.Attach(
                     new ChildCompositeKey(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, ParentId = 567
+                        Id = 767,
+                        ParentId = 567
                     }).Entity;
 
                 ClearLog();
@@ -1194,7 +1196,8 @@ namespace Microsoft.EntityFrameworkCore
                 var single = context.Attach(
                     new SingleCompositeKey(context.GetService<ILazyLoader>().Load)
                     {
-                        Id = 767, ParentAlternateId = "Boot"
+                        Id = 767,
+                        ParentAlternateId = "Boot"
                     }).Entity;
 
                 ClearLog();
@@ -1795,7 +1798,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new Child { Id = 767, ParentId = null }).Entity;
+                var child = context.Attach(
+                    new Child
+                    {
+                        Id = 767,
+                        ParentId = null
+                    }).Entity;
 
                 ClearLog();
 
@@ -1834,7 +1842,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new Single { Id = 767, ParentId = null }).Entity;
+                var single = context.Attach(
+                    new Single
+                    {
+                        Id = 767,
+                        ParentId = null
+                    }).Entity;
 
                 ClearLog();
 
@@ -1874,7 +1887,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new Child { Id = 767, ParentId = null }).Entity;
+                var child = context.Attach(
+                    new Child
+                    {
+                        Id = 767,
+                        ParentId = null
+                    }).Entity;
 
                 ClearLog();
 
@@ -1910,7 +1928,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new Single { Id = 767, ParentId = null }).Entity;
+                var single = context.Attach(
+                    new Single
+                    {
+                        Id = 767,
+                        ParentId = null
+                    }).Entity;
 
                 ClearLog();
 
@@ -1946,7 +1969,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Attach(new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
+                var parent = context.Attach(
+                    new Parent
+                    {
+                        Id = 767,
+                        AlternateId = "NewRoot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -1985,7 +2013,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new Child { Id = 767, ParentId = 787 }).Entity;
+                var child = context.Attach(
+                    new Child
+                    {
+                        Id = 767,
+                        ParentId = 787
+                    }).Entity;
 
                 ClearLog();
 
@@ -2024,7 +2057,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new Single { Id = 767, ParentId = 787 }).Entity;
+                var single = context.Attach(
+                    new Single
+                    {
+                        Id = 767,
+                        ParentId = 787
+                    }).Entity;
 
                 ClearLog();
 
@@ -2064,7 +2102,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Attach(new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
+                var parent = context.Attach(
+                    new Parent
+                    {
+                        Id = 767,
+                        AlternateId = "NewRoot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -2104,7 +2147,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Attach(new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
+                var parent = context.Attach(
+                    new Parent
+                    {
+                        Id = 767,
+                        AlternateId = "NewRoot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -2140,7 +2188,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new Child { Id = 767, ParentId = 787 }).Entity;
+                var child = context.Attach(
+                    new Child
+                    {
+                        Id = 767,
+                        ParentId = 787
+                    }).Entity;
 
                 ClearLog();
 
@@ -2176,7 +2229,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new Single { Id = 767, ParentId = 787 }).Entity;
+                var single = context.Attach(
+                    new Single
+                    {
+                        Id = 767,
+                        ParentId = 787
+                    }).Entity;
 
                 ClearLog();
 
@@ -2212,7 +2270,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Attach(new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
+                var parent = context.Attach(
+                    new Parent
+                    {
+                        Id = 767,
+                        AlternateId = "NewRoot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -3046,7 +3109,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Attach(new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
+                var parent = context.Attach(
+                    new Parent
+                    {
+                        Id = 767,
+                        AlternateId = "NewRoot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -3085,7 +3153,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new Child { Id = 767, ParentId = 787 }).Entity;
+                var child = context.Attach(
+                    new Child
+                    {
+                        Id = 767,
+                        ParentId = 787
+                    }).Entity;
 
                 ClearLog();
 
@@ -3124,7 +3197,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new Single { Id = 767, ParentId = 787 }).Entity;
+                var single = context.Attach(
+                    new Single
+                    {
+                        Id = 767,
+                        ParentId = 787
+                    }).Entity;
 
                 ClearLog();
 
@@ -3164,7 +3242,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Attach(new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
+                var parent = context.Attach(
+                    new Parent
+                    {
+                        Id = 767,
+                        AlternateId = "NewRoot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -3204,7 +3287,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Attach(new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
+                var parent = context.Attach(
+                    new Parent
+                    {
+                        Id = 767,
+                        AlternateId = "NewRoot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -3240,7 +3328,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new Child { Id = 767, ParentId = 787 }).Entity;
+                var child = context.Attach(
+                    new Child
+                    {
+                        Id = 767,
+                        ParentId = 787
+                    }).Entity;
 
                 ClearLog();
 
@@ -3276,7 +3369,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new Single { Id = 767, ParentId = 787 }).Entity;
+                var single = context.Attach(
+                    new Single
+                    {
+                        Id = 767,
+                        ParentId = 787
+                    }).Entity;
 
                 ClearLog();
 
@@ -3312,7 +3410,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Attach(new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
+                var parent = context.Attach(
+                    new Parent
+                    {
+                        Id = 767,
+                        AlternateId = "NewRoot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -3986,7 +4089,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new ChildAk { Id = 767, ParentId = null }).Entity;
+                var child = context.Attach(
+                    new ChildAk
+                    {
+                        Id = 767,
+                        ParentId = null
+                    }).Entity;
 
                 ClearLog();
 
@@ -4025,7 +4133,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new SingleAk { Id = 767, ParentId = null }).Entity;
+                var single = context.Attach(
+                    new SingleAk
+                    {
+                        Id = 767,
+                        ParentId = null
+                    }).Entity;
 
                 ClearLog();
 
@@ -4065,7 +4178,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new ChildAk { Id = 767, ParentId = null }).Entity;
+                var child = context.Attach(
+                    new ChildAk
+                    {
+                        Id = 767,
+                        ParentId = null
+                    }).Entity;
 
                 ClearLog();
 
@@ -4101,7 +4219,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new SingleAk { Id = 767, ParentId = null }).Entity;
+                var single = context.Attach(
+                    new SingleAk
+                    {
+                        Id = 767,
+                        ParentId = null
+                    }).Entity;
 
                 ClearLog();
 
@@ -4456,7 +4579,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new ChildShadowFk { Id = 767 }).Entity;
+                var child = context.Attach(
+                    new ChildShadowFk
+                    {
+                        Id = 767
+                    }).Entity;
 
                 ClearLog();
 
@@ -4495,7 +4622,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new SingleShadowFk { Id = 767 }).Entity;
+                var single = context.Attach(
+                    new SingleShadowFk
+                    {
+                        Id = 767
+                    }).Entity;
 
                 ClearLog();
 
@@ -4535,7 +4666,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new ChildShadowFk { Id = 767 }).Entity;
+                var child = context.Attach(
+                    new ChildShadowFk
+                    {
+                        Id = 767
+                    }).Entity;
 
                 ClearLog();
 
@@ -4571,7 +4706,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new SingleShadowFk { Id = 767 }).Entity;
+                var single = context.Attach(
+                    new SingleShadowFk
+                    {
+                        Id = 767
+                    }).Entity;
 
                 ClearLog();
 
@@ -4926,7 +5065,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new ChildCompositeKey { Id = 767, ParentId = 567 }).Entity;
+                var child = context.Attach(
+                    new ChildCompositeKey
+                    {
+                        Id = 767,
+                        ParentId = 567
+                    }).Entity;
 
                 ClearLog();
 
@@ -4965,7 +5109,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new SingleCompositeKey { Id = 767, ParentAlternateId = "Boot" }).Entity;
+                var single = context.Attach(
+                    new SingleCompositeKey
+                    {
+                        Id = 767,
+                        ParentAlternateId = "Boot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -5005,7 +5154,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Attach(new ChildCompositeKey { Id = 767, ParentAlternateId = "Boot" }).Entity;
+                var child = context.Attach(
+                    new ChildCompositeKey
+                    {
+                        Id = 767,
+                        ParentAlternateId = "Boot"
+                    }).Entity;
 
                 ClearLog();
 
@@ -5041,7 +5195,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Attach(new SingleCompositeKey { Id = 767, ParentId = 567 }).Entity;
+                var single = context.Attach(
+                    new SingleCompositeKey
+                    {
+                        Id = 767,
+                        ParentId = 567
+                    }).Entity;
 
                 ClearLog();
 
@@ -5161,16 +5320,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await collectionEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    collectionEntry.Load();
-                                }
-                            })).Message);
+                                await collectionEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                collectionEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -5196,16 +5355,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await collectionEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    collectionEntry.Load();
-                                }
-                            })).Message);
+                                await collectionEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                collectionEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -5231,16 +5390,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await collectionEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    collectionEntry.Load();
-                                }
-                            })).Message);
+                                await collectionEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                collectionEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -5266,16 +5425,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await referenceEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    referenceEntry.Load();
-                                }
-                            })).Message);
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -5301,16 +5460,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await referenceEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    referenceEntry.Load();
-                                }
-                            })).Message);
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -5336,16 +5495,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await referenceEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    referenceEntry.Load();
-                                }
-                            })).Message);
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -5371,16 +5530,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await referenceEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    referenceEntry.Load();
-                                }
-                            })).Message);
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -5406,16 +5565,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await referenceEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    referenceEntry.Load();
-                                }
-                            })).Message);
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -5441,16 +5600,16 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
+                        {
+                            if (async)
                             {
-                                if (async)
-                                {
-                                    await referenceEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    referenceEntry.Load();
-                                }
-                            })).Message);
+                                await referenceEntry.LoadAsync();
+                            }
+                            else
+                            {
+                                referenceEntry.Load();
+                            }
+                        })).Message);
             }
         }
 
@@ -6006,6 +6165,7 @@ namespace Microsoft.EntityFrameworkCore
             public int? DepositID { get; set; }
 
             private Deposit _deposit;
+
             public Deposit Deposit
             {
                 get => LazyLoader.Load(this, ref _deposit);
@@ -6056,52 +6216,72 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<Parent>(
                     b =>
-                        {
-                            b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
+                    {
+                        b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
 
-                            b.HasMany<Child>(nameof(Parent.Children))
-                                .WithOne(nameof(Child.Parent))
-                                .HasForeignKey(e => e.ParentId);
+                        b.HasMany<Child>(nameof(Parent.Children))
+                            .WithOne(nameof(Child.Parent))
+                            .HasForeignKey(e => e.ParentId);
 
-                            b.HasOne<SinglePkToPk>(nameof(Parent.SinglePkToPk))
-                                .WithOne(nameof(SinglePkToPk.Parent))
-                                .HasForeignKey<SinglePkToPk>(e => e.Id)
-                                .IsRequired();
+                        b.HasOne<SinglePkToPk>(nameof(Parent.SinglePkToPk))
+                            .WithOne(nameof(SinglePkToPk.Parent))
+                            .HasForeignKey<SinglePkToPk>(e => e.Id)
+                            .IsRequired();
 
-                            b.HasOne<Single>(nameof(Parent.Single))
-                                .WithOne(e => e.Parent)
-                                .HasForeignKey<Single>(e => e.ParentId);
+                        b.HasOne<Single>(nameof(Parent.Single))
+                            .WithOne(e => e.Parent)
+                            .HasForeignKey<Single>(e => e.ParentId);
 
-                            b.HasMany<ChildAk>(nameof(Parent.ChildrenAk))
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.ParentId);
+                        b.HasMany<ChildAk>(nameof(Parent.ChildrenAk))
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.ParentId);
 
-                            b.HasOne<SingleAk>(nameof(Parent.SingleAk))
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey<Parent>(e => e.AlternateId)
-                                .HasForeignKey<SingleAk>(e => e.ParentId);
+                        b.HasOne<SingleAk>(nameof(Parent.SingleAk))
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey<Parent>(e => e.AlternateId)
+                            .HasForeignKey<SingleAk>(e => e.ParentId);
 
-                            b.HasMany(e => e.ChildrenShadowFk)
-                                .WithOne(nameof(ChildShadowFk.Parent))
-                                .HasPrincipalKey(e => e.Id)
-                                .HasForeignKey("ParentId");
+                        b.HasMany(e => e.ChildrenShadowFk)
+                            .WithOne(nameof(ChildShadowFk.Parent))
+                            .HasPrincipalKey(e => e.Id)
+                            .HasForeignKey("ParentId");
 
-                            b.HasOne<SingleShadowFk>(nameof(Parent.SingleShadowFk))
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey<Parent>(e => e.Id)
-                                .HasForeignKey<SingleShadowFk>("ParentId");
+                        b.HasOne<SingleShadowFk>(nameof(Parent.SingleShadowFk))
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey<Parent>(e => e.Id)
+                            .HasForeignKey<SingleShadowFk>("ParentId");
 
-                            b.HasMany(e => e.ChildrenCompositeKey)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => new { e.AlternateId, e.Id })
-                                .HasForeignKey(e => new { e.ParentAlternateId, e.ParentId });
+                        b.HasMany(e => e.ChildrenCompositeKey)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(
+                                e => new
+                                {
+                                    e.AlternateId,
+                                    e.Id
+                                })
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.ParentAlternateId,
+                                    e.ParentId
+                                });
 
-                            b.HasOne<SingleCompositeKey>(nameof(Parent.SingleCompositeKey))
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey<Parent>(e => new { e.AlternateId, e.Id })
-                                .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
-                        });
+                        b.HasOne<SingleCompositeKey>(nameof(Parent.SingleCompositeKey))
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey<Parent>(
+                                e => new
+                                {
+                                    e.AlternateId,
+                                    e.Id
+                                })
+                            .HasForeignKey<SingleCompositeKey>(
+                                e => new
+                                {
+                                    e.ParentAlternateId,
+                                    e.ParentId
+                                });
+                    });
 
                 modelBuilder.Entity<RootClass>();
                 modelBuilder.Entity<Product>();
@@ -6118,29 +6298,68 @@ namespace Microsoft.EntityFrameworkCore
                         AlternateId = "Root",
                         Children = new List<Child>
                         {
-                            new Child { Id = 11 },
-                            new Child { Id = 12 }
+                            new Child
+                            {
+                                Id = 11
+                            },
+                            new Child
+                            {
+                                Id = 12
+                            }
                         },
-                        SinglePkToPk = new SinglePkToPk { Id = 707 },
-                        Single = new Single { Id = 21 },
+                        SinglePkToPk = new SinglePkToPk
+                        {
+                            Id = 707
+                        },
+                        Single = new Single
+                        {
+                            Id = 21
+                        },
                         ChildrenAk = new List<ChildAk>
                         {
-                            new ChildAk { Id = 31 },
-                            new ChildAk { Id = 32 }
+                            new ChildAk
+                            {
+                                Id = 31
+                            },
+                            new ChildAk
+                            {
+                                Id = 32
+                            }
                         },
-                        SingleAk = new SingleAk { Id = 42 },
+                        SingleAk = new SingleAk
+                        {
+                            Id = 42
+                        },
                         ChildrenShadowFk = new List<ChildShadowFk>
                         {
-                            new ChildShadowFk { Id = 51 },
-                            new ChildShadowFk { Id = 52 }
+                            new ChildShadowFk
+                            {
+                                Id = 51
+                            },
+                            new ChildShadowFk
+                            {
+                                Id = 52
+                            }
                         },
-                        SingleShadowFk = new SingleShadowFk { Id = 62 },
+                        SingleShadowFk = new SingleShadowFk
+                        {
+                            Id = 62
+                        },
                         ChildrenCompositeKey = new List<ChildCompositeKey>
                         {
-                            new ChildCompositeKey { Id = 51 },
-                            new ChildCompositeKey { Id = 52 }
+                            new ChildCompositeKey
+                            {
+                                Id = 51
+                            },
+                            new ChildCompositeKey
+                            {
+                                Id = 52
+                            }
                         },
-                        SingleCompositeKey = new SingleCompositeKey { Id = 62 }
+                        SingleCompositeKey = new SingleCompositeKey
+                        {
+                            Id = 62
+                        }
                     });
 
                 context.Add(
@@ -6149,7 +6368,7 @@ namespace Microsoft.EntityFrameworkCore
                         Deposit = new Deposit()
                     });
 
-                    context.SaveChanges();
+                context.SaveChanges();
             }
         }
     }

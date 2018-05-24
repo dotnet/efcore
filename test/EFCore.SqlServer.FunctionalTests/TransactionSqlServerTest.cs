@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
                         base.AddOptions(builder)
                             .ConfigureWarnings(
                                 w => w.Log(RelationalEventId.QueryClientEvaluationWarning)
-                                      .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)))
+                                    .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)))
                     .MaxBatchSize(1);
                 return builder;
             }

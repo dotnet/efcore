@@ -83,25 +83,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = new InternalModelBuilder(new Model());
             var dependentEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             dependentEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            dependentEntityBuilder.PrimaryKey(new List<string>
-            {
-                "Id"
-            }, ConfigurationSource.Convention);
+            dependentEntityBuilder.PrimaryKey(
+                new List<string>
+                {
+                    "Id"
+                }, ConfigurationSource.Convention);
             var principalEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
             principalEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            principalEntityBuilder.PrimaryKey(new List<string>
-            {
-                "Id"
-            }, ConfigurationSource.Convention);
+            principalEntityBuilder.PrimaryKey(
+                new List<string>
+                {
+                    "Id"
+                }, ConfigurationSource.Convention);
 
             dependentEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
             principalEntityBuilder.Property("ReferencedFoo", typeof(string), ConfigurationSource.Convention);
             dependentEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                dependentEntityBuilder.GetOrCreateProperties(new List<string>
-                {
-                    "Foo"
-                }, ConfigurationSource.Convention),
+                dependentEntityBuilder.GetOrCreateProperties(
+                    new List<string>
+                    {
+                        "Foo"
+                    }, ConfigurationSource.Convention),
                 principalEntityBuilder.HasKey(new[] { "ReferencedFoo" }, ConfigurationSource.Convention).Metadata,
                 ConfigurationSource.Convention);
 
@@ -519,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 CoreStrings.ForeignKeyPropertyInKey(
                     nameof(Abstract.Id),
                     "Generic<int>",
-                    "{'" + nameof(Abstract.Id)+"'}",
+                    "{'" + nameof(Abstract.Id) + "'}",
                     nameof(Abstract)), modelBuilder.Model);
         }
 
@@ -630,15 +633,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Passes_for_valid_seeds()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<A>().HasData(new A
-            {
-                Id = 1
-            });
-            modelBuilder.Entity<D>().HasData(new D
-            {
-                Id = 2,
-                P0 = 3
-            });
+            modelBuilder.Entity<A>().HasData(
+                new A
+                {
+                    Id = 1
+                });
+            modelBuilder.Entity<D>().HasData(
+                new D
+                {
+                    Id = 2,
+                    P0 = 3
+                });
 
             Validate(modelBuilder.Model);
         }
@@ -648,12 +653,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateModelBuilder();
 
-            Assert.Equal(CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>().HasData(new D
-                {
-                    Id = 2,
-                    P0 = 3
-                })).Message);
+            Assert.Equal(
+                CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<A>().HasData(
+                        new D
+                        {
+                            Id = 2,
+                            P0 = 3
+                        })).Message);
         }
 
         [Fact]
@@ -661,30 +669,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateModelBuilder();
 
-            Assert.Equal(CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<B>()
-                    .OwnsOne(b => b.A, a => a.HasData(new D
-                    {
-                        Id = 2,
-                        P0 = 3
-                    }))
-                    .OwnsOne(b => b.AnotherA)).Message);
+            Assert.Equal(
+                CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<B>()
+                        .OwnsOne(
+                            b => b.A, a => a.HasData(
+                                new D
+                                {
+                                    Id = 2,
+                                    P0 = 3
+                                }))
+                        .OwnsOne(b => b.AnotherA)).Message);
         }
 
         [Fact]
         public virtual void Detects_missing_required_values_in_seeds()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<A>(e =>
-            {
-                e.Property(a => a.P0).IsRequired();
-                e.HasData(new A
+            modelBuilder.Entity<A>(
+                e =>
                 {
-                    Id = 1
+                    e.Property(a => a.P0).IsRequired();
+                    e.HasData(
+                        new A
+                        {
+                            Id = 1
+                        });
                 });
-            });
 
-            VerifyError(CoreStrings.SeedDatumMissingValue(nameof(A), nameof(A.P0)),
+            VerifyError(
+                CoreStrings.SeedDatumMissingValue(nameof(A), nameof(A.P0)),
                 modelBuilder.Model);
         }
 
@@ -694,7 +709,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<A>(e => { e.HasData(new A()); });
 
-            VerifyError(CoreStrings.SeedDatumMissingValue(nameof(A), nameof(A.Id)),
+            VerifyError(
+                CoreStrings.SeedDatumMissingValue(nameof(A), nameof(A.Id)),
                 modelBuilder.Model);
         }
 
@@ -705,14 +721,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Logger = CreateLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<A>().HasData(new A
-            {
-                Id = 1
-            });
-            modelBuilder.Entity<D>().HasData(new D
-            {
-                Id = 1
-            });
+            modelBuilder.Entity<A>().HasData(
+                new A
+                {
+                    Id = 1
+                });
+            modelBuilder.Entity<D>().HasData(
+                new D
+                {
+                    Id = 1
+                });
 
             VerifyError(
                 sensitiveDataLoggingEnabled
@@ -728,14 +746,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Logger = CreateLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<A>(e =>
-            {
-                e.HasData(new
+            modelBuilder.Entity<A>(
+                e =>
                 {
-                    Id = 1,
-                    P0 = "invalid"
+                    e.HasData(
+                        new
+                        {
+                            Id = 1,
+                            P0 = "invalid"
+                        });
                 });
-            });
 
             VerifyError(
                 sensitiveDataLoggingEnabled
@@ -751,17 +771,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Logger = CreateLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<SampleEntity>(e =>
-            {
-                e.HasData(new SampleEntity
+            modelBuilder.Entity<SampleEntity>(
+                e =>
                 {
-                    Id = 1,
-                    ReferencedEntity = new ReferencedEntity
-                    {
-                        Id = 2
-                    }
+                    e.HasData(
+                        new SampleEntity
+                        {
+                            Id = 1,
+                            ReferencedEntity = new ReferencedEntity
+                            {
+                                Id = 2
+                            }
+                        });
                 });
-            });
 
             VerifyError(
                 sensitiveDataLoggingEnabled
@@ -786,20 +808,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Logger = CreateLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<SampleEntity>(e =>
-            {
-                e.HasData(new SampleEntity
+            modelBuilder.Entity<SampleEntity>(
+                e =>
                 {
-                    Id = 1,
-                    OtherSamples = new HashSet<SampleEntity>(new[]
-                    {
+                    e.HasData(
                         new SampleEntity
                         {
-                            Id = 2
-                        }
-                    })
+                            Id = 1,
+                            OtherSamples = new HashSet<SampleEntity>(
+                                new[]
+                                {
+                                    new SampleEntity
+                                    {
+                                        Id = 2
+                                    }
+                                })
+                        });
                 });
-            });
 
             VerifyError(
                 sensitiveDataLoggingEnabled

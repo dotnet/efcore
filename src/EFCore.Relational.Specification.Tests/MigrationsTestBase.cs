@@ -313,11 +313,11 @@ namespace Microsoft.EntityFrameworkCore
                     ColumnWithDefaultToAlter = x.Column<int>(nullable: true, defaultValue: 1)
                 },
                 constraints: x =>
-                    {
-                        x.PrimaryKey(
-                            name: "PK_CreatedTable",
-                            columns: t => t.Id);
-                    });
+                {
+                    x.PrimaryKey(
+                        name: "PK_CreatedTable",
+                        columns: t => t.Id);
+                });
         }
 
         protected virtual Task AssertFirstMigrationAsync(DbConnection connection)

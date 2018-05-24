@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Empty(diagnostics);
         }
-        
+
         [Fact]
         public async Task Error_when_sql_expression_recursively_initialized()
         {
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Empty(diagnostics);
         }
-        
+
         [Fact]
         public async Task Error_when_sql_expression_recursively_initialized_multi()
         {
@@ -135,8 +135,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(1, diagnostic.Location.GetLineSpan().StartLinePosition.Line);
             Assert.Equal(22, diagnostic.Location.GetLineSpan().StartLinePosition.Character);
-            Assert.Equal(string.Format(
-                SqlInjectionDiagnosticAnalyzerBase.MessageFormat, "ExecuteSqlCommandAsync"), diagnostic.GetMessage());
+            Assert.Equal(
+                string.Format(
+                    SqlInjectionDiagnosticAnalyzerBase.MessageFormat, "ExecuteSqlCommandAsync"), diagnostic.GetMessage());
         }
 
         [Fact]
@@ -154,8 +155,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(2, diagnostic.Location.GetLineSpan().StartLinePosition.Line);
             Assert.Equal(22, diagnostic.Location.GetLineSpan().StartLinePosition.Character);
-            Assert.Equal(string.Format(
-                SqlInjectionDiagnosticAnalyzerBase.MessageFormat, "ExecuteSqlCommandAsync"), diagnostic.GetMessage());
+            Assert.Equal(
+                string.Format(
+                    SqlInjectionDiagnosticAnalyzerBase.MessageFormat, "ExecuteSqlCommandAsync"), diagnostic.GetMessage());
         }
 
         [Fact]
@@ -173,8 +175,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(2, diagnostic.Location.GetLineSpan().StartLinePosition.Line);
             Assert.Equal(22, diagnostic.Location.GetLineSpan().StartLinePosition.Character);
-            Assert.Equal(string.Format(
-                SqlInjectionDiagnosticAnalyzerBase.MessageFormat, "FromSql"), diagnostic.GetMessage());
+            Assert.Equal(
+                string.Format(
+                    SqlInjectionDiagnosticAnalyzerBase.MessageFormat, "FromSql"), diagnostic.GetMessage());
         }
 
         [Fact]
@@ -193,8 +196,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(3, diagnostic.Location.GetLineSpan().StartLinePosition.Line);
             Assert.Equal(22, diagnostic.Location.GetLineSpan().StartLinePosition.Character);
-            Assert.Equal(string.Format(
-                SqlInjectionDiagnosticAnalyzerBase.MessageFormat, "ExecuteSqlCommandAsync"), diagnostic.GetMessage());
+            Assert.Equal(
+                string.Format(
+                    SqlInjectionDiagnosticAnalyzerBase.MessageFormat, "ExecuteSqlCommandAsync"), diagnostic.GetMessage());
         }
 
         protected override DiagnosticAnalyzer CreateDiagnosticAnalyzer()

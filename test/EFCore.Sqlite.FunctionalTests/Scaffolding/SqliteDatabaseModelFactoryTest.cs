@@ -10,18 +10,18 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Xunit;
 #if Test20
 using Microsoft.EntityFrameworkCore.Design.Internal;
 #else
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 #endif
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -82,12 +82,12 @@ CREATE TABLE Denali ( id int );",
                 new[] { "Everest" },
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var table = Assert.Single(dbModel.Tables);
+                {
+                    var table = Assert.Single(dbModel.Tables);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("Everest", table.Name);
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("Everest", table.Name);
+                },
                 @"
 DROP TABLE Everest;
 DROP TABLE Denali;");
@@ -103,12 +103,12 @@ CREATE TABLE Denali ( id int );",
                 new[] { "eVeReSt" },
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var table = Assert.Single(dbModel.Tables);
+                {
+                    var table = Assert.Single(dbModel.Tables);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("Everest", table.Name);
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("Everest", table.Name);
+                },
                 @"
 DROP TABLE Everest;
 DROP TABLE Denali;");
@@ -128,12 +128,12 @@ CREATE TABLE Denali ( id int );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        Assert.Collection(
-                            dbModel.Tables.OrderBy(t => t.Name),
-                            d => Assert.Equal("Denali", d.Name),
-                            e => Assert.Equal("Everest", e.Name));
-                    },
+                {
+                    Assert.Collection(
+                        dbModel.Tables.OrderBy(t => t.Name),
+                        d => Assert.Equal("Denali", d.Name),
+                        e => Assert.Equal("Everest", e.Name));
+                },
                 @"
 DROP TABLE Everest;
 DROP TABLE Denali;");
@@ -151,16 +151,16 @@ CREATE TABLE MountainsColumns (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var table = dbModel.Tables.Single();
+                {
+                    var table = dbModel.Tables.Single();
 
-                        Assert.Equal(2, table.Columns.Count);
-                        Assert.All(
-                            table.Columns, c => { Assert.Equal("MountainsColumns", c.Table.Name); });
+                    Assert.Equal(2, table.Columns.Count);
+                    Assert.All(
+                        table.Columns, c => { Assert.Equal("MountainsColumns", c.Table.Name); });
 
-                        Assert.Single(table.Columns.Where(c => c.Name == "Id"));
-                        Assert.Single(table.Columns.Where(c => c.Name == "Name"));
-                    },
+                    Assert.Single(table.Columns.Where(c => c.Name == "Id"));
+                    Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                },
                 @"DROP TABLE MountainsColumns;");
         }
 
@@ -172,12 +172,16 @@ CREATE TABLE MountainsColumns (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var pk = dbModel.Tables.Single().PrimaryKey;
+                {
+                    var pk = dbModel.Tables.Single().PrimaryKey;
 
-                        Assert.Equal("Place", pk.Table.Name);
-                        Assert.Equal(new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    Assert.Equal("Place", pk.Table.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, pk.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE Place;");
         }
 
@@ -196,13 +200,17 @@ CREATE INDEX IX_Location_Name ON Place (Location, Name);",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
+                {
+                    var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("Place", uniqueConstraint.Table.Name);
-                        Assert.Equal(new List<string> { "Name" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("Place", uniqueConstraint.Table.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Name"
+                        }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE Place;");
         }
 
@@ -222,16 +230,16 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var table = dbModel.Tables.Single();
+                {
+                    var table = dbModel.Tables.Single();
 
-                        Assert.Equal(2, table.Indexes.Count);
-                        Assert.All(
-                            table.Indexes, c => { Assert.Equal("IndexTable", c.Table.Name); });
+                    Assert.Equal(2, table.Indexes.Count);
+                    Assert.All(
+                        table.Indexes, c => { Assert.Equal("IndexTable", c.Table.Name); });
 
-                        Assert.Single(table.Indexes.Where(c => c.Name == "IX_NAME"));
-                        Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
-                    },
+                    Assert.Single(table.Indexes.Where(c => c.Name == "IX_NAME"));
+                    Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
+                },
                 @"DROP TABLE IndexTable;");
         }
 
@@ -257,25 +265,41 @@ CREATE TABLE SecondDependent (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var firstFk = Assert.Single(dbModel.Tables.Single(t => t.Name == "FirstDependent").ForeignKeys);
+                {
+                    var firstFk = Assert.Single(dbModel.Tables.Single(t => t.Name == "FirstDependent").ForeignKeys);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("FirstDependent", firstFk.Table.Name);
-                        Assert.Equal("PrincipalTable", firstFk.PrincipalTable.Name);
-                        Assert.Equal(new List<string> { "ForeignKeyId" }, firstFk.Columns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(new List<string> { "Id" }, firstFk.PrincipalColumns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(ReferentialAction.Cascade, firstFk.OnDelete);
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("FirstDependent", firstFk.Table.Name);
+                    Assert.Equal("PrincipalTable", firstFk.PrincipalTable.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "ForeignKeyId"
+                        }, firstFk.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, firstFk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(ReferentialAction.Cascade, firstFk.OnDelete);
 
-                        var secondFk = Assert.Single(dbModel.Tables.Single(t => t.Name == "SecondDependent").ForeignKeys);
+                    var secondFk = Assert.Single(dbModel.Tables.Single(t => t.Name == "SecondDependent").ForeignKeys);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("SecondDependent", secondFk.Table.Name);
-                        Assert.Equal("PrincipalTable", secondFk.PrincipalTable.Name);
-                        Assert.Equal(new List<string> { "Id" }, secondFk.Columns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(new List<string> { "Id" }, secondFk.PrincipalColumns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(ReferentialAction.NoAction, secondFk.OnDelete);
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("SecondDependent", secondFk.Table.Name);
+                    Assert.Equal("PrincipalTable", secondFk.PrincipalTable.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, secondFk.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, secondFk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(ReferentialAction.NoAction, secondFk.OnDelete);
+                },
                 @"
 DROP TABLE SecondDependent;
 DROP TABLE FirstDependent;
@@ -301,15 +325,15 @@ CREATE TABLE StoreType (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var columns = dbModel.Tables.Single().Columns;
+                {
+                    var columns = dbModel.Tables.Single().Columns;
 
-                        Assert.Equal("integer", columns.Single(c => c.Name == "IntegerProperty").StoreType);
-                        Assert.Equal("real", columns.Single(c => c.Name == "RealProperty").StoreType);
-                        Assert.Equal("text", columns.Single(c => c.Name == "TextProperty").StoreType);
-                        Assert.Equal("blob", columns.Single(c => c.Name == "BlobProperty").StoreType);
-                        Assert.Equal("randomType", columns.Single(c => c.Name == "RandomProperty").StoreType);
-                    },
+                    Assert.Equal("integer", columns.Single(c => c.Name == "IntegerProperty").StoreType);
+                    Assert.Equal("real", columns.Single(c => c.Name == "RealProperty").StoreType);
+                    Assert.Equal("text", columns.Single(c => c.Name == "TextProperty").StoreType);
+                    Assert.Equal("blob", columns.Single(c => c.Name == "BlobProperty").StoreType);
+                    Assert.Equal("randomType", columns.Single(c => c.Name == "RandomProperty").StoreType);
+                },
                 @"DROP TABLE StoreType;");
         }
 
@@ -326,12 +350,12 @@ CREATE TABLE Nullable (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var columns = dbModel.Tables.Single().Columns;
+                {
+                    var columns = dbModel.Tables.Single().Columns;
 
-                        Assert.True(columns.Single(c => c.Name == "NullableInt").IsNullable);
-                        Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
-                    },
+                    Assert.True(columns.Single(c => c.Name == "NullableInt").IsNullable);
+                    Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
+                },
                 @"DROP TABLE Nullable;");
         }
 
@@ -349,13 +373,13 @@ CREATE TABLE DefaultValue (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var columns = dbModel.Tables.Single().Columns;
+                {
+                    var columns = dbModel.Tables.Single().Columns;
 
-                        Assert.Equal("'Something'", columns.Single(c => c.Name == "SomeText").DefaultValueSql);
-                        Assert.Equal("3.14", columns.Single(c => c.Name == "RealColumn").DefaultValueSql);
-                        Assert.Equal("'October 20, 2015 11am'", columns.Single(c => c.Name == "Created").DefaultValueSql);
-                    },
+                    Assert.Equal("'Something'", columns.Single(c => c.Name == "SomeText").DefaultValueSql);
+                    Assert.Equal("3.14", columns.Single(c => c.Name == "RealColumn").DefaultValueSql);
+                    Assert.Equal("'October 20, 2015 11am'", columns.Single(c => c.Name == "Created").DefaultValueSql);
+                },
                 @"DROP TABLE DefaultValue;");
         }
 
@@ -400,12 +424,17 @@ CREATE TABLE CompositePrimaryKey (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var pk = dbModel.Tables.Single().PrimaryKey;
+                {
+                    var pk = dbModel.Tables.Single().PrimaryKey;
 
-                        Assert.Equal("CompositePrimaryKey", pk.Table.Name);
-                        Assert.Equal(new List<string> { "Id2", "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    Assert.Equal("CompositePrimaryKey", pk.Table.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id2",
+                            "Id1"
+                        }, pk.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE CompositePrimaryKey;");
         }
 
@@ -420,12 +449,16 @@ CREATE TABLE RowidPrimaryKey (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var pk = dbModel.Tables.Single().PrimaryKey;
+                {
+                    var pk = dbModel.Tables.Single().PrimaryKey;
 
-                        Assert.Equal("RowidPrimaryKey", pk.Table.Name);
-                        Assert.Equal(new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    Assert.Equal("RowidPrimaryKey", pk.Table.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, pk.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE RowidPrimaryKey;");
         }
 
@@ -441,13 +474,17 @@ CREATE TABLE PrimaryKeyName (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var pk = dbModel.Tables.Single().PrimaryKey;
+                {
+                    var pk = dbModel.Tables.Single().PrimaryKey;
 
-                        Assert.Equal("PrimaryKeyName", pk.Table.Name);
-                        Assert.Equal("PK", pk.Name);
-                        Assert.Equal(new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    Assert.Equal("PrimaryKeyName", pk.Table.Name);
+                    Assert.Equal("PK", pk.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, pk.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE PrimaryKeyName;");
         }
 
@@ -468,13 +505,18 @@ CREATE TABLE CompositeUniqueConstraint (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var constraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
+                {
+                    var constraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("CompositeUniqueConstraint", constraint.Table.Name);
-                        Assert.Equal(new List<string> { "Id2", "Id1" }, constraint.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("CompositeUniqueConstraint", constraint.Table.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id2",
+                            "Id1"
+                        }, constraint.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE CompositeUniqueConstraint;");
         }
 
@@ -490,14 +532,18 @@ CREATE TABLE UniqueConstraintName (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var constraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
+                {
+                    var constraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("UniqueConstraintName", constraint.Table.Name);
-                        Assert.Equal("UK", constraint.Name);
-                        Assert.Equal(new List<string> { "Id" }, constraint.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("UniqueConstraintName", constraint.Table.Name);
+                    Assert.Equal("UK", constraint.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, constraint.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE UniqueConstraintName;");
         }
 
@@ -519,14 +565,19 @@ CREATE INDEX IX_COMPOSITE on CompositeIndex (Id2, Id1);",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                {
+                    var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("CompositeIndex", index.Table.Name);
-                        Assert.Equal("IX_COMPOSITE", index.Name);
-                        Assert.Equal(new List<string> { "Id2", "Id1" }, index.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("CompositeIndex", index.Table.Name);
+                    Assert.Equal("IX_COMPOSITE", index.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id2",
+                            "Id1"
+                        }, index.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE CompositeIndex;");
         }
 
@@ -544,15 +595,19 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                {
+                    var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("UniqueIndex", index.Table.Name);
-                        Assert.Equal("IX_UNIQUE", index.Name);
-                        Assert.True(index.IsUnique);
-                        Assert.Equal(new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("UniqueIndex", index.Table.Name);
+                    Assert.Equal("IX_UNIQUE", index.Name);
+                    Assert.True(index.IsUnique);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id2"
+                        }, index.Columns.Select(ic => ic.Name).ToList());
+                },
                 @"DROP TABLE UniqueIndex;");
         }
 
@@ -580,16 +635,26 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
+                {
+                    var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("DependentTable", fk.Table.Name);
-                        Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
-                        Assert.Equal(new List<string> { "ForeignKeyId1", "ForeignKeyId2" }, fk.Columns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(new List<string> { "Id1", "Id2" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("DependentTable", fk.Table.Name);
+                    Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "ForeignKeyId1",
+                            "ForeignKeyId2"
+                        }, fk.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id1",
+                            "Id2"
+                        }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
+                },
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
@@ -618,29 +683,45 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var foreignKeys = dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys;
+                {
+                    var foreignKeys = dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys;
 
-                        Assert.Equal(2, foreignKeys.Count);
+                    Assert.Equal(2, foreignKeys.Count);
 
-                        var principalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "PrincipalTable"));
+                    var principalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "PrincipalTable"));
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("DependentTable", principalFk.Table.Name);
-                        Assert.Equal("PrincipalTable", principalFk.PrincipalTable.Name);
-                        Assert.Equal(new List<string> { "ForeignKeyId1" }, principalFk.Columns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(new List<string> { "Id" }, principalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(ReferentialAction.Cascade, principalFk.OnDelete);
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("DependentTable", principalFk.Table.Name);
+                    Assert.Equal("PrincipalTable", principalFk.PrincipalTable.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "ForeignKeyId1"
+                        }, principalFk.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, principalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(ReferentialAction.Cascade, principalFk.OnDelete);
 
-                        var anotherPrincipalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "AnotherPrincipalTable"));
+                    var anotherPrincipalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "AnotherPrincipalTable"));
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("DependentTable", anotherPrincipalFk.Table.Name);
-                        Assert.Equal("AnotherPrincipalTable", anotherPrincipalFk.PrincipalTable.Name);
-                        Assert.Equal(new List<string> { "ForeignKeyId2" }, anotherPrincipalFk.Columns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(new List<string> { "Id" }, anotherPrincipalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(ReferentialAction.Cascade, anotherPrincipalFk.OnDelete);
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("DependentTable", anotherPrincipalFk.Table.Name);
+                    Assert.Equal("AnotherPrincipalTable", anotherPrincipalFk.PrincipalTable.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "ForeignKeyId2"
+                        }, anotherPrincipalFk.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, anotherPrincipalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(ReferentialAction.Cascade, anotherPrincipalFk.OnDelete);
+                },
                 @"
 DROP TABLE DependentTable;
 DROP TABLE AnotherPrincipalTable;
@@ -665,16 +746,24 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
+                {
+                    var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("DependentTable", fk.Table.Name);
-                        Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
-                        Assert.Equal(new List<string> { "ForeignKeyId" }, fk.Columns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(new List<string> { "Id2" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("DependentTable", fk.Table.Name);
+                    Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "ForeignKeyId"
+                        }, fk.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id2"
+                        }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
+                },
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
@@ -697,17 +786,25 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
+                {
+                    var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("DependentTable", fk.Table.Name);
-                        Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
-                        Assert.Equal(new List<string> { "ForeignKeyId" }, fk.Columns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(new List<string> { "Id" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
-                        Assert.Equal("MYFK", fk.Name);
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("DependentTable", fk.Table.Name);
+                    Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "ForeignKeyId"
+                        }, fk.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
+                    Assert.Equal("MYFK", fk.Name);
+                },
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
@@ -730,16 +827,24 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
+                {
+                    var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
 
-                        // ReSharper disable once PossibleNullReferenceException
-                        Assert.Equal("DependentTable", fk.Table.Name);
-                        Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
-                        Assert.Equal(new List<string> { "ForeignKeyId" }, fk.Columns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(new List<string> { "Id" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
-                        Assert.Equal(ReferentialAction.SetNull, fk.OnDelete);
-                    },
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("DependentTable", fk.Table.Name);
+                    Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "ForeignKeyId"
+                        }, fk.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(
+                        new List<string>
+                        {
+                            "Id"
+                        }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(ReferentialAction.SetNull, fk.OnDelete);
+                },
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
@@ -757,12 +862,12 @@ DROP TABLE PrincipalTable;");
                 Enumerable.Empty<string>(),
                 new[] { "dbo" },
                 dbModel =>
-                    {
-                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                {
+                    var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, Id);
-                        Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), Message);
-                    },
+                    Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, Id);
+                    Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), Message);
+                },
                 @"DROP TABLE Everest;");
         }
 
@@ -774,14 +879,14 @@ DROP TABLE PrincipalTable;");
                 new[] { "MyTable" },
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        Assert.Empty(dbModel.Tables);
+                {
+                    Assert.Empty(dbModel.Tables);
 
-                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                    var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqliteStrings.LogMissingTable.EventId, Id);
-                        Assert.Equal(SqliteStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
-                    },
+                    Assert.Equal(SqliteStrings.LogMissingTable.EventId, Id);
+                    Assert.Equal(SqliteStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
+                },
                 @"DROP TABLE Blank;");
         }
 
@@ -802,12 +907,12 @@ CREATE TABLE DependentTable (
                 new[] { "DependentTable" },
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                {
+                    var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.EventId, Id);
-                        Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0"), Message);
-                    },
+                    Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.EventId, Id);
+                    Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0"), Message);
+                },
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
@@ -830,12 +935,12 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
-                    {
-                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                {
+                    var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.EventId, Id);
-                        Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"), Message);
-                    },
+                    Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.EventId, Id);
+                    Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"), Message);
+                },
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");

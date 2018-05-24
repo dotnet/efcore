@@ -59,13 +59,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void ToString_guid_property_projection()
         {
             AssertQuery<CogTag>(
-                ts => ts.Select(ct => new { A = ct.GearNickName, B = ct.Id.ToString() }),
+                ts => ts.Select(
+                    ct => new
+                    {
+                        A = ct.GearNickName,
+                        B = ct.Id.ToString()
+                    }),
                 elementSorter: e => e.B,
                 elementAsserter: (e, a) =>
-                    {
-                        Assert.Equal(e.A, a.A);
-                        Assert.Equal(e.B.ToLower(), a.B.ToLower());
-                    });
+                {
+                    Assert.Equal(e.A, a.A);
+                    Assert.Equal(e.B.ToLower(), a.B.ToLower());
+                });
         }
 
         [ConditionalFact]
@@ -248,8 +253,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     gs.Join(
                         ts,
-                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
-                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                        g => new
+                        {
+                            SquadId = (int?)g.SquadId,
+                            g.Nickname
+                        },
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
                         (g, t) => g).Include(g => g.CityOfBirth),
                 expectedIncludes);
         }
@@ -267,8 +280,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ts, gs) =>
                     ts.Join(
                         gs,
-                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
-                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
+                        g => new
+                        {
+                            SquadId = (int?)g.SquadId,
+                            g.Nickname
+                        },
                         (t, g) => g).Include(g => g.CityOfBirth),
                 expectedIncludes);
         }
@@ -286,8 +307,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     gs.Join(
                         ts,
-                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
-                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                        g => new
+                        {
+                            SquadId = (int?)g.SquadId,
+                            g.Nickname
+                        },
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
                         (g, t) => g).Include(g => g.Weapons),
                 expectedIncludes);
         }
@@ -305,8 +334,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ts, gs) =>
                     ts.Join(
                         gs,
-                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
-                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
+                        g => new
+                        {
+                            SquadId = (int?)g.SquadId,
+                            g.Nickname
+                        },
                         (t, g) => g).Include(g => g.Weapons),
                 expectedIncludes);
         }
@@ -384,8 +421,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     gs.Join(
                         ts,
-                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
-                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                        g => new
+                        {
+                            SquadId = (int?)g.SquadId,
+                            g.Nickname
+                        },
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
                         (g, t) => g).Include(g => g.CityOfBirth.StationedGears),
                 expectedIncludes);
         }
@@ -402,8 +447,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     ts.Join(
                         gs.OfType<Officer>(),
-                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
-                        o => new { SquadId = (int?)o.SquadId, o.Nickname },
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
+                        o => new
+                        {
+                            SquadId = (int?)o.SquadId,
+                            o.Nickname
+                        },
                         (t, o) => o).Include(o => o.CityOfBirth),
                 expectedIncludes);
         }
@@ -420,8 +473,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     gs.OfType<Officer>().Join(
                         ts,
-                        o => new { SquadId = (int?)o.SquadId, o.Nickname },
-                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                        o => new
+                        {
+                            SquadId = (int?)o.SquadId,
+                            o.Nickname
+                        },
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
                         (o, t) => o).Include(g => g.Weapons),
                 expectedIncludes);
         }
@@ -438,8 +499,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     ts.Join(
                         gs.OfType<Officer>(),
-                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
-                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
+                        g => new
+                        {
+                            SquadId = (int?)g.SquadId,
+                            g.Nickname
+                        },
                         (t, o) => o).Include(o => o.Reports),
                 expectedIncludes);
         }
@@ -699,7 +768,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Weapon>(
                 ws => ws
                     .Where(w => w.IsAutomatic)
-                    .Select(w => new { w.Id, Manual = !w.IsAutomatic }),
+                    .Select(
+                        w => new
+                        {
+                            w.Id,
+                            Manual = !w.IsAutomatic
+                        }),
                 elementSorter: e => e.Id);
         }
 
@@ -711,7 +785,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Weapon>(
                 ws => ws
                     .Where(w => w.AmmunitionType == ammunitionType)
-                    .Select(w => new { w.Id, Cartidge = w.AmmunitionType == ammunitionType }),
+                    .Select(
+                        w => new
+                        {
+                            w.Id,
+                            Cartidge = w.AmmunitionType == ammunitionType
+                        }),
                 elementSorter: e => e.Id);
 
             ammunitionType = null;
@@ -719,7 +798,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Weapon>(
                 ws => ws
                     .Where(w => w.AmmunitionType == ammunitionType)
-                    .Select(w => new { w.Id, Cartidge = w.AmmunitionType == ammunitionType }),
+                    .Select(
+                        w => new
+                        {
+                            w.Id,
+                            Cartidge = w.AmmunitionType == ammunitionType
+                        }),
                 elementSorter: e => e.Id);
         }
 
@@ -727,7 +811,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_ternary_operation_with_boolean()
         {
             AssertQuery<Weapon>(
-                ws => ws.Select(w => new { w.Id, Num = w.IsAutomatic ? 1 : 0 }),
+                ws => ws.Select(
+                    w => new
+                    {
+                        w.Id,
+                        Num = w.IsAutomatic ? 1 : 0
+                    }),
                 elementSorter: e => e.Id);
         }
 
@@ -735,7 +824,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_ternary_operation_with_inverted_boolean()
         {
             AssertQuery<Weapon>(
-                ws => ws.Select(w => new { w.Id, Num = !w.IsAutomatic ? 1 : 0 }),
+                ws => ws.Select(
+                    w => new
+                    {
+                        w.Id,
+                        Num = !w.IsAutomatic ? 1 : 0
+                    }),
                 elementSorter: e => e.Id);
         }
 
@@ -745,7 +839,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Weapon>(
                 ws => ws
                     .Where(w => w.AmmunitionType.HasValue && w.AmmunitionType == AmmunitionType.Cartridge)
-                    .Select(w => new { w.Id, IsCartidge = w.AmmunitionType.HasValue && w.AmmunitionType.Value == AmmunitionType.Cartridge ? "Yes" : "No" }),
+                    .Select(
+                        w => new
+                        {
+                            w.Id,
+                            IsCartidge = w.AmmunitionType.HasValue && w.AmmunitionType.Value == AmmunitionType.Cartridge ? "Yes" : "No"
+                        }),
                 elementSorter: e => e.Id);
         }
 
@@ -753,7 +852,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_ternary_operation_multiple_conditions()
         {
             AssertQuery<Weapon>(
-                ws => ws.Select(w => new { w.Id, IsCartidge = w.AmmunitionType == AmmunitionType.Shell && w.SynergyWithId == 1 ? "Yes" : "No" }),
+                ws => ws.Select(
+                    w => new
+                    {
+                        w.Id,
+                        IsCartidge = w.AmmunitionType == AmmunitionType.Shell && w.SynergyWithId == 1 ? "Yes" : "No"
+                    }),
                 elementSorter: e => e.Id);
         }
 
@@ -761,7 +865,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_ternary_operation_multiple_conditions_2()
         {
             AssertQuery<Weapon>(
-                ws => ws.Select(w => new { w.Id, IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1 ? "Yes" : "No" }),
+                ws => ws.Select(
+                    w => new
+                    {
+                        w.Id,
+                        IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1 ? "Yes" : "No"
+                    }),
                 elementSorter: e => e.Id);
         }
 
@@ -769,7 +878,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_multiple_conditions()
         {
             AssertQuery<Weapon>(
-                ws => ws.Select(w => new { w.Id, IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1 }),
+                ws => ws.Select(
+                    w => new
+                    {
+                        w.Id,
+                        IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1
+                    }),
                 elementSorter: e => e.Id);
         }
 
@@ -777,7 +891,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_nested_ternary_operations()
         {
             AssertQuery<Weapon>(
-                ws => ws.Select(w => new { w.Id, IsManualCartidge = !w.IsAutomatic ? w.AmmunitionType == AmmunitionType.Cartridge ? "ManualCartridge" : "Manual" : "Auto" }),
+                ws => ws.Select(
+                    w => new
+                    {
+                        w.Id,
+                        IsManualCartidge = !w.IsAutomatic ? w.AmmunitionType == AmmunitionType.Cartridge ? "ManualCartridge" : "Manual" : "Auto"
+                    }),
                 elementSorter: e => e.Id);
         }
 
@@ -871,12 +990,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs on g1.HasSoulPatch equals true into grouping
                       from g2 in grouping.DefaultIfEmpty()
                       orderby g2.Nickname
-                      select new { g2.Nickname, Condition = g2 != null ? (bool?)(g2.LeaderNickname != null) : (bool?)null },
+                      select new
+                      {
+                          g2.Nickname,
+                          Condition = g2 != null ? (bool?)(g2.LeaderNickname != null) : (bool?)null
+                      },
                 gs => from g1 in gs
                       join g2 in gs on g1.HasSoulPatch equals true into grouping
                       from g2 in grouping.DefaultIfEmpty()
                       orderby Maybe(g2, () => g2.Nickname)
-                      select new { Nickname = Maybe(g2, () => g2.Nickname), Condition = g2 != null ? (bool?)(g2.LeaderNickname != null) : (bool?)null },
+                      select new
+                      {
+                          Nickname = Maybe(g2, () => g2.Nickname),
+                          Condition = g2 != null ? (bool?)(g2.LeaderNickname != null) : (bool?)null
+                      },
                 assertOrder: true);
         }
 
@@ -905,12 +1032,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs on g1.HasSoulPatch equals true into grouping
                       from g2 in grouping.DefaultIfEmpty()
                       orderby g2.Nickname
-                      select g2 != null ? new { g2.Nickname, Five = 5 } : null,
+                      select g2 != null
+                          ? new
+                          {
+                              g2.Nickname,
+                              Five = 5
+                          }
+                          : null,
                 gs => from g1 in gs
                       join g2 in gs on g1.HasSoulPatch equals true into grouping
                       from g2 in grouping.DefaultIfEmpty()
                       orderby Maybe(g2, () => g2.Nickname)
-                      select g2 != null ? new { Nickname = Maybe(g2, () => g2.Nickname), Five = 5 } : null,
+                      select g2 != null
+                          ? new
+                          {
+                              Nickname = Maybe(g2, () => g2.Nickname),
+                              Five = 5
+                          }
+                          : null,
                 assertOrder: true);
         }
 
@@ -969,7 +1108,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Gear>(
                 gs => from g in gs
                       orderby g.Nickname
-                      select g.LeaderNickname != null ? new { g.HasSoulPatch } : null,
+                      select g.LeaderNickname != null
+                          ? new
+                          {
+                              g.HasSoulPatch
+                          }
+                          : null,
                 assertOrder: true);
         }
 
@@ -979,7 +1123,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Gear>(
                 gs => from g in gs
                       orderby g.Nickname
-                      select g.LeaderNickname != null ? new { Name = g.Nickname } : new { Name = g.FullName },
+                      select g.LeaderNickname != null
+                          ? new
+                          {
+                              Name = g.Nickname
+                          }
+                          : new
+                          {
+                              Name = g.FullName
+                          },
                 assertOrder: true);
         }
 
@@ -989,7 +1141,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Gear>(
                 gs => from g in gs
                       orderby g.Nickname
-                      where (g.LeaderNickname != null ? new { g.HasSoulPatch } : null) == null
+                      where (g.LeaderNickname != null
+                                ? new
+                                {
+                                    g.HasSoulPatch
+                                }
+                                : null) == null
                       select g.Nickname,
                 assertOrder: true);
         }
@@ -1001,7 +1158,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => from g in gs
                       orderby g.Nickname
                       // ReSharper disable once ConstantNullCoalescingCondition
-                      select new { Name = g.LeaderNickname } ?? new { Name = g.FullName },
+                      select new
+                      {
+                          Name = g.LeaderNickname
+                      } ?? new
+                      {
+                          Name = g.FullName
+                      },
                 assertOrder: true);
         }
 
@@ -1010,8 +1173,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Gear>(
                 gs => from g in gs
-                          // ReSharper disable once ConstantNullCoalescingCondition
-                      where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
+                      // ReSharper disable once ConstantNullCoalescingCondition
+                      where (new
+                      {
+                          Name = g.LeaderNickname
+                      } ?? new
+                      {
+                          Name = g.FullName
+                      }) != null
                       select g.Nickname);
         }
 
@@ -1022,7 +1191,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = from g in context.Gears
                             from o in context.Gears.OfType<Officer>()
-                            where new { Name = g.LeaderNickname, Squad = g.LeaderSquadId, Five = 5 } == new { Name = o.Nickname, Squad = o.SquadId, Five = 5 }
+                            where new
+                            {
+                                Name = g.LeaderNickname,
+                                Squad = g.LeaderSquadId,
+                                Five = 5
+                            } == new
+                            {
+                                Name = o.Nickname,
+                                Squad = o.SquadId,
+                                Five = 5
+                            }
                             select g.Nickname;
 
                 var result = query.ToList();
@@ -1035,7 +1214,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Gear>(
                 gs => from g in gs
-                      where new { Name = g.LeaderNickname, Squad = g.LeaderSquadId }.Name == "Marcus"
+                      where new
+                      {
+                          Name = g.LeaderNickname,
+                          Squad = g.LeaderSquadId
+                      }.Name == "Marcus"
                       select g.Nickname);
         }
 
@@ -1044,8 +1227,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Gear>(
                 gs => from g in gs
-                          // ReSharper disable once EqualExpressionComparison
-                      where new { Five = 5 } == new { Five = 5 }
+                      // ReSharper disable once EqualExpressionComparison
+                      where new
+                      {
+                          Five = 5
+                      } == new
+                      {
+                          Five = 5
+                      }
                       select g.Nickname);
         }
 
@@ -1068,17 +1257,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => from t1 in ts
                       from t2 in ts
                       where t1.Gear.Nickname == t2.Gear.Nickname
-                      select new { Tag1 = t1, Tag2 = t2 },
+                      select new
+                      {
+                          Tag1 = t1,
+                          Tag2 = t2
+                      },
                 ts => from t1 in ts
                       from t2 in ts
                       where Maybe(t1.Gear, () => t1.Gear.Nickname) == Maybe(t2.Gear, () => t2.Gear.Nickname)
-                      select new { Tag1 = t1, Tag2 = t2 },
+                      select new
+                      {
+                          Tag1 = t1,
+                          Tag2 = t2
+                      },
                 elementSorter: e => e.Tag1.Id + " " + e.Tag2.Id,
                 elementAsserter: (e, a) =>
-                    {
-                        Assert.Equal(e.Tag1.Id, a.Tag1.Id);
-                        Assert.Equal(e.Tag2.Id, a.Tag2.Id);
-                    });
+                {
+                    Assert.Equal(e.Tag1.Id, a.Tag1.Id);
+                    Assert.Equal(e.Tag2.Id, a.Tag2.Id);
+                });
         }
 
         [ConditionalFact]
@@ -1088,11 +1285,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => from t1 in ts
                       from t2 in ts
                       where t1.Gear.Nickname == t2.Gear.Nickname
-                      select new { Id1 = t1.Id, Id2 = t2.Id },
+                      select new
+                      {
+                          Id1 = t1.Id,
+                          Id2 = t2.Id
+                      },
                 ts => from t1 in ts
                       from t2 in ts
                       where Maybe(t1.Gear, () => t1.Gear.Nickname) == Maybe(t2.Gear, () => t2.Gear.Nickname)
-                      select new { Id1 = t1.Id, Id2 = t2.Id },
+                      select new
+                      {
+                          Id1 = t1.Id,
+                          Id2 = t2.Id
+                      },
                 elementSorter: e => e.Id1 + " " + e.Id2);
         }
 
@@ -1100,8 +1305,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Optional_Navigation_Null_Coalesce_To_Clr_Type()
         {
             AssertSingleResult<Weapon>(
-                ws => ws.OrderBy(w => w.Id).Select(w => new Weapon { IsAutomatic = (bool?)w.SynergyWith.IsAutomatic ?? false }).First(),
-                ws => ws.OrderBy(w => w.Id).Select(w => new Weapon { IsAutomatic = MaybeScalar<bool>(w.SynergyWith, () => w.SynergyWith.IsAutomatic) ?? false }).First());
+                ws => ws.OrderBy(w => w.Id).Select(
+                    w => new Weapon
+                    {
+                        IsAutomatic = (bool?)w.SynergyWith.IsAutomatic ?? false
+                    }).First(),
+                ws => ws.OrderBy(w => w.Id).Select(
+                    w => new Weapon
+                    {
+                        IsAutomatic = MaybeScalar<bool>(w.SynergyWith, () => w.SynergyWith.IsAutomatic) ?? false
+                    }).First());
         }
 
         [ConditionalFact]
@@ -1245,8 +1458,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Concat_anonymous_with_count()
         {
             AssertSingleResult<Gear>(
-                gs => gs.Select(g => new { Gear = g, Name = g.Nickname })
-                    .Concat(gs.Select(g2 => new { Gear = g2, Name = g2.FullName })).Count());
+                gs => gs.Select(
+                        g => new
+                        {
+                            Gear = g,
+                            Name = g.Nickname
+                        })
+                    .Concat(
+                        gs.Select(
+                            g2 => new
+                            {
+                                Gear = g2,
+                                Name = g2.FullName
+                            })).Count());
         }
 
         [ConditionalFact(Skip = "issue #9007")]
@@ -1341,13 +1565,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => from t1 in ts
                       from t2 in ts
                       where t1.Gear == t2.Gear
-                      select new { t1, t2 },
+                      select new
+                      {
+                          t1,
+                          t2
+                      },
                 elementSorter: e => e.t1.Id + " " + e.t2.Id,
                 elementAsserter: (e, a) =>
-                    {
-                        Assert.Equal(e.t1.Id, a.t1.Id);
-                        Assert.Equal(e.t2.Id, a.t2.Id);
-                    });
+                {
+                    Assert.Equal(e.t1.Id, a.t1.Id);
+                    Assert.Equal(e.t2.Id, a.t2.Id);
+                });
         }
 
         [ConditionalFact]
@@ -1357,11 +1585,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => from ct in ts
                       where ct.Gear.Nickname == "Marcus"
                       where ct.Gear.CityOrBirthName != "Ephyra"
-                      select new { B = ct.Gear.CityOrBirthName },
+                      select new
+                      {
+                          B = ct.Gear.CityOrBirthName
+                      },
                 ts => from ct in ts
                       where Maybe(ct.Gear, () => ct.Gear.Nickname) == "Marcus"
                       where Maybe(ct.Gear, () => ct.Gear.CityOrBirthName) != "Ephyra"
-                      select new { B = Maybe(ct.Gear, () => ct.Gear.CityOrBirthName) },
+                      select new
+                      {
+                          B = Maybe(ct.Gear, () => ct.Gear.CityOrBirthName)
+                      },
                 elementSorter: e => e.B);
         }
 
@@ -1372,17 +1606,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => from ct in ts
                       where ct.Gear.Nickname == "Marcus"
                       where ct.Gear.CityOrBirthName != "Ephyra"
-                      select new { A = ct.Gear, B = ct.Gear.CityOrBirthName },
+                      select new
+                      {
+                          A = ct.Gear,
+                          B = ct.Gear.CityOrBirthName
+                      },
                 ts => from ct in ts
                       where Maybe(ct.Gear, () => ct.Gear.Nickname) == "Marcus"
                       where Maybe(ct.Gear, () => ct.Gear.CityOrBirthName) != "Ephyra"
-                      select new { A = ct.Gear, B = Maybe(ct.Gear, () => ct.Gear.CityOrBirthName) },
+                      select new
+                      {
+                          A = ct.Gear,
+                          B = Maybe(ct.Gear, () => ct.Gear.CityOrBirthName)
+                      },
                 elementSorter: e => e.A.Nickname,
                 elementAsserter: (e, a) =>
-                    {
-                        Assert.Equal(e.A.Nickname, e.A.Nickname);
-                        Assert.Equal(e.B, e.B);
-                    });
+                {
+                    Assert.Equal(e.A.Nickname, e.A.Nickname);
+                    Assert.Equal(e.B, e.B);
+                });
         }
 
         [ConditionalFact]
@@ -1392,8 +1634,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ts, gs) =>
                     from t in ts
                     join g in gs
-                        on new { N = t.GearNickName, S = t.GearSquadId }
-                        equals new { N = g.Nickname, S = (int?)g.SquadId } into grouping
+                        on new
+                        {
+                            N = t.GearNickName,
+                            S = t.GearSquadId
+                        }
+                        equals new
+                        {
+                            N = g.Nickname,
+                            S = (int?)g.SquadId
+                        } into grouping
                     from g in grouping
                     select g);
         }
@@ -1405,11 +1655,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     from g in gs
                     join t in ts on g.FullName equals t.Gear.FullName
-                    select new { g.FullName, t.Note },
+                    select new
+                    {
+                        g.FullName,
+                        t.Note
+                    },
                 (gs, ts) =>
                     from g in gs
                     join t in ts on g.FullName equals Maybe(t.Gear, () => t.Gear.FullName)
-                    select new { g.FullName, t.Note },
+                    select new
+                    {
+                        g.FullName,
+                        t.Note
+                    },
                 elementSorter: e => e.FullName);
         }
 
@@ -1419,10 +1677,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<CogTag, Gear>(
                 (ts, gs) =>
                     (from t in ts
-                     join g in gs.OfType<Officer>() on new { id1 = t.GearSquadId, id2 = t.GearNickName }
-                         equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
+                     join g in gs.OfType<Officer>() on new
+                         {
+                             id1 = t.GearSquadId,
+                             id2 = t.GearNickName
+                         }
+                         equals new
+                         {
+                             id1 = (int?)g.SquadId,
+                             id2 = g.Nickname
+                         }
                      select g).Include(g => g.Tag),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Tag, "Tag") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Officer>(o => o.Tag, "Tag")
+                });
         }
 
         [ConditionalFact]
@@ -1431,10 +1700,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<Gear, CogTag>(
                 (gs, ts) =>
                     (from g in gs.OfType<Officer>()
-                     join t in ts on new { id1 = (int?)g.SquadId, id2 = g.Nickname }
-                         equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
+                     join t in ts on new
+                         {
+                             id1 = (int?)g.SquadId,
+                             id2 = g.Nickname
+                         }
+                         equals new
+                         {
+                             id1 = t.GearSquadId,
+                             id2 = t.GearNickName
+                         }
                      select g).Include(g => g.Tag),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Tag, "Tag") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Officer>(o => o.Tag, "Tag")
+                });
         }
 
         [ConditionalFact]
@@ -1469,7 +1749,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Non_unicode_string_literals_in_contains_is_used_for_non_unicode_column()
         {
-            var cities = new List<string> { "Unknown", "Jacinto's location", "Ephyra's location" };
+            var cities = new List<string>
+            {
+                "Unknown",
+                "Jacinto's location",
+                "Ephyra's location"
+            };
 
             AssertQuery<City>(
                 cs => from c in cs
@@ -1597,7 +1882,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                      select new { g1, g2, coalesce = g2 ?? g1 },
+                      select new
+                      {
+                          g1,
+                          g2,
+                          coalesce = g2 ?? g1
+                      },
                 expectedIncludes,
                 elementSorter: e => e.g1.Nickname,
                 clientProjections: new List<Func<dynamic, object>>
@@ -1640,7 +1930,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                          // ReSharper disable once MergeConditionalExpression
+                      // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                       select g2 != null ? g2 : g1,
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -1661,13 +1951,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                          // ReSharper disable once MergeConditionalExpression
+                      // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
-                      select new { g1, g2, coalesce = g2 ?? g1, conditional = g2 != null ? g2 : g1 },
+                      select new
+                      {
+                          g1,
+                          g2,
+                          coalesce = g2 ?? g1,
+                          conditional = g2 != null ? g2 : g1
+                      },
 #pragma warning restore IDE0029 // Use coalesce expression
                 expectedIncludes,
                 elementSorter: e => e.g1.Nickname + " " + e.g2?.Nickname,
-                clientProjections: new List<Func<dynamic, object>> { e => e.g1, e => e.g2, e => e.coalesce, e => e.conditional });
+                clientProjections: new List<Func<dynamic, object>>
+                {
+                    e => e.g1,
+                    e => e.g2,
+                    e => e.coalesce,
+                    e => e.conditional
+                });
         }
 
         [ConditionalFact]
@@ -1765,7 +2067,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Optional_navigation_type_compensation_works_with_projection_into_anonymous_type()
         {
             AssertQuery<CogTag>(
-                ts => ts.Where(t => t.Note != "K.I.A.").Select(t => new { t.Gear.SquadId }),
+                ts => ts.Where(t => t.Note != "K.I.A.").Select(
+                    t => new
+                    {
+                        t.Gear.SquadId
+                    }),
                 elementSorter: e => e.SquadId);
         }
 
@@ -1773,7 +2079,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Optional_navigation_type_compensation_works_with_DTOs()
         {
             AssertQuery<CogTag>(
-                ts => ts.Where(t => t.Note != "K.I.A.").Select(t => new Squad { Id = t.Gear.SquadId }),
+                ts => ts.Where(t => t.Note != "K.I.A.").Select(
+                    t => new Squad
+                    {
+                        Id = t.Gear.SquadId
+                    }),
                 elementSorter: e => e.Id);
         }
 
@@ -1781,7 +2091,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Optional_navigation_type_compensation_works_with_list_initializers()
         {
             AssertQuery<CogTag>(
-                ts => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note).Select(t => new List<int> { t.Gear.SquadId, t.Gear.SquadId + 1, 42 }),
+                ts => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note).Select(
+                    t => new List<int>
+                    {
+                        t.Gear.SquadId,
+                        t.Gear.SquadId + 1,
+                        42
+                    }),
                 assertOrder: true);
         }
 
@@ -2107,7 +2423,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join g in gs on t.GearNickName equals g.Nickname into grouping
                     from g in ClientDefaultIfEmpty(grouping)
 #pragma warning disable IDE0031 // Use null propagation
-                    select new { t.Note, Nickname = g != null ? g.Nickname : null },
+                    select new
+                    {
+                        t.Note,
+                        Nickname = g != null ? g.Nickname : null
+                    },
 #pragma warning restore IDE0031 // Use null propagation
                 elementSorter: e => e.Note);
         }
@@ -2173,8 +2493,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQueryScalar<Gear, CogTag>(
                 (gs, ts) => gs.GroupJoin(
                         ts,
-                        g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
-                        t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
+                        g => new
+                        {
+                            k1 = g.Nickname,
+                            k2 = (int?)g.SquadId
+                        },
+                        t => new
+                        {
+                            k1 = t.GearNickName,
+                            k2 = t.GearSquadId
+                        },
                         (g, t) => g.HasSoulPatch)
                     .Distinct());
         }
@@ -2186,8 +2514,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) => gs
                     .GroupJoin(
                         ts,
-                        g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
-                        t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
+                        g => new
+                        {
+                            k1 = g.Nickname,
+                            k2 = (int?)g.SquadId
+                        },
+                        t => new
+                        {
+                            k1 = t.GearNickName,
+                            k2 = t.GearSquadId
+                        },
                         (g, t) => g)
                     .Count());
         }
@@ -2227,8 +2563,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQueryScalar<CogTag, Gear>(
                 (ts, gs) => ts.GroupJoin(
                     gs,
-                    t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
-                    g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
+                    t => new
+                    {
+                        k1 = t.GearNickName,
+                        k2 = t.GearSquadId
+                    },
+                    g => new
+                    {
+                        k1 = g.Nickname,
+                        k2 = (int?)g.SquadId
+                    },
                     (k, r) => r.Count()));
         }
 
@@ -2270,7 +2614,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(g => g.Rank)
                     .Include(g => g.Tag)
                     .Where(g => g.HasSoulPatch)
-                    .Select(g => new { FullName = EF.Property<string>(g, "FullName") });
+                    .Select(
+                        g => new
+                        {
+                            FullName = EF.Property<string>(g, "FullName")
+                        });
 
                 var result = query.ToList();
 
@@ -2412,7 +2760,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from g2 in ctx.Gears
                             orderby g1.FullName
                             where g1.HasSoulPatch && !g2.HasSoulPatch
-                            select new { Name1 = g1.FullName, Name2 = g2.FullName };
+                            select new
+                            {
+                                Name1 = g1.FullName,
+                                Name2 = g2.FullName
+                            };
 
                 var result = query.ToList();
 
@@ -2513,7 +2865,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from g2 in gs.OrderBy(g => g.Rank).Include(g => g.Tag)
                     orderby g1.FullName
                     where g1.HasSoulPatch && !g2.HasSoulPatch
-                    select new { Name1 = g1.FullName, Name2 = g2.FullName },
+                    select new
+                    {
+                        Name1 = g1.FullName,
+                        Name2 = g2.FullName
+                    },
                 elementSorter: e => e.Name1 + " " + e.Name2);
         }
 
@@ -2532,7 +2888,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Weapon>(
                 ws => from w in ws
-                      select new { w.Name, w.Name.Length },
+                      select new
+                      {
+                          w.Name,
+                          w.Name.Length
+                      },
                 elementSorter: e => e.Name);
         }
 
@@ -2574,7 +2934,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Gear>(
                 gs => from g in gs.OfType<Officer>()
                       from v in Veterans(g.Reports)
-                      select new { g = g.Nickname, v = v.Nickname },
+                      select new
+                      {
+                          g = g.Nickname,
+                          v = v.Nickname
+                      },
                 elementSorter: e => e.g + e.v);
         }
 
@@ -2585,7 +2949,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => from o in gs.OfType<Officer>()
                       join g in gs on FavoriteWeapon(o.Weapons).Name equals FavoriteWeapon(g.Weapons).Name
                       where o.HasSoulPatch
-                      select new { o = o.Nickname, g = g.Nickname },
+                      select new
+                      {
+                          o = o.Nickname,
+                          g = g.Nickname
+                      },
                 elementSorter: e => e.o + e.g);
         }
 
@@ -2607,7 +2975,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = from f in ctx.Factions
                             where f is LocustHorde
                             orderby ((LocustHorde)f).Name
-                            select new { ((LocustHorde)f).Name, ((LocustHorde)f).Eradicated };
+                            select new
+                            {
+                                ((LocustHorde)f).Name,
+                                ((LocustHorde)f).Eradicated
+                            };
 
                 var result = query.ToList();
 
@@ -2627,7 +2999,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = from f in ctx.Factions
                             where f is LocustHorde
                             orderby f.Name
-                            select new { f, ((LocustHorde)f).Eradicated };
+                            select new
+                            {
+                                f,
+                                ((LocustHorde)f).Eradicated
+                            };
 
                 var result = query.ToList();
 
@@ -2648,7 +3024,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             where f is LocustHorde
                             let horde = (LocustHorde)f
                             orderby horde.Name
-                            select new { horde.Name, horde.Eradicated };
+                            select new
+                            {
+                                horde.Name,
+                                horde.Eradicated
+                            };
 
                 var result = query.ToList();
 
@@ -2669,7 +3049,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             where f is LocustHorde
                             let horde = (LocustHorde)f
                             orderby f.Name
-                            select new { Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated") };
+                            select new
+                            {
+                                Name = EF.Property<string>(horde, "Name"),
+                                Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated")
+                            };
 
                 var result = query.ToList();
 
@@ -2689,7 +3073,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = from f in ctx.Factions
                             where f is LocustHorde
                             orderby f.Name
-                            select new { f.Name, Threat = ((LocustHorde)f).Commander.ThreatLevel };
+                            select new
+                            {
+                                f.Name,
+                                Threat = ((LocustHorde)f).Commander.ThreatLevel
+                            };
 
                 var result = query.ToList();
 
@@ -2709,7 +3097,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = from f in ctx.Factions
                             where f is LocustHorde
                             orderby f.Name
-                            select new { f, f.Name, Threat = ((LocustHorde)f).Commander.ThreatLevel };
+                            select new
+                            {
+                                f,
+                                f.Name,
+                                Threat = ((LocustHorde)f).Commander.ThreatLevel
+                            };
 
                 var result = query.ToList();
 
@@ -2731,7 +3124,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = from f in ctx.Factions
                             where f is LocustHorde
                             orderby f.Name
-                            select new { f.Name, Threat = EF.Property<LocustCommander>((LocustHorde)f, "Commander").ThreatLevel };
+                            select new
+                            {
+                                f.Name,
+                                Threat = EF.Property<LocustCommander>((LocustHorde)f, "Commander").ThreatLevel
+                            };
 
                 var result = query.ToList();
 
@@ -2751,7 +3148,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = from f in ctx.Factions
                             where f is LocustHorde
                             orderby f.Name
-                            select new { f.Name, CommanderName = ((LocustHorde)f).Commander.Name };
+                            select new
+                            {
+                                f.Name,
+                                CommanderName = ((LocustHorde)f).Commander.Name
+                            };
 
                 var result = query.ToList();
 
@@ -2771,7 +3172,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = from f in ctx.Factions
                             where f is LocustHorde
                             orderby f.Name
-                            select new { f.Name, LeadersCount = ((LocustHorde)f).Leaders.Count };
+                            select new
+                            {
+                                f.Name,
+                                LeadersCount = ((LocustHorde)f).Leaders.Count
+                            };
 
                 var result = query.ToList();
 
@@ -2791,7 +3196,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = from f in ctx.Factions.Where(f => f is LocustHorde)
                             from l in ((LocustHorde)f).Leaders
                             orderby l.Name
-                            select new { f.Name, LeaderName = l.Name };
+                            select new
+                            {
+                                f.Name,
+                                LeaderName = l.Name
+                            };
 
                 var result = query.ToList();
 
@@ -2880,7 +3289,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         select (LocustHorde)f2).Include(h => h.Commander).Include(h => h.Leaders)
                             from f in ctx.Factions.Include(ff => ff.Capital)
                             orderby lh.Name, f.Name
-                            select new { lh, f };
+                            select new
+                            {
+                                lh,
+                                f
+                            };
 
                 var result = query.ToList();
 
@@ -2927,10 +3340,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = from g1 in ctx.Gears
                             from g2 in ctx.Gears
-                                // ReSharper disable once PossibleUnintendedReferenceComparison
+                            // ReSharper disable once PossibleUnintendedReferenceComparison
                             where g1.Weapons == g2.Weapons
                             orderby g1.Nickname
-                            select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname };
+                            select new
+                            {
+                                Nickname1 = g1.Nickname,
+                                Nickname2 = g2.Nickname
+                            };
 
                 var result = query.ToList();
                 Assert.Equal(5, result.Count);
@@ -2948,7 +3365,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             where f is LocustHorde && o.HasSoulPatch
                             // ReSharper disable once PossibleUnintendedReferenceComparison
                             where ((LocustHorde)f).Commander.DefeatedBy.Weapons == o.Weapons
-                            select new { f.Name, o.Nickname };
+                            select new
+                            {
+                                f.Name,
+                                o.Nickname
+                            };
 
                 var result = query.ToList();
                 Assert.Equal(1, result.Count);
@@ -2966,7 +3387,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from o in ctx.Gears.OfType<Officer>()
                             where g.Equals(o)
                             orderby g.Nickname
-                            select new { Nickname1 = g.Nickname, Nickname2 = o.Nickname };
+                            select new
+                            {
+                                Nickname1 = g.Nickname,
+                                Nickname2 = o.Nickname
+                            };
 
                 var result = query.ToList();
                 Assert.Equal(2, result.Count);
@@ -3100,7 +3525,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<LocustLeader>(
                 lls => lls.Include("DefeatedBy"),
-                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy")
+                });
         }
 
         [ConditionalFact]
@@ -3109,7 +3537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy"),
-                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "DefeatedBy"),
+                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "DefeatedBy")
             };
 
             AssertIncludeQuery<LocustLeader>(
@@ -3124,7 +3552,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy"),
                 new ExpectedInclude<Officer>(o => o.Reports, "Reports", "DefeatedBy"),
-                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth", "DefeatedBy.Reports"),
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth", "DefeatedBy.Reports")
             };
 
             AssertIncludeQuery<LocustLeader>(
@@ -3137,7 +3565,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<LocustLeader>(
                 lls => lls.Include(ll => ((LocustCommander)ll).DefeatedBy),
-                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy")
+                });
         }
 
         [ConditionalFact]
@@ -3145,7 +3576,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<LocustLeader>(
                 lls => lls.Include(ll => (ll as LocustCommander).DefeatedBy),
-                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy")
+                });
         }
 
         [ConditionalFact]
@@ -3153,7 +3587,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<LocustLeader>(
                 lls => lls.AsTracking().Include(ll => ((LocustCommander)ll).DefeatedBy),
-                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") },
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy")
+                },
                 entryCount: 7);
         }
 
@@ -3162,7 +3599,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<Gear>(
                 gs => gs.Include("Reports"),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Officer>(o => o.Reports, "Reports")
+                });
         }
 
         [ConditionalFact]
@@ -3170,7 +3610,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<Gear>(
                 gs => gs.Include(g => ((Officer)g).Reports),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Officer>(o => o.Reports, "Reports")
+                });
         }
 
         [ConditionalFact]
@@ -3178,7 +3621,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<Gear>(
                 gs => gs.Include(g => (g as Officer).Reports),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Officer>(o => o.Reports, "Reports")
+                });
         }
 
         [ConditionalFact]
@@ -3216,7 +3662,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
                 new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Commander"),
-                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy")
             };
 
             AssertIncludeQuery<Faction>(
@@ -3230,7 +3676,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<Officer>(e => e.Reports, "Reports"),
-                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Reports"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Reports")
             };
 
             AssertIncludeQuery<Gear>(
@@ -3259,7 +3705,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
                 new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Commander"),
-                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy" )
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy")
             };
 
             AssertIncludeQuery<Faction>(
@@ -3289,14 +3735,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.IncludeBadNavigation("Foo", "Gear"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
+                    {
+                        using (var context = CreateContext())
                         {
-                            using (var context = CreateContext())
-                            {
-                                var query = context.Gears
-                                    .Include("Reports.Foo")
-                                    .ToList();
-                            }
-                        }).Message);
+                            var query = context.Gears
+                                .Include("Reports.Foo")
+                                .ToList();
+                        }
+                    }).Message);
         }
 
         [ConditionalFact]
@@ -3407,16 +3853,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Correlated_collections_basic_projection_composite_key()
         {
-            AssertQuery<Gear>(gs =>
-                from o in gs.OfType<Officer>()
-                where o.Nickname != "Foo"
-                select new
-                {
-                    o.Nickname,
-                    Collection = (from r in o.Reports
-                                  where !r.HasSoulPatch
-                                  select new { r.Nickname, r.FullName }).ToArray()
-                },
+            AssertQuery<Gear>(
+                gs =>
+                    from o in gs.OfType<Officer>()
+                    where o.Nickname != "Foo"
+                    select new
+                    {
+                        o.Nickname,
+                        Collection = (from r in o.Reports
+                                      where !r.HasSoulPatch
+                                      select new
+                                      {
+                                          r.Nickname,
+                                          r.FullName
+                                      }).ToArray()
+                    },
                 elementSorter: e => e.Nickname,
                 elementAsserter: (e, a) =>
                 {
@@ -3495,7 +3946,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                       {
                           s.Name,
                           Collection = (from m in s.Members
-                                        select new { m.FullName, m.Rank }).ToList()
+                                        select new
+                                        {
+                                            m.FullName,
+                                            m.Rank
+                                        }).ToList()
                       },
                 elementSorter: e => e.Name,
                 elementAsserter: (e, a) =>
@@ -3587,20 +4042,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs
                     .OfType<Officer>()
                     .OrderByDescending(o => o.HasSoulPatch)
-                    .Select(o => new
-                    {
-                        o.FullName,
-                        OuterCollection = o.Reports
-                            .Where(r => r.FullName != "Foo")
-                            .OrderBy(r => r.Rank)
-                            .Select(g => new
-                            {
-                                g.FullName,
-                                InnerCollection = g.Weapons
-                                    .Where(w => w.Name != "Bar")
-                                    .OrderBy(w => w.IsAutomatic).ToList()
-                            }).ToList()
-                    }),
+                    .Select(
+                        o => new
+                        {
+                            o.FullName,
+                            OuterCollection = o.Reports
+                                .Where(r => r.FullName != "Foo")
+                                .OrderBy(r => r.Rank)
+                                .Select(
+                                    g => new
+                                    {
+                                        g.FullName,
+                                        InnerCollection = g.Weapons
+                                            .Where(w => w.Name != "Bar")
+                                            .OrderBy(w => w.IsAutomatic).ToList()
+                                    }).ToList()
+                        }),
                 elementSorter: e => e.FullName,
                 elementAsserter: (e, a) =>
                 {
@@ -3670,8 +4127,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select new
                     {
                         o.Nickname,
-                        First = o.Weapons.Where(w => w.IsAutomatic).Select(w => new { w.Name, w.IsAutomatic }).ToArray(),
-                        Second = o.Reports.OrderBy(r => r.FullName).Select(r => new { r.Nickname, r.Rank }).ToList()
+                        First = o.Weapons.Where(w => w.IsAutomatic).Select(
+                            w => new
+                            {
+                                w.Name,
+                                w.IsAutomatic
+                            }).ToArray(),
+                        Second = o.Reports.OrderBy(r => r.FullName).Select(
+                            r => new
+                            {
+                                r.Nickname,
+                                r.Rank
+                            }).ToList()
                     },
                 assertOrder: true,
                 elementAsserter: (e, a) =>
@@ -3705,8 +4172,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                                                                   select new
                                                                   {
                                                                       w.Id,
-                                                                      InnerFirst = w.Owner.Weapons.Select(ww => new { ww.Name, ww.IsAutomatic }).ToList(),
-                                                                      InnerSecond = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname).Select(mm => new { mm.Nickname, mm.HasSoulPatch }).ToList()
+                                                                      InnerFirst = w.Owner.Weapons.Select(
+                                                                          ww => new
+                                                                          {
+                                                                              ww.Name,
+                                                                              ww.IsAutomatic
+                                                                          }).ToList(),
+                                                                      InnerSecond = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname).Select(
+                                                                          mm => new
+                                                                          {
+                                                                              mm.Nickname,
+                                                                              mm.HasSoulPatch
+                                                                          }).ToList()
                                                                   }).ToList()
                                            }).ToList(),
                         OuterCollection2 = (from www in o.Tag.Gear.Weapons
@@ -3749,7 +4226,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         o.FullName,
                         Collection = from r in o.Reports
-                                     select new { ReportName = r.FullName, OfficerName = o.FullName }
+                                     select new
+                                     {
+                                         ReportName = r.FullName,
+                                         OfficerName = o.FullName
+                                     }
                     },
                 elementSorter: e => e.FullName,
                 elementAsserter: (e, a) =>
@@ -3770,7 +4251,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         o.FullName,
                         Collection = from r in o.Reports
                                      where o.FullName != "Foo"
-                                     select new { ReportName = r.FullName }
+                                     select new
+                                     {
+                                         ReportName = r.FullName
+                                     }
                     },
                 elementSorter: e => e.FullName,
                 elementAsserter: (e, a) =>
@@ -3801,7 +4285,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                                                       w.Name,
                                                                       r.Nickname
                                                                   }).ToList()
-                                           }).ToList(),
+                                           }).ToList()
                     },
                 elementSorter: e => e.FullName,
                 elementAsserter: (e, a) =>
@@ -3838,7 +4322,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                                                     w.Name,
                                                                     o.Nickname
                                                                 }
-                                          },
+                                          }
                     },
                 elementSorter: e => e.FullName,
                 elementAsserter: (e, a) =>
@@ -3891,10 +4375,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Squad>(
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Skip(1)),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a);
-                });
+                elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
         }
 
         [ConditionalFact]
@@ -3903,10 +4384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Squad>(
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Take(2)),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a);
-                });
+                elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
         }
 
         [ConditionalFact]
@@ -3915,10 +4393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Squad>(
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Distinct()),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a);
-                });
+                elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
         }
 
         [ConditionalFact]
@@ -3927,10 +4402,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Squad>(
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Select(m => m.FullName).FirstOrDefault()),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname));
-                });
+                elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname)); });
         }
 
         [ConditionalFact]
@@ -3942,13 +4414,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join g in gs on t.GearNickName equals g.Nickname into grouping
                     from g in grouping.DefaultIfEmpty()
                     where !g.HasSoulPatch
-                    select new { g.Nickname, WeaponNames = g.Weapons.Select(w => w.Name).ToList() },
+                    select new
+                    {
+                        g.Nickname,
+                        WeaponNames = g.Weapons.Select(w => w.Name).ToList()
+                    },
                 (ts, gs) =>
                     from t in ts
                     join g in gs on t.GearNickName equals g.Nickname into grouping
                     from g in grouping.DefaultIfEmpty()
                     where !MaybeScalar<bool>(g, () => g.HasSoulPatch) == true || g == null
-                    select new { Nickname = Maybe(g, () => g.Nickname), WeaponNames = g == null ? new List<string>() : g.Weapons.Select(w => w.Name) },
+                    select new
+                    {
+                        Nickname = Maybe(g, () => g.Nickname),
+                        WeaponNames = g == null ? new List<string>() : g.Weapons.Select(w => w.Name)
+                    },
                 elementSorter: e => e.Nickname,
                 elementAsserter: (e, a) =>
                 {
@@ -3985,12 +4465,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from t in ts
                     join o in gs.OfType<Officer>() on t.GearNickName equals o.Nickname into grouping
                     from o in grouping.DefaultIfEmpty()
-                    select new { t.Note, ReportNames = o.Reports.Select(r => r.FullName).ToList() },
+                    select new
+                    {
+                        t.Note,
+                        ReportNames = o.Reports.Select(r => r.FullName).ToList()
+                    },
                 (ts, gs) =>
                     from t in ts
                     join o in gs.OfType<Officer>() on t.GearNickName equals o.Nickname into grouping
                     from o in grouping.DefaultIfEmpty()
-                    select new { t.Note, ReportNames = o != null ? o.Reports.Select(r => r.FullName) : new List<string>() },
+                    select new
+                    {
+                        t.Note,
+                        ReportNames = o != null ? o.Reports.Select(r => r.FullName) : new List<string>()
+                    },
                 elementSorter: e => e.Note,
                 elementAsserter: (e, a) =>
                 {
@@ -4008,7 +4496,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join g in gs on t.GearNickName equals g.Nickname into grouping
                     from g in grouping.DefaultIfEmpty()
                     orderby t.Note, g.Nickname descending
-                    select g.Squad.Members.Where(m => m.HasSoulPatch).Select(m => new { m.Nickname, AutomaticWeapons = m.Weapons.Where(w => w.IsAutomatic).ToList() }).ToList(),
+                    select g.Squad.Members.Where(m => m.HasSoulPatch).Select(
+                        m => new
+                        {
+                            m.Nickname,
+                            AutomaticWeapons = m.Weapons.Where(w => w.IsAutomatic).ToList()
+                        }).ToList(),
                 (ts, gs) =>
                     from t in ts
                     join g in gs on t.GearNickName equals g.Nickname into grouping
@@ -4025,10 +4518,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join()
         {
             AssertQuery<Weapon>(
-                ws => ws.OrderBy(w => w.Name).Select(w => w.Owner.Squad.Members.OrderByDescending(m => m.FullName).Select(m => new { Weapons = m.Weapons.Where(ww => !ww.IsAutomatic).OrderBy(ww => ww.Id).ToList(), m.Rank }).ToList()),
-                ws => ws.OrderBy(w => w.Name).Select(w => w.Owner != null
-                    ? w.Owner.Squad.Members.OrderByDescending(m => m.FullName).Select(m => new Tuple<IEnumerable<Weapon>, MilitaryRank>(m.Weapons.Where(ww => !ww.IsAutomatic).OrderBy(ww => ww.Id), m.Rank))
-                    : new List<Tuple<IEnumerable<Weapon>, MilitaryRank>>()),
+                ws => ws.OrderBy(w => w.Name).Select(
+                    w => w.Owner.Squad.Members.OrderByDescending(m => m.FullName).Select(
+                        m => new
+                        {
+                            Weapons = m.Weapons.Where(ww => !ww.IsAutomatic).OrderBy(ww => ww.Id).ToList(),
+                            m.Rank
+                        }).ToList()),
+                ws => ws.OrderBy(w => w.Name).Select(
+                    w => w.Owner != null
+                        ? w.Owner.Squad.Members.OrderByDescending(m => m.FullName).Select(m => new Tuple<IEnumerable<Weapon>, MilitaryRank>(m.Weapons.Where(ww => !ww.IsAutomatic).OrderBy(ww => ww.Id), m.Rank))
+                        : new List<Tuple<IEnumerable<Weapon>, MilitaryRank>>()),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
@@ -4055,7 +4555,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                            select new
                                            {
                                                w.Id,
-                                               InnerCollection = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname).Select(mm => new { mm.Nickname, mm.HasSoulPatch }).ToList()
+                                               InnerCollection = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname).Select(
+                                                   mm => new
+                                                   {
+                                                       mm.Nickname,
+                                                       mm.HasSoulPatch
+                                                   }).ToList()
                                            }).ToList()
                     },
                 elementSorter: e => e.FullName,
@@ -4090,9 +4595,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                                                   select new
                                                                   {
                                                                       w.Id,
-                                                                      InnerSecond = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname).Select(mm => new { mm.Nickname, mm.HasSoulPatch }).ToList()
+                                                                      InnerSecond = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname).Select(
+                                                                          mm => new
+                                                                          {
+                                                                              mm.Nickname,
+                                                                              mm.HasSoulPatch
+                                                                          }).ToList()
                                                                   }).ToList()
-                                           }).ToList(),
+                                           }).ToList()
                     },
                 elementSorter: e => e.FullName,
                 elementAsserter: (e, a) =>
@@ -4182,14 +4692,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-
         [ConditionalFact]
         public virtual void Include_with_group_by_and_last()
         {
             using (var ctx = CreateContext())
             {
-                var actual = ctx.Gears.OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
+                var actual = ctx.Gears.OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(
+                    g => new
+                    {
+                        g.Rank,
+                        g
+                    }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(
+                    g => new
+                    {
+                        g.Rank,
+                        g
+                    }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
 
                 Assert.Equal(expected.Count, actual.Count);
 
@@ -4223,8 +4742,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                var actual = ctx.Gears.OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
+                var actual = ctx.Gears.OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(
+                    g => new
+                    {
+                        g.Rank,
+                        g.HasSoulPatch
+                    }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(
+                    g => new
+                    {
+                        g.Rank,
+                        g.HasSoulPatch
+                    }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
 
                 Assert.Equal(expected.Count, actual.Count);
 
@@ -4335,7 +4864,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy"),
-                new ExpectedInclude<Gear>(e => e.Weapons, "Weapons", "DefeatedBy"),
+                new ExpectedInclude<Gear>(e => e.Weapons, "Weapons", "DefeatedBy")
             };
 
             AssertIncludeQuery<LocustLeader>(
@@ -4448,7 +4977,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Negated_bool_ternary_inside_anonymous_type_in_projection()
         {
             AssertQuery<CogTag>(
-                cts => cts.Select(t => new { c = !(t.Gear.HasSoulPatch ? true : ((bool?)t.Gear.HasSoulPatch ?? true)) }),
+                cts => cts.Select(
+                    t => new
+                    {
+                        c = !(t.Gear.HasSoulPatch ? true : ((bool?)t.Gear.HasSoulPatch ?? true))
+                    }),
                 cts => cts.Select(
                     t => new
                     {
@@ -4504,7 +5037,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Weapon>(
                 ws => from w1 in ws
                       join w2 in ws on w1 equals w2
-                      select new { Name1 = w1.Name, Name2 = w2.Name },
+                      select new
+                      {
+                          Name1 = w1.Name,
+                          Name2 = w2.Name
+                      },
                 elementSorter: e => e.Name1 + " " + e.Name2);
         }
 
@@ -4514,7 +5051,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Gear>(
                 gs => from g1 in gs
                       join g2 in gs on g1 equals g2
-                      select new { GearName1 = g1.FullName, GearName2 = g2.FullName },
+                      select new
+                      {
+                          GearName1 = g1.FullName,
+                          GearName2 = g2.FullName
+                      },
                 elementSorter: e => e.GearName1 + " " + e.GearName2);
         }
 
@@ -4524,7 +5065,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Gear>(
                 gs => from g in gs
                       join o in gs.OfType<Officer>() on g equals o
-                      select new { GearName = g.FullName, OfficerName = o.FullName },
+                      select new
+                      {
+                          GearName = g.FullName,
+                          OfficerName = o.FullName
+                      },
                 elementSorter: e => e.GearName + " " + e.OfficerName);
         }
 
@@ -4534,7 +5079,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Weapon>(
                 ws => from w1 in ws
                       join w2 in ws on w1.SynergyWith equals w2
-                      select new { Name1 = w1.Name, Name2 = w2.Name },
+                      select new
+                      {
+                          Name1 = w1.Name,
+                          Name2 = w2.Name
+                      },
                 elementSorter: e => e.Name1 + " " + e.Name2);
         }
 
@@ -4545,7 +5094,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, gs) =>
                     from c in cs
                     join g in gs on c equals g.AssignedCity
-                    select new { CityName = c.Name, GearNickname = g.Nickname },
+                    select new
+                    {
+                        CityName = c.Name,
+                        GearNickname = g.Nickname
+                    },
                 e => e.CityName + " " + e.GearNickname);
         }
 
@@ -4556,7 +5109,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     from g in gs
                     join t in ts.Where(tt => tt.Note == "Cole's Tag" || tt.Note == "Dom's Tag") on g equals t.Gear
-                    select new { g.Nickname, t.Note },
+                    select new
+                    {
+                        g.Nickname,
+                        t.Note
+                    },
                 elementSorter: e => e.Nickname + " " + e.Note);
         }
 
@@ -4567,7 +5124,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ss, ws) =>
                     from s in ss
                     join w in ws.Where(ww => ww.IsAutomatic) on s equals w.Owner.Squad
-                    select new { SquadName = s.Name, WeaponName = w.Name },
+                    select new
+                    {
+                        SquadName = s.Name,
+                        WeaponName = w.Name
+                    },
                 elementSorter: e => e.SquadName + " " + e.WeaponName);
         }
 
@@ -4579,12 +5140,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from s in ss
                     join w in ws on s equals w.Owner.Squad into grouping
                     from w in grouping.DefaultIfEmpty()
-                    select new { SquadName = s.Name, WeaponName = w.Name },
+                    select new
+                    {
+                        SquadName = s.Name,
+                        WeaponName = w.Name
+                    },
                 (ss, ws) =>
                     from s in ss
                     join w in ws on s equals Maybe(w.Owner, () => w.Owner.Squad) into grouping
                     from w in grouping.DefaultIfEmpty()
-                    select new { SquadName = s.Name, WeaponName = Maybe(w, () => w.Name) },
+                    select new
+                    {
+                        SquadName = s.Name,
+                        WeaponName = Maybe(w, () => w.Name)
+                    },
                 elementSorter: e => e.SquadName + " " + e.WeaponName);
         }
 
@@ -4593,13 +5162,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Squad, CogTag, Gear>(
                 (ss, ts, gs) => ss
-                    .Join(ts.Where(t => t.Note == "Marcus' Tag"), o => true, i => true, (o, i) => new { o, i })
+                    .Join(
+                        ts.Where(t => t.Note == "Marcus' Tag"), o => true, i => true, (o, i) => new
+                        {
+                            o,
+                            i
+                        })
                     .GroupJoin(
                         gs,
                         oo => oo.o.Members.FirstOrDefault(v => v.Tag == oo.i),
                         ii => ii,
-                        (k, g) => new { k.o, k.i, value = g.OrderBy(gg => gg.FullName).FirstOrDefault() })
-                    .Select(r => new { r.o.Id, TagId = r.i.Id }),
+                        (k, g) => new
+                        {
+                            k.o,
+                            k.i,
+                            value = g.OrderBy(gg => gg.FullName).FirstOrDefault()
+                        })
+                    .Select(
+                        r => new
+                        {
+                            r.o.Id,
+                            TagId = r.i.Id
+                        }),
                 elementSorter: e => e.Id + " " + e.TagId);
         }
 
@@ -4716,7 +5300,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Project_one_value_type_from_empty_collection()
         {
             AssertQuery<Squad>(
-                ss => ss.Where(s => s.Name == "Kilo").Select(s => new { s.Name, SquadId = s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() }));
+                ss => ss.Where(s => s.Name == "Kilo").Select(
+                    s => new
+                    {
+                        s.Name,
+                        SquadId = s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault()
+                    }));
         }
 
         [ConditionalFact]
@@ -4730,35 +5319,69 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_subquery_projecting_single_constant_int()
         {
             AssertQuery<Squad>(
-                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => 42).FirstOrDefault() }));
+                ss => ss.Select(
+                    s => new
+                    {
+                        s.Name,
+                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => 42).FirstOrDefault()
+                    }));
         }
 
         [ConditionalFact]
         public virtual void Select_subquery_projecting_single_constant_string()
         {
             AssertQuery<Squad>(
-                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => "Foo").FirstOrDefault() }));
+                ss => ss.Select(
+                    s => new
+                    {
+                        s.Name,
+                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => "Foo").FirstOrDefault()
+                    }));
         }
 
         [ConditionalFact]
         public virtual void Select_subquery_projecting_single_constant_bool()
         {
             AssertQuery<Squad>(
-                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => true).FirstOrDefault() }));
+                ss => ss.Select(
+                    s => new
+                    {
+                        s.Name,
+                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => true).FirstOrDefault()
+                    }));
         }
 
         [ConditionalFact]
         public virtual void Select_subquery_projecting_single_constant_inside_anonymous()
         {
             AssertQuery<Squad>(
-                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new { One = 1 }).FirstOrDefault() }));
+                ss => ss.Select(
+                    s => new
+                    {
+                        s.Name,
+                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(
+                            g => new
+                            {
+                                One = 1
+                            }).FirstOrDefault()
+                    }));
         }
 
         [ConditionalFact]
         public virtual void Select_subquery_projecting_multiple_constants_inside_anonymous()
         {
             AssertQuery<Squad>(
-                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new { True = true, False = false }).FirstOrDefault() }));
+                ss => ss.Select(
+                    s => new
+                    {
+                        s.Name,
+                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(
+                            g => new
+                            {
+                                True = true,
+                                False = false
+                            }).FirstOrDefault()
+                    }));
         }
 
         [ConditionalFact]
@@ -4767,7 +5390,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<Squad>(
                 ss => ss.Include(s => s.Members).OrderBy(s => 42),
                 expectedQuery: ss => ss,
-                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Squad>(s => s.Members, "Members")
+                });
         }
 
         [ConditionalFact]
@@ -4790,7 +5416,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Correlated_collection_order_by_constant()
         {
             AssertQuery<Gear>(
-                gs => gs.OrderByDescending(s => 1).Select(g => new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }),
+                gs => gs.OrderByDescending(s => 1).Select(
+                    g => new
+                    {
+                        g.Nickname,
+                        Weapons = g.Weapons.Select(w => w.Name).ToList()
+                    }),
                 elementSorter: e => e.Nickname,
                 elementAsserter: (e, a) =>
                 {
@@ -4807,14 +5438,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_subquery_projecting_single_constant_null_of_non_mapped_type()
         {
             AssertQuery<Squad>(
-                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => (MyDTO)null).FirstOrDefault() }));
+                ss => ss.Select(
+                    s => new
+                    {
+                        s.Name,
+                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => (MyDTO)null).FirstOrDefault()
+                    }));
         }
 
         [ConditionalFact]
         public virtual void Select_subquery_projecting_single_constant_of_non_mapped_type()
         {
             AssertQuery<Squad>(
-                ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new MyDTO()).FirstOrDefault() }),
+                ss => ss.Select(
+                    s => new
+                    {
+                        s.Name,
+                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new MyDTO()).FirstOrDefault()
+                    }),
                 elementSorter: e => e.Name,
                 elementAsserter: (e, a) => Assert.Equal(e.Name, a.Name));
         }
@@ -4825,7 +5466,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<Squad>(
                 ss => ss.Include(s => s.Members).OrderBy(s => (MyDTO)null),
                 expectedQuery: ss => ss,
-                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Squad>(s => s.Members, "Members")
+                });
         }
 
         [ConditionalFact(Skip = "issue #11567")]
@@ -4848,12 +5492,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Correlated_collection_order_by_constant_null_of_non_mapped_type()
         {
             AssertQuery<Gear>(
-                gs => gs.OrderByDescending(s => (MyDTO)null).Select(g => new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }),
+                gs => gs.OrderByDescending(s => (MyDTO)null).Select(
+                    g => new
+                    {
+                        g.Nickname,
+                        Weapons = g.Weapons.Select(w => w.Name).ToList()
+                    }),
                 elementSorter: e => e.Nickname,
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
-                    CollectionAsserter<string>() (e.Weapons, a.Weapons);
+                    CollectionAsserter<string>()(e.Weapons, a.Weapons);
                 });
         }
 
@@ -4862,7 +5511,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                var query = ctx.Gears.Include(o => o.Weapons).GroupBy(o => new { o.Rank, One = 1, o.Nickname, });
+                var query = ctx.Gears.Include(o => o.Weapons).GroupBy(
+                    o => new
+                    {
+                        o.Rank,
+                        One = 1,
+                        o.Nickname
+                    });
                 var result = query.ToList();
 
                 Assert.Equal(5, result.Count);
@@ -4881,9 +5536,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<Gear>(
                 os => os.OfType<Officer>()
-                        .Include(o => o.Reports)
-                        .OrderBy(o => o.Weapons.Count),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                    .Include(o => o.Reports)
+                    .OrderBy(o => o.Weapons.Count),
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Officer>(o => o.Reports, "Reports")
+                });
         }
 
         [ConditionalFact]
@@ -4891,9 +5549,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<Gear>(
                 os => os.OfType<Officer>()
-                        .Include(o => o.Reports)
-                        .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                    .Include(o => o.Reports)
+                    .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Officer>(o => o.Reports, "Reports")
+                });
         }
 
         [ConditionalFact]
@@ -4901,9 +5562,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertIncludeQuery<Gear>(
                 os => os.OfType<Officer>()
-                        .Include(o => o.Reports)
-                        .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                    .Include(o => o.Reports)
+                    .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()),
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Officer>(o => o.Reports, "Reports")
+                });
         }
 
         [ConditionalFact]
@@ -5046,17 +5710,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Cast_subquery_to_base_type_using_typed_ToList()
         {
             AssertQuery<City>(
-                cs => cs.Where(c => c.Name == "Ephyra").Select(c => c.StationedGears.Select(g => new Officer
-                {
-                    CityOrBirthName = g.CityOrBirthName,
-                    FullName = g.FullName,
-                    HasSoulPatch = g.HasSoulPatch,
-                    LeaderNickname = g.LeaderNickname,
-                    LeaderSquadId = g.LeaderSquadId,
-                    Nickname = g.Nickname,
-                    Rank = g.Rank,
-                    SquadId = g.SquadId
-                }).ToList<Gear>()),
+                cs => cs.Where(c => c.Name == "Ephyra").Select(
+                    c => c.StationedGears.Select(
+                        g => new Officer
+                        {
+                            CityOrBirthName = g.CityOrBirthName,
+                            FullName = g.FullName,
+                            HasSoulPatch = g.HasSoulPatch,
+                            LeaderNickname = g.LeaderNickname,
+                            LeaderSquadId = g.LeaderSquadId,
+                            Nickname = g.Nickname,
+                            Rank = g.Rank,
+                            SquadId = g.SquadId
+                        }).ToList<Gear>()),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
@@ -5065,17 +5731,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Cast_ordered_subquery_to_base_type_using_typed_ToArray()
         {
             AssertQuery<City>(
-                cs => cs.Where(c => c.Name == "Ephyra").Select(c => c.StationedGears.OrderByDescending(g => g.Nickname).Select(g => new Officer
-                {
-                    CityOrBirthName = g.CityOrBirthName,
-                    FullName = g.FullName,
-                    HasSoulPatch = g.HasSoulPatch,
-                    LeaderNickname = g.LeaderNickname,
-                    LeaderSquadId = g.LeaderSquadId,
-                    Nickname = g.Nickname,
-                    Rank = g.Rank,
-                    SquadId = g.SquadId
-                }).ToArray<Gear>()),
+                cs => cs.Where(c => c.Name == "Ephyra").Select(
+                    c => c.StationedGears.OrderByDescending(g => g.Nickname).Select(
+                        g => new Officer
+                        {
+                            CityOrBirthName = g.CityOrBirthName,
+                            FullName = g.FullName,
+                            HasSoulPatch = g.HasSoulPatch,
+                            LeaderNickname = g.LeaderNickname,
+                            LeaderSquadId = g.LeaderSquadId,
+                            Nickname = g.Nickname,
+                            Rank = g.Rank,
+                            SquadId = g.SquadId
+                        }).ToArray<Gear>()),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }

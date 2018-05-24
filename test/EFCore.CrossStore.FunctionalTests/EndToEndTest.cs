@@ -30,11 +30,19 @@ namespace Microsoft.EntityFrameworkCore
             int secondId;
             using (var context = CreateContext())
             {
-                context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
+                context.SimpleEntities.Add(
+                    new SimpleEntity
+                    {
+                        StringProperty = "Entity 1"
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
 
-                var second = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 2" }).Entity;
+                var second = context.SimpleEntities.Add(
+                    new SimpleEntity
+                    {
+                        StringProperty = "Entity 2"
+                    }).Entity;
                 context.Entry(second).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
 
                 Assert.Equal(1, context.SaveChanges());

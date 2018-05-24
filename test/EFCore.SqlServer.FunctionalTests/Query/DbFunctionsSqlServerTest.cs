@@ -141,8 +141,9 @@ WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
             using (var context = CreateContext())
             {
                 var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.City, "London")
-                        && EF.Functions.FreeText(c.Title, "Manager", 1033))
+                    .Where(
+                        c => EF.Functions.FreeText(c.City, "London")
+                             && EF.Functions.FreeText(c.Title, "Manager", 1033))
                     .FirstOrDefault();
 
                 Assert.Equal(result.EmployeeID, 5u);
@@ -172,9 +173,10 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
             using (var context = CreateContext())
             {
                 var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Manager.Title, "President")
-                        && EF.Functions.FreeText(c.Title, "Inside")
-                        && c.FirstName.Contains("Lau"))
+                    .Where(
+                        c => EF.Functions.FreeText(c.Manager.Title, "President")
+                             && EF.Functions.FreeText(c.Title, "Inside")
+                             && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
                 Assert.Equal(result.EmployeeID, 8u);
@@ -194,9 +196,10 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
             using (var context = CreateContext())
             {
                 var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
-                        && EF.Functions.FreeText(c.Title, "Inside", 1031)
-                        && c.FirstName.Contains("Lau"))
+                    .Where(
+                        c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
+                             && EF.Functions.FreeText(c.Title, "Inside", 1031)
+                             && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
                 Assert.Equal(result.EmployeeID, 8u);
@@ -246,7 +249,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                 await Assert.ThrowsAsync<InvalidOperationException>(
                     async () => await (from e1 in context.Employees
                                        join m1 in context.Employees.OrderBy(e => e.EmployeeID).Skip(0)
-                                       on e1.ReportsTo equals m1.EmployeeID
+                                           on e1.ReportsTo equals m1.EmployeeID
                                        where EF.Functions.FreeText(m1.Title, "President")
                                        select e1).LastOrDefaultAsync());
             }

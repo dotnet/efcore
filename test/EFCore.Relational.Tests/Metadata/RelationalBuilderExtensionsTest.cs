@@ -890,12 +890,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .HasSequence<int>(
                     "Snook", b =>
-                        {
-                            b.IncrementsBy(11)
-                                .StartsAt(1729)
-                                .HasMin(111)
-                                .HasMax(2222);
-                        });
+                    {
+                        b.IncrementsBy(11)
+                            .StartsAt(1729)
+                            .HasMin(111)
+                            .HasMax(2222);
+                    });
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
@@ -910,12 +910,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .HasSequence(
                     typeof(int), "Snook", b =>
-                        {
-                            b.IncrementsBy(11)
-                                .StartsAt(1729)
-                                .HasMin(111)
-                                .HasMax(2222);
-                        });
+                    {
+                        b.IncrementsBy(11)
+                            .StartsAt(1729)
+                            .HasMin(111)
+                            .HasMax(2222);
+                    });
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 

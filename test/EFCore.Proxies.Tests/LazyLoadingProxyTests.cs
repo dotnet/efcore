@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public NeweyContext(IServiceProvider internalServiceProvider, string dbName = null, bool useProxies = true)
-            : this(dbName, useProxies)
+                : this(dbName, useProxies)
             {
                 _internalServiceProvider = internalServiceProvider;
             }

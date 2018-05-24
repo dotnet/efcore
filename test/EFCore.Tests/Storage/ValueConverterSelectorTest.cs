@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ValueConverterSelectorTest
     {
-        private readonly IValueConverterSelector _selector 
+        private readonly IValueConverterSelector _selector
             = new ValueConverterSelector(new ValueConverterSelectorDependencies());
 
         [Fact]

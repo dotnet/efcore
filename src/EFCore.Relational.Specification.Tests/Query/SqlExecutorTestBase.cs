@@ -70,13 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         var throwingTask = Task.Run(
                             () =>
-                                {
-                                    synchronizationEvent.Wait();
-                                    Assert.Equal(
-                                        CoreStrings.ConcurrentMethodInvocation,
-                                        Assert.Throws<InvalidOperationException>(
-                                            () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
-                                });
+                            {
+                                synchronizationEvent.Wait();
+                                Assert.Equal(
+                                    CoreStrings.ConcurrentMethodInvocation,
+                                    Assert.Throws<InvalidOperationException>(
+                                        () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
+                            });
 
                         throwingTask.Wait();
 
@@ -237,13 +237,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         var throwingTask = Task.Run(
                             async () =>
-                                {
-                                    synchronizationEvent.Wait();
-                                    Assert.Equal(
-                                        CoreStrings.ConcurrentMethodInvocation,
-                                        (await Assert.ThrowsAsync<InvalidOperationException>(
-                                            () => context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
-                                });
+                            {
+                                synchronizationEvent.Wait();
+                                Assert.Equal(
+                                    CoreStrings.ConcurrentMethodInvocation,
+                                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                                        () => context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
+                            });
 
                         await throwingTask;
 

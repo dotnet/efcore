@@ -28,7 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             x.HasOne("Person", "Author").WithMany();
                             x.HasMany("Contribution", "Contributions").WithOne();
                         }),
-                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                new ModelCodeGenerationOptions
+                {
+                    UseDataAnnotations = true
+                },
                 code =>
                 {
                     var postFile = code.AdditionalFiles.First(f => f.Path == "Post.cs");

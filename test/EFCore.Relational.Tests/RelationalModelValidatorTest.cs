@@ -214,17 +214,18 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
 
             modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>(b =>
-            {
-                b.ToTable("Table");
-                b.Property(bb => bb.Id)
-                    .HasColumnName("Key")
-                    .HasColumnType("someInt")
-                    .HasDefaultValueSql("NEXT value");
+            modelBuilder.Entity<B>(
+                b =>
+                {
+                    b.ToTable("Table");
+                    b.Property(bb => bb.Id)
+                        .HasColumnName("Key")
+                        .HasColumnType("someInt")
+                        .HasDefaultValueSql("NEXT value");
 
-                b.HasKey(bb => bb.Id)
-                    .HasName("Key");
-            });
+                    b.HasKey(bb => bb.Id)
+                        .HasName("Key");
+                });
 
             Validate(modelBuilder.Model);
         }
@@ -343,22 +344,22 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(
                 eb =>
-                    {
-                        eb.Ignore(e => e.Type);
-                        eb.Property(c => c.Breed).HasMaxLength(25);
-                        eb.Property(c => c.Breed).HasColumnName("BreedName");
-                        eb.Property(c => c.Breed).HasDefaultValue("None");
-                        eb.Property<bool>("Selected").HasDefaultValue(false);
-                    });
+                {
+                    eb.Ignore(e => e.Type);
+                    eb.Property(c => c.Breed).HasMaxLength(25);
+                    eb.Property(c => c.Breed).HasColumnName("BreedName");
+                    eb.Property(c => c.Breed).HasDefaultValue("None");
+                    eb.Property<bool>("Selected").HasDefaultValue(false);
+                });
             modelBuilder.Entity<Dog>(
                 eb =>
-                    {
-                        eb.Ignore(e => e.Type);
-                        eb.Property(c => c.Breed).HasMaxLength(25);
-                        eb.Property(c => c.Breed).HasColumnName("BreedName");
-                        eb.Property(c => c.Breed).HasDefaultValue("None");
-                        eb.Property<bool>("Selected").HasDefaultValue(false);
-                    });
+                {
+                    eb.Ignore(e => e.Type);
+                    eb.Property(c => c.Breed).HasMaxLength(25);
+                    eb.Property(c => c.Breed).HasColumnName("BreedName");
+                    eb.Property(c => c.Breed).HasDefaultValue("None");
+                    eb.Property<bool>("Selected").HasDefaultValue(false);
+                });
 
             Validate(modelBuilder.Model);
         }
@@ -387,7 +388,12 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<int>("FriendId");
             modelBuilder.Entity<Animal>().Property<string>("Shadow");
-            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId", "Shadow").HasPrincipalKey(p => new { p.Id, p.Name }).HasConstraintName("FK");
+            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId", "Shadow").HasPrincipalKey(
+                p => new
+                {
+                    p.Id,
+                    p.Name
+                }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
 
             VerifyError(
@@ -406,20 +412,42 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>(et =>
+            modelBuilder.Entity<Cat>(
+                et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     et.HasOne<Person>().WithMany()
-                        .HasForeignKey(c => new { c.Name, c.Breed })
-                        .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
+                        .HasForeignKey(
+                            c => new
+                            {
+                                c.Name,
+                                c.Breed
+                            })
+                        .HasPrincipalKey(
+                            p => new
+                            {
+                                p.Name,
+                                p.FavoriteBreed
+                            })
                         .HasConstraintName("FK");
                 });
-            modelBuilder.Entity<Dog>(et =>
+            modelBuilder.Entity<Dog>(
+                et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     et.HasOne<Person>().WithMany()
-                        .HasForeignKey(d => new { d.Breed, d.Name })
-                        .HasPrincipalKey(p => new { p.FavoriteBreed, p.Name })
+                        .HasForeignKey(
+                            d => new
+                            {
+                                d.Breed,
+                                d.Name
+                            })
+                        .HasPrincipalKey(
+                            p => new
+                            {
+                                p.FavoriteBreed,
+                                p.Name
+                            })
                         .HasConstraintName("FK");
                 });
 
@@ -438,8 +466,28 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => new { c.Name, c.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
-            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Name, d.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
+            modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(
+                c => new
+                {
+                    c.Name,
+                    c.Breed
+                }).HasPrincipalKey(
+                p => new
+                {
+                    p.Name,
+                    p.FavoriteBreed
+                }).HasConstraintName("FK");
+            modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(
+                d => new
+                {
+                    d.Name,
+                    d.Breed
+                }).HasPrincipalKey(
+                p => new
+                {
+                    p.Name,
+                    p.FavoriteBreed
+                }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(
@@ -567,24 +615,46 @@ namespace Microsoft.EntityFrameworkCore
             IForeignKey fk2 = null;
 
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>(et =>
+            modelBuilder.Entity<Cat>(
+                et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk1 = et
                         .HasOne(a => a.FavoritePerson)
                         .WithMany()
-                        .HasForeignKey(c => new { c.Name, c.Breed })
-                        .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
+                        .HasForeignKey(
+                            c => new
+                            {
+                                c.Name,
+                                c.Breed
+                            })
+                        .HasPrincipalKey(
+                            p => new
+                            {
+                                p.Name,
+                                p.FavoriteBreed
+                            })
                         .Metadata;
                 });
-            modelBuilder.Entity<Dog>(et =>
+            modelBuilder.Entity<Dog>(
+                et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk2 = et
                         .HasOne(a => (Customer)a.FavoritePerson)
                         .WithMany()
-                        .HasForeignKey(c => new { c.Name, c.Breed })
-                        .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
+                        .HasForeignKey(
+                            c => new
+                            {
+                                c.Name,
+                                c.Breed
+                            })
+                        .HasPrincipalKey(
+                            p => new
+                            {
+                                p.Name,
+                                p.FavoriteBreed
+                            })
                         .Metadata;
                 });
 
@@ -607,28 +677,50 @@ namespace Microsoft.EntityFrameworkCore
             IForeignKey fk2 = null;
 
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>(et =>
-            {
-                et.Property(c => c.Breed).HasColumnName("Breed");
-                fk1 = et
-                    .HasOne<Person>()
-                    .WithMany()
-                    .HasForeignKey(c => new { c.Name, c.Breed })
-                    .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
-                    .HasConstraintName("FK")
-                    .Metadata;
-            });
-            modelBuilder.Entity<Dog>(et =>
-            {
-                et.Property(c => c.Breed).HasColumnName("Breed");
-                fk2 = et
-                    .HasOne<Customer>()
-                    .WithMany()
-                    .HasForeignKey(c => new { c.Name, c.Breed })
-                    .HasPrincipalKey(p => new { p.Name, p.FavoriteBreed })
-                    .HasConstraintName("FK")
-                    .Metadata;
-            });
+            modelBuilder.Entity<Cat>(
+                et =>
+                {
+                    et.Property(c => c.Breed).HasColumnName("Breed");
+                    fk1 = et
+                        .HasOne<Person>()
+                        .WithMany()
+                        .HasForeignKey(
+                            c => new
+                            {
+                                c.Name,
+                                c.Breed
+                            })
+                        .HasPrincipalKey(
+                            p => new
+                            {
+                                p.Name,
+                                p.FavoriteBreed
+                            })
+                        .HasConstraintName("FK")
+                        .Metadata;
+                });
+            modelBuilder.Entity<Dog>(
+                et =>
+                {
+                    et.Property(c => c.Breed).HasColumnName("Breed");
+                    fk2 = et
+                        .HasOne<Customer>()
+                        .WithMany()
+                        .HasForeignKey(
+                            c => new
+                            {
+                                c.Name,
+                                c.Breed
+                            })
+                        .HasPrincipalKey(
+                            p => new
+                            {
+                                p.Name,
+                                p.FavoriteBreed
+                            })
+                        .HasConstraintName("FK")
+                        .Metadata;
+                });
 
             Validate(modelBuilder.Model);
 
@@ -665,15 +757,27 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>(et =>
+            modelBuilder.Entity<Cat>(
+                et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
-                    et.HasIndex(c => new { c.Name, c.Breed }).HasName("IX");
+                    et.HasIndex(
+                        c => new
+                        {
+                            c.Name,
+                            c.Breed
+                        }).HasName("IX");
                 });
-            modelBuilder.Entity<Dog>(et =>
+            modelBuilder.Entity<Dog>(
+                et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
-                    et.HasIndex(d => new { d.Breed, d.Name }).HasName("IX");
+                    et.HasIndex(
+                        d => new
+                        {
+                            d.Breed,
+                            d.Name
+                        }).HasName("IX");
                 });
 
             VerifyError(
@@ -691,8 +795,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasIndex(c => new { c.Name, c.Breed }).HasName("IX");
-            modelBuilder.Entity<Dog>().HasIndex(d => new { d.Name, d.Breed }).HasName("IX");
+            modelBuilder.Entity<Cat>().HasIndex(
+                c => new
+                {
+                    c.Name,
+                    c.Breed
+                }).HasName("IX");
+            modelBuilder.Entity<Dog>().HasIndex(
+                d => new
+                {
+                    d.Name,
+                    d.Breed
+                }).HasName("IX");
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(
@@ -742,12 +856,14 @@ namespace Microsoft.EntityFrameworkCore
             IMutableIndex index1 = null;
             IMutableIndex index2 = null;
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>(et =>
+            modelBuilder.Entity<Cat>(
+                et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     index1 = et.HasIndex(c => c.Breed).HasName("IX_Animal_Breed").Metadata;
                 });
-            modelBuilder.Entity<Dog>(et =>
+            modelBuilder.Entity<Dog>(
+                et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     index2 = et.HasIndex(c => c.Breed).HasName("IX_Animal_Breed").Metadata;

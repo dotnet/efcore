@@ -84,11 +84,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = context.Set<ListFilter>().ToList();
                 Assert.Empty(query);
 
-                context.TenantIds = new List<int> { 1 };
+                context.TenantIds = new List<int>
+                {
+                    1
+                };
                 query = context.Set<ListFilter>().ToList();
                 Assert.Single(query);
 
-                context.TenantIds = new List<int> { 2, 3 };
+                context.TenantIds = new List<int>
+                {
+                    2,
+                    3
+                };
                 query = context.Set<ListFilter>().ToList();
                 Assert.Equal(2, query.Count);
             }
@@ -102,11 +109,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // This throws because IndirectionFlag is null
                 Assert.Throws<NullReferenceException>(() => context.Set<PropertyChainFilter>().ToList());
 
-                context.IndirectionFlag = new Indirection { Enabled = false };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = false
+                };
                 var entity = Assert.Single(context.Set<PropertyChainFilter>().ToList());
                 Assert.False(entity.IsEnabled);
 
-                context.IndirectionFlag = new Indirection { Enabled = true };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = true
+                };
                 entity = Assert.Single(context.Set<PropertyChainFilter>().ToList());
                 Assert.True(entity.IsEnabled);
             }
@@ -219,11 +232,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // This throws because IndirectionFlag is null
                 Assert.Throws<NullReferenceException>(() => context.Set<EntityTypeConfigurationPropertyChainFilter>().ToList());
 
-                context.IndirectionFlag = new Indirection { Enabled = false };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = false
+                };
                 var entity = Assert.Single(context.Set<EntityTypeConfigurationPropertyChainFilter>().ToList());
                 Assert.False(entity.IsEnabled);
 
-                context.IndirectionFlag = new Indirection { Enabled = true };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = true
+                };
                 entity = Assert.Single(context.Set<EntityTypeConfigurationPropertyChainFilter>().ToList());
                 Assert.True(entity.IsEnabled);
             }
@@ -296,11 +315,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // This throws because IndirectionFlag is null
                 Assert.Throws<NullReferenceException>(() => context.Set<ExtensionContextFilter>().ToList());
 
-                context.IndirectionFlag = new Indirection { Enabled = false };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = false
+                };
                 var entity = Assert.Single(context.Set<ExtensionContextFilter>().ToList());
                 Assert.False(entity.IsEnabled);
 
-                context.IndirectionFlag = new Indirection { Enabled = true };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = true
+                };
                 entity = Assert.Single(context.Set<ExtensionContextFilter>().ToList());
                 Assert.True(entity.IsEnabled);
             }

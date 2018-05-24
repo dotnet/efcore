@@ -4,11 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
@@ -359,16 +360,30 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class FakeConnection : IRelationalConnection
         {
-            public void ResetState() { }
+            public void ResetState()
+            {
+            }
+
             public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
             public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public void CommitTransaction() { }
-            public void RollbackTransaction() { }
+
+            public void CommitTransaction()
+            {
+            }
+
+            public void RollbackTransaction()
+            {
+            }
+
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
-            public System.Transactions.Transaction EnlistedTransaction { get; }
-            public void EnlistTransaction(System.Transactions.Transaction transaction) => throw new NotImplementedException();
+            public Transaction EnlistedTransaction { get; }
+            public void EnlistTransaction(Transaction transaction) => throw new NotImplementedException();
             public SemaphoreSlim Semaphore { get; }
-            public void RegisterBufferable(IBufferable bufferable) { }
+
+            public void RegisterBufferable(IBufferable bufferable)
+            {
+            }
+
             public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();
             public string ConnectionString { get; }
             public DbConnection DbConnection { get; }
@@ -381,7 +396,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
             public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
-            public void Dispose() {}
+
+            public void Dispose()
+            {
+            }
         }
 
         public class BadDataSqliteFixture : NorthwindQuerySqliteFixture<NoopModelCustomizer>

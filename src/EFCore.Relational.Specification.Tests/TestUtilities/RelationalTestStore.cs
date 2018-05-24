@@ -4,9 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {

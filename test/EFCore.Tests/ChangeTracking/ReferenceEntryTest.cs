@@ -332,8 +332,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky = new Chunky { Garcia = cherry };
-                cherry.Monkeys = new List<Chunky> { chunky };
+                var chunky = new Chunky
+                {
+                    Garcia = cherry
+                };
+                cherry.Monkeys = new List<Chunky>
+                {
+                    chunky
+                };
                 context.AttachRange(cherry, chunky);
 
                 var reference = context.Entry(chunky).Reference(e => e.Garcia);
@@ -357,8 +363,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky = new Chunky { Garcia = cherry };
-                cherry.Monkeys = new List<Chunky> { chunky };
+                var chunky = new Chunky
+                {
+                    Garcia = cherry
+                };
+                cherry.Monkeys = new List<Chunky>
+                {
+                    chunky
+                };
                 context.AttachRange(cherry, chunky);
 
                 var entityEntry = context.Entry(chunky);
@@ -385,7 +397,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var half = new Half();
-                var chunky = new Chunky { Baked = half };
+                var chunky = new Chunky
+                {
+                    Baked = half
+                };
                 half.Monkey = chunky;
                 context.AttachRange(chunky, half);
 
@@ -420,7 +435,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var half = new Half();
-                var chunky = new Chunky { Id = 1, Baked = half };
+                var chunky = new Chunky
+                {
+                    Id = 1,
+                    Baked = half
+                };
                 half.Monkey = chunky;
 
                 context.Entry(chunky).State = principalState;
@@ -455,7 +474,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var half = new Half();
-                var chunky = new Chunky { Id = 1, Baked = half };
+                var chunky = new Chunky
+                {
+                    Id = 1,
+                    Baked = half
+                };
                 half.Monkey = chunky;
 
                 context.Entry(chunky).State = principalState;
@@ -490,7 +513,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var half = new Half();
-                var chunky = new Chunky { Id = 1, Baked = half };
+                var chunky = new Chunky
+                {
+                    Id = 1,
+                    Baked = half
+                };
                 half.Monkey = chunky;
 
                 context.Entry(chunky).State = principalState;

@@ -41,14 +41,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             {
                 customer.Orders = new List<Order>();
 
-                customerViews.Add(new CustomerView()
-                {
-                    Address = customer.Address,
-                    City = customer.City,
-                    CompanyName = customer.CompanyName,
-                    ContactName = customer.ContactName,
-                    ContactTitle = customer.ContactTitle
-                });
+                customerViews.Add(
+                    new CustomerView
+                    {
+                        Address = customer.Address,
+                        City = customer.City,
+                        CompanyName = customer.CompanyName,
+                        ContactName = customer.ContactName,
+                        ContactTitle = customer.ContactTitle
+                    });
             }
 
             _customerViews = customerViews.ToArray();
@@ -68,11 +69,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 order.Customer = customer;
                 customer.Orders.Add(order);
 
-                orderQueries.Add(new OrderQuery
-                {
-                    CustomerID = order.CustomerID,
-                    Customer = order.Customer
-                });
+                orderQueries.Add(
+                    new OrderQuery
+                    {
+                        CustomerID = order.CustomerID,
+                        Customer = order.Customer
+                    });
             }
 
             _orderQueries = orderQueries.ToArray();

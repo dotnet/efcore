@@ -13,10 +13,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private void SortTest(string property, ListSortDirection direction)
         {
-            var list = new List<ListElement> { 3, 1, 4, 1, 5, 9 };
+            var list = new List<ListElement>
+            {
+                3,
+                1,
+                4,
+                1,
+                5,
+                9
+            };
             var sortedList = direction == ListSortDirection.Ascending
-                ? new List<ListElement> { 1, 1, 3, 4, 5, 9 }
-                : new List<ListElement> { 9, 5, 4, 3, 1, 1 };
+                ? new List<ListElement>
+                {
+                    1,
+                    1,
+                    3,
+                    4,
+                    5,
+                    9
+                }
+                : new List<ListElement>
+                {
+                    9,
+                    5,
+                    4,
+                    3,
+                    1,
+                    1
+                };
 
             var bindingList = new SortableBindingList<ListElement>(list);
 
@@ -64,8 +88,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void SortableBindingList_does_not_sort_for_non_XNode_that_does_not_implement_IComparable()
         {
-            var list = new List<ListElement> { 3, 1, 4, 1, 5, 9 };
-            var unsortedList = new List<ListElement> { 3, 1, 4, 1, 5, 9 };
+            var list = new List<ListElement>
+            {
+                3,
+                1,
+                4,
+                1,
+                5,
+                9
+            };
+            var unsortedList = new List<ListElement>
+            {
+                3,
+                1,
+                4,
+                1,
+                5,
+                9
+            };
             var bindingList = new SortableBindingList<ListElement>(list);
 
             ((IBindingList)bindingList).ApplySort(ListElement.Property("Random"), ListSortDirection.Ascending);
@@ -76,8 +116,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void SortableBindingList_does_not_sort_for_byte_arrays()
         {
-            var list = new List<ListElement> { 3, 1, 4, 1, 5, 9 };
-            var unsortedList = new List<ListElement> { 3, 1, 4, 1, 5, 9 };
+            var list = new List<ListElement>
+            {
+                3,
+                1,
+                4,
+                1,
+                5,
+                9
+            };
+            var unsortedList = new List<ListElement>
+            {
+                3,
+                1,
+                4,
+                1,
+                5,
+                9
+            };
             var bindingList = new SortableBindingList<ListElement>(list);
 
             ((IBindingList)bindingList).ApplySort(ListElement.Property("ByteArray"), ListSortDirection.Descending);

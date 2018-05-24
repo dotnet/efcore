@@ -102,11 +102,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeNonQuery: c =>
-                        {
-                            executeNonQueryCount++;
-                            disposeCount = c.DisposeCount;
-                            return 1;
-                        }));
+                    {
+                        executeNonQueryCount++;
+                        disposeCount = c.DisposeCount;
+                        return 1;
+                    }));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -141,11 +141,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeNonQueryAsync: (c, ct) =>
-                        {
-                            executeNonQueryCount++;
-                            disposeCount = c.DisposeCount;
-                            return Task.FromResult(1);
-                        }));
+                    {
+                        executeNonQueryCount++;
+                        disposeCount = c.DisposeCount;
+                        return Task.FromResult(1);
+                    }));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -180,11 +180,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeScalar: c =>
-                        {
-                            executeScalarCount++;
-                            disposeCount = c.DisposeCount;
-                            return "ExecuteScalar Result";
-                        }));
+                    {
+                        executeScalarCount++;
+                        disposeCount = c.DisposeCount;
+                        return "ExecuteScalar Result";
+                    }));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -219,11 +219,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeScalarAsync: (c, ct) =>
-                        {
-                            executeScalarCount++;
-                            disposeCount = c.DisposeCount;
-                            return Task.FromResult<object>("ExecuteScalar Result");
-                        }));
+                    {
+                        executeScalarCount++;
+                        disposeCount = c.DisposeCount;
+                        return Task.FromResult<object>("ExecuteScalar Result");
+                    }));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -260,11 +260,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeReader: (c, b) =>
-                        {
-                            executeReaderCount++;
-                            disposeCount = c.DisposeCount;
-                            return dbDataReader;
-                        }));
+                    {
+                        executeReaderCount++;
+                        disposeCount = c.DisposeCount;
+                        return dbDataReader;
+                    }));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -308,11 +308,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeReaderAsync: (c, b, ct) =>
-                        {
-                            executeReaderCount++;
-                            disposeCount = c.DisposeCount;
-                            return Task.FromResult<DbDataReader>(dbDataReader);
-                        }));
+                    {
+                        executeReaderCount++;
+                        disposeCount = c.DisposeCount;
+                        return Task.FromResult<DbDataReader>(dbDataReader);
+                    }));
 
             var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
@@ -544,7 +544,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var dbParameter = new FakeDbParameter { ParameterName = "FirstParameter", Value = 17, DbType = DbType.Int32 };
+            var dbParameter = new FakeDbParameter
+            {
+                ParameterName = "FirstParameter",
+                Value = 17,
+                DbType = DbType.Int32
+            };
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -722,9 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new CompositeRelationalParameter(
                         "CompositeInvariant",
                         new[]
-                        {
-                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
-                        })
+                            { new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false) })
                 });
 
             var parameterValues = new Dictionary<string, object>
@@ -908,9 +911,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new DiagnosticListener("Fake")),
                 commandText: "Logged Command",
                 parameters: new[]
-                {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
-                });
+                    { new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false) });
 
             var parameterValues = new Dictionary<string, object>
             {
@@ -962,9 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new DiagnosticListener("Fake")),
                 commandText: "Logged Command",
                 parameters: new[]
-                {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
-                });
+                    { new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false) });
 
             var parameterValues = new Dictionary<string, object>
             {
@@ -1015,9 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new FakeLoggingOptions(false),
                     new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
-                {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
-                });
+                    { new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false) });
 
             var parameterValues = new Dictionary<string, object>
             {
@@ -1083,9 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new FakeLoggingOptions(false),
                     new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
-                {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
-                });
+                    { new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false) });
 
             var parameterValues = new Dictionary<string, object>
             {

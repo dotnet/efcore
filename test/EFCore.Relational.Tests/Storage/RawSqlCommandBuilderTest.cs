@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
-            var rawSqlCommand = builder.Build("SQL COMMAND TEXT", System.Array.Empty<object>());
+            var rawSqlCommand = builder.Build("SQL COMMAND TEXT", Array.Empty<object>());
 
             Assert.Equal("SQL COMMAND TEXT", rawSqlCommand.RelationalCommand.CommandText);
             Assert.Equal(0, rawSqlCommand.RelationalCommand.Parameters.Count);

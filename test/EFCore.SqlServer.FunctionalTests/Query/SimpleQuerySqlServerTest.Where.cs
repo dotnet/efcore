@@ -745,7 +745,7 @@ WHERE GETUTCDATE() <> @__myDatetime_0");
             base.Where_datetime_today();
 
             AssertSql(
-             @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
         }
@@ -855,7 +855,8 @@ WHERE DATEPART(millisecond, [o].[OrderDate]) = 88");
         public override void Where_datetimeoffset_now_component()
         {
             base.Where_datetimeoffset_now_component();
-            AssertSql(@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] = SYSDATETIMEOFFSET()");
         }
@@ -863,7 +864,8 @@ WHERE [o].[OrderDate] = SYSDATETIMEOFFSET()");
         public override void Where_datetimeoffset_utcnow_component()
         {
             base.Where_datetimeoffset_utcnow_component();
-            AssertSql(@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] = CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }

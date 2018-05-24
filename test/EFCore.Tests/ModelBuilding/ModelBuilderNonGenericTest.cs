@@ -154,10 +154,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
                 Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
-                => Wrap(EntityTypeBuilder.OwnsOne(
-                    typeof(TRelatedEntity),
-                    navigationExpression.GetPropertyAccess().Name,
-                    r => buildAction(new NonGenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+                => Wrap(
+                    EntityTypeBuilder.OwnsOne(
+                        typeof(TRelatedEntity),
+                        navigationExpression.GetPropertyAccess().Name,
+                        r => buildAction(new NonGenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
@@ -315,8 +316,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
                 Expression<Func<TProperty, TProvider>> convertToProviderExpression,
                 Expression<Func<TProvider, TProperty>> convertFromProviderExpression)
-                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(
-                    new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression)));
+                => new NonGenericTestPropertyBuilder<TProperty>(
+                    PropertyBuilder.HasConversion(
+                        new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression)));
 
             public override TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));

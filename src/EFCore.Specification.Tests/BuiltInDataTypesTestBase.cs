@@ -101,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(shortString, entity.StringDefault);
                 Assert.Equal(shortString, entity.StringUnicode);
 
-                if (Fixture.SupportsAnsi && Fixture.SupportsUnicodeToAnsiConversion)
+                if (Fixture.SupportsAnsi
+                    && Fixture.SupportsUnicodeToAnsiConversion)
                 {
                     Assert.NotEqual(shortString, entity.StringAnsi);
                     Assert.NotEqual(shortString, entity.StringAnsi3);
@@ -163,19 +164,22 @@ namespace Microsoft.EntityFrameworkCore
                 double? param4 = -1.23456789;
                 if (Fixture.StrictEquality)
                 {
-                    Assert.Same(entity, set.Where(e => e.Id == 11
-                                                       && EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) == param4).ToList().Single());
-
+                    Assert.Same(
+                        entity, set.Where(
+                            e => e.Id == 11
+                                 && EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) == param4).ToList().Single());
                 }
                 else
                 {
                     double? param4l = -1.234567891;
                     double? param4h = -1.234567889;
-                    Assert.Same(entity, set.Where(e => e.Id == 11
-                                                       && (EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) == param4
-                                                           || (EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) > param4l
-                                                               && EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) < param4h)))
-                        .ToList().Single());
+                    Assert.Same(
+                        entity, set.Where(
+                                e => e.Id == 11
+                                     && (EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) == param4
+                                         || (EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) > param4l
+                                             && EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) < param4h)))
+                            .ToList().Single());
                 }
 
                 var param5 = -1234567890.01M;
@@ -199,17 +203,21 @@ namespace Microsoft.EntityFrameworkCore
                 var param9 = -1.234F;
                 if (Fixture.StrictEquality)
                 {
-                    Assert.Same(entity, set.Where(e => e.Id == 11
-                                                       && EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) == param9).ToList().Single());
+                    Assert.Same(
+                        entity, set.Where(
+                            e => e.Id == 11
+                                 && EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) == param9).ToList().Single());
                 }
                 else
                 {
                     var param9l = -1.2341F;
                     var param9h = -1.2339F;
-                    Assert.Same(entity, set.Where(e => e.Id == 11
-                                                       && (EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) == param9
-                                                           || (EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) > param9l
-                                                               && EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) < param9h))).ToList().Single());
+                    Assert.Same(
+                        entity, set.Where(
+                            e => e.Id == 11
+                                 && (EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) == param9
+                                     || (EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) > param9l
+                                         && EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) < param9h))).ToList().Single());
                 }
 
                 var param10 = true;
@@ -302,7 +310,11 @@ namespace Microsoft.EntityFrameworkCore
         protected EntityEntry<TEntity> AddTestBuiltInDataTypes<TEntity>(DbSet<TEntity> set)
             where TEntity : BuiltInDataTypesBase, new()
         {
-            var entityEntry = set.Add(new TEntity { Id = 11 });
+            var entityEntry = set.Add(
+                new TEntity
+                {
+                    Id = 11
+                });
 
             entityEntry.CurrentValues.SetValues(
                 new BuiltInDataTypes
@@ -385,19 +397,22 @@ namespace Microsoft.EntityFrameworkCore
                 double? param4 = -1.23456789;
                 if (Fixture.StrictEquality)
                 {
-                    Assert.Same(entity, set.Where(e => e.Id == 11
-                                                       && EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) == param4).ToList().Single());
-
+                    Assert.Same(
+                        entity, set.Where(
+                            e => e.Id == 11
+                                 && EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) == param4).ToList().Single());
                 }
                 else
                 {
                     double? param4l = -1.234567891;
                     double? param4h = -1.234567889;
-                    Assert.Same(entity, set.Where(e => e.Id == 11
-                                                       && (EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) == param4
-                                                           || (EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) > param4l
-                                                               && EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) < param4h)))
-                        .ToList().Single());
+                    Assert.Same(
+                        entity, set.Where(
+                                e => e.Id == 11
+                                     && (EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) == param4
+                                         || (EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) > param4l
+                                             && EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) < param4h)))
+                            .ToList().Single());
                 }
 
                 decimal? param5 = -1234567890.01M;
@@ -421,19 +436,22 @@ namespace Microsoft.EntityFrameworkCore
                 float? param9 = -1.234F;
                 if (Fixture.StrictEquality)
                 {
-                    Assert.Same(entity, set.Where(e => e.Id == 11
-                                                       && EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) == param9).ToList().Single());
-
+                    Assert.Same(
+                        entity, set.Where(
+                            e => e.Id == 11
+                                 && EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) == param9).ToList().Single());
                 }
                 else
                 {
                     float? param9l = -1.2341F;
                     float? param9h = -1.2339F;
-                    Assert.Same(entity, set.Where(e => e.Id == 11
-                                                       && (EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) == param9
-                                                           || (EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) > param9l
-                                                               && EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) < param9h)))
-                        .ToList().Single());
+                    Assert.Same(
+                        entity, set.Where(
+                                e => e.Id == 11
+                                     && (EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) == param9
+                                         || (EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) > param9l
+                                             && EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) < param9h)))
+                            .ToList().Single());
                 }
 
                 bool? param10 = true;
@@ -526,7 +544,11 @@ namespace Microsoft.EntityFrameworkCore
         protected EntityEntry<TEntity> AddTestBuiltInNullableDataTypes<TEntity>(DbSet<TEntity> set)
             where TEntity : BuiltInNullableDataTypesBase, new()
         {
-            var entityEntry = set.Add(new TEntity { Id = 11 });
+            var entityEntry = set.Add(
+                new TEntity
+                {
+                    Id = 11
+                });
 
             entityEntry.CurrentValues.SetValues(
                 new BuiltInNullableDataTypes
@@ -616,9 +638,10 @@ namespace Microsoft.EntityFrameworkCore
                     entity,
                     Fixture.StrictEquality
                         ? context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableDouble == -1.23456789).ToList().Single()
-                        : context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12
-                                                                             && -e.TestNullableDouble + -1.23456789 < 1E-5
-                                                                             && -e.TestNullableDouble + -1.23456789 > -1E-5).ToList().Single());
+                        : context.Set<BuiltInNullableDataTypes>().Where(
+                            e => e.Id == 12
+                                 && -e.TestNullableDouble + -1.23456789 < 1E-5
+                                 && -e.TestNullableDouble + -1.23456789 > -1E-5).ToList().Single());
 
                 Assert.Same(
                     entity,
@@ -1205,81 +1228,84 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<BinaryKeyDataType>();
                 modelBuilder.Entity<StringKeyDataType>();
-                modelBuilder.Entity<BuiltInDataTypes>(eb =>
-                {
-                    eb.HasData(
-                        new BuiltInDataTypes
-                        {
-                            Id = 13,
-                            PartitionId = 1,
-                            TestInt16 = -1234,
-                            TestInt32 = -123456789,
-                            TestInt64 = -1234567890123456789L,
-                            TestDouble = -1.23456789,
-                            TestDecimal = -1234567890.01M,
-                            TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
-                            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
-                            TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
-                            TestSingle = -1.234F,
-                            TestBoolean = true,
-                            TestByte = 255,
-                            TestUnsignedInt16 = 1234,
-                            TestUnsignedInt32 = 1234565789U,
-                            TestUnsignedInt64 = 1234567890123456789UL,
-                            TestCharacter = 'a',
-                            TestSignedByte = -128,
-                            Enum64 = Enum64.SomeValue,
-                            Enum32 = Enum32.SomeValue,
-                            Enum16 = Enum16.SomeValue,
-                            Enum8 = Enum8.SomeValue,
-                            EnumU64 = EnumU64.SomeValue,
-                            EnumU32 = EnumU32.SomeValue,
-                            EnumU16 = EnumU16.SomeValue,
-                            EnumS8 = EnumS8.SomeValue
-                        });
-                    eb.Property(e => e.Id).ValueGeneratedNever();
-                });
+                modelBuilder.Entity<BuiltInDataTypes>(
+                    eb =>
+                    {
+                        eb.HasData(
+                            new BuiltInDataTypes
+                            {
+                                Id = 13,
+                                PartitionId = 1,
+                                TestInt16 = -1234,
+                                TestInt32 = -123456789,
+                                TestInt64 = -1234567890123456789L,
+                                TestDouble = -1.23456789,
+                                TestDecimal = -1234567890.01M,
+                                TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                                TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                                TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                                TestSingle = -1.234F,
+                                TestBoolean = true,
+                                TestByte = 255,
+                                TestUnsignedInt16 = 1234,
+                                TestUnsignedInt32 = 1234565789U,
+                                TestUnsignedInt64 = 1234567890123456789UL,
+                                TestCharacter = 'a',
+                                TestSignedByte = -128,
+                                Enum64 = Enum64.SomeValue,
+                                Enum32 = Enum32.SomeValue,
+                                Enum16 = Enum16.SomeValue,
+                                Enum8 = Enum8.SomeValue,
+                                EnumU64 = EnumU64.SomeValue,
+                                EnumU32 = EnumU32.SomeValue,
+                                EnumU16 = EnumU16.SomeValue,
+                                EnumS8 = EnumS8.SomeValue
+                            });
+                        eb.Property(e => e.Id).ValueGeneratedNever();
+                    });
                 modelBuilder.Entity<BuiltInDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();
-                modelBuilder.Entity<BuiltInNullableDataTypes>(eb =>
-                {
-                    eb.HasData(
-                        new BuiltInNullableDataTypes
-                        {
-                            Id = 13,
-                            PartitionId = 1,
-                            TestNullableInt16 = -1234,
-                            TestNullableInt32 = -123456789,
-                            TestNullableInt64 = -1234567890123456789L,
-                            TestNullableDouble = -1.23456789,
-                            TestNullableDecimal = -1234567890.01M,
-                            TestNullableDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
-                            TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
-                            TestNullableSingle = -1.234F,
-                            TestNullableBoolean = true,
-                            TestNullableByte = 255,
-                            TestNullableUnsignedInt16 = 1234,
-                            TestNullableUnsignedInt32 = 1234565789U,
-                            TestNullableUnsignedInt64 = 1234567890123456789UL,
-                            TestNullableCharacter = 'a',
-                            TestNullableSignedByte = -128,
-                            Enum64 = Enum64.SomeValue,
-                            Enum32 = Enum32.SomeValue,
-                            Enum16 = Enum16.SomeValue,
-                            Enum8 = Enum8.SomeValue,
-                            EnumU64 = EnumU64.SomeValue,
-                            EnumU32 = EnumU32.SomeValue,
-                            EnumU16 = EnumU16.SomeValue,
-                            EnumS8 = EnumS8.SomeValue
-                        });
-                    eb.Property(e => e.Id).ValueGeneratedNever();
-                });
+                modelBuilder.Entity<BuiltInNullableDataTypes>(
+                    eb =>
+                    {
+                        eb.HasData(
+                            new BuiltInNullableDataTypes
+                            {
+                                Id = 13,
+                                PartitionId = 1,
+                                TestNullableInt16 = -1234,
+                                TestNullableInt32 = -123456789,
+                                TestNullableInt64 = -1234567890123456789L,
+                                TestNullableDouble = -1.23456789,
+                                TestNullableDecimal = -1234567890.01M,
+                                TestNullableDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                                TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                                TestNullableSingle = -1.234F,
+                                TestNullableBoolean = true,
+                                TestNullableByte = 255,
+                                TestNullableUnsignedInt16 = 1234,
+                                TestNullableUnsignedInt32 = 1234565789U,
+                                TestNullableUnsignedInt64 = 1234567890123456789UL,
+                                TestNullableCharacter = 'a',
+                                TestNullableSignedByte = -128,
+                                Enum64 = Enum64.SomeValue,
+                                Enum32 = Enum32.SomeValue,
+                                Enum16 = Enum16.SomeValue,
+                                Enum8 = Enum8.SomeValue,
+                                EnumU64 = EnumU64.SomeValue,
+                                EnumU32 = EnumU32.SomeValue,
+                                EnumU16 = EnumU16.SomeValue,
+                                EnumS8 = EnumS8.SomeValue
+                            });
+                        eb.Property(e => e.Id).ValueGeneratedNever();
+                    });
                 modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();
                 modelBuilder.Entity<BinaryForeignKeyDataType>().Property(e => e.Id).ValueGeneratedNever();
                 modelBuilder.Entity<StringForeignKeyDataType>().Property(e => e.Id).ValueGeneratedNever();
                 MakeRequired<BuiltInDataTypes>(modelBuilder);
                 MakeRequired<BuiltInDataTypesShadow>(modelBuilder);
 
-                modelBuilder.Entity<MaxLengthDataTypes>(b =>
+                modelBuilder.Entity<MaxLengthDataTypes>(
+                    b =>
                     {
                         b.Property(e => e.Id).ValueGeneratedNever();
                         b.Property(e => e.ByteArray5).HasMaxLength(5);
@@ -1288,7 +1314,8 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.String9000).HasMaxLength(LongStringLength);
                     });
 
-                modelBuilder.Entity<UnicodeDataTypes>(b =>
+                modelBuilder.Entity<UnicodeDataTypes>(
+                    b =>
                     {
                         b.Property(e => e.Id).ValueGeneratedNever();
                         b.Property(e => e.StringAnsi).IsUnicode(false);
@@ -1318,7 +1345,8 @@ namespace Microsoft.EntityFrameworkCore
                     });
             }
 
-            protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder) where TEntity : class
+            protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder)
+                where TEntity : class
             {
                 var entityType = modelBuilder.Entity<TEntity>().Metadata;
 
@@ -1339,7 +1367,6 @@ namespace Microsoft.EntityFrameworkCore
             public abstract bool SupportsBinaryKeys { get; }
 
             public abstract DateTime DefaultDateTime { get; }
-
         }
 
         protected class BuiltInDataTypesBase
@@ -1495,6 +1522,7 @@ namespace Microsoft.EntityFrameworkCore
             public ulong? TestNullableUnsignedInt64 { get; set; }
             public char? TestNullableCharacter { get; set; }
             public sbyte? TestNullableSignedByte { get; set; }
+
             // ReSharper disable MemberHidesStaticFromOuterClass
             public Enum64? Enum64 { get; set; }
             public Enum32? Enum32 { get; set; }
@@ -1503,6 +1531,7 @@ namespace Microsoft.EntityFrameworkCore
             public EnumU64? EnumU64 { get; set; }
             public EnumU32? EnumU32 { get; set; }
             public EnumU16? EnumU16 { get; set; }
+
             public EnumS8? EnumS8 { get; set; }
             // ReSharper restore MemberHidesStaticFromOuterClass
         }

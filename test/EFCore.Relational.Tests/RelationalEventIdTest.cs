@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -27,6 +28,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Xunit;
+using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(DbCommand), () => new FakeDbCommand() },
                 { typeof(DbTransaction), () => new FakeDbTransaction() },
                 { typeof(DbDataReader), () => new FakeDbDataReader() },
-                { typeof(System.Transactions.Transaction), () => new System.Transactions.CommittableTransaction() },
+                { typeof(Transaction), () => new CommittableTransaction() },
                 { typeof(IMigrator), () => new FakeMigrator() },
                 { typeof(Migration), () => new FakeMigration() },
                 { typeof(IMigrationsAssembly), () => new FakeMigrationsAssembly() },
@@ -115,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore
             public int? CommandTimeout { get; set; }
             public bool IsMultipleActiveResultSetsEnabled => throw new NotImplementedException();
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
-            public System.Transactions.Transaction EnlistedTransaction { get; }
-            public void EnlistTransaction(System.Transactions.Transaction transaction) => throw new NotImplementedException();
+            public Transaction EnlistedTransaction { get; }
+            public void EnlistTransaction(Transaction transaction) => throw new NotImplementedException();
 
             public SemaphoreSlim Semaphore => throw new NotImplementedException();
             public void RegisterBufferable(IBufferable bufferable) => throw new NotImplementedException();

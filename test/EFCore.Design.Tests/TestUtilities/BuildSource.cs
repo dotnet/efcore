@@ -65,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     {
                         throw new InvalidOperationException("Could not find path for reference " + reference);
                     }
+
                     File.Copy(reference.Path, Path.Combine(TargetDir, Path.GetFileName(reference.Path)), overwrite: true);
                 }
 

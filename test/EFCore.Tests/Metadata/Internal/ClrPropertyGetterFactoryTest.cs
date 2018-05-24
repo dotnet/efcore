@@ -50,13 +50,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty("Id", typeof(int));
 
-            Assert.Equal(7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(new Customer { Id = 7 }));
+            Assert.Equal(
+                7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
+                    new Customer
+                    {
+                        Id = 7
+                    }));
         }
 
         [Fact]
         public void Delegate_getter_is_returned_for_property_info()
         {
-            Assert.Equal(7, new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).GetClrValue(new Customer { Id = 7 }));
+            Assert.Equal(
+                7, new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).GetClrValue(
+                    new Customer
+                    {
+                        Id = 7
+                    }));
         }
 
         private class Customer

@@ -1683,7 +1683,10 @@ namespace Microsoft.EntityFrameworkCore
             public int ApplicantId { get; set; }
             public virtual FullName Name { get; set; }
 
-            protected Applicant() { }
+            protected Applicant()
+            {
+            }
+
             public Applicant(FullName name)
             {
                 Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -1694,7 +1697,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             private string _value;
 
-            protected FirstName() { }
+            protected FirstName()
+            {
+            }
+
             private FirstName(string value)
             {
                 _value = value;
@@ -1710,7 +1716,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             private string _value;
 
-            protected LastName() { }
+            protected LastName()
+            {
+            }
+
             private LastName(string value)
             {
                 _value = value;
@@ -1727,18 +1736,28 @@ namespace Microsoft.EntityFrameworkCore
             public int PyrsonId { get; set; }
             public virtual FullName Name { get; set; }
             public virtual Address Address { get; set; }
-            protected Pyrson() { }
+
+            protected Pyrson()
+            {
+            }
+
             public Pyrson(FullName name)
             {
                 Name = name ?? throw new ArgumentNullException(nameof(name));
             }
         }
+
         public class FullName
         {
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual FirstName FirstName { get; private set; }
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual LastName LastName { get; private set; }
 
-            protected FullName() { }
+            protected FullName()
+            {
+            }
+
             public FullName(FirstName firstName, LastName lastName)
             {
                 FirstName = firstName ?? throw new ArgumentNullException(nameof(firstName));
@@ -1750,6 +1769,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public string AlternateId { get; set; }
 
             public virtual IEnumerable<Child> Children { get; set; }
@@ -2048,7 +2068,6 @@ namespace Microsoft.EntityFrameworkCore
                                     .HasMaxLength(50)
                                     .IsRequired();
                             });
-
                     });
 
                 modelBuilder.Entity<Pyrson>(
@@ -2075,7 +2094,6 @@ namespace Microsoft.EntityFrameworkCore
                         builder.HasOne(prop => prop.Address)
                             .WithOne()
                             .HasForeignKey<Address>(prop => prop.PyrsonId);
-
                     });
             }
 
@@ -2259,14 +2277,15 @@ namespace Microsoft.EntityFrameworkCore
                     new Applicant(
                         new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga"))));
 
-                context.Add(new Pyrson(new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga")))
-                {
-                    Address = new Address
+                context.Add(
+                    new Pyrson(new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga")))
                     {
-                        Line1 = "Line1",
-                        Line2 = "Line2"
-                    }
-                });
+                        Address = new Address
+                        {
+                            Line1 = "Line1",
+                            Line2 = "Line2"
+                        }
+                    });
 
                 context.SaveChanges();
             }

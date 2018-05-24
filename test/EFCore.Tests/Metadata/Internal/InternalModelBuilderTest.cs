@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
             Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
         }
+
         [Fact]
         public void Query_throws_when_entity_type()
         {
@@ -318,8 +319,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.True(model.ShouldBeOwnedType(typeof(Details)));
 
-            Assert.NotNull(modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit)
-                .Owns(typeof(Details), nameof(Product.Details), ConfigurationSource.Convention));
+            Assert.NotNull(
+                modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit)
+                    .Owns(typeof(Details), nameof(Product.Details), ConfigurationSource.Convention));
 
             Assert.False(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
 
@@ -333,7 +335,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.False(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.Equal(CoreStrings.ClashingNonOwnedEntityType(typeof(Details).Name),
+            Assert.Equal(
+                CoreStrings.ClashingNonOwnedEntityType(typeof(Details).Name),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Owned(typeof(Details), ConfigurationSource.Explicit)).Message);
         }
 

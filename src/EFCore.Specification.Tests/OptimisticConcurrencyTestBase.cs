@@ -31,28 +31,28 @@ namespace Microsoft.EntityFrameworkCore
             {
                 c.Database.CreateExecutionStrategy().Execute(
                     c, context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
                         {
-                            using (var transaction = context.Database.BeginTransaction())
-                            {
-                                var sponsor = context.Sponsors.Single(s => s.Id == 1);
-                                Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
-                                originalName = sponsor.Name;
-                                sponsor.Name = "New name";
-                                context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
-                                context.SaveChanges();
+                            var sponsor = context.Sponsors.Single(s => s.Id == 1);
+                            Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
+                            originalName = sponsor.Name;
+                            sponsor.Name = "New name";
+                            context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
+                            context.SaveChanges();
 
-                                using (var innerContext = CreateF1Context())
-                                {
-                                    UseTransaction(innerContext.Database, transaction);
-                                    sponsor = innerContext.Sponsors.Single(s => s.Id == 1);
-                                    Assert.Equal(1, innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
-                                    Assert.Equal(newName, sponsor.Name);
-                                    sponsor.Name = originalName;
-                                    innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).OriginalValue = null;
-                                    Assert.Throws<DbUpdateConcurrencyException>(() => innerContext.SaveChanges());
-                                }
+                            using (var innerContext = CreateF1Context())
+                            {
+                                UseTransaction(innerContext.Database, transaction);
+                                sponsor = innerContext.Sponsors.Single(s => s.Id == 1);
+                                Assert.Equal(1, innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
+                                Assert.Equal(newName, sponsor.Name);
+                                sponsor.Name = originalName;
+                                innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).OriginalValue = null;
+                                Assert.Throws<DbUpdateConcurrencyException>(() => innerContext.SaveChanges());
                             }
-                        });
+                        }
+                    });
             }
         }
 
@@ -63,11 +63,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyTestAsync(
                 ClientPodiums, (c, ex) =>
-                    {
-                        var driverEntry = ex.Entries.Single();
-                        driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
-                        ResolveConcurrencyTokens(driverEntry);
-                    });
+                {
+                    var driverEntry = ex.Entries.Single();
+                    driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
+                    ResolveConcurrencyTokens(driverEntry);
+                });
         }
 
         [Fact]
@@ -75,13 +75,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyTestAsync(
                 StorePodiums, (c, ex) =>
-                    {
-                        var driverEntry = ex.Entries.Single();
-                        var storeValues = driverEntry.GetDatabaseValues();
-                        driverEntry.CurrentValues.SetValues(storeValues);
-                        driverEntry.OriginalValues.SetValues(storeValues);
-                        ResolveConcurrencyTokens(driverEntry);
-                    });
+                {
+                    var driverEntry = ex.Entries.Single();
+                    var storeValues = driverEntry.GetDatabaseValues();
+                    driverEntry.CurrentValues.SetValues(storeValues);
+                    driverEntry.OriginalValues.SetValues(storeValues);
+                    ResolveConcurrencyTokens(driverEntry);
+                });
         }
 
         [Fact]
@@ -89,12 +89,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyTestAsync(
                 10, (c, ex) =>
-                    {
-                        var driverEntry = ex.Entries.Single();
-                        driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
-                        ResolveConcurrencyTokens(driverEntry);
-                        ((Driver)driverEntry.Entity).Podiums = 10;
-                    });
+                {
+                    var driverEntry = ex.Entries.Single();
+                    driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
+                    ResolveConcurrencyTokens(driverEntry);
+                    ((Driver)driverEntry.Entity).Podiums = 10;
+                });
         }
 
         [Fact]
@@ -102,13 +102,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyTestAsync(
                 StorePodiums, (c, ex) =>
-                    {
-                        var driverEntry = ex.Entries.Single();
-                        var storeValues = driverEntry.GetDatabaseValues();
-                        driverEntry.CurrentValues.SetValues(storeValues);
-                        driverEntry.OriginalValues.SetValues(storeValues);
-                        driverEntry.State = EntityState.Unchanged;
-                    });
+                {
+                    var driverEntry = ex.Entries.Single();
+                    var storeValues = driverEntry.GetDatabaseValues();
+                    driverEntry.CurrentValues.SetValues(storeValues);
+                    driverEntry.OriginalValues.SetValues(storeValues);
+                    driverEntry.State = EntityState.Unchanged;
+                });
         }
 
         [Fact]
@@ -122,43 +122,43 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyTestAsync(
                 c =>
-                    {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                        team.Chassis.Name = "MP4-25b";
-                        team.Principal = "Larry David";
-                    },
+                {
+                    var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                    team.Chassis.Name = "MP4-25b";
+                    team.Principal = "Larry David";
+                },
                 c =>
-                    {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                        team.Chassis.Name = "MP4-25c";
-                        team.Principal = "Jerry Seinfeld";
-                    },
+                {
+                    var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                    team.Chassis.Name = "MP4-25c";
+                    team.Principal = "Jerry Seinfeld";
+                },
                 (c, ex) =>
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
+
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Chassis>(entry.Entity);
+                    entry.Reload();
+
+                    try
                     {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
-
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Chassis>(entry.Entity);
-                        entry.Reload();
-
-                        try
-                        {
-                            c.SaveChanges();
-                            Assert.True(false, "Expected second exception due to conflict in principals.");
-                        }
-                        catch (DbUpdateConcurrencyException ex2)
-                        {
-                            var entry2 = ex2.Entries.Single();
-                            Assert.IsAssignableFrom<Team>(entry2.Entity);
-                            entry2.Reload();
-                        }
-                    },
+                        c.SaveChanges();
+                        Assert.True(false, "Expected second exception due to conflict in principals.");
+                    }
+                    catch (DbUpdateConcurrencyException ex2)
+                    {
+                        var entry2 = ex2.Entries.Single();
+                        Assert.IsAssignableFrom<Team>(entry2.Entity);
+                        entry2.Reload();
+                    }
+                },
                 c =>
-                    {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                        Assert.Equal("MP4-25b", team.Chassis.Name);
-                        Assert.Equal("Larry David", team.Principal);
-                    });
+                {
+                    var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                    Assert.Equal("MP4-25b", team.Chassis.Name);
+                    Assert.Equal("Larry David", team.Principal);
+                });
         }
 
         [Fact]
@@ -166,43 +166,43 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyTestAsync(
                 c =>
-                    {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                        team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 1;
-                        team.Principal = "Larry David";
-                    },
+                {
+                    var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                    team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 1;
+                    team.Principal = "Larry David";
+                },
                 c =>
-                    {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                        team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 2;
-                        team.Principal = "Jerry Seinfeld";
-                    },
+                {
+                    var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                    team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 2;
+                    team.Principal = "Jerry Seinfeld";
+                },
                 (c, ex) =>
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
+
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Driver>(entry.Entity);
+                    entry.Reload();
+
+                    try
                     {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
-
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload();
-
-                        try
-                        {
-                            c.SaveChanges();
-                            Assert.True(false, "Expected second exception due to conflict in principals.");
-                        }
-                        catch (DbUpdateConcurrencyException ex2)
-                        {
-                            var entry2 = ex2.Entries.Single();
-                            Assert.IsAssignableFrom<Team>(entry2.Entity);
-                            entry2.Reload();
-                        }
-                    },
+                        c.SaveChanges();
+                        Assert.True(false, "Expected second exception due to conflict in principals.");
+                    }
+                    catch (DbUpdateConcurrencyException ex2)
+                    {
+                        var entry2 = ex2.Entries.Single();
+                        Assert.IsAssignableFrom<Team>(entry2.Entity);
+                        entry2.Reload();
+                    }
+                },
                 c =>
-                    {
-                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                        Assert.Equal(1, team.Drivers.Single(d => d.Name == "Jenson Button").Poles);
-                        Assert.Equal("Larry David", team.Principal);
-                    });
+                {
+                    var team = c.Teams.Single(t => t.Id == Team.McLaren);
+                    Assert.Equal(1, team.Drivers.Single(d => d.Name == "Jenson Button").Poles);
+                    Assert.Equal("Larry David", team.Principal);
+                });
         }
 
         [Fact]
@@ -214,13 +214,13 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Engines.Single(e => e.Name == "056").EngineSupplier =
                     c.EngineSuppliers.Single(s => s.Name == "Renault"),
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Engine>(entry.Entity);
-                        entry.Reload();
-                    },
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Engine>(entry.Entity);
+                    entry.Reload();
+                },
                 c =>
                     Assert.Equal(
                         "Cosworth",
@@ -237,11 +237,11 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyTestAsync(
                 c => c.Teams.Single(t => t.Id == Team.Ferrari).Engine = c.Engines.Single(s => s.Name == "FO 108X"),
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Team>(entry.Entity);
-                    },
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Team>(entry.Entity);
+                },
                 null);
         }
 
@@ -255,11 +255,11 @@ namespace Microsoft.EntityFrameworkCore
                     c.Teams.Single(t => t.Constructor == "Ferrari").Engine =
                         c.Engines.Single(s => s.Name == "FO 108X"),
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Team>(entry.Entity);
-                    },
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Team>(entry.Entity);
+                },
                 null);
         }
 
@@ -271,11 +271,11 @@ namespace Microsoft.EntityFrameworkCore
                 c =>
                     c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell"))),
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Team>(entry.Entity);
-                    },
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Team>(entry.Entity);
+                },
                 null);
         }
 
@@ -287,11 +287,11 @@ namespace Microsoft.EntityFrameworkCore
                 c =>
                     c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA"))),
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Team>(entry.Entity);
-                    },
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Team>(entry.Entity);
+                },
                 null);
         }
 
@@ -305,13 +305,13 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyTestAsync(
                 c => c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Location>(entry.Entity);
-                        entry.Reload();
-                    },
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Location>(entry.Entity);
+                    entry.Reload();
+                },
                 c =>
                     Assert.Equal(47.642576, c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude));
         }
@@ -346,13 +346,13 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload();
-                    },
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Driver>(entry.Entity);
+                    entry.Reload();
+                },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
 
@@ -363,13 +363,13 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload();
-                    },
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Driver>(entry.Entity);
+                    entry.Reload();
+                },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
         }
 
@@ -380,18 +380,18 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Driver>(entry.Entity);
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Driver>(entry.Entity);
 
-                        entry.State = EntityState.Unchanged;
-                        var storeValues = entry.GetDatabaseValues();
-                        entry.OriginalValues.SetValues(storeValues);
-                        entry.CurrentValues.SetValues(storeValues);
-                        ResolveConcurrencyTokens(entry);
-                    },
+                    entry.State = EntityState.Unchanged;
+                    var storeValues = entry.GetDatabaseValues();
+                    entry.OriginalValues.SetValues(storeValues);
+                    entry.CurrentValues.SetValues(storeValues);
+                    ResolveConcurrencyTokens(entry);
+                },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
         }
 
@@ -402,13 +402,13 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        entry.Reload();
-                    },
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Driver>(entry.Entity);
+                    entry.Reload();
+                },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
 
@@ -419,15 +419,15 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.Entries.Single();
-                        Assert.IsAssignableFrom<Driver>(entry.Entity);
-                        var storeValues = entry.GetDatabaseValues();
-                        Assert.Null(storeValues);
-                        entry.State = EntityState.Detached;
-                    },
+                    var entry = ex.Entries.Single();
+                    Assert.IsAssignableFrom<Driver>(entry.Entity);
+                    var storeValues = entry.GetDatabaseValues();
+                    Assert.Null(storeValues);
+                    entry.State = EntityState.Detached;
+                },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
 
@@ -444,28 +444,28 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await c.Database.CreateExecutionStrategy().ExecuteAsync(
                     c, async context =>
+                    {
+                        using (context.Database.BeginTransaction())
                         {
-                            using (context.Database.BeginTransaction())
+                            var entry = context.Drivers.Add(
+                                new Driver
+                                {
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                });
+
+                            if (async)
                             {
-                                var entry = context.Drivers.Add(
-                                    new Driver
-                                    {
-                                        Name = "Larry David",
-                                        TeamId = Team.Ferrari
-                                    });
-
-                                if (async)
-                                {
-                                    await entry.ReloadAsync();
-                                }
-                                else
-                                {
-                                    entry.Reload();
-                                }
-
-                                Assert.Equal(EntityState.Added, entry.State);
+                                await entry.ReloadAsync();
                             }
-                        });
+                            else
+                            {
+                                entry.Reload();
+                            }
+
+                            Assert.Equal(EntityState.Added, entry.State);
+                        }
+                    });
             }
         }
 
@@ -499,31 +499,31 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await c.Database.CreateExecutionStrategy().ExecuteAsync(
                     c, async context =>
+                    {
+                        using (context.Database.BeginTransaction())
                         {
-                            using (context.Database.BeginTransaction())
+                            var entry = context.Drivers.Add(
+                                new Driver
+                                {
+                                    Id = 676,
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                });
+
+                            entry.State = state;
+
+                            if (async)
                             {
-                                var entry = context.Drivers.Add(
-                                    new Driver
-                                    {
-                                        Id = 676,
-                                        Name = "Larry David",
-                                        TeamId = Team.Ferrari
-                                    });
-
-                                entry.State = state;
-
-                                if (async)
-                                {
-                                    await entry.ReloadAsync();
-                                }
-                                else
-                                {
-                                    entry.Reload();
-                                }
-
-                                Assert.Equal(EntityState.Detached, entry.State);
+                                await entry.ReloadAsync();
                             }
-                        });
+                            else
+                            {
+                                entry.Reload();
+                            }
+
+                            Assert.Equal(EntityState.Detached, entry.State);
+                        }
+                    });
             }
         }
 
@@ -563,29 +563,29 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await c.Database.CreateExecutionStrategy().ExecuteAsync(
                     c, async context =>
+                    {
+                        using (context.Database.BeginTransaction())
                         {
-                            using (context.Database.BeginTransaction())
+                            var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
+                            larry.Name = "Rory Gilmore";
+                            var entry = context.Entry(larry);
+                            entry.Property(e => e.Name).CurrentValue = "Emily Gilmore";
+                            entry.State = state;
+
+                            if (async)
                             {
-                                var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
-                                larry.Name = "Rory Gilmore";
-                                var entry = context.Entry(larry);
-                                entry.Property(e => e.Name).CurrentValue = "Emily Gilmore";
-                                entry.State = state;
-
-                                if (async)
-                                {
-                                    await entry.ReloadAsync();
-                                }
-                                else
-                                {
-                                    entry.Reload();
-                                }
-
-                                Assert.Equal(EntityState.Unchanged, entry.State);
-                                Assert.Equal("Jenson Button", larry.Name);
-                                Assert.Equal("Jenson Button", entry.Property(e => e.Name).CurrentValue);
+                                await entry.ReloadAsync();
                             }
-                        });
+                            else
+                            {
+                                entry.Reload();
+                            }
+
+                            Assert.Equal(EntityState.Unchanged, entry.State);
+                            Assert.Equal("Jenson Button", larry.Name);
+                            Assert.Equal("Jenson Button", entry.Property(e => e.Name).CurrentValue);
+                        }
+                    });
             }
         }
 
@@ -608,11 +608,11 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Single(d => d.CarNumber == 1).Podiums = StorePodiums,
                 c => c.Drivers.Single(d => d.CarNumber == 1).Podiums = ClientPodiums,
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        resolver(c, (DbUpdateConcurrencyException)ex);
-                    },
+                    resolver(c, (DbUpdateConcurrencyException)ex);
+                },
                 c => Assert.Equal(expectedPodiums, c.Drivers.Single(d => d.CarNumber == 1).Podiums));
 
         /// <summary>
@@ -643,34 +643,34 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await c.Database.CreateExecutionStrategy().ExecuteAsync(
                     c, async context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
                         {
-                            using (var transaction = context.Database.BeginTransaction())
+                            clientChange(context);
+
+                            using (var innerContext = CreateF1Context())
                             {
-                                clientChange(context);
+                                UseTransaction(innerContext.Database, transaction);
+                                storeChange(innerContext);
+                                await innerContext.SaveChangesAsync();
 
-                                using (var innerContext = CreateF1Context())
+                                var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
+
+                                resolver(context, updateException);
+
+                                using (var validationContext = CreateF1Context())
                                 {
-                                    UseTransaction(innerContext.Database, transaction);
-                                    storeChange(innerContext);
-                                    await innerContext.SaveChangesAsync();
-
-                                    var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
-
-                                    resolver(context, updateException);
-
-                                    using (var validationContext = CreateF1Context())
+                                    UseTransaction(validationContext.Database, transaction);
+                                    if (validator != null)
                                     {
-                                        UseTransaction(validationContext.Database, transaction);
-                                        if (validator != null)
-                                        {
-                                            await context.SaveChangesAsync();
+                                        await context.SaveChangesAsync();
 
-                                            validator(validationContext);
-                                        }
+                                        validator(validationContext);
                                     }
                                 }
                             }
-                        });
+                        }
+                    });
             }
         }
 

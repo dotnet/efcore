@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 startingPropertyIndex = entityType.PropertyCount() - 1;
             }
+
             var keyProperties = new Property[propertyCount];
             for (var i = 0; i < propertyCount; i++)
             {
@@ -32,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 keyProperties[i] = property;
                 keyProperties[i].IsNullable = false;
             }
+
             return entityType.AddKey(keyProperties);
         }
 
@@ -72,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int? P3 { get; set; }
 
             public A A { get; set; }
+
             [NotMapped]
             public A AnotherA { get; set; }
         }

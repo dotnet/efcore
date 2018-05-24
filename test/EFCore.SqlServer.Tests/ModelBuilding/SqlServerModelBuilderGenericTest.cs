@@ -244,43 +244,50 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Book>(bb =>
-                {
-                    bb.ToTable("BT", "BS");
-                    bb.OwnsOne(b => b.AlternateLabel, tb =>
+                modelBuilder.Entity<Book>(
+                    bb =>
                     {
-                        tb.ToTable("TT", "TS");
-                        tb.OwnsOne(l => l.AnotherBookLabel, ab =>
-                        {
-                            ab.ToTable("AT1", "AS1");
-                            ab.OwnsOne(s => s.SpecialBookLabel)
-                                .ToTable("ST11", "SS11");
-                            ((Navigation)ab.OwnedEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel))).AddAnnotation("Foo", "Bar");
-                        });
+                        bb.ToTable("BT", "BS");
+                        bb.OwnsOne(
+                            b => b.AlternateLabel, tb =>
+                            {
+                                tb.ToTable("TT", "TS");
+                                tb.OwnsOne(
+                                    l => l.AnotherBookLabel, ab =>
+                                    {
+                                        ab.ToTable("AT1", "AS1");
+                                        ab.OwnsOne(s => s.SpecialBookLabel)
+                                            .ToTable("ST11", "SS11");
+                                        ((Navigation)ab.OwnedEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel))).AddAnnotation("Foo", "Bar");
+                                    });
+                            });
+                        bb.OwnsOne(
+                            b => b.Label, lb =>
+                            {
+                                lb.ToTable("LT", "LS");
+                                lb.OwnsOne(
+                                    l => l.SpecialBookLabel, sb =>
+                                    {
+                                        sb.ToTable("ST1", "SS1");
+                                        sb.OwnsOne(a => a.AnotherBookLabel)
+                                            .ToTable("AT11", "AS11");
+                                    });
+                            });
+                        bb.OwnsOne(b => b.Label).OwnsOne(
+                            l => l.AnotherBookLabel, ab =>
+                            {
+                                ab.ToTable("AT2", "AS2");
+                                ab.OwnsOne(a => a.SpecialBookLabel)
+                                    .ToTable("ST21", "SS21");
+                            });
+                        bb.OwnsOne(b => b.AlternateLabel).OwnsOne(
+                            l => l.SpecialBookLabel, sb =>
+                            {
+                                sb.ToTable("ST2", "SS2");
+                                sb.OwnsOne(s => s.AnotherBookLabel)
+                                    .ToTable("AT21", "AS21");
+                            });
                     });
-                    bb.OwnsOne(b => b.Label, lb =>
-                    {
-                        lb.ToTable("LT", "LS");
-                        lb.OwnsOne(l => l.SpecialBookLabel, sb =>
-                        {
-                            sb.ToTable("ST1", "SS1");
-                            sb.OwnsOne(a => a.AnotherBookLabel)
-                                .ToTable("AT11", "AS11");
-                        });
-                    });
-                    bb.OwnsOne(b => b.Label).OwnsOne(l => l.AnotherBookLabel, ab =>
-                    {
-                        ab.ToTable("AT2", "AS2");
-                        ab.OwnsOne(a => a.SpecialBookLabel)
-                            .ToTable("ST21", "SS21");
-                    });
-                    bb.OwnsOne(b => b.AlternateLabel).OwnsOne(l => l.SpecialBookLabel, sb =>
-                    {
-                        sb.ToTable("ST2", "SS2");
-                        sb.OwnsOne(s => s.AnotherBookLabel)
-                            .ToTable("AT21", "AS21");
-                    });
-                });
 
                 modelBuilder.Validate();
 
@@ -319,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("AS21", bookLabel2Ownership21.DeclaringEntityType.SqlServer().Schema);
                 Assert.Equal("AT21", bookLabel2Ownership21.DeclaringEntityType.SqlServer().TableName);
 
-                Assert.Equal("Bar",  bookLabel2Ownership11.PrincipalToDependent["Foo"]);
+                Assert.Equal("Bar", bookLabel2Ownership11.PrincipalToDependent["Foo"]);
 
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
                 Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());

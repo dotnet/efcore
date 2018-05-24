@@ -49,17 +49,17 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     connection.StateChange += (_, a) =>
+                    {
+                        switch (a.CurrentState)
                         {
-                            switch (a.CurrentState)
-                            {
-                                case ConnectionState.Open:
-                                    openCount++;
-                                    break;
-                                case ConnectionState.Closed:
-                                    closeCount++;
-                                    break;
-                            }
-                        };
+                            case ConnectionState.Open:
+                                openCount++;
+                                break;
+                            case ConnectionState.Closed:
+                                closeCount++;
+                                break;
+                        }
+                    };
                     connection.Disposed += (_, __) => disposeCount++;
 
                     using (var context = new NorthwindContext(serviceProvider, connection))
@@ -107,10 +107,10 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Customer>(
                     b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                    {
+                        b.HasKey(c => c.CustomerID);
+                        b.ToTable("Customers");
+                    });
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local

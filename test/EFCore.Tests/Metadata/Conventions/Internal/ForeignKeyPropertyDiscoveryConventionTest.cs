@@ -34,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var fkProperty = DependentType.Property("No!No!", typeof(int), ConfigurationSource.Convention).Metadata;
 
             var relationshipBuilder = DependentType.Relationship(
-                PrincipalType,
-                "SomeNav",
-                null,
-                ConfigurationSource.Explicit)
+                    PrincipalType,
+                    "SomeNav",
+                    null,
+                    ConfigurationSource.Explicit)
                 .HasForeignKey(new[] { fkProperty }, ConfigurationSource.Explicit);
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
@@ -67,10 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             fkProperty2.IsRequired(true, ConfigurationSource.Convention);
 
             var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(
-                PrincipalTypeWithCompositeKey,
-                "NavProp",
-                null,
-                ConfigurationSource.Explicit)
+                    PrincipalTypeWithCompositeKey,
+                    "NavProp",
+                    null,
+                    ConfigurationSource.Explicit)
                 .HasForeignKey(new[] { fkProperty1.Metadata, fkProperty2.Metadata }, ConfigurationSource.Explicit);
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
@@ -354,10 +354,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var fkProperty = DependentType.Metadata.FindPrimaryKey().Properties.Single();
             var relationshipBuilder = DependentType.Relationship(
-                PrincipalType,
-                "SomeNav",
-                "InverseReferenceNav",
-                ConfigurationSource.Convention)
+                    PrincipalType,
+                    "SomeNav",
+                    "InverseReferenceNav",
+                    ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.DataAnnotation)
                 .DependentEntityType(DependentType, ConfigurationSource.DataAnnotation);
 
@@ -398,8 +398,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Debug, Log[0].Level);
-            Assert.Equal(CoreStrings.LogIncompatibleMatchingForeignKeyProperties.GenerateMessage(
-                "{'PeeKay' : string}", "{'PeeKay' : int}"), Log[0].Message);
+            Assert.Equal(
+                CoreStrings.LogIncompatibleMatchingForeignKeyProperties.GenerateMessage(
+                    "{'PeeKay' : string}", "{'PeeKay' : int}"), Log[0].Message);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
         }
@@ -470,9 +471,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var fkProperty2 = DependentTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties[1];
 
             var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(
-                PrincipalTypeWithCompositeKey,
-                "NavProp",
-                "InverseReferenceNav", ConfigurationSource.Convention)
+                    PrincipalTypeWithCompositeKey,
+                    "NavProp",
+                    "InverseReferenceNav", ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.DataAnnotation)
                 .DependentEntityType(DependentTypeWithCompositeKey, ConfigurationSource.DataAnnotation);
 
@@ -506,9 +507,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             dependentTypeWithCompositeKeyBase.PrimaryKey(new[] { nameof(DependentEntityWithCompositeKey.NotId), nameof(DependentEntityWithCompositeKey.NotName) }, ConfigurationSource.Explicit);
 
             var relationshipBuilder = dependentTypeWithCompositeKey.Relationship(
-                principalTypeWithCompositeKey,
-                "NavProp",
-                "InverseReferenceNav", ConfigurationSource.Convention)
+                    principalTypeWithCompositeKey,
+                    "NavProp",
+                    "InverseReferenceNav", ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.DataAnnotation)
                 .DependentEntityType(dependentTypeWithCompositeKey, ConfigurationSource.DataAnnotation);
 
@@ -536,10 +537,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 ConfigurationSource.Explicit);
 
             var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(
-                PrincipalTypeWithCompositeKey,
-                "NavProp",
-                null,
-                ConfigurationSource.Convention)
+                    PrincipalTypeWithCompositeKey,
+                    "NavProp",
+                    null,
+                    ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.DataAnnotation);
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
@@ -592,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             DependentTypeWithCompositeKey.PrimaryKey(new[] { fkProperty2.Name, fkProperty1.Name }, ConfigurationSource.Explicit);
 
             var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(
-                PrincipalTypeWithCompositeKey, "NavProp", "InverseReferenceNav", ConfigurationSource.Convention)
+                    PrincipalTypeWithCompositeKey, "NavProp", "InverseReferenceNav", ConfigurationSource.Convention)
                 .HasPrincipalKey(PrincipalTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties, ConfigurationSource.DataAnnotation)
                 .IsUnique(true, ConfigurationSource.DataAnnotation);
 
@@ -673,8 +674,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     nameof(DependentEntity) + ".SomeNav",
                     nameof(PrincipalEntity),
                     "{'" + nameof(DependentEntity.SomeNavPeEKaY) + "'}"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder)).Message);
         }
 
         [Fact]
@@ -686,7 +688,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var otherRelationshipBuilder = DependentType.Relationship(
                 PrincipalType, (string)null, null, ConfigurationSource.Convention);
 
-            Assert.Equal(nameof(PrincipalEntity) + nameof(PrincipalEntity.PeeKay),
+            Assert.Equal(
+                nameof(PrincipalEntity) + nameof(PrincipalEntity.PeeKay),
                 relationshipBuilder.Metadata.Properties.Single().Name);
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
@@ -701,8 +704,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogConflictingShadowForeignKeys.GenerateMessage(
-                nameof(DependentEntity), nameof(PrincipalEntity), nameof(DependentEntity)), Log[0].Message);
+            Assert.Equal(
+                CoreStrings.LogConflictingShadowForeignKeys.GenerateMessage(
+                    nameof(DependentEntity), nameof(PrincipalEntity), nameof(DependentEntity)), Log[0].Message);
         }
 
         [Fact]
@@ -974,10 +978,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
-            return new ForeignKeyPropertyDiscoveryConvention(new DiagnosticsLogger<DbLoggerCategory.Model>(
-                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
-                options,
-                new DiagnosticListener("Fake")));
+            return new ForeignKeyPropertyDiscoveryConvention(
+                new DiagnosticsLogger<DbLoggerCategory.Model>(
+                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                    options,
+                    new DiagnosticListener("Fake")));
         }
 
         public List<(LogLevel Level, EventId Id, string Message)> Log { get; }

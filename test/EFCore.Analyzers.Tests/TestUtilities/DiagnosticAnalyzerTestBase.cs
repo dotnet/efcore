@@ -44,7 +44,7 @@ namespace EFCore.Analyzers.Test.TestUtilities
             source = $@"using Microsoft.EntityFrameworkCore;using System.Data.SqlClient;class C {{ void M() {{ {source} }} }}";
 
             //Debugger.Launch();
-            
+
             var projectId = ProjectId.CreateNewId(debugName: "TestProject");
             var documentId = DocumentId.CreateNewId(projectId, fileName);
 

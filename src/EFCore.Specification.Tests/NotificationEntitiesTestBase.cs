@@ -128,7 +128,17 @@ namespace Microsoft.EntityFrameworkCore
                     new Blog
                     {
                         Id = 1,
-                        Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } }
+                        Posts = new List<Post>
+                        {
+                            new Post
+                            {
+                                Id = 1
+                            },
+                            new Post
+                            {
+                                Id = 2
+                            }
+                        }
                     });
 
                 context.SaveChanges();

@@ -131,7 +131,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Id = 78 });
+                context.Set<MappedNullableDataTypes>().Add(
+                    new MappedNullableDataTypes
+                    {
+                        Id = 78
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -191,7 +195,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 78 });
+                context.Set<MappedSizedDataTypes>().Add(
+                    new MappedSizedDataTypes
+                    {
+                        Id = 78
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -352,7 +360,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { AltId = 78 });
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(
+                    new MappedNullableDataTypesWithIdentity
+                    {
+                        AltId = 78
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -412,7 +424,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { AltId = 78 });
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(
+                    new MappedSizedDataTypesWithIdentity
+                    {
+                        AltId = 78
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -537,9 +553,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Id = 278 });
-                context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Id = 279 });
-                context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Id = 280 });
+                context.Set<MappedNullableDataTypes>().Add(
+                    new MappedNullableDataTypes
+                    {
+                        Id = 278
+                    });
+                context.Set<MappedNullableDataTypes>().Add(
+                    new MappedNullableDataTypes
+                    {
+                        Id = 279
+                    });
+                context.Set<MappedNullableDataTypes>().Add(
+                    new MappedNullableDataTypes
+                    {
+                        Id = 280
+                    });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -579,9 +607,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 278 });
-                context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 279 });
-                context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 280 });
+                context.Set<MappedSizedDataTypes>().Add(
+                    new MappedSizedDataTypes
+                    {
+                        Id = 278
+                    });
+                context.Set<MappedSizedDataTypes>().Add(
+                    new MappedSizedDataTypes
+                    {
+                        Id = 279
+                    });
+                context.Set<MappedSizedDataTypes>().Add(
+                    new MappedSizedDataTypes
+                    {
+                        Id = 280
+                    });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -706,9 +746,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { AltId = 278 });
-                context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { AltId = 279 });
-                context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { AltId = 280 });
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(
+                    new MappedNullableDataTypesWithIdentity
+                    {
+                        AltId = 278
+                    });
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(
+                    new MappedNullableDataTypesWithIdentity
+                    {
+                        AltId = 279
+                    });
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(
+                    new MappedNullableDataTypesWithIdentity
+                    {
+                        AltId = 280
+                    });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -748,9 +800,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { AltId = 278 });
-                context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { AltId = 279 });
-                context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { AltId = 280 });
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(
+                    new MappedSizedDataTypesWithIdentity
+                    {
+                        AltId = 278
+                    });
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(
+                    new MappedSizedDataTypesWithIdentity
+                    {
+                        AltId = 279
+                    });
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(
+                    new MappedSizedDataTypesWithIdentity
+                    {
+                        AltId = 280
+                    });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -863,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore
                     TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 12, 0, 0, TimeSpan.Zero),
                     TestNullableTimeSpan = TimeSpan.FromDays(2),
                     TestNullableUnsignedInt64 = 0,
-                    TestNullableCharacter = 'A',
+                    TestNullableCharacter = 'A'
                 };
                 context.Add(min);
 
@@ -894,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore
                             TestNullableDateTimeOffset = g.Min(e => e.TestNullableDateTimeOffset),
                             TestNullableTimeSpan = g.Min(e => e.TestNullableTimeSpan),
                             TestNullableUnsignedInt64 = g.Min(e => e.TestNullableUnsignedInt64),
-                            TestNullableCharacter = g.Min(e => e.TestNullableCharacter),
+                            TestNullableCharacter = g.Min(e => e.TestNullableCharacter)
                         })
                     .ToList()[0];
 
@@ -921,7 +985,7 @@ namespace Microsoft.EntityFrameworkCore
                     TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 12, 0, 0, TimeSpan.Zero),
                     TestNullableTimeSpan = TimeSpan.FromDays(2),
                     TestNullableUnsignedInt64 = 0,
-                    TestNullableCharacter = 'A',
+                    TestNullableCharacter = 'A'
                 };
                 context.Add(min);
 
@@ -951,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore
                             TestNullableDateTimeOffset = g.Max(e => e.TestNullableDateTimeOffset),
                             TestNullableTimeSpan = g.Max(e => e.TestNullableTimeSpan),
                             TestNullableUnsignedInt64 = g.Max(e => e.TestNullableUnsignedInt64),
-                            TestNullableCharacter = g.Max(e => e.TestNullableCharacter),
+                            TestNullableCharacter = g.Max(e => e.TestNullableCharacter)
                         })
                     .ToList()[0];
 
@@ -977,12 +1041,13 @@ namespace Microsoft.EntityFrameworkCore
                         TestNullableDecimal = 1.000000000000001m
                     });
 
-                context.Add(new BuiltInNullableDataTypes
-                {
-                    Id = 206,
-                    PartitionId = 202,
-                    TestNullableDecimal = 1.000000000000001m
-                });
+                context.Add(
+                    new BuiltInNullableDataTypes
+                    {
+                        Id = 206,
+                        PartitionId = 202,
+                        TestNullableDecimal = 1.000000000000001m
+                    });
 
                 context.SaveChanges();
 
@@ -1007,12 +1072,13 @@ namespace Microsoft.EntityFrameworkCore
                         TestDecimal = 1.000000000000001m
                     });
 
-                context.Add(new BuiltInDataTypes
-                {
-                    Id = 206,
-                    PartitionId = 203,
-                    TestDecimal = 1.000000000000001m
-                });
+                context.Add(
+                    new BuiltInDataTypes
+                    {
+                        Id = 206,
+                        PartitionId = 203,
+                        TestDecimal = 1.000000000000001m
+                    });
 
                 context.SaveChanges();
 
@@ -1046,7 +1112,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Id = e.Id,
                             TestDecimal = -e.TestDecimal,
-                            TestTimeSpan = -e.TestTimeSpan,
+                            TestTimeSpan = -e.TestTimeSpan
                         })
                     .First(e => e.Id == 207);
 
@@ -1118,7 +1184,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Select(
                         e => new
                         {
-                            Id = e.Id,
+                            e.Id,
                             TestDecimal = e.TestDecimal - 1m,
                             TestDateTime1 = e.TestDateTime - new TimeSpan(0, 1, 0),
                             TestDateTime2 = e.TestDateTime - new DateTime(2018, 1, 1, 0, 0, 0),
@@ -1441,90 +1507,90 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<MappedDataTypes>(
                     b =>
-                        {
-                            b.Property(e => e.Id).ValueGeneratedNever();
-                            b.Property(e => e.Integer).HasColumnType("Integer");
-                            b.Property(e => e.Real).HasColumnType("Real");
-                            b.Property(e => e.Text).HasColumnType("Text").IsRequired();
-                            b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
-                            b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
-                            b.Property(e => e.Int).HasColumnType("Int");
-                        });
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.Integer).HasColumnType("Integer");
+                        b.Property(e => e.Real).HasColumnType("Real");
+                        b.Property(e => e.Text).HasColumnType("Text").IsRequired();
+                        b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
+                        b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
+                        b.Property(e => e.Int).HasColumnType("Int");
+                    });
 
                 modelBuilder.Entity<MappedNullableDataTypes>(
                     b =>
-                        {
-                            b.Property(e => e.Id).ValueGeneratedNever();
-                            b.Property(e => e.Integer).HasColumnType("Integer");
-                            b.Property(e => e.Real).HasColumnType("Real");
-                            b.Property(e => e.Text).HasColumnType("Text");
-                            b.Property(e => e.Blob).HasColumnType("Blob");
-                            b.Property(e => e.SomeString).HasColumnType("SomeString");
-                            b.Property(e => e.Int).HasColumnType("Int");
-                        });
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.Integer).HasColumnType("Integer");
+                        b.Property(e => e.Real).HasColumnType("Real");
+                        b.Property(e => e.Text).HasColumnType("Text");
+                        b.Property(e => e.Blob).HasColumnType("Blob");
+                        b.Property(e => e.SomeString).HasColumnType("SomeString");
+                        b.Property(e => e.Int).HasColumnType("Int");
+                    });
 
                 modelBuilder.Entity<MappedSizedDataTypes>(
                     b =>
-                        {
-                            b.Property(e => e.Id).ValueGeneratedNever();
-                            b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
-                            b.Property(e => e.Binary).HasColumnType("varbinary(3)");
-                        });
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
+                        b.Property(e => e.Binary).HasColumnType("varbinary(3)");
+                    });
 
                 modelBuilder.Entity<MappedScaledDataTypes>(
                     b =>
-                        {
-                            b.Property(e => e.Id).ValueGeneratedNever();
-                            b.Property(e => e.Float).HasColumnType("real(3)");
-                            b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
-                            b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
-                            b.Property(e => e.Decimal).HasColumnType("decimal(3)");
-                        });
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.Float).HasColumnType("real(3)");
+                        b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
+                        b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
+                        b.Property(e => e.Decimal).HasColumnType("decimal(3)");
+                    });
 
                 modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>(
                     b =>
-                        {
-                            b.Property(e => e.Id).ValueGeneratedNever();
-                            b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)");
-                        });
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)");
+                    });
 
                 modelBuilder.Entity<MappedDataTypesWithIdentity>(
                     b =>
-                        {
-                            b.Property(e => e.Integer).HasColumnType("Integer");
-                            b.Property(e => e.Real).HasColumnType("Real");
-                            b.Property(e => e.Text).HasColumnType("Text").IsRequired();
-                            b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
-                            b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
-                            b.Property(e => e.Int).HasColumnType("Int");
-                        });
+                    {
+                        b.Property(e => e.Integer).HasColumnType("Integer");
+                        b.Property(e => e.Real).HasColumnType("Real");
+                        b.Property(e => e.Text).HasColumnType("Text").IsRequired();
+                        b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
+                        b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
+                        b.Property(e => e.Int).HasColumnType("Int");
+                    });
 
                 modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(
                     b =>
-                        {
-                            b.Property(e => e.Integer).HasColumnType("Integer");
-                            b.Property(e => e.Real).HasColumnType("Real");
-                            b.Property(e => e.Text).HasColumnType("Text");
-                            b.Property(e => e.Blob).HasColumnType("Blob");
-                            b.Property(e => e.SomeString).HasColumnType("SomeString");
-                            b.Property(e => e.Int).HasColumnType("Int");
-                        });
+                    {
+                        b.Property(e => e.Integer).HasColumnType("Integer");
+                        b.Property(e => e.Real).HasColumnType("Real");
+                        b.Property(e => e.Text).HasColumnType("Text");
+                        b.Property(e => e.Blob).HasColumnType("Blob");
+                        b.Property(e => e.SomeString).HasColumnType("SomeString");
+                        b.Property(e => e.Int).HasColumnType("Int");
+                    });
 
                 modelBuilder.Entity<MappedSizedDataTypesWithIdentity>(
                     b =>
-                        {
-                            b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
-                            b.Property(e => e.Binary).HasColumnType("varbinary(3)");
-                        });
+                    {
+                        b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
+                        b.Property(e => e.Binary).HasColumnType("varbinary(3)");
+                    });
 
                 modelBuilder.Entity<MappedScaledDataTypesWithIdentity>(
                     b =>
-                        {
-                            b.Property(e => e.Float).HasColumnType("real(3)");
-                            b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
-                            b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
-                            b.Property(e => e.Decimal).HasColumnType("decimal(3)");
-                        });
+                    {
+                        b.Property(e => e.Float).HasColumnType("real(3)");
+                        b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
+                        b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
+                        b.Property(e => e.Decimal).HasColumnType("decimal(3)");
+                    });
 
                 modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b => { b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"); });
             }
@@ -1532,7 +1598,7 @@ namespace Microsoft.EntityFrameworkCore
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(
                     c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                          .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
+                        .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
 
             public override bool SupportsBinaryKeys => true;
 

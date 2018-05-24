@@ -53,10 +53,7 @@ namespace TestNamespace
 
                     Assert.Empty(code.AdditionalFiles);
                 },
-                model =>
-                {
-                    Assert.Empty(model.GetEntityTypes());
-                });
+                model => { Assert.Empty(model.GetEntityTypes()); });
         }
 
         [Fact]
@@ -64,7 +61,10 @@ namespace TestNamespace
         {
             Test(
                 modelBuilder => { },
-                new ModelCodeGenerationOptions { SuppressConnectionStringWarning = true },
+                new ModelCodeGenerationOptions
+                {
+                    SuppressConnectionStringWarning = true
+                },
                 code =>
                 {
                     Assert.Equal(
@@ -103,10 +103,7 @@ namespace TestNamespace
 
                     Assert.Empty(code.AdditionalFiles);
                 },
-                model =>
-                {
-                    Assert.Empty(model.GetEntityTypes());
-                });
+                model => { Assert.Empty(model.GetEntityTypes()); });
         }
     }
 }

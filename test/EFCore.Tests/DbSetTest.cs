@@ -105,7 +105,6 @@ namespace Microsoft.EntityFrameworkCore
             await Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
         }
 
-
         [Fact]
         public void Direct_use_of_Set_throws_if_context_disposed()
         {
@@ -213,10 +212,28 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var category1 = new Category
+                {
+                    Id = 1,
+                    Name = "Beverages"
+                };
+                var category2 = new Category
+                {
+                    Id = 2,
+                    Name = "Foods"
+                };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
                 var categoryEntry1 = await categoryAdder(context.Categories, category1);
                 var categoryEntry2 = await categoryAdder(context.Categories, category2);
@@ -295,15 +312,15 @@ namespace Microsoft.EntityFrameworkCore
             Action<EarlyLearningCenter, Product[]> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesTest(
                 (c, e) =>
-                    {
-                        categoryAdder(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    categoryAdder(c, e);
+                    return Task.FromResult(0);
+                },
                 (c, e) =>
-                    {
-                        productAdder(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    productAdder(c, e);
+                    return Task.FromResult(0);
+                },
                 expectedState);
 
         private static async Task TrackMultipleEntitiesTest(
@@ -312,10 +329,28 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var category1 = new Category
+                {
+                    Id = 1,
+                    Name = "Beverages"
+                };
+                var category2 = new Category
+                {
+                    Id = 2,
+                    Name = "Foods"
+                };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
                 await categoryAdder(context, new[] { category1, category2 });
                 await productAdder(context, new[] { product1, product2 });
@@ -432,15 +467,15 @@ namespace Microsoft.EntityFrameworkCore
             Action<EarlyLearningCenter, IEnumerable<Product>> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesTestEnumerable(
                 (c, e) =>
-                    {
-                        categoryAdder(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    categoryAdder(c, e);
+                    return Task.FromResult(0);
+                },
                 (c, e) =>
-                    {
-                        productAdder(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    productAdder(c, e);
+                    return Task.FromResult(0);
+                },
                 expectedState);
 
         private static async Task TrackMultipleEntitiesTestEnumerable(
@@ -449,13 +484,41 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var category1 = new Category
+                {
+                    Id = 1,
+                    Name = "Beverages"
+                };
+                var category2 = new Category
+                {
+                    Id = 2,
+                    Name = "Foods"
+                };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
-                await categoryAdder(context, new List<Category> { category1, category2 });
-                await productAdder(context, new List<Product> { product1, product2 });
+                await categoryAdder(
+                    context, new List<Category>
+                    {
+                        category1,
+                        category2
+                    });
+                await productAdder(
+                    context, new List<Product>
+                    {
+                        product1,
+                        product2
+                    });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(category2, context.Entry(category2).Entity);
@@ -577,10 +640,10 @@ namespace Microsoft.EntityFrameworkCore
             EntityState expectedState)
             => ChangeStateWithMethod(
                 (c, e) =>
-                    {
-                        action(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    action(c, e);
+                    return Task.FromResult(0);
+                },
                 initialState,
                 expectedState);
 
@@ -591,7 +654,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var entity = new Category { Id = 1, Name = "Beverages" };
+                var entity = new Category
+                {
+                    Id = 1,
+                    Name = "Beverages"
+                };
                 var entry = context.Entry(entity);
 
                 entry.State = initialState;
@@ -609,8 +676,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var gu1 = new TheGu { ShirtColor = "Red" };
-                var gu2 = new TheGu { ShirtColor = "Still Red" };
+                var gu1 = new TheGu
+                {
+                    ShirtColor = "Red"
+                };
+                var gu2 = new TheGu
+                {
+                    ShirtColor = "Still Red"
+                };
 
                 if (async)
                 {
@@ -683,7 +756,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class Curious
         {
-            public string George { get; set;}
+            public string George { get; set; }
         }
 
         private class Category

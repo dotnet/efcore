@@ -27,29 +27,29 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entry = context.Products.Attach(
-                            new Product
-                            {
-                                Id = productId,
-                                Price = 1.49M
-                            });
+                {
+                    var entry = context.Products.Attach(
+                        new Product
+                        {
+                            Id = productId,
+                            Price = 1.49M
+                        });
 
-                        entry.Property(c => c.Price).CurrentValue = 1.99M;
-                        entry.Property(p => p.Price).IsModified = true;
+                    entry.Property(c => c.Price).CurrentValue = 1.99M;
+                    entry.Property(p => p.Price).IsModified = true;
 
-                        Assert.False(entry.Property(p => p.DependentId).IsModified);
-                        Assert.False(entry.Property(p => p.Name).IsModified);
+                    Assert.False(entry.Property(p => p.DependentId).IsModified);
+                    Assert.False(entry.Property(p => p.Name).IsModified);
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context =>
-                    {
-                        var product = context.Products.First(p => p.Id == productId);
+                {
+                    var product = context.Products.First(p => p.Id == productId);
 
-                        Assert.Equal(1.99M, product.Price);
-                        Assert.Equal("Apple Cider", product.Name);
-                    });
+                    Assert.Equal(1.99M, product.Price);
+                    Assert.Equal("Apple Cider", product.Name);
+                });
         }
 
         [Fact]
@@ -57,21 +57,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entry = context.Products.Attach(
-                            new Product
-                            {
-                                Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10"),
-                                Name = "Apple Fritter"
-                            });
+                {
+                    var entry = context.Products.Attach(
+                        new Product
+                        {
+                            Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10"),
+                            Name = "Apple Fritter"
+                        });
 
-                        entry.Property(c => c.Name).IsModified = true;
+                    entry.Property(c => c.Name).IsModified = true;
 
-                        Assert.Equal(
-                            UpdateConcurrencyMessage,
-                            Assert.Throws<DbUpdateConcurrencyException>(
-                                () => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        UpdateConcurrencyMessage,
+                        Assert.Throws<DbUpdateConcurrencyException>(
+                            () => context.SaveChanges()).Message);
+                });
         }
 
 #if !Test20
@@ -82,22 +82,22 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entry = context.Products.Attach(
-                            new Product
-                            {
-                                Id = productId,
-                                Name = "Apple Fritter",
-                                Price = 3.49M // Not the same as the value stored in the database
-                            });
+                {
+                    var entry = context.Products.Attach(
+                        new Product
+                        {
+                            Id = productId,
+                            Name = "Apple Fritter",
+                            Price = 3.49M // Not the same as the value stored in the database
+                        });
 
-                        entry.Property(c => c.Name).IsModified = true;
+                    entry.Property(c => c.Name).IsModified = true;
 
-                        Assert.Equal(
-                            UpdateConcurrencyTokenMessage,
-                            Assert.Throws<DbUpdateConcurrencyException>(
-                                () => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        UpdateConcurrencyTokenMessage,
+                        Assert.Throws<DbUpdateConcurrencyException>(
+                            () => context.SaveChanges()).Message);
+                });
         }
 #endif
 
@@ -108,22 +108,22 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Products.Remove(
-                            new Product
-                            {
-                                Id = productId,
-                                Price = 1.49M
-                            });
+                {
+                    context.Products.Remove(
+                        new Product
+                        {
+                            Id = productId,
+                            Price = 1.49M
+                        });
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context =>
-                    {
-                        var product = context.Products.FirstOrDefault(f => f.Id == productId);
+                {
+                    var product = context.Products.FirstOrDefault(f => f.Id == productId);
 
-                        Assert.Null(product);
-                    });
+                    Assert.Null(product);
+                });
         }
 
         [Fact]
@@ -131,18 +131,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Products.Remove(
-                            new Product
-                            {
-                                Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10")
-                            });
+                {
+                    context.Products.Remove(
+                        new Product
+                        {
+                            Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10")
+                        });
 
-                        Assert.Equal(
-                            UpdateConcurrencyMessage,
-                            Assert.Throws<DbUpdateConcurrencyException>(
-                                () => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        UpdateConcurrencyMessage,
+                        Assert.Throws<DbUpdateConcurrencyException>(
+                            () => context.SaveChanges()).Message);
+                });
         }
 
 #if !Test20
@@ -153,19 +153,19 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Products.Remove(
-                            new Product
-                            {
-                                Id = productId,
-                                Price = 3.49M // Not the same as the value stored in the database
-                            });
+                {
+                    context.Products.Remove(
+                        new Product
+                        {
+                            Id = productId,
+                            Price = 3.49M // Not the same as the value stored in the database
+                        });
 
-                        Assert.Equal(
-                            UpdateConcurrencyTokenMessage,
-                            Assert.Throws<DbUpdateConcurrencyException>(
-                                () => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        UpdateConcurrencyTokenMessage,
+                        Assert.Throws<DbUpdateConcurrencyException>(
+                            () => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -173,26 +173,31 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
+                {
+                    var category = context.Categories.Single();
+                    var products = context.Products.Where(p => p.DependentId == category.PrincipalId).ToList();
+
+                    Assert.Equal(2, products.Count);
+
+                    var newCategory = new Category
                     {
-                        var category = context.Categories.Single();
-                        var products = context.Products.Where(p => p.DependentId == category.PrincipalId).ToList();
+                        Id = category.Id,
+                        PrincipalId = category.PrincipalId,
+                        Name = "New Category"
+                    };
+                    context.Remove(category);
+                    context.Add(newCategory);
 
-                        Assert.Equal(2, products.Count);
-
-                        var newCategory = new Category { Id = category.Id, PrincipalId = category.PrincipalId, Name = "New Category" };
-                        context.Remove(category);
-                        context.Add(newCategory);
-
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context =>
-                    {
-                        var category = context.Categories.Single();
-                        var products = context.Products.Where(p => p.DependentId == category.PrincipalId).ToList();
+                {
+                    var category = context.Categories.Single();
+                    var products = context.Products.Where(p => p.DependentId == category.PrincipalId).ToList();
 
-                        Assert.Equal("New Category", category.Name);
-                        Assert.Equal(2, products.Count);
-                    });
+                    Assert.Equal("New Category", category.Name);
+                    Assert.Equal(2, products.Count);
+                });
         }
 #endif
 
@@ -201,34 +206,53 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var stateManager = context.ChangeTracker.GetInfrastructure();
+                {
+                    var stateManager = context.ChangeTracker.GetInfrastructure();
 
-                        var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
-                        var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
+                    var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+                    var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
-                        var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 });
-                        var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 });
-                        var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
-                        var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2, Price = 2.49M });
+                    var entry1 = stateManager.GetOrCreateEntry(
+                        new Category
+                        {
+                            Id = 77,
+                            PrincipalId = 777
+                        });
+                    var entry2 = stateManager.GetOrCreateEntry(
+                        new Category
+                        {
+                            Id = 78,
+                            PrincipalId = 778
+                        });
+                    var entry3 = stateManager.GetOrCreateEntry(
+                        new Product
+                        {
+                            Id = productId1
+                        });
+                    var entry4 = stateManager.GetOrCreateEntry(
+                        new Product
+                        {
+                            Id = productId2,
+                            Price = 2.49M
+                        });
 
-                        entry1.SetEntityState(EntityState.Added);
-                        entry2.SetEntityState(EntityState.Modified);
-                        entry3.SetEntityState(EntityState.Unchanged);
-                        entry4.SetEntityState(EntityState.Deleted);
+                    entry1.SetEntityState(EntityState.Added);
+                    entry2.SetEntityState(EntityState.Modified);
+                    entry3.SetEntityState(EntityState.Unchanged);
+                    entry4.SetEntityState(EntityState.Deleted);
 
-                        var processedEntities = stateManager.SaveChanges(true);
+                    var processedEntities = stateManager.SaveChanges(true);
 
-                        Assert.Equal(3, processedEntities);
-                        Assert.Equal(3, stateManager.Entries.Count());
-                        Assert.Contains(entry1, stateManager.Entries);
-                        Assert.Contains(entry2, stateManager.Entries);
-                        Assert.Contains(entry3, stateManager.Entries);
+                    Assert.Equal(3, processedEntities);
+                    Assert.Equal(3, stateManager.Entries.Count());
+                    Assert.Contains(entry1, stateManager.Entries);
+                    Assert.Contains(entry2, stateManager.Entries);
+                    Assert.Contains(entry3, stateManager.Entries);
 
-                        Assert.Equal(EntityState.Unchanged, entry1.EntityState);
-                        Assert.Equal(EntityState.Unchanged, entry2.EntityState);
-                        Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-                    });
+                    Assert.Equal(EntityState.Unchanged, entry1.EntityState);
+                    Assert.Equal(EntityState.Unchanged, entry2.EntityState);
+                    Assert.Equal(EntityState.Unchanged, entry3.EntityState);
+                });
         }
 
         [Fact]
@@ -236,36 +260,55 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var stateManager = context.ChangeTracker.GetInfrastructure();
+                {
+                    var stateManager = context.ChangeTracker.GetInfrastructure();
 
-                        var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
-                        var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
+                    var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+                    var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
-                        var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 });
-                        var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 });
-                        var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
-                        var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2, Price = 2.49M });
+                    var entry1 = stateManager.GetOrCreateEntry(
+                        new Category
+                        {
+                            Id = 77,
+                            PrincipalId = 777
+                        });
+                    var entry2 = stateManager.GetOrCreateEntry(
+                        new Category
+                        {
+                            Id = 78,
+                            PrincipalId = 778
+                        });
+                    var entry3 = stateManager.GetOrCreateEntry(
+                        new Product
+                        {
+                            Id = productId1
+                        });
+                    var entry4 = stateManager.GetOrCreateEntry(
+                        new Product
+                        {
+                            Id = productId2,
+                            Price = 2.49M
+                        });
 
-                        entry1.SetEntityState(EntityState.Added);
-                        entry2.SetEntityState(EntityState.Modified);
-                        entry3.SetEntityState(EntityState.Unchanged);
-                        entry4.SetEntityState(EntityState.Deleted);
+                    entry1.SetEntityState(EntityState.Added);
+                    entry2.SetEntityState(EntityState.Modified);
+                    entry3.SetEntityState(EntityState.Unchanged);
+                    entry4.SetEntityState(EntityState.Deleted);
 
-                        var processedEntities = stateManager.SaveChanges(false);
+                    var processedEntities = stateManager.SaveChanges(false);
 
-                        Assert.Equal(3, processedEntities);
-                        Assert.Equal(4, stateManager.Entries.Count());
-                        Assert.Contains(entry1, stateManager.Entries);
-                        Assert.Contains(entry2, stateManager.Entries);
-                        Assert.Contains(entry3, stateManager.Entries);
-                        Assert.Contains(entry4, stateManager.Entries);
+                    Assert.Equal(3, processedEntities);
+                    Assert.Equal(4, stateManager.Entries.Count());
+                    Assert.Contains(entry1, stateManager.Entries);
+                    Assert.Contains(entry2, stateManager.Entries);
+                    Assert.Contains(entry3, stateManager.Entries);
+                    Assert.Contains(entry4, stateManager.Entries);
 
-                        Assert.Equal(EntityState.Added, entry1.EntityState);
-                        Assert.Equal(EntityState.Modified, entry2.EntityState);
-                        Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-                        Assert.Equal(EntityState.Deleted, entry4.EntityState);
-                    });
+                    Assert.Equal(EntityState.Added, entry1.EntityState);
+                    Assert.Equal(EntityState.Modified, entry2.EntityState);
+                    Assert.Equal(EntityState.Unchanged, entry3.EntityState);
+                    Assert.Equal(EntityState.Deleted, entry4.EntityState);
+                });
         }
 
         [Fact]
@@ -273,34 +316,53 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ExecuteWithStrategyInTransactionAsync(
                 async context =>
-                    {
-                        var stateManager = context.ChangeTracker.GetInfrastructure();
+                {
+                    var stateManager = context.ChangeTracker.GetInfrastructure();
 
-                        var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
-                        var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
+                    var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+                    var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
-                        var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 });
-                        var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 });
-                        var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
-                        var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2, Price = 2.49M });
+                    var entry1 = stateManager.GetOrCreateEntry(
+                        new Category
+                        {
+                            Id = 77,
+                            PrincipalId = 777
+                        });
+                    var entry2 = stateManager.GetOrCreateEntry(
+                        new Category
+                        {
+                            Id = 78,
+                            PrincipalId = 778
+                        });
+                    var entry3 = stateManager.GetOrCreateEntry(
+                        new Product
+                        {
+                            Id = productId1
+                        });
+                    var entry4 = stateManager.GetOrCreateEntry(
+                        new Product
+                        {
+                            Id = productId2,
+                            Price = 2.49M
+                        });
 
-                        entry1.SetEntityState(EntityState.Added);
-                        entry2.SetEntityState(EntityState.Modified);
-                        entry3.SetEntityState(EntityState.Unchanged);
-                        entry4.SetEntityState(EntityState.Deleted);
+                    entry1.SetEntityState(EntityState.Added);
+                    entry2.SetEntityState(EntityState.Modified);
+                    entry3.SetEntityState(EntityState.Unchanged);
+                    entry4.SetEntityState(EntityState.Deleted);
 
-                        var processedEntities = await stateManager.SaveChangesAsync(true);
+                    var processedEntities = await stateManager.SaveChangesAsync(true);
 
-                        Assert.Equal(3, processedEntities);
-                        Assert.Equal(3, stateManager.Entries.Count());
-                        Assert.Contains(entry1, stateManager.Entries);
-                        Assert.Contains(entry2, stateManager.Entries);
-                        Assert.Contains(entry3, stateManager.Entries);
+                    Assert.Equal(3, processedEntities);
+                    Assert.Equal(3, stateManager.Entries.Count());
+                    Assert.Contains(entry1, stateManager.Entries);
+                    Assert.Contains(entry2, stateManager.Entries);
+                    Assert.Contains(entry3, stateManager.Entries);
 
-                        Assert.Equal(EntityState.Unchanged, entry1.EntityState);
-                        Assert.Equal(EntityState.Unchanged, entry2.EntityState);
-                        Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-                    });
+                    Assert.Equal(EntityState.Unchanged, entry1.EntityState);
+                    Assert.Equal(EntityState.Unchanged, entry2.EntityState);
+                    Assert.Equal(EntityState.Unchanged, entry3.EntityState);
+                });
         }
 
         [Fact]
@@ -308,36 +370,55 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ExecuteWithStrategyInTransactionAsync(
                 async context =>
-                    {
-                        var stateManager = context.ChangeTracker.GetInfrastructure();
+                {
+                    var stateManager = context.ChangeTracker.GetInfrastructure();
 
-                        var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
-                        var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
+                    var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+                    var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
-                        var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 });
-                        var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 });
-                        var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
-                        var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2, Price = 2.49M });
+                    var entry1 = stateManager.GetOrCreateEntry(
+                        new Category
+                        {
+                            Id = 77,
+                            PrincipalId = 777
+                        });
+                    var entry2 = stateManager.GetOrCreateEntry(
+                        new Category
+                        {
+                            Id = 78,
+                            PrincipalId = 778
+                        });
+                    var entry3 = stateManager.GetOrCreateEntry(
+                        new Product
+                        {
+                            Id = productId1
+                        });
+                    var entry4 = stateManager.GetOrCreateEntry(
+                        new Product
+                        {
+                            Id = productId2,
+                            Price = 2.49M
+                        });
 
-                        entry1.SetEntityState(EntityState.Added);
-                        entry2.SetEntityState(EntityState.Modified);
-                        entry3.SetEntityState(EntityState.Unchanged);
-                        entry4.SetEntityState(EntityState.Deleted);
+                    entry1.SetEntityState(EntityState.Added);
+                    entry2.SetEntityState(EntityState.Modified);
+                    entry3.SetEntityState(EntityState.Unchanged);
+                    entry4.SetEntityState(EntityState.Deleted);
 
-                        var processedEntities = await stateManager.SaveChangesAsync(false);
+                    var processedEntities = await stateManager.SaveChangesAsync(false);
 
-                        Assert.Equal(3, processedEntities);
-                        Assert.Equal(4, stateManager.Entries.Count());
-                        Assert.Contains(entry1, stateManager.Entries);
-                        Assert.Contains(entry2, stateManager.Entries);
-                        Assert.Contains(entry3, stateManager.Entries);
-                        Assert.Contains(entry4, stateManager.Entries);
+                    Assert.Equal(3, processedEntities);
+                    Assert.Equal(4, stateManager.Entries.Count());
+                    Assert.Contains(entry1, stateManager.Entries);
+                    Assert.Contains(entry2, stateManager.Entries);
+                    Assert.Contains(entry3, stateManager.Entries);
+                    Assert.Contains(entry4, stateManager.Entries);
 
-                        Assert.Equal(EntityState.Added, entry1.EntityState);
-                        Assert.Equal(EntityState.Modified, entry2.EntityState);
-                        Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-                        Assert.Equal(EntityState.Deleted, entry4.EntityState);
-                    });
+                    Assert.Equal(EntityState.Added, entry1.EntityState);
+                    Assert.Equal(EntityState.Modified, entry2.EntityState);
+                    Assert.Equal(EntityState.Unchanged, entry3.EntityState);
+                    Assert.Equal(EntityState.Deleted, entry4.EntityState);
+                });
         }
 
         protected abstract string UpdateConcurrencyMessage { get; }

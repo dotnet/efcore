@@ -77,31 +77,32 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new FraggleContext())
             {
-                context.Fraggles.AddRange(new Fraggle
-                {
-                    Id = 1,
-                    Name = "Gobo"
-                }, new Fraggle
-                {
-                    Id = 2,
-                    Name = "Monkey"
-                }, new Fraggle
-                {
-                    Id = 3,
-                    Name = "Red"
-                }, new Fraggle
-                {
-                    Id = 4,
-                    Name = "Wembley"
-                }, new Fraggle
-                {
-                    Id = 5,
-                    Name = "Boober"
-                }, new Fraggle
-                {
-                    Id = 6,
-                    Name = "Uncle Traveling Matt"
-                });
+                context.Fraggles.AddRange(
+                    new Fraggle
+                    {
+                        Id = 1,
+                        Name = "Gobo"
+                    }, new Fraggle
+                    {
+                        Id = 2,
+                        Name = "Monkey"
+                    }, new Fraggle
+                    {
+                        Id = 3,
+                        Name = "Red"
+                    }, new Fraggle
+                    {
+                        Id = 4,
+                        Name = "Wembley"
+                    }, new Fraggle
+                    {
+                        Id = 5,
+                        Name = "Boober"
+                    }, new Fraggle
+                    {
+                        Id = 6,
+                        Name = "Uncle Traveling Matt"
+                    });
 
                 await context.SaveChangesAsync();
             }

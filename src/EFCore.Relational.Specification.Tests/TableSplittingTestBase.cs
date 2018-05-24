@@ -74,11 +74,12 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_query_shared_derived_nonhierarchy()
         {
-            using (CreateTestStore(modelBuilder =>
-            {
-                OnModelCreating(modelBuilder);
-                modelBuilder.Ignore<SolidFuelTank>();
-            }))
+            using (CreateTestStore(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Ignore<SolidFuelTank>();
+                }))
             {
                 using (var context = CreateContext())
                 {
@@ -99,10 +100,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             Test_roundtrip(
                 modelBuilder =>
-                    {
-                        OnModelCreating(modelBuilder);
-                        //modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
-                    });
+                {
+                    OnModelCreating(modelBuilder);
+                    //modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
+                });
         }
 
         // #9005
@@ -111,11 +112,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             Test_roundtrip(
                 modelBuilder =>
-                    {
-                        OnModelCreating(modelBuilder);
-                        modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Engine); });
-                        modelBuilder.Entity<CombustionEngine>(eb => { eb.Ignore(e => e.FuelTank); });
-                    });
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Engine); });
+                    modelBuilder.Entity<CombustionEngine>(eb => { eb.Ignore(e => e.FuelTank); });
+                });
         }
 
         protected void Test_roundtrip(Action<ModelBuilder> onModelCreating)
@@ -136,21 +137,28 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = CreateContext())
                 {
-                    context.Add(new PoweredVehicle
-                    {
-                        Name = "Fuel transport",
-                        SeatingCapacity = 1,
-                        Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
-                    });
-                    context.Add(new FuelTank
-                    {
-                        Capacity = "10000 l",
-                        FuelType = "Gas",
-                        VehicleName = "Fuel transport"
-                    });
+                    context.Add(
+                        new PoweredVehicle
+                        {
+                            Name = "Fuel transport",
+                            SeatingCapacity = 1,
+                            Operator = new LicensedOperator
+                            {
+                                Name = "Jack Jackson",
+                                LicenseType = "Class A CDC"
+                            }
+                        });
+                    context.Add(
+                        new FuelTank
+                        {
+                            Capacity = "10000 l",
+                            FuelType = "Gas",
+                            VehicleName = "Fuel transport"
+                        });
 
-                    Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                        nameof(PoweredVehicle), "Vehicles", nameof(Engine), "{Name: Fuel transport}", "Added"),
+                    Assert.Equal(
+                        RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                            nameof(PoweredVehicle), "Vehicles", nameof(Engine), "{Name: Fuel transport}", "Added"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
@@ -161,31 +169,38 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (CreateTestStore(
                 modelBuilder =>
-                    {
-                        OnModelCreating(modelBuilder);
-                        modelBuilder.Entity<Engine>().ToTable("Engines");
-                        modelBuilder.Entity<FuelTank>(
-                            eb =>
-                                {
-                                    eb.ToTable("FuelTanks");
-                                    eb.HasOne(e => e.Engine)
-                                        .WithOne(e => e.FuelTank)
-                                        .HasForeignKey<FuelTank>(e => e.VehicleName)
-                                        .OnDelete(DeleteBehavior.Restrict);
-                                });
-                        modelBuilder.Ignore<SolidFuelTank>();
-                        modelBuilder.Ignore<SolidRocket>();
-                    }))
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<Engine>().ToTable("Engines");
+                    modelBuilder.Entity<FuelTank>(
+                        eb =>
+                        {
+                            eb.ToTable("FuelTanks");
+                            eb.HasOne(e => e.Engine)
+                                .WithOne(e => e.FuelTank)
+                                .HasForeignKey<FuelTank>(e => e.VehicleName)
+                                .OnDelete(DeleteBehavior.Restrict);
+                        });
+                    modelBuilder.Ignore<SolidFuelTank>();
+                    modelBuilder.Ignore<SolidRocket>();
+                }))
             {
                 using (var context = CreateContext())
                 {
                     var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    bike.Operator = new Operator { Name = "Chris Horner" };
+                    bike.Operator = new Operator
+                    {
+                        Name = "Chris Horner"
+                    };
 
                     context.ChangeTracker.DetectChanges();
 
-                    bike.Operator = new LicensedOperator { Name = "repairman", LicenseType = "Repair" };
+                    bike.Operator = new LicensedOperator
+                    {
+                        Name = "repairman",
+                        LicenseType = "Repair"
+                    };
 
                     TestSqlLoggerFactory.Clear();
                     context.SaveChanges();
@@ -206,27 +221,32 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (CreateTestStore(
                 modelBuilder =>
-                    {
-                        OnModelCreating(modelBuilder);
-                        modelBuilder.Entity<Engine>().ToTable("Engines");
-                        modelBuilder.Entity<FuelTank>(
-                            eb =>
-                                {
-                                    eb.ToTable("FuelTanks");
-                                    eb.HasOne(e => e.Engine)
-                                        .WithOne(e => e.FuelTank)
-                                        .HasForeignKey<FuelTank>(e => e.VehicleName)
-                                        .OnDelete(DeleteBehavior.Restrict);
-                                });
-                        modelBuilder.Ignore<SolidFuelTank>();
-                        modelBuilder.Ignore<SolidRocket>();
-                    }))
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<Engine>().ToTable("Engines");
+                    modelBuilder.Entity<FuelTank>(
+                        eb =>
+                        {
+                            eb.ToTable("FuelTanks");
+                            eb.HasOne(e => e.Engine)
+                                .WithOne(e => e.FuelTank)
+                                .HasForeignKey<FuelTank>(e => e.VehicleName)
+                                .OnDelete(DeleteBehavior.Restrict);
+                        });
+                    modelBuilder.Ignore<SolidFuelTank>();
+                    modelBuilder.Ignore<SolidRocket>();
+                }))
             {
                 using (var context = CreateContext())
                 {
                     var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    var newBike = new Vehicle { Name = "Trek Pro Fit Madone 6 Series", Operator = bike.Operator, SeatingCapacity = 2 };
+                    var newBike = new Vehicle
+                    {
+                        Name = "Trek Pro Fit Madone 6 Series",
+                        Operator = bike.Operator,
+                        SeatingCapacity = 2
+                    };
 
                     context.Remove(bike);
                     context.Add(newBike);
@@ -254,6 +274,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
+
         protected void AssertContainsSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
@@ -261,11 +282,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             modelBuilder.Entity<Vehicle>(
                 eb =>
-                    {
-                        eb.HasDiscriminator<string>("Discriminator");
-                        eb.Property<string>("Discriminator").HasColumnName("Discriminator");
-                        eb.ToTable("Vehicles");
-                    });
+                {
+                    eb.HasDiscriminator<string>("Discriminator");
+                    eb.Property<string>("Discriminator").HasColumnName("Discriminator");
+                    eb.ToTable("Vehicles");
+                });
 
             modelBuilder.Entity<Engine>().ToTable("Vehicles");
             modelBuilder.Entity<Operator>().ToTable("Vehicles");

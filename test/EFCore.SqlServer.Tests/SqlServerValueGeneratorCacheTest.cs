@@ -342,11 +342,11 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<Led>(
                 b =>
-                    {
-                        b.Property(e => e.Zeppelin).ForSqlServerUseSequenceHiLo("Heaven");
-                        b.Property(e => e.Stairway).ForSqlServerUseSequenceHiLo("Heaven");
-                        b.Property(e => e.WholeLotta).ForSqlServerUseSequenceHiLo("Rosie");
-                    });
+                {
+                    b.Property(e => e.Zeppelin).ForSqlServerUseSequenceHiLo("Heaven");
+                    b.Property(e => e.Stairway).ForSqlServerUseSequenceHiLo("Heaven");
+                    b.Property(e => e.WholeLotta).ForSqlServerUseSequenceHiLo("Rosie");
+                });
 
             return modelBuilder.Model;
         }

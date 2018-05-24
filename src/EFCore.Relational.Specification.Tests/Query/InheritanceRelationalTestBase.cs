@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class InheritanceRelationalTestBase<TFixture> : InheritanceTestBase<TFixture>
         where TFixture : InheritanceFixtureBase, new()
     {
-        protected InheritanceRelationalTestBase(TFixture fixture) : base(fixture)
+        protected InheritanceRelationalTestBase(TFixture fixture)
+            : base(fixture)
         {
         }
 

@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 createContext = CreateDefaultContext;
             }
+
             if (seed == null)
             {
                 seed = c => { };
@@ -105,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private class CompositeDisposable : IDisposable
         {
             private readonly IDisposable[] _disposables;
+
             public CompositeDisposable(params IDisposable[] disposables)
             {
                 _disposables = disposables;

@@ -463,6 +463,7 @@ namespace Microsoft.EntityFrameworkCore
                 info.Tables[0].Columns.Add(column);
                 info.Tables[0].PrimaryKey.Columns.Add(column);
             }
+
             var model = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
 
             Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());

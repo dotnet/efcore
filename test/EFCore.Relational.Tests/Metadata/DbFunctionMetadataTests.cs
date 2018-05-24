@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public class MyDerivedContext : MyBaseContext
         {
-            public new static readonly string[] FunctionNames =
+            public static new readonly string[] FunctionNames =
             {
                 nameof(StaticPublicDerived),
                 nameof(StaticProtectedDerived),

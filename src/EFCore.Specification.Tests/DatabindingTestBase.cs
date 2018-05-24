@@ -809,9 +809,21 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateF1Context())
             {
                 var testDrivers = context.Set<TestDriver>();
-                testDrivers.Attach(new TestDriver { Id = 3 });
-                testDrivers.Attach(new TestDriver { Id = 1 });
-                testDrivers.Attach(new TestDriver { Id = 4 });
+                testDrivers.Attach(
+                    new TestDriver
+                    {
+                        Id = 3
+                    });
+                testDrivers.Attach(
+                    new TestDriver
+                    {
+                        Id = 1
+                    });
+                testDrivers.Attach(
+                    new TestDriver
+                    {
+                        Id = 4
+                    });
 
                 var bindingList = testDrivers.Local.ToBindingList();
 
@@ -830,9 +842,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateF1Context())
             {
-                context.Drivers.Attach(new TestDriver { Id = 3 });
-                context.Drivers.Attach(new TestDriver { Id = 1 });
-                context.Drivers.Attach(new TestDriver { Id = 4 });
+                context.Drivers.Attach(
+                    new TestDriver
+                    {
+                        Id = 3
+                    });
+                context.Drivers.Attach(
+                    new TestDriver
+                    {
+                        Id = 1
+                    });
+                context.Drivers.Attach(
+                    new TestDriver
+                    {
+                        Id = 4
+                    });
 
                 var bindingList = context.Drivers.Local.ToBindingList();
 

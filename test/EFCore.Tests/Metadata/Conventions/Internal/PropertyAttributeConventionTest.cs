@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -130,7 +130,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var propertyBuilder = entityTypeBuilder.Property("MyPrimaryKey", typeof(int), ConfigurationSource.Explicit);
 
-            entityTypeBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
+            entityTypeBuilder.PrimaryKey(
+                new List<string>
+                {
+                    "Id"
+                }, ConfigurationSource.Convention);
 
             new KeyAttributeConvention().Apply(propertyBuilder);
 
@@ -144,7 +148,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var propertyBuilder = entityTypeBuilder.Property("MyPrimaryKey", typeof(int), ConfigurationSource.Explicit);
 
-            entityTypeBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Explicit);
+            entityTypeBuilder.PrimaryKey(
+                new List<string>
+                {
+                    "Id"
+                }, ConfigurationSource.Explicit);
 
             new KeyAttributeConvention().Apply(propertyBuilder);
 
@@ -224,7 +232,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var baseEntityTypeBuilder = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit);
             derivedEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
 
-            baseEntityTypeBuilder.PrimaryKey(new List<string> { "Id", "Name" }, ConfigurationSource.Explicit);
+            baseEntityTypeBuilder.PrimaryKey(
+                new List<string>
+                {
+                    "Id",
+                    "Name"
+                }, ConfigurationSource.Explicit);
 
             new KeyAttributeConvention().Apply(derivedEntityTypeBuilder.ModelBuilder);
 
@@ -621,7 +634,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 => optionsBuilder.UseInMemoryDatabase(nameof(MyContext));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<B>().HasKey(e => new { e.MyPrimaryKey, e.Id });
+                => modelBuilder.Entity<B>().HasKey(
+                    e => new
+                    {
+                        e.MyPrimaryKey,
+                        e.Id
+                    });
         }
     }
 }

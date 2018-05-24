@@ -26,7 +26,19 @@ namespace Microsoft.EntityFrameworkCore
             using (CreateTestStore())
             {
                 var bigUn = new BigUn();
-                var fastUns = new[] { new FastUn { Name = "First 'un", BigUn = bigUn }, new FastUn { Name = "Second 'un", BigUn = bigUn } };
+                var fastUns = new[]
+                {
+                    new FastUn
+                    {
+                        Name = "First 'un",
+                        BigUn = bigUn
+                    },
+                    new FastUn
+                    {
+                        Name = "Second 'un",
+                        BigUn = bigUn
+                    }
+                };
                 using (var context = CreateContext())
                 {
                     context.Database.EnsureCreated();
@@ -74,11 +86,11 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder
                     .Entity<FastUn>(
                         eb =>
-                            {
-                                eb.ForSqlServerIsMemoryOptimized();
-                                eb.HasIndex(e => e.Name).IsUnique();
-                                eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
-                            });
+                        {
+                            eb.ForSqlServerIsMemoryOptimized();
+                            eb.HasIndex(e => e.Name).IsUnique();
+                            eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
+                        });
 
                 modelBuilder.Entity<BigUn>().ForSqlServerIsMemoryOptimized();
             }

@@ -54,8 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer")
                 },
                 Sources = new List<string>(
-                    Enumerable.Concat(
-                        new[] { scaffoldedModel.ContextFile.Code },
+                    new[] { scaffoldedModel.ContextFile.Code }.Concat(
                         scaffoldedModel.AdditionalFiles.Select(f => f.Code)))
             };
 

@@ -126,8 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Debug, Log[0].Level);
-            Assert.Equal(CoreStrings.LogMultiplePrimaryKeyCandidates.GenerateMessage(
-                nameof(EntityWithMultipleIds.ID), nameof(EntityWithMultipleIds.Id), nameof(EntityWithMultipleIds)), Log[0].Message);
+            Assert.Equal(
+                CoreStrings.LogMultiplePrimaryKeyCandidates.GenerateMessage(
+                    nameof(EntityWithMultipleIds.ID), nameof(EntityWithMultipleIds.Id), nameof(EntityWithMultipleIds)), Log[0].Message);
         }
 
         public List<(LogLevel Level, EventId Id, string Message)> Log { get; }

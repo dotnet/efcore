@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
                    from method in type.GetMethods(PublicInstance | BindingFlags.Static)
                    where method.ReturnType == typeof(void)
                    select type.Name + "." + method.Name)
-                .Except(new [] { "SqlServerDbContextOptionsBuilder.UseRowNumberForPaging" }) // TODO: #10808
+                .Except(new[] { "SqlServerDbContextOptionsBuilder.UseRowNumberForPaging" }) // TODO: #10808
                 .ToList();
 
             Assert.False(
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.GetTypeInfo().IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
-                         && type.Name =="IdentityShaper"
+                                                      && type.Name == "IdentityShaper"
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)

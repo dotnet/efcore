@@ -681,7 +681,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-
         [Fact]
         public virtual void Scalar_Nested_Function_UDF_Client_Static()
         {
@@ -1184,7 +1183,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(1, results);
             }
         }
-
 
         [Fact]
         public virtual void Scalar_Nested_Function_UDF_Client_Instance()

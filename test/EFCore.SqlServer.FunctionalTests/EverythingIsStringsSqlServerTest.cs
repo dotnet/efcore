@@ -193,7 +193,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         public class SqlServerStringsTestStoreFactory : SqlServerTestStoreFactory
         {
-            public new static SqlServerStringsTestStoreFactory Instance { get; } = new SqlServerStringsTestStoreFactory();
+            public static new SqlServerStringsTestStoreFactory Instance { get; } = new SqlServerStringsTestStoreFactory();
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(

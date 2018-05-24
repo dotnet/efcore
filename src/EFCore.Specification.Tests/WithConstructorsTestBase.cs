@@ -205,9 +205,18 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entityWithBase = new HasContextProperty<DbContext> { Id = id1 };
-                var entityWithDerived = new HasContextProperty<WithConstructorsContext> { Id = id2 };
-                var entityWithOther = new HasContextProperty<OtherContext> { Id = id3 };
+                var entityWithBase = new HasContextProperty<DbContext>
+                {
+                    Id = id1
+                };
+                var entityWithDerived = new HasContextProperty<WithConstructorsContext>
+                {
+                    Id = id2
+                };
+                var entityWithOther = new HasContextProperty<OtherContext>
+                {
+                    Id = id3
+                };
 
                 context.Attach(entityWithBase);
                 context.Attach(entityWithDerived);
@@ -278,7 +287,10 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entity = new HasEntityTypeProperty { Id = id };
+                var entity = new HasEntityTypeProperty
+                {
+                    Id = id
+                };
 
                 context.Attach(entity);
 
@@ -345,7 +357,10 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entity = new HasStateManagerProperty { Id = id };
+                var entity = new HasStateManagerProperty
+                {
+                    Id = id
+                };
 
                 context.Attach(entity);
 
@@ -503,7 +518,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyPropertyPost { Id = id, LazyPropertyBlogId = fk };
+                var post = new LazyPropertyPost
+                {
+                    Id = id,
+                    LazyPropertyBlogId = fk
+                };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -581,7 +600,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyFieldPost { Id = id, LazyFieldBlogId = fk };
+                var post = new LazyFieldPost
+                {
+                    Id = id,
+                    LazyFieldBlogId = fk
+                };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -634,7 +657,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyPcsPost { Id = id, LazyPcsBlogId = fk };
+                var post = new LazyPcsPost
+                {
+                    Id = id,
+                    LazyPcsBlogId = fk
+                };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -921,6 +948,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
+            // ReSharper disable once ConvertToAutoProperty
             public bool SetterCalled => _setterCalled;
 
             public TContext GetContext() => Context;
@@ -983,6 +1011,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public bool SetterCalled => _setterCalled;
 
             public IEntityType GetEntityType() => EntityType;
@@ -1045,6 +1074,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
+            // ReSharper disable once ConvertToAutoProperty
             public bool SetterCalled => _setterCalled;
 
             public IStateManager GetStateManager() => StateManager;
@@ -1230,6 +1260,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id { get; set; }
             public bool Filler { get; set; }
+
             public async Task<LazyAsyncPsBlog> LoadBlogAsync(CancellationToken cancellationToken = default)
             {
                 await LazyLoader(this, cancellationToken, nameof(LazyAsyncPsBlog));
@@ -1391,7 +1422,8 @@ namespace Microsoft.EntityFrameworkCore
                 set => _lazyPcsBlog = value;
             }
 
-            public Action<object, string> GetLoader() => _loader;        }
+            public Action<object, string> GetLoader() => _loader;
+        }
 
         protected class LazyPocoBlog
         {
@@ -1580,10 +1612,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Title);
                     });
 
-                modelBuilder.Query<BlogQuery>(b =>
-                {
-                    b.Property(e => e.Title);
-                });
+                modelBuilder.Query<BlogQuery>(b => { b.Property(e => e.Title); });
 
                 modelBuilder.Entity<Post>(
                     b =>

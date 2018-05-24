@@ -7,7 +7,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
     {
         public string VehicleName { get; set; }
         public string FuelType { get; set; }
+
         public string Capacity { get; set; }
+
         // #9005
         //public PoweredVehicle Vehicle { get; set; }
         public CombustionEngine Engine { get; set; }

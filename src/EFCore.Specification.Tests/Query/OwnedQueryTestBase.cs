@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(0, query.Count);
             }
         }
-        
+
         [Fact]
         public virtual void Query_for_base_type_loads_all_owned_navs()
         {
@@ -139,7 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Distinct()
                         .OrderBy(p => p.Id)
                         .Take(5)
-                        .Select(op => new { op })
+                        .Select(
+                            op => new
+                            {
+                                op
+                            })
                         .ToList();
 
                 Assert.Equal(4, people.Count);
@@ -158,121 +162,141 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-                modelBuilder.Entity<OwnedPerson>(eb =>
-                {
-                    eb.HasData(new OwnedPerson
+                modelBuilder.Entity<OwnedPerson>(
+                    eb =>
                     {
-                        Id = 1
+                        eb.HasData(
+                            new OwnedPerson
+                            {
+                                Id = 1
+                            });
+
+                        eb.OwnsOne(
+                            p => p.PersonAddress, ab =>
+                            {
+                                ab.HasData(
+                                    new
+                                    {
+                                        OwnedPersonId = 1
+                                    }, new
+                                    {
+                                        OwnedPersonId = 2
+                                    }, new
+                                    {
+                                        OwnedPersonId = 3
+                                    }, new
+                                    {
+                                        OwnedPersonId = 4
+                                    });
+
+                                ab.OwnsOne(a => a.Country).HasData(
+                                    new
+                                    {
+                                        OwnedAddressOwnedPersonId = 1,
+                                        Name = "USA"
+                                    }, new
+                                    {
+                                        OwnedAddressOwnedPersonId = 2,
+                                        Name = "USA"
+                                    }, new
+                                    {
+                                        OwnedAddressOwnedPersonId = 3,
+                                        Name = "USA"
+                                    }, new
+                                    {
+                                        OwnedAddressOwnedPersonId = 4,
+                                        Name = "USA"
+                                    });
+                            });
                     });
 
-                    eb.OwnsOne(p => p.PersonAddress, ab =>
+                modelBuilder.Entity<Branch>(
+                    eb =>
                     {
-                        ab.HasData(new
-                        {
-                            OwnedPersonId = 1
-                        }, new
-                        {
-                            OwnedPersonId = 2
-                        }, new
-                        {
-                            OwnedPersonId = 3
-                        }, new
-                        {
-                            OwnedPersonId = 4
-                        });
+                        eb.HasData(
+                            new Branch
+                            {
+                                Id = 2
+                            });
 
-                        ab.OwnsOne(a => a.Country).HasData(new
-                        {
-                            OwnedAddressOwnedPersonId = 1,
-                            Name = "USA"
-                        }, new
-                        {
-                            OwnedAddressOwnedPersonId = 2,
-                            Name = "USA"
-                        }, new
-                        {
-                            OwnedAddressOwnedPersonId = 3,
-                            Name = "USA"
-                        }, new
-                        {
-                            OwnedAddressOwnedPersonId = 4,
-                            Name = "USA"
-                        });
-                    });
-                });
+                        eb.OwnsOne(
+                            p => p.BranchAddress, ab =>
+                            {
+                                ab.HasData(
+                                    new
+                                    {
+                                        BranchId = 2
+                                    }, new
+                                    {
+                                        BranchId = 3
+                                    });
 
-                modelBuilder.Entity<Branch>(eb =>
-                {
-                    eb.HasData(new Branch
-                    {
-                        Id = 2
+                                ab.OwnsOne(a => a.Country).HasData(
+                                    new
+                                    {
+                                        OwnedAddressBranchId = 2,
+                                        Name = "Canada"
+                                    }, new
+                                    {
+                                        OwnedAddressBranchId = 3,
+                                        Name = "Canada"
+                                    });
+                            });
                     });
 
-                    eb.OwnsOne(p => p.BranchAddress, ab =>
+                modelBuilder.Entity<LeafA>(
+                    eb =>
                     {
-                        ab.HasData(new
-                        {
-                            BranchId = 2
-                        },new
-                        {
-                            BranchId = 3
-                        });
+                        eb.HasData(
+                            new LeafA
+                            {
+                                Id = 3
+                            });
 
-                        ab.OwnsOne(a => a.Country).HasData(new
-                        {
-                            OwnedAddressBranchId = 2,
-                            Name = "Canada"
-                        },new
-                        {
-                            OwnedAddressBranchId = 3,
-                            Name = "Canada"
-                        });
-                    });
-                });
+                        eb.OwnsOne(
+                            p => p.LeafAAddress, ab =>
+                            {
+                                ab.HasData(
+                                    new
+                                    {
+                                        LeafAId = 3
+                                    });
 
-                modelBuilder.Entity<LeafA>(eb =>
-                {
-                    eb.HasData(new LeafA
-                    {
-                        Id = 3
+                                ab.OwnsOne(a => a.Country).HasData(
+                                    new
+                                    {
+                                        OwnedAddressLeafAId = 3,
+                                        Name = "Mexico"
+                                    });
+                            });
                     });
 
-                    eb.OwnsOne(p => p.LeafAAddress, ab =>
+                modelBuilder.Entity<LeafB>(
+                    eb =>
                     {
-                        ab.HasData(new
-                        {
-                            LeafAId = 3
-                        });
+                        eb.HasData(
+                            new LeafB
+                            {
+                                Id = 4
+                            });
 
-                        ab.OwnsOne(a => a.Country).HasData(new
-                        {
-                            OwnedAddressLeafAId = 3,
-                            Name = "Mexico"
-                        });
+                        eb.OwnsOne(
+                            p => p.LeafBAddress, ab =>
+                            {
+                                ab.HasData(
+                                    new
+                                    {
+                                        LeafBId = 4
+                                    });
+
+                                ab.OwnsOne(a => a.Country).HasData(
+                                    new
+                                    {
+                                        OwnedAddressLeafBId = 4,
+                                        Name = "Panama"
+                                    });
+                            });
                     });
-                });
-
-                modelBuilder.Entity<LeafB>(eb =>
-                {
-                    eb.HasData(new LeafB
-                    {
-                        Id = 4
-                    });
-
-                    eb.OwnsOne(p => p.LeafBAddress, ab =>
-                    {
-                        ab.HasData(new
-                        {
-                            LeafBId = 4
-                        });
-
-                        ab.OwnsOne(a => a.Country).HasData(new
-                        {
-                            OwnedAddressLeafBId = 4,
-                            Name = "Panama"
-                        });
-                    });
-                });
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

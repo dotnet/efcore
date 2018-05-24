@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 6);
         }
 
-        private static Expression<Func<Order, bool>> _filter = o => o.CustomerID == "ALFKI";
+        private static readonly Expression<Func<Order, bool>> _filter = o => o.CustomerID == "ALFKI";
 
         [ConditionalFact]
         public virtual void Where_as_queryable_expression()
@@ -57,7 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_dictionary_key_access_closure()
         {
-            var predicateMap = new Dictionary<string, string> { ["City"] = "London" };
+            var predicateMap = new Dictionary<string, string>
+            {
+                ["City"] = "London"
+            };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == predicateMap["City"]),
@@ -114,7 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_method_call_nullable_type_closure_via_query_cache()
         {
-            var city = new City { Int = 2 };
+            var city = new City
+            {
+                Int = 2
+            };
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == city.Int),
@@ -130,7 +136,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_method_call_nullable_type_reverse_closure_via_query_cache()
         {
-            var city = new City { NullableInt = 1 };
+            var city = new City
+            {
+                NullableInt = 1
+            };
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.EmployeeID > city.NullableInt),
@@ -146,7 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_method_call_closure_via_query_cache()
         {
-            var city = new City { InstanceFieldValue = "London" };
+            var city = new City
+            {
+                InstanceFieldValue = "London"
+            };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.GetCity()),
@@ -162,7 +174,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_field_access_closure_via_query_cache()
         {
-            var city = new City { InstanceFieldValue = "London" };
+            var city = new City
+            {
+                InstanceFieldValue = "London"
+            };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.InstanceFieldValue),
@@ -178,7 +193,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_property_access_closure_via_query_cache()
         {
-            var city = new City { InstancePropertyValue = "London" };
+            var city = new City
+            {
+                InstancePropertyValue = "London"
+            };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.InstancePropertyValue),
@@ -226,7 +244,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_nested_field_access_closure_via_query_cache()
         {
-            var city = new City { Nested = new City { InstanceFieldValue = "London" } };
+            var city = new City
+            {
+                Nested = new City
+                {
+                    InstanceFieldValue = "London"
+                }
+            };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.Nested.InstanceFieldValue),
@@ -242,7 +266,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_nested_property_access_closure_via_query_cache()
         {
-            var city = new City { Nested = new City { InstancePropertyValue = "London" } };
+            var city = new City
+            {
+                Nested = new City
+                {
+                    InstancePropertyValue = "London"
+                }
+            };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.Nested.InstancePropertyValue),
@@ -289,11 +319,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_new_instance_field_access_closure_via_query_cache()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == new City { InstanceFieldValue = "London" }.InstanceFieldValue),
+                cs => cs.Where(
+                    c => c.City == new City
+                    {
+                        InstanceFieldValue = "London"
+                    }.InstanceFieldValue),
                 entryCount: 6);
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == new City { InstanceFieldValue = "Seattle" }.InstanceFieldValue),
+                cs => cs.Where(
+                    c => c.City == new City
+                    {
+                        InstanceFieldValue = "Seattle"
+                    }.InstanceFieldValue),
                 entryCount: 1);
         }
 
@@ -412,7 +450,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Employee>(
                 es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
-                    .Select(e => new { e, Title = EF.Property<string>(e, "Title") }),
+                    .Select(
+                        e => new
+                        {
+                            e,
+                            Title = EF.Property<string>(e, "Title")
+                        }),
                 e => e.e.EmployeeID,
                 entryCount: 6);
         }
@@ -867,7 +910,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                           || c.City == "Berlin"
                           || c.CustomerID == "ALFKI"
                           || c.CustomerID == "ABCDE"
-                    select new { c, e },
+                    select new
+                    {
+                        c,
+                        e
+                    },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 16);
         }
@@ -881,7 +928,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from e in es
                     where c.City != "London"
                           && e.City != "London"
-                    select new { c, e },
+                    select new
+                    {
+                        c,
+                        e
+                    },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 90);
         }
@@ -895,7 +946,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from e in es
                     where c.City != "London"
                           && c.City != "Berlin"
-                    select new { c, e },
+                    select new
+                    {
+                        c,
+                        e
+                    },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 93);
         }
@@ -910,7 +965,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where c.City != "London"
                           && c.City != "Berlin"
                           && c.City != "Seattle"
-                    select new { c, e },
+                    select new
+                    {
+                        c,
+                        e
+                    },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 92);
         }
@@ -926,7 +985,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                           && c.City != "Berlin"
                           && c.City != "Seattle"
                           && c.City != "Lisboa"
-                    select new { c, e },
+                    select new
+                    {
+                        c,
+                        e
+                    },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 90);
         }
@@ -938,10 +1001,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, es) =>
                     from c in cs
                     from e in es
-                        // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
                     where (c.City == "London" && c.Country == "UK")
                           && (e.City == "London" && e.Country == "UK")
-                    select new { c, e },
+                    select new
+                    {
+                        c,
+                        e
+                    },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 10);
         }
@@ -965,7 +1032,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_primitive_tracked2()
         {
             AssertQuery<Employee>(
-                es => es.Take(9).Select(e => new { e }).Where(e => e.e.EmployeeID == 5),
+                es => es.Take(9).Select(
+                    e => new
+                    {
+                        e
+                    }).Where(e => e.e.EmployeeID == 5),
                 e => e.e.EmployeeID,
                 entryCount: 1);
         }
@@ -1135,12 +1206,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_poco_closure()
         {
-            var customer = new Customer { CustomerID = "ALFKI" };
+            var customer = new Customer
+            {
+                CustomerID = "ALFKI"
+            };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.Equals(customer)).Select(c => c.CustomerID));
 
-            customer = new Customer { CustomerID = "ANATR" };
+            customer = new Customer
+            {
+                CustomerID = "ANATR"
+            };
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.Equals(customer)).Select(c => c.CustomerID));
@@ -1306,21 +1383,46 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_compare_constructed_equal()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => new { x = c.City } == new { x = "London" }));
+                cs => cs.Where(
+                    c => new
+                    {
+                        x = c.City
+                    } == new
+                    {
+                        x = "London"
+                    }));
         }
 
         [ConditionalFact]
         public virtual void Where_compare_constructed_multi_value_equal()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
+                cs => cs.Where(
+                    c => new
+                    {
+                        x = c.City,
+                        y = c.Country
+                    } == new
+                    {
+                        x = "London",
+                        y = "UK"
+                    }));
         }
 
         [ConditionalFact]
         public virtual void Where_compare_constructed_multi_value_not_equal()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }),
+                cs => cs.Where(
+                    c => new
+                    {
+                        x = c.City,
+                        y = c.Country
+                    } != new
+                    {
+                        x = "London",
+                        y = "UK"
+                    }),
                 entryCount: 91);
         }
 
@@ -1426,9 +1528,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<OrderDetail, Product, Order>(
                 (ods, ps, os) =>
-                    ods.Where(od =>
-                        ps.OrderBy(p => p.ProductID).Take(1).Select(p => p.ProductID).Contains(od.ProductID)
-                        || os.OrderBy(o => o.OrderID).Take(1).Select(o => o.OrderID).Contains(od.OrderID)),
+                    ods.Where(
+                        od =>
+                            ps.OrderBy(p => p.ProductID).Take(1).Select(p => p.ProductID).Contains(od.ProductID)
+                            || os.OrderBy(o => o.OrderID).Take(1).Select(o => o.OrderID).Contains(od.OrderID)),
                 entryCount: 41);
         }
 
@@ -1437,9 +1540,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<OrderDetail, Product, Order>(
                 (ods, ps, os) =>
-                    ods.Where(od =>
-                        ps.OrderBy(p => p.ProductID).Take(20).Select(p => p.ProductID).Contains(od.ProductID)
-                        && os.OrderBy(o => o.OrderID).Take(10).Select(o => o.OrderID).Contains(od.OrderID)),
+                    ods.Where(
+                        od =>
+                            ps.OrderBy(p => p.ProductID).Take(20).Select(p => p.ProductID).Contains(od.ProductID)
+                            && os.OrderBy(o => o.OrderID).Take(10).Select(o => o.OrderID).Contains(od.OrderID)),
                 entryCount: 5);
         }
 
@@ -1463,7 +1567,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_subquery_FirstOrDefault_compared_to_entity()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10243 }));
+                cs => cs.Where(
+                    c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order
+                    {
+                        OrderID = 10243
+                    }));
         }
     }
 }

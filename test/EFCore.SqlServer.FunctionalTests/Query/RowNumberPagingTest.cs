@@ -898,7 +898,7 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
             base.Projection_in_a_subquery_should_be_liftable();
 
             AssertSql(
-  @"@__p_0='1'
+                @"@__p_0='1'
 
 SELECT [t].[EmployeeID]
 FROM (

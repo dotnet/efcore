@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 (builder as IInfrastructure<EntityTypeBuilder>).Instance.ToTable(name);
             }
+
             return builder;
         }
 
@@ -101,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 (builder as IInfrastructure<EntityTypeBuilder>).Instance.ToTable(name, schema);
             }
+
             return builder;
         }
 
@@ -118,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 (builder as IInfrastructure<ReferenceOwnershipBuilder>).Instance.ToTable(name);
             }
+
             return builder;
         }
 
@@ -135,6 +138,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 (builder as IInfrastructure<ReferenceOwnershipBuilder>).Instance.ToTable(name, schema);
             }
+
             return builder;
         }
 

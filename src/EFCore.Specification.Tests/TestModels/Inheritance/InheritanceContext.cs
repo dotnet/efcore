@@ -44,11 +44,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
                 Name = "Common daisy"
             };
 
-            var nz = new Country { Id = 1, Name = "New Zealand" };
+            var nz = new Country
+            {
+                Id = 1,
+                Name = "New Zealand"
+            };
 
             nz.Animals.Add(kiwi);
 
-            var usa = new Country { Id = 2, Name = "USA" };
+            var usa = new Country
+            {
+                Id = 2,
+                Name = "USA"
+            };
 
             usa.Animals.Add(eagle);
 
@@ -60,9 +68,22 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
             context.Set<Daisy>().Add(daisy);
 
             context.AddRange(
-                new Tea { HasMilk = true, CaffeineGrams = 1 },
-                new Lilt { SugarGrams = 4, Carbination = 7 },
-                new Coke { SugarGrams = 6, CaffeineGrams = 4, Carbination = 5 });
+                new Tea
+                {
+                    HasMilk = true,
+                    CaffeineGrams = 1
+                },
+                new Lilt
+                {
+                    SugarGrams = 4,
+                    Carbination = 7
+                },
+                new Coke
+                {
+                    SugarGrams = 6,
+                    CaffeineGrams = 4,
+                    Carbination = 5
+                });
 
             context.SaveChanges();
         }

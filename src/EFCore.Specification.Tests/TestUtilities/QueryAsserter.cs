@@ -339,7 +339,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
                 if (firstNonNullableElement != null)
                 {
-                    if (!assertOrder && elementSorter == null)
+                    if (!assertOrder
+                        && elementSorter == null)
                     {
                         _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out elementSorter);
                     }
@@ -400,7 +401,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
                 if (firstNonNullableElement != null)
                 {
-                    if (!assertOrder && elementSorter == null)
+                    if (!assertOrder
+                        && elementSorter == null)
                     {
                         _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out elementSorter);
                     }
@@ -464,7 +466,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
                 if (firstNonNullableElement != null)
                 {
-                    if (!assertOrder && elementSorter == null)
+                    if (!assertOrder
+                        && elementSorter == null)
                     {
                         _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out elementSorter);
                     }
@@ -884,8 +887,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var entityOrQueryType = context.Model.FindEntityType(typeof(TEntity));
 
                 return entityOrQueryType.IsQueryType
-                        ? (IQueryable<TEntity>)context.Query<TEntity>()
-                        : context.Set<TEntity>();
+                    ? (IQueryable<TEntity>)context.Query<TEntity>()
+                    : context.Set<TEntity>();
             }
         }
     }

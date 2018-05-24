@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-#if !Test20
-using Microsoft.EntityFrameworkCore.InMemory.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
+#if !Test20
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
+#endif
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
@@ -149,10 +149,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = new WarningAsErrorContext(loggerFactory))
             {
-                context.Add(new WarningAsErrorEntity
-                {
-                    Nav = new IncludedEntity()
-                });
+                context.Add(
+                    new WarningAsErrorEntity
+                    {
+                        Nav = new IncludedEntity()
+                    });
                 context.SaveChanges();
             }
 
@@ -181,10 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 loggerFactory,
                 CoreEventId.LazyLoadOnDisposedContextWarning))
             {
-                context.Add(new WarningAsErrorEntity
-                {
-                    Nav = new IncludedEntity()
-                });
+                context.Add(
+                    new WarningAsErrorEntity
+                    {
+                        Nav = new IncludedEntity()
+                    });
                 context.SaveChanges();
             }
 
@@ -211,10 +213,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = new WarningAsErrorContext(loggerFactory))
             {
-                context.Add(new WarningAsErrorEntity
-                {
-                    Nav = new IncludedEntity()
-                });
+                context.Add(
+                    new WarningAsErrorEntity
+                    {
+                        Nav = new IncludedEntity()
+                    });
                 context.SaveChanges();
             }
 

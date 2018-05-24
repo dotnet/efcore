@@ -15,7 +15,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new PusheenContext())
             {
-                context.Add(new Pusheen { Activity = "In a box" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "In a box"
+                    });
                 context.SaveChanges();
             }
 
@@ -30,7 +34,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new PusheenContext(nameof(PusheenContext)))
             {
-                context.Add(new Pusheen { Activity = "In a box" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "In a box"
+                    });
                 context.SaveChanges();
             }
 
@@ -48,7 +56,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new PusheenContext(nameof(PusheenContext), provider1))
             {
-                context.Add(new Pusheen { Activity = "In a box" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "In a box"
+                    });
                 context.SaveChanges();
             }
 
@@ -56,7 +68,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Empty(context.Pusheens);
 
-                context.Add(new Pusheen { Activity = "With some yarn" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "With some yarn"
+                    });
                 context.SaveChanges();
             }
 
@@ -76,7 +92,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new PusheenContext("Cats"))
             {
-                context.Add(new Pusheen { Activity = "In a box" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "In a box"
+                    });
                 context.SaveChanges();
             }
 
@@ -84,7 +104,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Empty(context.Pusheens);
 
-                context.Add(new Pusheen { Activity = "With some yarn" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "With some yarn"
+                    });
                 context.SaveChanges();
             }
 
@@ -107,7 +131,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new PusheenContext("Cats", provider1))
             {
-                context.Add(new Pusheen { Activity = "In a box" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "In a box"
+                    });
                 context.SaveChanges();
             }
 
@@ -115,7 +143,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Empty(context.Pusheens);
 
-                context.Add(new Pusheen { Activity = "With some yarn" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "With some yarn"
+                    });
                 context.SaveChanges();
             }
 
@@ -123,7 +155,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Empty(context.Pusheens);
 
-                context.Add(new Pusheen { Activity = "On a scooter" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "On a scooter"
+                    });
                 context.SaveChanges();
             }
 
@@ -131,7 +167,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Empty(context.Pusheens);
 
-                context.Add(new Pusheen { Activity = "Is a DJ" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "Is a DJ"
+                    });
                 context.SaveChanges();
             }
 
@@ -139,7 +179,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Empty(context.Pusheens);
 
-                context.Add(new Pusheen { Activity = "Goes to sleep" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "Goes to sleep"
+                    });
                 context.SaveChanges();
             }
 
@@ -147,7 +191,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Empty(context.Pusheens);
 
-                context.Add(new Pusheen { Activity = "Loves magic unicorns" });
+                context.Add(
+                    new Pusheen
+                    {
+                        Activity = "Loves magic unicorns"
+                    });
                 context.SaveChanges();
             }
 

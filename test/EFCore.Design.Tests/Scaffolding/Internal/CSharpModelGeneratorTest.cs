@@ -48,10 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static IModelCodeGenerator CreateGenerator()
             => new ServiceCollection()
-            .AddEntityFrameworkDesignTimeServices()
-            .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
-            .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
-            .BuildServiceProvider()
-            .GetRequiredService<IModelCodeGenerator>();
+                .AddEntityFrameworkDesignTimeServices()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
+                .BuildServiceProvider()
+                .GetRequiredService<IModelCodeGenerator>();
     }
 }

@@ -7,7 +7,6 @@ using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -148,7 +147,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         fixedLength))
             {
             }
-
         }
 
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)

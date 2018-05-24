@@ -7,14 +7,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 #if Test20
 using Microsoft.EntityFrameworkCore.Internal;
 #else
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 #endif
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValue = 0,
                     IsNullable = false,
                     [SqlServerAnnotationNames.ValueGenerationStrategy] =
-                    SqlServerValueGenerationStrategy.IdentityColumn
+                        SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Id",
                     ClrType = typeof(int),
                     [SqlServerAnnotationNames.ValueGenerationStrategy] =
-                    SqlServerValueGenerationStrategy.IdentityColumn
+                        SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -637,7 +637,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void CreateDatabaseOperation()
         {
-            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind" });
+            Generate(
+                new SqlServerCreateDatabaseOperation
+                {
+                    Name = "Northwind"
+                });
 
             Assert.Equal(
                 "CREATE DATABASE [Northwind];" + EOL +
@@ -653,7 +657,12 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void CreateDatabaseOperation_with_filename()
         {
-            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "Narf.mdf" });
+            Generate(
+                new SqlServerCreateDatabaseOperation
+                {
+                    Name = "Northwind",
+                    FileName = "Narf.mdf"
+                });
 
             var expectedFile = Path.GetFullPath("Narf.mdf");
             var expectedLog = Path.GetFullPath("Narf_log.ldf");
@@ -676,7 +685,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "|DataDirectory|Narf.mdf" });
+            Generate(
+                new SqlServerCreateDatabaseOperation
+                {
+                    Name = "Northwind",
+                    FileName = "|DataDirectory|Narf.mdf"
+                });
 
             var expectedFile = Path.Combine(baseDirectory, "Narf.mdf");
             var expectedLog = Path.Combine(baseDirectory, "Narf_log.ldf");
@@ -701,7 +715,12 @@ namespace Microsoft.EntityFrameworkCore
 
             AppDomain.CurrentDomain.SetData("DataDirectory", dataDirectory);
 
-            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "|DataDirectory|Narf.mdf" });
+            Generate(
+                new SqlServerCreateDatabaseOperation
+                {
+                    Name = "Northwind",
+                    FileName = "|DataDirectory|Narf.mdf"
+                });
 
             AppDomain.CurrentDomain.SetData("DataDirectory", null);
 
@@ -725,7 +744,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void AlterDatabaseOperationOperation()
         {
-            Generate(new AlterDatabaseOperation { [SqlServerAnnotationNames.MemoryOptimized] = true });
+            Generate(
+                new AlterDatabaseOperation
+                {
+                    [SqlServerAnnotationNames.MemoryOptimized] = true
+                });
 
             Assert.Contains(
                 "CONTAINS MEMORY_OPTIMIZED_DATA;",
@@ -757,14 +780,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.0.0"),
-                   new CreateIndexOperation
-                   {
-                       Name = "IX_People_Name",
-                       Table = "People",
-                       Schema = "dbo",
-                       Columns = new[] { "FirstName", "LastName" },
-                       IsUnique = true
-                   });
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Schema = "dbo",
+                    Columns = new[] { "FirstName", "LastName" },
+                    IsUnique = true
+                });
 
             Assert.Equal(
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]);" + EOL,
@@ -906,7 +929,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void CreateSchemaOperation()
         {
-            Generate(new EnsureSchemaOperation { Name = "my" });
+            Generate(
+                new EnsureSchemaOperation
+                {
+                    Name = "my"
+                });
 
             Assert.Equal(
                 "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');" + EOL,
@@ -916,7 +943,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void CreateSchemaOperation_dbo()
         {
-            Generate(new EnsureSchemaOperation { Name = "dbo" });
+            Generate(
+                new EnsureSchemaOperation
+                {
+                    Name = "dbo"
+                });
 
             Assert.Equal(
                 "",
@@ -942,10 +973,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void DropDatabaseOperation()
         {
-            Generate(new SqlServerDropDatabaseOperation { Name = "Northwind" });
+            Generate(
+                new SqlServerDropDatabaseOperation
+                {
+                    Name = "Northwind"
+                });
 
             Assert.Equal(
-
                 "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
                 "BEGIN" + EOL +
                 "    ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;" + EOL +

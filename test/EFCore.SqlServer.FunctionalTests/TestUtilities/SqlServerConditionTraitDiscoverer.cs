@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 return Enumerable.Empty<KeyValuePair<string, string>>();
             }
+
             return Enum.GetValues(typeof(SqlServerCondition)).Cast<SqlServerCondition>()
                 .Where(c => sqlServerCondition.Conditions.HasFlag(c))
                 .Select(c => new KeyValuePair<string, string>(nameof(SqlServerCondition), c.ToString()));

@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
@@ -93,12 +93,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>(cb =>
+            modelBuilder.Entity<Cat>(
+                cb =>
                 {
                     cb.Property(c => c.Identity).UseSqlServerIdentityColumn();
                     cb.Property(c => c.Identity).HasColumnName(nameof(Cat.Identity));
                 });
-            modelBuilder.Entity<Dog>(db =>
+            modelBuilder.Entity<Dog>(
+                db =>
                 {
                     db.Property(d => d.Identity).ValueGeneratedNever();
                     db.Property(c => c.Identity).HasColumnName(nameof(Dog.Identity));

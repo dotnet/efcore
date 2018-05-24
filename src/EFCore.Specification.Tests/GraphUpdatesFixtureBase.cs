@@ -31,107 +31,107 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Root>(
                     b =>
-                        {
-                            b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
+                    {
+                        b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
 
-                            b.HasMany(e => e.RequiredChildren)
-                                .WithOne(e => e.Parent)
-                                .HasForeignKey(e => e.ParentId);
+                        b.HasMany(e => e.RequiredChildren)
+                            .WithOne(e => e.Parent)
+                            .HasForeignKey(e => e.ParentId);
 
-                            b.HasMany(e => e.OptionalChildren)
-                                .WithOne(e => e.Parent)
-                                .HasForeignKey(e => e.ParentId)
-                                .OnDelete(DeleteBehavior.SetNull);
+                        b.HasMany(e => e.OptionalChildren)
+                            .WithOne(e => e.Parent)
+                            .HasForeignKey(e => e.ParentId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
-                            b.HasOne(e => e.RequiredSingle)
-                                .WithOne(e => e.Root)
-                                .HasForeignKey<RequiredSingle1>(e => e.Id);
+                        b.HasOne(e => e.RequiredSingle)
+                            .WithOne(e => e.Root)
+                            .HasForeignKey<RequiredSingle1>(e => e.Id);
 
-                            b.HasOne(e => e.OptionalSingle)
-                                .WithOne(e => e.Root)
-                                .HasForeignKey<OptionalSingle1>(e => e.RootId)
-                                .OnDelete(DeleteBehavior.SetNull);
+                        b.HasOne(e => e.OptionalSingle)
+                            .WithOne(e => e.Root)
+                            .HasForeignKey<OptionalSingle1>(e => e.RootId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
-                            b.HasOne(e => e.OptionalSingleDerived)
-                                .WithOne(e => e.DerivedRoot)
-                                .HasForeignKey<OptionalSingle1Derived>(e => e.DerivedRootId)
-                                .OnDelete(DeleteBehavior.ClientSetNull);
+                        b.HasOne(e => e.OptionalSingleDerived)
+                            .WithOne(e => e.DerivedRoot)
+                            .HasForeignKey<OptionalSingle1Derived>(e => e.DerivedRootId)
+                            .OnDelete(DeleteBehavior.ClientSetNull);
 
-                            b.HasOne(e => e.OptionalSingleMoreDerived)
-                                .WithOne(e => e.MoreDerivedRoot)
-                                .HasForeignKey<OptionalSingle1MoreDerived>(e => e.MoreDerivedRootId)
-                                .OnDelete(DeleteBehavior.ClientSetNull);
+                        b.HasOne(e => e.OptionalSingleMoreDerived)
+                            .WithOne(e => e.MoreDerivedRoot)
+                            .HasForeignKey<OptionalSingle1MoreDerived>(e => e.MoreDerivedRootId)
+                            .OnDelete(DeleteBehavior.ClientSetNull);
 
-                            b.HasOne(e => e.RequiredNonPkSingle)
-                                .WithOne(e => e.Root)
-                                .HasForeignKey<RequiredNonPkSingle1>(e => e.RootId);
+                        b.HasOne(e => e.RequiredNonPkSingle)
+                            .WithOne(e => e.Root)
+                            .HasForeignKey<RequiredNonPkSingle1>(e => e.RootId);
 
-                            b.HasOne(e => e.RequiredNonPkSingleDerived)
-                                .WithOne(e => e.DerivedRoot)
-                                .HasForeignKey<RequiredNonPkSingle1Derived>(e => e.DerivedRootId)
-                                .OnDelete(DeleteBehavior.Restrict);
+                        b.HasOne(e => e.RequiredNonPkSingleDerived)
+                            .WithOne(e => e.DerivedRoot)
+                            .HasForeignKey<RequiredNonPkSingle1Derived>(e => e.DerivedRootId)
+                            .OnDelete(DeleteBehavior.Restrict);
 
-                            b.HasOne(e => e.RequiredNonPkSingleMoreDerived)
-                                .WithOne(e => e.MoreDerivedRoot)
-                                .HasForeignKey<RequiredNonPkSingle1MoreDerived>(e => e.MoreDerivedRootId)
-                                .OnDelete(DeleteBehavior.Restrict);
+                        b.HasOne(e => e.RequiredNonPkSingleMoreDerived)
+                            .WithOne(e => e.MoreDerivedRoot)
+                            .HasForeignKey<RequiredNonPkSingle1MoreDerived>(e => e.MoreDerivedRootId)
+                            .OnDelete(DeleteBehavior.Restrict);
 
-                            b.HasMany(e => e.RequiredChildrenAk)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.ParentId);
+                        b.HasMany(e => e.RequiredChildrenAk)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.ParentId);
 
-                            b.HasMany(e => e.OptionalChildrenAk)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.ParentId)
-                                .OnDelete(DeleteBehavior.SetNull);
+                        b.HasMany(e => e.OptionalChildrenAk)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.ParentId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
-                            b.HasOne(e => e.RequiredSingleAk)
-                                .WithOne(e => e.Root)
-                                .HasPrincipalKey<Root>(e => e.AlternateId)
-                                .HasForeignKey<RequiredSingleAk1>(e => e.RootId);
+                        b.HasOne(e => e.RequiredSingleAk)
+                            .WithOne(e => e.Root)
+                            .HasPrincipalKey<Root>(e => e.AlternateId)
+                            .HasForeignKey<RequiredSingleAk1>(e => e.RootId);
 
-                            b.HasOne(e => e.OptionalSingleAk)
-                                .WithOne(e => e.Root)
-                                .HasPrincipalKey<Root>(e => e.AlternateId)
-                                .HasForeignKey<OptionalSingleAk1>(e => e.RootId)
-                                .OnDelete(DeleteBehavior.SetNull);
+                        b.HasOne(e => e.OptionalSingleAk)
+                            .WithOne(e => e.Root)
+                            .HasPrincipalKey<Root>(e => e.AlternateId)
+                            .HasForeignKey<OptionalSingleAk1>(e => e.RootId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
-                            b.HasOne(e => e.OptionalSingleAkDerived)
-                                .WithOne(e => e.DerivedRoot)
-                                .HasPrincipalKey<Root>(e => e.AlternateId)
-                                .HasForeignKey<OptionalSingleAk1Derived>(e => e.DerivedRootId)
-                                .OnDelete(DeleteBehavior.ClientSetNull);
+                        b.HasOne(e => e.OptionalSingleAkDerived)
+                            .WithOne(e => e.DerivedRoot)
+                            .HasPrincipalKey<Root>(e => e.AlternateId)
+                            .HasForeignKey<OptionalSingleAk1Derived>(e => e.DerivedRootId)
+                            .OnDelete(DeleteBehavior.ClientSetNull);
 
-                            b.HasOne(e => e.OptionalSingleAkMoreDerived)
-                                .WithOne(e => e.MoreDerivedRoot)
-                                .HasPrincipalKey<Root>(e => e.AlternateId)
-                                .HasForeignKey<OptionalSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
-                                .OnDelete(DeleteBehavior.ClientSetNull);
+                        b.HasOne(e => e.OptionalSingleAkMoreDerived)
+                            .WithOne(e => e.MoreDerivedRoot)
+                            .HasPrincipalKey<Root>(e => e.AlternateId)
+                            .HasForeignKey<OptionalSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
+                            .OnDelete(DeleteBehavior.ClientSetNull);
 
-                            b.HasOne(e => e.RequiredNonPkSingleAk)
-                                .WithOne(e => e.Root)
-                                .HasPrincipalKey<Root>(e => e.AlternateId)
-                                .HasForeignKey<RequiredNonPkSingleAk1>(e => e.RootId);
+                        b.HasOne(e => e.RequiredNonPkSingleAk)
+                            .WithOne(e => e.Root)
+                            .HasPrincipalKey<Root>(e => e.AlternateId)
+                            .HasForeignKey<RequiredNonPkSingleAk1>(e => e.RootId);
 
-                            b.HasOne(e => e.RequiredNonPkSingleAkDerived)
-                                .WithOne(e => e.DerivedRoot)
-                                .HasPrincipalKey<Root>(e => e.AlternateId)
-                                .HasForeignKey<RequiredNonPkSingleAk1Derived>(e => e.DerivedRootId)
-                                .OnDelete(DeleteBehavior.Restrict);
+                        b.HasOne(e => e.RequiredNonPkSingleAkDerived)
+                            .WithOne(e => e.DerivedRoot)
+                            .HasPrincipalKey<Root>(e => e.AlternateId)
+                            .HasForeignKey<RequiredNonPkSingleAk1Derived>(e => e.DerivedRootId)
+                            .OnDelete(DeleteBehavior.Restrict);
 
-                            b.HasOne(e => e.RequiredNonPkSingleAkMoreDerived)
-                                .WithOne(e => e.MoreDerivedRoot)
-                                .HasPrincipalKey<Root>(e => e.AlternateId)
-                                .HasForeignKey<RequiredNonPkSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
-                                .OnDelete(DeleteBehavior.Restrict);
+                        b.HasOne(e => e.RequiredNonPkSingleAkMoreDerived)
+                            .WithOne(e => e.MoreDerivedRoot)
+                            .HasPrincipalKey<Root>(e => e.AlternateId)
+                            .HasForeignKey<RequiredNonPkSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
+                            .OnDelete(DeleteBehavior.Restrict);
 
-                            b.HasMany(e => e.RequiredCompositeChildren)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.ParentAlternateId);
-                        });
+                        b.HasMany(e => e.RequiredCompositeChildren)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.ParentAlternateId);
+                    });
 
                 modelBuilder.Entity<Required1>()
                     .HasMany(e => e.Children)
@@ -145,16 +145,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<Optional1>(
                     b =>
-                        {
-                            b.HasMany(e => e.Children)
-                                .WithOne(e => e.Parent)
-                                .HasForeignKey(e => e.ParentId)
-                                .OnDelete(DeleteBehavior.SetNull);
+                    {
+                        b.HasMany(e => e.Children)
+                            .WithOne(e => e.Parent)
+                            .HasForeignKey(e => e.ParentId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
-                            b.HasMany(e => e.CompositeChildren)
-                                .WithOne(e => e.Parent2)
-                                .HasForeignKey(e => new { e.Parent2Id });
-                        });
+                        b.HasMany(e => e.CompositeChildren)
+                            .WithOne(e => e.Parent2)
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.Parent2Id
+                                });
+                    });
 
                 modelBuilder.Entity<Optional1Derived>();
                 modelBuilder.Entity<Optional1MoreDerived>();
@@ -185,94 +189,134 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<RequiredAk1>(
                     b =>
-                        {
-                            b.Property(e => e.AlternateId)
-                                .ValueGeneratedOnAdd();
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
 
-                            b.HasMany(e => e.Children)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.ParentId);
+                        b.HasMany(e => e.Children)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.ParentId);
 
-                            b.HasMany(e => e.CompositeChildren)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => new { e.Id, e.AlternateId })
-                                .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
-                        });
+                        b.HasMany(e => e.CompositeChildren)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.AlternateId
+                                })
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.ParentId,
+                                    e.ParentAlternateId
+                                });
+                    });
 
                 modelBuilder.Entity<RequiredAk1Derived>();
                 modelBuilder.Entity<RequiredAk1MoreDerived>();
 
                 modelBuilder.Entity<OptionalAk1>(
                     b =>
-                        {
-                            b.Property(e => e.AlternateId)
-                                .ValueGeneratedOnAdd();
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
 
-                            b.HasMany(e => e.Children)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.ParentId)
-                                .OnDelete(DeleteBehavior.SetNull);
+                        b.HasMany(e => e.Children)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.ParentId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
-                            b.HasMany(e => e.CompositeChildren)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => new { e.Id, e.AlternateId })
-                                .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
-                        });
+                        b.HasMany(e => e.CompositeChildren)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.AlternateId
+                                })
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.ParentId,
+                                    e.ParentAlternateId
+                                });
+                    });
 
                 modelBuilder.Entity<OptionalAk1Derived>();
                 modelBuilder.Entity<OptionalAk1MoreDerived>();
 
                 modelBuilder.Entity<RequiredSingleAk1>(
                     b =>
-                        {
-                            b.Property(e => e.AlternateId)
-                                .ValueGeneratedOnAdd();
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
 
-                            b.HasOne(e => e.Single)
-                                .WithOne(e => e.Back)
-                                .HasForeignKey<RequiredSingleAk2>(e => e.BackId)
-                                .HasPrincipalKey<RequiredSingleAk1>(e => e.AlternateId);
+                        b.HasOne(e => e.Single)
+                            .WithOne(e => e.Back)
+                            .HasForeignKey<RequiredSingleAk2>(e => e.BackId)
+                            .HasPrincipalKey<RequiredSingleAk1>(e => e.AlternateId);
 
-                            b.HasOne(e => e.SingleComposite)
-                                .WithOne(e => e.Back)
-                                .HasForeignKey<RequiredSingleComposite2>(e => new { e.BackId, e.BackAlternateId })
-                                .HasPrincipalKey<RequiredSingleAk1>(e => new { e.Id, e.AlternateId });
-                        });
+                        b.HasOne(e => e.SingleComposite)
+                            .WithOne(e => e.Back)
+                            .HasForeignKey<RequiredSingleComposite2>(
+                                e => new
+                                {
+                                    e.BackId,
+                                    e.BackAlternateId
+                                })
+                            .HasPrincipalKey<RequiredSingleAk1>(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.AlternateId
+                                });
+                    });
 
                 modelBuilder.Entity<OptionalSingleAk1>(
                     b =>
-                        {
-                            b.Property(e => e.AlternateId)
-                                .ValueGeneratedOnAdd();
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
 
-                            b.HasOne(e => e.Single)
-                                .WithOne(e => e.Back)
-                                .HasForeignKey<OptionalSingleAk2>(e => e.BackId)
-                                .HasPrincipalKey<OptionalSingleAk1>(e => e.AlternateId)
-                                .OnDelete(DeleteBehavior.SetNull);
+                        b.HasOne(e => e.Single)
+                            .WithOne(e => e.Back)
+                            .HasForeignKey<OptionalSingleAk2>(e => e.BackId)
+                            .HasPrincipalKey<OptionalSingleAk1>(e => e.AlternateId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
-                            b.HasOne(e => e.SingleComposite)
-                                .WithOne(e => e.Back)
-                                .HasForeignKey<OptionalSingleComposite2>(e => new { e.BackId, e.ParentAlternateId })
-                                .HasPrincipalKey<OptionalSingleAk1>(e => new { e.Id, e.AlternateId });
-                        });
+                        b.HasOne(e => e.SingleComposite)
+                            .WithOne(e => e.Back)
+                            .HasForeignKey<OptionalSingleComposite2>(
+                                e => new
+                                {
+                                    e.BackId,
+                                    e.ParentAlternateId
+                                })
+                            .HasPrincipalKey<OptionalSingleAk1>(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.AlternateId
+                                });
+                    });
 
                 modelBuilder.Entity<OptionalSingleAk2Derived>();
                 modelBuilder.Entity<OptionalSingleAk2MoreDerived>();
 
                 modelBuilder.Entity<RequiredNonPkSingleAk1>(
                     b =>
-                        {
-                            b.Property(e => e.AlternateId)
-                                .ValueGeneratedOnAdd();
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
 
-                            b.HasOne(e => e.Single)
-                                .WithOne(e => e.Back)
-                                .HasForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
-                                .HasPrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
-                        });
+                        b.HasOne(e => e.Single)
+                            .WithOne(e => e.Back)
+                            .HasForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
+                            .HasPrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
+                    });
 
                 modelBuilder.Entity<RequiredAk2>()
                     .Property(e => e.AlternateId)
@@ -305,25 +349,45 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<RequiredComposite1>(
                     eb =>
-                        {
-                            eb.HasKey(e => new { e.Id, e.ParentAlternateId });
+                    {
+                        eb.HasKey(
+                            e => new
+                            {
+                                e.Id,
+                                e.ParentAlternateId
+                            });
 
-                            eb.HasMany(e => e.CompositeChildren)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => new { e.Id, e.ParentAlternateId })
-                                .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
-                        });
+                        eb.HasMany(e => e.CompositeChildren)
+                            .WithOne(e => e.Parent)
+                            .HasPrincipalKey(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.ParentAlternateId
+                                })
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.ParentId,
+                                    e.ParentAlternateId
+                                });
+                    });
 
                 modelBuilder.Entity<OptionalOverlaping2>(
                     eb =>
-                        {
-                            eb.HasKey(e => new { e.Id, e.ParentAlternateId });
+                    {
+                        eb.HasKey(
+                            e => new
+                            {
+                                e.Id,
+                                e.ParentAlternateId
+                            });
 
-                            eb.HasOne(e => e.Root)
-                                .WithMany()
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.ParentAlternateId);
-                        });
+                        eb.HasOne(e => e.Root)
+                            .WithMany()
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.ParentAlternateId);
+                    });
 
                 modelBuilder.Entity<BadCustomer>();
                 modelBuilder.Entity<BadOrder>();
@@ -411,8 +475,14 @@ namespace Microsoft.EntityFrameworkCore
                             AlternateId = Guid.NewGuid(),
                             Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                             {
-                                new RequiredAk2 { AlternateId = Guid.NewGuid() },
-                                new RequiredAk2 { AlternateId = Guid.NewGuid() }
+                                new RequiredAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                },
+                                new RequiredAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                }
                             },
                             CompositeChildren = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
                             {
@@ -425,8 +495,14 @@ namespace Microsoft.EntityFrameworkCore
                             AlternateId = Guid.NewGuid(),
                             Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                             {
-                                new RequiredAk2 { AlternateId = Guid.NewGuid() },
-                                new RequiredAk2 { AlternateId = Guid.NewGuid() }
+                                new RequiredAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                },
+                                new RequiredAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                }
                             },
                             CompositeChildren = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
                             {
@@ -442,8 +518,14 @@ namespace Microsoft.EntityFrameworkCore
                             AlternateId = Guid.NewGuid(),
                             Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalAk2 { AlternateId = Guid.NewGuid() },
-                                new OptionalAk2 { AlternateId = Guid.NewGuid() }
+                                new OptionalAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                },
+                                new OptionalAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                }
                             },
                             CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                             {
@@ -456,8 +538,14 @@ namespace Microsoft.EntityFrameworkCore
                             AlternateId = Guid.NewGuid(),
                             Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalAk2 { AlternateId = Guid.NewGuid() },
-                                new OptionalAk2 { AlternateId = Guid.NewGuid() }
+                                new OptionalAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                },
+                                new OptionalAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                }
                             },
                             CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                             {
@@ -469,40 +557,61 @@ namespace Microsoft.EntityFrameworkCore
                     RequiredSingleAk = new RequiredSingleAk1
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() },
+                        Single = new RequiredSingleAk2
+                        {
+                            AlternateId = Guid.NewGuid()
+                        },
                         SingleComposite = new RequiredSingleComposite2()
                     },
                     OptionalSingleAk = new OptionalSingleAk1
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() },
+                        Single = new OptionalSingleAk2
+                        {
+                            AlternateId = Guid.NewGuid()
+                        },
                         SingleComposite = new OptionalSingleComposite2()
                     },
                     OptionalSingleAkDerived = new OptionalSingleAk1Derived
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() }
+                        Single = new OptionalSingleAk2Derived
+                        {
+                            AlternateId = Guid.NewGuid()
+                        }
                     },
                     OptionalSingleAkMoreDerived = new OptionalSingleAk1MoreDerived
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() }
+                        Single = new OptionalSingleAk2MoreDerived
+                        {
+                            AlternateId = Guid.NewGuid()
+                        }
                     },
                     RequiredNonPkSingleAk = new RequiredNonPkSingleAk1
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() }
+                        Single = new RequiredNonPkSingleAk2
+                        {
+                            AlternateId = Guid.NewGuid()
+                        }
                     },
                     RequiredNonPkSingleAkDerived = new RequiredNonPkSingleAk1Derived
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredNonPkSingleAk2Derived { AlternateId = Guid.NewGuid() },
+                        Single = new RequiredNonPkSingleAk2Derived
+                        {
+                            AlternateId = Guid.NewGuid()
+                        },
                         Root = new Root()
                     },
                     RequiredNonPkSingleAkMoreDerived = new RequiredNonPkSingleAk1MoreDerived
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredNonPkSingleAk2MoreDerived { AlternateId = Guid.NewGuid() },
+                        Single = new RequiredNonPkSingleAk2MoreDerived
+                        {
+                            AlternateId = Guid.NewGuid()
+                        },
                         Root = new Root(),
                         DerivedRoot = new Root()
                     },
@@ -513,8 +622,14 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 1,
                             CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlaping2 { Id = 1 },
-                                new OptionalOverlaping2 { Id = 2 }
+                                new OptionalOverlaping2
+                                {
+                                    Id = 1
+                                },
+                                new OptionalOverlaping2
+                                {
+                                    Id = 2
+                                }
                             }
                         },
                         new RequiredComposite1
@@ -522,8 +637,14 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 2,
                             CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlaping2 { Id = 3 },
-                                new OptionalOverlaping2 { Id = 4 }
+                                new OptionalOverlaping2
+                                {
+                                    Id = 3
+                                },
+                                new OptionalOverlaping2
+                                {
+                                    Id = 4
+                                }
                             }
                         }
                     }
@@ -535,7 +656,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.ChangeTracker.TrackGraph(CreateFullGraph(), e => tracker.TrackEntity(e.Entry));
 
-                context.Add(new BadOrder { BadCustomer = new BadCustomer() });
+                context.Add(
+                    new BadOrder
+                    {
+                        BadCustomer = new BadCustomer()
+                    });
 
                 context.SaveChanges();
             }
@@ -740,8 +865,18 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(expected.RequiredNonPkSingleAkMoreDerived?.Single?.AlternateId, actual.RequiredNonPkSingleAkMoreDerived?.Single?.AlternateId);
 
             Assert.Equal(
-                expected.RequiredCompositeChildren.OrderBy(e => e.Id).Select(e => new { e.Id, e.ParentAlternateId }),
-                actual.RequiredCompositeChildren.OrderBy(e => e.Id).Select(e => new { e.Id, e.ParentAlternateId }));
+                expected.RequiredCompositeChildren.OrderBy(e => e.Id).Select(
+                    e => new
+                    {
+                        e.Id,
+                        e.ParentAlternateId
+                    }),
+                actual.RequiredCompositeChildren.OrderBy(e => e.Id).Select(
+                    e => new
+                    {
+                        e.Id,
+                        e.ParentAlternateId
+                    }));
 
             Assert.Equal(
                 expected.RequiredCompositeChildren.OrderBy(e => e.Id).Select(e => e.CompositeChildren.Count),
@@ -749,9 +884,19 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 expected.RequiredCompositeChildren.OrderBy(e => e.Id).SelectMany(e => e.CompositeChildren).OrderBy(e => e.Id)
-                    .Select(e => new { e.Id, e.ParentAlternateId }),
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            e.ParentAlternateId
+                        }),
                 actual.RequiredCompositeChildren.OrderBy(e => e.Id).SelectMany(e => e.CompositeChildren).OrderBy(e => e.Id)
-                    .Select(e => new { e.Id, e.ParentAlternateId }));
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            e.ParentAlternateId
+                        }));
         }
 
         private static void AssertNavigations(Root root)

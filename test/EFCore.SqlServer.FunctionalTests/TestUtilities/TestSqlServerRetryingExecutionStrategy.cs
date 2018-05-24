@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     message += " " + err.Number;
                 }
+
                 message += Environment.NewLine;
                 throw new InvalidOperationException(message + exception, exception);
             }
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return base.GetNextDelay(lastException);
         }
 
-        public new static bool Suspended
+        public static new bool Suspended
         {
             get => ExecutionStrategy.Suspended;
             set => ExecutionStrategy.Suspended = value;

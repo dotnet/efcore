@@ -36,29 +36,81 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                var nownNum1 = new NownNum { Id = 77.0m, TheWalrus = "Crying" };
-                var nownNum2 = new NownNum { Id = 78.0m, TheWalrus = "Walrus" };
+                var nownNum1 = new NownNum
+                {
+                    Id = 77.0m,
+                    TheWalrus = "Crying"
+                };
+                var nownNum2 = new NownNum
+                {
+                    Id = 78.0m,
+                    TheWalrus = "Walrus"
+                };
 
-                var numNum1 = new NumNum { TheWalrus = "I" };
-                var numNum2 = new NumNum { TheWalrus = "Am" };
+                var numNum1 = new NumNum
+                {
+                    TheWalrus = "I"
+                };
+                var numNum2 = new NumNum
+                {
+                    TheWalrus = "Am"
+                };
 
-                var anNum1 = new AnNum { TheWalrus = "Goo goo" };
-                var anNum2 = new AnNum { TheWalrus = "g'joob" };
+                var anNum1 = new AnNum
+                {
+                    TheWalrus = "Goo goo"
+                };
+                var anNum2 = new AnNum
+                {
+                    TheWalrus = "g'joob"
+                };
 
-                var adNum1 = new AdNum { TheWalrus = "Eggman" };
-                var adNum2 = new AdNum { TheWalrus = "Eggmen" };
+                var adNum1 = new AdNum
+                {
+                    TheWalrus = "Eggman"
+                };
+                var adNum2 = new AdNum
+                {
+                    TheWalrus = "Eggmen"
+                };
 
-                var byteNownNum1 = new ByteNownNum { Id = 77, Lucy = "Tangerine" };
-                var byteNownNum2 = new ByteNownNum { Id = 78, Lucy = "Trees" };
+                var byteNownNum1 = new ByteNownNum
+                {
+                    Id = 77,
+                    Lucy = "Tangerine"
+                };
+                var byteNownNum2 = new ByteNownNum
+                {
+                    Id = 78,
+                    Lucy = "Trees"
+                };
 
-                var byteNum1 = new ByteNum { Lucy = "Marmalade" };
-                var byteNum2 = new ByteNum { Lucy = "Skies" };
+                var byteNum1 = new ByteNum
+                {
+                    Lucy = "Marmalade"
+                };
+                var byteNum2 = new ByteNum
+                {
+                    Lucy = "Skies"
+                };
 
-                var byteAnNum1 = new ByteAnNum { Lucy = "Cellophane" };
-                var byteAnNum2 = new ByteAnNum { Lucy = "Flowers" };
+                var byteAnNum1 = new ByteAnNum
+                {
+                    Lucy = "Cellophane"
+                };
+                var byteAnNum2 = new ByteAnNum
+                {
+                    Lucy = "Flowers"
+                };
 
-                var byteAdNum1 = new ByteAdNum { Lucy = "Kaleidoscope" };
-                var byteAdNum2 = new ByteAdNum { Lucy = "Eyes" };
+                var byteAdNum1 = new ByteAdNum
+                {
+                    Lucy = "Kaleidoscope"
+                };
+                var byteAdNum2 = new ByteAdNum
+                {
+                    Lucy = "Eyes"
+                };
 
                 decimal[] preSaveValues;
                 byte[] preSaveByteValues;
@@ -73,14 +125,10 @@ namespace Microsoft.EntityFrameworkCore
                         byteNownNum1, byteNownNum2, byteNum1, byteNum2, byteAdNum1, byteAdNum2, byteAnNum1, byteAnNum2);
 
                     preSaveValues = new[]
-                    {
-                        numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id
-                    };
+                        { numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id };
 
                     preSaveByteValues = new[]
-                    {
-                        byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id
-                    };
+                        { byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id };
 
                     context.SaveChanges();
                 }
@@ -236,14 +284,34 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                var sNum1 = new SNum { TheWalrus = "I" };
-                var sNum2 = new SNum { TheWalrus = "Am" };
+                var sNum1 = new SNum
+                {
+                    TheWalrus = "I"
+                };
+                var sNum2 = new SNum
+                {
+                    TheWalrus = "Am"
+                };
 
-                var enNum1 = new EnNum { TheWalrus = "Goo goo", Id = ENum.BNum };
-                var enNum2 = new EnNum { TheWalrus = "g'joob", Id = ENum.CNum };
+                var enNum1 = new EnNum
+                {
+                    TheWalrus = "Goo goo",
+                    Id = ENum.BNum
+                };
+                var enNum2 = new EnNum
+                {
+                    TheWalrus = "g'joob",
+                    Id = ENum.CNum
+                };
 
-                var bNum1 = new BNum { TheWalrus = "Eggman" };
-                var bNum2 = new BNum { TheWalrus = "Eggmen" };
+                var bNum1 = new BNum
+                {
+                    TheWalrus = "Eggman"
+                };
+                var bNum2 = new BNum
+                {
+                    TheWalrus = "Eggmen"
+                };
 
                 var options = Fixture.CreateOptions(testDatabase);
                 using (var context = new ENumContext(options))
@@ -524,7 +592,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     context.Database.EnsureCreated();
 
-                    context.Characters.Add(new PlayerCharacter(new Level { Game = new Game() }));
+                    context.Characters.Add(
+                        new PlayerCharacter(
+                            new Level
+                            {
+                                Game = new Game()
+                            }));
 
                     context.SaveChanges();
                 }
@@ -554,10 +627,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     context.Database.EnsureCreated();
 
-                    var player = new PlayerCharacter(new Level
-                    {
-                        Game = new Game()
-                    });
+                    var player = new PlayerCharacter(
+                        new Level
+                        {
+                            Game = new Game()
+                        });
 
                     var weapon = new Item
                     {
@@ -589,10 +663,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     context.Database.EnsureCreated();
 
-                    var player = new PlayerCharacter(new Level
-                    {
-                        Game = new Game()
-                    });
+                    var player = new PlayerCharacter(
+                        new Level
+                        {
+                            Game = new Game()
+                        });
 
                     var weapon = new Item
                     {
@@ -804,46 +879,70 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Level>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
+                modelBuilder.Entity<Level>(
+                    eb =>
+                    {
+                        eb.HasKey(
+                            l => new
+                            {
+                                l.GameId,
+                                l.Id
+                            });
+                    });
 
                 modelBuilder.Entity<Actor>(
                     eb =>
-                        {
-                            eb.HasKey(a => new { a.GameId, a.Id });
-                            eb.HasOne(a => a.Level)
-                                .WithMany(l => l.Actors)
-                                .HasForeignKey(nameof(Actor.GameId), "LevelId")
-                                .IsRequired();
+                    {
+                        eb.HasKey(
+                            a => new
+                            {
+                                a.GameId,
+                                a.Id
+                            });
+                        eb.HasOne(a => a.Level)
+                            .WithMany(l => l.Actors)
+                            .HasForeignKey(nameof(Actor.GameId), "LevelId")
+                            .IsRequired();
 
-                            eb.HasMany(a => a.Items)
-                                .WithOne(i => i.Actor)
-                                .HasForeignKey(nameof(Item.GameId), "ActorId");
-                        });
+                        eb.HasMany(a => a.Items)
+                            .WithOne(i => i.Actor)
+                            .HasForeignKey(nameof(Item.GameId), "ActorId");
+                    });
 
-                modelBuilder.Entity<PlayerCharacter>(eb =>
-                {
-                    eb.HasOne(p => p.CurrentWeapon)
-                        .WithOne()
-                        .HasForeignKey<PlayerCharacter>(nameof(PlayerCharacter.GameId), "CurrentWeaponId");
-                });
+                modelBuilder.Entity<PlayerCharacter>(
+                    eb =>
+                    {
+                        eb.HasOne(p => p.CurrentWeapon)
+                            .WithOne()
+                            .HasForeignKey<PlayerCharacter>(nameof(PlayerCharacter.GameId), "CurrentWeaponId");
+                    });
 
-                modelBuilder.Entity<Item>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
+                modelBuilder.Entity<Item>(
+                    eb =>
+                    {
+                        eb.HasKey(
+                            l => new
+                            {
+                                l.GameId,
+                                l.Id
+                            });
+                    });
 
                 modelBuilder.Entity<Container>();
 
                 modelBuilder.Entity<Game>(
                     eb =>
-                        {
-                            eb.Property(g => g.Id)
-                                .ValueGeneratedOnAdd();
-                            eb.HasMany(g => g.Levels)
-                                .WithOne(l => l.Game)
-                                .HasForeignKey(l => l.GameId);
-                            eb.HasMany(g => g.Actors)
-                                .WithOne(a => a.Game)
-                                .HasForeignKey(a => a.GameId)
-                                .OnDelete(DeleteBehavior.Restrict);
-                        });
+                    {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedOnAdd();
+                        eb.HasMany(g => g.Levels)
+                            .WithOne(l => l.Game)
+                            .HasForeignKey(l => l.GameId);
+                        eb.HasMany(g => g.Actors)
+                            .WithOne(a => a.Game)
+                            .HasForeignKey(a => a.GameId)
+                            .OnDelete(DeleteBehavior.Restrict);
+                    });
             }
         }
 
@@ -878,8 +977,16 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new SchemaContext(options))
                 {
-                    context.Add(new Jack { MyKey = 1 });
-                    context.Add(new Black { MyKey = 2 });
+                    context.Add(
+                        new Jack
+                        {
+                            MyKey = 1
+                        });
+                    context.Add(
+                        new Black
+                        {
+                            MyKey = 2
+                        });
                     context.SaveChanges();
                 }
 
@@ -1082,10 +1189,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Customer>(
                     b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                    {
+                        b.HasKey(c => c.CustomerID);
+                        b.ToTable("Customers");
+                    });
             }
         }
 
@@ -1148,6 +1255,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
                 }
+
                 modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
             }
 

@@ -133,7 +133,6 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
-
         [Fact]
         public virtual void AddColumnOperation_with_fixed_length()
             => Generate(
@@ -203,17 +202,17 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void AddColumnOperation_with_maxLength_on_derived()
             => Generate(
                 modelBuilder =>
-                    {
-                        modelBuilder.Entity("Person");
-                        modelBuilder.Entity(
-                            "SpecialPerson", b =>
-                                {
-                                    b.HasBaseType("Person");
-                                    b.Property<string>("Name").HasMaxLength(30);
-                                });
+                {
+                    modelBuilder.Entity("Person");
+                    modelBuilder.Entity(
+                        "SpecialPerson", b =>
+                        {
+                            b.HasBaseType("Person");
+                            b.Property<string>("Name").HasMaxLength(30);
+                        });
 
-                        modelBuilder.Entity("MoreSpecialPerson").HasBaseType("SpecialPerson");
-                    },
+                    modelBuilder.Entity("MoreSpecialPerson").HasBaseType("SpecialPerson");
+                },
                 new AddColumnOperation
                 {
                     Table = "Person",
@@ -227,11 +226,11 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void AddColumnOperation_with_shared_column()
             => Generate(
                 modelBuilder =>
-                    {
-                        modelBuilder.Entity<Base>();
-                        modelBuilder.Entity<Derived1>();
-                        modelBuilder.Entity<Derived2>();
-                    },
+                {
+                    modelBuilder.Entity<Base>();
+                    modelBuilder.Entity<Derived1>();
+                    modelBuilder.Entity<Derived2>();
+                },
                 new AddColumnOperation
                 {
                     Table = "Base",

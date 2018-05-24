@@ -330,16 +330,58 @@ namespace Microsoft.EntityFrameworkCore.Storage
             GenericCompareTest<float>(1, 2);
             GenericCompareTest<double>(1, 2);
             GenericCompareTest<decimal>(1, 2);
-            GenericCompareTest('A', 'B', (int)'A');
+            GenericCompareTest('A', 'B', 'A');
             GenericCompareTest("A", "B");
             GenericCompareTest<object>(1, "A");
             GenericCompareTest(JustAnEnum.A, JustAnEnum.B);
-            GenericCompareTest(new JustAClass { A = 1 }, new JustAClass { A = 2 });
-            GenericCompareTest(new JustAClassWithEquality { A = 1 }, new JustAClassWithEquality { A = 2 });
-            GenericCompareTest(new JustAClassWithEqualityOperators { A = 1 }, new JustAClassWithEqualityOperators { A = 2 });
-            GenericCompareTest(new JustAStruct { A = 1 }, new JustAStruct { A = 2 });
-            GenericCompareTest(new JustAStructWithEquality { A = 1 }, new JustAStructWithEquality { A = 2 });
-            GenericCompareTest(new JustAStructWithEqualityOperators { A = 1 }, new JustAStructWithEqualityOperators { A = 2 });
+            GenericCompareTest(
+                new JustAClass
+                {
+                    A = 1
+                }, new JustAClass
+                {
+                    A = 2
+                });
+            GenericCompareTest(
+                new JustAClassWithEquality
+                {
+                    A = 1
+                }, new JustAClassWithEquality
+                {
+                    A = 2
+                });
+            GenericCompareTest(
+                new JustAClassWithEqualityOperators
+                {
+                    A = 1
+                }, new JustAClassWithEqualityOperators
+                {
+                    A = 2
+                });
+            GenericCompareTest(
+                new JustAStruct
+                {
+                    A = 1
+                }, new JustAStruct
+                {
+                    A = 2
+                });
+            GenericCompareTest(
+                new JustAStructWithEquality
+                {
+                    A = 1
+                }, new JustAStructWithEquality
+                {
+                    A = 2
+                });
+            GenericCompareTest(
+                new JustAStructWithEqualityOperators
+                {
+                    A = 1
+                }, new JustAStructWithEqualityOperators
+                {
+                    A = 2
+                });
         }
 
         [Fact]
@@ -361,18 +403,36 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             CompareTest(
                 typeof(JustAStruct),
-                (JustAStruct?)new JustAStruct { A = 1 },
-                new JustAStruct { A = 2 });
+                (JustAStruct?)new JustAStruct
+                {
+                    A = 1
+                },
+                new JustAStruct
+                {
+                    A = 2
+                });
 
             CompareTest(
                 typeof(JustAStructWithEquality),
-                (JustAStructWithEquality?)new JustAStructWithEquality { A = 1 },
-                new JustAStructWithEquality { A = 2 });
+                (JustAStructWithEquality?)new JustAStructWithEquality
+                {
+                    A = 1
+                },
+                new JustAStructWithEquality
+                {
+                    A = 2
+                });
 
             CompareTest(
                 typeof(JustAStructWithEqualityOperators),
-                (JustAStructWithEqualityOperators?)new JustAStructWithEqualityOperators { A = 1 },
-                new JustAStructWithEqualityOperators { A = 2 });
+                (JustAStructWithEqualityOperators?)new JustAStructWithEqualityOperators
+                {
+                    A = 1
+                },
+                new JustAStructWithEqualityOperators
+                {
+                    A = 2
+                });
         }
 
         [Fact]
@@ -394,18 +454,36 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             CompareTest(
                 typeof(JustAStruct?),
-                (JustAStruct?)new JustAStruct { A = 1 },
-                new JustAStruct { A = 2 });
+                (JustAStruct?)new JustAStruct
+                {
+                    A = 1
+                },
+                new JustAStruct
+                {
+                    A = 2
+                });
 
             CompareTest(
                 typeof(JustAStructWithEquality?),
-                (JustAStructWithEquality?)new JustAStructWithEquality { A = 1 },
-                new JustAStructWithEquality { A = 2 });
+                (JustAStructWithEquality?)new JustAStructWithEquality
+                {
+                    A = 1
+                },
+                new JustAStructWithEquality
+                {
+                    A = 2
+                });
 
             CompareTest(
                 typeof(JustAStructWithEqualityOperators?),
-                (JustAStructWithEqualityOperators?)new JustAStructWithEqualityOperators { A = 1 },
-                new JustAStructWithEqualityOperators { A = 2 });
+                (JustAStructWithEqualityOperators?)new JustAStructWithEqualityOperators
+                {
+                    A = 1
+                },
+                new JustAStructWithEqualityOperators
+                {
+                    A = 2
+                });
         }
 
         [Fact]
@@ -427,22 +505,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             CompareTest(
                 typeof(JustAStruct),
-                (JustAStruct?)new JustAStruct { A = 1 },
-                new JustAStruct { A = 2 },
+                (JustAStruct?)new JustAStruct
+                {
+                    A = 1
+                },
+                new JustAStruct
+                {
+                    A = 2
+                },
                 null,
                 true);
 
             CompareTest(
                 typeof(JustAStructWithEquality),
-                (JustAStructWithEquality?)new JustAStructWithEquality { A = 1 },
-                new JustAStructWithEquality { A = 2 },
+                (JustAStructWithEquality?)new JustAStructWithEquality
+                {
+                    A = 1
+                },
+                new JustAStructWithEquality
+                {
+                    A = 2
+                },
                 null,
                 true);
 
             CompareTest(
                 typeof(JustAStructWithEqualityOperators),
-                (JustAStructWithEqualityOperators?)new JustAStructWithEqualityOperators { A = 1 },
-                new JustAStructWithEqualityOperators { A = 2 },
+                (JustAStructWithEqualityOperators?)new JustAStructWithEqualityOperators
+                {
+                    A = 1
+                },
+                new JustAStructWithEqualityOperators
+                {
+                    A = 2
+                },
                 null,
                 true);
         }

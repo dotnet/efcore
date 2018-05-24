@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public new virtual int CherryBlossoms { get; set; }
             public new int ShesGone { get; set; }
             public virtual int VertrauenIII { get; set; }
-            public new static int SleepySong { get; set; }
+            public static new int SleepySong { get; set; }
         }
 
         public class TindersticksIICd : TindersticksIIVinyl
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public override int CherryBlossoms { get; set; }
             public override int Mistakes { get; set; }
             public override int VertrauenIII { get; set; }
-            public new static int SleepySong { get; set; }
+            public static new int SleepySong { get; set; }
         }
 
         [Fact]

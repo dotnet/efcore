@@ -834,11 +834,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "money",
-                mapper.GetMapping( model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "money",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
         }
 
         [Fact]
@@ -849,11 +849,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "nvarchar(200)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "nvarchar(200)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship1Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship1Id")).StoreType);
         }
 
         [Fact]
@@ -864,11 +864,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "varbinary(100)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "varbinary(100)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship1Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship1Id")).StoreType);
         }
 
         [Fact]
@@ -879,11 +879,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "varchar(900)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "varchar(900)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship1Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship1Id")).StoreType);
         }
 
         [Fact]
@@ -894,11 +894,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "money",
-                mapper.GetMapping( model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "dec(6,1)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
         }
 
         [Fact]
@@ -909,11 +909,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "nvarchar(200)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "nvarchar(787)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship2Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship2Id")).StoreType);
         }
 
         [Fact]
@@ -924,11 +924,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "varbinary(100)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "varbinary(767)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
         }
 
         [Fact]
@@ -939,11 +939,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "varchar(900)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "nvarchar(450)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
         }
 
         private enum LongEnum : long

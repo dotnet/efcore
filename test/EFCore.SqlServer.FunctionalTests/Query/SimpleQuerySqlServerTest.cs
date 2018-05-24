@@ -83,16 +83,16 @@ FROM [Orders] AS [c1_Orders]");
         {
             var weakRef = Scoper(
                 () =>
+                {
+                    var context = new NorthwindRelationalContext(Fixture.CreateOptions());
+
+                    var wr = new WeakReference(context);
+
+                    using (context)
                     {
-                        var context = new NorthwindRelationalContext(Fixture.CreateOptions());
+                        var orderDetails = context.OrderDetails;
 
-                        var wr = new WeakReference(context);
-
-                        using (context)
-                        {
-                            var orderDetails = context.OrderDetails;
-
-                            Customer Query(NorthwindContext param) =>
+                        Customer Query(NorthwindContext param) =>
                             (from c in context.Customers
                              from o in context.Set<Order>()
                              from od in orderDetails
@@ -100,13 +100,13 @@ FROM [Orders] AS [c1_Orders]");
                              from e2 in param.Set<Order>()
                              select c).First();
 
-                            Assert.NotNull(Query(context));
+                        Assert.NotNull(Query(context));
 
-                            Assert.True(wr.IsAlive);
+                        Assert.True(wr.IsAlive);
 
-                            return wr;
-                        }
-                    });
+                        return wr;
+                    }
+                });
 
             GC.Collect();
 
@@ -4484,7 +4484,7 @@ WHERE [o].[CustomerID] = @_outer_CustomerID");
             base.Join_take_count_works();
 
             AssertSql(
-    @"@__p_0='5'
+                @"@__p_0='5'
 
 SELECT COUNT(*)
 FROM (
@@ -4504,7 +4504,7 @@ FROM (
             base.OrderBy_empty_list_contains();
 
             AssertSql(
-    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY (SELECT 1)");
         }
@@ -4514,7 +4514,7 @@ ORDER BY (SELECT 1)");
             base.OrderBy_empty_list_does_not_contains();
 
             AssertSql(
-    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY (SELECT 1)");
         }

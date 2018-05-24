@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 #else
                             "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
 #endif
-                            ),
+                        ),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 #else
                             "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
 #endif
-                            ),
+                        ),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                              join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
 #endif
                              select e1)
-                                .ToList()).Message);
+                            .ToList()).Message);
             }
         }
 

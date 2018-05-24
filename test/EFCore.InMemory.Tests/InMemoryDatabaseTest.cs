@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore
@@ -74,7 +75,11 @@ namespace Microsoft.EntityFrameworkCore
         public async Task Save_changes_adds_new_objects_to_store()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
-            var customer = new Customer { Id = 42, Name = "Unikorn" };
+            var customer = new Customer
+            {
+                Id = 42,
+                Name = "Unikorn"
+            };
             var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
@@ -91,7 +96,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
 
-            var customer = new Customer { Id = 42, Name = "Unikorn" };
+            var customer = new Customer
+            {
+                Id = 42,
+                Name = "Unikorn"
+            };
             var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
@@ -113,7 +122,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
 
-            var customer = new Customer { Id = 42, Name = "Unikorn" };
+            var customer = new Customer
+            {
+                Id = 42,
+                Name = "Unikorn"
+            };
             var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
@@ -143,7 +156,11 @@ namespace Microsoft.EntityFrameworkCore
 
             var scopedServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceCollection, CreateModel());
 
-            var customer = new Customer { Id = 42, Name = "Unikorn" };
+            var customer = new Customer
+            {
+                Id = 42,
+                Name = "Unikorn"
+            };
             var entityEntry = scopedServices.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
@@ -163,10 +180,10 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<Customer>(
                 b =>
-                    {
-                        b.HasKey(c => c.Id);
-                        b.Property(c => c.Name);
-                    });
+                {
+                    b.HasKey(c => c.Id);
+                    b.Property(c => c.Name);
+                });
 
             return modelBuilder.Model;
         }

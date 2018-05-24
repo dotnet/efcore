@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
                     .Single(
                         m => m.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute))
-                            && m.Name == "With"
+                             && m.Name == "With"
                              && m.GetParameters()[0].ParameterType == serviceType);
 
                 var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
@@ -262,7 +262,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             Assert.Equal(expected.Count, actual.Count);
 
-            if (elementSorter == null && !verifyOrdered)
+            if (elementSorter == null
+                && !verifyOrdered)
             {
                 if (ShouldPerformUnsortedVerification(expected))
                 {
@@ -295,7 +296,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             Assert.Equal(expected.Count, actual.Count);
 
-            if (elementSorter == null && !verifyOrdered)
+            if (elementSorter == null
+                && !verifyOrdered)
             {
                 if (ShouldPerformUnsortedVerification(expected))
                 {
@@ -328,7 +330,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             Assert.Equal(expected.Count, actual.Count);
 
-            if (elementSorter == null && !verifyOrdered)
+            if (elementSorter == null
+                && !verifyOrdered)
             {
                 if (ShouldPerformUnsortedVerification(expected))
                 {
@@ -376,46 +379,49 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 c.Database.CreateExecutionStrategy().Execute(
                     c, context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
                         {
-                            using (var transaction = context.Database.BeginTransaction())
+                            using (var innerContext = createContext())
                             {
-                                using (var innerContext = createContext())
-                                {
-                                    useTransaction(innerContext.Database, transaction);
-                                    testOperation(innerContext);
-                                }
-
-                                if (nestedTestOperation1 == null)
-                                {
-                                    return;
-                                }
-                                using (var innerContext1 = createContext())
-                                {
-                                    useTransaction(innerContext1.Database, transaction);
-                                    nestedTestOperation1(innerContext1);
-                                }
-
-                                if (nestedTestOperation2 == null)
-                                {
-                                    return;
-                                }
-                                using (var innerContext2 = createContext())
-                                {
-                                    useTransaction(innerContext2.Database, transaction);
-                                    nestedTestOperation2(innerContext2);
-                                }
-
-                                if (nestedTestOperation3 == null)
-                                {
-                                    return;
-                                }
-                                using (var innerContext3 = createContext())
-                                {
-                                    useTransaction(innerContext3.Database, transaction);
-                                    nestedTestOperation3(innerContext3);
-                                }
+                                useTransaction(innerContext.Database, transaction);
+                                testOperation(innerContext);
                             }
-                        });
+
+                            if (nestedTestOperation1 == null)
+                            {
+                                return;
+                            }
+
+                            using (var innerContext1 = createContext())
+                            {
+                                useTransaction(innerContext1.Database, transaction);
+                                nestedTestOperation1(innerContext1);
+                            }
+
+                            if (nestedTestOperation2 == null)
+                            {
+                                return;
+                            }
+
+                            using (var innerContext2 = createContext())
+                            {
+                                useTransaction(innerContext2.Database, transaction);
+                                nestedTestOperation2(innerContext2);
+                            }
+
+                            if (nestedTestOperation3 == null)
+                            {
+                                return;
+                            }
+
+                            using (var innerContext3 = createContext())
+                            {
+                                useTransaction(innerContext3.Database, transaction);
+                                nestedTestOperation3(innerContext3);
+                            }
+                        }
+                    });
             }
         }
 
@@ -432,46 +438,49 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 await c.Database.CreateExecutionStrategy().ExecuteAsync(
                     c, async context =>
+                    {
+                        using (var transaction = await context.Database.BeginTransactionAsync())
                         {
-                            using (var transaction = await context.Database.BeginTransactionAsync())
+                            using (var innerContext = createContext())
                             {
-                                using (var innerContext = createContext())
-                                {
-                                    useTransaction(innerContext.Database, transaction);
-                                    await testOperation(innerContext);
-                                }
-
-                                if (nestedTestOperation1 == null)
-                                {
-                                    return;
-                                }
-                                using (var innerContext1 = createContext())
-                                {
-                                    useTransaction(innerContext1.Database, transaction);
-                                    await nestedTestOperation1(innerContext1);
-                                }
-
-                                if (nestedTestOperation2 == null)
-                                {
-                                    return;
-                                }
-                                using (var innerContext2 = createContext())
-                                {
-                                    useTransaction(innerContext2.Database, transaction);
-                                    await nestedTestOperation2(innerContext2);
-                                }
-
-                                if (nestedTestOperation3 == null)
-                                {
-                                    return;
-                                }
-                                using (var innerContext3 = createContext())
-                                {
-                                    useTransaction(innerContext3.Database, transaction);
-                                    await nestedTestOperation3(innerContext3);
-                                }
+                                useTransaction(innerContext.Database, transaction);
+                                await testOperation(innerContext);
                             }
-                        });
+
+                            if (nestedTestOperation1 == null)
+                            {
+                                return;
+                            }
+
+                            using (var innerContext1 = createContext())
+                            {
+                                useTransaction(innerContext1.Database, transaction);
+                                await nestedTestOperation1(innerContext1);
+                            }
+
+                            if (nestedTestOperation2 == null)
+                            {
+                                return;
+                            }
+
+                            using (var innerContext2 = createContext())
+                            {
+                                useTransaction(innerContext2.Database, transaction);
+                                await nestedTestOperation2(innerContext2);
+                            }
+
+                            if (nestedTestOperation3 == null)
+                            {
+                                return;
+                            }
+
+                            using (var innerContext3 = createContext())
+                            {
+                                useTransaction(innerContext3.Database, transaction);
+                                await nestedTestOperation3(innerContext3);
+                            }
+                        }
+                    });
             }
         }
     }

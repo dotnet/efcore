@@ -4,15 +4,15 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
+#if Test20
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+#endif
 
 namespace Microsoft.EntityFrameworkCore
 {

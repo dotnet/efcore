@@ -33,7 +33,6 @@ WHERE [x].[OrderID] = 10248",
             Assert.Contains(
                 CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
                     "(from Customer <generated>_1 in DbSet<Customer> select [<generated>_1]).Last()"), Fixture.TestSqlLoggerFactory.Log);
-
         }
 
         public override void Paging_operation_without_orderby_issues_warning()

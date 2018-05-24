@@ -179,8 +179,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var ownership = model.FindEntityType(typeof(OtherCustomer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
                 var foreignKey = model.FindEntityType(typeof(SpecialCustomer)).GetReferencingForeignKeys()
-                    .Single(fk => fk.DeclaringEntityType.ClrType == typeof(CustomerDetails)
-                                  && fk.PrincipalToDependent == null);
+                    .Single(
+                        fk => fk.DeclaringEntityType.ClrType == typeof(CustomerDetails)
+                              && fk.PrincipalToDependent == null);
                 Assert.Same(ownership.DeclaringEntityType, foreignKey.DeclaringEntityType);
                 Assert.NotEqual(ownership.Properties.Single().Name, foreignKey.Properties.Single().Name);
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
@@ -197,11 +198,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<SpecialBookLabel>();
                 modelBuilder.Ignore<BookDetails>();
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label, l =>
-                {
-                    l.HasForeignKey("BookLabelId");
-                    l.HasForeignKeyAnnotation("Foo", "Bar");
-                });
+                modelBuilder.Entity<Book>().OwnsOne(
+                    b => b.Label, l =>
+                    {
+                        l.HasForeignKey("BookLabelId");
+                        l.HasForeignKeyAnnotation("Foo", "Bar");
+                    });
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).HasForeignKey("BookLabelId");
 
                 modelBuilder.Validate();
@@ -272,11 +274,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owner = model.FindEntityType(typeof(OrderCombination));
                 var owned = owner.FindNavigation(nameof(OrderCombination.Details)).ForeignKey.DeclaringEntityType;
                 Assert.NotEmpty(owned.GetDirectlyDerivedTypes());
-                Assert.Empty(model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(n =>
-                {
-                    var targetType = n.GetTargetType().ClrType;
-                    return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
-                }));
+                Assert.Empty(
+                    model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
+                        n =>
+                        {
+                            var targetType = n.GetTargetType().ClrType;
+                            return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
+                        }));
                 Assert.Equal(1, owned.GetForeignKeys().Count());
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(DetailsBase)));
                 Assert.Same(owned, model.FindEntityType(typeof(CustomerDetails)).BaseType);
@@ -297,11 +301,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owner = model.FindEntityType(typeof(OrderCombination));
                 var owned = owner.FindNavigation(nameof(OrderCombination.Details)).ForeignKey.DeclaringEntityType;
                 Assert.NotEmpty(owned.GetDirectlyDerivedTypes());
-                Assert.Empty(model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(n =>
-                {
-                    var targetType = n.GetTargetType().ClrType;
-                    return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
-                }));
+                Assert.Empty(
+                    model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
+                        n =>
+                        {
+                            var targetType = n.GetTargetType().ClrType;
+                            return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
+                        }));
                 Assert.Equal(1, owned.GetForeignKeys().Count());
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(DetailsBase)));
                 Assert.Same(owned, model.FindEntityType(typeof(CustomerDetails)).BaseType);
@@ -316,29 +322,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label, bb =>
-                {
-                    bb.OwnsOne(l => l.AnotherBookLabel, ab =>
+                modelBuilder.Entity<Book>().OwnsOne(
+                    b => b.Label, bb =>
                     {
-                        ab.OwnsOne(l => l.SpecialBookLabel);
+                        bb.OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.SpecialBookLabel); });
+                        bb.OwnsOne(l => l.SpecialBookLabel, sb => { sb.OwnsOne(l => l.AnotherBookLabel); });
                     });
-                    bb.OwnsOne(l => l.SpecialBookLabel, sb =>
-                    {
-                        sb.OwnsOne(l => l.AnotherBookLabel);
-                    });
-                });
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb =>
-                {
-                    bb.OwnsOne(l => l.SpecialBookLabel, sb =>
+                modelBuilder.Entity<Book>().OwnsOne(
+                    b => b.AlternateLabel, bb =>
                     {
-                        sb.OwnsOne(l => l.AnotherBookLabel);
+                        bb.OwnsOne(l => l.SpecialBookLabel, sb => { sb.OwnsOne(l => l.AnotherBookLabel); });
+                        bb.OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.SpecialBookLabel); });
                     });
-                    bb.OwnsOne(l => l.AnotherBookLabel, ab =>
-                    {
-                        ab.OwnsOne(l => l.SpecialBookLabel);
-                    });
-                });
 
                 modelBuilder.Validate();
 
@@ -350,37 +346,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label, bb =>
-                {
-                    bb.OwnsOne(l => l.AnotherBookLabel, ab =>
-                    {
-                        ab.OwnsOne(l => l.SpecialBookLabel);
-                    });
-                });
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label, bb => { bb.OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.SpecialBookLabel); }); });
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb =>
-                {
-                    bb.OwnsOne(l => l.AnotherBookLabel, ab =>
-                    {
-                        ab.OwnsOne(l => l.SpecialBookLabel);
-                    });
-                });
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb => { bb.OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.SpecialBookLabel); }); });
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label, bb =>
-                {
-                    bb.OwnsOne(l => l.SpecialBookLabel, sb =>
-                    {
-                        sb.OwnsOne(l => l.AnotherBookLabel);
-                    });
-                });
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label, bb => { bb.OwnsOne(l => l.SpecialBookLabel, sb => { sb.OwnsOne(l => l.AnotherBookLabel); }); });
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb =>
-                {
-                    bb.OwnsOne(l => l.SpecialBookLabel, sb =>
-                    {
-                        sb.OwnsOne(l => l.AnotherBookLabel);
-                    });
-                });
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb => { bb.OwnsOne(l => l.SpecialBookLabel, sb => { sb.OwnsOne(l => l.AnotherBookLabel); }); });
 
                 modelBuilder.Validate();
 
@@ -425,8 +397,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Owned<SpecialOrder>();
                 var customerBuilder = modelBuilder.Entity<SpecialCustomer>();
 
-                Assert.Equal(CoreStrings.NavigationNotAdded(
-                    nameof(Customer), nameof(Customer.Orders), "IEnumerable<Order>"),
+                Assert.Equal(
+                    CoreStrings.NavigationNotAdded(
+                        nameof(Customer), nameof(Customer.Orders), "IEnumerable<Order>"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
 
                 Assert.Null(customerBuilder.Metadata.FindNavigation(nameof(SpecialCustomer.Orders)));

@@ -825,6 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Equal(new bool?[] { false }, convention1.Calls);
                 Assert.Equal(new bool?[] { false }, convention2.Calls);
             }
+
             Assert.Empty(convention3.Calls);
 
             propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
@@ -847,6 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Equal(new bool?[] { false, true }, convention1.Calls);
                 Assert.Equal(new bool?[] { false, true }, convention2.Calls);
             }
+
             Assert.Empty(convention3.Calls);
 
             propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
@@ -869,6 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Equal(new bool?[] { false, true }, convention1.Calls);
                 Assert.Equal(new bool?[] { false, true }, convention2.Calls);
             }
+
             Assert.Empty(convention3.Calls);
 
             propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
@@ -894,6 +897,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Equal(new bool?[] { false, true, false }, convention1.Calls);
                 Assert.Equal(new bool?[] { false, true, false }, convention2.Calls);
             }
+
             Assert.Empty(convention3.Calls);
         }
 
@@ -1032,7 +1036,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                var result = entityBuilder.HasKey(new List<string> { keyPropertyName }, ConfigurationSource.Convention);
+                var result = entityBuilder.HasKey(
+                    new List<string>
+                    {
+                        keyPropertyName
+                    }, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -1100,7 +1108,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var key = entityBuilder.HasKey(new List<string> { "OrderId" }, ConfigurationSource.Convention).Metadata;
+            var key = entityBuilder.HasKey(
+                new List<string>
+                {
+                    "OrderId"
+                }, ConfigurationSource.Convention).Metadata;
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
@@ -1254,7 +1266,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                var result = entityBuilder.HasIndex(new List<string> { "OrderId" }, ConfigurationSource.Convention);
+                var result = entityBuilder.HasIndex(
+                    new List<string>
+                    {
+                        "OrderId"
+                    }, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -1319,7 +1335,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var index = entityBuilder.HasIndex(new List<string> { "OrderId" }, ConfigurationSource.Convention).Metadata;
+            var index = entityBuilder.HasIndex(
+                new List<string>
+                {
+                    "OrderId"
+                }, ConfigurationSource.Convention).Metadata;
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
@@ -1373,7 +1393,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var index = entityBuilder.HasIndex(new List<string> { "OrderId" }, ConfigurationSource.Convention).Metadata;
+            var index = entityBuilder.HasIndex(
+                new List<string>
+                {
+                    "OrderId"
+                }, ConfigurationSource.Convention).Metadata;
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
@@ -1753,6 +1777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         relationshipBuilder.Metadata.HasPrincipalToDependent((string)null);
                     }
+
                     return null;
                 }
 

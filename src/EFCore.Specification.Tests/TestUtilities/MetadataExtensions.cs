@@ -96,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     targetEntityType.SetPrimaryKey(clonedKey.Properties);
                 }
+
                 key.GetAnnotations().ForEach(annotation => clonedKey[annotation.Name] = annotation.Value);
             }
         }

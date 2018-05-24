@@ -1,18 +1,18 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public InternalEntityEntry GetOrCreateEntry(object entity) => throw new NotImplementedException();
         public InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType) => throw new NotImplementedException();
         public InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType) => throw new NotImplementedException();
-        public InternalEntityEntry StartTrackingFromQuery(IEntityType baseEntityType,object entity, in ValueBuffer valueBuffer, ISet<IForeignKey> handledForeignKeys) => throw new NotImplementedException();
+        public InternalEntityEntry StartTrackingFromQuery(IEntityType baseEntityType, object entity, in ValueBuffer valueBuffer, ISet<IForeignKey> handledForeignKeys) => throw new NotImplementedException();
         public void BeginTrackingQuery() => throw new NotImplementedException();
         public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues) => throw new NotImplementedException();
         public InternalEntityEntry TryGetEntry(IKey key, in ValueBuffer valueBuffer, bool throwOnNullKey) => throw new NotImplementedException();

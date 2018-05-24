@@ -104,8 +104,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var builder = CreateModelBuilder();
 
-                builder.Entity<Hob>().HasKey(e => new { e.Id1, e.Id2 });
-                builder.Entity<Nob>().HasKey(e => new { e.Id1, e.Id2 });
+                builder.Entity<Hob>().HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2
+                    });
+                builder.Entity<Nob>().HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2
+                    });
 
                 return builder;
             }
@@ -131,10 +141,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var contextServices = testHelpers.CreateContextServices();
 
-                ModelBuilder = new ModelBuilder(new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
-                    .AddConventions(new CoreConventionSetBuilder(
-                    contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
-                    .CreateConventionSet()));
+                ModelBuilder = new ModelBuilder(
+                    new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
+                        .AddConventions(
+                            new CoreConventionSetBuilder(
+                                    contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
+                                .CreateConventionSet()));
 
                 ModelValidator = new ModelValidator(new ModelValidatorDependencies(validationLogger, modelLogger));
             }

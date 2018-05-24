@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -20,7 +21,12 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("We1!*~&%rdCh@r^act()0rs", "We1RdChRAct0rs")]
         public void Generates_candidate_identifiers(string input, string output)
         {
-            Assert.Equal(output, new CandidateNamingService().GenerateCandidateIdentifier(new Scaffolding.Metadata.DatabaseTable { Name = input }));
+            Assert.Equal(
+                output, new CandidateNamingService().GenerateCandidateIdentifier(
+                    new DatabaseTable
+                    {
+                        Name = input
+                    }));
         }
     }
 }

@@ -22,12 +22,25 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreated();
 
-                context.Chippers.Add(new Chipper { Id = "Default" });
+                context.Chippers.Add(
+                    new Chipper
+                    {
+                        Id = "Default"
+                    });
 
                 context.SaveChanges();
 
-                var honeyDijon = context.Add(new KettleChips { Name = "Honey Dijon" }).Entity;
-                var buffaloBleu = context.Add(new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) }).Entity;
+                var honeyDijon = context.Add(
+                    new KettleChips
+                    {
+                        Name = "Honey Dijon"
+                    }).Entity;
+                var buffaloBleu = context.Add(
+                    new KettleChips
+                    {
+                        Name = "Buffalo Bleu",
+                        BestBuyDate = new DateTime(2111, 1, 11)
+                    }).Entity;
 
                 context.SaveChanges();
 
@@ -64,15 +77,15 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<KettleChips>(
                     b =>
-                        {
-                            b.Property(e => e.BestBuyDate)
-                                .ValueGeneratedOnAdd()
-                                .HasDefaultValue(new DateTime(2035, 9, 25));
+                    {
+                        b.Property(e => e.BestBuyDate)
+                            .ValueGeneratedOnAdd()
+                            .HasDefaultValue(new DateTime(2035, 9, 25));
 
-                            b.Property(e => e.ChipperId)
-                                .IsRequired()
-                                .HasDefaultValue("Default");
-                        });
+                        b.Property(e => e.ChipperId)
+                            .IsRequired()
+                            .HasDefaultValue("Default");
+                    });
         }
 
         private class KettleChips

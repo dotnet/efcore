@@ -38,25 +38,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 tasks[i] = Task.Run(
                     () =>
+                    {
+                        using (var context = CreateContext())
                         {
-                            using (var context = CreateContext())
+                            using ((from c in context.Customers
+                                    where c.City == "London"
+                                    orderby c.CustomerID
+                                    select (from o1 in context.Orders
+                                            where o1.CustomerID == c.CustomerID
+                                                  && o1.OrderDate.Value.Year == 1997
+                                            orderby o1.OrderID
+                                            select (from o2 in context.Orders
+                                                    where o1.CustomerID == c.CustomerID
+                                                    orderby o2.OrderID
+                                                    select o1.OrderID)))
+                                .GetEnumerator())
                             {
-                                using ((from c in context.Customers
-                                        where c.City == "London"
-                                        orderby c.CustomerID
-                                        select (from o1 in context.Orders
-                                                where o1.CustomerID == c.CustomerID
-                                                      && o1.OrderDate.Value.Year == 1997
-                                                orderby o1.OrderID
-                                                select (from o2 in context.Orders
-                                                        where o1.CustomerID == c.CustomerID
-                                                        orderby o2.OrderID
-                                                        select o1.OrderID)))
-                                    .GetEnumerator())
-                                {
-                                }
                             }
-                        });
+                        }
+                    });
             }
 
             await Task.WhenAll(tasks);
@@ -206,7 +206,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
         {
             await AssertQuery<Order>(
-                os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }),
+                os => os.Select(
+                    o => new
+                    {
+                        o.Customer.City,
+                        Count = o.OrderDetails.Count()
+                    }),
                 elementSorter: e => e.City + " " + e.Count);
         }
     }

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -44,7 +45,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.AutoTransactionsEnabled = false;
 
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Add(
+                    new TransactionCustomer
+                    {
+                        Id = 77,
+                        Name = "Bobble"
+                    });
                 context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
@@ -55,7 +61,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 },
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -67,7 +78,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.AutoTransactionsEnabled = false;
 
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Add(
+                    new TransactionCustomer
+                    {
+                        Id = 77,
+                        Name = "Bobble"
+                    });
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                 await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
@@ -78,7 +94,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 },
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -90,7 +111,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.True(context.Database.AutoTransactionsEnabled);
 
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Add(
+                    new TransactionCustomer
+                    {
+                        Id = 77,
+                        Name = "Bobble"
+                    });
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
@@ -106,7 +132,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.True(context.Database.AutoTransactionsEnabled);
 
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Add(
+                    new TransactionCustomer
+                    {
+                        Id = 77,
+                        Name = "Bobble"
+                    });
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                 try
@@ -141,7 +172,12 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnlistTransaction(transaction);
                     context.Database.AutoTransactionsEnabled = autoTransactionsEnabled;
 
-                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    context.Add(
+                        new TransactionCustomer
+                        {
+                            Id = 77,
+                            Name = "Bobble"
+                        });
                     context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     if (async)
@@ -181,7 +217,12 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnlistTransaction(transaction);
                     context.Database.AutoTransactionsEnabled = autoTransactionsEnabled;
 
-                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    context.Add(
+                        new TransactionCustomer
+                        {
+                            Id = 77,
+                            Name = "Bobble"
+                        });
                     context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     context.Database.AutoTransactionsEnabled = true;
@@ -227,7 +268,12 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnlistTransaction(transaction);
                     context.Database.AutoTransactionsEnabled = autoTransactionsEnabled;
 
-                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    context.Add(
+                        new TransactionCustomer
+                        {
+                            Id = 77,
+                            Name = "Bobble"
+                        });
                     context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     if (async)
@@ -238,6 +284,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
+
                     context.Database.CloseConnection();
 
                     context.Database.AutoTransactionsEnabled = true;
@@ -278,7 +325,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     context.Database.AutoTransactionsEnabled = autoTransactionsEnabled;
 
-                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    context.Add(
+                        new TransactionCustomer
+                        {
+                            Id = 77,
+                            Name = "Bobble"
+                        });
                     context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     if (async)
@@ -329,7 +381,12 @@ namespace Microsoft.EntityFrameworkCore
                     connection = context.Database.GetDbConnection();
                     Assert.Equal(ConnectionState.Closed, connection.State);
 
-                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    context.Add(
+                        new TransactionCustomer
+                        {
+                            Id = 77,
+                            Name = "Bobble"
+                        });
                     context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     if (async)
@@ -366,7 +423,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (TestUtilities.TestStore.CreateTransactionScope())
                 {
-                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    context.Add(
+                        new TransactionCustomer
+                        {
+                            Id = 77,
+                            Name = "Bobble"
+                        });
                     context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
@@ -396,7 +458,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (TestUtilities.TestStore.CreateTransactionScope())
                 {
-                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    context.Add(
+                        new TransactionCustomer
+                        {
+                            Id = 77,
+                            Name = "Bobble"
+                        });
                     context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
                 }
 
@@ -422,7 +489,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(ConnectionState.Open, connection.State);
 
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Add(
+                    new TransactionCustomer
+                    {
+                        Id = 77,
+                        Name = "Bobble"
+                    });
                 context.SaveChanges();
 
                 Assert.Equal(ConnectionState.Open, connection.State);
@@ -432,7 +504,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 },
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -447,7 +524,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(ConnectionState.Open, connection.State);
 
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Add(
+                    new TransactionCustomer
+                    {
+                        Id = 77,
+                        Name = "Bobble"
+                    });
                 await context.SaveChangesAsync();
 
                 Assert.Equal(ConnectionState.Open, connection.State);
@@ -457,7 +539,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 },
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -750,8 +837,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (DirtyReadsOccur)
                         {
-                            // ReSharper disable once RedundantNameQualifier
-                            using (innerContext.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
+                            using (innerContext.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
                             {
                                 Assert.Equal(Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
                             }
@@ -759,8 +845,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (SnapshotSupported)
                         {
-                            // ReSharper disable once RedundantNameQualifier
-                            using (innerContext.Database.BeginTransaction(System.Data.IsolationLevel.Snapshot))
+                            using (innerContext.Database.BeginTransaction(IsolationLevel.Snapshot))
                             {
                                 Assert.Equal(Customers, innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToList());
                             }
@@ -804,8 +889,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (DirtyReadsOccur)
                         {
-                            // ReSharper disable once RedundantNameQualifier
-                            using (await innerContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadUncommitted))
+                            using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
                             {
                                 Assert.Equal(Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
                             }
@@ -813,8 +897,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (SnapshotSupported)
                         {
-                            // ReSharper disable once RedundantNameQualifier
-                            using (await innerContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.Snapshot))
+                            using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot))
                             {
                                 Assert.Equal(Customers, await innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToListAsync());
                             }
@@ -885,8 +968,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     using (context.Database.BeginTransaction(
                         DirtyReadsOccur
-                            ? System.Data.IsolationLevel.ReadUncommitted
-                            : System.Data.IsolationLevel.Unspecified))
+                            ? IsolationLevel.ReadUncommitted
+                            : IsolationLevel.Unspecified))
                     {
                         var ex = Assert.Throws<InvalidOperationException>(
                             () =>
@@ -943,6 +1026,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 return;
             }
+
             using (var t = new CommittableTransaction(TimeSpan.FromMinutes(10)))
             {
                 using (var transaction = TestStore.BeginTransaction())
@@ -1014,8 +1098,8 @@ namespace Microsoft.EntityFrameworkCore
                     var ex = Assert.Throws<InvalidOperationException>(
                         () => context.Database.BeginTransaction(
                             DirtyReadsOccur
-                                ? System.Data.IsolationLevel.ReadUncommitted
-                                : System.Data.IsolationLevel.Unspecified));
+                                ? IsolationLevel.ReadUncommitted
+                                : IsolationLevel.Unspecified));
                     Assert.Equal(RelationalStrings.ConflictingEnlistedTransaction, ex.Message);
                     context.Database.CloseConnection();
                 }
@@ -1040,6 +1124,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (context.Database.BeginTransaction())
                 {
                 }
+
                 context.Database.CloseConnection();
             }
         }
@@ -1064,6 +1149,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (context.Database.BeginTransaction())
                 {
                 }
+
                 context.Database.CloseConnection();
             }
         }
@@ -1227,10 +1313,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<TransactionCustomer>(
                     ps =>
-                        {
-                            ps.Property(c => c.Id).ValueGeneratedNever();
-                            ps.ToTable("Customers");
-                        });
+                    {
+                        ps.Property(c => c.Id).ValueGeneratedNever();
+                        ps.ToTable("Customers");
+                    });
             }
 
             protected override void Seed(PoolableDbContext context)

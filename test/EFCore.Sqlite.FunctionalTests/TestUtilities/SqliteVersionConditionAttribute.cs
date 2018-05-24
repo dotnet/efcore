@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     return new Version(connection.ServerVersion);
                 }
+
                 return null;
             }
         }
@@ -80,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             set => _skipReason = value;
             get => _skipReason ??
-                       $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
-                       + (Skip == null ? "" : "and skipping on " + Skip);
+                   $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
+                   + (Skip == null ? "" : "and skipping on " + Skip);
         }
     }
 }

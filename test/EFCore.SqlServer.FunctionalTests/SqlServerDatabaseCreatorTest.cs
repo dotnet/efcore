@@ -8,18 +8,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-#if Test20
-using Microsoft.EntityFrameworkCore.Internal;
-#else
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+#if Test20
+using Microsoft.EntityFrameworkCore.Internal;
+#else
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+#endif
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -403,18 +403,18 @@ namespace Microsoft.EntityFrameworkCore
                 await databaseCreator.ExecutionStrategyFactory.Create().ExecuteAsync(
                     databaseCreator,
                     async creator =>
-                        {
-                            var errorNumber = async
-                                ? (await Assert.ThrowsAsync<SqlException>(() => creator.HasTablesAsyncBase())).Number
-                                : Assert.Throws<SqlException>(() => creator.HasTablesBase()).Number;
+                    {
+                        var errorNumber = async
+                            ? (await Assert.ThrowsAsync<SqlException>(() => creator.HasTablesAsyncBase())).Number
+                            : Assert.Throws<SqlException>(() => creator.HasTablesBase()).Number;
 
-                            if (errorNumber != 233) // skip if no-process transient failure
-                            {
-                                Assert.Equal(
-                                    4060, // Login failed error number
-                                    errorNumber);
-                            }
-                        });
+                        if (errorNumber != 233) // skip if no-process transient failure
+                        {
+                            Assert.Equal(
+                                4060, // Login failed error number
+                                errorNumber);
+                        }
+                    });
             }
         }
 
@@ -710,7 +710,6 @@ namespace Microsoft.EntityFrameworkCore
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorTest
     {
-
         public static IDisposable CreateTransactionScope(bool useTransaction)
         {
 #if NET461
@@ -785,10 +784,15 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Blog>(
                     b =>
-                        {
-                            b.HasKey(e => new { e.Key1, e.Key2 });
-                            b.Property(e => e.AndRow).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
-                        });
+                    {
+                        b.HasKey(
+                            e => new
+                            {
+                                e.Key1,
+                                e.Key2
+                            });
+                        b.Property(e => e.AndRow).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                    });
             }
 
             public DbSet<Blog> Blogs { get; set; }

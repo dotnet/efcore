@@ -277,7 +277,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = from e1 in context.Entities1
                             join e2 in context.Entities2 on e1.NullableIntA equals e2.NullableIntB
-                            select new { Id1 = e1.Id, Id2 = e2.Id, e1.NullableIntA, e2.NullableIntB };
+                            select new
+                            {
+                                Id1 = e1.Id,
+                                Id2 = e2.Id,
+                                e1.NullableIntA,
+                                e2.NullableIntB
+                            };
 
                 query.ToList();
             }
@@ -695,12 +701,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var expected = context.Entities1.ToList()
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? false
+                        });
 
                 ClearLog();
 
                 var query = context.Entities1
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? false
+                        });
 
                 var results = query.ToList();
                 Assert.Equal(expected.Count(), results.Count);
@@ -717,12 +733,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var expected = context.Entities1.ToList()
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false)
+                        });
 
                 ClearLog();
 
                 var query = context.Entities1
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false)
+                        });
 
                 var results = query.ToList();
                 Assert.Equal(expected.Count(), results.Count);

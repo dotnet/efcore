@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -303,11 +302,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
 
             Assert.Equal(LogLevel.Debug, Log[0].Level);
-            Assert.Equal(CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
-                nameof(MultipleNavigationsSecond),
-                nameof(MultipleNavigationsFirst),
-                "{'MultipleNavigationsFirst'}" ,
-                "{'MultipleNavigationsSecond', 'MultipleNavigationsSeconds'}"), Log[0].Message);
+            Assert.Equal(
+                CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
+                    nameof(MultipleNavigationsSecond),
+                    nameof(MultipleNavigationsFirst),
+                    "{'MultipleNavigationsFirst'}",
+                    "{'MultipleNavigationsSecond', 'MultipleNavigationsSeconds'}"), Log[0].Message);
         }
 
         [Fact]
@@ -839,8 +839,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetProperties());
 
             Assert.Equal(LogLevel.Debug, Log[0].Level);
-            Assert.Equal(CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
-                nameof(SelfRef), nameof(SelfRef), "{'SelfRef1'}", "{'SelfRef2', 'SelfRef3', 'SelfRef4'}"), Log[0].Message);
+            Assert.Equal(
+                CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
+                    nameof(SelfRef), nameof(SelfRef), "{'SelfRef1'}", "{'SelfRef2', 'SelfRef3', 'SelfRef4'}"), Log[0].Message);
         }
 
         [Fact]
@@ -900,6 +901,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetNavigations());
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
+
         public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
             = new List<(LogLevel, EventId, string)>();
 
@@ -1041,6 +1043,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 conventions.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
                 conventions.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
             }
+
             var modelBuilder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.DataAnnotation);
 

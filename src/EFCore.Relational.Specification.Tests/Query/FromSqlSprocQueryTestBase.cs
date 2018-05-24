@@ -191,7 +191,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from b in context.Set<MostExpensiveProduct>()
                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
-                       select new { a, b })
+                       select new
+                       {
+                           a,
+                           b
+                       })
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);
@@ -209,8 +213,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from p in context.Set<Product>()
                            .FromSql(NormalizeDelimeters(@"SELECT * FROM [Products]"))
                        where mep.TenMostExpensiveProducts == p.ProductName
-                       select new { mep, p })
-                        .ToArray();
+                       select new
+                       {
+                           mep,
+                           p
+                       })
+                    .ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
@@ -226,8 +234,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from mep in context.Set<MostExpensiveProduct>()
                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where mep.TenMostExpensiveProducts == p.ProductName
-                       select new { mep, p })
-                        .ToArray();
+                       select new
+                       {
+                           mep,
+                           p
+                       })
+                    .ToArray();
 
                 Assert.Equal(10, actual.Length);
             }

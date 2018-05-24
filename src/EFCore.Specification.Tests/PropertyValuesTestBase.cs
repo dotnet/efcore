@@ -1890,7 +1890,15 @@ namespace Microsoft.EntityFrameworkCore
                 var buildingValues = await getPropertyValues(context.Entry(building));
 
                 Assert.Equal(
-                    new List<string> { "BuildingId", "Name", "PrincipalMailRoomId", "Shadow1", "Shadow2", "Value" },
+                    new List<string>
+                    {
+                        "BuildingId",
+                        "Name",
+                        "PrincipalMailRoomId",
+                        "Shadow1",
+                        "Shadow2",
+                        "Value"
+                    },
                     buildingValues.Properties.Select(p => p.Name).ToList());
             }
         }
@@ -2292,11 +2300,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Employee>(
                     b =>
-                        {
-                            b.Property(e => e.EmployeeId).ValueGeneratedNever();
-                            b.Property<int>("Shadow1");
-                            b.Property<string>("Shadow2");
-                        });
+                    {
+                        b.Property(e => e.EmployeeId).ValueGeneratedNever();
+                        b.Property<int>("Shadow1");
+                        b.Property<string>("Shadow2");
+                    });
 
                 modelBuilder.Entity<CurrentEmployee>(b => { b.Property<int>("Shadow3"); });
 
@@ -2312,24 +2320,29 @@ namespace Microsoft.EntityFrameworkCore
                     .WithMany(nameof(Building.MailRooms))
                     .HasForeignKey(m => m.BuildingId);
 
-                modelBuilder.Entity<Office>().HasKey(o => new { o.Number, o.BuildingId });
+                modelBuilder.Entity<Office>().HasKey(
+                    o => new
+                    {
+                        o.Number,
+                        o.BuildingId
+                    });
 
                 modelBuilder.Ignore<UnMappedOffice>();
 
                 modelBuilder.Entity<BuildingDetail>(
                     b =>
-                        {
-                            b.HasKey(d => d.BuildingId);
-                            b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
-                        });
+                    {
+                        b.HasKey(d => d.BuildingId);
+                        b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
+                    });
 
                 modelBuilder.Entity<Building>(
                     b =>
-                        {
-                            b.Ignore(e => e.NotInModel);
-                            b.Property<int>("Shadow1");
-                            b.Property<string>("Shadow2");
-                        });
+                    {
+                        b.Ignore(e => e.NotInModel);
+                        b.Property<int>("Shadow1");
+                        b.Property<string>("Shadow2");
+                    });
             }
 
             protected override void Seed(PoolableDbContext context)

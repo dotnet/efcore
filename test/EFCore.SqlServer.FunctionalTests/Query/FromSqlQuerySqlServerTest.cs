@@ -558,7 +558,10 @@ WHERE [o].[CustomerID] IN (
                                 .FromSql(
                                     @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
                                     // ReSharper disable once FormatStringProblem
-                                    new SqlParameter { Value = "London" })
+                                    new SqlParameter
+                                    {
+                                        Value = "London"
+                                    })
                                 .Select(c => c.CustomerID)
                                 .Contains(o.CustomerID))
                     .ToArray();

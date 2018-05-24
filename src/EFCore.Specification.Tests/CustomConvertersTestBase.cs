@@ -370,25 +370,27 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 var caseInsensitiveComparer = new ValueComparer<string>(
-                    (l, r) =>(l == null || r == null) ? (l == r) : l.Equals(r, StringComparison.InvariantCultureIgnoreCase),
+                    (l, r) => (l == null || r == null) ? (l == r) : l.Equals(r, StringComparison.InvariantCultureIgnoreCase),
                     v => StringComparer.InvariantCultureIgnoreCase.GetHashCode(v),
                     v => v);
 
-                modelBuilder.Entity<StringKeyDataType>(b =>
-                {
-                    var property = b.Property(e => e.Id)
-                        .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
+                modelBuilder.Entity<StringKeyDataType>(
+                    b =>
+                    {
+                        var property = b.Property(e => e.Id)
+                            .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
-                    property.SetKeyValueComparer(caseInsensitiveComparer);
-                });
+                        property.SetKeyValueComparer(caseInsensitiveComparer);
+                    });
 
-                modelBuilder.Entity<StringForeignKeyDataType>(b =>
-                {
-                    var property = b.Property(e => e.StringKeyDataTypeId)
-                        .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
+                modelBuilder.Entity<StringForeignKeyDataType>(
+                    b =>
+                    {
+                        var property = b.Property(e => e.StringKeyDataTypeId)
+                            .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
-                    property.SetKeyValueComparer(caseInsensitiveComparer);
-                });
+                        property.SetKeyValueComparer(caseInsensitiveComparer);
+                    });
 
                 modelBuilder.Entity<MaxLengthDataTypes>(
                     b =>
@@ -415,10 +417,7 @@ namespace Microsoft.EntityFrameworkCore
                             .HasMaxLength(LongStringLength * 2);
                     });
 
-                modelBuilder.Entity<StringListDataType>(b =>
-                {
-                    b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new []{','}).ToList());
-                });
+                modelBuilder.Entity<StringListDataType>(b => { b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList()); });
             }
         }
     }

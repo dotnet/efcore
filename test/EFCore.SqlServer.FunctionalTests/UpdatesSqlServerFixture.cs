@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Property(l => l.ProfileId3).HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Profile>()
-                    .Property(l => l.Id3).HasColumnType("decimal(18,2)");
+                .Property(l => l.Id3).HasColumnType("decimal(18,2)");
 #endif
         }
     }

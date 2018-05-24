@@ -150,8 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
-                            .Where(c => c.CustomerID == "ALFKI"
-                                       && c.Orders.OrderBy(o => o.OrderID).Last().OrderID > 1000).ToList()).Message);
+                            .Where(
+                                c => c.CustomerID == "ALFKI"
+                                     && c.Orders.OrderBy(o => o.OrderID).Last().OrderID > 1000).ToList()).Message);
             }
         }
 

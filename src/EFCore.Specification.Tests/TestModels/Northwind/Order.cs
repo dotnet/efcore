@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             {
                 return false;
             }
+
             if (ReferenceEquals(this, obj))
             {
                 return true;

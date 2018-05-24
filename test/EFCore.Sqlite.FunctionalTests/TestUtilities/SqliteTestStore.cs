@@ -57,12 +57,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 return;
             }
+
             using (var context = createContext())
             {
                 if (!context.Database.EnsureCreated())
                 {
                     Clean(context);
                 }
+
                 seed(context);
             }
         }

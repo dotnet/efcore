@@ -514,32 +514,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
-                {
-                    Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
-                    CollectionAsserter(elementSorter, elementAsserter)(e, a);
-                };
+            {
+                Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
+                CollectionAsserter(elementSorter, elementAsserter)(e, a);
+            };
         }
 
         public static Action<dynamic, dynamic> CollectionAsserter<TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
+            {
+                var actual = elementSorter != null
+                    ? ((IEnumerable<TElement>)a).OrderBy(elementSorter).ToList()
+                    : ((IEnumerable<TElement>)a).ToList();
+
+                var expected = elementSorter != null
+                    ? ((IEnumerable<TElement>)e).OrderBy(elementSorter).ToList()
+                    : ((IEnumerable<TElement>)e).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                elementAsserter = elementAsserter ?? Assert.Equal;
+
+                for (var i = 0; i < expected.Count; i++)
                 {
-                    var actual = elementSorter != null
-                        ? ((IEnumerable<TElement>)a).OrderBy(elementSorter).ToList()
-                        : ((IEnumerable<TElement>)a).ToList();
-
-                    var expected = elementSorter != null
-                        ? ((IEnumerable<TElement>)e).OrderBy(elementSorter).ToList()
-                        : ((IEnumerable<TElement>)e).ToList();
-
-                    Assert.Equal(expected.Count, actual.Count);
-                    elementAsserter = elementAsserter ?? Assert.Equal;
-
-                    for (var i = 0; i < expected.Count; i++)
-                    {
-                        elementAsserter(expected[i], actual[i]);
-                    }
-                };
+                    elementAsserter(expected[i], actual[i]);
+                }
+            };
         }
 
         #endregion

@@ -113,7 +113,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     "@param", null, true, ParameterDirection.Input, DbType.AnsiString, true, 0, 0, 0));
         }
 
-
         [Fact]
         public void Formats_fixed_length_string_parameter()
         {

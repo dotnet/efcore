@@ -6565,7 +6565,6 @@ SELECT TOP(1) [v].[Nickname], [v].[SquadId], [v].[AssignedCityName], [v].[CityOr
 FROM [Gears] AS [v]
 LEFT JOIN [Tags] AS [v.Tag] ON ([v].[Nickname] = [v.Tag].[GearNickName]) AND ([v].[SquadId] = [v.Tag].[GearSquadId])
 WHERE ([v].[Discriminator] IN (N'Officer', N'Gear') AND ([v.Tag].[Id] = @_outer_Id)) AND (@_outer_Id1 = [v].[SquadId])");
-
         }
 
         public override void Include_with_group_by_on_entity_qsre()

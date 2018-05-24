@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
         public Guid Id { get; set; }
         public int? DependentId { get; set; }
         public string Name { get; set; }
+
         [ConcurrencyCheck]
         public decimal Price { get; set; }
     }

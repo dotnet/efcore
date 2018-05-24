@@ -505,38 +505,38 @@ namespace Microsoft.EntityFrameworkCore
             TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext, UseTransaction,
                 context =>
+                {
+                    var blogs = context.Set<TBlog>().ToList();
+
+                    foreach (var blog in blogs)
                     {
-                        var blogs = context.Set<TBlog>().ToList();
+                        context.Entry(blog).Collection(navigation).Load();
 
-                        foreach (var blog in blogs)
+                        blog.AccessTitle += "Updated";
+
+                        foreach (var post in blog.AccessPosts)
                         {
-                            context.Entry(blog).Collection(navigation).Load();
-
-                            blog.AccessTitle += "Updated";
-
-                            foreach (var post in blog.AccessPosts)
-                            {
-                                post.AccessTitle += "Updated";
-                            }
+                            post.AccessTitle += "Updated";
                         }
+                    }
 
-                        AssertGraph(blogs, "Updated");
+                    AssertGraph(blogs, "Updated");
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        AssertGraph(blogs, "Updated");
-                    },
+                    AssertGraph(blogs, "Updated");
+                },
                 context =>
+                {
+                    var blogs = context.Set<TBlog>().ToList();
+
+                    foreach (var blog in blogs)
                     {
-                        var blogs = context.Set<TBlog>().ToList();
+                        context.Entry(blog).Collection(navigation).Load();
+                    }
 
-                        foreach (var blog in blogs)
-                        {
-                            context.Entry(blog).Collection(navigation).Load();
-                        }
-
-                        AssertGraph(blogs, "Updated");
-                    });
+                    AssertGraph(blogs, "Updated");
+                });
         }
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -764,13 +764,13 @@ namespace Microsoft.EntityFrameworkCore
             private string _title;
             private ICollection<PostNavFields> _posts;
 
-
             int IBlogAccesor.AccessId
             {
                 get => _id;
                 set => _id = value;
             }
 
+            // ReSharper disable once ConvertToAutoProperty
             string IBlogAccesor.AccessTitle
             {
                 get => _title;
@@ -790,6 +790,7 @@ namespace Microsoft.EntityFrameworkCore
             private int _id;
             private string _title;
             private int _blogId;
+
             private BlogNavFields _blog;
 
             int IPostAccesor.AccessId
@@ -798,12 +799,14 @@ namespace Microsoft.EntityFrameworkCore
                 set => _id = value;
             }
 
+            // ReSharper disable once ConvertToAutoProperty
             string IPostAccesor.AccessTitle
             {
                 get => _title;
                 set => _title = value;
             }
 
+            // ReSharper disable once ConvertToAutoProperty
             int IPostAccesor.AccessBlogId
             {
                 get => _blogId;
@@ -1363,8 +1366,16 @@ namespace Microsoft.EntityFrameworkCore
                 AccessTitle = "Blog10",
                 AccessPosts = (IEnumerable<IPostAccesor>)new List<TPost>
                 {
-                    new TPost { AccessId = 10, AccessTitle = "Post10" },
-                    new TPost { AccessId = 11, AccessTitle = "Post11" }
+                    new TPost
+                    {
+                        AccessId = 10,
+                        AccessTitle = "Post10"
+                    },
+                    new TPost
+                    {
+                        AccessId = 11,
+                        AccessTitle = "Post11"
+                    }
                 }
             };
 
@@ -1380,8 +1391,18 @@ namespace Microsoft.EntityFrameworkCore
 
             return new List<TPost>
             {
-                new TPost { AccessId = 20, AccessTitle = "Post20", AccessBlog = blog },
-                new TPost { AccessId = 21, AccessTitle = "Post21", AccessBlog = blog }
+                new TPost
+                {
+                    AccessId = 20,
+                    AccessTitle = "Post20",
+                    AccessBlog = blog
+                },
+                new TPost
+                {
+                    AccessId = 21,
+                    AccessTitle = "Post21",
+                    AccessBlog = blog
+                }
             };
         }
 
@@ -1401,19 +1422,19 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<PostFullExplicit>(
                     b =>
-                        {
-                            b.Property(e => e.Id).HasField("_myid");
-                            b.Property(e => e.Title).HasField("_mytitle");
-                            b.Property(e => e.BlogId).HasField("_myblogId");
-                        });
+                    {
+                        b.Property(e => e.Id).HasField("_myid");
+                        b.Property(e => e.Title).HasField("_mytitle");
+                        b.Property(e => e.BlogId).HasField("_myblogId");
+                    });
 
                 modelBuilder.Entity<BlogFullExplicit>(
                     b =>
-                        {
-                            b.Property(e => e.Id).HasField("_myid");
-                            b.Property(e => e.Title).HasField("_mytitle");
-                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                        });
+                    {
+                        b.Property(e => e.Id).HasField("_myid");
+                        b.Property(e => e.Title).HasField("_mytitle");
+                        b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                    });
 
                 modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                 modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
@@ -1422,95 +1443,95 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     modelBuilder.Entity<PostReadOnly>(
                         b =>
-                            {
-                                b.HasKey(e => e.Id);
-                                b.Property(e => e.Title);
-                                b.Property(e => e.BlogId);
-                            });
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Title);
+                            b.Property(e => e.BlogId);
+                        });
 
                     modelBuilder.Entity<BlogReadOnly>(
                         b =>
-                            {
-                                b.HasKey(e => e.Id);
-                                b.Property(e => e.Title);
-                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                            });
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Title);
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                        });
 
                     modelBuilder.Entity<PostReadOnlyExplicit>(
                         b =>
-                            {
-                                b.HasKey(e => e.Id);
-                                b.Property(e => e.Id).HasField("_myid");
-                                b.Property(e => e.Title).HasField("_mytitle");
-                                b.Property(e => e.BlogId).HasField("_myblogId");
-                            });
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Id).HasField("_myid");
+                            b.Property(e => e.Title).HasField("_mytitle");
+                            b.Property(e => e.BlogId).HasField("_myblogId");
+                        });
 
                     modelBuilder.Entity<BlogReadOnlyExplicit>(
                         b =>
-                            {
-                                b.HasKey(e => e.Id);
-                                b.Property(e => e.Id).HasField("_myid");
-                                b.Property(e => e.Title).HasField("_mytitle");
-                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                            });
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Id).HasField("_myid");
+                            b.Property(e => e.Title).HasField("_mytitle");
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                        });
 
                     modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                     modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
                     modelBuilder.Entity<PostWriteOnly>(
                         b =>
-                            {
-                                b.HasKey("Id");
-                                b.Property("Title");
-                                b.Property("BlogId");
-                            });
+                        {
+                            b.HasKey("Id");
+                            b.Property("Title");
+                            b.Property("BlogId");
+                        });
 
                     modelBuilder.Entity<BlogWriteOnly>(
                         b =>
-                            {
-                                b.HasKey("Id");
-                                b.Property("Title");
-                                b.HasMany(typeof(PostWriteOnly).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
-                            });
+                        {
+                            b.HasKey("Id");
+                            b.Property("Title");
+                            b.HasMany(typeof(PostWriteOnly).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
+                        });
 
                     modelBuilder.Entity<PostWriteOnlyExplicit>(
                         b =>
-                            {
-                                b.HasKey("Id");
-                                b.Property("Id").HasField("_myid");
-                                b.Property("Title").HasField("_mytitle");
-                                b.Property("BlogId").HasField("_myblogId");
-                            });
+                        {
+                            b.HasKey("Id");
+                            b.Property("Id").HasField("_myid");
+                            b.Property("Title").HasField("_mytitle");
+                            b.Property("BlogId").HasField("_myblogId");
+                        });
 
                     modelBuilder.Entity<BlogWriteOnlyExplicit>(
                         b =>
-                            {
-                                b.HasKey("Id");
-                                b.Property("Id").HasField("_myid");
-                                b.Property("Title").HasField("_mytitle");
-                                b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
-                            });
+                        {
+                            b.HasKey("Id");
+                            b.Property("Id").HasField("_myid");
+                            b.Property("Title").HasField("_mytitle");
+                            b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
+                        });
 
                     modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                     modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
                     modelBuilder.Entity<PostFields>(
                         b =>
-                            {
-                                b.Property("_id");
-                                b.HasKey("_id");
-                                b.Property("_title");
-                                b.Property("_blogId");
-                            });
+                        {
+                            b.Property("_id");
+                            b.HasKey("_id");
+                            b.Property("_title");
+                            b.Property("_blogId");
+                        });
 
                     modelBuilder.Entity<BlogFields>(
                         b =>
-                            {
-                                b.Property("_id");
-                                b.HasKey("_id");
-                                b.Property("_title");
-                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
-                            });
+                        {
+                            b.Property("_id");
+                            b.HasKey("_id");
+                            b.Property("_title");
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
+                        });
 
                     modelBuilder.Entity<PostNavFields>(
                         b =>

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class PrivateCacheSqliteTestStoreFactory : SqliteTestStoreFactory
     {
-        public new static PrivateCacheSqliteTestStoreFactory Instance { get; } = new PrivateCacheSqliteTestStoreFactory();
+        public static new PrivateCacheSqliteTestStoreFactory Instance { get; } = new PrivateCacheSqliteTestStoreFactory();
 
         protected PrivateCacheSqliteTestStoreFactory()
         {

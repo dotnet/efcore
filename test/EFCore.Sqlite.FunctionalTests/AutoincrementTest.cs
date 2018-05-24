@@ -20,14 +20,22 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.People.Add(new PersonA { Name = "Bruce" });
+                context.People.Add(
+                    new PersonA
+                    {
+                        Name = "Bruce"
+                    });
                 context.SaveChanges();
 
                 var hero = context.People.First(p => p.Id == 1);
 
                 context.People.Remove(hero);
                 context.SaveChanges();
-                context.People.Add(new PersonA { Name = "Batman" });
+                context.People.Add(
+                    new PersonA
+                    {
+                        Name = "Batman"
+                    });
                 context.SaveChanges();
                 var gone = context.People.FirstOrDefault(p => p.Id == 1);
                 var begins = context.People.FirstOrDefault(p => p.Id == 2);

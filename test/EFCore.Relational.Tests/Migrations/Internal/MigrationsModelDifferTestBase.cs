@@ -102,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     jaggedArray[i][j] = twoDimensionalArray[i + rowsFirstIndex, j + columnsFirstIndex];
                 }
             }
+
             return jaggedArray;
         }
 
@@ -111,8 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(IModel model)
         {
-            var ctx = TestHelpers.CreateContext(TestHelpers.AddProviderOptions(new DbContextOptionsBuilder())
-                .UseModel(model).EnableSensitiveDataLogging().Options);
+            var ctx = TestHelpers.CreateContext(
+                TestHelpers.AddProviderOptions(new DbContextOptionsBuilder())
+                    .UseModel(model).EnableSensitiveDataLogging().Options);
             return new MigrationsModelDiffer(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

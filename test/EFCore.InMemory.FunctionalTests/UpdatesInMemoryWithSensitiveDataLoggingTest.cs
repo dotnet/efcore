@@ -3,6 +3,7 @@
 
 #if !Test20
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+
 #endif
 
 namespace Microsoft.EntityFrameworkCore

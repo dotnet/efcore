@@ -186,7 +186,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
         public class SqlServerBytesTestStoreFactory : SqlServerTestStoreFactory
         {
-            public new static SqlServerBytesTestStoreFactory Instance { get; } = new SqlServerBytesTestStoreFactory();
+            public static new SqlServerBytesTestStoreFactory Instance { get; } = new SqlServerBytesTestStoreFactory();
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(

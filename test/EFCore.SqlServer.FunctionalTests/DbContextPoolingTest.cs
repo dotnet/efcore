@@ -304,36 +304,36 @@ namespace Microsoft.EntityFrameworkCore
         {
             var weakRef = Scoper(
                 () =>
-                    {
-                        var serviceProvider = useInterface
-                            ? BuildServiceProvider<IPooledContext, PooledContext>()
-                            : BuildServiceProvider<PooledContext>();
+                {
+                    var serviceProvider = useInterface
+                        ? BuildServiceProvider<IPooledContext, PooledContext>()
+                        : BuildServiceProvider<PooledContext>();
 
-                        var serviceScope = serviceProvider.CreateScope();
-                        var scopedProvider = serviceScope.ServiceProvider;
+                    var serviceScope = serviceProvider.CreateScope();
+                    var scopedProvider = serviceScope.ServiceProvider;
 
-                        var context1 = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context1 = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+                    var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-                        Assert.Equal(expected: 1, actual: context1.ChangeTracker.Entries().Count());
+                    Assert.Equal(expected: 1, actual: context1.ChangeTracker.Entries().Count());
 
-                        serviceScope.Dispose();
+                    serviceScope.Dispose();
 
-                        serviceScope = serviceProvider.CreateScope();
-                        scopedProvider = serviceScope.ServiceProvider;
+                    serviceScope = serviceProvider.CreateScope();
+                    scopedProvider = serviceScope.ServiceProvider;
 
-                        var context2 = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context2 = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        Assert.Same(context1, context2);
-                        Assert.Empty(context2.ChangeTracker.Entries());
+                    Assert.Same(context1, context2);
+                    Assert.Empty(context2.ChangeTracker.Entries());
 
-                        return new WeakReference(entity);
-                    });
+                    return new WeakReference(entity);
+                });
 
             GC.Collect();
 
@@ -503,20 +503,20 @@ namespace Microsoft.EntityFrameworkCore
 
             Parallel.For(
                 fromInclusive: 0, toExclusive: 100, body: s =>
+                {
+                    using (var scope = serviceProvider.CreateScope())
                     {
-                        using (var scope = serviceProvider.CreateScope())
-                        {
-                            var scopedProvider = scope.ServiceProvider;
+                        var scopedProvider = scope.ServiceProvider;
 
-                            var context = useInterface
-                                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                                : scopedProvider.GetService<PooledContext>();
+                        var context = useInterface
+                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                            : scopedProvider.GetService<PooledContext>();
 
-                            var _ = context.Customers.ToList();
+                        var _ = context.Customers.ToList();
 
-                            context.Dispose();
-                        }
-                    });
+                        context.Dispose();
+                    }
+                });
         }
 
         [ConditionalTheory]
