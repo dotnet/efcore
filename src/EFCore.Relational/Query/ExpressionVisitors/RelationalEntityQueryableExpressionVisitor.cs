@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IQuerySource _querySource;
+        private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
 
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalEntityQueryableExpressionVisitor" />.
@@ -53,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _materializerFactory = dependencies.MaterializerFactory;
             _shaperCommandContextFactory = dependencies.ShaperCommandContextFactory;
             _querySource = querySource;
+            _sqlTranslatingExpressionVisitorFactory = dependencies.SqlTranslatingExpressionVisitorFactory;
         }
 
         private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
@@ -119,8 +121,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(node, nameof(node));
 
-            QueryModelVisitor
-                .BindMethodCallExpression(
+            var dbFunc = _model.Relational().FindDbFunction(node.Method);
+
+            if (dbFunc != null && dbFunc.IsIQueryable)
+            {
+                return VisitDbFunctionSourceExpression(new DbFunctionSourceExpression(node, _model));
+            }
+            else
+            {
+                QueryModelVisitor.BindMethodCallExpression(
                     node,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
@@ -128,7 +137,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             querySource),
                     bindSubQueries: true);
 
-            return base.VisitMethodCall(node);
+                return base.VisitMethodCall(node);
+            }
+        }
+
+        /// <summary>
+        ///     Visits Extension <see cref="Expression" /> nodes.
+        /// </summary>
+        /// <param name="node"> The node being visited. </param>
+        /// <returns> An expression to use in place of the node. </returns>
+        protected override Expression VisitExtension(Expression node)
+        {
+            Check.NotNull(node, nameof(node));
+
+            switch (node)
+            {
+                case DbFunctionSourceExpression dbNode:
+                    return VisitDbFunctionSourceExpression(dbNode);
+                default:
+                    return base.VisitExtension(node);
+            }
         }
 
         /// <summary>
@@ -229,6 +257,58 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             return Expression.Call(
                 QueryModelVisitor.QueryCompilationContext.QueryMethodProvider
+                    .ShapedQueryMethod
+                    .MakeGenericMethod(shaper.Type),
+                EntityQueryModelVisitor.QueryContextParameter,
+                Expression.Constant(_shaperCommandContextFactory.Create(querySqlGeneratorFunc)),
+                Expression.Constant(shaper));
+        }
+
+        /// <summary>
+        /// Visit a <see cref="DbFunctionSourceExpression"/> node.
+        /// </summary>
+        /// <param name="dbFunctionSourceExpression"> The node being visited. </param>
+        /// <returns> An Exprssion corresponding to the translated  DbFunctionSourceExpression. </returns>
+        protected virtual Expression VisitDbFunctionSourceExpression(DbFunctionSourceExpression dbFunctionSourceExpression)
+        {
+            Check.NotNull(dbFunctionSourceExpression, nameof(dbFunctionSourceExpression));
+
+            var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
+            var selectExpression = _selectExpressionFactory.Create(relationalQueryCompilationContext);
+
+            QueryModelVisitor.AddQuery(_querySource, selectExpression);
+
+            var sqlTranslatingExpressionVisitor = _sqlTranslatingExpressionVisitorFactory.Create(QueryModelVisitor);
+
+            var sqlFuncExpression = (SqlFunctionExpression)sqlTranslatingExpressionVisitor.Visit(dbFunctionSourceExpression);
+
+            Func<IQuerySqlGenerator> querySqlGeneratorFunc = selectExpression.CreateDefaultQuerySqlGenerator;
+
+            Shaper shaper;
+
+            if (dbFunctionSourceExpression.IsIQueryable)
+            {
+                var tableAlias
+                    = relationalQueryCompilationContext.CreateUniqueTableAlias(
+                        _querySource.HasGeneratedItemName()
+                            ? dbFunctionSourceExpression.Name[0].ToString().ToLowerInvariant()
+                            : _querySource.ItemName);
+
+                selectExpression.AddTable(new QuerableSqlFunctionExpression(sqlFuncExpression, _querySource, tableAlias));
+
+                var entityType = _model.FindEntityType(dbFunctionSourceExpression.ReturnType);
+
+                shaper = CreateShaper(dbFunctionSourceExpression.ReturnType, entityType, selectExpression);
+            }
+            else
+            { 
+                selectExpression.AddToProjection(sqlFuncExpression);
+
+                shaper = new ValueBufferShaper(_querySource);
+            }
+
+            return Expression.Call(
+                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider 
                     .ShapedQueryMethod
                     .MakeGenericMethod(shaper.Type),
                 EntityQueryModelVisitor.QueryContextParameter,

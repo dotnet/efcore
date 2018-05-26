@@ -35,5 +35,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override bool IsLateralJoinSupported => true;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override bool IsLateralJoinOuterSupported => true;
     }
 }

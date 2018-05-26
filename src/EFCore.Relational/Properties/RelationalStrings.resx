@@ -441,6 +441,15 @@
   <data name="DbFunctionInvalidInstanceType" xml:space="preserve">
     <value>The DbFunction '{function}' defined on type '{type}' must be either a static method or an instance method defined on a DbContext subclass. Instance methods on other types are not supported.</value>
   </data>
+  <data name="DbFunctionQueryableFunctionMustReturnIQueryable" xml:space="preserve">
+    <value>The DbFunction '{function}' must return IQueryable.</value>
+  </data>
+    <data name="DbFunctionNotFound" xml:space="preserve">
+    <value>The DbFunction '{function}' is not registered with the model.</value>
+  </data>
+    <data name="DbFunctionQueryableNotStatic" xml:space="preserve">
+    <value>IQueryable DbFunctions must be instance methods.  '{function}' is static.</value>
+  </data>
   <data name="ConflictingAmbientTransaction" xml:space="preserve">
     <value>An ambient transaction has been detected. The ambient transaction needs to be completed before beginning a transaction on this connection.</value>
   </data>

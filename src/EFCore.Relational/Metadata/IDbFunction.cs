@@ -29,6 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         MethodInfo MethodInfo { get; }
 
         /// <summary>
+        ///     Whether this method returns IQueryable
+        /// </summary>
+        bool IsIQueryable { get; }
+
+        /// <summary>
         ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         Func<IReadOnlyCollection<Expression>, Expression> Translation { get; }

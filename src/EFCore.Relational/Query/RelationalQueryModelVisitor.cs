@@ -40,11 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     A map of query source to select expression.
         /// </value>
-        protected virtual Dictionary<IQuerySource, SelectExpression> QueriesBySource { get; } =
-            new Dictionary<IQuerySource, SelectExpression>();
+        protected virtual Dictionary<IQuerySource, SelectExpression> QueriesBySource { get; }
+            = new Dictionary<IQuerySource, SelectExpression>();
 
         private readonly Dictionary<IQuerySource, RelationalQueryModelVisitor> _subQueryModelVisitorsBySource
             = new Dictionary<IQuerySource, RelationalQueryModelVisitor>();
+
+        private readonly Dictionary<string, Expression> _delayBoundParameters
+            = new Dictionary<string, Expression>();
 
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly ICompositePredicateExpressionVisitorFactory _compositePredicateExpressionVisitorFactory;
@@ -492,6 +495,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             CanBindToParentQueryModel = true;
 
             VisitQueryModel(queryModel);
+        }
+
+        /// <summary>
+        ///     Visits the <see cref="MainFromClause" /> node.
+        /// </summary>
+        /// <param name="fromClause"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
+        public override void VisitMainFromClause(
+            MainFromClause fromClause,
+            QueryModel queryModel)
+        {
+            Check.NotNull(fromClause, nameof(fromClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            base.VisitMainFromClause(fromClause, queryModel);
+
+            BindDelayBoundParameters();
         }
 
         /// <summary>
@@ -1174,6 +1194,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(selectClause, nameof(selectClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
+            if ((selectClause.Selector.TryGetReferencedQuerySource() as MainFromClause)?.FromExpression is DbFunctionSourceExpression d
+                && !d.IsIQueryable)
+            {
+                var readExp = BindReadValueMethod(selectClause.Selector.Type, CurrentParameter, 0);
+
+                Expression = Expression.Call(
+                    LinqOperatorProvider.Select
+                        .MakeGenericMethod(CurrentParameter.Type, readExp.Type),
+                    Expression,
+                    Expression.Lambda(readExp, CurrentParameter));
+
+                return;
+            }
+
             base.VisitSelectClause(selectClause, queryModel);
 
             if (Expression is MethodCallExpression methodCallExpression
@@ -1346,6 +1380,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             queryModel.TransformExpressions(new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model).Visit);
             queryModel.TransformExpressions(new SubqueryProjectingSingleValueOptimizingExpressionVisitor().Visit);
+            queryModel.SelectClause.TransformExpressions(new DbFunctionSourceSubqueryInjector().Visit);
         }
 
         /// <summary>
@@ -1360,6 +1395,60 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModelElement, nameof(queryModelElement));
 
             QueryCompilationContext.Logger.QueryClientEvaluationWarning(queryModel, queryModelElement);
+        }
+
+        private class DbFunctionSourceSubqueryInjector : ExpressionVisitorBase
+        {
+            private bool _shouldInject;
+
+            protected override Expression VisitNew(NewExpression expression)
+            {
+                _shouldInject = true;
+
+                try
+                { 
+                    return  base.VisitNew(expression);
+                }
+                finally
+                { 
+                    _shouldInject = false;
+                }
+            }
+
+            protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+            {
+                var shouldInject = _shouldInject;
+                _shouldInject = false;
+
+                try
+                {
+                    return base.VisitSubQuery(subQueryExpression);
+                }
+                finally
+                {
+                    _shouldInject = shouldInject;
+                }
+            }
+
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                if (_shouldInject && extensionExpression is DbFunctionSourceExpression dbf)
+                {
+                    return InjectSubquery(dbf);
+                }
+
+                return base.VisitExtension(extensionExpression);
+            }
+
+            private static Expression InjectSubquery(DbFunctionSourceExpression expression)
+            {
+                var targetType = expression.ReturnType;
+                var mainFromClause = new MainFromClause(targetType.Name.Substring(0, 1).ToLowerInvariant(), targetType, expression);
+                var selector = new QuerySourceReferenceExpression(mainFromClause);
+
+                var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selector));
+                return new SubQueryExpression(subqueryModel);
+            }
         }
 
         private class TypeIsExpressionTranslatingVisitor : ExpressionVisitorBase
@@ -1516,9 +1605,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var joinExpression
                 = correlated
-                    ? outerSelectExpression.AddCrossJoinLateral(
-                        innerSelectExpression.Tables.First(),
-                        innerSelectExpression.Projection)
+                    ? QueryCompilationContext.IsLateralJoinOuterSupported
+                            && innerShapedQuery?.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty) == true
+                            && (innerSelectExpression.Tables.First() is SelectExpression s
+                                && s.Tables.First() is QuerableSqlFunctionExpression
+                                || innerSelectExpression.Tables.First() is QuerableSqlFunctionExpression)
+                        ? outerSelectExpression.AddCrossJoinLateralOuter(
+                            innerSelectExpression.Tables.First(),
+                            innerSelectExpression.Projection)
+                        : outerSelectExpression.AddCrossJoinLateral(
+                            innerSelectExpression.Tables.First(),
+                            innerSelectExpression.Projection)
                     : outerSelectExpression.AddCrossJoin(
                         innerSelectExpression.Tables.First(),
                         innerSelectExpression.Projection);
@@ -2234,13 +2331,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     _injectedParameters[parameterName] = propertyExpression;
 
-                    Expression
-                        = CreateInjectParametersExpression(
-                            Expression,
-                            new Dictionary<string, Expression>
-                            {
-                                [parameterName] = propertyExpression
-                            });
+                    if(Expression != null)
+                    { 
+                        Expression
+                            = CreateInjectParametersExpression(
+                                Expression,
+                                new Dictionary<string, Expression>
+                                {
+                                    [parameterName] = propertyExpression
+                                });
+                    }
+                    else
+                    {
+                        _delayBoundParameters.Add(parameterName, propertyExpression);
+                    }
 
                     return Expression.Parameter(
                         property.ClrType,
@@ -2263,6 +2367,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return result;
+        }
+
+        private void BindDelayBoundParameters()
+        {
+            if(_delayBoundParameters.Count > 0)
+            { 
+                Expression = CreateInjectParametersExpression(Expression, _delayBoundParameters);
+            }
         }
 
         private Expression CreateInjectParametersExpression(Expression expression, Dictionary<string, Expression> parameters)

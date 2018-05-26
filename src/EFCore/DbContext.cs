@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1456,6 +1458,77 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
+
+        /// <summary>
+        /// Executes a query expression, which represents a function call, against the query store.
+        /// </summary>
+        /// <typeparam name="TResult"> The result type of the query expression </typeparam>
+        /// <param name="expression"> The query expression to execute. </param>
+        /// <returns> The result of executing the funciton against the datastore. </returns>
+        protected virtual TResult Execute<TResult>([NotNull] Expression<Func<TResult>> expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            if (!(expression.Body is MethodCallExpression))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ExpressionBodyMustBeMethodCallExpression());
+            }
+
+            var dbFuncFac = InternalServiceProvider.GetRequiredService<IDbFunctionSourceFactory>();
+            var resultsQuery = DbContextDependencies.QueryProvider.Execute(dbFuncFac.GenerateDbFunctionSource((MethodCallExpression)expression.Body , Model)) as IEnumerable<TResult>;
+
+            var results = resultsQuery.ToList();
+
+            return results.Count == 0 ? default : results[0];
+        }
+
+        /// <summary>
+        /// Executes a query expression, which represents a function call, against the query store.
+        /// </summary>
+        /// <typeparam name="TResult"> The result type of the query expression </typeparam>
+        /// <param name="expression"> The query expression to execute. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A task containing the result of executing the funciton against the datastore. </returns>
+        protected virtual Task<TResult> ExecuteAsync<TResult>([NotNull] Expression<Func<TResult>> expression, CancellationToken cancellationToken = default)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            if (!(expression.Body is MethodCallExpression))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ExpressionBodyMustBeMethodCallExpression());
+            }
+
+            var dbFuncFac = InternalServiceProvider.GetRequiredService<IDbFunctionSourceFactory>();
+
+            return DbContextDependencies.QueryProvider.ExecuteAsync<TResult>(
+                                        dbFuncFac.GenerateDbFunctionSource((MethodCallExpression)expression.Body, Model), cancellationToken);
+        }
+
+
+        /// <summary>
+        /// Creates a query expression, which represents a function call, against the query store.
+        /// </summary>
+        /// <typeparam name="TResult"> The result type of the query expression </typeparam>
+        /// <param name="expression"> The query expression to create. </param>
+        /// <returns> An IQueryable representing the query. </returns>
+        protected virtual IQueryable<TResult> CreateQuery<TResult>([NotNull] Expression<Func<IQueryable<TResult>>> expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            var dbFuncFac = InternalServiceProvider.GetRequiredService<IDbFunctionSourceFactory>();
+
+            if (!(expression.Body is MethodCallExpression))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ExpressionBodyMustBeMethodCallExpression());
+            }
+
+            var resultsQuery = dbFuncFac.GenerateDbFunctionSource((MethodCallExpression)expression.Body, Model);
+
+            return DbContextDependencies.QueryProvider.CreateQuery<TResult>(resultsQuery);
+        }
 
         #region Hidden System.Object members
 

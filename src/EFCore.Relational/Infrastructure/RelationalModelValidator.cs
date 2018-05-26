@@ -80,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 if (dbFunction.Translation == null)
                 {
-                    if (RelationalDependencies.TypeMappingSource.FindMapping(methodInfo.ReturnType) == null)
+                    if (dbFunction.IsIQueryable && model.FindEntityType(dbFunction.MethodInfo.ReturnType.GetGenericArguments()[0]) == null
+                        || !dbFunction.IsIQueryable && RelationalDependencies.TypeMappingSource.FindMapping(methodInfo.ReturnType) == null)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.DbFunctionInvalidReturnType(

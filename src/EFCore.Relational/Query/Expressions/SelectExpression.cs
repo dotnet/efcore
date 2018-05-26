@@ -1176,6 +1176,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
+        ///     Adds a SQL CROSS JOIN LATERAL to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The target table expression. </param>
+        /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
+        public virtual JoinExpressionBase AddCrossJoinLateralOuter(
+            [NotNull] TableExpressionBase tableExpression,
+            [NotNull] IEnumerable<Expression> projection)
+        {
+            Check.NotNull(tableExpression, nameof(tableExpression));
+            Check.NotNull(projection, nameof(projection));
+
+            if (tableExpression is SelectExpression s && s.Tables.First() is QuerableSqlFunctionExpression)
+            {
+                tableExpression = s.Tables.First();
+                projection = s.Projection;
+            }
+
+            var crossJoinLateralOuterExpression = new CrossJoinLateralOuterExpression(tableExpression);
+
+            _tables.Add(crossJoinLateralOuterExpression);
+            _projection.AddRange(projection);
+
+            return crossJoinLateralOuterExpression;
+        }
+
+        /// <summary>
         ///     Adds a SQL INNER JOIN to this SelectExpression.
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>

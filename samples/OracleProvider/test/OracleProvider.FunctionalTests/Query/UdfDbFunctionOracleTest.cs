@@ -1,14 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
-using System.Globalization;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -21,7 +15,157 @@ namespace Microsoft.EntityFrameworkCore.Query
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public class Oracle : UdfFixtureBase
+
+        #region Table Valued Tests
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Stand_Alone()
+        {
+            base.TVF_Stand_Alone();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Stand_Alone_With_Translation()
+        {
+            base.TVF_Stand_Alone_With_Translation();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Stand_Alone_Parameter()
+        {
+            base.TVF_Stand_Alone_Parameter();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Stand_Alone_Nested()
+        {
+            base.TVF_Stand_Alone_Nested();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_CrossApply_Correlated_Select_Anonymous()
+        {
+            base.TVF_CrossApply_Correlated_Select_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Select_Direct_In_Anonymous()
+        {
+            base.TVF_Select_Direct_In_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Select_Correlated_Direct_In_Anonymous()
+        {
+            base.TVF_Select_Correlated_Direct_In_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous()
+        {
+            base.TVF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Select_Correlated_Subquery_In_Anonymous()
+        {
+            base.TVF_Select_Correlated_Subquery_In_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Select_Correlated_Subquery_In_Anonymous_Nested()
+        {
+            base.TVF_Select_Correlated_Subquery_In_Anonymous_Nested();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Select_NonCorrelated_Subquery_In_Anonymous()
+        {
+            base.TVF_Select_NonCorrelated_Subquery_In_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter()
+        {
+            base.TVF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Correlated_Select_In_Anonymous()
+        {
+            base.TVF_Correlated_Select_In_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_CrossApply_Correlated_Select_Result()
+        {
+            base.TVF_CrossApply_Correlated_Select_Result();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_CrossJoin_Not_Correlated()
+        {
+            base.TVF_CrossJoin_Not_Correlated();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_CrossJoin_Parameter()
+        {
+            base.TVF_CrossJoin_Parameter();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Join()
+        {
+            base.TVF_Join();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_LeftJoin_Select_Anonymous()
+        {
+            base.TVF_LeftJoin_Select_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_LeftJoin_Select_Result()
+        {
+            base.TVF_LeftJoin_Select_Result();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_OuterApply_Correlated_Select_TVF()
+        {
+            base.TVF_OuterApply_Correlated_Select_TVF();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_OuterApply_Correlated_Select_DbSet()
+        {
+            base.TVF_OuterApply_Correlated_Select_DbSet();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_OuterApply_Correlated_Select_Anonymous()
+        {
+            base.TVF_OuterApply_Correlated_Select_Anonymous();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Nested()
+        {
+            base.TVF_Nested();
+        }
+
+        [Fact(Skip = "TODO")]
+        public override void TVF_Correlated_Nested_Func_Call()
+        {
+            base.TVF_Correlated_Nested_Func_Call();
+        }
+
+        #endregion
+
+
+        public class Oracle : BaseUdfFixture
         {
             protected override string StoreName { get; } = "UDFDbFunctionOracleTests";
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
@@ -108,8 +252,8 @@ END;");
 RETURN NVARCHAR2 IS
 BEGIN
     RETURN customerName;
-END;");                
-                
+END;");
+
                 context.SaveChanges();
             }
         }

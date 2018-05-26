@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -161,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public static MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodA), new[] { typeof(string), typeof(int) });
         public static MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodB), new[] { typeof(string), typeof(int) });
         public static MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
+        public static MethodInfo MethodImi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodI));
 
         public class TestMethods
         {
@@ -192,6 +194,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             public static int MethodH<T>(T a, string b)
+            {
+                throw new Exception();
+            }
+
+            public static IQueryable<TestMethods> MethodI()
             {
                 throw new Exception();
             }
@@ -475,6 +482,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var expectedMessage = AbstractionsStrings.ArgumentIsEmpty("name");
 
             Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
+        }
+
+        [Fact]
+        public virtual void Queryable_method_must_be_static()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var expectedMessage = RelationalStrings.DbFunctionQueryableNotStatic("TestMethods.MethodI");
+
+            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodImi)).Message);
         }
 
         private ModelBuilder GetModelBuilder()

@@ -1144,7 +1144,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     return newOperand != nullCompensatedExpression.Operand
                         ? new NullCompensatedExpression(newOperand)
                         : nullCompensatedExpression;
+                
+                case DbFunctionSourceExpression dbFunctionExpression:
+                
+                    var newArguments = Visit(dbFunctionExpression.Arguments);
 
+                    return dbFunctionExpression.Translation?.Invoke(newArguments) ??
+                            new SqlFunctionExpression(dbFunctionExpression.Name, dbFunctionExpression.UnwrappedType, dbFunctionExpression.Schema, newArguments);
+                
                 case DiscriminatorPredicateExpression discriminatorPredicateExpression:
                     return new DiscriminatorPredicateExpression(
                         base.VisitExtension(expression), discriminatorPredicateExpression.QuerySource);

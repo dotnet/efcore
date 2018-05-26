@@ -79,6 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual bool IsLateralJoinSupported => false;
 
         /// <summary>
+        ///     True if the current provider supports SQL OUTER LATERAL JOIN.
+        /// </summary>
+        public virtual bool IsLateralJoinOuterSupported => false;
+
+        /// <summary>
         ///     Max length of the table alias supported by provider.
         /// </summary>
         public virtual int MaxTableAliasLength => 128;

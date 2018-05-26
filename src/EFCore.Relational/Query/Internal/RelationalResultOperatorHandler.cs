@@ -364,28 +364,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return handlerContext.EvalOnClient();
             }
 
-            var selectExpression = handlerContext.SelectExpression;
+            if (!(handlerContext.QueryModel.MainFromClause.FromExpression is DbFunctionSourceExpression
+                    && handlerContext.QueryModelVisitor.QueryCompilationContext.IsLateralJoinOuterSupported))
+            {
+                var selectExpression = handlerContext.SelectExpression;
 
-            selectExpression.PushDownSubquery();
-            selectExpression.ExplodeStarProjection();
+                selectExpression.PushDownSubquery();
+                selectExpression.ExplodeStarProjection();
 
-            var subquery = selectExpression.Tables.Single();
+                var subquery = selectExpression.Tables.Single();
 
-            selectExpression.ClearTables();
+                selectExpression.ClearTables();
 
-            var emptySelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext, "empty");
-            emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
+                var emptySelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext, "empty");
+                emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
 
-            selectExpression.AddTable(emptySelectExpression);
+                selectExpression.AddTable(emptySelectExpression);
 
-            var leftOuterJoinExpression = new LeftOuterJoinExpression(subquery);
-            var constant1 = Expression.Constant(1);
+                var leftOuterJoinExpression = new LeftOuterJoinExpression(subquery);
+                var constant1 = Expression.Constant(1);
 
-            leftOuterJoinExpression.Predicate = Expression.Equal(constant1, constant1);
+                leftOuterJoinExpression.Predicate = Expression.Equal(constant1, constant1);
 
-            selectExpression.AddTable(leftOuterJoinExpression);
+                selectExpression.AddTable(leftOuterJoinExpression);
 
-            selectExpression.ProjectStarTable = subquery;
+                selectExpression.ProjectStarTable = subquery;
+            }
 
             handlerContext.QueryModelVisitor.Expression
                 = new DefaultIfEmptyExpressionVisitor(

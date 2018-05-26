@@ -929,6 +929,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
+        ///     Visit a CrossJoinLateralOuterExpression expression.
+        /// </summary>
+        /// <param name="crossJoinLateralOuterExpression"> The cross join lateral outer expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitCrossJoinLateralOuter(CrossJoinLateralOuterExpression crossJoinLateralOuterExpression)
+        {
+            Check.NotNull(crossJoinLateralOuterExpression, nameof(crossJoinLateralOuterExpression));
+
+            _relationalCommandBuilder.Append("CROSS JOIN LATERAL OUTER");
+
+            Visit(crossJoinLateralOuterExpression.TableExpression);
+
+            return crossJoinLateralOuterExpression;
+        }
+
+        /// <summary>
         ///     Visit a SqlFragmentExpression.
         /// </summary>
         /// <param name="sqlFragmentExpression"> The SqlFragmentExpression expression. </param>
@@ -1613,6 +1631,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _typeMapping = parentTypeMapping;
         }
 
+        /// <summary>
+        ///     Visits a QuerableSqlFunctionExpression.
+        /// </summary>
+        /// <param name="querableSqlFunctionExpression"> The QuerableSqlFunctionExpression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitQueryableSqlFunctionExpression(QuerableSqlFunctionExpression querableSqlFunctionExpression)
+        {
+            Check.NotNull(querableSqlFunctionExpression, nameof(querableSqlFunctionExpression));
+
+            return VisitSqlFunction(querableSqlFunctionExpression.SqlFunctionExpression);
+        }
+    
         /// <summary>
         ///     Visit a SQL ExplicitCastExpression.
         /// </summary>

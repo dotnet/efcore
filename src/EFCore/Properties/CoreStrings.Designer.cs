@@ -2674,6 +2674,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, serviceType, entityType);
 
         /// <summary>
+        ///     The expression body must be a MethodCallExpression
+        /// </summary>
+        public static string ExpressionBodyMustBeMethodCallExpression()
+            => string.Format(
+                GetString("ExpressionBodyMustBeMethodCallExpression"));
+
+        /// <summary>
         ///     Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.
         /// </summary>
         public static string ErrorInvalidQueryable

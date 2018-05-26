@@ -47,21 +47,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="selectExpressionFactory"> The select expression factory. </param>
         /// <param name="materializerFactory"> The materializer factory. </param>
         /// <param name="shaperCommandContextFactory"> The shaper command context factory. </param>
+        /// <param name="sqlTranslatingExpressionVisitorFactory"> The sql translating expression factory. </param>
         public RelationalEntityQueryableExpressionVisitorDependencies(
             [NotNull] IModel model,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
-            [NotNull] IShaperCommandContextFactory shaperCommandContextFactory)
+            [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
+            [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
+            Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
 
             Model = model;
             SelectExpressionFactory = selectExpressionFactory;
             MaterializerFactory = materializerFactory;
             ShaperCommandContextFactory = shaperCommandContextFactory;
+            SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
         }
 
         /// <summary>
@@ -85,6 +89,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         public IShaperCommandContextFactory ShaperCommandContextFactory { get; }
 
         /// <summary>
+        ///     The sql translating expression factory.
+        /// </summary>
+        public ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="model"> A replacement for the current dependency of this type. </param>
@@ -94,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 model,
                 SelectExpressionFactory,
                 MaterializerFactory,
-                ShaperCommandContextFactory);
+                ShaperCommandContextFactory,
+                SqlTranslatingExpressionVisitorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -106,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 Model,
                 selectExpressionFactory,
                 MaterializerFactory,
-                ShaperCommandContextFactory);
+                ShaperCommandContextFactory,
+                SqlTranslatingExpressionVisitorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -118,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 Model,
                 SelectExpressionFactory,
                 materializerFactory,
-                ShaperCommandContextFactory);
+                ShaperCommandContextFactory,
+                SqlTranslatingExpressionVisitorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -130,6 +142,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 Model,
                 SelectExpressionFactory,
                 MaterializerFactory,
-                shaperCommandContextFactory);
+                shaperCommandContextFactory,
+                SqlTranslatingExpressionVisitorFactory);
+            
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlTranslatingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalEntityQueryableExpressionVisitorDependencies With([NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory)
+            => new RelationalEntityQueryableExpressionVisitorDependencies(
+                Model,
+            SelectExpressionFactory,
+            MaterializerFactory,
+            ShaperCommandContextFactory,
+            sqlTranslatingExpressionVisitorFactory);
     }
 }

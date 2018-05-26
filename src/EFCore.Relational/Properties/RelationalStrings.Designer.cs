@@ -894,6 +894,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 function, type);
 
         /// <summary>
+        ///     The DbFunction '{function}' must return IQueryable.
+        /// </summary>
+        public static string DbFunctionQueryableFunctionMustReturnIQueryable([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionQueryableFunctionMustReturnIQueryable", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The DbFunction '{function}' is not registered with the model.
+        /// </summary>
+        public static string DbFunctionNotFound([CanBeNull] object function)
+                => string.Format(
+                    GetString("DbFunctionNotFound", nameof(function)),
+                    function);
+
+        /// <summary>
+        ///     IQueryable DbFunctions must be instance methods.  '{function}' is static.
+        /// </summary>
+        public static string DbFunctionQueryableNotStatic([CanBeNull] object function)
+                => string.Format(
+                    GetString("DbFunctionQueryableNotStatic", nameof(function)),
+                    function);
+
+        /// <summary>
         ///     An ambient transaction has been detected. The ambient transaction needs to be completed before beginning a transaction on this connection.
         /// </summary>
         public static string ConflictingAmbientTransaction
