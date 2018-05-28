@@ -13,31 +13,22 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class UdfDbFunctionOracleTest : UdfDbFunctionTestBase<UdfDbFunctionOracleTest.OracleUdfFixture>
+    public class UdfDbFunctionOracleTest : UdfDbFunctionTestBase<UdfDbFunctionOracleTest.Oracle>
     {
-        public UdfDbFunctionOracleTest(OracleUdfFixture fixture, ITestOutputHelper testOutputHelper)
+        public UdfDbFunctionOracleTest(Oracle fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public class OracleUdfFixture : SharedStoreFixtureBase<DbContext>
+        public class Oracle : UdfFixtureBase
         {
             protected override string StoreName { get; } = "UDFDbFunctionOracleTests";
-            protected override Type ContextType { get; } = typeof(UDFSqlContext);
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
-
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            {
-                base.AddOptions(builder);
-                return builder.ConfigureWarnings(w => w.Ignore(RelationalEventId.QueryClientEvaluationWarning));
-            }
 
             protected override void Seed(DbContext context)
             {
-                context.Database.EnsureCreated();
+                base.Seed(context);
 
                 context.Database.ExecuteSqlCommand(
                     @"CREATE OR REPLACE FUNCTION ""CustomerOrderCount"" (customerId INTEGER)
@@ -119,19 +110,6 @@ BEGIN
     RETURN customerName;
 END;");                
                 
-                var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = DateTime.Parse("1/20/2000", CultureInfo.InvariantCulture) };
-                var order12 = new Order { Name = "Order12", ItemCount = 8, OrderDate = DateTime.Parse("2/21/2000", CultureInfo.InvariantCulture) };
-                var order13 = new Order { Name = "Order13", ItemCount = 15, OrderDate = DateTime.Parse("3/20/2000", CultureInfo.InvariantCulture) };
-                var order21 = new Order { Name = "Order21", ItemCount = 16, OrderDate = DateTime.Parse("4/21/2000", CultureInfo.InvariantCulture) };
-                var order22 = new Order { Name = "Order22", ItemCount = 23, OrderDate = DateTime.Parse("5/20/2000", CultureInfo.InvariantCulture) };
-                var order31 = new Order { Name = "Order31", ItemCount = 42, OrderDate = DateTime.Parse("6/21/2000", CultureInfo.InvariantCulture) };
-
-                var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12, order13 } };
-                var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22 } };
-                var customer3 = new Customer { FirstName = "Customer", LastName = "Three", Orders = new List<Order> { order31 } };
-
-                ((UDFSqlContext)context).Customers.AddRange(customer1, customer2, customer3);
-                ((UDFSqlContext)context).Orders.AddRange(order11, order12, order13, order21, order22, order31);
                 context.SaveChanges();
             }
         }

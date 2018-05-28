@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -230,6 +233,95 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 modelBuilder.HasDbFunction(methodInfo2)
                     .HasTranslation(args => new SqlFunctionExpression("len", methodInfo2.ReturnType, args));
+            }
+        }
+
+        public abstract class UdfFixtureBase : SharedStoreFixtureBase<DbContext>
+        {
+            protected override Type ContextType { get; } = typeof(UDFSqlContext);
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            {
+                base.AddOptions(builder);
+                return builder.ConfigureWarnings(w => w.Ignore(RelationalEventId.QueryClientEvaluationWarning));
+            }
+
+            protected override void Seed(DbContext context)
+            {
+                context.Database.EnsureCreated();
+
+                var order11 = new Order
+                {
+                    Name = "Order11",
+                    ItemCount = 4,
+                    OrderDate = new DateTime(2000, 1, 20)
+                };
+                var order12 = new Order
+                {
+                    Name = "Order12",
+                    ItemCount = 8,
+                    OrderDate = new DateTime(2000, 2, 21)
+                };
+                var order13 = new Order
+                {
+                    Name = "Order13",
+                    ItemCount = 15,
+                    OrderDate = new DateTime(2000, 3, 20)
+                };
+                var order21 = new Order
+                {
+                    Name = "Order21",
+                    ItemCount = 16,
+                    OrderDate = new DateTime(2000, 4, 21)
+                };
+                var order22 = new Order
+                {
+                    Name = "Order22",
+                    ItemCount = 23,
+                    OrderDate = new DateTime(2000, 5, 20)
+                };
+                var order31 = new Order
+                {
+                    Name = "Order31",
+                    ItemCount = 42,
+                    OrderDate = new DateTime(2000, 6, 21)
+                };
+
+                var customer1 = new Customer
+                {
+                    FirstName = "Customer",
+                    LastName = "One",
+                    Orders = new List<Order>
+                    {
+                        order11,
+                        order12,
+                        order13
+                    }
+                };
+                var customer2 = new Customer
+                {
+                    FirstName = "Customer",
+                    LastName = "Two",
+                    Orders = new List<Order>
+                    {
+                        order21,
+                        order22
+                    }
+                };
+                var customer3 = new Customer
+                {
+                    FirstName = "Customer",
+                    LastName = "Three",
+                    Orders = new List<Order>
+                    {
+                        order31
+                    }
+                };
+
+                ((UDFSqlContext)context).Customers.AddRange(customer1, customer2, customer3);
+                ((UDFSqlContext)context).Orders.AddRange(order11, order12, order13, order21, order22, order31);
             }
         }
 
