@@ -137,9 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
             else
             {
-                var defaultMapping = _typeMappingSource.GetMapping(mapping.ClrType);
+                var defaultMapping = _typeMappingSource.FindMapping(mapping.ClrType);
 
-                if (defaultMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(defaultMapping?.StoreType, storeType, StringComparison.OrdinalIgnoreCase))
                 {
                     canInfer = true;
                 }
