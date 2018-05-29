@@ -21,33 +21,6 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Empty(diagnostics);
         }
-        
-        [Fact]
-        public async Task Error_when_sql_expression_recursively_initialized()
-        {
-            var diagnostics
-                = await GetDiagnosticsAsync(
-                    @"string q = null;
-                      q = M2(q);
-                      string M2(string _) { return null; }
-                      RelationalDatabaseFacadeExtensions.ExecuteSqlCommand(null, q);");
-
-            Assert.Empty(diagnostics);
-        }
-        
-        [Fact]
-        public async Task Error_when_sql_expression_recursively_initialized_multi()
-        {
-            var diagnostics
-                = await GetDiagnosticsAsync(
-                    @"string q = null;
-                      q = M2(q);
-                      var s = q;
-                      string M2(string _) { return null; }
-                      RelationalDatabaseFacadeExtensions.ExecuteSqlCommand(null, s);");
-
-            Assert.Empty(diagnostics);
-        }
 
         [Fact]
         public async Task Error_when_sql_expression_recursively_initialized()
