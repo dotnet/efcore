@@ -63,8 +63,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? Metadata.FindEntityType(type.Name)
                 : Metadata.FindEntityType(clrType);
 
-            if (entityType == null)
+            using (Metadata.ConventionDispatcher.StartBatch())
             {
+                if (entityType != null)
+                {
+                    if (throwOnQuery && entityType.IsQueryType)
+                    {
+                        if ((entityType.GetConfigurationSource() != ConfigurationSource.Explicit
+                             || configurationSource != ConfigurationSource.Explicit)
+                            && !RemoveEntityType(entityType, configurationSource))
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        entityType.UpdateConfigurationSource(configurationSource);
+                        return entityType.Builder;
+                    }
+                }
+
                 if (clrType == null)
                 {
                     if (Metadata.ShouldBeOwnedType(type.Name)
@@ -75,18 +93,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         Metadata.UnmarkAsOwnedType(type.Name);
 
-                        using (Metadata.ConventionDispatcher.StartBatch())
+                        foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(type.Name).ToList())
                         {
-                            foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(type.Name).ToList())
+                            if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
                             {
-                                if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
-                                {
-                                    RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
-                                }
+                                RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
                             }
-
-                            return Entity(type, configurationSource, throwOnQuery);
                         }
+
+                        return Entity(type, configurationSource, throwOnQuery);
                     }
 
                     Metadata.Unignore(type.Name);
@@ -103,18 +118,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         Metadata.UnmarkAsOwnedType(clrType);
 
-                        using (Metadata.ConventionDispatcher.StartBatch())
+                        foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(clrType).ToList())
                         {
-                            foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(clrType).ToList())
+                            if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
                             {
-                                if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
-                                {
-                                    RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
-                                }
+                                RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
                             }
-
-                            return Entity(type, configurationSource, throwOnQuery);
                         }
+
+                        return Entity(type, configurationSource, throwOnQuery);
                     }
 
                     Metadata.Unignore(type.Name);
@@ -122,49 +134,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     entityType = Metadata.AddEntityType(clrType, configurationSource);
                 }
             }
-            else
-            {
-                if (throwOnQuery && entityType.IsQueryType)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.CannotAccessQueryAsEntity(entityType.DisplayName()));
-                }
 
-                entityType.UpdateConfigurationSource(configurationSource);
-            }
-
-            return entityType?.Builder;
+            return entityType.Builder;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Query([NotNull] Type clrType)
+        public virtual InternalEntityTypeBuilder Query([NotNull] Type clrType, ConfigurationSource configurationSource)
         {
-            if (IsIgnored(clrType, ConfigurationSource.Explicit))
+            if (IsIgnored(clrType, configurationSource))
             {
                 return null;
             }
 
             var entityType = Metadata.FindEntityType(clrType);
 
-            if (entityType == null)
+            using (Metadata.ConventionDispatcher.StartBatch())
             {
+                if (entityType != null)
+                {
+                    if (!entityType.IsQueryType)
+                    {
+                        if ((entityType.GetConfigurationSource() != ConfigurationSource.Explicit
+                             || configurationSource != ConfigurationSource.Explicit)
+                            && !RemoveEntityType(entityType, configurationSource))
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        entityType.UpdateConfigurationSource(configurationSource);
+                        return entityType.Builder;
+                    }
+                }
+
                 Metadata.Unignore(clrType);
 
-                entityType = Metadata.AddQueryType(clrType);
-            }
-            else
-            {
-                if (!entityType.IsQueryType)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.CannotAccessEntityAsQuery(entityType.DisplayName()));
-                }
-            }
+                entityType = Metadata.AddQueryType(clrType, configurationSource);
 
-            return entityType.Builder;
+                return entityType.Builder;
+            }
         }
 
         /// <summary>

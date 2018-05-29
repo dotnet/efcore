@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = context.Query<CustomerQuery>()
                         .Where(cq => cq.OrderCount > 0)
                         .ToArray();
-            
+
                 Assert.Equal(4, results.Length);
             }
         }

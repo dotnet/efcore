@@ -2401,20 +2401,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 baseType, derivedType);
 
         /// <summary>
-        ///     Cannot access type '{type}' as a query type because it has already been declared as an entity type.
+        ///     The query type '{queryType}' cannot be added to the model because an entity type with the same name already exists.
         /// </summary>
-        public static string CannotAccessEntityAsQuery([CanBeNull] object type)
+        public static string CannotAccessEntityAsQuery([CanBeNull] object queryType)
             => string.Format(
-                GetString("CannotAccessEntityAsQuery", nameof(type)),
-                type);
+                GetString("CannotAccessEntityAsQuery", nameof(queryType)),
+                queryType);
 
         /// <summary>
-        ///     Cannot access type '{type}' as an entity type because it has already been declared as a query type.
+        ///     The entity type '{entityType}' cannot be added to the model because a query type with the same name already exists.
         /// </summary>
-        public static string CannotAccessQueryAsEntity([CanBeNull] object type)
+        public static string CannotAccessQueryAsEntity([CanBeNull] object entityType)
             => string.Format(
-                GetString("CannotAccessQueryAsEntity", nameof(type)),
-                type);
+                GetString("CannotAccessQueryAsEntity", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.
@@ -2678,6 +2678,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("OwnerlessOwnedType", nameof(ownedType)),
                 ownedType);
+
+        /// <summary>
+        ///     The query type '{queryType}' cannot be added to the model because a query type with the same name already exists.
+        /// </summary>
+        public static string DuplicateQueryType([CanBeNull] object queryType)
+            => string.Format(
+                GetString("DuplicateQueryType", nameof(queryType)),
+                queryType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

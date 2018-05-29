@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
             where TQuery : class
         {
-            return new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery)));
+            return new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery), ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(type, nameof(type));
 
-            return new QueryTypeBuilder(Builder.Query(type));
+            return new QueryTypeBuilder(Builder.Query(type, ConfigurationSource.Explicit));
         }
 
         /// <summary>
