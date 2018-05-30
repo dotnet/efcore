@@ -750,6 +750,45 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void GroupBy_Constant_with_element_selector_Select_Sum()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => 2, o => new { o.OrderID, o.OrderDate }).Select(
+                    g =>
+                        new
+                        {
+                            Sum = g.Sum(o => o.OrderID),
+                        }),
+                e => e.Sum);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Constant_with_element_selector_Select_Sum2()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => 2, o => new { o.OrderID }).Select(
+                    g =>
+                        new
+                        {
+                            Sum = g.Sum(o => o.OrderID),
+                        }),
+                e => e.Sum);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Constant_with_element_selector_Select_Sum3()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => 2, o => new { o.OrderID, o.OrderDate, o.CustomerID }).Select(
+                    g =>
+                        new
+                        {
+                            Sum = g.Sum(o => o.OrderID),
+                        }),
+                e => e.Sum);
+        }
+
+        [ConditionalFact]
         public virtual void GroupBy_after_predicate_Constant_Select_Sum_Min_Key_Max_Avg()
         {
             AssertQuery<Order>(
@@ -796,6 +835,48 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Avg = g.Average(o => o.OrderID)
                         }),
                 e => e.Min + " " + e.Max);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_param_with_element_selector_Select_Sum()
+        {
+            var a = 2;
+            AssertQuery<Order>(
+                os => os.GroupBy(o => a, o => new { o.OrderID, o.OrderDate }).Select(
+                    g =>
+                        new
+                        {
+                            Sum = g.Sum(o => o.OrderID),
+                        }),
+                e => e.Sum);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_param_with_element_selector_Select_Sum2()
+        {
+            var a = 2;
+            AssertQuery<Order>(
+                os => os.GroupBy(o => a, o => new { o.OrderID }).Select(
+                    g =>
+                        new
+                        {
+                            Sum = g.Sum(o => o.OrderID),
+                        }),
+                e => e.Sum);
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_param_with_element_selector_Select_Sum3()
+        {
+            var a = 2;
+            AssertQuery<Order>(
+                os => os.GroupBy(o => a, o => new { o.OrderID, o.OrderDate, o.CustomerID }).Select(
+                    g =>
+                        new
+                        {
+                            Sum = g.Sum(o => o.OrderID),
+                        }),
+                e => e.Sum);
         }
 
         [ConditionalFact]
