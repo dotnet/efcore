@@ -125,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual TableExpressionBase ProjectStarTable
         {
             get => _projectStarTable ?? (_tables.Count == 1 ? _tables.Single() : null);
-            [param: CanBeNull] set => _projectStarTable = value;
+            [param: CanBeNull]
+            set => _projectStarTable = value;
         }
 
         /// <summary>
@@ -823,9 +824,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private Expression CreateUniqueProjection(Expression expression, string newAlias = null)
         {
             var currentProjectionIndex = FindProjectionIndex(expression);
+            Expression removedProjection = null;
 
             if (currentProjectionIndex != -1)
             {
+                removedProjection = _projection[currentProjectionIndex];
                 _projection.RemoveAt(currentProjectionIndex);
             }
 
@@ -854,18 +857,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     : new AliasExpression(uniqueAlias, updatedExpression);
             }
 
-            var currentOrderingIndex = _orderBy.FindIndex(e => e.Expression.Equals(expression));
+            if (currentProjectionIndex != -1)
+            {
+                _projection.Insert(currentProjectionIndex, updatedExpression);
+            }
+
+            var currentOrderingIndex = _orderBy.FindIndex(
+                                                    e => e.Expression.Equals(expression)
+                                                         || e.Expression.Equals(removedProjection));
             if (currentOrderingIndex != -1)
             {
                 var oldOrdering = _orderBy[currentOrderingIndex];
 
                 _orderBy.RemoveAt(currentOrderingIndex);
                 _orderBy.Insert(currentOrderingIndex, new Ordering(updatedExpression, oldOrdering.OrderingDirection));
-            }
-
-            if (currentProjectionIndex != -1)
-            {
-                _projection.Insert(currentProjectionIndex, updatedExpression);
             }
 
             return updatedExpression;
