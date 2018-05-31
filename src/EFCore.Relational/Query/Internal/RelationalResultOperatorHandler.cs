@@ -522,11 +522,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     || groupResultOperator.KeySelector is ConstantExpression
                     || groupResultOperator.KeySelector is ParameterExpression)
                 {
+                    var quirk11993Enabled = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue11993", out var isEnabled)
+                            && isEnabled;
+
                     if (!(groupResultOperator.ElementSelector is QuerySourceReferenceExpression))
                     {
                         handlerContext.QueryModelVisitor.VisitSelectClause(
                             new SelectClause(groupResultOperator.ElementSelector),
                             handlerContext.QueryModel);
+
+                        if (quirk11993Enabled && selectExpression.Projection.Count > 1)
+                        {
+                            selectExpression.ClearProjection();
+                        }
                     }
 
                     foreach (var keyValue in memberInfoMappings)
@@ -567,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         key = new[] { projection };
                     }
 
-                    if (selectExpression.Projection.Count > 1)
+                    if (!quirk11993Enabled && selectExpression.Projection.Count > 1)
                     {
                         selectExpression.ClearProjection();
                     }
