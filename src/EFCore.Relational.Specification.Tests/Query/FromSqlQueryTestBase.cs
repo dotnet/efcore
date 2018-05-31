@@ -750,9 +750,16 @@ AND ((]UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         [Fact]
         public virtual void Include_does_not_close_user_opened_connection_for_empty_result()
         {
+            Fixture.TestStore.CloseConnection();
             using (var context = CreateContext())
             {
+                var connection = context.Database.GetDbConnection();
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
+
                 context.Database.OpenConnection();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
 
                 var query = context.Customers
                     .Include(v => v.Orders)
@@ -760,8 +767,13 @@ AND ((]UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     .ToList();
 
                 Assert.Empty(query);
-                Assert.Equal(ConnectionState.Open, context.Database.GetDbConnection().State);
+                Assert.Equal(ConnectionState.Open, connection.State);
+
+                context.Database.CloseConnection();
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
             }
+            Fixture.TestStore.OpenConnection();
         }
 
         [Fact]
@@ -842,7 +854,7 @@ AND ((]UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "#12128")]
+        [Fact]
         public virtual void Include_closed_connection_opened_by_it_when_buffering()
         {
             Fixture.TestStore.CloseConnection();
