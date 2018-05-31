@@ -780,5 +780,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .AsNoTracking() // Just to cause a subquery
                     .Select(e => e.B));
         }
+
+        [ConditionalFact]
+        public virtual void Anonymous_projection_with_repeated_property_being_ordered()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      orderby c.CustomerID
+                      select new
+                      {
+                          A = c.CustomerID,
+                          B = c.CustomerID
+                      });
+        }
     }
 }

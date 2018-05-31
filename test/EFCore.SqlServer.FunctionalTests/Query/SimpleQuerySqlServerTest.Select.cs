@@ -896,5 +896,15 @@ FROM [Customers] AS [c]");
                 @"SELECT [o].[CustomerID] AS [A], [o].[OrderDate] AS [B]
 FROM [Orders] AS [o]");
         }
+
+        public override void Anonymous_projection_with_repeated_property_being_ordered()
+        {
+            base.Anonymous_projection_with_repeated_property_being_ordered();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [B]
+FROM [Customers] AS [c]
+ORDER BY [B]");
+        }
     }
 }

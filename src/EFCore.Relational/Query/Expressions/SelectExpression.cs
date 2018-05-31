@@ -742,9 +742,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 = _projection.FindIndex(
                     e => ExpressionEqualityComparer.Instance.Equals(e, expression)
                          || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, expression));
+            Expression removedProjection = null;
 
             if (currentProjectionIndex != -1)
             {
+                removedProjection = _projection[currentProjectionIndex];
                 _projection.RemoveAt(currentProjectionIndex);
             }
 
@@ -773,7 +775,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     : new AliasExpression(uniqueAlias, updatedExpression);
             }
 
-            var currentOrderingIndex = _orderBy.FindIndex(e => e.Expression.Equals(expression));
+            var currentOrderingIndex
+                = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12180", out var isEnabled)
+                  && isEnabled
+                  ? _orderBy.FindIndex(e => e.Expression.Equals(expression))
+                  : _orderBy.FindIndex(e => e.Expression.Equals(expression) || e.Expression.Equals(removedProjection));
+
             if (currentOrderingIndex != -1)
             {
                 var oldOrdering = _orderBy[currentOrderingIndex];
