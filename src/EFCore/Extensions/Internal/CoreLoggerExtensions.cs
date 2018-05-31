@@ -1920,8 +1920,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
-                    entry.EntityType.ShortName(),
-                    entry.StateManager.Context.GetType().ShortDisplayName());
+                    entry.StateManager.Context.GetType().ShortDisplayName()
+                    entry.EntityType.ShortName());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -1960,9 +1960,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
+                    entry.StateManager.Context.GetType().ShortDisplayName(),
                     entry.EntityType.ShortName(),
-                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
-                    entry.StateManager.Context.GetType().ShortDisplayName());
+                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties));
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
