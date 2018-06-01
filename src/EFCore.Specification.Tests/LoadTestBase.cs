@@ -1356,6 +1356,50 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, false)]
         [InlineData(EntityState.Deleted, true)]
         [InlineData(EntityState.Deleted, false)]
+        public virtual async Task Load_collection_with_NoTracking_behavior(EntityState state, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+                var parent = context.Set<Parent>().Single();
+
+                ClearLog();
+
+                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+                context.Entry(parent).State = state;
+
+                Assert.False(collectionEntry.IsLoaded);
+
+                if (async)
+                {
+                    await collectionEntry.LoadAsync();
+                }
+                else
+                {
+                    collectionEntry.Load();
+                }
+
+                Assert.True(collectionEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, parent.Children.Count());
+                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
         public virtual async Task Load_many_to_one_reference_to_principal(EntityState state, bool async)
         {
             using (var context = CreateContext())
@@ -1403,6 +1447,51 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
+                var single = context.Set<Single>().Single();
+
+                ClearLog();
+
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                context.Entry(single).State = state;
+
+                Assert.False(referenceEntry.IsLoaded);
+
+                if (async)
+                {
+                    await referenceEntry.LoadAsync();
+                }
+                else
+                {
+                    referenceEntry.Load();
+                }
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                Assert.Same(parent, single.Parent);
+                Assert.Same(single, parent.Single);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Deleted, true)]
+        [InlineData(EntityState.Deleted, false)]
+        public virtual async Task Load_one_to_one_reference_to_principal_when_NoTracking_behavior(EntityState state, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
                 var single = context.Set<Single>().Single();
 
                 ClearLog();
