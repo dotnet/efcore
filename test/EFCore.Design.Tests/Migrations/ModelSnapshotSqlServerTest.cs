@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -614,115 +614,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         }
 
         [Fact]
-        public virtual void Owned_types_are_stored_in_snapshot()
-        {
-            Test(
-                builder =>
-                {
-                    builder
-                        .Entity<EntityWithOneProperty>()
-                        .OwnsOne(
-                            eo => eo.EntityWithTwoProperties, eb =>
-                            {
-                                eb.HasForeignKey(e => e.AlternateId);
-                                eb.HasOne(e => e.EntityWithOneProperty)
-                                    .WithOne(e => e.EntityWithTwoProperties);
-                                eb.HasIndex(e => e.Id);
-
-                                eb.OwnsOne(e => e.EntityWithStringProperty);
-
-                                eb.HasData(
-                                    new EntityWithTwoProperties
-                                    {
-                                        AlternateId = 1
-                                    });
-                            })
-                        .HasData(
-                            new EntityWithOneProperty
-                            {
-                                Id = 1
-                            });
-                },
-                GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
-    {
-        b.Property<int>(""Id"")
-            .ValueGeneratedOnAdd()
-            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
-
-        b.HasKey(""Id"");
-
-        b.ToTable(""EntityWithOneProperty"");
-
-        b.HasData(
-            new { Id = 1 }
-        );
-    });
-
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
-    {
-        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
-            {
-                b1.Property<int>(""AlternateId"")
-                    .ValueGeneratedOnAdd()
-                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                b1.Property<int>(""Id"");
-
-                b1.HasIndex(""Id"");
-
-                b1.ToTable(""EntityWithOneProperty"");
-
-                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
-                    .WithOne(""EntityWithTwoProperties"")
-                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithStringProperty"", b2 =>
-                    {
-                        b2.Property<int>(""Id"")
-                            .ValueGeneratedOnAdd()
-                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                        b2.Property<string>(""Name"");
-
-                        b2.ToTable(""EntityWithOneProperty"");
-
-                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"")
-                            .WithOne(""EntityWithStringProperty"")
-                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Id"")
-                            .OnDelete(DeleteBehavior.Cascade);
-                    });
-
-                b1.HasData(
-                    new { AlternateId = 1, Id = 0 }
-                );
-            });
-    });
-",
-                o =>
-                {
-                    var ownership1 = o.FindEntityType(typeof(EntityWithOneProperty)).GetReferencingForeignKeys().Single();
-                    Assert.Equal("AlternateId", ownership1.Properties[0].Name);
-                    Assert.Equal("EntityWithTwoProperties", ownership1.PrincipalToDependent.Name);
-                    Assert.Equal("EntityWithOneProperty", ownership1.DependentToPrincipal.Name);
-                    Assert.True(ownership1.IsRequired);
-                    var ownedType1 = ownership1.DeclaringEntityType;
-                    Assert.Equal("AlternateId", ownedType1.FindPrimaryKey().Properties[0].Name);
-                    Assert.Equal(1, ownedType1.GetKeys().Count());
-                    Assert.Equal("Id", ownedType1.GetIndexes().Single().Properties[0].Name);
-                    var ownership2 = ownedType1.GetReferencingForeignKeys().Single();
-                    Assert.Equal("Id", ownership2.Properties[0].Name);
-                    Assert.Equal("EntityWithStringProperty", ownership2.PrincipalToDependent.Name);
-                    Assert.Null(ownership2.DependentToPrincipal);
-                    Assert.True(ownership2.IsRequired);
-                    var ownedType2 = ownership2.DeclaringEntityType;
-                    Assert.Equal("Id", ownedType2.FindPrimaryKey().Properties[0].Name);
-                    Assert.Equal(1, ownedType2.GetKeys().Count());
-                });
-        }
-
-        [Fact]
         public virtual void TableName_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -889,6 +780,288 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     Assert.Equal(typeof(string), discriminatorProperty.ClrType);
                     Assert.False(discriminatorProperty.IsNullable);
                 });
+        }
+
+        #endregion
+
+        #region Owned types
+
+        [Fact]
+        public virtual void Owned_types_are_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder
+                        .Entity<EntityWithOneProperty>()
+                        .OwnsOne(
+                            eo => eo.EntityWithTwoProperties, eb =>
+                            {
+                                eb.HasForeignKey(e => e.AlternateId);
+                                eb.HasOne(e => e.EntityWithOneProperty)
+                                        .WithOne(e => e.EntityWithTwoProperties);
+                                eb.HasIndex(e => e.Id);
+
+                                eb.OwnsOne(e => e.EntityWithStringProperty);
+
+                                eb.HasData(new EntityWithTwoProperties
+                                {
+                                    AlternateId = 1
+                                });
+                            })
+                        .HasData(new EntityWithOneProperty { Id = 1 });
+                },
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithOneProperty"");
+
+        b.HasData(
+            new { Id = 1 }
+        );
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+    {
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
+            {
+                b1.Property<int>(""AlternateId"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b1.Property<int>(""Id"");
+
+                b1.HasIndex(""Id"");
+
+                b1.ToTable(""EntityWithOneProperty"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+                    .WithOne(""EntityWithTwoProperties"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithStringProperty"", b2 =>
+                    {
+                        b2.Property<int>(""Id"")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b2.Property<string>(""Name"");
+
+                        b2.ToTable(""EntityWithOneProperty"");
+
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"")
+                            .WithOne(""EntityWithStringProperty"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Id"")
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+
+                b1.HasData(
+                    new { AlternateId = 1, Id = 0 }
+                );
+            });
+    });
+",
+                o =>
+                {
+                    var ownership1 = o.FindEntityType(typeof(EntityWithOneProperty)).GetReferencingForeignKeys().Single();
+                    Assert.Equal("AlternateId", ownership1.Properties[0].Name);
+                    Assert.Equal("EntityWithTwoProperties", ownership1.PrincipalToDependent.Name);
+                    Assert.Equal("EntityWithOneProperty", ownership1.DependentToPrincipal.Name);
+                    Assert.True(ownership1.IsRequired);
+                    var ownedType1 = ownership1.DeclaringEntityType;
+                    Assert.Equal("AlternateId", ownedType1.FindPrimaryKey().Properties[0].Name);
+                    Assert.Equal(1, ownedType1.GetKeys().Count());
+                    Assert.Equal("Id", ownedType1.GetIndexes().Single().Properties[0].Name);
+                    var ownership2 = ownedType1.GetReferencingForeignKeys().Single();
+                    Assert.Equal("Id", ownership2.Properties[0].Name);
+                    Assert.Equal("EntityWithStringProperty", ownership2.PrincipalToDependent.Name);
+                    Assert.Null(ownership2.DependentToPrincipal);
+                    Assert.True(ownership2.IsRequired);
+                    var ownedType2 = ownership2.DeclaringEntityType;
+                    Assert.Equal("Id", ownedType2.FindPrimaryKey().Properties[0].Name);
+                    Assert.Equal(1, ownedType2.GetKeys().Count());
+                });
+        }
+
+        [Fact]
+        public virtual void Weak_owned_types_are_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<Order>().OwnsOne(p => p.OrderBillingDetails, od =>
+                    {
+                        od.OwnsOne(c => c.StreetAddress);
+                    });
+                    builder.Entity<Order>().OwnsOne(p => p.OrderShippingDetails, od =>
+                    {
+                        od.OwnsOne(c => c.StreetAddress);
+                    });
+                    builder.Entity<Order>().OwnsOne(p => p.OrderInfo, od =>
+                    {
+                        od.OwnsOne(c => c.StreetAddress);
+                    });
+                },
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""Order"");
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", b =>
+    {
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderInfo"", b1 =>
+            {
+                b1.Property<int>(""OrderId"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b1.ToTable(""Order"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
+                    .WithOne(""OrderInfo"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderId"")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                    {
+                        b2.Property<int>(""OrderInfoOrderId"")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b2.Property<string>(""City"");
+
+                        b2.ToTable(""Order"");
+
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"")
+                            .WithOne(""StreetAddress"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderInfoOrderId"")
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+            });
+
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderBillingDetails"", b1 =>
+            {
+                b1.Property<int>(""OrderId"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b1.ToTable(""Order"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
+                    .WithOne(""OrderBillingDetails"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                    {
+                        b2.Property<int>(""OrderDetailsOrderId"")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b2.Property<string>(""City"");
+
+                        b2.ToTable(""Order"");
+
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"")
+                            .WithOne(""StreetAddress"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderDetailsOrderId"")
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+            });
+
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderShippingDetails"", b1 =>
+            {
+                b1.Property<int>(""OrderId"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b1.ToTable(""Order"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
+                    .WithOne(""OrderShippingDetails"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                    {
+                        b2.Property<int>(""OrderDetailsOrderId"")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b2.Property<string>(""City"");
+
+                        b2.ToTable(""Order"");
+
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"")
+                            .WithOne(""StreetAddress"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderDetailsOrderId"")
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+            });
+    });
+",
+                o =>
+                {
+                    Assert.Equal(7, o.GetEntityTypes().Count());
+
+                    var order = o.FindEntityType(typeof(Order).FullName);
+                    Assert.Equal(1, order.PropertyCount());
+
+                    var orderInfo = order.FindNavigation(nameof(Order.OrderInfo)).GetTargetType();
+                    Assert.Equal(1, orderInfo.PropertyCount());
+
+                    var orderInfoAddress = orderInfo.FindNavigation(nameof(OrderInfo.StreetAddress)).GetTargetType();
+                    Assert.Equal(2, orderInfoAddress.PropertyCount());
+
+                    var orderBillingDetails = order.FindNavigation(nameof(Order.OrderBillingDetails)).GetTargetType();
+                    Assert.Equal(1, orderBillingDetails.PropertyCount());
+
+                    var orderBillingDetailsAddress = orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).GetTargetType();
+                    Assert.Equal(2, orderBillingDetailsAddress.PropertyCount());
+
+                    var orderShippingDetails = order.FindNavigation(nameof(Order.OrderShippingDetails)).GetTargetType();
+                    Assert.Equal(1, orderShippingDetails.PropertyCount());
+
+                    var orderShippingDetailsAddress = orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).GetTargetType();
+                    Assert.Equal(2, orderShippingDetailsAddress.PropertyCount());
+                });
+        }
+
+        private class Order
+        {
+            public int Id { get; set; }
+            public OrderDetails OrderBillingDetails { get; set; }
+            public OrderDetails OrderShippingDetails { get; set; }
+            public OrderInfo OrderInfo { get; set; }
+        }
+
+        private class OrderDetails
+        {
+            public StreetAddress StreetAddress { get; set; }
+        }
+
+        private class OrderInfo
+        {
+            public StreetAddress StreetAddress { get; set; }
+        }
+
+        private class StreetAddress
+        {
+            public string City { get; set; }
         }
 
         #endregion

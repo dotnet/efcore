@@ -1258,6 +1258,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Property_returns_same_instance_if_type_matches()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var propertyBuilder = entityBuilder.Property(Order.IdProperty, ConfigurationSource.DataAnnotation);
+            Assert.NotNull(propertyBuilder);
+
+            Assert.Same(propertyBuilder, entityBuilder.Property(Order.IdProperty.Name, typeof(int), ConfigurationSource.DataAnnotation, typeConfigurationSource: ConfigurationSource.DataAnnotation));
+
+            Assert.Same(propertyBuilder, entityBuilder.Property(Order.IdProperty.Name, typeof(int), ConfigurationSource.Convention, typeConfigurationSource: null));
+
+            Assert.Same(propertyBuilder, entityBuilder.Property(Order.IdProperty.Name, null, ConfigurationSource.Convention, typeConfigurationSource: ConfigurationSource.Convention));
+
+            Assert.Null(entityBuilder.Property(Order.IdProperty.Name, typeof(string), ConfigurationSource.Convention, typeConfigurationSource: ConfigurationSource.Convention));
+
+            Assert.Equal(new[] { propertyBuilder.Metadata }, entityBuilder.GetActualProperties(new[] { propertyBuilder.Metadata }, null));
+        }
+
+        [Fact]
         public void Property_throws_for_navigation()
         {
             var modelBuilder = CreateModelBuilder();

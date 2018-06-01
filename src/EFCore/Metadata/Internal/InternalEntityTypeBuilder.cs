@@ -310,9 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] string propertyName, ConfigurationSource configurationSource)
-            => Property(
-                propertyName, propertyType: null, memberInfo: null,
-                configurationSource: configurationSource, typeConfigurationSource: configurationSource);
+            => Property(propertyName, propertyType: null, memberInfo: null, configurationSource, typeConfigurationSource: null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -328,13 +326,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? configurationSource,
             ConfigurationSource? typeConfigurationSource)
         {
-            if (IsIgnored(propertyName, configurationSource))
-            {
-                return null;
-            }
-
-            Metadata.Unignore(propertyName);
-
             IEnumerable<Property> propertiesToDetach = null;
             var existingProperty = Metadata.FindProperty(propertyName);
             if (existingProperty != null)
@@ -344,10 +335,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (memberInfo != null
                         && existingProperty.GetIdentifyingMemberInfo() == null)
                     {
-                        propertiesToDetach = new[] { existingProperty };
+                        if (configurationSource.Overrides(existingProperty.GetConfigurationSource()))
+                        {
+                            propertiesToDetach = new[] { existingProperty };
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
                     else
                     {
+                        if (!IsIgnored(propertyName, configurationSource))
+                        {
+                            Metadata.Unignore(propertyName);
+                        }
+
                         return existingProperty.DeclaringEntityType.Builder
                             .Property(existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
                     }
@@ -355,7 +358,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                propertiesToDetach = Metadata.FindDerivedProperties(propertyName);
+                if (IsIgnored(propertyName, configurationSource))
+                {
+                    return null;
+                }
 
                 foreach (var conflictingServiceProperty in Metadata.FindServicePropertiesInHierarchy(propertyName))
                 {
@@ -383,6 +389,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             CoreStrings.PropertyCalledOnNavigation(propertyName, Metadata.DisplayName()));
                     }
                 }
+
+                Metadata.Unignore(propertyName);
+
+                propertiesToDetach = Metadata.FindDerivedProperties(propertyName);
             }
 
             InternalPropertyBuilder builder;
@@ -413,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? configurationSource,
             ConfigurationSource? typeConfigurationSource)
         {
-            var property = existingProperty;
+            Property property;
             if (existingProperty == null)
             {
                 if (!configurationSource.HasValue)
@@ -487,17 +497,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (configurationSource.HasValue)
                     {
-                        property.UpdateConfigurationSource(configurationSource.Value);
+                        existingProperty.UpdateConfigurationSource(configurationSource.Value);
                     }
 
-                    if (typeConfigurationSource.HasValue)
+                    if (propertyType != null
+                        && typeConfigurationSource.HasValue)
                     {
-                        property.UpdateTypeConfigurationSource(typeConfigurationSource.Value);
+                        existingProperty.UpdateTypeConfigurationSource(typeConfigurationSource.Value);
                     }
+
+                    return existingProperty.Builder;
                 }
             }
 
-            return property?.Builder;
+            return property.Builder;
         }
 
         private bool CanRemoveProperty(
@@ -948,9 +961,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     detachedProperties = DetachProperties(duplicatedProperties);
 
                     var propertiesToRemove = Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredProperties())
-                        .Where(
-                            p => !p.GetConfigurationSource()
-                                .Overrides(baseEntityType.FindIgnoredMemberConfigurationSource(p.Name)))
+                        .Where(p => !p.GetConfigurationSource()
+                            .Overrides(baseEntityType.FindIgnoredMemberConfigurationSource(p.Name)))
                         .ToList();
                     foreach (var property in propertiesToRemove)
                     {
@@ -2117,12 +2129,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (existingNavigation.GetTargetType().ClrType == targetEntityType.Type)
                     {
                         var ownershipBuilder = existingNavigation.ForeignKey.Builder;
-                        ownershipBuilder = ownershipBuilder.RelatedEntityTypes(
-                            Metadata, ownershipBuilder.Metadata.FindNavigationsFromInHierarchy(Metadata).Single().GetTargetType(),
-                            configurationSource);
-                        ownershipBuilder = ownershipBuilder?.Navigations(inverse, navigation, configurationSource);
-                        ownershipBuilder = ownershipBuilder?.IsRequired(true, configurationSource);
-                        ownershipBuilder = ownershipBuilder?.IsOwnership(true, configurationSource);
+                        ownershipBuilder = ownershipBuilder
+                            .IsRequired(true, configurationSource)
+                            ?.RelatedEntityTypes(
+                                Metadata, ownershipBuilder.Metadata.FindNavigationsFromInHierarchy(Metadata).Single().GetTargetType(),
+                                configurationSource)
+                            ?.Navigations(inverse, navigation, configurationSource)
+                            ?.IsOwnership(true, configurationSource);
 
                         return ownershipBuilder == null ? null : batch.Run(ownershipBuilder);
                     }
@@ -2572,12 +2585,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             for (var i = 0; i < actualProperties.Length; i++)
             {
                 var property = properties[i];
+                var typeConfigurationSource = property.GetTypeConfigurationSource();
                 var builder = property.Builder != null && property.DeclaringEntityType.IsAssignableFrom(Metadata)
                     ? property.Builder
-                    : Metadata.FindProperty(property.Name)?.Builder
-                      ?? (property.IsShadowProperty
-                          ? null
-                          : Property(property.Name, property.ClrType, property.GetIdentifyingMemberInfo(), configurationSource, property.GetTypeConfigurationSource()));
+                    : Property(
+                        property.Name,
+                        typeConfigurationSource.HasValue ? property.ClrType : null,
+                        property.GetIdentifyingMemberInfo(),
+                        configurationSource,
+                        typeConfigurationSource);
                 if (builder == null)
                 {
                     return null;

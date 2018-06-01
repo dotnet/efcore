@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDbContextOptionsExtensionsTest
