@@ -66,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else if (previousPrimaryKey != null
                      && PropertyListComparer.Instance.Compare(previousPrimaryKey.Properties, properties) == 0)
             {
+                previousPrimaryKey.UpdateConfigurationSource(configurationSource);
                 return Metadata.SetPrimaryKey(properties, configurationSource).Builder;
             }
 
