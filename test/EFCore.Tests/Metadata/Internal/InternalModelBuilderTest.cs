@@ -28,13 +28,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
-        public void Query_can_override_lower_or_equal_source_entity_type()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Query_can_override_lower_or_equal_source_entity_type(bool useOldBehavior)
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention, throwOnQuery: true));
+            if (useOldBehavior)
+            {
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12119", true);
+                Assert.Equal(
+                    CoreStrings.CannotAccessEntityAsQuery(nameof(Customer)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Query(typeof(Customer), ConfigurationSource.Convention)).Message);
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12119", false);
+                return;
+            }
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.DataAnnotation, throwOnQuery: true));
             Assert.Equal(ConfigurationSource.DataAnnotation, model.FindEntityType(typeof(Customer)).GetConfigurationSource());
             Assert.NotNull(modelBuilder.Query(typeof(Customer), ConfigurationSource.DataAnnotation));
@@ -47,13 +58,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Query(typeof(Customer), ConfigurationSource.Explicit)).Message);
         }
 
-        [Fact]
-        public void Entity_can_override_lower_or_equal_source_query_type()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Entity_can_override_lower_or_equal_source_query_type(bool useOldBehavior)
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
             Assert.NotNull(modelBuilder.Query(typeof(Customer), ConfigurationSource.Convention));
+            if (useOldBehavior)
+            {
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12119", true);
+                Assert.Equal(
+                    CoreStrings.CannotAccessQueryAsEntity(nameof(Customer)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention, throwOnQuery: true)).Message);
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12119", false);
+                return;
+            }
             Assert.NotNull(modelBuilder.Query(typeof(Customer), ConfigurationSource.DataAnnotation));
             Assert.Equal(ConfigurationSource.DataAnnotation, model.FindEntityType(typeof(Customer)).GetConfigurationSource());
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.DataAnnotation, throwOnQuery: true));

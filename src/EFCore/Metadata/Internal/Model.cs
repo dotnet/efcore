@@ -157,25 +157,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ClashingWeakEntityType(entityType.DisplayName()));
                 }
 
-                if (_entityTypes.TryGetValue(entityTypeName, out var clashingEntityType))
+                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12119", out var isEnabled)
+                    && isEnabled)
                 {
-                    if (clashingEntityType.IsQueryType)
+                    var previousLength = _entityTypes.Count;
+                    _entityTypes[entityTypeName] = entityType;
+                    if (previousLength == _entityTypes.Count)
                     {
+                        throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
+                    }
+                }
+                else
+                {
+                    if (_entityTypes.TryGetValue(entityTypeName, out var clashingEntityType))
+                    {
+                        if (clashingEntityType.IsQueryType)
+                        {
+                            if (entityType.IsQueryType)
+                            {
+                                throw new InvalidOperationException(CoreStrings.DuplicateQueryType(entityType.DisplayName()));
+                            }
+                            throw new InvalidOperationException(CoreStrings.CannotAccessQueryAsEntity(entityType.DisplayName()));
+                        }
+
                         if (entityType.IsQueryType)
                         {
-                            throw new InvalidOperationException(CoreStrings.DuplicateQueryType(entityType.DisplayName()));
+                            throw new InvalidOperationException(CoreStrings.CannotAccessEntityAsQuery(entityType.DisplayName()));
                         }
-                        throw new InvalidOperationException(CoreStrings.CannotAccessQueryAsEntity(entityType.DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
                     }
 
-                    if (entityType.IsQueryType)
-                    {
-                        throw new InvalidOperationException(CoreStrings.CannotAccessEntityAsQuery(entityType.DisplayName()));
-                    }
-                    throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
+                    _entityTypes.Add(entityTypeName, entityType);
                 }
-
-                _entityTypes.Add(entityTypeName, entityType);
             }
 
             return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;

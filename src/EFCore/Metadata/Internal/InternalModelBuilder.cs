@@ -63,75 +63,151 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? Metadata.FindEntityType(type.Name)
                 : Metadata.FindEntityType(clrType);
 
-            using (Metadata.ConventionDispatcher.StartBatch())
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12119", out var isEnabled)
+                && isEnabled)
             {
-                if (entityType != null)
+                if (entityType == null)
                 {
-                    if (throwOnQuery && entityType.IsQueryType)
+                    if (clrType == null)
                     {
-                        if ((entityType.GetConfigurationSource() != ConfigurationSource.Explicit
-                             || configurationSource != ConfigurationSource.Explicit)
-                            && !RemoveEntityType(entityType, configurationSource))
+                        if (Metadata.ShouldBeOwnedType(type.Name)
+                            && Metadata.HasEntityTypeWithDefiningNavigation(type.Name))
                         {
-                            return null;
+                            Debug.Assert(configurationSource == ConfigurationSource.Explicit,
+                                "If a type is marked as an owned entity it can only be configured as a non-owned entity type explicitly");
+
+                            Metadata.UnmarkAsOwnedType(type.Name);
+
+                            using (Metadata.ConventionDispatcher.StartBatch())
+                            {
+                                foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(type.Name).ToList())
+                                {
+                                    if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
+                                    {
+                                        RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
+                                    }
+                                }
+
+                                return Entity(type, configurationSource, throwOnQuery);
+                            }
                         }
+
+                        Metadata.Unignore(type.Name);
+
+                        entityType = Metadata.AddEntityType(type.Name, configurationSource);
                     }
                     else
                     {
-                        entityType.UpdateConfigurationSource(configurationSource);
-                        return entityType.Builder;
-                    }
-                }
-
-                if (clrType == null)
-                {
-                    if (Metadata.ShouldBeOwnedType(type.Name)
-                        && Metadata.HasEntityTypeWithDefiningNavigation(type.Name))
-                    {
-                        Debug.Assert(configurationSource == ConfigurationSource.Explicit,
-                            "If a type is marked as an owned entity it can only be configured as a non-owned entity type explicitly");
-
-                        Metadata.UnmarkAsOwnedType(type.Name);
-
-                        foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(type.Name).ToList())
+                        if (Metadata.ShouldBeOwnedType(clrType)
+                            && Metadata.HasEntityTypeWithDefiningNavigation(clrType))
                         {
-                            if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
+                            Debug.Assert(configurationSource == ConfigurationSource.Explicit,
+                                "If a type is marked as an owned entity it can only be configured as a non-owned entity type explicitly");
+
+                            Metadata.UnmarkAsOwnedType(clrType);
+
+                            using (Metadata.ConventionDispatcher.StartBatch())
                             {
-                                RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
+                                foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(clrType).ToList())
+                                {
+                                    if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
+                                    {
+                                        RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
+                                    }
+                                }
+
+                                return Entity(type, configurationSource, throwOnQuery);
                             }
                         }
 
-                        return Entity(type, configurationSource, throwOnQuery);
+                        Metadata.Unignore(type.Name);
+
+                        entityType = Metadata.AddEntityType(clrType, configurationSource);
                     }
-
-                    Metadata.Unignore(type.Name);
-
-                    entityType = Metadata.AddEntityType(type.Name, configurationSource);
                 }
                 else
                 {
-                    if (Metadata.ShouldBeOwnedType(clrType)
-                        && Metadata.HasEntityTypeWithDefiningNavigation(clrType))
+                    if (throwOnQuery && entityType.IsQueryType)
                     {
-                        Debug.Assert(configurationSource == ConfigurationSource.Explicit,
-                            "If a type is marked as an owned entity it can only be configured as a non-owned entity type explicitly");
-
-                        Metadata.UnmarkAsOwnedType(clrType);
-
-                        foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(clrType).ToList())
-                        {
-                            if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
-                            {
-                                RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
-                            }
-                        }
-
-                        return Entity(type, configurationSource, throwOnQuery);
+                        throw new InvalidOperationException(
+                            CoreStrings.CannotAccessQueryAsEntity(entityType.DisplayName()));
                     }
 
-                    Metadata.Unignore(type.Name);
+                    entityType.UpdateConfigurationSource(configurationSource);
+                }
+            }
+            else
+            {
+                using (Metadata.ConventionDispatcher.StartBatch())
+                {
+                    if (entityType != null)
+                    {
+                        if (throwOnQuery && entityType.IsQueryType)
+                        {
+                            if ((entityType.GetConfigurationSource() != ConfigurationSource.Explicit
+                                 || configurationSource != ConfigurationSource.Explicit)
+                                && !RemoveEntityType(entityType, configurationSource))
+                            {
+                                return null;
+                            }
+                        }
+                        else
+                        {
+                            entityType.UpdateConfigurationSource(configurationSource);
+                            return entityType.Builder;
+                        }
+                    }
 
-                    entityType = Metadata.AddEntityType(clrType, configurationSource);
+                    if (clrType == null)
+                    {
+                        if (Metadata.ShouldBeOwnedType(type.Name)
+                            && Metadata.HasEntityTypeWithDefiningNavigation(type.Name))
+                        {
+                            Debug.Assert(configurationSource == ConfigurationSource.Explicit,
+                                "If a type is marked as an owned entity it can only be configured as a non-owned entity type explicitly");
+
+                            Metadata.UnmarkAsOwnedType(type.Name);
+
+                            foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(type.Name).ToList())
+                            {
+                                if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
+                                {
+                                    RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
+                                }
+                            }
+
+                            return Entity(type, configurationSource, throwOnQuery);
+                        }
+
+                        Metadata.Unignore(type.Name);
+
+                        entityType = Metadata.AddEntityType(type.Name, configurationSource);
+                    }
+                    else
+                    {
+                        if (Metadata.ShouldBeOwnedType(clrType)
+                            && Metadata.HasEntityTypeWithDefiningNavigation(clrType))
+                        {
+                            Debug.Assert(configurationSource == ConfigurationSource.Explicit,
+                                "If a type is marked as an owned entity it can only be configured as a non-owned entity type explicitly");
+
+                            Metadata.UnmarkAsOwnedType(clrType);
+
+                            foreach (var entityTypeWithDefiningNavigation in Metadata.GetEntityTypes(clrType).ToList())
+                            {
+                                if (entityTypeWithDefiningNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
+                                {
+                                    RemoveEntityType(entityTypeWithDefiningNavigation, configurationSource);
+                                }
+                            }
+
+                            return Entity(type, configurationSource, throwOnQuery);
+                        }
+
+                        Metadata.Unignore(type.Name);
+
+                        entityType = Metadata.AddEntityType(clrType, configurationSource);
+                    }
                 }
             }
 
@@ -144,38 +220,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Query([NotNull] Type clrType, ConfigurationSource configurationSource)
         {
-            if (IsIgnored(clrType, configurationSource))
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12119", out var isEnabled)
+                && isEnabled)
             {
-                return null;
-            }
+                if (IsIgnored(clrType, ConfigurationSource.Explicit))
+                {
+                    return null;
+                }
 
-            var entityType = Metadata.FindEntityType(clrType);
+                var entityType = Metadata.FindEntityType(clrType);
 
-            using (Metadata.ConventionDispatcher.StartBatch())
-            {
-                if (entityType != null)
+                if (entityType == null)
+                {
+                    Metadata.Unignore(clrType);
+
+                    entityType = Metadata.AddQueryType(clrType);
+                }
+                else
                 {
                     if (!entityType.IsQueryType)
                     {
-                        if ((entityType.GetConfigurationSource() != ConfigurationSource.Explicit
-                             || configurationSource != ConfigurationSource.Explicit)
-                            && !RemoveEntityType(entityType, configurationSource))
-                        {
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        entityType.UpdateConfigurationSource(configurationSource);
-                        return entityType.Builder;
+                        throw new InvalidOperationException(
+                            CoreStrings.CannotAccessEntityAsQuery(entityType.DisplayName()));
                     }
                 }
 
-                Metadata.Unignore(clrType);
-
-                entityType = Metadata.AddQueryType(clrType, configurationSource);
-
                 return entityType.Builder;
+            }
+            else
+            {
+                if (IsIgnored(clrType, configurationSource))
+                {
+                    return null;
+                }
+
+                var entityType = Metadata.FindEntityType(clrType);
+
+                using (Metadata.ConventionDispatcher.StartBatch())
+                {
+                    if (entityType != null)
+                    {
+                        if (!entityType.IsQueryType)
+                        {
+                            if ((entityType.GetConfigurationSource() != ConfigurationSource.Explicit
+                                 || configurationSource != ConfigurationSource.Explicit)
+                                && !RemoveEntityType(entityType, configurationSource))
+                            {
+                                return null;
+                            }
+                        }
+                        else
+                        {
+                            entityType.UpdateConfigurationSource(configurationSource);
+                            return entityType.Builder;
+                        }
+                    }
+
+                    Metadata.Unignore(clrType);
+
+                    entityType = Metadata.AddQueryType(clrType, configurationSource);
+
+                    return entityType.Builder;
+                }
             }
         }
 

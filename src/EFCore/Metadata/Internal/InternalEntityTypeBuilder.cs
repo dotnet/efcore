@@ -66,7 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else if (previousPrimaryKey != null
                      && PropertyListComparer.Instance.Compare(previousPrimaryKey.Properties, properties) == 0)
             {
-                previousPrimaryKey.UpdateConfigurationSource(configurationSource);
+                if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12119", out var isEnabled)
+                    || !isEnabled)
+                {
+                    previousPrimaryKey.UpdateConfigurationSource(configurationSource);
+                }
                 return Metadata.SetPrimaryKey(properties, configurationSource).Builder;
             }
 
