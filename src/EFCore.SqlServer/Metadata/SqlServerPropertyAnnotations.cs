@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private static bool IsCompatibleSequenceHiLo(IProperty property)
-            => property.ClrType.IsInteger() && !HasConverter(property);
+            => (property.ClrType.IsInteger() || property.ClrType == typeof(decimal)) && !HasConverter(property);
 
         private static bool HasConverter(IProperty property)
             => (property.FindMapping()?.Converter
