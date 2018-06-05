@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         }
                         else
                         {
-                            helper.GenerateParameterName(sb, o.ParameterName);
+                            helper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
                         }
                     });
         }
@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                                 }
                                 else
                                 {
-                                    helper.GenerateParameterName(sb, o.ParameterName);
+                                    helper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
                                 }
                             }
                             else
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
                 else
                 {
-                    SqlGenerationHelper.GenerateParameterName(
+                    SqlGenerationHelper.GenerateParameterNamePlaceholder(
                         commandStringBuilder, useOriginalValue
                             ? columnModification.OriginalParameterName
                             : columnModification.ParameterName);
