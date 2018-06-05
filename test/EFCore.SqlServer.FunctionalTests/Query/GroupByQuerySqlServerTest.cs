@@ -1091,6 +1091,17 @@ WHERE [o].[OrderID] < 10300
 GROUP BY [o].[CustomerID]");
         }
 
+        public override void GroupBy_principal_key_property_optimization()
+        {
+            base.GroupBy_principal_key_property_optimization();
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+
+        }
+
         public override void GroupBy_OrderBy_key()
         {
             base.GroupBy_OrderBy_key();

@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupBy_Property_Select_Sum()
         {
-            await AssertQueryScalar<Order>(os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
+            await AssertQueryScalar<Order>(
+                os => os.GroupBy(o => EF.Property<string>(o, "CustomerID")).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
@@ -95,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task GroupBy_Property_Select_Key_Count()
         {
             await AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID).Select(
+                os => os.GroupBy(o => EF.Property<string>(o, "CustomerID")).Select(
                     g =>
                         new
                         {
@@ -182,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task GroupBy_Property_Select_Sum_Min_Key_Max_Avg()
         {
             await AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID).Select(
+                os => os.GroupBy(o => EF.Property<string>(o, "CustomerID")).Select(
                     g =>
                         new
                         {
@@ -624,19 +625,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 #endif
 
             public override bool Equals(object obj)
-            {
-                if (obj is null)
-                {
-                    return false;
-                }
-
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return obj.GetType() == GetType() && Equals((NominalType)obj);
-            }
+                => obj is null
+                    ? false
+                    : ReferenceEquals(this, obj)
+                        ? true
+                        : obj.GetType() == GetType() && Equals((NominalType)obj);
 
             public override int GetHashCode() => 0;
 
@@ -898,7 +891,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupBy_Property_scalar_element_selector_Average()
         {
-            await AssertQueryScalar<Order>(os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Average()));
+            await AssertQueryScalar<Order>(
+                os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Average()));
         }
 
         [ConditionalFact]
@@ -910,7 +904,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupBy_Property_scalar_element_selector_LongCount()
         {
-            await AssertQueryScalar<Order>(os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.LongCount()));
+            await AssertQueryScalar<Order>(
+                os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.LongCount()));
         }
 
         [ConditionalFact]
@@ -1243,7 +1238,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Order, Customer>(
                 (os, cs) =>
                     (from o in os.Where(o => o.OrderID < 10400).OrderBy(o => o.OrderDate).Take(100)
-                     join c in cs.Where(c => c.CustomerID != "DRACD" && c.CustomerID != "FOLKO").OrderBy(c => c.City).Skip(10).Take(50)
+                     join c in cs.Where(c => c.CustomerID != "DRACD" && c.CustomerID != "FOLKO")
+                                 .OrderBy(c => c.City).Skip(10).Take(50)
                          on o.CustomerID equals c.CustomerID
                      group o by c.CustomerID)
                     .Select(
@@ -1377,7 +1373,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQuery<Order, Customer>(
                 (os, cs) =>
-                    (from c in cs.Where(c => c.CustomerID != "DRACD" && c.CustomerID != "FOLKO").OrderBy(c => c.City).Skip(10).Take(50)
+                    (from c in cs.Where(c => c.CustomerID != "DRACD" && c.CustomerID != "FOLKO")
+                                 .OrderBy(c => c.City).Skip(10).Take(50)
                      join o in os.Where(o => o.OrderID < 10400).OrderBy(o => o.OrderDate).Take(100)
                          on c.CustomerID equals o.CustomerID into grouping
                      from o in grouping
@@ -1468,6 +1465,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Max = g.Max(o => o.B),
                             Sum = g.Sum(o => o.C),
                             Avg = g.Average(o => o.C)
+                        }));
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupBy_principal_key_property_optimization()
+        {
+            await AssertQuery<Order>(
+                os => os.GroupBy(o => o.Customer.CustomerID)
+                        .Select(g => new
+                        {
+                            g.Key,
+                            Count = g.Count()
                         }));
         }
 
@@ -1876,20 +1885,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             private bool Equals(ProjectedType other) => Equals(Order, other.Order);
 
             public override bool Equals(object obj)
-            {
-                if (obj is null)
-                {
-                    return false;
-                }
-
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return obj.GetType() == GetType()
-                       && Equals((ProjectedType)obj);
-            }
+                => obj is null
+                    ? false
+                    : ReferenceEquals(this, obj)
+                        ? true
+                        : obj.GetType() == GetType()
+                            && Equals((ProjectedType)obj);
 
             // ReSharper disable once NonReadonlyMemberInGetHashCode
             public override int GetHashCode() => Order.GetHashCode();
