@@ -5748,6 +5748,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
+        [ConditionalFact]
+        public virtual void Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
+        {
+            var nicknames = new List<string>();
+            AssertQuery<Gear>(
+                gs => from g in gs
+                      orderby nicknames.Contains(g.Nickname) descending
+                      select new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() },
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Nickname, a.Nickname);
+                    CollectionAsserter<string>(ee => ee)(e.Weapons, a.Weapons);
+                });
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

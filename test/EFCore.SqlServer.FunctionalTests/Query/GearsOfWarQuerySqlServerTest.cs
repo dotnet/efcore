@@ -7457,6 +7457,26 @@ WHERE [c.StationedGears].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [t].[Name], [c.StationedGears].[Nickname] DESC");
         }
 
+        public override void Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
+        {
+            base.Correlated_collection_with_complex_order_by_funcletized_to_constant_bool();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY (SELECT 1) DESC, [g].[Nickname], [g].[SquadId], [g].[FullName]",
+                //
+                @"SELECT [t].[c], [t].[Nickname], [t].[SquadId], [t].[FullName], [g.Weapons].[Name], [g.Weapons].[OwnerFullName]
+FROM [Weapons] AS [g.Weapons]
+INNER JOIN (
+    SELECT CAST(0 AS bit) AS [c], [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
+ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
