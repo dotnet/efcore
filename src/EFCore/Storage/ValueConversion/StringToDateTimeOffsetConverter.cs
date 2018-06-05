@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
-    ///     Converts strings to and from <see cref="DateTime" /> values.
+    ///     Converts strings to and from <see cref="DateTimeOffset" /> values.
     /// </summary>
     public class StringToDateTimeOffsetConverter : ValueConverter<string, DateTimeOffset>
     {
