@@ -640,6 +640,88 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }));
         }
 
+
+        [Fact]
+        public void Dont_rebuild_index_with_equal_include()
+        {
+            Execute(
+                source => source
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.HasIndex("Zip")
+                                .ForSqlServerInclude("City");
+                        }),
+                target => target
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.HasIndex("Zip")
+                                .ForSqlServerInclude("City");
+                        }),
+                operations =>
+                {
+                    Assert.Equal(0, operations.Count);
+                });
+        }
+
+        [Fact]
+        public void Rebuild_index_with_different_include()
+        {
+            Execute(
+                source => source
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.Property<string>("Street");
+                            x.HasIndex("Zip")
+                                .ForSqlServerInclude("City");
+                        }),
+                target => target
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.Property<string>("Street");
+                            x.HasIndex("Zip")
+                                .ForSqlServerInclude("Street");
+                        }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<DropIndexOperation>(operations[0]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    var operation2 = Assert.IsType<CreateIndexOperation>(operations[1]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.Include);
+                    Assert.NotNull(annotation);
+
+                    var annotationValue = Assert.IsType<string[]>(annotation.Value);
+                    Assert.Equal(1, annotationValue.Length);
+                    Assert.Equal("Street", annotationValue[0]);
+                });
+        }
+
         protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 
         protected override MigrationsModelDiffer CreateModelDiffer(IModel model)

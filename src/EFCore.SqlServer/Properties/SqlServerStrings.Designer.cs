@@ -321,6 +321,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string InvalidColumnNameForFreeText
             => GetString("InvalidColumnNameForFreeText");
 
+        /// <summary>
+        ///     Include property '{entityType}.{property}' cannot be defined multiple times
+        /// </summary>
+        public static string IncludePropertyDuplicated([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("IncludePropertyDuplicated", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     Include property '{entityType}.{property}' is already included in the index
+        /// </summary>
+        public static string IncludePropertyInIndex([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("IncludePropertyInIndex", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     Include property '{entityType}.{property}' not found
+        /// </summary>
+        public static string IncludePropertyNotFound([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("IncludePropertyNotFound", nameof(entityType), nameof(property)),
+                entityType, property);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

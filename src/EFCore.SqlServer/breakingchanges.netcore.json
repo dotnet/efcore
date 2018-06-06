@@ -7,5 +7,10 @@
       "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
       "MemberId": "protected override System.Void ColumnDefinition(System.String schema, System.String table, System.String name, System.Type clrType, System.String type, System.Nullable<System.Boolean> unicode, System.Nullable<System.Int32> maxLength, System.Boolean rowVersion, System.Boolean nullable, System.Object defaultValue, System.String defaultValueSql, System.String computedColumnSql, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable annotatable, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder)",
       "Kind": "Removal"
-    }
+    },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.ISqlServerIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+    "MemberId": "System.Collections.Generic.IReadOnlyList<System.String> get_IncludeProperties()",
+    "Kind": "Addition"
+  }
 ]
