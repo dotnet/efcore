@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class RelationalQueryableExtensions
     {
+        #region FromSql
         internal static readonly MethodInfo FromSqlMethodInfo
             = typeof(RelationalQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(FromSql))
@@ -110,5 +111,37 @@ namespace Microsoft.EntityFrameworkCore
                     Expression.Constant(new RawSqlString(sql.Format)),
                     Expression.Constant(sql.GetArguments())));
         }
+        #endregion
+
+        #region WithNoLock
+        internal static readonly MethodInfo WithNoLockMethodInfo
+            = typeof(RelationalQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(WithNoLock));
+
+        /// <summary>
+        ///     <para>
+        ///         If the database supports table lock, you can using.
+        ///         LINQ operators - <code>context.Blogs.WithNoLock()</code>.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <param name="withNoLock"> The With NoLock. </param>
+        /// <returns>
+        ///     A new query annotated with the given WITH (NOLOCK).
+        /// </returns>
+        public static IQueryable<TEntity> WithNoLock<TEntity>(
+            [NotNull] this IQueryable<TEntity> source,
+            [NotParameterized] bool withNoLock = true)
+            where TEntity : class
+        {
+            return source.Provider.CreateQuery<TEntity>(
+                Expression.Call(
+                    null,
+                    WithNoLockMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    source.Expression,
+                    Expression.Constant(withNoLock, typeof(bool))));
+        }
+        #endregion
     }
 }

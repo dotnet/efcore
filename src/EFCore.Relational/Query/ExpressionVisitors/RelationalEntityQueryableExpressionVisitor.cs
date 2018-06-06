@@ -166,6 +166,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .OfType<FromSqlResultOperator>()
                     .LastOrDefault(a => a.QuerySource == _querySource);
 
+            var withNoLockAnnotation
+                = relationalQueryCompilationContext
+                    .QueryAnnotations
+                    .OfType<WithNoLockResultOperator>()
+                    .LastOrDefault(a => a.WithNoLock && a.QuerySource == _querySource);
+
             Func<IQuerySqlGenerator> querySqlGeneratorFunc = selectExpression.CreateDefaultQuerySqlGenerator;
 
             if (fromSqlAnnotation == null)
@@ -175,6 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         tableName,
                         entityType.Relational().Schema,
                         tableAlias,
+                        withNoLockAnnotation != null,
                         _querySource));
             }
             else

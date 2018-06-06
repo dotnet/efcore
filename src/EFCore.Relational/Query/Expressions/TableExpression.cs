@@ -20,11 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="table"> The table name. </param>
         /// <param name="schema"> The schema name. </param>
         /// <param name="alias"> The alias. </param>
+        /// <param name="withNoLock"> The with NoLock. </param>
         /// <param name="querySource"> The query source. </param>
         public TableExpression(
             [NotNull] string table,
             [CanBeNull] string schema,
             [NotNull] string alias,
+            bool withNoLock,
             [NotNull] IQuerySource querySource)
             : base(
                 Check.NotNull(querySource, nameof(querySource)),
@@ -34,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             Table = table;
             Schema = schema;
+            WithNoLock = withNoLock;
         }
 
         /// <summary>
@@ -51,6 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The schema name.
         /// </value>
         public virtual string Schema { get; }
+
+        /// <summary>
+        ///     Gets the With NoLock.
+        /// </summary>
+        /// <value>
+        ///     The With NoLock.
+        /// </value>
+        public virtual bool WithNoLock { get; }
 
         /// <summary>
         ///     Dispatches to the specific visit method for this node type.
@@ -90,6 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             => string.Equals(Table, other.Table)
                && string.Equals(Schema, other.Schema)
                && string.Equals(Alias, other.Alias)
+               && Equals(WithNoLock, other.WithNoLock)
                && Equals(QuerySource, other.QuerySource);
 
         /// <summary>
@@ -106,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 hashCode = (hashCode * 397) ^ (QuerySource?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ Table.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Schema?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ WithNoLock.GetHashCode();
 
                 return hashCode;
             }
@@ -115,6 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
         /// <returns>A <see cref="string" /> representation of the Expression.</returns>
-        public override string ToString() => Table + " " + Alias;
+        public override string ToString() => Table + " " + Alias + (WithNoLock ? " WITH (NOLOCK)" : "");
     }
 }
