@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .LastOrDefault(a => a.WithNoLock && a.QuerySource == _querySource);
 
             Func<IQuerySqlGenerator> querySqlGeneratorFunc = selectExpression.CreateDefaultQuerySqlGenerator;
-            
+
             if (fromSqlAnnotation == null)
             {
                 selectExpression.AddTable(

@@ -879,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 _relationalCommandBuilder.Append(" WITH (NOLOCK) ");
             }
-               
+
 
             return tableExpression;
         }
