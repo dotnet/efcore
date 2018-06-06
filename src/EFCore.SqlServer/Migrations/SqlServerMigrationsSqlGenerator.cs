@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -1564,6 +1565,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Generates a SQL fragment for extras (filter, included columns, options) of an index from a <see cref="CreateIndexOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void IndexExtras(CreateIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
+        {
+            if (operation[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeProperties && includeProperties.Count > 0)
+            {
+                builder.Append(" INCLUDE (");
+                for (var i = 0; i < includeProperties.Count; i++)
+                {
+                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(includeProperties[i]));
+
+                    if (i != includeProperties.Count - 1)
+                    {
+                        builder.Append(", ");
+                    }
+                }
+                builder.Append(")");
+            }
+
+            base.IndexExtras(operation, model, builder);
+        }
+
+        /// <summary>
         ///     Generates a SQL fragment for the given referential action.
         /// </summary>
         /// <param name="referentialAction"> The referential action. </param>
@@ -1654,7 +1681,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var createIndexOperations = _operations.SkipWhile(o => o != currentOperation).Skip(1)
                 .OfType<CreateIndexOperation>().ToList();
-            foreach (var index in property.GetContainingIndexes())
+            foreach (var index in property.DeclaringEntityType.GetIndexes().Concat(property.DeclaringEntityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes())))
             {
                 var indexName = index.Relational().Name;
                 if (createIndexOperations.Any(o => o.Name == indexName))
@@ -1662,7 +1689,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     continue;
                 }
 
-                yield return index;
+                if (index.Properties.Any(p => p == property))
+                {
+                    yield return index;
+                }
+                else if (index.GetAnnotation(SqlServerAnnotationNames.Include)?.Value is string[] includeProperties)
+                {
+                    if (includeProperties.Contains(property.Name))
+                    {
+                        yield return index;
+                    }
+                }
             }
         }
 

@@ -754,6 +754,82 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
+        public void Can_set_index_include()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerHasIndex(e => e.Name)
+                .ForSqlServerInclude(e => e.Offset);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.NotNull(index.SqlServer().IncludeProperties);
+            Assert.Collection(index.SqlServer().IncludeProperties,
+                c => Assert.Equal(nameof(Customer.Offset), c));
+        }
+
+        [Fact]
+        public void Can_set_index_include_after_unique_using_generic_builder()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerHasIndex(e => e.Name)
+                .IsUnique()
+                .ForSqlServerInclude(e => e.Offset);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.True(index.IsUnique);
+            Assert.NotNull(index.SqlServer().IncludeProperties);
+            Assert.Collection(index.SqlServer().IncludeProperties,
+                c => Assert.Equal(nameof(Customer.Offset), c));
+        }
+
+        [Fact]
+        public void Can_set_index_include_after_annotation_using_generic_builder()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerHasIndex(e => e.Name)
+                .HasAnnotation("Test:ShouldBeTrue", true)
+                .ForSqlServerInclude(e => e.Offset);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            var annotation = index.FindAnnotation("Test:ShouldBeTrue");
+
+            Assert.NotNull(annotation);
+            Assert.True(annotation.Value as bool?);
+
+            Assert.NotNull(index.SqlServer().IncludeProperties);
+            Assert.Collection(index.SqlServer().IncludeProperties,
+                c => Assert.Equal(nameof(Customer.Offset), c));
+        }
+
+        [Fact]
+        public void Can_set_index_include_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .ForSqlServerInclude(nameof(Customer.Offset));
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.NotNull(index.SqlServer().IncludeProperties);
+            Assert.Collection(index.SqlServer().IncludeProperties,
+                c => Assert.Equal(nameof(Customer.Offset), c));
+        }
+
+        [Fact]
         public void Can_set_sequences_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1531,6 +1607,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasConstraintName("Simon");
         }
 
+        [Fact]
+        public void Can_set_index_name_generic()
+        {
+            // this is EFCore.Relational test, however accessing `IndexBuilder<T>` currently goes through SQL server
+
+            var modelBuilder = CreateConventionModelBuilder();
+
+            var returnedBuilder = modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerHasIndex(e => e.Name)
+                .HasName("Eeeendeeex");
+
+            AssertIsGeneric(returnedBuilder);
+            Assert.IsType<IndexBuilder<Customer>>(returnedBuilder);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+            Assert.Equal("Eeeendeeex", index.Relational().Name);
+        }
+
+        [Fact]
+        public void Can_write_index_builder_extension_with_where_clauses_generic()
+        {
+            // this is EFCore.Relational test, however accessing `IndexBuilder<T>` currently goes through SQL server
+
+            var modelBuilder = CreateConventionModelBuilder();
+
+            var returnedBuilder = modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerHasIndex(e => e.Id)
+                .HasFilter("[Id] % 2 = 0");
+
+            AssertIsGeneric(returnedBuilder);
+            Assert.IsType<IndexBuilder<Customer>>(returnedBuilder);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+            Assert.Equal("[Id] % 2 = 0", index.Relational().Filter);
+        }
+
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
         {
         }
@@ -1548,6 +1662,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private void AssertIsGeneric(ReferenceReferenceBuilder<Order, OrderDetails> _)
+        {
+        }
+
+        private void AssertIsGeneric(IndexBuilder<Customer> _)
         {
         }
 

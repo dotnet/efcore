@@ -477,12 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(ColumnList(operation.Columns))
                 .Append(")");
 
-            if (!string.IsNullOrEmpty(operation.Filter))
-            {
-                builder
-                    .Append(" WHERE ")
-                    .Append(operation.Filter);
-            }
+            IndexExtras(operation, model, builder);
 
             if (terminate)
             {
@@ -1558,6 +1553,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
         {
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for extras (filter, included columns, options) of an index from a <see cref="CreateIndexOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void IndexExtras(
+            [NotNull] CreateIndexOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            if (!string.IsNullOrEmpty(operation.Filter))
+            {
+                builder
+                    .Append(" WHERE ")
+                    .Append(operation.Filter);
+            }
         }
 
         /// <summary>
