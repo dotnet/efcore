@@ -27,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             relationalDependencies
                 .NodeTypeProviderFactory
                 .RegisterMethods(FromSqlExpressionNode.SupportedMethods, typeof(FromSqlExpressionNode));
+
+            relationalDependencies
+                .NodeTypeProviderFactory
+                .RegisterMethods(WithNoLockExpressionNode.SupportedMethods, typeof(WithNoLockExpressionNode));
         }
 
         /// <summary>

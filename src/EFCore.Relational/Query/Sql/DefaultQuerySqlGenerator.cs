@@ -875,6 +875,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 .Append(AliasSeparator)
                 .Append(SqlGenerator.DelimitIdentifier(tableExpression.Alias));
 
+            if (tableExpression.WithNoLock)
+            {
+                _relationalCommandBuilder.Append(" WITH (NOLOCK) ");
+            }
+               
+
             return tableExpression;
         }
 
