@@ -15,10 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalFact(Skip = "See Issue#11377")]
-        public override void Order_by_entity_qsre_composite_key()
+        [ConditionalFact(Skip = "issue #10513")]
+        public override void Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
         {
-            base.Order_by_entity_qsre_composite_key();
         }
     }
 }
