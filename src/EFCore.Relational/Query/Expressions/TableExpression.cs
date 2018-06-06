@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string table,
             [CanBeNull] string schema,
             [NotNull] string alias,
-            [NotNull] bool withNoLock,
+            bool withNoLock,
             [NotNull] IQuerySource querySource)
             : base(
                 Check.NotNull(querySource, nameof(querySource)),

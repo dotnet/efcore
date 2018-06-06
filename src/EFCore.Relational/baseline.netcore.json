@@ -16106,6 +16106,15 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_WithNoLock",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Accept",
           "Parameters": [
             {
@@ -16169,6 +16178,10 @@
             {
               "Name": "alias",
               "Type": "System.String"
+            },
+            {
+              "Name": "withNoLock",
+              "Type": "System.Boolean"
             },
             {
               "Name": "querySource",

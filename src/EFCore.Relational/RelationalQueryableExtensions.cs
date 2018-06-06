@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IQueryable<TEntity> WithNoLock<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
-            [NotNull] [NotParameterized] bool withNoLock = true)
+            [NotParameterized] bool withNoLock = true)
             where TEntity : class
         {
             return source.Provider.CreateQuery<TEntity>(
