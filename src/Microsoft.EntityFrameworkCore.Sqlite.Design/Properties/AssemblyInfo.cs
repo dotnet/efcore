@@ -6,7 +6,7 @@ using System.Resources;
 
 #if CSPROJ
 
-[assembly: AssemblyVersion("1.1.5.0")]
+[assembly: AssemblyVersion("1.1.6.0")]
 
 #endif
 
