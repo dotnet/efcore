@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.1.5",
-    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.5",
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.1.6",
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.6",
     "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": {
       "target": "project"
     }
@@ -29,7 +29,7 @@
     "netcoreapp1.1": {
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.1.8",
+          "version": "1.1.9-servicing-001741-00",
           "type": "platform"
         }
       }

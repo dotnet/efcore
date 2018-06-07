@@ -4,7 +4,7 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.5",
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.6",
     "Microsoft.EntityFrameworkCore.Tests": {
       "target": "project"
     }
@@ -14,7 +14,7 @@
     "netcoreapp1.1": {
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.1.8",
+          "version": "1.1.9-servicing-001741-00",
           "type": "platform"
         }
       }
