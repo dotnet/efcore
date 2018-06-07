@@ -702,6 +702,192 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     });
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Weak_owned_types_are_stored_in_snapshot(bool useOldBehavior)
+        {
+            if (useOldBehavior)
+            {
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12107", true);
+            }
+
+            Test(
+                builder =>
+                {
+                    builder.Entity<Order>().OwnsOne(p => p.OrderBillingDetails, od =>
+                    {
+                        od.OwnsOne(c => c.StreetAddress);
+                    });
+                    builder.Entity<Order>().OwnsOne(p => p.OrderShippingDetails, od =>
+                    {
+                        od.OwnsOne(c => c.StreetAddress);
+                    });
+                    builder.Entity<Order>().OwnsOne(p => p.OrderInfo, od =>
+                    {
+                        od.OwnsOne(c => c.StreetAddress);
+                    });
+                },
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""Order"");
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", b =>
+    {
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderInfo"", b1 =>
+            {
+                b1.Property<int?>(""OrderId"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b1.ToTable(""Order"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
+                    .WithOne(""OrderInfo"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderId"")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                    {
+                        b2.Property<int?>(""OrderInfoOrderId"")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b2.Property<string>(""City"");
+
+                        b2.ToTable(""Order"");
+
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"")
+                            .WithOne(""StreetAddress"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderInfoOrderId"")
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+            });
+
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderBillingDetails"", b1 =>
+            {
+                b1.Property<int>(""OrderId"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b1.ToTable(""Order"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
+                    .WithOne(""OrderBillingDetails"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                    {
+                        b2.Property<int>(""OrderDetailsOrderId"")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b2.Property<string>(""City"");
+
+                        b2.ToTable(""Order"");
+
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"")
+                            .WithOne(""StreetAddress"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderDetailsOrderId"")
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+            });
+
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderShippingDetails"", b1 =>
+            {
+                b1.Property<int>(""OrderId"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b1.ToTable(""Order"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
+                    .WithOne(""OrderShippingDetails"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                    {
+                        b2.Property<int>(""OrderDetailsOrderId"")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b2.Property<string>(""City"");
+
+                        b2.ToTable(""Order"");
+
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"")
+                            .WithOne(""StreetAddress"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderDetailsOrderId"")
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+            });
+    });
+",
+                o =>
+                {
+                    Assert.Equal(7, o.GetEntityTypes().Count());
+
+                    var order = o.FindEntityType(typeof(Order).FullName);
+                    Assert.Equal(1, order.PropertyCount());
+
+                    var orderInfo = order.FindNavigation(nameof(Order.OrderInfo)).GetTargetType();
+                    Assert.Equal(1, orderInfo.PropertyCount());
+
+                    var orderInfoAddress = orderInfo.FindNavigation(nameof(OrderInfo.StreetAddress)).GetTargetType();
+                    Assert.Equal(2, orderInfoAddress.PropertyCount());
+
+                    var orderBillingDetails = order.FindNavigation(nameof(Order.OrderBillingDetails)).GetTargetType();
+                    Assert.Equal(1, orderBillingDetails.PropertyCount());
+
+                    var orderBillingDetailsAddress = orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).GetTargetType();
+                    Assert.Equal(useOldBehavior ? 3 : 2, orderBillingDetailsAddress.PropertyCount());
+
+                    var orderShippingDetails = order.FindNavigation(nameof(Order.OrderShippingDetails)).GetTargetType();
+                    Assert.Equal(1, orderShippingDetails.PropertyCount());
+
+                    var orderShippingDetailsAddress = orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).GetTargetType();
+                    Assert.Equal(2, orderShippingDetailsAddress.PropertyCount());
+                });
+
+            if (useOldBehavior)
+            {
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12107", false);
+            }
+        }
+
+        private class Order
+        {
+            public int Id { get; set; }
+            public OrderDetails OrderBillingDetails { get; set; }
+            public OrderDetails OrderShippingDetails { get; set; }
+            public OrderInfo OrderInfo { get; set; }
+        }
+
+        private class OrderDetails
+        {
+            public StreetAddress StreetAddress { get; set; }
+        }
+
+        private class OrderInfo
+        {
+            public StreetAddress StreetAddress { get; set; }
+        }
+
+        private class StreetAddress
+        {
+            public string City { get; set; }
+        }
+
         [Fact]
         public virtual void TableName_preserved_when_generic()
         {
