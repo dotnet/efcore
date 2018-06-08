@@ -2244,7 +2244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void OrderBy_Skip_Take_GroupBy()
         {
             AssertQuery<Order>(
-                os => os.OrderBy(o => o.OrderDate).Skip(450).Take(50).GroupBy(o => o.CustomerID),
+                os => os.Where(o => o.CustomerID != "SAVEA").OrderBy(o => o.OrderDate).Skip(450).Take(50).GroupBy(o => o.CustomerID),
                 elementSorter: GroupingSorter<string, object>(),
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.OrderDate),
                 entryCount: 50);

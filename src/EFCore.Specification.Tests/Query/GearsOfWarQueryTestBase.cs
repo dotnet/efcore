@@ -2133,6 +2133,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_negated_predicate()
+        {
+            AssertQuery<CogTag>(
+                ts => ts.Where(t => t.Note != "K.I.A.").Where(t => !t.Gear.HasSoulPatch));
+        }
+
+        [ConditionalFact]
         public virtual void Optional_navigation_type_compensation_works_with_contains()
         {
             AssertQuery<CogTag, Gear>(
@@ -5762,6 +5769,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Nickname, a.Nickname);
                     CollectionAsserter<string>(ee => ee)(e.Weapons, a.Weapons);
                 });
+        }
+
+        [ConditionalFact]
+        public virtual void Double_order_by_on_nullable_bool_coming_from_optional_navigation()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.IsAutomatic).OrderBy(w => w.IsAutomatic),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.IsAutomatic : false));
+        }
+
+        [ConditionalFact]
+        public virtual void Double_order_by_on_Like()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => EF.Functions.Like(w.Name, "%Lancer")).OrderBy(w => EF.Functions.Like(w.Name, "%Lancer")),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.EndsWith("Lancer") : false));
+        }
+
+        [ConditionalFact]
+        public virtual void Double_order_by_on_is_null()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name == null).OrderBy(w => w.Name == null),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name == null : false));
+        }
+
+        [ConditionalFact]
+        public virtual void Double_order_by_on_string_compare()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0),
+                ws => ws.OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false));
+        }
+
+        [ConditionalFact]
+        public virtual void Double_order_by_binary_expression()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.OrderBy(w => w.Id + 2).OrderBy(w => w.Id + 2).Select(w => new { Binary = w.Id + 2 }));
+        }
+
+        [ConditionalFact]
+        public virtual void Order_by_with_complex_ordering_function_and_null_compensated_argument()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false));
         }
 
         // Remember to add any new tests to Async version of this test class

@@ -135,7 +135,7 @@ WHERE [l].[Level1_Required_Id] = 1");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_SelfId]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l.OneToOne_Required_FK] ON [l].[Id] = [l.OneToOne_Required_FK].[Level1_Required_Id]
-WHERE ([l.OneToOne_Required_FK].[Id] = 1) OR ([l.OneToOne_Required_FK].[Id] = 2)");
+WHERE [l.OneToOne_Required_FK].[Id] IN (1, 2)");
         }
 
         public override void Key_equality_two_conditions_on_same_navigation2()

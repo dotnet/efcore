@@ -2737,6 +2737,21 @@ ORDER BY [t0].[SquadId]");
 END");
         }
 
+        public override void Optional_navigation_type_compensation_works_with_negated_predicate()
+        {
+            base.Optional_navigation_type_compensation_works_with_negated_predicate();
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [t.Gear].*
+    FROM [Gears] AS [t.Gear]
+    WHERE [t.Gear].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND (([t0].[HasSoulPatch] <> 1) AND [t0].[HasSoulPatch] IS NOT NULL)");
+        }
+
         public override void Optional_navigation_type_compensation_works_with_contains()
         {
             base.Optional_navigation_type_compensation_works_with_contains();
@@ -7475,6 +7490,78 @@ INNER JOIN (
     WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
 ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
+        }
+
+        public override void Double_order_by_on_nullable_bool_coming_from_optional_navigation()
+        {
+            base.Double_order_by_on_nullable_bool_coming_from_optional_navigation();
+
+            AssertSql(
+                @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+ORDER BY [w.SynergyWith].[IsAutomatic]");
+        }
+
+        public override void Double_order_by_on_Like()
+        {
+            base.Double_order_by_on_Like();
+
+            AssertSql(
+                @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+ORDER BY CASE
+    WHEN [w.SynergyWith].[Name] LIKE N'%Lancer'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void Double_order_by_on_is_null()
+        {
+            base.Double_order_by_on_is_null();
+
+            AssertSql(
+                @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+ORDER BY CASE
+    WHEN [w.SynergyWith].[Name] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void Double_order_by_on_string_compare()
+        {
+            base.Double_order_by_on_string_compare();
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+ORDER BY CASE
+    WHEN [w].[Name] = N'Marcus'' Lancer'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void Double_order_by_binary_expression()
+        {
+            base.Double_order_by_binary_expression();
+
+            AssertSql(
+                @"SELECT [w].[Id] + 2 AS [Binary]
+FROM [Weapons] AS [w]
+ORDER BY [Binary]");
+        }
+
+        public override void Order_by_with_complex_ordering_function_and_null_compensated_argument()
+        {
+            base.Order_by_with_complex_ordering_function_and_null_compensated_argument();
+
+            AssertSql(
+                @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]");
         }
 
         private void AssertSql(params string[] expected)

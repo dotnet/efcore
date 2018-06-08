@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
@@ -94,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return obj.GetType() == GetType() && Equals((NullCompensatedExpression)obj);
         }
 
-        private bool Equals([NotNull] NullCompensatedExpression other) => Equals(_operand, other._operand);
+        private bool Equals([NotNull] NullCompensatedExpression other)
+            => ExpressionEqualityComparer.Instance.Equals(_operand, other._operand);
 
         /// <summary>
         ///     Returns a hash code for this object.

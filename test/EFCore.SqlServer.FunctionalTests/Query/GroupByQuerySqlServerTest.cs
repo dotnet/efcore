@@ -1691,6 +1691,7 @@ SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] <> N'SAVEA') OR [o].[CustomerID] IS NULL
     ORDER BY [o].[OrderDate]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
