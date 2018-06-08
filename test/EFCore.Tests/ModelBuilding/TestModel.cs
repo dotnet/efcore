@@ -7,6 +7,8 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
@@ -424,6 +426,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int KappaId { get; set; }
 
             public Kappa Kappa { get; set; }
+        }
+
+        protected class JsonProperty
+        {
+            public int Id { get; set; }
+
+            public JObject JObject { get; set; }
         }
 
         protected interface IEntityBase

@@ -190,12 +190,15 @@ namespace System
             do
             {
                 var typeInfo = type.GetTypeInfo();
-                var propertyInfo = typeInfo.GetDeclaredProperty(name);
-                if (propertyInfo != null
-                    && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
+                foreach (var propertyInfo in typeInfo.DeclaredProperties)
                 {
-                    yield return propertyInfo;
+                    if (propertyInfo.Name.Equals(name, StringComparison.Ordinal)
+                        && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
+                    {
+                        yield return propertyInfo;
+                    }
                 }
+
                 type = typeInfo.BaseType;
             }
             while (type != null);

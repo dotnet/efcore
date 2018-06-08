@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -760,7 +761,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(entityType.FindProperty("Strange").GetValueConverter());
             }
 
-
             [Fact]
             public virtual void Properties_can_have_value_converter_set_inline()
             {
@@ -780,6 +780,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(entityType.FindProperty("Up").GetValueConverter());
                 Assert.NotNull(entityType.FindProperty("Down").GetValueConverter());
                 Assert.NotNull(entityType.FindProperty("Charm").GetValueConverter());
+            }
+
+            [Fact]
+            public virtual void IEnumerable_properties_with_value_converter_set_are_not_discovered_as_navigations()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<JsonProperty>(
+                    b =>
+                    {
+                        b.Property(e => e.JObject).HasConversion(v => v.ToString(), v => new JObject(v));
+                    });
+
+                modelBuilder.Validate();
+
+                var entityType = (IEntityType)model.GetEntityTypes().Single();
+                Assert.NotNull(entityType.FindProperty(nameof(JsonProperty.JObject)).GetValueConverter());
             }
 
             [Fact]
