@@ -7554,14 +7554,54 @@ FROM [Weapons] AS [w]
 ORDER BY [Binary]");
         }
 
-        public override void Order_by_with_complex_ordering_function_and_null_compensated_argument()
+        public override void String_compare_with_null_conditional_argument()
         {
-            base.Order_by_with_complex_ordering_function_and_null_compensated_argument();
+            base.String_compare_with_null_conditional_argument();
 
             AssertSql(
                 @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
 FROM [Weapons] AS [w]
-LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]");
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+ORDER BY CASE
+    WHEN [w.SynergyWith].[Name] = N'Marcus'' Lancer'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void String_compare_with_null_conditional_argument2()
+        {
+            base.String_compare_with_null_conditional_argument2();
+
+            AssertSql(
+                @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+ORDER BY CASE
+    WHEN N'Marcus'' Lancer' = [w.SynergyWith].[Name]
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void String_concat_with_null_conditional_argument()
+        {
+            base.String_concat_with_null_conditional_argument();
+
+            AssertSql(
+                @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+ORDER BY [w.SynergyWith].[Name] + CAST(5 AS nvarchar(max))");
+        }
+
+        public override void String_concat_with_null_conditional_argument2()
+        {
+            base.String_concat_with_null_conditional_argument2();
+
+            AssertSql(
+                @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+ORDER BY [w.SynergyWith].[Name] + N'Marcus'' Lancer'");
         }
 
         private void AssertSql(params string[] expected)

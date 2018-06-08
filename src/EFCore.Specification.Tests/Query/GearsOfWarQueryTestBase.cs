@@ -5811,11 +5811,35 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Order_by_with_complex_ordering_function_and_null_compensated_argument()
+        public virtual void String_compare_with_null_conditional_argument()
         {
             AssertQuery<Weapon>(
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0),
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false));
+        }
+
+        [ConditionalFact]
+        public virtual void String_compare_with_null_conditional_argument2()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => "Marcus' Lancer".CompareTo(w.Name) == 0),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? "Marcus' Lancer".CompareTo(w.Name) == 0 : false));
+        }
+
+        [ConditionalFact]
+        public virtual void String_concat_with_null_conditional_argument()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name + 5),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name + 5 : null));
+        }
+
+        [ConditionalFact]
+        public virtual void String_concat_with_null_conditional_argument2()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => string.Concat(w.Name, "Marcus' Lancer")),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? string.Concat(w.Name, "Marcus' Lancer") : null));
         }
 
         // Remember to add any new tests to Async version of this test class

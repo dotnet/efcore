@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
 
             if (newCaller != Caller
                 || newAccessOperation != AccessOperation
-                && (newAccessOperation as NullConditionalExpression)?.AccessOperation != AccessOperation)
+                && !(ExpressionEqualityComparer.Instance.Equals((newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation)))
             {
                 return new NullConditionalExpression(newCaller, newAccessOperation);
             }
