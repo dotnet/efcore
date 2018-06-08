@@ -1,0 +1,10 @@
+﻿{
+  "benchmarks": {
+    "runIterations": false,
+    "resultDatabases": {
+      "local": "Server=(localdb)\\mssqllocaldb;Database=Benchmarks;Trusted_Connection=True;"
+    },
+    "benchmarkDatabase": "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true;",
+    "productVersion": "EF Core SqlServer 2.2"
+  }
+}

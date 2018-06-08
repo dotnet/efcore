@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp2.0;</TargetFrameworks>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Remove="BenchmarkDotNet.Artifacts\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.Benchmarks.Version20\EFCore.Benchmarks.Version20.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EFCore.Benchmarks.SqlServer.Version22\**\*.cs"
+             Exclude="..\EFCore.Benchmarks.SqlServer.Version22\obj\**\*;..\EFCore.Benchmarks.SqlServer.Version22\bin\**\*" />
+  </ItemGroup>
+
+</Project>
