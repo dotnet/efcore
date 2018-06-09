@@ -1573,5 +1573,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         OrderID = 10243
                     }));
         }
+
+        [ConditionalFact]
+        public virtual void Time_of_day_datetime()
+        {
+            AssertQueryScalar<Order>(
+                o => o.Select(c => c.OrderDate.Value.TimeOfDay));
+        }
     }
 }

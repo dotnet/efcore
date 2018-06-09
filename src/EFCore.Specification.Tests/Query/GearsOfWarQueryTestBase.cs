@@ -5842,6 +5842,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? string.Concat(w.Name, "Marcus' Lancer") : null));
         }
 
+        [ConditionalFact]
+        public virtual void Time_of_day_datetimeoffset()
+        {
+            AssertQueryScalar<Mission>(
+               ms => from m in ms
+                     select m.Timeline.TimeOfDay);
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
