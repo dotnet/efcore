@@ -51,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 switch (memberName)
                 {
                     case nameof(DateTime.Now):
-                        return declaringType == typeof(DateTimeOffset) ? new SqlFunctionExpression("SYSDATETIMEOFFSET", memberExpression.Type) : new SqlFunctionExpression("GETDATE", memberExpression.Type);
+                        return declaringType == typeof(DateTimeOffset)
+                            ? new SqlFunctionExpression("SYSDATETIMEOFFSET", memberExpression.Type)
+                            : new SqlFunctionExpression("GETDATE", memberExpression.Type);
 
                     case nameof(DateTime.UtcNow):
                         return declaringType == typeof(DateTimeOffset)
@@ -75,6 +77,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                                 new SqlFragmentExpression("date"),
                                 new SqlFunctionExpression("GETDATE", memberExpression.Type)
                             });
+
+                    case nameof(DateTime.TimeOfDay):
+                        return new ExplicitCastExpression(
+                            memberExpression.Expression,
+                            memberExpression.Type);
                 }
             }
 

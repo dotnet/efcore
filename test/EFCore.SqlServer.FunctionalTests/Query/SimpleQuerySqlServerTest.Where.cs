@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -1625,6 +1627,19 @@ WHERE (
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [o].[OrderID]
 ) = 10243");
+        }
+
+        [ConditionalFact]
+        public void Time_of_day()
+        {
+            using (var db = CreateContext())
+            {
+                var orders = db.Orders.Select(p => p.OrderDate.Value.TimeOfDay).FirstOrDefault();
+
+                AssertSql(@"SELECT TOP(1) CAST([p].[OrderDate] AS time)
+FROM [Orders] AS [p]");
+
+            }
         }
     }
 }
