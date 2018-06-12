@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
-        public void Can_only_be_created_for_byte_short_int_and_long()
+        public void Can_only_be_created_for_byte_short_int_and_long_decimal()
         {
             var sequence = new Model().Relational().GetOrAddSequence("Foo");
             sequence.ClrType = typeof(byte);
@@ -55,11 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(int), sequence.ClrType);
             sequence.ClrType = typeof(long);
             Assert.Same(typeof(long), sequence.ClrType);
+            sequence.ClrType = typeof(decimal);
+            Assert.Same(typeof(decimal), sequence.ClrType);
 
             Assert.Equal(
                 RelationalStrings.BadSequenceType,
                 Assert.Throws<ArgumentException>(
-                    () => sequence.ClrType = typeof(decimal)).Message);
+                    () => sequence.ClrType = typeof(bool)).Message);
         }
 
         [Fact]
