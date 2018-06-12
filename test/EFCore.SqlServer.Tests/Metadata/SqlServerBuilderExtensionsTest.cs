@@ -106,6 +106,76 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
+        public void Can_create_named_sequence_decimal_with_specific_facets()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .HasSequence<decimal>("Snook")
+                .IncrementsBy(11)
+                .StartsAt(1729)
+                .HasMin(111)
+                .HasMax(2222);
+
+            ValidateNamedSpecificSequence<decimal>(modelBuilder.Model.Relational().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<decimal>(modelBuilder.Model.SqlServer().FindSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_decimal_with_specific_facets_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .HasSequence(typeof(decimal), "Snook")
+                .IncrementsBy(11)
+                .StartsAt(1729)
+                .HasMin(111)
+                .HasMax(2222);
+
+            ValidateNamedSpecificSequence<decimal>(modelBuilder.Model.Relational().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<decimal>(modelBuilder.Model.SqlServer().FindSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_decimal_with_specific_facets_using_nested_closure()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .HasSequence<decimal>(
+                    "Snook", b =>
+                    {
+                        b.IncrementsBy(11)
+                            .StartsAt(1729)
+                            .HasMin(111)
+                            .HasMax(2222);
+                    });
+
+            ValidateNamedSpecificSequence<decimal>(modelBuilder.Model.Relational().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<decimal>(modelBuilder.Model.SqlServer().FindSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_decimal_with_specific_facets_using_nested_closure_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .HasSequence(
+                    typeof(decimal), "Snook", b =>
+                    {
+                        b.IncrementsBy(11)
+                            .StartsAt(1729)
+                            .HasMin(111)
+                            .HasMax(2222);
+                    });
+
+            ValidateNamedSpecificSequence<decimal>(modelBuilder.Model.Relational().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<decimal>(modelBuilder.Model.SqlServer().FindSequence("Snook"));
+        }
+
+        [Fact]
         public void Can_set_column_computed_expression()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1133,8 +1203,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasMin(111)
                 .HasMax(2222);
 
-            ValidateNamedSpecificSequence(modelBuilder.Model.Relational().FindSequence("Snook"));
-            ValidateNamedSpecificSequence(modelBuilder.Model.SqlServer().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<int>(modelBuilder.Model.Relational().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<int>(modelBuilder.Model.SqlServer().FindSequence("Snook"));
         }
 
         [Fact]
@@ -1149,8 +1219,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasMin(111)
                 .HasMax(2222);
 
-            ValidateNamedSpecificSequence(modelBuilder.Model.Relational().FindSequence("Snook"));
-            ValidateNamedSpecificSequence(modelBuilder.Model.SqlServer().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<int>(modelBuilder.Model.Relational().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<int>(modelBuilder.Model.SqlServer().FindSequence("Snook"));
         }
 
         [Fact]
@@ -1168,8 +1238,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             .HasMax(2222);
                     });
 
-            ValidateNamedSpecificSequence(modelBuilder.Model.Relational().FindSequence("Snook"));
-            ValidateNamedSpecificSequence(modelBuilder.Model.SqlServer().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<int>(modelBuilder.Model.Relational().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<int>(modelBuilder.Model.SqlServer().FindSequence("Snook"));
         }
 
         [Fact]
@@ -1187,11 +1257,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             .HasMax(2222);
                     });
 
-            ValidateNamedSpecificSequence(modelBuilder.Model.Relational().FindSequence("Snook"));
-            ValidateNamedSpecificSequence(modelBuilder.Model.SqlServer().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<int>(modelBuilder.Model.Relational().FindSequence("Snook"));
+            ValidateNamedSpecificSequence<int>(modelBuilder.Model.SqlServer().FindSequence("Snook"));
         }
 
-        private static void ValidateNamedSpecificSequence(ISequence sequence)
+        private static void ValidateNamedSpecificSequence<T>(ISequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -1199,7 +1269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(111, sequence.MinValue);
             Assert.Equal(2222, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
+            Assert.Same(typeof(T), sequence.ClrType);
         }
 
         [Fact]
