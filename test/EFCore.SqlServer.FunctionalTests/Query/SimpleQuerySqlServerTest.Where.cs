@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -1630,13 +1631,26 @@ WHERE (
         }
 
         [ConditionalFact]
-        public void Time_of_day()
+        public void Time_of_day_datetime()
         {
             using (var db = CreateContext())
             {
                 var orders = db.Orders.Select(p => p.OrderDate.Value.TimeOfDay).FirstOrDefault();
 
                 AssertSql(@"SELECT TOP(1) CAST([p].[OrderDate] AS time)
+FROM [Orders] AS [p]");
+
+            }
+        }
+
+        [ConditionalFact]
+        public void Time_of_day_datetimeoffset_default()
+        {
+            using (var db = CreateContext())
+            {
+                var orders = db.Orders.Select(p => DateTimeOffset.Now.TimeOfDay).FirstOrDefault();
+
+                AssertSql(@"SELECT TOP(1) CAST(SYSDATETIMEOFFSET() AS time)
 FROM [Orders] AS [p]");
 
             }

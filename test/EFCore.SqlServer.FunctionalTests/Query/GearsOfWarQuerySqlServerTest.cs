@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -7602,6 +7604,17 @@ ORDER BY [w.SynergyWith].[Name] + CAST(5 AS nvarchar(max))");
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
 ORDER BY [w.SynergyWith].[Name] + N'Marcus'' Lancer'");
+        }
+
+        [ConditionalFact]
+        public void Time_of_day_datetimeoffset()
+        {
+            AssertQueryScalar<Mission>(
+               ms => from m in ms
+                     select m.Timeline.TimeOfDay);
+
+            AssertSql(@"SELECT CAST([m].[Timeline] AS time)
+FROM [Missions] AS [m]");
         }
 
         private void AssertSql(params string[] expected)
