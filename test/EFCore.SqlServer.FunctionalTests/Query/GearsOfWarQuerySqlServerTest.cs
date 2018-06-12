@@ -7614,6 +7614,124 @@ ORDER BY [w.SynergyWith].[Name] + N'Marcus'' Lancer'");
 FROM [Missions] AS [m]");
         }
 
+        public override void GroupBy_Property_Include_Select_Average()
+        {
+            base.GroupBy_Property_Include_Select_Average();
+
+            AssertSql(
+                @"SELECT AVG(CAST([g].[SquadId] AS float))
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+GROUP BY [g].[Rank]");
+        }
+
+        public override void GroupBy_Property_Include_Select_Sum()
+        {
+            base.GroupBy_Property_Include_Select_Sum();
+
+            AssertSql(
+                @"SELECT SUM([g].[SquadId])
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+GROUP BY [g].[Rank]");
+        }
+
+        public override void GroupBy_Property_Include_Select_Count()
+        {
+            base.GroupBy_Property_Include_Select_Count();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+GROUP BY [g].[Rank]");
+        }
+
+        public override void GroupBy_Property_Include_Select_LongCount()
+        {
+            base.GroupBy_Property_Include_Select_LongCount();
+
+            AssertSql(
+                @"SELECT COUNT_BIG(*)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+GROUP BY [g].[Rank]");
+        }
+
+        public override void GroupBy_Property_Include_Select_Min()
+        {
+            base.GroupBy_Property_Include_Select_Min();
+
+            AssertSql(
+                @"SELECT MIN([g].[SquadId])
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+GROUP BY [g].[Rank]");
+        }
+
+        public override void GroupBy_Property_Include_Aggregate_with_anonymous_selector()
+        {
+            base.GroupBy_Property_Include_Aggregate_with_anonymous_selector();
+
+            AssertSql(
+                @"SELECT [g].[Nickname] AS [Key], COUNT(*) AS [c]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+GROUP BY [g].[Nickname]
+ORDER BY [Key]");
+        }
+
+        public override void Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector()
+        {
+            base.Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property()
+        {
+            base.Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Group_by_with_include_with_entity_in_result_selector()
+        {
+            base.Group_by_with_include_with_entity_in_result_selector();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.CityOfBirth].[Name], [g.CityOfBirth].[Location]
+FROM [Gears] AS [g]
+INNER JOIN [Cities] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Rank]");
+        }
+
+        public override void GroupBy_Property_Include_Select_Max()
+        {
+            base.GroupBy_Property_Include_Select_Max();
+
+            AssertSql(
+                @"SELECT MAX([g].[SquadId])
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+GROUP BY [g].[Rank]");
+        }
+
+        public override void Include_with_group_by_and_FirstOrDefault_gets_properly_applied()
+        {
+            base.Include_with_group_by_and_FirstOrDefault_gets_properly_applied();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.CityOfBirth].[Name], [g.CityOfBirth].[Location]
+FROM [Gears] AS [g]
+INNER JOIN [Cities] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Rank]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

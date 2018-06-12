@@ -5850,6 +5850,136 @@ namespace Microsoft.EntityFrameworkCore.Query
                      select m.Timeline.TimeOfDay);
         }
 
+        [ConditionalFact]
+        public virtual void GroupBy_Property_Include_Select_Average()
+        {
+            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth ).GroupBy(g => g.Rank).Select(g => g.Average(gg => gg.SquadId)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Property_Include_Select_Sum()
+        {
+            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Sum(gg => gg.SquadId)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Property_Include_Select_Count()
+        {
+            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Count()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Property_Include_Select_LongCount()
+        {
+            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.LongCount()));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Property_Include_Select_Max()
+        {
+            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Max(gg => gg.SquadId)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Property_Include_Select_Min()
+        {
+            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Min(gg => gg.SquadId)));
+        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_Property_Include_Aggregate_with_anonymous_selector()
+        {
+            AssertQuery<Gear>(
+                gs =>
+                    gs.Include(g => g.CityOfBirth).GroupBy(g => g.Nickname).OrderBy(g => g.Key)
+                        .Select(
+                            g => new
+                            {
+                                g.Key,
+                                c = g.Count()
+                            }),
+                assertOrder: true);
+        }
+
+        [ConditionalFact(Skip = "issue #12340")]
+        public virtual void Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector()
+        {
+            AssertQuery<Gear>(
+                gs => gs
+                    .GroupBy(g => g.CityOfBirth)
+                    .OrderBy(g => g.Key.Name)
+                    .Select(g => g.Key)
+                    .Include(c => c.BornGears).ThenInclude(g => g.Weapons),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Name, a.Name);
+
+                    Assert.Equal(e.BornGears == null, a.BornGears == null);
+                    Assert.Equal(e.BornGears.Count(), a.BornGears.Count());
+                });
+        }
+
+        [ConditionalFact(Skip = "issue #12340")]
+        public virtual void Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property()
+        {
+            AssertQuery<Gear>(
+                gs => gs
+                    .GroupBy(g => g.CityOfBirth)
+                    .OrderBy(g => g.Key.Name)
+                    .Select(g => EF.Property<City>(g, "Key"))
+                    .Include(c => c.BornGears).ThenInclude(g => g.Weapons),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Name, a.Name);
+
+                    Assert.Equal(e.BornGears == null, a.BornGears == null);
+                    Assert.Equal(e.BornGears.Count(), a.BornGears.Count());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Group_by_with_include_with_entity_in_result_selector()
+        {
+            AssertQuery<Gear>(
+                gs =>
+                    gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).OrderBy(g => g.Key)
+                        .Select(
+                            g => new
+                            {
+                                g.Key,
+                                c = g.Count(),
+                                element = g.OrderBy(gg => gg.Nickname).FirstOrDefault()
+                            }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    Assert.Equal(e.c, a.c);
+                    Assert.Equal(e.element.Nickname, a.element.Nickname);
+                    Assert.Equal(e.element.CityOfBirth == null, a.element.CityOfBirth == null);
+                    if (e.element.CityOfBirth != null)
+                    {
+                        Assert.Equal(e.element.CityOfBirth.Name, a.element.CityOfBirth.Name);
+                    }
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_group_by_and_FirstOrDefault_gets_properly_applied()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(e => e.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<Officer>(e => e.CityOfBirth, "CityOfBirth"),
+            };
+
+            AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.FirstOrDefault(gg => gg.HasSoulPatch)),
+                expectedIncludes);
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
