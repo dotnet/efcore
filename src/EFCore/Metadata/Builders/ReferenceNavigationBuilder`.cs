@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,
                 DeclaringEntityType,
-                WithManyBuilder(navigationExpression?.GetPropertyOrFieldAccess()));
+                WithManyBuilder(navigationExpression?.GetMemberAccess()));
 
         /// <summary>
         ///     <para>
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationExpression?.GetPropertyOrFieldAccess()));
+                WithOneBuilder(navigationExpression?.GetMemberAccess()));
 
         /// <summary>
         ///     <para>

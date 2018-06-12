@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder<TProperty> Property<TProperty>(
             [NotNull] Expression<Func<TQuery, TProperty>> propertyExpression) => new PropertyBuilder<TProperty>(
             Builder.Property(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyOrFieldAccess(),
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
                 ConfigurationSource.Explicit));
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         public virtual QueryTypeBuilder<TQuery> Ignore([NotNull] Expression<Func<TQuery, object>> propertyExpression) =>
             (QueryTypeBuilder<TQuery>)base.Ignore(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyOrFieldAccess().Name);
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess().Name);
 
         /// <summary>
         ///     Excludes the given property from the query type. This method is typically used to remove properties

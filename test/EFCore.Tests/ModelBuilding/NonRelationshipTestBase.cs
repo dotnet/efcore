@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
@@ -1212,7 +1213,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Entity_field_expression_key_test()
             {
-                var modelBuilder = CreateModelBuilder();
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
                 modelBuilder.Entity<EntityWithFieldKey>().HasKey(e => e.Id);
                 var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties();
 
@@ -1226,7 +1227,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Entity_field_expression_alternate_key_test()
             {
-                var modelBuilder = CreateModelBuilder();
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
                 modelBuilder.Entity<EntityWithFieldKey>().HasAlternateKey(e => e.Year);
                 var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties();
 
@@ -1240,7 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Entity_field_expression_property_test()
             {
-                var modelBuilder = CreateModelBuilder();
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
                 modelBuilder.Entity<EntityWithFieldKey>().Property(e => e.Id);
                 var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties();
 
@@ -1254,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Entity_field_expression_index_test()
             {
-                var modelBuilder = CreateModelBuilder();
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
                 modelBuilder.Entity<EntityWithFieldKey>().HasIndex(e => e.Year);
                 var indexes = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetIndexes();
 
@@ -1270,7 +1271,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Entity_field_expression_owns_one_test()
             {
                 // TODO this should be moved in the relationship test base
-                var modelBuilder = CreateModelBuilder();
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
                 modelBuilder.Entity<EntityWithFieldKey>().HasKey(e => e.Id);
                 modelBuilder.Entity<EntityWithFieldKey>().OwnsOne(e => e.Query);
                 var ownerEntity = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey));
@@ -1287,7 +1288,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Entity_field_expression_ignore_test()
             {
-                var modelBuilder = CreateModelBuilder();
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
                 modelBuilder.Entity<EntityWithFieldKey>().Ignore(e => e.Year);
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties());
@@ -1296,7 +1297,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Query_field_expression_property_test()
             {
-                var modelBuilder = CreateModelBuilder();
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
                 modelBuilder.Query<QueryWithField>().Ignore(e => e.Name);
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(QueryWithField)).GetProperties());
