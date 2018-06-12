@@ -1208,6 +1208,99 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
             }
+
+            [Fact]
+            public virtual void Entity_field_expression_key_test()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().HasKey(e => e.Id);
+                var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties();
+
+                Assert.Equal(1, properties.Count());
+                var property = properties.Single();
+                Assert.Equal(nameof(EntityWithFieldKey.Id), property.Name);
+                Assert.Null(property.PropertyInfo);
+                Assert.NotNull(property.FieldInfo);
+            }
+
+            [Fact]
+            public virtual void Entity_field_expression_alternate_key_test()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().HasAlternateKey(e => e.Year);
+                var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties();
+
+                Assert.Equal(1, properties.Count());
+                var property = properties.Single();
+                Assert.Equal(nameof(EntityWithFieldKey.Year), property.Name);
+                Assert.Null(property.PropertyInfo);
+                Assert.NotNull(property.FieldInfo);
+            }
+
+            [Fact]
+            public virtual void Entity_field_expression_property_test()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().Property(e => e.Id);
+                var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties();
+
+                Assert.Equal(1, properties.Count());
+                var property = properties.Single();
+                Assert.Equal(nameof(EntityWithFieldKey.Id), property.Name);
+                Assert.Null(property.PropertyInfo);
+                Assert.NotNull(property.FieldInfo);
+            }
+
+            [Fact]
+            public virtual void Entity_field_expression_index_test()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().HasIndex(e => e.Year);
+                var indexes = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetIndexes();
+
+                Assert.Equal(1, indexes.Count());
+                var index = indexes.Single();
+                Assert.Equal(1, index.Properties.Count);
+                var property = index.Properties.Single();
+                Assert.Null(property.PropertyInfo);
+                Assert.NotNull(property.FieldInfo);
+            }
+
+            [Fact]
+            public virtual void Entity_field_expression_owns_one_test()
+            {
+                // TODO this should be moved in the relationship test base
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().HasKey(e => e.Id);
+                modelBuilder.Entity<EntityWithFieldKey>().OwnsOne(e => e.Query);
+                var ownerEntity = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey));
+                var ownership = ownerEntity.FindNavigation(nameof(EntityWithFieldKey.Query)).ForeignKey;
+
+                Assert.True(ownership.IsOwnership);
+                var navigations = ownerEntity.GetNavigations();
+                Assert.Equal(1, navigations.Count());
+                var navigation = navigations.Single();
+                Assert.Null(navigation.PropertyInfo);
+                Assert.NotNull(navigation.FieldInfo);
+            }
+
+            [Fact]
+            public virtual void Entity_field_expression_ignore_test()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().Ignore(e => e.Year);
+
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties());
+            }
+
+            [Fact]
+            public virtual void Query_field_expression_property_test()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Query<QueryWithField>().Ignore(e => e.Name);
+
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(QueryWithField)).GetProperties());
+            }
         }
     }
 }

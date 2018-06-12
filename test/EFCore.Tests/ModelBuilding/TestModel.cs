@@ -579,11 +579,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public long Id;
             public int Year;
+            public QueryWithField Query;
         }
 
         protected class QueryWithField
         {
-            public int Year;
+            public string Name;
         }
 
         protected class QueryResult
