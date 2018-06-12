@@ -7606,12 +7606,9 @@ LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].
 ORDER BY [w.SynergyWith].[Name] + N'Marcus'' Lancer'");
         }
 
-        [ConditionalFact]
-        public void Time_of_day_datetimeoffset()
+        public override void Time_of_day_datetimeoffset()
         {
-            AssertQueryScalar<Mission>(
-               ms => from m in ms
-                     select m.Timeline.TimeOfDay);
+            base.Time_of_day_datetimeoffset();
 
             AssertSql(@"SELECT CAST([m].[Timeline] AS time)
 FROM [Missions] AS [m]");

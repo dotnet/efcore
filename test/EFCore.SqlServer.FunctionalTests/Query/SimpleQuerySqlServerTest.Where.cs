@@ -1630,30 +1630,12 @@ WHERE (
 ) = 10243");
         }
 
-        [ConditionalFact]
-        public void Time_of_day_datetime()
+        public override void Time_of_day_datetime()
         {
-            using (var db = CreateContext())
-            {
-                var orders = db.Orders.Select(p => p.OrderDate.Value.TimeOfDay).FirstOrDefault();
+            base.Time_of_day_datetime();
 
-                AssertSql(@"SELECT TOP(1) CAST([p].[OrderDate] AS time)
-FROM [Orders] AS [p]");
-
-            }
-        }
-
-        [ConditionalFact]
-        public void Time_of_day_datetimeoffset_default()
-        {
-            using (var db = CreateContext())
-            {
-                var orders = db.Orders.Select(p => DateTimeOffset.Now.TimeOfDay).FirstOrDefault();
-
-                AssertSql(@"SELECT TOP(1) CAST(SYSDATETIMEOFFSET() AS time)
-FROM [Orders] AS [p]");
-
-            }
+            AssertSql(@"SELECT CAST([c].[OrderDate] AS time)
+FROM [Orders] AS [c]");
         }
     }
 }
