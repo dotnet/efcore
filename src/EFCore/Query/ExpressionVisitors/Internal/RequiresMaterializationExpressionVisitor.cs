@@ -204,11 +204,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private Expression VisitBinaryOperand(Expression operand, ExpressionType comparison)
         {
-            if (comparison == ExpressionType.Equal
-                || comparison == ExpressionType.NotEqual)
+            if ((comparison == ExpressionType.Equal
+                    || comparison == ExpressionType.NotEqual)
+                // Owned entities are excluded because they are not re-written into entity equality
+                && _model.FindEntityType(operand.Type) != null)
             {
-                if (operand is SubQueryExpression subQueryExpression
-                    && _queryModelVisitor.QueryCompilationContext.DuplicateQueryModels.Contains(subQueryExpression.QueryModel))
+                // An equality comparison of query source reference expressions
+                // that reference an entity query source does not suggest that
+                // materialization of that entity type may be required. This is true
+                // whether in a join predicate, where predicate, selector, etc.
+                // because it is rewritten into a key equality comparison.
+                if (operand is QuerySourceReferenceExpression)
+                {
+                    return operand;
+                }
+
+                if (operand is SubQueryExpression subQueryExpression)
                 {
                     _queryModelStack.Push(subQueryExpression.QueryModel);
 

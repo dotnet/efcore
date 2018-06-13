@@ -293,19 +293,19 @@ FROM (
                 //
                 @"@_outer_ReportsTo='2' (Nullable = true)
 
-SELECT TOP(2) [e20].[EmployeeID]
-FROM [Employees] AS [e20]
-WHERE [e20].[EmployeeID] = @_outer_ReportsTo",
+SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+FROM [Employees] AS [e2]
+WHERE [e2].[EmployeeID] = @_outer_ReportsTo",
                 //
-                @"SELECT TOP(2) [e20].[EmployeeID]
-FROM [Employees] AS [e20]
-WHERE [e20].[EmployeeID] IS NULL",
+                @"SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+FROM [Employees] AS [e2]
+WHERE [e2].[EmployeeID] IS NULL",
                 //
                 @"@_outer_ReportsTo='2' (Nullable = true)
 
-SELECT TOP(2) [e20].[EmployeeID]
-FROM [Employees] AS [e20]
-WHERE [e20].[EmployeeID] = @_outer_ReportsTo");
+SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+FROM [Employees] AS [e2]
+WHERE [e2].[EmployeeID] = @_outer_ReportsTo");
         }
 
         public override void Where_query_composition_is_not_null()
@@ -324,19 +324,19 @@ FROM (
                 //
                 @"@_outer_ReportsTo='2' (Nullable = true)
 
-SELECT TOP(2) [e20].[EmployeeID]
-FROM [Employees] AS [e20]
-WHERE [e20].[EmployeeID] = @_outer_ReportsTo",
+SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+FROM [Employees] AS [e2]
+WHERE [e2].[EmployeeID] = @_outer_ReportsTo",
                 //
-                @"SELECT TOP(2) [e20].[EmployeeID]
-FROM [Employees] AS [e20]
-WHERE [e20].[EmployeeID] IS NULL",
+                @"SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+FROM [Employees] AS [e2]
+WHERE [e2].[EmployeeID] IS NULL",
                 //
                 @"@_outer_ReportsTo='2' (Nullable = true)
 
-SELECT TOP(2) [e20].[EmployeeID]
-FROM [Employees] AS [e20]
-WHERE [e20].[EmployeeID] = @_outer_ReportsTo");
+SELECT TOP(2) [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+FROM [Employees] AS [e2]
+WHERE [e2].[EmployeeID] = @_outer_ReportsTo");
         }
 
 #if !Test20

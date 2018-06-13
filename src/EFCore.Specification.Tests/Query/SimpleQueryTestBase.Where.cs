@@ -1455,8 +1455,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_subquery_FirstOrDefault_is_null()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
-                entryCount: 2);
+                cs => cs.Where(c => c.CustomerID.StartsWith("P"))
+                        .Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                entryCount: 1);
         }
 
         [ConditionalFact]

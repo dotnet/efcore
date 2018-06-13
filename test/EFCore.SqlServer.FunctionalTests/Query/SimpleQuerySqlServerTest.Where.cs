@@ -1602,12 +1602,35 @@ WHERE EXISTS (
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderID]
-) IS NULL");
+WHERE [c].[CustomerID] LIKE N'P' + N'%' AND (LEFT([c].[CustomerID], LEN(N'P')) = N'P')",
+                //
+                @"@_outer_CustomerID='PARIS' (Size = 5)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
+                //
+                @"@_outer_CustomerID='PERIC' (Size = 5)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
+                //
+                @"@_outer_CustomerID='PICCO' (Size = 5)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
+                //
+                @"@_outer_CustomerID='PRINI' (Size = 5)
+
+SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]");
         }
 
         public override void Where_subquery_FirstOrDefault_compared_to_entity()

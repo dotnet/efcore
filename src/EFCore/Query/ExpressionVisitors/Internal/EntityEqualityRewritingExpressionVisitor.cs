@@ -150,6 +150,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var properties = MemberAccessBindingExpressionVisitor
                 .GetPropertyPath(nonNullExpression, _queryCompilationContext, out var qsre);
 
+            if (qsre == null)
+            {
+                return null;
+            }
+
             if (properties.Count > 0
                 && properties[properties.Count - 1] is INavigation lastNavigation
                 && lastNavigation.IsCollection())
