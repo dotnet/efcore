@@ -1,6 +1,0 @@
-[
-  {
-    "TypeId": "public class Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Infrastructure.Internal.SqlServerOptionsExtension>",
-    "Kind": "Removal"
-  }
-]
