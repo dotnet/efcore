@@ -743,7 +743,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
             );
         }
 
-        [Fact]
+        [Fact(Skip = "Disable for servicing releases")]
         public void Custom_value_generator_is_ignored_in_snapshot()
         {
             Test(
@@ -837,7 +837,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()); });
         }
 
-        [Fact]
+        [Fact(Skip = "Disable for servicing releases")]
         public void Property_unicodeness_is_stored_in_snapshot()
         {
             Test(
@@ -859,7 +859,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.FunctionalTests.Migrations.ModelS
                 o => { Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()); });
         }
 
-        [Fact]
+        [Fact(Skip = "Disable for servicing releases")]
         public void Many_facets_chained_in_snapshot()
         {
             Test(
