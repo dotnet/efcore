@@ -73,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 && declaringType != parameterType
                 && declaringType.GetTypeInfo().IsInterface
                 && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo())
-                && typeof(TMemberInfo) == typeof(PropertyInfo)
                 && memberInfo is PropertyInfo propertyInfo)
             {
                 var propertyGetter = propertyInfo.GetMethod;
