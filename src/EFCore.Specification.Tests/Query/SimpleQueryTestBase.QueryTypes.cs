@@ -3,28 +3,28 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     // ReSharper disable once UnusedTypeParameter
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
         [ConditionalFact]
-        public virtual void QueryType_simple()
+        public virtual Task QueryType_simple()
         {
-            AssertQuery<CustomerView>(cvs => cvs);
+            return AssertQueryAsync<CustomerView>(cvs => cvs);
         }
 
         [ConditionalFact]
-        public virtual void QueryType_where_simple()
+        public virtual Task QueryType_where_simple()
         {
-            AssertQuery<CustomerView>(
+            return AssertQueryAsync<CustomerView>(
                 cvs => cvs.Where(c => c.City == "London"));
         }
 
@@ -65,15 +65,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void QueryType_with_defining_query()
+        public virtual Task QueryType_with_defining_query()
         {
-            AssertQuery<OrderQuery>(ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
+            return AssertQueryAsync<OrderQuery>(ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
         }
 
         [ConditionalFact]
-        public virtual void QueryType_with_mixed_tracking()
+        public virtual Task QueryType_with_mixed_tracking()
         {
-            AssertQuery<Customer, OrderQuery>(
+            return AssertQueryAsync<Customer, OrderQuery>(
                 (cs, ovs)
                     => from c in cs
                        from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
@@ -86,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void QueryType_with_included_nav()
+        public virtual Task QueryType_with_included_nav()
         {
-            AssertIncludeQuery<OrderQuery>(
+            return AssertIncludeQueryAsync<OrderQuery>(
                 ovs => from ov in ovs.Include(ov => ov.Customer)
                        where ov.CustomerID == "ALFKI"
                        select ov,
@@ -99,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void QueryType_with_included_navs_multi_level()
+        public virtual Task QueryType_with_included_navs_multi_level()
         {
-            AssertIncludeQuery<OrderQuery>(
+            return AssertIncludeQueryAsync<OrderQuery>(
                 ovs => from ov in ovs.Include(ov => ov.Customer.Orders)
                        where ov.CustomerID == "ALFKI"
                        select ov,
@@ -113,18 +113,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void QueryType_select_where_navigation()
+        public virtual Task QueryType_select_where_navigation()
         {
-            AssertQuery<OrderQuery>(
+            return AssertQueryAsync<OrderQuery>(
                 ovs => from ov in ovs
                        where ov.Customer.City == "Seattle"
                        select ov);
         }
 
         [ConditionalFact]
-        public virtual void QueryType_select_where_navigation_multi_level()
+        public virtual Task QueryType_select_where_navigation_multi_level()
         {
-            AssertQuery<OrderQuery>(
+            return AssertQueryAsync<OrderQuery>(
                 ovs => from ov in ovs
                        where ov.Customer.Orders.Any()
                        select ov);

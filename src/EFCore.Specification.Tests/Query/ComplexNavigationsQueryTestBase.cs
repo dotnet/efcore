@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -38,18 +39,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Entity_equality_empty()
+        public virtual Task Entity_equality_empty()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l => l.OneToOne_Optional_FK == new Level2()),
                 e => e.Id,
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_when_sentinel_ef_property()
+        public virtual Task Key_equality_when_sentinel_ef_property()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l => EF.Property<int>(l.OneToOne_Optional_FK, "Id") == 0),
                 l1s => l1s.Where(l => MaybeScalar<int>(l.OneToOne_Optional_FK, () => l.OneToOne_Optional_FK.Id) == 0),
                 e => e.Id,
@@ -57,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_using_property_method_required()
+        public virtual Task Key_equality_using_property_method_required()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l => EF.Property<int>(l.OneToOne_Required_FK, "Id") > 7),
                 l1s => l1s.Where(l => MaybeScalar<int>(l.OneToOne_Required_FK, () => l.OneToOne_Required_FK.Id) > 7),
                 e => e.Id,
@@ -67,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_using_property_method_required2()
+        public virtual Task Key_equality_using_property_method_required2()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Where(l => EF.Property<int>(l.OneToOne_Required_FK_Inverse, "Id") > 7),
                 l2s => l2s.Where(l => l.OneToOne_Required_FK_Inverse.Id > 7),
                 e => e.Id,
@@ -77,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_using_property_method_nested()
+        public virtual Task Key_equality_using_property_method_nested()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l => EF.Property<int>(EF.Property<Level2>(l, "OneToOne_Required_FK"), "Id") == 7),
                 l1s => l1s.Where(l => MaybeScalar<int>(l.OneToOne_Required_FK, () => l.OneToOne_Required_FK.Id) == 7),
                 e => e.Id,
@@ -87,9 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_using_property_method_nested2()
+        public virtual Task Key_equality_using_property_method_nested2()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Where(l => EF.Property<int>(EF.Property<Level1>(l, "OneToOne_Required_FK_Inverse"), "Id") == 7),
                 l2s => l2s.Where(l => l.OneToOne_Required_FK_Inverse.Id == 7),
                 e => e.Id,
@@ -97,9 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_using_property_method_and_member_expression1()
+        public virtual Task Key_equality_using_property_method_and_member_expression1()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l => EF.Property<Level2>(l, "OneToOne_Required_FK").Id == 7),
                 l1s => l1s.Where(l => MaybeScalar<int>(l.OneToOne_Required_FK, () => l.OneToOne_Required_FK.Id) == 7),
                 e => e.Id,
@@ -107,9 +108,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_using_property_method_and_member_expression2()
+        public virtual Task Key_equality_using_property_method_and_member_expression2()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l => EF.Property<int>(l.OneToOne_Required_FK, "Id") == 7),
                 l1s => l1s.Where(l => MaybeScalar<int>(l.OneToOne_Required_FK, () => l.OneToOne_Required_FK.Id) == 7),
                 e => e.Id,
@@ -117,9 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_using_property_method_and_member_expression3()
+        public virtual Task Key_equality_using_property_method_and_member_expression3()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Where(l => EF.Property<int>(l.OneToOne_Required_FK_Inverse, "Id") == 7),
                 l2s => l2s.Where(l => l.OneToOne_Required_FK_Inverse.Id == 7),
                 e => e.Id,
@@ -127,9 +128,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_navigation_converted_to_FK()
+        public virtual Task Key_equality_navigation_converted_to_FK()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Where(
                     l => l.OneToOne_Required_FK_Inverse == new Level1
                     {
@@ -141,9 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_two_conditions_on_same_navigation()
+        public virtual Task Key_equality_two_conditions_on_same_navigation()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(
                     l => l.OneToOne_Required_FK == new Level2
                          {
@@ -161,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Key_equality_two_conditions_on_same_navigation2()
+        public virtual Task Key_equality_two_conditions_on_same_navigation2()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Where(
                     l => l.OneToOne_Required_FK_Inverse == new Level1
                          {
@@ -195,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
+        public virtual Task Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -203,14 +204,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional, "OneToMany_Optional", navigationPath: "OneToMany_Optional")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s.Include(e => e.OneToMany_Optional).ThenInclude(e => e.OneToMany_Optional),
                 expectedIncludes,
                 elementSorter: e => e.Id);
         }
 
         [ConditionalFact]
-        public virtual void Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times()
+        public virtual Task Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -220,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level3>(l2 => l2.OneToMany_Optional, "OneToMany_Optional", navigationPath: "OneToMany_Optional.OneToMany_Optional.OneToMany_Required_Inverse")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s.Include(e => e.OneToMany_Optional).ThenInclude(e => e.OneToMany_Optional).ThenInclude(e => e.OneToMany_Required_Inverse.OneToMany_Optional),
                 expectedIncludes,
                 elementSorter: e => e.Id);
@@ -235,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 context.LevelOne.Include(e => e.OneToMany_Optional).ToList();
                 context.LevelOne.Include(e => e.OneToMany_Optional_Self).ToList();
 
-                //# 1478
+                // #1478
                 context.LevelOne
                     .Include(e => e.OneToMany_Optional)
                     .ThenInclude(e => e.OneToMany_Optional_Inverse.OneToMany_Optional_Self_Inverse.OneToOne_Optional_FK).ToList();
@@ -312,9 +313,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_key_access_optional()
+        public virtual Task Join_navigation_key_access_optional()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from e1 in l1s
                     join e2 in l2s on e1.Id equals e2.OneToOne_Optional_FK_Inverse.Id
@@ -337,9 +338,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_key_access_required()
+        public virtual Task Join_navigation_key_access_required()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from e1 in l1s
                     join e2 in l2s on e1.Id equals e2.OneToOne_Required_FK_Inverse.Id
@@ -360,9 +361,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_key_access_optional_comparison()
+        public virtual Task Navigation_key_access_optional_comparison()
         {
-            AssertQueryScalar<Level2>(
+            return AssertQueryScalarAsync<Level2>(
                 l2s =>
                     from e2 in l2s
                     where e2.OneToOne_Optional_PK_Inverse.Id > 5
@@ -374,27 +375,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Simple_owned_level1()
+        public virtual Task Simple_owned_level1()
         {
-            AssertQuery<Level1>(l1s => l1s.Include(l1 => l1.OneToOne_Required_PK), elementSorter: e => e.Id);
+            return AssertQueryAsync<Level1>(l1s => l1s.Include(l1 => l1.OneToOne_Required_PK), elementSorter: e => e.Id);
         }
 
         [ConditionalFact]
-        public virtual void Simple_owned_level1_convention()
+        public virtual Task Simple_owned_level1_convention()
         {
-            AssertQuery<Level1>(l1s => l1s, elementSorter: e => e.Id);
+            return AssertQueryAsync<Level1>(l1s => l1s, elementSorter: e => e.Id);
         }
 
         [ConditionalFact]
-        public virtual void Simple_owned_level1_level2()
+        public virtual Task Simple_owned_level1_level2()
         {
-            AssertQuery<Level1>(l1s => l1s.Include(l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK), elementSorter: e => e.Id);
+            return AssertQueryAsync<Level1>(l1s => l1s.Include(l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK), elementSorter: e => e.Id);
         }
 
         [ConditionalFact]
-        public virtual void Simple_owned_level1_level2_GroupBy_Count()
+        public virtual Task Simple_owned_level1_level2_GroupBy_Count()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s.GroupBy(
                         l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK.Name)
                     .Select(g => g.Count()),
@@ -408,9 +409,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Simple_owned_level1_level2_GroupBy_Having_Count()
+        public virtual Task Simple_owned_level1_level2_GroupBy_Having_Count()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s.GroupBy(
                         l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK.Name,
                         l1 => new
@@ -434,18 +435,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Simple_owned_level1_level2_level3()
+        public virtual Task Simple_owned_level1_level2_level3()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s
                     => l1s.Include(l1 => l1.OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Required_PK),
                 elementSorter: e => e.Id);
         }
 
         [ConditionalFact]
-        public virtual void Navigation_key_access_required_comparison()
+        public virtual Task Navigation_key_access_required_comparison()
         {
-            AssertQueryScalar<Level2>(
+            return AssertQueryScalarAsync<Level2>(
                 l2s =>
                     from e2 in l2s
                     where e2.OneToOne_Required_PK_Inverse.Id > 5
@@ -453,9 +454,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_inside_method_call_translated_to_join()
+        public virtual Task Navigation_inside_method_call_translated_to_join()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     where e1.OneToOne_Required_FK.Name.StartsWith("L")
@@ -469,9 +470,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_inside_method_call_translated_to_join2()
+        public virtual Task Navigation_inside_method_call_translated_to_join2()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s =>
                     from e3 in l3s
                     where e3.OneToOne_Required_FK_Inverse.Name.StartsWith("L")
@@ -481,9 +482,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_inside_method_call_translated_to_join()
+        public virtual Task Optional_navigation_inside_method_call_translated_to_join()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     where e1.OneToOne_Optional_FK.Name.StartsWith("L")
@@ -497,9 +498,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_inside_property_method_translated_to_join()
+        public virtual Task Optional_navigation_inside_property_method_translated_to_join()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     where EF.Property<string>(EF.Property<Level2>(e1, "OneToOne_Optional_FK"), "Name") == "L2 01"
@@ -513,9 +514,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_inside_nested_method_call_translated_to_join()
+        public virtual Task Optional_navigation_inside_nested_method_call_translated_to_join()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     where e1.OneToOne_Optional_FK.Name.ToUpper().StartsWith("L")
@@ -529,9 +530,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Method_call_on_optional_navigation_translates_to_null_conditional_properly_for_arguments()
+        public virtual Task Method_call_on_optional_navigation_translates_to_null_conditional_properly_for_arguments()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     where e1.OneToOne_Optional_FK.Name.StartsWith(e1.OneToOne_Optional_FK.Name)
@@ -545,9 +546,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability()
+        public virtual Task Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     where e1.OneToOne_Optional_FK.Date.AddDays(10) > new DateTime(2000, 2, 1)
@@ -561,9 +562,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability()
+        public virtual Task Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     where e1.OneToOne_Optional_FK.Date.AddDays(10).AddDays(15).AddMonths(2) > new DateTime(2002, 2, 1)
@@ -577,9 +578,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments()
+        public virtual Task Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     where e1.OneToOne_Optional_FK.Date.AddDays(15).AddDays(e1.OneToOne_Optional_FK.Id) > new DateTime(2002, 2, 1)
@@ -593,9 +594,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_in_outer_selector_translated_to_extra_join()
+        public virtual Task Join_navigation_in_outer_selector_translated_to_extra_join()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from e1 in l1s
                     join e2 in l2s on e1.OneToOne_Optional_FK.Id equals e2.Id
@@ -616,9 +617,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_in_outer_selector_translated_to_extra_join_nested()
+        public virtual Task Join_navigation_in_outer_selector_translated_to_extra_join_nested()
         {
-            AssertQuery<Level1, Level3>(
+            return AssertQueryAsync<Level1, Level3>(
                 (l1s, l3s) =>
                     from e1 in l1s
                     join e3 in l3s on e1.OneToOne_Required_FK.OneToOne_Optional_FK.Id equals e3.Id
@@ -643,9 +644,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_in_outer_selector_translated_to_extra_join_nested2()
+        public virtual Task Join_navigation_in_outer_selector_translated_to_extra_join_nested2()
         {
-            AssertQuery<Level1, Level3>(
+            return AssertQueryAsync<Level1, Level3>(
                 (l1s, l3s) =>
                     from e3 in l3s
                     join e1 in l1s on e3.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse.Id equals e1.Id
@@ -668,9 +669,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_in_inner_selector_translated_to_subquery()
+        public virtual Task Join_navigation_in_inner_selector_translated_to_subquery()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from e2 in l2s
                     join e1 in l1s on e2.Id equals e1.OneToOne_Optional_FK.Id
@@ -691,9 +692,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigations_in_inner_selector_translated_to_multiple_subquery_without_collision()
+        public virtual Task Join_navigations_in_inner_selector_translated_to_multiple_subquery_without_collision()
         {
-            AssertQuery<Level1, Level2, Level3>(
+            return AssertQueryAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     from e2 in l2s
                     join e1 in l1s on e2.Id equals e1.OneToOne_Optional_FK.Id
@@ -718,9 +719,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_translated_to_subquery_non_key_join()
+        public virtual Task Join_navigation_translated_to_subquery_non_key_join()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from e2 in l2s
                     join e1 in l1s on e2.Name equals e1.OneToOne_Optional_FK.Name
@@ -745,9 +746,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_translated_to_subquery_self_ref()
+        public virtual Task Join_navigation_translated_to_subquery_self_ref()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from e1 in l1s
                     join e2 in l1s on e1.Id equals e2.OneToMany_Optional_Self_Inverse.Id
@@ -768,9 +769,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_translated_to_subquery_nested()
+        public virtual Task Join_navigation_translated_to_subquery_nested()
         {
-            AssertQuery<Level1, Level3>(
+            return AssertQueryAsync<Level1, Level3>(
                 (l1s, l3s) =>
                     from e3 in l3s
                     join e1 in l1s on e3.Id equals e1.OneToOne_Required_FK.OneToOne_Optional_FK.Id
@@ -795,9 +796,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_translated_to_subquery_deeply_nested_non_key_join()
+        public virtual Task Join_navigation_translated_to_subquery_deeply_nested_non_key_join()
         {
-            AssertQuery<Level1, Level4>(
+            return AssertQueryAsync<Level1, Level4>(
                 (l1s, l4s) =>
                     from e4 in l4s
                     join e1 in l1s on e4.Name equals e1.OneToOne_Required_FK.OneToOne_Optional_FK.OneToOne_Required_PK.Name
@@ -828,9 +829,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_translated_to_subquery_deeply_nested_required()
+        public virtual Task Join_navigation_translated_to_subquery_deeply_nested_required()
         {
-            AssertQuery<Level1, Level4>(
+            return AssertQueryAsync<Level1, Level4>(
                 (l1s, l4s) =>
                     from e1 in l1s
                     join e4 in l4s on e1.Name equals e4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.OneToOne_Required_PK_Inverse.Name
@@ -845,7 +846,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_complex_includes()
+        public virtual Task Multiple_complex_includes()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -855,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK, "OneToOne_Optional_FK", navigationPath: "OneToMany_Optional")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(e => e.OneToOne_Optional_FK)
                     .ThenInclude(e => e.OneToMany_Optional)
@@ -866,7 +867,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_complex_includes_self_ref()
+        public virtual Task Multiple_complex_includes_self_ref()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -876,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_Self, "OneToOne_Optional_Self", navigationPath: "OneToMany_Optional_Self")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(e => e.OneToOne_Optional_Self)
                     .ThenInclude(e => e.OneToMany_Optional_Self)
@@ -887,7 +888,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_complex_include_select()
+        public virtual Task Multiple_complex_include_select()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -897,7 +898,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK, "OneToOne_Optional_FK", navigationPath: "OneToMany_Optional")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Select(e => e)
                     .Include(e => e.OneToOne_Optional_FK)
@@ -910,9 +911,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_nav_prop_collection_one_to_many_required()
+        public virtual Task Select_nav_prop_collection_one_to_many_required()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.OrderBy(e => e.Id).Select(e => e.OneToMany_Required.Select(i => i.Id)),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
@@ -928,17 +929,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_nav_prop_reference_optional1()
+        public virtual Task Select_nav_prop_reference_optional1()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Select(e => e.OneToOne_Optional_FK.Name),
                 l1s => l1s.Select(e => Maybe(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Name)));
         }
 
         [ConditionalFact]
-        public virtual void Select_nav_prop_reference_optional1_via_DefaultIfEmpty()
+        public virtual Task Select_nav_prop_reference_optional1_via_DefaultIfEmpty()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -956,17 +957,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_nav_prop_reference_optional2()
+        public virtual Task Select_nav_prop_reference_optional2()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s.Select(e => (int?)e.OneToOne_Optional_FK.Id),
                 l1s => l1s.Select(e => MaybeScalar<int>(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Id)));
         }
 
         [ConditionalFact]
-        public virtual void Select_nav_prop_reference_optional2_via_DefaultIfEmpty()
+        public virtual Task Select_nav_prop_reference_optional2_via_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -980,17 +981,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_nav_prop_reference_optional3()
+        public virtual Task Select_nav_prop_reference_optional3()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Select(e => e.OneToOne_Optional_FK_Inverse.Name),
                 l2s => l2s.Select(e => Maybe(e.OneToOne_Optional_FK_Inverse, () => e.OneToOne_Optional_FK_Inverse.Name)));
         }
 
         [ConditionalFact]
-        public virtual void Where_nav_prop_reference_optional1()
+        public virtual Task Where_nav_prop_reference_optional1()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s
                     .Where(e => e.OneToOne_Optional_FK.Name == "L2 05" || e.OneToOne_Optional_FK.Name == "L2 07")
                     .Select(e => e.Id),
@@ -1002,9 +1003,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_nav_prop_reference_optional1_via_DefaultIfEmpty()
+        public virtual Task Where_nav_prop_reference_optional1_via_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2Left in l2s on l1.Id equals l2Left.Level1_Optional_Id into groupJoinLeft
@@ -1018,9 +1019,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_nav_prop_reference_optional2()
+        public virtual Task Where_nav_prop_reference_optional2()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s
                     .Where(e => e.OneToOne_Optional_FK.Name == "L2 05" || e.OneToOne_Optional_FK.Name != "L2 42")
                     .Select(e => e.Id),
@@ -1032,9 +1033,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_nav_prop_reference_optional2_via_DefaultIfEmpty()
+        public virtual Task Where_nav_prop_reference_optional2_via_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2Left in l2s on l1.Id equals l2Left.Level1_Optional_Id into groupJoinLeft
@@ -1048,9 +1049,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_multiple_nav_prop_reference_optional()
+        public virtual Task Select_multiple_nav_prop_reference_optional()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s.Select(e => (int?)e.OneToOne_Optional_FK.OneToOne_Optional_FK.Id),
                 l1s => l1s.Select(
                     e => MaybeScalar(
@@ -1061,9 +1062,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_multiple_nav_prop_reference_optional_member_compared_to_value()
+        public virtual Task Where_multiple_nav_prop_reference_optional_member_compared_to_value()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     where l1.OneToOne_Optional_FK.OneToOne_Optional_FK.Name != "L3 05"
@@ -1081,9 +1082,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_multiple_nav_prop_reference_optional_member_compared_to_null()
+        public virtual Task Where_multiple_nav_prop_reference_optional_member_compared_to_null()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     where l1.OneToOne_Optional_FK.OneToOne_Optional_FK.Name != null
@@ -1101,9 +1102,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_multiple_nav_prop_reference_optional_compared_to_null1()
+        public virtual Task Where_multiple_nav_prop_reference_optional_compared_to_null1()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     where l1.OneToOne_Optional_FK.OneToOne_Optional_FK == null
@@ -1119,9 +1120,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_multiple_nav_prop_reference_optional_compared_to_null2()
+        public virtual Task Where_multiple_nav_prop_reference_optional_compared_to_null2()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s =>
                     from l3 in l3s
                     where l3.OneToOne_Optional_FK_Inverse.OneToOne_Optional_FK_Inverse == null
@@ -1137,9 +1138,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_multiple_nav_prop_reference_optional_compared_to_null3()
+        public virtual Task Where_multiple_nav_prop_reference_optional_compared_to_null3()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     where null != l1.OneToOne_Optional_FK.OneToOne_Optional_FK
@@ -1155,9 +1156,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_multiple_nav_prop_reference_optional_compared_to_null4()
+        public virtual Task Where_multiple_nav_prop_reference_optional_compared_to_null4()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s =>
                     from l3 in l3s
                     where null != l3.OneToOne_Optional_FK_Inverse.OneToOne_Optional_FK_Inverse
@@ -1171,9 +1172,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_multiple_nav_prop_reference_optional_compared_to_null5()
+        public virtual Task Where_multiple_nav_prop_reference_optional_compared_to_null5()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(e => e.OneToOne_Optional_FK.OneToOne_Required_FK.OneToOne_Required_FK == null),
                 l1s => l1s.Where(
                     e => Maybe(
@@ -1186,9 +1187,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_multiple_nav_prop_reference_required()
+        public virtual Task Select_multiple_nav_prop_reference_required()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s.Select(e => (int?)e.OneToOne_Required_FK.OneToOne_Required_FK.Id),
                 l1s => l1s.Select(
                     e => MaybeScalar(
@@ -1199,16 +1200,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_multiple_nav_prop_reference_required2()
+        public virtual Task Select_multiple_nav_prop_reference_required2()
         {
-            AssertQueryScalar<Level3>(
+            return AssertQueryScalarAsync<Level3>(
                 l3s => l3s.Select(e => e.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.Id));
         }
 
         [ConditionalFact]
-        public virtual void Select_multiple_nav_prop_optional_required()
+        public virtual Task Select_multiple_nav_prop_optional_required()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     select (int?)l1.OneToOne_Optional_FK.OneToOne_Required_FK.Id,
@@ -1222,9 +1223,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_multiple_nav_prop_optional_required()
+        public virtual Task Where_multiple_nav_prop_optional_required()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     where l1.OneToOne_Optional_FK.OneToOne_Required_FK.Name != "L3 05"
@@ -1242,9 +1243,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_navigation_comparison1()
+        public virtual Task SelectMany_navigation_comparison1()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l11 in l1s
                     from l12 in l1s
@@ -1267,9 +1268,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_navigation_comparison2()
+        public virtual Task SelectMany_navigation_comparison2()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     from l2 in l2s
@@ -1292,9 +1293,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_navigation_comparison3()
+        public virtual Task SelectMany_navigation_comparison3()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     from l2 in l2s
@@ -1317,9 +1318,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_complex_predicate_with_with_nav_prop_and_OrElse1()
+        public virtual Task Where_complex_predicate_with_with_nav_prop_and_OrElse1()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     from l2 in l2s
@@ -1343,9 +1344,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_complex_predicate_with_with_nav_prop_and_OrElse2()
+        public virtual Task Where_complex_predicate_with_with_nav_prop_and_OrElse2()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     where l1.OneToOne_Optional_FK.OneToOne_Required_FK.Name == "L3 05" || l1.OneToOne_Optional_FK.Name != "L2 05"
@@ -1364,9 +1365,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_complex_predicate_with_with_nav_prop_and_OrElse3()
+        public virtual Task Where_complex_predicate_with_with_nav_prop_and_OrElse3()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     where l1.OneToOne_Optional_FK.Name != "L2 05" || l1.OneToOne_Required_FK.OneToOne_Optional_FK.Name == "L3 05"
@@ -1385,9 +1386,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_complex_predicate_with_with_nav_prop_and_OrElse4()
+        public virtual Task Where_complex_predicate_with_with_nav_prop_and_OrElse4()
         {
-            AssertQueryScalar<Level3>(
+            return AssertQueryScalarAsync<Level3>(
                 l3s =>
                     from l3 in l3s
                     where l3.OneToOne_Optional_FK_Inverse.Name != "L2 05" || l3.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse.Name == "L1 05"
@@ -1404,9 +1405,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Complex_navigations_with_predicate_projected_into_anonymous_type()
+        public virtual Task Complex_navigations_with_predicate_projected_into_anonymous_type()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s
                     .Where(
                         e => e.OneToOne_Required_FK.OneToOne_Required_FK == e.OneToOne_Required_FK.OneToOne_Optional_FK
@@ -1436,9 +1437,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Complex_navigations_with_predicate_projected_into_anonymous_type2()
+        public virtual Task Complex_navigations_with_predicate_projected_into_anonymous_type2()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s =>
                     from e in l3s
                     where e.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse == e.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse
@@ -1531,9 +1532,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void OrderBy_nav_prop_reference_optional()
+        public virtual Task OrderBy_nav_prop_reference_optional()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s =>
                     l1s.OrderBy(e => e.OneToOne_Optional_FK.Name).ThenBy(e => e.Id).Select(e => e.Id),
                 l1s =>
@@ -1542,9 +1543,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void OrderBy_nav_prop_reference_optional_via_DefaultIfEmpty()
+        public virtual Task OrderBy_nav_prop_reference_optional_via_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -1600,9 +1601,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_optional_navigation()
+        public virtual Task Include_with_optional_navigation()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => from l1 in l1s.Include(e => e.OneToOne_Optional_FK)
                        where l1.OneToOne_Optional_FK.Name != "L2 05"
                        select l1,
@@ -1617,7 +1618,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_nested_with_optional_navigation()
+        public virtual Task Include_nested_with_optional_navigation()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1626,7 +1627,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level3>(l1 => l1.OneToOne_Required_FK, "OneToOne_Required_FK", "OneToOne_Optional_FK.OneToMany_Required")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => from l1 in l1s
                            .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
                            .ThenInclude(e => e.OneToOne_Required_FK)
@@ -1640,7 +1641,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_groupjoin_skip_and_take()
+        public virtual Task Include_with_groupjoin_skip_and_take()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1649,7 +1650,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_PK, "OneToOne_Required_PK")
             };
 
-            AssertIncludeQuery<Level1, Level2>(
+            return AssertIncludeQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     (from l1 in l1s
                          .Include(e => e.OneToMany_Optional)
@@ -1673,9 +1674,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_flattening_bug_4539()
+        public virtual Task Join_flattening_bug_4539()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l1_Optional in l2s on (int?)l1.Id equals l1_Optional.Level1_Optional_Id into grouping
@@ -1691,9 +1692,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Query_source_materialization_bug_4547()
+        public virtual Task Query_source_materialization_bug_4547()
         {
-            AssertQueryScalar<Level1, Level2, Level3>(
+            return AssertQueryScalarAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     from e3 in l3s
                     join e1 in l1s
@@ -1717,43 +1718,43 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_navigation_property()
+        public virtual Task SelectMany_navigation_property()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional),
                 e => e.Id,
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_navigation_property_and_projection()
+        public virtual Task SelectMany_navigation_property_and_projection()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional).Select(e => e.Name));
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_navigation_property_and_filter_before()
+        public virtual Task SelectMany_navigation_property_and_filter_before()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(e => e.Id == 1).SelectMany(l1 => l1.OneToMany_Optional),
                 e => e.Id,
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_navigation_property_and_filter_after()
+        public virtual Task SelectMany_navigation_property_and_filter_after()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional).Where(e => e.Id != 6),
                 e => e.Id,
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_nested_navigation_property_required()
+        public virtual Task SelectMany_nested_navigation_property_required()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToOne_Required_FK.OneToMany_Optional),
                 l1s => l1s.SelectMany(
                     l1 => Maybe(
@@ -1764,9 +1765,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_nested_navigation_property_optional_and_projection()
+        public virtual Task SelectMany_nested_navigation_property_optional_and_projection()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional).Select(e => e.Name),
                 l1s => l1s.SelectMany(
                     l1 => Maybe(
@@ -1775,18 +1776,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_SelectMany_calls()
+        public virtual Task Multiple_SelectMany_calls()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.SelectMany(e => e.OneToMany_Optional).SelectMany(e => e.OneToMany_Optional),
                 e => e.Id,
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_navigation_property_with_another_navigation_in_subquery()
+        public virtual Task SelectMany_navigation_property_with_another_navigation_in_subquery()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK)),
                 l1s => l1s.SelectMany(
                     l1 => Maybe(
@@ -1807,9 +1808,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_navigation_property_to_collection()
+        public virtual Task Where_navigation_property_to_collection()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l1 => l1.OneToOne_Required_FK.OneToMany_Optional.Count > 0),
                 l1s => l1s.Where(
                     l1 => MaybeScalar(
@@ -1822,9 +1823,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_navigation_property_to_collection2()
+        public virtual Task Where_navigation_property_to_collection2()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => l3s.Where(l1 => l1.OneToOne_Required_FK_Inverse.OneToMany_Optional.Count > 0),
                 l3s => l3s.Where(
                     l1 => MaybeScalar<int>(
@@ -1835,9 +1836,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_navigation_property_to_collection_of_original_entity_type()
+        public virtual Task Where_navigation_property_to_collection_of_original_entity_type()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Where(l2 => l2.OneToMany_Required_Inverse.OneToMany_Optional.Count() > 0),
                 l2s => l2s.Where(
                     l2 => MaybeScalar<int>(
@@ -1848,7 +1849,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Complex_multi_include_with_order_by_and_paging()
+        public virtual Task Complex_multi_include_with_order_by_and_paging()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1857,7 +1858,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l1 => l1.OneToMany_Required, "OneToMany_Required", "OneToOne_Required_FK")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Required)
@@ -1868,7 +1869,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Complex_multi_include_with_order_by_and_paging_joins_on_correct_key()
+        public virtual Task Complex_multi_include_with_order_by_and_paging_joins_on_correct_key()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1878,7 +1879,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l2 => l2.OneToMany_Required, "OneToMany_Required", "OneToOne_Required_FK")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(e => e.OneToOne_Optional_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Required)
@@ -1888,7 +1889,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Complex_multi_include_with_order_by_and_paging_joins_on_correct_key2()
+        public virtual Task Complex_multi_include_with_order_by_and_paging_joins_on_correct_key2()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1897,7 +1898,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional, "OneToMany_Optional", "OneToOne_Optional_FK.OneToOne_Optional_FK")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(e => e.OneToOne_Optional_FK.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .OrderBy(t => t.Name)
@@ -1906,7 +1907,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_include_with_multiple_optional_navigations()
+        public virtual Task Multiple_include_with_multiple_optional_navigations()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1917,7 +1918,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK, "OneToOne_Optional_FK", "OneToOne_Optional_FK")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToOne_Required_FK).ThenInclude(e => e.OneToOne_Optional_FK)
@@ -1934,9 +1935,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        public virtual Task Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     (from l1 in l1s
                      where l2s.Any(l2 => l2.Level1_Required_Id == l1.Id)
@@ -1944,9 +1945,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level_join()
+        public virtual Task Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level_join()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from e1 in l1s
                     join e2 in l2s on e1.Id equals e2.OneToOne_Optional_FK_Inverse.Id
@@ -1969,9 +1970,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_nested_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        public virtual Task Correlated_nested_subquery_doesnt_project_unnecessary_columns_in_top_level()
         {
-            AssertQuery<Level1, Level2, Level3>(
+            return AssertQueryAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     (from l1 in l1s
                      where l2s.Any(l2 => l3s.Select(l3 => l2.Id).Any())
@@ -1980,9 +1981,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_nested_two_levels_up_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        public virtual Task Correlated_nested_two_levels_up_subquery_doesnt_project_unnecessary_columns_in_top_level()
         {
-            AssertQuery<Level1, Level2, Level3>(
+            return AssertQueryAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     (from l1 in l1s
                      where l2s.Any(l2 => l3s.Select(l3 => l1.Id).Any())
@@ -1991,9 +1992,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_on_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected()
+        public virtual Task GroupJoin_on_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     l1s.GroupJoin(
                             l2s.Where(l2 => l2.Name != "L2 01"),
@@ -2011,9 +2012,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_on_complex_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected()
+        public virtual Task GroupJoin_on_complex_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     l1s.GroupJoin(
                             l1s.Where(l1 => l1.Name != "L1 01").Select(l1 => l1.OneToOne_Required_FK),
@@ -2031,9 +2032,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin1()
+        public virtual Task Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin1()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     l1s.GroupJoin(
                             l1s.Select(l1 => l1.OneToOne_Required_FK),
@@ -2050,9 +2051,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin2()
+        public virtual Task Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin2()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     l1s.GroupJoin(
                             l1s.Select(l1 => l1.OneToOne_Required_FK),
@@ -2080,9 +2081,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_protection_logic_work_for_outer_key_access_of_manually_created_GroupJoin()
+        public virtual Task Null_protection_logic_work_for_outer_key_access_of_manually_created_GroupJoin()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     l1s.Select(l1 => l1.OneToOne_Required_FK).GroupJoin(
                             l1s,
@@ -2120,27 +2121,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_where_with_subquery()
+        public virtual Task SelectMany_where_with_subquery()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).Where(l2 => l2.OneToMany_Required.Any()),
                 e => e.Id,
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
         [ConditionalFact]
-        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access1()
+        public virtual Task Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access1()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse),
                 elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access2()
+        public virtual Task Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access2()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id).Select(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse")),
                 l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse),
                 elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
@@ -2148,9 +2149,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access3()
+        public virtual Task Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access3()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => l3s.OrderBy(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse").Id).Select(l3 => l3.OneToOne_Required_FK_Inverse),
                 l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse),
                 elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
@@ -2158,9 +2159,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Order_by_key_of_navigation_similar_to_projected_gets_optimized_into_FK_access()
+        public virtual Task Order_by_key_of_navigation_similar_to_projected_gets_optimized_into_FK_access()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => from l3 in l3s
                        orderby l3.OneToOne_Required_FK_Inverse.Id
                        select l3.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse,
@@ -2169,9 +2170,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access_subquery()
+        public virtual Task Order_by_key_of_projected_navigation_doesnt_get_optimized_into_FK_access_subquery()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => l3s
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse)
                     .OrderBy(l2 => l2.Id)
@@ -2181,9 +2182,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Order_by_key_of_anonymous_type_projected_navigation_doesnt_get_optimized_into_FK_access_subquery()
+        public virtual Task Order_by_key_of_anonymous_type_projected_navigation_doesnt_get_optimized_into_FK_access_subquery()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => l3s
                     .Select(
                         l3 => new
@@ -2198,9 +2199,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_take_optional_navigation()
+        public virtual Task Optional_navigation_take_optional_navigation()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .OrderBy(l2 => (int?)l2.Id)
@@ -2215,17 +2216,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Projection_select_correct_table_from_subquery_when_materialization_is_not_required()
+        public virtual Task Projection_select_correct_table_from_subquery_when_materialization_is_not_required()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Where(l2 => l2.OneToOne_Required_FK_Inverse.Name == "L1 03")
                     .OrderBy(l => l.Id).Take(3).Select(l2 => l2.Name));
         }
 
         [ConditionalFact]
-        public virtual void Projection_select_correct_table_with_anonymous_projection_in_subquery()
+        public virtual Task Projection_select_correct_table_with_anonymous_projection_in_subquery()
         {
-            AssertQuery<Level1, Level2, Level3>(
+            return AssertQueryAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     (from l2 in l2s
                      join l1 in l1s
@@ -2246,9 +2247,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Projection_select_correct_table_in_subquery_when_materialization_is_not_required_in_multiple_joins()
+        public virtual Task Projection_select_correct_table_in_subquery_when_materialization_is_not_required_in_multiple_joins()
         {
-            AssertQuery<Level1, Level2, Level3>(
+            return AssertQueryAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     (from l2 in l2s
                      join l1 in l1s
@@ -2262,9 +2263,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_predicate_on_optional_reference_navigation()
+        public virtual Task Where_predicate_on_optional_reference_navigation()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s
                     .Where(l1 => l1.OneToOne_Required_FK.Name == "L2 03")
                     .OrderBy(l1 => l1.Id)
@@ -2278,9 +2279,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_Include1()
+        public virtual Task SelectMany_with_Include1()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include(l2 => l2.OneToMany_Optional),
@@ -2292,9 +2293,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_Include2()
+        public virtual Task SelectMany_with_Include2()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include(l2 => l2.OneToOne_Required_FK),
@@ -2306,7 +2307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_Include_ThenInclude()
+        public virtual Task SelectMany_with_Include_ThenInclude()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -2314,7 +2315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional, "OneToMany_Optional", "OneToOne_Required_FK")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include(l2 => l2.OneToOne_Required_FK)
@@ -2324,7 +2325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_SelectMany_with_Include()
+        public virtual Task Multiple_SelectMany_with_Include()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -2332,7 +2333,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional, "OneToMany_Optional")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .SelectMany(l2 => l2.OneToMany_Optional)
@@ -2343,9 +2344,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_string_based_Include1()
+        public virtual Task SelectMany_with_string_based_Include1()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include("OneToOne_Required_FK"),
@@ -2357,7 +2358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_string_based_Include2()
+        public virtual Task SelectMany_with_string_based_Include2()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -2365,7 +2366,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level3>(l3 => l3.OneToOne_Required_FK, "OneToOne_Required_FK", "OneToOne_Required_FK")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include("OneToOne_Required_FK.OneToOne_Required_FK"),
@@ -2374,9 +2375,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_SelectMany_with_string_based_Include()
+        public virtual Task Multiple_SelectMany_with_string_based_Include()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .SelectMany(l1 => l1.OneToMany_Optional)
@@ -2389,9 +2390,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Required_navigation_with_Include()
+        public virtual Task Required_navigation_with_Include()
         {
-            AssertIncludeQuery<Level3>(
+            return AssertIncludeQueryAsync<Level3>(
                 l3s => l3s
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse)
                     .Include(l2 => l2.OneToMany_Required_Inverse),
@@ -2403,7 +2404,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Required_navigation_with_Include_ThenInclude()
+        public virtual Task Required_navigation_with_Include_ThenInclude()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -2411,7 +2412,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional_Inverse, "OneToMany_Optional_Inverse", "OneToMany_Required_Inverse")
             };
 
-            AssertIncludeQuery<Level4>(
+            return AssertIncludeQueryAsync<Level4>(
                 l4s => l4s
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
                     .Include(l3 => l3.OneToMany_Required_Inverse)
@@ -2421,9 +2422,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_required_navigations_with_Include()
+        public virtual Task Multiple_required_navigations_with_Include()
         {
-            AssertIncludeQuery<Level4>(
+            return AssertIncludeQueryAsync<Level4>(
                 l4s => l4s
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse)
                     .Include(l2 => l2.OneToOne_Optional_FK),
@@ -2435,9 +2436,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_required_navigation_using_multiple_selects_with_Include()
+        public virtual Task Multiple_required_navigation_using_multiple_selects_with_Include()
         {
-            AssertIncludeQuery<Level4>(
+            return AssertIncludeQueryAsync<Level4>(
                 l4s => l4s
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse)
@@ -2450,9 +2451,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_required_navigation_with_string_based_Include()
+        public virtual Task Multiple_required_navigation_with_string_based_Include()
         {
-            AssertIncludeQuery<Level4>(
+            return AssertIncludeQueryAsync<Level4>(
                 l4s => l4s
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse)
                     .Include("OneToOne_Optional_FK"),
@@ -2464,9 +2465,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_required_navigation_using_multiple_selects_with_string_based_Include()
+        public virtual Task Multiple_required_navigation_using_multiple_selects_with_string_based_Include()
         {
-            AssertIncludeQuery<Level4>(
+            return AssertIncludeQueryAsync<Level4>(
                 l4s => l4s
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse)
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse)
@@ -2479,9 +2480,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_with_Include()
+        public virtual Task Optional_navigation_with_Include()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .Include(l2 => l2.OneToOne_Optional_FK),
@@ -2493,7 +2494,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_with_Include_ThenInclude()
+        public virtual Task Optional_navigation_with_Include_ThenInclude()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -2501,7 +2502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_FK, "OneToOne_Optional_FK", "OneToMany_Optional")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .Include(l2 => l2.OneToMany_Optional)
@@ -2511,9 +2512,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_optional_navigation_with_Include()
+        public virtual Task Multiple_optional_navigation_with_Include()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Select(l1 => l1.OneToOne_Optional_FK.OneToOne_Optional_PK)
                     .Include(l3 => l3.OneToMany_Optional),
@@ -2527,9 +2528,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_optional_navigation_with_string_based_Include()
+        public virtual Task Multiple_optional_navigation_with_string_based_Include()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .Select(l2 => l2.OneToOne_Optional_PK)
@@ -2545,9 +2546,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_with_order_by_and_Include()
+        public virtual Task Optional_navigation_with_order_by_and_Include()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .OrderBy(l2 => l2.Name)
@@ -2563,9 +2564,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_with_Include_and_order()
+        public virtual Task Optional_navigation_with_Include_and_order()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Select(l1 => l1.OneToOne_Optional_FK)
                     .Include(l2 => l2.OneToMany_Optional)
@@ -2581,9 +2582,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_order_by_and_Include()
+        public virtual Task SelectMany_with_order_by_and_Include()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .OrderBy(l2 => l2.Name)
@@ -2599,9 +2600,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_Include_and_order_by()
+        public virtual Task SelectMany_with_Include_and_order_by()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .SelectMany(l1 => l1.OneToMany_Optional)
                     .Include(l2 => l2.OneToMany_Optional)
@@ -2617,9 +2618,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_navigation_and_explicit_DefaultIfEmpty()
+        public virtual Task SelectMany_with_navigation_and_explicit_DefaultIfEmpty()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     from l2 in l1.OneToMany_Optional.DefaultIfEmpty()
@@ -2630,9 +2631,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_navigation_and_Distinct()
+        public virtual Task SelectMany_with_navigation_and_Distinct()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => from l1 in l1s.Include(l => l.OneToMany_Optional)
                        from l2 in l1.OneToMany_Optional.Distinct()
                        where l2 != null
@@ -2645,9 +2646,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_navigation_filter_and_explicit_DefaultIfEmpty()
+        public virtual Task SelectMany_with_navigation_filter_and_explicit_DefaultIfEmpty()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        from l2 in l1.OneToMany_Optional.Where(l => l.Id > 5).DefaultIfEmpty()
                        where l2 != null
@@ -2657,9 +2658,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_nested_navigation_and_explicit_DefaultIfEmpty()
+        public virtual Task SelectMany_with_nested_navigation_and_explicit_DefaultIfEmpty()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     from l3 in l1.OneToOne_Required_FK.OneToMany_Optional.DefaultIfEmpty()
@@ -2677,9 +2678,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_nested_navigation_filter_and_explicit_DefaultIfEmpty()
+        public virtual Task SelectMany_with_nested_navigation_filter_and_explicit_DefaultIfEmpty()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s =>
                     from l1 in l1s
                     from l3 in l1.OneToOne_Optional_FK.OneToMany_Optional.Where(l => l.Id > 5).DefaultIfEmpty()
@@ -2697,9 +2698,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multiple_SelectMany_with_navigation_and_explicit_DefaultIfEmpty()
+        public virtual Task Multiple_SelectMany_with_navigation_and_explicit_DefaultIfEmpty()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        from l2 in l1.OneToMany_Optional
                        from l3 in l2.OneToMany_Optional.Where(l => l.Id > 5).DefaultIfEmpty()
@@ -2710,9 +2711,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty()
+        public virtual Task SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        from l2 in l1.OneToMany_Required.Where(l => l.Id > 5).OrderBy(l => l.Id).Take(3).DefaultIfEmpty()
                        where l2 != null
@@ -2722,9 +2723,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_join_subquery_containing_filter_and_distinct()
+        public virtual Task Select_join_subquery_containing_filter_and_distinct()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s.Where(l => l.Id > 2).Distinct() on l1.Id equals l2.Level1_Optional_Id
@@ -2742,9 +2743,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_join_with_key_selector_being_a_subquery()
+        public virtual Task Select_join_with_key_selector_being_a_subquery()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) => from l1 in l1s
                               join l2 in l2s on l1.Id equals l2s.Select(l => l.Id).OrderBy(l => l).FirstOrDefault()
                               select new
@@ -2757,9 +2758,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Contains_with_subquery_optional_navigation_and_constant_item()
+        public virtual Task Contains_with_subquery_optional_navigation_and_constant_item()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional.Distinct().Select(l3 => l3.Id).Contains(1)),
                 l1s => l1s.Where(
                     l1 => MaybeScalar<bool>(
@@ -2770,9 +2771,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Complex_query_with_optional_navigations_and_client_side_evaluation()
+        public virtual Task Complex_query_with_optional_navigations_and_client_side_evaluation()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l1 => l1.Id < 3 && !l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK.OneToOne_Optional_FK.Id).All(l4 => ClientMethod(l4))),
                 l1s => l1s.Where(
                     l1 => l1.Id < 3 && !l1.OneToMany_Optional.Select(
@@ -2786,18 +2787,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Required_navigation_on_a_subquery_with_First_in_projection()
+        public virtual Task Required_navigation_on_a_subquery_with_First_in_projection()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s
                     .Where(l2o => l2o.Id == 7)
                     .Select(l2o => l2s.OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse.Name));
         }
 
         [ConditionalFact]
-        public virtual void Required_navigation_on_a_subquery_with_complex_projection_and_First()
+        public virtual Task Required_navigation_on_a_subquery_with_complex_projection_and_First()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l2o in l2s
                     where l2o.Id == 7
@@ -2814,9 +2815,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Required_navigation_on_a_subquery_with_First_in_predicate()
+        public virtual Task Required_navigation_on_a_subquery_with_First_in_predicate()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s
                     .Where(l2o => l2o.Id == 7)
                     .Where(l1 => EF.Property<string>(l2s.OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse, "Name") == "L1 02"),
@@ -2826,9 +2827,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Manually_created_left_join_propagates_nullability_to_navigations()
+        public virtual Task Manually_created_left_join_propagates_nullability_to_navigations()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_manual in l1s
                     join l2_manual in l2s on l1_manual.Id equals l2_manual.Level1_Optional_Id into grouping
@@ -2844,9 +2845,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_propagates_nullability_to_manually_created_left_join1()
+        public virtual Task Optional_navigation_propagates_nullability_to_manually_created_left_join1()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l2_nav in l1s.Select(ll => ll.OneToOne_Optional_FK)
                     join l1 in l2s on l2_nav.Level1_Required_Id equals l1.Id into grouping
@@ -2869,9 +2870,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_propagates_nullability_to_manually_created_left_join2()
+        public virtual Task Optional_navigation_propagates_nullability_to_manually_created_left_join2()
         {
-            AssertQuery<Level3, Level1>(
+            return AssertQueryAsync<Level3, Level1>(
                 (l3s, l1s) =>
                     from l3 in l3s
                     join l2_nav in l1s.Select(ll => ll.OneToOne_Optional_FK) on l3.Level2_Required_Id equals l2_nav.Id into grouping
@@ -2894,9 +2895,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_reference_protection_complex()
+        public virtual Task Null_reference_protection_complex()
         {
-            AssertQuery<Level1, Level2, Level3>(
+            return AssertQueryAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     from l3 in l3s
                     join l2_outer in
@@ -2920,9 +2921,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_reference_protection_complex_materialization()
+        public virtual Task Null_reference_protection_complex_materialization()
         {
-            AssertQuery<Level1, Level2, Level3>(
+            return AssertQueryAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     from l3 in l3s
                     join l2_outer in
@@ -2965,9 +2966,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_reference_protection_complex_client_eval()
+        public virtual Task Null_reference_protection_complex_client_eval()
         {
-            AssertQuery<Level1, Level2, Level3>(
+            return AssertQueryAsync<Level1, Level2, Level3>(
                 (l1s, l2s, l3s) =>
                     from l3 in l3s
                     join l2_outer in
@@ -2991,9 +2992,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened()
+        public virtual Task GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -3019,9 +3020,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened2()
+        public virtual Task GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened2()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -3047,9 +3048,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened3()
+        public virtual Task GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened3()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -3077,9 +3078,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping1()
+        public virtual Task GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping1()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -3095,9 +3096,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping2()
+        public virtual Task GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping2()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -3113,9 +3114,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer()
+        public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from x in
                         (from l1 in l1s
@@ -3139,9 +3140,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method()
+        public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from x in
                         (from l1 in l1s
@@ -3170,9 +3171,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner()
+        public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from x in
                         (from l1 in l1s
@@ -3196,9 +3197,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_on_left_side_being_a_subquery()
+        public virtual Task GroupJoin_on_left_side_being_a_subquery()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.OrderBy(l1 => l1.OneToOne_Optional_FK.Name)
                     .ThenBy(l1 => l1.Id)
                     .Take(2)
@@ -3221,9 +3222,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_on_right_side_being_a_subquery()
+        public virtual Task GroupJoin_on_right_side_being_a_subquery()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l2 in l2s
                     join l1 in l1s.OrderBy(x => x.OneToOne_Optional_FK.Name).Take(2) on l2.Level1_Optional_Id equals l1.Id into grouping
@@ -3257,9 +3258,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_in_subquery_with_client_result_operator()
+        public virtual Task GroupJoin_in_subquery_with_client_result_operator()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     where (from l1_inner in l1s
@@ -3271,9 +3272,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_in_subquery_with_client_projection()
+        public virtual Task GroupJoin_in_subquery_with_client_projection()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     where (from l1_inner in l1s
@@ -3285,9 +3286,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_in_subquery_with_client_projection_nested1()
+        public virtual Task GroupJoin_in_subquery_with_client_projection_nested1()
         {
-            AssertQuery<Level1, Level2>
+            return AssertQueryAsync<Level1, Level2>
             (
                 (l1s, l2s) =>
                     from l1_outer in l1s
@@ -3304,9 +3305,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_in_subquery_with_client_projection_nested2()
+        public virtual Task GroupJoin_in_subquery_with_client_projection_nested2()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     where (from l1_middle in l1s
@@ -3327,9 +3328,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_reference_to_group_in_OrderBy()
+        public virtual Task GroupJoin_reference_to_group_in_OrderBy()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3340,9 +3341,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_client_method_on_outer()
+        public virtual Task GroupJoin_client_method_on_outer()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3357,9 +3358,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_client_method_in_OrderBy()
+        public virtual Task GroupJoin_client_method_in_OrderBy()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3375,9 +3376,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_without_DefaultIfEmpty()
+        public virtual Task GroupJoin_without_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3386,9 +3387,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_subquery_on_inner()
+        public virtual Task GroupJoin_with_subquery_on_inner()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3397,9 +3398,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty()
+        public virtual Task GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -3408,9 +3409,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_in_subquery_with_unrelated_projection()
+        public virtual Task Optional_navigation_in_subquery_with_unrelated_projection()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     l1s.Where(l1 => l1.OneToOne_Optional_FK.Name != "Foo")
                         .OrderBy(l1 => l1.Id)
@@ -3424,9 +3425,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection()
+        public virtual Task Explicit_GroupJoin_in_subquery_with_unrelated_projection()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
@@ -3439,9 +3440,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection2()
+        public virtual Task Explicit_GroupJoin_in_subquery_with_unrelated_projection2()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
@@ -3454,9 +3455,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection3()
+        public virtual Task Explicit_GroupJoin_in_subquery_with_unrelated_projection3()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
@@ -3469,9 +3470,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection4()
+        public virtual Task Explicit_GroupJoin_in_subquery_with_unrelated_projection4()
         {
-            AssertQueryScalar<Level1, Level2>(
+            return AssertQueryScalarAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
@@ -3484,9 +3485,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Explicit_GroupJoin_in_subquery_with_scalar_result_operator()
+        public virtual Task Explicit_GroupJoin_in_subquery_with_scalar_result_operator()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     where (from l1_inner in l1s
@@ -3499,9 +3500,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Explicit_GroupJoin_in_subquery_with_multiple_result_operator_distinct_count_materializes_main_clause()
+        public virtual Task Explicit_GroupJoin_in_subquery_with_multiple_result_operator_distinct_count_materializes_main_clause()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     where (from l1_inner in l1s
@@ -3514,9 +3515,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_on_multilevel_reference_in_subquery_with_outer_projection()
+        public virtual Task Where_on_multilevel_reference_in_subquery_with_outer_projection()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => l3s
                     .Where(l3 => l3.OneToMany_Required_Inverse.OneToOne_Required_FK_Inverse.Name == "L1 03")
                     .OrderBy(l3 => l3.Level2_Required_Id)
@@ -3526,9 +3527,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property()
+        public virtual Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s
@@ -3558,9 +3559,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties()
+        public virtual Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s
@@ -3594,10 +3595,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_filter_navigation_grouping_ordering_by_group_key()
+        public virtual Task Navigation_filter_navigation_grouping_ordering_by_group_key()
         {
             var level1Id = 1;
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s
                     .Where(l2 => l2.OneToMany_Required_Inverse.Id == level1Id)
                     .GroupBy(l2 => l2.OneToMany_Required_Self_Inverse.Name)
@@ -3618,9 +3619,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Nested_group_join_with_take()
+        public virtual Task Nested_group_join_with_take()
         {
-            AssertQuery<Level1, Level2>(
+            return AssertQueryAsync<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in
                         (from l1_inner in l1s
@@ -3644,18 +3645,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_with_same_navigation_compared_to_null()
+        public virtual Task Navigation_with_same_navigation_compared_to_null()
         {
-            AssertQueryScalar<Level2>(
+            return AssertQueryScalarAsync<Level2>(
                 l2s => from l2 in l2s
                        where l2.OneToMany_Required_Inverse.Name != "L1 07" && l2.OneToMany_Required_Inverse != null
                        select l2.Id);
         }
 
         [ConditionalFact]
-        public virtual void Multi_level_navigation_compared_to_null()
+        public virtual Task Multi_level_navigation_compared_to_null()
         {
-            AssertQueryScalar<Level3>(
+            return AssertQueryScalarAsync<Level3>(
                 l3s => from l3 in l3s
                        where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse != null
                        select l3.Id,
@@ -3665,9 +3666,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multi_level_navigation_with_same_navigation_compared_to_null()
+        public virtual Task Multi_level_navigation_with_same_navigation_compared_to_null()
         {
-            AssertQueryScalar<Level3>(
+            return AssertQueryScalarAsync<Level3>(
                 l3s => from l3 in l3s
                        where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse.Name != "L1 07"
                        where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse != null
@@ -3683,36 +3684,36 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigations_compared_to_each_other1()
+        public virtual Task Navigations_compared_to_each_other1()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => from l2 in l2s
                        where l2.OneToMany_Required_Inverse == l2.OneToMany_Required_Inverse
                        select l2.Name);
         }
 
         [ConditionalFact]
-        public virtual void Navigations_compared_to_each_other2()
+        public virtual Task Navigations_compared_to_each_other2()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => from l2 in l2s
                        where l2.OneToMany_Required_Inverse == l2.OneToOne_Optional_PK_Inverse
                        select l2.Name);
         }
 
         [ConditionalFact]
-        public virtual void Navigations_compared_to_each_other3()
+        public virtual Task Navigations_compared_to_each_other3()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => from l2 in l2s
                        where l2.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2).Any()
                        select l2.Name);
         }
 
         [ConditionalFact]
-        public virtual void Navigations_compared_to_each_other4()
+        public virtual Task Navigations_compared_to_each_other4()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => from l2 in l2s
                        where l2.OneToOne_Required_FK.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2.OneToOne_Required_FK).Any()
                        select l2.Name,
@@ -3726,9 +3727,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigations_compared_to_each_other5()
+        public virtual Task Navigations_compared_to_each_other5()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => from l2 in l2s
                        where l2.OneToOne_Required_FK.OneToMany_Optional.Select(i => i.OneToOne_Optional_PK_Inverse == l2.OneToOne_Optional_PK).Any()
                        select l2.Name,
@@ -3742,9 +3743,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Level4_Include()
+        public virtual Task Level4_Include()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s.Select(l1 => l1.OneToOne_Required_PK)
                     .Where(t => t != null)
                     .Select(l2 => l2.OneToOne_Required_PK)
@@ -3761,38 +3762,38 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Comparing_collection_navigation_on_optional_reference_to_null()
+        public virtual Task Comparing_collection_navigation_on_optional_reference_to_null()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s.Where(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional == null).Select(l1 => l1.Id),
                 l1s => l1s.Where(l1 => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.OneToMany_Optional) == null).Select(l1 => l1.Id));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_with_client_eval_and_navigation1()
+        public virtual Task Select_subquery_with_client_eval_and_navigation1()
         {
-            AssertQuery<Level2>(
+            return AssertQueryAsync<Level2>(
                 l2s => l2s.Select(l2 => l2s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse.Name));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_with_client_eval_and_navigation2()
+        public virtual Task Select_subquery_with_client_eval_and_navigation2()
         {
-            AssertQueryScalar<Level2>(
+            return AssertQueryScalarAsync<Level2>(
                 l2s => l2s.Select(l2 => l2s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse.Name == "L1 02"));
         }
 
         [ConditionalFact(Skip = "issue #8526")]
-        public virtual void Select_subquery_with_client_eval_and_multi_level_navigation()
+        public virtual Task Select_subquery_with_client_eval_and_multi_level_navigation()
         {
-            AssertQuery<Level3>(
+            return AssertQueryAsync<Level3>(
                 l3s => l3s.Select(l3 => l3s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.Name));
         }
 
         [ConditionalFact]
-        public virtual void Member_doesnt_get_pushed_down_into_subquery_with_result_operator()
+        public virtual Task Member_doesnt_get_pushed_down_into_subquery_with_result_operator()
         {
-            AssertQuery<Level1, Level3>(
+            return AssertQueryAsync<Level1, Level3>(
                 (l1s, l3s) =>
                     from l1 in l1s
                     where l1.Id < 3
@@ -3817,9 +3818,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_collection_navigation()
+        public virtual Task Project_collection_navigation()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        select l1.OneToMany_Optional,
                 elementSorter: e => e != null ? e.Count : 0,
@@ -3836,9 +3837,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_collection_navigation_nested()
+        public virtual Task Project_collection_navigation_nested()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        select l1.OneToOne_Optional_FK.OneToMany_Optional,
                 l1s => from l1 in l1s
@@ -3857,9 +3858,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_collection_navigation_using_ef_property()
+        public virtual Task Project_collection_navigation_using_ef_property()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        select EF.Property<ICollection<Level3>>(
                            EF.Property<Level2>(
@@ -3882,9 +3883,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_collection_navigation_nested_anonymous()
+        public virtual Task Project_collection_navigation_nested_anonymous()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        select new
                        {
@@ -3915,9 +3916,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_collection_navigation_count()
+        public virtual Task Project_collection_navigation_count()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        select new
                        {
@@ -3938,9 +3939,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_collection_navigation_composed()
+        public virtual Task Project_collection_navigation_composed()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        where l1.Id < 3
                        select new
@@ -3964,9 +3965,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_collection_and_root_entity()
+        public virtual Task Project_collection_and_root_entity()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        select new
                        {
@@ -3989,9 +3990,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_collection_and_include()
+        public virtual Task Project_collection_and_include()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s.Include(l => l.OneToMany_Optional)
                        select new
                        {
@@ -4014,9 +4015,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_navigation_and_collection()
+        public virtual Task Project_navigation_and_collection()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        select new
                        {
@@ -4062,18 +4063,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_optional_navigation_property_string_concat()
+        public virtual Task Select_optional_navigation_property_string_concat()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => from l1 in l1s
                        from l2 in l1.OneToMany_Optional.Where(l => l.Id > 5).OrderByDescending(l => l.Name).DefaultIfEmpty()
                        select l1.Name + " " + (l2 != null ? l2.Name : "NULL"));
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_multiple_orderbys_member()
+        public virtual Task Include_collection_with_multiple_orderbys_member()
         {
-            AssertIncludeQuery<Level2>(
+            return AssertIncludeQueryAsync<Level2>(
                 l2s => l2s
                     .Include(l2 => l2.OneToMany_Optional)
                     .OrderBy(l2 => l2.Name)
@@ -4085,9 +4086,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_multiple_orderbys_property()
+        public virtual Task Include_collection_with_multiple_orderbys_property()
         {
-            AssertIncludeQuery<Level2>(
+            return AssertIncludeQueryAsync<Level2>(
                 l2s => l2s
                     .Include(l2 => l2.OneToMany_Optional)
                     .OrderBy(l2 => EF.Property<int>(l2, "Level1_Required_Id"))
@@ -4102,9 +4103,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_multiple_orderbys_methodcall()
+        public virtual Task Include_collection_with_multiple_orderbys_methodcall()
         {
-            AssertIncludeQuery<Level2>(
+            return AssertIncludeQueryAsync<Level2>(
                 l2s => l2s
                     .Include(l2 => l2.OneToMany_Optional)
                     .OrderBy(l2 => Math.Abs(l2.Level1_Required_Id))
@@ -4116,9 +4117,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_multiple_orderbys_complex()
+        public virtual Task Include_collection_with_multiple_orderbys_complex()
         {
-            AssertIncludeQuery<Level2>(
+            return AssertIncludeQueryAsync<Level2>(
                 l2s => l2s
                     .Include(l2 => l2.OneToMany_Optional)
                     .OrderBy(l2 => Math.Abs(l2.Level1_Required_Id) + 7)
@@ -4130,9 +4131,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_multiple_orderbys_complex_repeated()
+        public virtual Task Include_collection_with_multiple_orderbys_complex_repeated()
         {
-            AssertIncludeQuery<Level2>(
+            return AssertIncludeQueryAsync<Level2>(
                 l2s => l2s
                     .Include(l2 => l2.OneToMany_Optional)
                     .OrderBy(l2 => -l2.Level1_Required_Id)
@@ -4162,9 +4163,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_with_groupby_in_subquery()
+        public virtual Task Include_reference_with_groupby_in_subquery()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(l1 => l1.OneToOne_Optional_FK)
                     .GroupBy(g => g.Name)
@@ -4176,9 +4177,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_groupby_in_subquery()
+        public virtual Task Include_collection_with_groupby_in_subquery()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(l1 => l1.OneToMany_Optional)
                     .GroupBy(g => g.Name)
@@ -4190,7 +4191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Multi_include_with_groupby_in_subquery()
+        public virtual Task Multi_include_with_groupby_in_subquery()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4198,7 +4199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional", "OneToOne_Optional_FK")
             };
 
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional)
                     .GroupBy(g => g.Name)
@@ -4207,9 +4208,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_groupby_in_subquery_and_filter_before_groupby()
+        public virtual Task Include_collection_with_groupby_in_subquery_and_filter_before_groupby()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(l1 => l1.OneToMany_Optional)
                     .Where(l1 => l1.Id > 3)
@@ -4222,9 +4223,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_groupby_in_subquery_and_filter_after_groupby()
+        public virtual Task Include_collection_with_groupby_in_subquery_and_filter_after_groupby()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(l1 => l1.OneToMany_Optional)
                     .GroupBy(g => g.Name)
@@ -4236,7 +4237,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        public virtual void String_include_multiple_derived_navigation_with_same_name_and_same_type()
+        public virtual Task String_include_multiple_derived_navigation_with_same_name_and_same_type()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4244,13 +4245,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceSameType, "ReferenceSameType")
             };
 
-            AssertIncludeQuery<InheritanceBase1>(
+            return AssertIncludeQueryAsync<InheritanceBase1>(
                 i1s => i1s.Include("ReferenceSameType"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void String_include_multiple_derived_navigation_with_same_name_and_different_type()
+        public virtual Task String_include_multiple_derived_navigation_with_same_name_and_different_type()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4258,13 +4259,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceDifferentType, "ReferenceDifferentType")
             };
 
-            AssertIncludeQuery<InheritanceBase1>(
+            return AssertIncludeQueryAsync<InheritanceBase1>(
                 i1s => i1s.Include("ReferenceDifferentType"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void String_include_multiple_derived_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()
+        public virtual Task String_include_multiple_derived_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4273,13 +4274,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<InheritanceLeaf2>(e => e.BaseCollection, "BaseCollection", "ReferenceDifferentType")
             };
 
-            AssertIncludeQuery<InheritanceBase1>(
+            return AssertIncludeQueryAsync<InheritanceBase1>(
                 i1s => i1s.Include("ReferenceDifferentType.BaseCollection"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void String_include_multiple_derived_collection_navigation_with_same_name_and_same_type()
+        public virtual Task String_include_multiple_derived_collection_navigation_with_same_name_and_same_type()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4287,13 +4288,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<InheritanceDerived2>(e => e.CollectionSameType, "CollectionSameType")
             };
 
-            AssertIncludeQuery<InheritanceBase1>(
+            return AssertIncludeQueryAsync<InheritanceBase1>(
                 i1s => i1s.Include("CollectionSameType"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void String_include_multiple_derived_collection_navigation_with_same_name_and_different_type()
+        public virtual Task String_include_multiple_derived_collection_navigation_with_same_name_and_different_type()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4301,13 +4302,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType, "CollectionDifferentType")
             };
 
-            AssertIncludeQuery<InheritanceBase1>(
+            return AssertIncludeQueryAsync<InheritanceBase1>(
                 i1s => i1s.Include("CollectionDifferentType"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void String_include_multiple_derived_collection_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()
+        public virtual Task String_include_multiple_derived_collection_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4316,13 +4317,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<InheritanceLeaf2>(e => e.BaseCollection, "BaseCollection", "CollectionDifferentType")
             };
 
-            AssertIncludeQuery<InheritanceBase1>(
+            return AssertIncludeQueryAsync<InheritanceBase1>(
                 i1s => i1s.Include("CollectionDifferentType.BaseCollection"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void String_include_multiple_derived_navigations_complex()
+        public virtual Task String_include_multiple_derived_navigations_complex()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4335,15 +4336,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceSameType, "ReferenceSameType", "Collection")
             };
 
-            AssertIncludeQuery<InheritanceBase2>(
+            return AssertIncludeQueryAsync<InheritanceBase2>(
                 i2s => i2s.Include("Reference.CollectionDifferentType").Include("Collection.ReferenceSameType"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_collection_order_by_reference_navigation()
+        public virtual Task Include_reference_collection_order_by_reference_navigation()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s
                     .Include(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional)
                     .OrderBy(l1 => (int?)l1.OneToOne_Optional_FK.Id),
@@ -4358,25 +4359,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Nav_rewrite_doesnt_apply_null_protection_for_function_arguments()
+        public virtual Task Nav_rewrite_doesnt_apply_null_protection_for_function_arguments()
         {
-            AssertQueryScalar<Level1>(
+            return AssertQueryScalarAsync<Level1>(
                 l1s => l1s.Where(l1 => l1.OneToOne_Optional_PK != null).Select(l1 => Math.Max(l1.OneToOne_Optional_PK.Level1_Required_Id, 7)));
         }
 
         [ConditionalFact(Skip = "See issue#11464")]
-        public virtual void Accessing_optional_property_inside_result_operator_subquery()
+        public virtual Task Accessing_optional_property_inside_result_operator_subquery()
         {
             var names = new[] { "Name1", "Name2" };
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.Where(l1 => names.All(n => l1.OneToOne_Optional_FK.Name != n)),
                 l1s => l1s.Where(l1 => names.All(n => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Name) != n)));
         }
 
         [ConditionalFact]
-        public virtual void Include_after_SelectMany_and_reference_navigation()
+        public virtual Task Include_after_SelectMany_and_reference_navigation()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK).Include(l3 => l3.OneToMany_Optional),
                 new List<IExpectedInclude>
                 {
@@ -4385,9 +4386,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_after_multiple_SelectMany_and_reference_navigation()
+        public virtual Task Include_after_multiple_SelectMany_and_reference_navigation()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).SelectMany(l2 => l2.OneToMany_Optional).Select(l3 => l3.OneToOne_Required_FK).Include(l4 => l4.OneToMany_Required_Self),
                 new List<IExpectedInclude>
                 {
@@ -4396,9 +4397,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_after_SelectMany_and_multiple_reference_navigations()
+        public virtual Task Include_after_SelectMany_and_multiple_reference_navigations()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK).Select(l3 => l3.OneToOne_Required_FK).Include(l4 => l4.OneToMany_Optional_Self),
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK).Select(l3 => Maybe(l3, () => l3.OneToOne_Required_FK)),
                 new List<IExpectedInclude>
@@ -4408,9 +4409,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_after_SelectMany_and_reference_navigation_with_another_SelectMany_with_Distinct()
+        public virtual Task Include_after_SelectMany_and_reference_navigation_with_another_SelectMany_with_Distinct()
         {
-            AssertIncludeQuery<Level1>(
+            return AssertIncludeQueryAsync<Level1>(
                 l1s => from lOuter in l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK).Include(l3 => l3.OneToMany_Optional)
                        from lInner in lOuter.OneToMany_Optional.Distinct()
                        where lInner != null
@@ -4427,9 +4428,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void SelectMany_subquery_with_custom_projection()
+        public virtual Task SelectMany_subquery_with_custom_projection()
         {
-            AssertQuery<Level1>(
+            return AssertQueryAsync<Level1>(
                 l1s => l1s.OrderBy(l1 => l1.Id).SelectMany(
                     l1 => l1.OneToMany_Optional.Select(
                         l2 => new

@@ -62,15 +62,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async Task EnsureDeleted_clears_all_in_memory_data_and_returns_true()
+        public Task EnsureDeleted_clears_all_in_memory_data_and_returns_true()
         {
-            await Delete_clears_all_in_memory_data_test(async: false);
+            return Delete_clears_all_in_memory_data_test(async: false);
         }
 
         [Fact]
-        public async Task EnsureDeletedAsync_clears_all_in_memory_data_and_returns_true()
+        public Task EnsureDeletedAsync_clears_all_in_memory_data_and_returns_true()
         {
-            await Delete_clears_all_in_memory_data_test(async: true);
+            return Delete_clears_all_in_memory_data_test(async: true);
         }
 
         private static async Task Delete_clears_all_in_memory_data_test(bool async)

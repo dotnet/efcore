@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public async Task Query_compiler_concurrency()
+        public Task Query_compiler_concurrency()
         {
             const int threadCount = 50;
 
@@ -59,11 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
             }
 
-            await Task.WhenAll(tasks);
+            return Task.WhenAll(tasks);
         }
 
         [ConditionalFact]
-        public async Task Race_when_context_disposed_before_query_termination()
+        public Task Race_when_context_disposed_before_query_termination()
         {
             DbSet<Customer> task;
 
@@ -72,31 +72,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 task = context.Customers;
             }
 
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
+            return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
         }
 
-        public override async Task String_Contains_Literal()
+        public override Task String_Contains_Literal()
         {
-            await AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
         }
 
-        public override async Task String_Contains_MethodCall()
+        public override Task String_Contains_MethodCall()
         {
-            await AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
                 entryCount: 34);
         }
 
         [Fact]
-        public async Task Single_Predicate_Cancellation()
+        public Task Single_Predicate_Cancellation()
         {
-            await Assert.ThrowsAsync<TaskCanceledException>(
-                async () =>
-                    await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+            return Assert.ThrowsAsync<TaskCanceledException>(
+                () => Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 
         [Fact]
@@ -203,9 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
+        public Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
         {
-            await AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => os.Select(
                     o => new
                     {

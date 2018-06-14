@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Abstractions;
 
@@ -15,15 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "issue #4311")]
-        public override void Nested_group_join_with_take()
+        public override Task Nested_group_join_with_take()
         {
-            base.Nested_group_join_with_take();
+            return base.Nested_group_join_with_take();
         }
 
         [ConditionalFact(Skip = "issue #9591")]
-        public override void Multi_include_with_groupby_in_subquery()
+        public override Task Multi_include_with_groupby_in_subquery()
         {
-            base.Multi_include_with_groupby_in_subquery();
+            return base.Multi_include_with_groupby_in_subquery();
         }
     }
 }

@@ -1960,15 +1960,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
+        public virtual Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         {
-            await GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
+        public virtual Task GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
         {
-            await GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+            return GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
         }
 
         private async Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(

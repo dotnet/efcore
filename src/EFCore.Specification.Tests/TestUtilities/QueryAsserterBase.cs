@@ -43,14 +43,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertSingleResult - async
 
-        public abstract Task AssertSingleResult<TItem1, TResult>(
+        public abstract Task AssertSingleResultAsync<TItem1, TResult>(
             Func<IQueryable<TItem1>, Task<TResult>> actualQuery,
             Func<IQueryable<TItem1>, Task<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class;
 
-        public abstract Task AssertSingleResult<TItem1, TItem2, TResult>(
+        public abstract Task AssertSingleResultAsync<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<TResult>> expectedQuery,
             Action<object, object> asserter = null,
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem1 : class
             where TItem2 : class;
 
-        public abstract Task AssertSingleResult<TItem1, TItem2, TItem3, TResult>(
+        public abstract Task AssertSingleResultAsync<TItem1, TItem2, TItem3, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<TResult>> expectedQuery,
             Action<object, object> asserter = null,
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertQuery
 
-        public abstract Task AssertQuery<TItem1>(
+        public abstract Task AssertQueryAsync<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             Func<dynamic, object> elementSorter = null,
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool isAsync = false)
             where TItem1 : class;
 
-        public abstract Task AssertQuery<TItem1, TItem2>(
+        public abstract Task AssertQueryAsync<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             Func<dynamic, object> elementSorter = null,
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem1 : class
             where TItem2 : class;
 
-        public abstract Task AssertQuery<TItem1, TItem2, TItem3>(
+        public abstract Task AssertQueryAsync<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
             Func<dynamic, object> elementSorter = null,
@@ -108,14 +108,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertQueryScalar
 
-        public abstract Task AssertQueryScalar<TItem1, TResult>(
+        public abstract Task AssertQueryScalarAsync<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
             bool assertOrder = false,
             bool isAsync = false)
             where TItem1 : class;
 
-        public abstract Task AssertQueryScalar<TItem1, TItem2, TResult>(
+        public abstract Task AssertQueryScalarAsync<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> expectedQuery,
             bool assertOrder = false,
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem1 : class
             where TItem2 : class;
 
-        public abstract Task AssertQueryScalar<TItem1, TItem2, TItem3, TResult>(
+        public abstract Task AssertQueryScalarAsync<TItem1, TItem2, TItem3, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> expectedQuery,
             bool assertOrder = false,
@@ -136,17 +136,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertQueryScalar - nullable
 
-        public abstract void AssertQueryScalar<TItem1, TResult>(
+        public abstract Task AssertQueryScalarAsync<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            bool isAsync = false)
             where TItem1 : class
             where TResult : struct;
 
-        public abstract void AssertQueryScalar<TItem1, TItem2, TResult>(
+        public abstract Task AssertQueryScalarAsync<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            bool isAsync = false)
             where TItem1 : class
             where TItem2 : class
             where TResult : struct;
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertIncludeQuery
 
-        public abstract Task<List<object>> AssertIncludeQuery<TItem1>(
+        public abstract Task<List<object>> AssertIncludeQueryAsync<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
@@ -166,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool isAsync = false)
             where TItem1 : class;
 
-        public abstract Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
+        public abstract Task<List<object>> AssertIncludeQueryAsync<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,

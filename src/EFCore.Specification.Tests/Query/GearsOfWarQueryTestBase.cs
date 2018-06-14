@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -34,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Remember to add any new tests to Async version of this test class
 
         [ConditionalFact]
-        public virtual void Entity_equality_empty()
+        public virtual Task Entity_equality_empty()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g == new Gear()));
         }
 
         [ConditionalFact]
-        public virtual void Include_multiple_one_to_one_and_one_to_many()
+        public virtual Task Include_multiple_one_to_one_and_one_to_many()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -50,15 +52,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.Weapons, "Weapons", "Gear")
             };
 
-            AssertIncludeQuery<CogTag>(
+            return AssertIncludeQueryAsync<CogTag>(
                 ts => ts.Include(t => t.Gear.Weapons),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void ToString_guid_property_projection()
+        public virtual Task ToString_guid_property_projection()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Select(
                     ct => new
                     {
@@ -74,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_multiple_one_to_one_and_one_to_many_self_reference()
+        public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -83,13 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.Weapons, "Weapons", "Owner")
             };
 
-            AssertIncludeQuery<Weapon>(
+            return AssertIncludeQueryAsync<Weapon>(
                 ws => ws.Include(w => w.Owner.Weapons),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_multiple_one_to_one_optional_and_one_to_one_required()
+        public virtual Task Include_multiple_one_to_one_optional_and_one_to_one_required()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -98,13 +100,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.Squad, "Squad", "Gear")
             };
 
-            AssertIncludeQuery<CogTag>(
+            return AssertIncludeQueryAsync<CogTag>(
                 ts => ts.Include(t => t.Gear.Squad),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_multiple_one_to_one_and_one_to_one_and_one_to_many()
+        public virtual Task Include_multiple_one_to_one_and_one_to_one_and_one_to_many()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -114,13 +116,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Squad>(s => s.Members, "Members", "Gear.Squad")
             };
 
-            AssertIncludeQuery<CogTag>(
+            return AssertIncludeQueryAsync<CogTag>(
                 ts => ts.Include(t => t.Gear.Squad.Members),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_multiple_circular()
+        public virtual Task Include_multiple_circular()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -129,13 +131,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => g.CityOfBirth.StationedGears),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_multiple_circular_with_filter()
+        public virtual Task Include_multiple_circular_with_filter()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -144,13 +146,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => g.CityOfBirth.StationedGears).Where(g => g.Nickname == "Marcus"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_using_alternate_key()
+        public virtual Task Include_using_alternate_key()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -158,13 +160,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => g.Weapons).Where(g => g.Nickname == "Marcus"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_multiple_include_then_include()
+        public virtual Task Include_multiple_include_then_include()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -186,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.Tag, "Tag", "CityOfBirth.StationedGears")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => g.AssignedCity.BornGears).ThenInclude(g => g.Tag)
                     .Include(g => g.AssignedCity.StationedGears).ThenInclude(g => g.Tag)
                     .Include(g => g.CityOfBirth.BornGears).ThenInclude(g => g.Tag)
@@ -197,40 +199,40 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_navigation_on_derived_type()
+        public virtual Task Include_navigation_on_derived_type()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<Officer>(o => o.Reports, "Reports")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.OfType<Officer>().Include(o => o.Reports),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void String_based_Include_navigation_on_derived_type()
+        public virtual Task String_based_Include_navigation_on_derived_type()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<Officer>(o => o.Reports, "Reports")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.OfType<Officer>().Include("Reports"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Included()
+        public virtual Task Select_Where_Navigation_Included()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<CogTag>(t => t.Gear, "Gear")
             };
 
-            AssertIncludeQuery<CogTag>(
+            return AssertIncludeQueryAsync<CogTag>(
                 ts => from t in ts.Include(o => o.Gear)
                       where t.Gear.Nickname == "Marcus"
                       select t,
@@ -241,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_join_reference1()
+        public virtual Task Include_with_join_reference1()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -249,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
             };
 
-            AssertIncludeQuery<Gear, CogTag>(
+            return AssertIncludeQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     gs.Join(
                         ts,
@@ -268,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_join_reference2()
+        public virtual Task Include_with_join_reference2()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -276,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
             };
 
-            AssertIncludeQuery<CogTag, Gear>(
+            return AssertIncludeQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     ts.Join(
                         gs,
@@ -295,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_join_collection1()
+        public virtual Task Include_with_join_collection1()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -303,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear, CogTag>(
+            return AssertIncludeQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     gs.Join(
                         ts,
@@ -322,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_join_collection2()
+        public virtual Task Include_with_join_collection2()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -330,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<CogTag, Gear>(
+            return AssertIncludeQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     ts.Join(
                         gs,
@@ -408,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_join_multi_level()
+        public virtual Task Include_with_join_multi_level()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -417,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth")
             };
 
-            AssertIncludeQuery<Gear, CogTag>(
+            return AssertIncludeQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     gs.Join(
                         ts,
@@ -436,14 +438,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_join_and_inheritance1()
+        public virtual Task Include_with_join_and_inheritance1()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
             };
 
-            AssertIncludeQuery<Gear, CogTag>(
+            return AssertIncludeQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     ts.Join(
                         gs.OfType<Officer>(),
@@ -462,14 +464,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_join_and_inheritance2()
+        public virtual Task Include_with_join_and_inheritance2()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear, CogTag>(
+            return AssertIncludeQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     gs.OfType<Officer>().Join(
                         ts,
@@ -488,14 +490,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_join_and_inheritance3()
+        public virtual Task Include_with_join_and_inheritance3()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<Officer>(o => o.Reports, "Reports")
             };
 
-            AssertIncludeQuery<Gear, CogTag>(
+            return AssertIncludeQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     ts.Join(
                         gs.OfType<Officer>(),
@@ -514,14 +516,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_nested_navigation_in_order_by()
+        public virtual Task Include_with_nested_navigation_in_order_by()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<Weapon>(w => w.Owner, "Owner")
             };
 
-            AssertIncludeQuery<Weapon>(
+            return AssertIncludeQueryAsync<Weapon>(
                 ws => ws
                     .Include(w => w.Owner)
                     .Where(w => w.Owner.Nickname != "Paduk")
@@ -536,118 +538,118 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_enum()
+        public virtual Task Where_enum()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank == MilitaryRank.Sergeant));
         }
 
         [ConditionalFact]
-        public virtual void Where_nullable_enum_with_constant()
+        public virtual Task Where_nullable_enum_with_constant()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => w.AmmunitionType == AmmunitionType.Cartridge));
         }
 
         [ConditionalFact]
-        public virtual void Where_nullable_enum_with_null_constant()
+        public virtual Task Where_nullable_enum_with_null_constant()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => w.AmmunitionType == null));
         }
 
         [ConditionalFact]
-        public virtual void Where_nullable_enum_with_non_nullable_parameter()
+        public virtual Task Where_nullable_enum_with_non_nullable_parameter()
         {
             var ammunitionType = AmmunitionType.Cartridge;
 
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => w.AmmunitionType == ammunitionType));
         }
 
         [ConditionalFact]
-        public virtual void Where_nullable_enum_with_nullable_parameter()
+        public virtual async Task Where_nullable_enum_with_nullable_parameter()
         {
             AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
 
-            AssertQuery<Weapon>(
+            await AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => w.AmmunitionType == ammunitionType));
 
             ammunitionType = null;
 
-            AssertQuery<Weapon>(
+            await AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => w.AmmunitionType == ammunitionType));
         }
 
         [ConditionalFact]
-        public virtual void Where_bitwise_and_enum()
+        public virtual async Task Where_bitwise_and_enum()
         {
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (g.Rank & MilitaryRank.Corporal) > 0));
 
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (g.Rank & MilitaryRank.Corporal) == MilitaryRank.Corporal));
         }
 
         [ConditionalFact]
-        public virtual void Where_bitwise_and_integral()
+        public virtual async Task Where_bitwise_and_integral()
         {
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => ((int)g.Rank & 1) == 1));
 
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => ((long)g.Rank & 1L) == 1L));
 
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => ((short)g.Rank & (short)1) == 1));
 
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => ((char)g.Rank & '\x0001') == '\x0001'));
         }
 
         [ConditionalFact]
-        public virtual void Where_bitwise_and_nullable_enum_with_constant()
+        public virtual Task Where_bitwise_and_nullable_enum_with_constant()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => (w.AmmunitionType & AmmunitionType.Cartridge) > 0));
         }
 
         [ConditionalFact]
-        public virtual void Where_bitwise_and_nullable_enum_with_null_constant()
+        public virtual Task Where_bitwise_and_nullable_enum_with_null_constant()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
 #pragma warning disable CS0458 // The result of the expression is always 'null'
                 ws => ws.Where(w => (w.AmmunitionType & null) > 0));
 #pragma warning restore CS0458 // The result of the expression is always 'null'
         }
 
         [ConditionalFact]
-        public virtual void Where_bitwise_and_nullable_enum_with_non_nullable_parameter()
+        public virtual Task Where_bitwise_and_nullable_enum_with_non_nullable_parameter()
         {
             var ammunitionType = AmmunitionType.Cartridge;
 
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => (w.AmmunitionType & ammunitionType) > 0));
         }
 
         [ConditionalFact]
-        public virtual void Where_bitwise_and_nullable_enum_with_nullable_parameter()
+        public virtual async Task Where_bitwise_and_nullable_enum_with_nullable_parameter()
         {
             AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
 
-            AssertQuery<Weapon>(
+            await AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => (w.AmmunitionType & ammunitionType) > 0));
 
             ammunitionType = null;
 
-            AssertQuery<Weapon>(
+            await AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => (w.AmmunitionType & ammunitionType) > 0));
         }
 
         [ConditionalFact]
-        public virtual void Where_bitwise_or_enum()
+        public virtual Task Where_bitwise_or_enum()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (g.Rank | MilitaryRank.Corporal) > 0));
         }
 
@@ -667,71 +669,71 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_enum_has_flag()
+        public virtual async Task Where_enum_has_flag()
         {
             // Constant
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag(MilitaryRank.Corporal)));
 
             // Expression
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag(MilitaryRank.Corporal | MilitaryRank.Captain)));
 
             // Casting
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag((MilitaryRank)1)));
 
             // Casting to nullable
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag((MilitaryRank?)1)));
 
             // QuerySource
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => MilitaryRank.Corporal.HasFlag(g.Rank)));
         }
 
         [ConditionalFact]
-        public virtual void Where_enum_has_flag_subquery()
+        public virtual async Task Where_enum_has_flag_subquery()
         {
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag(gs.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).Select(x => x.Rank).FirstOrDefault())));
 
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => MilitaryRank.Corporal.HasFlag(gs.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).Select(x => x.Rank).FirstOrDefault())));
         }
 
         [ConditionalFact]
-        public virtual void Where_enum_has_flag_subquery_with_pushdown()
+        public virtual async Task Where_enum_has_flag_subquery_with_pushdown()
         {
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag(gs.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).FirstOrDefault().Rank)));
 
-            AssertQuery<Gear>(
+            await AssertQueryAsync<Gear>(
                 gs => gs.Where(g => MilitaryRank.Corporal.HasFlag(gs.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).FirstOrDefault().Rank)));
         }
 
         [ConditionalFact]
-        public virtual void Where_enum_has_flag_subquery_client_eval()
+        public virtual Task Where_enum_has_flag_subquery_client_eval()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag(gs.OrderBy(x => x.Nickname).ThenBy(x => x.SquadId).First().Rank)));
         }
 
         [ConditionalFact]
-        public virtual void Where_enum_has_flag_with_non_nullable_parameter()
+        public virtual Task Where_enum_has_flag_with_non_nullable_parameter()
         {
             var parameter = MilitaryRank.Corporal;
 
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag(parameter)));
         }
 
         [ConditionalFact]
-        public virtual void Where_has_flag_with_nullable_parameter()
+        public virtual Task Where_has_flag_with_nullable_parameter()
         {
             MilitaryRank? parameter = MilitaryRank.Corporal;
 
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Rank.HasFlag(parameter)));
         }
 
@@ -749,23 +751,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_count_subquery_without_collision()
+        public virtual Task Where_count_subquery_without_collision()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(w => w.Weapons.Count == 2));
         }
 
         [ConditionalFact]
-        public virtual void Where_any_subquery_without_collision()
+        public virtual Task Where_any_subquery_without_collision()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(w => w.Weapons.Any()));
         }
 
         [ConditionalFact]
-        public virtual void Select_inverted_boolean()
+        public virtual Task Select_inverted_boolean()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws
                     .Where(w => w.IsAutomatic)
                     .Select(
@@ -778,11 +780,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_comparison_with_null()
+        public virtual async Task Select_comparison_with_null()
         {
             AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
 
-            AssertQuery<Weapon>(
+            await AssertQueryAsync<Weapon>(
                 ws => ws
                     .Where(w => w.AmmunitionType == ammunitionType)
                     .Select(
@@ -795,7 +797,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ammunitionType = null;
 
-            AssertQuery<Weapon>(
+            await AssertQueryAsync<Weapon>(
                 ws => ws
                     .Where(w => w.AmmunitionType == ammunitionType)
                     .Select(
@@ -808,9 +810,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_ternary_operation_with_boolean()
+        public virtual Task Select_ternary_operation_with_boolean()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(
                     w => new
                     {
@@ -821,9 +823,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_ternary_operation_with_inverted_boolean()
+        public virtual Task Select_ternary_operation_with_inverted_boolean()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(
                     w => new
                     {
@@ -834,9 +836,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_ternary_operation_with_has_value_not_null()
+        public virtual Task Select_ternary_operation_with_has_value_not_null()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws
                     .Where(w => w.AmmunitionType.HasValue && w.AmmunitionType == AmmunitionType.Cartridge)
                     .Select(
@@ -849,9 +851,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_ternary_operation_multiple_conditions()
+        public virtual Task Select_ternary_operation_multiple_conditions()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(
                     w => new
                     {
@@ -862,9 +864,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_ternary_operation_multiple_conditions_2()
+        public virtual Task Select_ternary_operation_multiple_conditions_2()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(
                     w => new
                     {
@@ -875,9 +877,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_multiple_conditions()
+        public virtual Task Select_multiple_conditions()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(
                     w => new
                     {
@@ -888,9 +890,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_nested_ternary_operations()
+        public virtual Task Select_nested_ternary_operations()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(
                     w => new
                     {
@@ -901,91 +903,91 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_propagation_optimization1()
+        public virtual Task Null_propagation_optimization1()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (g == null ? null : g.LeaderNickname) == "Marcus" == (bool?)true));
         }
 
         [ConditionalFact]
-        public virtual void Null_propagation_optimization2()
+        public virtual Task Null_propagation_optimization2()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (g.LeaderNickname == null ? (bool?)null : (bool?)g.LeaderNickname.EndsWith("us")) == (bool?)true));
         }
 
         [ConditionalFact]
-        public virtual void Null_propagation_optimization3()
+        public virtual Task Null_propagation_optimization3()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (g.LeaderNickname != null ? (bool?)g.LeaderNickname.EndsWith("us") : (bool?)null) == (bool?)true));
         }
 
         [ConditionalFact]
-        public virtual void Null_propagation_optimization4()
+        public virtual Task Null_propagation_optimization4()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (null == EF.Property<string>(g, "LeaderNickname") ? (int?)null : g.LeaderNickname.Length) == 5 == (bool?)true),
                 gs => gs.Where(g => (null == g.LeaderNickname ? (int?)null : g.LeaderNickname.Length) == 5 == (bool?)true));
         }
 
         [ConditionalFact]
-        public virtual void Null_propagation_optimization5()
+        public virtual Task Null_propagation_optimization5()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (null != g.LeaderNickname ? (int?)(EF.Property<string>(g, "LeaderNickname").Length) : (int?)null) == 5 == (bool?)true),
                 gs => gs.Where(g => (null != g.LeaderNickname ? (int?)(g.LeaderNickname.Length) : (int?)null) == 5 == (bool?)true));
         }
 
         [ConditionalFact]
-        public virtual void Null_propagation_optimization6()
+        public virtual Task Null_propagation_optimization6()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => (null != g.LeaderNickname ? (int?)EF.Property<string>(g, "LeaderNickname").Length : (int?)null) == 5 == (bool?)true),
                 gs => gs.Where(g => (null != g.LeaderNickname ? (int?)g.LeaderNickname.Length : (int?)null) == 5 == (bool?)true));
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_optimization7()
+        public virtual Task Select_null_propagation_optimization7()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Select(g => null != g.LeaderNickname ? g.LeaderNickname + g.LeaderNickname : null));
         }
 
         [ConditionalFact(Skip = "issue #9201")]
-        public virtual void Select_null_propagation_optimization8()
+        public virtual Task Select_null_propagation_optimization8()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Select(g => g != null ? g.LeaderNickname + g.LeaderNickname : null));
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_optimization9()
+        public virtual Task Select_null_propagation_optimization9()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => g != null ? (int?)g.FullName.Length : (int?)null));
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_negative1()
+        public virtual Task Select_null_propagation_negative1()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => g.LeaderNickname != null ? (bool?)(g.Nickname.Length == 5) : (bool?)null));
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_negative2()
+        public virtual Task Select_null_propagation_negative2()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g1 in gs
                       from g2 in gs
                       select g1.LeaderNickname != null ? g2.LeaderNickname : (string)null);
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_negative3()
+        public virtual Task Select_null_propagation_negative3()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g1 in gs
                       join g2 in gs on g1.HasSoulPatch equals true into grouping
                       from g2 in grouping.DefaultIfEmpty()
@@ -1008,9 +1010,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_negative4()
+        public virtual Task Select_null_propagation_negative4()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g1 in gs
                       join g2 in gs on g1.HasSoulPatch equals true into grouping
                       from g2 in grouping.DefaultIfEmpty()
@@ -1025,9 +1027,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_negative5()
+        public virtual Task Select_null_propagation_negative5()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g1 in gs
                       join g2 in gs on g1.HasSoulPatch equals true into grouping
                       from g2 in grouping.DefaultIfEmpty()
@@ -1054,32 +1056,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_negative6()
+        public virtual Task Select_null_propagation_negative6()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => null != g.LeaderNickname ? EF.Property<string>(g, "LeaderNickname").Length != EF.Property<string>(g, "LeaderNickname").Length : (bool?)null),
                 gs => gs.Select(g => null != g.LeaderNickname ? g.LeaderNickname.Length != g.LeaderNickname.Length : (bool?)null));
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_negative7()
+        public virtual Task Select_null_propagation_negative7()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => null != g.LeaderNickname ? g.LeaderNickname == g.LeaderNickname : (bool?)null));
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_negative8()
+        public virtual Task Select_null_propagation_negative8()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Select(t => t.Gear.Squad != null ? t.Gear.AssignedCity.Name : null),
                 ts => ts.Select(t => Maybe(t.Gear, () => t.Gear.Squad) != null ? Maybe(t.Gear, () => Maybe(t.Gear.AssignedCity, () => t.Gear.AssignedCity.Name)) : null));
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_works_for_navigations_with_composite_keys()
+        public virtual Task Select_null_propagation_works_for_navigations_with_composite_keys()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t in ts
 #pragma warning disable IDE0031 // Use null propagation
                       select t.Gear != null ? t.Gear.Nickname : null,
@@ -1089,9 +1091,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_null_propagation_works_for_multiple_navigations_with_composite_keys()
+        public virtual Task Select_null_propagation_works_for_multiple_navigations_with_composite_keys()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t in ts
                       select EF.Property<City>(EF.Property<CogTag>(t.Gear, "Tag").Gear, "AssignedCity") != null
                           ? EF.Property<string>(EF.Property<Gear>(t.Gear.Tag, "Gear").AssignedCity, "Name")
@@ -1103,9 +1105,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_conditional_with_anonymous_type_and_null_constant()
+        public virtual Task Select_conditional_with_anonymous_type_and_null_constant()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       orderby g.Nickname
                       select g.LeaderNickname != null
@@ -1118,9 +1120,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_conditional_with_anonymous_types()
+        public virtual Task Select_conditional_with_anonymous_types()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       orderby g.Nickname
                       select g.LeaderNickname != null
@@ -1136,9 +1138,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_conditional_with_anonymous_type()
+        public virtual Task Where_conditional_with_anonymous_type()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       orderby g.Nickname
                       where (g.LeaderNickname != null
@@ -1152,9 +1154,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_coalesce_with_anonymous_types()
+        public virtual Task Select_coalesce_with_anonymous_types()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       orderby g.Nickname
                       // ReSharper disable once ConstantNullCoalescingCondition
@@ -1169,9 +1171,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_coalesce_with_anonymous_types()
+        public virtual Task Where_coalesce_with_anonymous_types()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       // ReSharper disable once ConstantNullCoalescingCondition
                       where (new
@@ -1210,9 +1212,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_member_access_on_anonymous_type()
+        public virtual Task Where_member_access_on_anonymous_type()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where new
                       {
@@ -1223,9 +1225,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_compare_anonymous_types_with_uncorrelated_members()
+        public virtual Task Where_compare_anonymous_types_with_uncorrelated_members()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       // ReSharper disable once EqualExpressionComparison
                       where new
@@ -1239,9 +1241,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation()
+        public virtual Task Select_Where_Navigation()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t in ts
                       where t.Gear.Nickname == "Marcus"
                       select t,
@@ -1251,9 +1253,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
+        public virtual Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t1 in ts
                       from t2 in ts
                       where t1.Gear.Nickname == t2.Gear.Nickname
@@ -1279,9 +1281,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
+        public virtual Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t1 in ts
                       from t2 in ts
                       where t1.Gear.Nickname == t2.Gear.Nickname
@@ -1318,61 +1320,61 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_boolean()
+        public virtual Task Where_subquery_boolean()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_boolean_with_pushdown()
+        public virtual Task Where_subquery_boolean_with_pushdown()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_firstordefault_boolean()
+        public virtual Task Where_subquery_distinct_firstordefault_boolean()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_firstordefault_boolean_with_pushdown()
+        public virtual Task Where_subquery_distinct_firstordefault_boolean_with_pushdown()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_first_boolean()
+        public virtual Task Where_subquery_distinct_first_boolean()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).First().IsAutomatic),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_singleordefault_boolean1()
+        public virtual Task Where_subquery_distinct_singleordefault_boolean1()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().Select(w => w.IsAutomatic).SingleOrDefault()),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_singleordefault_boolean2()
+        public virtual Task Where_subquery_distinct_singleordefault_boolean2()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Where(w => w.Name.Contains("Lancer")).Select(w => w.IsAutomatic).Distinct().SingleOrDefault()),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_singleordefault_boolean_with_pushdown()
+        public virtual Task Where_subquery_distinct_singleordefault_boolean_with_pushdown()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().SingleOrDefault().IsAutomatic),
                 assertOrder: true);
         }
@@ -1413,30 +1415,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_orderby_firstordefault_boolean()
+        public virtual Task Where_subquery_distinct_orderby_firstordefault_boolean()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_distinct_orderby_firstordefault_boolean_with_pushdown()
+        public virtual Task Where_subquery_distinct_orderby_firstordefault_boolean_with_pushdown()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_union_firstordefault_boolean()
+        public virtual Task Where_subquery_union_firstordefault_boolean()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Union(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_concat_firstordefault_boolean()
+        public virtual Task Where_subquery_concat_firstordefault_boolean()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Concat(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
@@ -1486,82 +1488,82 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Concat_with_groupings()
+        public virtual Task Concat_with_groupings()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.GroupBy(g => g.LeaderNickname).Concat(gs.GroupBy(g => g.LeaderNickname)),
                 elementSorter: GroupingSorter<string, Gear>(),
                 elementAsserter: GroupingAsserter<string, Gear>(g => g.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
         [ConditionalFact]
-        public virtual void Select_navigation_with_concat_and_count()
+        public virtual Task Select_navigation_with_concat_and_count()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count()));
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_concat_order_by_firstordefault_boolean()
+        public virtual Task Where_subquery_concat_order_by_firstordefault_boolean()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.GroupBy(g => g.LeaderNickname).Concat(gs.GroupBy(g => g.LeaderNickname)),
                 elementSorter: GroupingSorter<string, Gear>(),
                 elementAsserter: GroupingAsserter<string, Gear>(g => g.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
         [ConditionalFact]
-        public virtual void Concat_with_collection_navigations()
+        public virtual Task Concat_with_collection_navigations()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count()));
         }
 
         [ConditionalFact]
-        public virtual void Union_with_collection_navigations()
+        public virtual Task Union_with_collection_navigations()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.OfType<Officer>().Select(o => o.Reports.Union(o.Reports).Count()));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_distinct_firstordefault()
+        public virtual Task Select_subquery_distinct_firstordefault()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().Name));
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Client()
+        public virtual Task Select_Where_Navigation_Client()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t in ts
                       where t.Gear != null && t.Gear.IsMarcus
                       select t);
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Null()
+        public virtual Task Select_Where_Navigation_Null()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t in ts
                       where t.Gear == null
                       select t);
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Null_Reverse()
+        public virtual Task Select_Where_Navigation_Null_Reverse()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t in ts
                       where null == t.Gear
                       select t);
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Equals_Navigation()
+        public virtual Task Select_Where_Navigation_Equals_Navigation()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from t1 in ts
                       from t2 in ts
                       where t1.Gear == t2.Gear
@@ -1579,9 +1581,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Singleton_Navigation_With_Member_Access()
+        public virtual Task Singleton_Navigation_With_Member_Access()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from ct in ts
                       where ct.Gear.Nickname == "Marcus"
                       where ct.Gear.CityOrBirthName != "Ephyra"
@@ -1600,9 +1602,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Singleton_Navigation_With_Member_Access()
+        public virtual Task Select_Singleton_Navigation_With_Member_Access()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => from ct in ts
                       where ct.Gear.Nickname == "Marcus"
                       where ct.Gear.CityOrBirthName != "Ephyra"
@@ -1628,9 +1630,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_Composite_Key()
+        public virtual Task GroupJoin_Composite_Key()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     from t in ts
                     join g in gs
@@ -1649,9 +1651,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_navigation_translated_to_subquery_composite_key()
+        public virtual Task Join_navigation_translated_to_subquery_composite_key()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from g in gs
                     join t in ts on g.FullName equals t.Gear.FullName
@@ -1672,9 +1674,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_with_inheritance_and_join_include_joined()
+        public virtual Task Collection_with_inheritance_and_join_include_joined()
         {
-            AssertIncludeQuery<CogTag, Gear>(
+            return AssertIncludeQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     (from t in ts
                      join g in gs.OfType<Officer>() on new
@@ -1695,9 +1697,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_with_inheritance_and_join_include_source()
+        public virtual Task Collection_with_inheritance_and_join_include_source()
         {
-            AssertIncludeQuery<Gear, CogTag>(
+            return AssertIncludeQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     (from g in gs.OfType<Officer>()
                      join t in ts on new
@@ -1718,36 +1720,36 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Non_unicode_string_literal_is_used_for_non_unicode_column()
+        public virtual Task Non_unicode_string_literal_is_used_for_non_unicode_column()
         {
-            AssertQuery<City>(
+            return AssertQueryAsync<City>(
                 cs => from c in cs
                       where c.Location == "Unknown"
                       select c);
         }
 
         [ConditionalFact]
-        public virtual void Non_unicode_string_literal_is_used_for_non_unicode_column_right()
+        public virtual Task Non_unicode_string_literal_is_used_for_non_unicode_column_right()
         {
-            AssertQuery<City>(
+            return AssertQueryAsync<City>(
                 cs => from c in cs
                       where "Unknown" == c.Location
                       select c);
         }
 
         [ConditionalFact]
-        public virtual void Non_unicode_parameter_is_used_for_non_unicode_column()
+        public virtual Task Non_unicode_parameter_is_used_for_non_unicode_column()
         {
             var value = "Unknown";
 
-            AssertQuery<City>(
+            return AssertQueryAsync<City>(
                 cs => from c in cs
                       where c.Location == value
                       select c);
         }
 
         [ConditionalFact]
-        public virtual void Non_unicode_string_literals_in_contains_is_used_for_non_unicode_column()
+        public virtual Task Non_unicode_string_literals_in_contains_is_used_for_non_unicode_column()
         {
             var cities = new List<string>
             {
@@ -1756,34 +1758,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "Ephyra's location"
             };
 
-            AssertQuery<City>(
+            return AssertQueryAsync<City>(
                 cs => from c in cs
                       where cities.Contains(c.Location)
                       select c);
         }
 
         [ConditionalFact]
-        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_subquery()
+        public virtual Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_subquery()
         {
-            AssertQuery<City>(
+            return AssertQueryAsync<City>(
                 cs => from c in cs
                       where c.Location == "Unknown" && c.BornGears.Count(g => g.Nickname == "Paduk") == 1
                       select c);
         }
 
         [ConditionalFact]
-        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_in_subquery()
+        public virtual Task Non_unicode_string_literals_is_used_for_non_unicode_column_in_subquery()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname == "Marcus" && g.CityOfBirth.Location == "Jacinto's location"
                       select g);
         }
 
         [ConditionalFact]
-        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_contains()
+        public virtual Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_contains()
         {
-            AssertQuery<City>(
+            return AssertQueryAsync<City>(
                 cs => from c in cs
                       where c.Location.Contains("Jacinto")
                       select c);
@@ -1851,7 +1853,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3()
+        public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1859,7 +1861,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => from g1 in gs.Include(g => g.Weapons)
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
@@ -1869,7 +1871,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4()
+        public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1877,7 +1879,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => from g1 in gs.Include(g => g.Weapons)
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
@@ -1899,7 +1901,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result()
+        public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1907,7 +1909,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => from g1 in gs.Include(g => g.Weapons)
                       join g2 in gs.OfType<Officer>().Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
@@ -1917,7 +1919,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result()
+        public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1925,7 +1927,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => from g1 in gs.Include(g => g.Weapons)
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
@@ -1938,7 +1940,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "issue #9256")]
-        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result()
+        public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -1946,7 +1948,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => from g1 in gs.Include(g => g.Weapons)
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
@@ -1973,67 +1975,67 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Coalesce_operator_in_predicate()
+        public virtual Task Coalesce_operator_in_predicate()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => (bool?)w.IsAutomatic ?? false));
         }
 
         [ConditionalFact]
-        public virtual void Coalesce_operator_in_predicate_with_other_conditions()
+        public virtual Task Coalesce_operator_in_predicate_with_other_conditions()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Where(w => w.AmmunitionType == AmmunitionType.Cartridge && ((bool?)w.IsAutomatic ?? false)));
         }
 
         [ConditionalFact]
-        public virtual void Coalesce_operator_in_projection_with_other_conditions()
+        public virtual Task Coalesce_operator_in_projection_with_other_conditions()
         {
-            AssertQueryScalar<Weapon>(
+            return AssertQueryScalarAsync<Weapon>(
                 ws => ws.Select(w => w.AmmunitionType == AmmunitionType.Cartridge && ((bool?)w.IsAutomatic ?? false)));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_predicate()
+        public virtual Task Optional_navigation_type_compensation_works_with_predicate()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A." && t.Gear.HasSoulPatch));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_predicate2()
+        public virtual Task Optional_navigation_type_compensation_works_with_predicate2()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Gear.HasSoulPatch),
                 ts => ts.Where(t => MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated()
+        public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => !t.Gear.HasSoulPatch),
                 ts => ts.Where(t => !MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true));
         }
 
         [ConditionalFact(Skip = "issue #9254")]
-        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated_complex1()
+        public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated_complex1()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => !(t.Gear.HasSoulPatch ? true : t.Gear.HasSoulPatch)));
         }
 
         [ConditionalFact(Skip = "issue #9254")]
-        public virtual void Optional_navigation_type_compensation_works_with_predicate_negated_complex2()
+        public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated_complex2()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => !(!t.Gear.HasSoulPatch ? false : t.Gear.HasSoulPatch)));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_conditional_expression()
+        public virtual Task Optional_navigation_type_compensation_works_with_conditional_expression()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 // ReSharper disable once RedundantTernaryExpression
                 ts => ts.Where(t => t.Gear.HasSoulPatch ? true : false),
                 // ReSharper disable once RedundantTernaryExpression
@@ -2041,32 +2043,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_binary_expression()
+        public virtual Task Optional_navigation_type_compensation_works_with_binary_expression()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Gear.HasSoulPatch || t.Note.Contains("Cole")),
                 ts => ts.Where(t => MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true || t.Note.Contains("Cole")));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_binary_and_expression()
+        public virtual Task Optional_navigation_type_compensation_works_with_binary_and_expression()
         {
-            AssertQueryScalar<CogTag>(
+            return AssertQueryScalarAsync<CogTag>(
                 ts => ts.Select(t => t.Gear.HasSoulPatch && t.Note.Contains("Cole")),
                 ts => ts.Select(t => MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true && t.Note.Contains("Cole")));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_projection()
+        public virtual Task Optional_navigation_type_compensation_works_with_projection()
         {
-            AssertQueryScalar<CogTag>(
+            return AssertQueryScalarAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A.").Select(t => t.Gear.SquadId));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_projection_into_anonymous_type()
+        public virtual Task Optional_navigation_type_compensation_works_with_projection_into_anonymous_type()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A.").Select(
                     t => new
                     {
@@ -2076,9 +2078,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_DTOs()
+        public virtual Task Optional_navigation_type_compensation_works_with_DTOs()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A.").Select(
                     t => new Squad
                     {
@@ -2088,9 +2090,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_list_initializers()
+        public virtual Task Optional_navigation_type_compensation_works_with_list_initializers()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note).Select(
                     t => new List<int>
                     {
@@ -2102,24 +2104,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_array_initializers()
+        public virtual Task Optional_navigation_type_compensation_works_with_array_initializers()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A.").Select(t => new[] { t.Gear.SquadId }),
                 elementSorter: e => e[0]);
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_orderby()
+        public virtual Task Optional_navigation_type_compensation_works_with_orderby()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Gear.SquadId));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_groupby()
+        public virtual Task Optional_navigation_type_compensation_works_with_groupby()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A.").GroupBy(t => t.Gear.SquadId),
                 elementSorter: GroupingSorter<int, CogTag>(),
                 elementAsserter: GroupingAsserter<int, CogTag>(t => t.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
@@ -2133,41 +2135,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_negated_predicate()
+        public virtual Task Optional_navigation_type_compensation_works_with_negated_predicate()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(t => t.Note != "K.I.A.").Where(t => !t.Gear.HasSoulPatch));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_contains()
+        public virtual Task Optional_navigation_type_compensation_works_with_contains()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) => ts.Where(t => t.Note != "K.I.A." && gs.Select(g => g.SquadId).Contains(t.Gear.SquadId)));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_skip()
+        public virtual Task Optional_navigation_type_compensation_works_with_skip()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note).Select(t => gs.OrderBy(g => g.Nickname).Skip(t.Gear.SquadId)),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
         [ConditionalFact]
-        public virtual void Optional_navigation_type_compensation_works_with_take()
+        public virtual Task Optional_navigation_type_compensation_works_with_take()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note).Select(t => gs.OrderBy(g => g.Nickname).Take(t.Gear.SquadId)),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
         [ConditionalFact]
-        public virtual void Select_correlated_filtered_collection()
+        public virtual Task Select_correlated_filtered_collection()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs
                     .Where(g => g.CityOfBirth.Name == "Ephyra" || g.CityOfBirth.Name == "Hanover")
                     .OrderBy(g => g.Nickname)
@@ -2177,27 +2179,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_correlated_filtered_collection_with_composite_key()
+        public virtual Task Select_correlated_filtered_collection_with_composite_key()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OfType<Officer>().OrderBy(g => g.Nickname).Select(g => g.Reports.Where(r => r.Nickname != "Dom").ToList()),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
         [ConditionalFact]
-        public virtual void Select_correlated_filtered_collection_works_with_caching()
+        public virtual Task Select_correlated_filtered_collection_works_with_caching()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) => ts.OrderBy(t => t.Note).Select(t => gs.Where(g => g.Nickname == t.GearNickName)),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(g => g.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
         [ConditionalFact]
-        public virtual void Join_predicate_value_equals_condition()
+        public virtual Task Join_predicate_value_equals_condition()
         {
-            AssertQuery<Gear, Weapon>(
+            return AssertQueryAsync<Gear, Weapon>(
                 (gs, ws) =>
                     from g in gs
                     join w in ws
@@ -2206,9 +2208,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_predicate_value()
+        public virtual Task Join_predicate_value()
         {
-            AssertQuery<Gear, Weapon>(
+            return AssertQueryAsync<Gear, Weapon>(
                 (gs, ws) =>
                     from g in gs
                     join w in ws
@@ -2217,9 +2219,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_predicate_condition_equals_condition()
+        public virtual Task Join_predicate_condition_equals_condition()
         {
-            AssertQuery<Gear, Weapon>(
+            return AssertQueryAsync<Gear, Weapon>(
                 (gs, ws) =>
                     from g in gs
                     join w in ws
@@ -2228,9 +2230,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Left_join_predicate_value_equals_condition()
+        public virtual Task Left_join_predicate_value_equals_condition()
         {
-            AssertQuery<Gear, Weapon>(
+            return AssertQueryAsync<Gear, Weapon>(
                 (gs, ws) =>
                     from g in gs
                     join w in ws
@@ -2241,9 +2243,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Left_join_predicate_value()
+        public virtual Task Left_join_predicate_value()
         {
-            AssertQuery<Gear, Weapon>(
+            return AssertQueryAsync<Gear, Weapon>(
                 (gs, ws) =>
                     from g in gs
                     join w in ws
@@ -2254,9 +2256,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Left_join_predicate_condition_equals_condition()
+        public virtual Task Left_join_predicate_condition_equals_condition()
         {
-            AssertQuery<Gear, Weapon>(
+            return AssertQueryAsync<Gear, Weapon>(
                 (gs, ws) =>
                     from g in gs
                     join w in ws
@@ -2267,164 +2269,164 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_now()
+        public virtual Task Where_datetimeoffset_now()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline != DateTimeOffset.Now
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_utcnow()
+        public virtual Task Where_datetimeoffset_utcnow()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline != DateTimeOffset.UtcNow
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_date_component()
+        public virtual Task Where_datetimeoffset_date_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.Date > new DateTimeOffset().Date
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_year_component()
+        public virtual Task Where_datetimeoffset_year_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.Year == 2
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_month_component()
+        public virtual Task Where_datetimeoffset_month_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.Month == 1
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_dayofyear_component()
+        public virtual Task Where_datetimeoffset_dayofyear_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.DayOfYear == 2
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_day_component()
+        public virtual Task Where_datetimeoffset_day_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.Day == 2
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_hour_component()
+        public virtual Task Where_datetimeoffset_hour_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.Hour == 10
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_minute_component()
+        public virtual Task Where_datetimeoffset_minute_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.Minute == 0
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_second_component()
+        public virtual Task Where_datetimeoffset_second_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.Second == 0
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void Where_datetimeoffset_millisecond_component()
+        public virtual Task Where_datetimeoffset_millisecond_component()
         {
-            AssertQuery<Mission>(
+            return AssertQueryAsync<Mission>(
                 ms => from m in ms
                       where m.Timeline.Millisecond == 0
                       select m);
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_DateAdd_AddYears()
+        public virtual Task DateTimeOffset_DateAdd_AddYears()
         {
-            AssertQueryScalar<Mission>(
+            return AssertQueryScalarAsync<Mission>(
                 ms => from m in ms
                       select m.Timeline.AddYears(1));
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_DateAdd_AddMonths()
+        public virtual Task DateTimeOffset_DateAdd_AddMonths()
         {
-            AssertQueryScalar<Mission>(
+            return AssertQueryScalarAsync<Mission>(
                 ms => from m in ms
                       select m.Timeline.AddMonths(1));
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_DateAdd_AddDays()
+        public virtual Task DateTimeOffset_DateAdd_AddDays()
         {
-            AssertQueryScalar<Mission>(
+            return AssertQueryScalarAsync<Mission>(
                 ms => from m in ms
                       select m.Timeline.AddDays(1));
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_DateAdd_AddHours()
+        public virtual Task DateTimeOffset_DateAdd_AddHours()
         {
-            AssertQueryScalar<Mission>(
+            return AssertQueryScalarAsync<Mission>(
                 ms => from m in ms
                       select m.Timeline.AddHours(1));
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_DateAdd_AddMinutes()
+        public virtual Task DateTimeOffset_DateAdd_AddMinutes()
         {
-            AssertQueryScalar<Mission>(
+            return AssertQueryScalarAsync<Mission>(
                 ms => from m in ms
                       select m.Timeline.AddMinutes(1));
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_DateAdd_AddSeconds()
+        public virtual Task DateTimeOffset_DateAdd_AddSeconds()
         {
-            AssertQueryScalar<Mission>(
+            return AssertQueryScalarAsync<Mission>(
                 ms => from m in ms
                       select m.Timeline.AddSeconds(1));
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_DateAdd_AddMilliseconds()
+        public virtual Task DateTimeOffset_DateAdd_AddMilliseconds()
         {
-            AssertQueryScalar<Mission>(
+            return AssertQueryScalarAsync<Mission>(
                 ms => from m in ms
                       select m.Timeline.AddMilliseconds(300));
         }
 
         [ConditionalFact]
-        public virtual void Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used()
+        public virtual Task Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     from t in ts
                     join g in gs on t.GearNickName equals g.Nickname into grouping
@@ -2447,9 +2449,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Complex_predicate_with_AndAlso_and_nullable_bool_property()
+        public virtual Task Complex_predicate_with_AndAlso_and_nullable_bool_property()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => from w in ws
                       where w.Id != 50 && !w.Owner.HasSoulPatch
                       select w,
@@ -2459,9 +2461,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Distinct_with_optional_navigation_is_translated_to_sql()
+        public virtual Task Distinct_with_optional_navigation_is_translated_to_sql()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => (from g in gs
                        where g.Tag.Note != "Foo"
                        select g.HasSoulPatch).Distinct(),
@@ -2495,9 +2497,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Distinct_with_unflattened_groupjoin_is_evaluated_on_client()
+        public virtual Task Distinct_with_unflattened_groupjoin_is_evaluated_on_client()
         {
-            AssertQueryScalar<Gear, CogTag>(
+            return AssertQueryScalarAsync<Gear, CogTag>(
                 (gs, ts) => gs.GroupJoin(
                         ts,
                         g => new
@@ -2548,9 +2550,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Any_with_optional_navigation_as_subquery_predicate_is_translated_to_sql()
+        public virtual Task Any_with_optional_navigation_as_subquery_predicate_is_translated_to_sql()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => from s in ss
                       where !s.Members.Any(m => m.Tag.Note == "Dom's Tag")
                       select s.Name);
@@ -2565,9 +2567,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Non_flattened_GroupJoin_with_result_operator_evaluates_on_the_client()
+        public virtual Task Non_flattened_GroupJoin_with_result_operator_evaluates_on_the_client()
         {
-            AssertQueryScalar<CogTag, Gear>(
+            return AssertQueryScalarAsync<CogTag, Gear>(
                 (ts, gs) => ts.GroupJoin(
                     gs,
                     t => new
@@ -2584,11 +2586,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Client_side_equality_with_parameter_works_with_optional_navigations()
+        public virtual Task Client_side_equality_with_parameter_works_with_optional_navigations()
         {
             var prm = "Marcus' Tag";
 
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.Where(g => ClientEquals(g.Tag.Note, prm)),
                 elementAsserter: (e, a) => Assert.Equal(e.Nickname, a.Nickname));
         }
@@ -2599,7 +2601,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Contains_with_local_nullable_guid_list_closure()
+        public virtual Task Contains_with_local_nullable_guid_list_closure()
         {
             var ids = new List<Guid?>
             {
@@ -2608,7 +2610,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Guid.Parse("AB1B82D7-88DB-42BD-A132-7EEF9AA68AF4")
             };
 
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 ts => ts.Where(e => ids.Contains(e.Id)));
         }
 
@@ -2744,9 +2746,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_and_order_by_are_properly_lifted_from_subquery_created_by_tracking()
+        public virtual Task Where_and_order_by_are_properly_lifted_from_subquery_created_by_tracking()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs
                     .Where(g => g.FullName != "Augustus Cole")
                     .AsNoTracking()
@@ -2782,9 +2784,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Subquery_containing_SelectMany_projecting_main_from_clause_gets_lifted()
+        public virtual Task Subquery_containing_SelectMany_projecting_main_from_clause_gets_lifted()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from g in (from gear in gs
                                from tag in ts
@@ -2797,9 +2799,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Subquery_containing_join_projecting_main_from_clause_gets_lifted()
+        public virtual Task Subquery_containing_join_projecting_main_from_clause_gets_lifted()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from g in (from gear in gs
                                join tag in ts on gear.Nickname equals tag.GearNickName
@@ -2811,9 +2813,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Subquery_containing_left_join_projecting_main_from_clause_gets_lifted()
+        public virtual Task Subquery_containing_left_join_projecting_main_from_clause_gets_lifted()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from g in (from gear in gs
                                join tag in ts on gear.Nickname equals tag.GearNickName into grouping
@@ -2826,9 +2828,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Subquery_containing_join_gets_lifted_clashing_names()
+        public virtual Task Subquery_containing_join_gets_lifted_clashing_names()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from gear in (from gear in gs
                                   join tag in ts on gear.Nickname equals tag.GearNickName
@@ -2864,9 +2866,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Subquery_is_not_lifted_from_additional_from_clause()
+        public virtual Task Subquery_is_not_lifted_from_additional_from_clause()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from g1 in gs
                     from g2 in gs.OrderBy(g => g.Rank).Include(g => g.Tag)
@@ -2881,9 +2883,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Subquery_with_result_operator_is_not_lifted()
+        public virtual Task Subquery_with_result_operator_is_not_lifted()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs.Where(g => !g.HasSoulPatch).OrderBy(g => g.FullName).Take(2).AsTracking()
                       orderby g.Rank
                       select g.FullName,
@@ -2891,9 +2893,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_length_of_string_property()
+        public virtual Task Select_length_of_string_property()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => from w in ws
                       select new
                       {
@@ -2904,18 +2906,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Client_method_on_collection_navigation_in_predicate()
+        public virtual Task Client_method_on_collection_navigation_in_predicate()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.HasSoulPatch && FavoriteWeapon(g.Weapons).Name == "Marcus' Lancer"
                       select g.Nickname);
         }
 
         [ConditionalFact]
-        public virtual void Client_method_on_collection_navigation_in_predicate_accessed_by_ef_property()
+        public virtual Task Client_method_on_collection_navigation_in_predicate_accessed_by_ef_property()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where !g.HasSoulPatch && FavoriteWeapon(EF.Property<List<Weapon>>(g, "Weapons")).Name == "Cole's Gnasher"
                       select g.Nickname,
@@ -2925,9 +2927,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Client_method_on_collection_navigation_in_order_by()
+        public virtual Task Client_method_on_collection_navigation_in_order_by()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where !g.HasSoulPatch
                       orderby FavoriteWeapon(g.Weapons).Name descending
@@ -2936,9 +2938,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Client_method_on_collection_navigation_in_additional_from_clause()
+        public virtual Task Client_method_on_collection_navigation_in_additional_from_clause()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs.OfType<Officer>()
                       from v in Veterans(g.Reports)
                       select new
@@ -2950,9 +2952,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Client_method_on_collection_navigation_in_outer_join_key()
+        public virtual Task Client_method_on_collection_navigation_in_outer_join_key()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from o in gs.OfType<Officer>()
                       join g in gs on FavoriteWeapon(o.Weapons).Name equals FavoriteWeapon(g.Weapons).Name
                       where o.HasSoulPatch
@@ -3528,9 +3530,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_on_derived_type_using_string()
+        public virtual Task Include_reference_on_derived_type_using_string()
         {
-            AssertIncludeQuery<LocustLeader>(
+            return AssertIncludeQueryAsync<LocustLeader>(
                 lls => lls.Include("DefeatedBy"),
                 new List<IExpectedInclude>
                 {
@@ -3539,7 +3541,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_on_derived_type_using_string_nested1()
+        public virtual Task Include_reference_on_derived_type_using_string_nested1()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3547,13 +3549,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Gear>(g => g.Squad, "Squad", "DefeatedBy")
             };
 
-            AssertIncludeQuery<LocustLeader>(
+            return AssertIncludeQueryAsync<LocustLeader>(
                 lls => lls.Include("DefeatedBy.Squad"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_on_derived_type_using_string_nested2()
+        public virtual Task Include_reference_on_derived_type_using_string_nested2()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3562,15 +3564,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth", "DefeatedBy.Reports")
             };
 
-            AssertIncludeQuery<LocustLeader>(
+            return AssertIncludeQueryAsync<LocustLeader>(
                 lls => lls.Include("DefeatedBy.Reports.CityOfBirth"),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_on_derived_type_using_lambda()
+        public virtual Task Include_reference_on_derived_type_using_lambda()
         {
-            AssertIncludeQuery<LocustLeader>(
+            return AssertIncludeQueryAsync<LocustLeader>(
                 lls => lls.Include(ll => ((LocustCommander)ll).DefeatedBy),
                 new List<IExpectedInclude>
                 {
@@ -3579,9 +3581,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_on_derived_type_using_lambda_with_soft_cast()
+        public virtual Task Include_reference_on_derived_type_using_lambda_with_soft_cast()
         {
-            AssertIncludeQuery<LocustLeader>(
+            return AssertIncludeQueryAsync<LocustLeader>(
                 lls => lls.Include(ll => (ll as LocustCommander).DefeatedBy),
                 new List<IExpectedInclude>
                 {
@@ -3590,9 +3592,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_on_derived_type_using_lambda_with_tracking()
+        public virtual Task Include_reference_on_derived_type_using_lambda_with_tracking()
         {
-            AssertIncludeQuery<LocustLeader>(
+            return AssertIncludeQueryAsync<LocustLeader>(
                 lls => lls.AsTracking().Include(ll => ((LocustCommander)ll).DefeatedBy),
                 new List<IExpectedInclude>
                 {
@@ -3602,9 +3604,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_on_derived_type_using_string()
+        public virtual Task Include_collection_on_derived_type_using_string()
         {
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include("Reports"),
                 new List<IExpectedInclude>
                 {
@@ -3613,9 +3615,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_on_derived_type_using_lambda()
+        public virtual Task Include_collection_on_derived_type_using_lambda()
         {
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => ((Officer)g).Reports),
                 new List<IExpectedInclude>
                 {
@@ -3624,9 +3626,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_on_derived_type_using_lambda_with_soft_cast()
+        public virtual Task Include_collection_on_derived_type_using_lambda_with_soft_cast()
         {
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => (g as Officer).Reports),
                 new List<IExpectedInclude>
                 {
@@ -3635,7 +3637,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_base_navigation_on_derived_entity()
+        public virtual Task Include_base_navigation_on_derived_entity()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3643,13 +3645,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(e => e.Weapons, "Weapons")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => ((Officer)g).Tag).Include(g => ((Officer)g).Weapons),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void ThenInclude_collection_on_derived_after_base_reference()
+        public virtual Task ThenInclude_collection_on_derived_after_base_reference()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3657,13 +3659,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(e => e.Weapons, "Weapons", "Gear")
             };
 
-            AssertIncludeQuery<CogTag>(
+            return AssertIncludeQueryAsync<CogTag>(
                 ts => ts.Include(t => t.Gear).ThenInclude(g => (g as Officer).Weapons),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void ThenInclude_collection_on_derived_after_derived_reference()
+        public virtual Task ThenInclude_collection_on_derived_after_derived_reference()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3672,13 +3674,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy")
             };
 
-            AssertIncludeQuery<Faction>(
+            return AssertIncludeQueryAsync<Faction>(
                 fs => fs.Include(f => (f as LocustHorde).Commander).ThenInclude(c => (c.DefeatedBy as Officer).Reports),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void ThenInclude_collection_on_derived_after_derived_collection()
+        public virtual Task ThenInclude_collection_on_derived_after_derived_collection()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3686,13 +3688,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Reports")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => ((Officer)g).Reports).ThenInclude(g => ((Officer)g).Reports),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void ThenInclude_reference_on_derived_after_derived_collection()
+        public virtual Task ThenInclude_reference_on_derived_after_derived_collection()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3700,13 +3702,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Leaders")
             };
 
-            AssertIncludeQuery<Faction>(
+            return AssertIncludeQueryAsync<Faction>(
                 fs => fs.Include(f => ((LocustHorde)f).Leaders).ThenInclude(l => ((LocustCommander)l).DefeatedBy),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Multiple_derived_included_on_one_method()
+        public virtual Task Multiple_derived_included_on_one_method()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3715,13 +3717,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy")
             };
 
-            AssertIncludeQuery<Faction>(
+            return AssertIncludeQueryAsync<Faction>(
                 fs => fs.Include(f => (((LocustHorde)f).Commander.DefeatedBy as Officer).Reports),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Include_on_derived_multi_level()
+        public virtual Task Include_on_derived_multi_level()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -3730,7 +3732,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Squad>(e => e.Missions, "Missions", "Reports.Squad")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => ((Officer)g).Reports).ThenInclude(g => g.Squad.Missions),
                 expectedIncludes);
         }
@@ -3753,9 +3755,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Projecting_nullable_bool_in_conditional_works()
+        public virtual Task Projecting_nullable_bool_in_conditional_works()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 cgs =>
                     cgs.Select(
                         cg =>
@@ -3767,9 +3769,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Enum_ToString_is_client_eval()
+        public virtual Task Enum_ToString_is_client_eval()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     gs.OrderBy(g => g.SquadId)
                         .ThenBy(g => g.Nickname)
@@ -3777,9 +3779,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_naked_navigation_with_ToList()
+        public virtual Task Correlated_collections_naked_navigation_with_ToList()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3789,9 +3791,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_naked_navigation_with_ToArray()
+        public virtual Task Correlated_collections_naked_navigation_with_ToArray()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3801,9 +3803,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_basic_projection()
+        public virtual Task Correlated_collections_basic_projection()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3815,9 +3817,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_basic_projection_explicit_to_list()
+        public virtual Task Correlated_collections_basic_projection_explicit_to_list()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3829,9 +3831,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_basic_projection_explicit_to_array()
+        public virtual Task Correlated_collections_basic_projection_explicit_to_array()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3843,9 +3845,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_basic_projection_ordered()
+        public virtual Task Correlated_collections_basic_projection_ordered()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3858,9 +3860,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_basic_projection_composite_key()
+        public virtual Task Correlated_collections_basic_projection_composite_key()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from o in gs.OfType<Officer>()
                     where o.Nickname != "Foo"
@@ -3884,9 +3886,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_basic_projecting_single_property()
+        public virtual Task Correlated_collections_basic_projecting_single_property()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3898,9 +3900,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_basic_projecting_constant()
+        public virtual Task Correlated_collections_basic_projecting_constant()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3912,9 +3914,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_basic_projecting_constant_bool()
+        public virtual Task Correlated_collections_basic_projecting_constant_bool()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       where g.Nickname != "Marcus"
                       orderby g.Nickname
@@ -3926,9 +3928,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_projection_of_collection_thru_navigation()
+        public virtual Task Correlated_collections_projection_of_collection_thru_navigation()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       orderby g.FullName
                       where g.Nickname != "Marcus"
@@ -3944,9 +3946,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_project_anonymous_collection_result()
+        public virtual Task Correlated_collections_project_anonymous_collection_result()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => from s in ss
                       where s.Id < 20
                       select new
@@ -3968,9 +3970,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_nested()
+        public virtual Task Correlated_collections_nested()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => from s in ss
                       select (from m in s.Missions
                               where m.MissionId < 42
@@ -3993,9 +3995,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_nested_mixed_streaming_with_buffer1()
+        public virtual Task Correlated_collections_nested_mixed_streaming_with_buffer1()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => from s in ss
                       select (from m in s.Missions
                               where m.MissionId < 3
@@ -4018,9 +4020,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_nested_mixed_streaming_with_buffer2()
+        public virtual Task Correlated_collections_nested_mixed_streaming_with_buffer2()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => from s in ss
                       select (from m in s.Missions
                               where m.MissionId < 42
@@ -4043,9 +4045,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_nested_with_custom_ordering()
+        public virtual Task Correlated_collections_nested_with_custom_ordering()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs
                     .OfType<Officer>()
                     .OrderByDescending(o => o.HasSoulPatch)
@@ -4082,9 +4084,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_same_collection_projected_multiple_times()
+        public virtual Task Correlated_collections_same_collection_projected_multiple_times()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from g in gs
                     select new
@@ -4103,9 +4105,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_similar_collection_projected_multiple_times()
+        public virtual Task Correlated_collections_similar_collection_projected_multiple_times()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from g in gs
                     orderby g.Rank
@@ -4125,9 +4127,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_different_collections_projected()
+        public virtual Task Correlated_collections_different_collections_projected()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from o in gs.OfType<Officer>()
                     orderby o.FullName
@@ -4157,9 +4159,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_multiple_nested_complex_collections()
+        public virtual Task Correlated_collections_multiple_nested_complex_collections()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from o in gs.OfType<Officer>()
                     orderby o.HasSoulPatch descending, o.Tag.Note
@@ -4224,9 +4226,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_inner_subquery_selector_references_outer_qsre()
+        public virtual Task Correlated_collections_inner_subquery_selector_references_outer_qsre()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from o in gs.OfType<Officer>()
                     select new
@@ -4248,9 +4250,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_inner_subquery_predicate_references_outer_qsre()
+        public virtual Task Correlated_collections_inner_subquery_predicate_references_outer_qsre()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from o in gs.OfType<Officer>()
                     select new
@@ -4272,9 +4274,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up()
+        public virtual Task Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from o in gs.OfType<Officer>()
                     select new
@@ -4309,9 +4311,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up()
+        public virtual Task Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from o in gs.OfType<Officer>()
                     select new
@@ -4346,9 +4348,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_on_select_many()
+        public virtual Task Correlated_collections_on_select_many()
         {
-            AssertQuery<Gear, Squad>(
+            return AssertQueryAsync<Gear, Squad>(
                 (gs, ss) =>
                     from g in gs
                     from s in ss
@@ -4377,45 +4379,45 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_with_Skip()
+        public virtual Task Correlated_collections_with_Skip()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Skip(1)),
                 assertOrder: true,
                 elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_with_Take()
+        public virtual Task Correlated_collections_with_Take()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Take(2)),
                 assertOrder: true,
                 elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_with_Distinct()
+        public virtual Task Correlated_collections_with_Distinct()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Distinct()),
                 assertOrder: true,
                 elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_with_FirstOrDefault()
+        public virtual Task Correlated_collections_with_FirstOrDefault()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Select(m => m.FullName).FirstOrDefault()),
                 assertOrder: true,
                 elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname)); });
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_on_left_join_with_predicate()
+        public virtual Task Correlated_collections_on_left_join_with_predicate()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     from t in ts
                     join g in gs on t.GearNickName equals g.Nickname into grouping
@@ -4445,9 +4447,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_on_left_join_with_null_value()
+        public virtual Task Correlated_collections_on_left_join_with_null_value()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     from t in ts
                     join g in gs on t.GearNickName equals g.Nickname into grouping
@@ -4465,9 +4467,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_left_join_with_self_reference()
+        public virtual Task Correlated_collections_left_join_with_self_reference()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     from t in ts
                     join o in gs.OfType<Officer>() on t.GearNickName equals o.Nickname into grouping
@@ -4495,9 +4497,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_deeply_nested_left_join()
+        public virtual Task Correlated_collections_deeply_nested_left_join()
         {
-            AssertQuery<CogTag, Gear>(
+            return AssertQueryAsync<CogTag, Gear>(
                 (ts, gs) =>
                     from t in ts
                     join g in gs on t.GearNickName equals g.Nickname into grouping
@@ -4522,9 +4524,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join()
+        public virtual Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.OrderBy(w => w.Name).Select(
                     w => w.Owner.Squad.Members.OrderByDescending(m => m.FullName).Select(
                         m => new
@@ -4550,9 +4552,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_complex_scenario1()
+        public virtual Task Correlated_collections_complex_scenario1()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from r in gs
                     select new
@@ -4586,9 +4588,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collections_complex_scenario2()
+        public virtual Task Correlated_collections_complex_scenario2()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     from o in gs.OfType<Officer>()
                     select new
@@ -4825,9 +4827,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_semantics_on_nullable_bool_from_inner_join_subuery_is_fully_applied()
+        public virtual Task Null_semantics_on_nullable_bool_from_inner_join_subuery_is_fully_applied()
         {
-            AssertQuery<LocustLeader, Faction>(
+            return AssertQueryAsync<LocustLeader, Faction>(
                 (lls, fs) =>
                     from ll in lls
                     join h in fs.OfType<LocustHorde>().Where(f => f.Name == "Swarm") on ll.Name equals h.CommanderName
@@ -4836,9 +4838,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Null_semantics_on_nullable_bool_from_left_join_subuery_is_fully_applied()
+        public virtual Task Null_semantics_on_nullable_bool_from_left_join_subuery_is_fully_applied()
         {
-            AssertQuery<LocustLeader, Faction>(
+            return AssertQueryAsync<LocustLeader, Faction>(
                 (lls, fs) =>
                     from ll in lls
                     join h in fs.OfType<LocustHorde>().Where(f => f.Name == "Swarm") on ll.Name equals h.CommanderName into grouping
@@ -4866,7 +4868,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_on_derived_type_with_order_by_and_paging()
+        public virtual Task Include_on_derived_type_with_order_by_and_paging()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4874,7 +4876,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Gear>(e => e.Weapons, "Weapons", "DefeatedBy")
             };
 
-            AssertIncludeQuery<LocustLeader>(
+            return AssertIncludeQueryAsync<LocustLeader>(
                 lls => lls.Include(ll => ((LocustCommander)ll).DefeatedBy).ThenInclude(g => g.Weapons).OrderBy(ll => ((LocustCommander)ll).DefeatedBy.Tag.Note).Take(10),
                 lls => lls.Take(10),
                 expectedIncludes,
@@ -4882,25 +4884,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_required_navigation_on_derived_type()
+        public virtual Task Select_required_navigation_on_derived_type()
         {
-            AssertQuery<LocustLeader>(
+            return AssertQueryAsync<LocustLeader>(
                 lls => lls.Select(ll => ((LocustCommander)ll).HighCommand.Name),
                 lls => lls.Select(ll => ll is LocustCommander ? ((LocustCommander)ll).HighCommand.Name : null));
         }
 
         [ConditionalFact]
-        public virtual void Where_required_navigation_on_derived_type()
+        public virtual Task Where_required_navigation_on_derived_type()
         {
-            AssertQuery<LocustLeader>(
+            return AssertQueryAsync<LocustLeader>(
                 lls => lls.Where(ll => ((LocustCommander)ll).HighCommand.IsOperational),
                 lls => lls.Where(ll => ll is LocustCommander ? ((LocustCommander)ll).HighCommand.IsOperational : false));
         }
 
         [ConditionalFact]
-        public virtual void Outer_parameter_in_join_key()
+        public virtual Task Outer_parameter_in_join_key()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from o in gs.OfType<Officer>()
                     orderby o.Nickname
@@ -4915,9 +4917,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Outer_parameter_in_join_key_inner_and_outer()
+        public virtual Task Outer_parameter_in_join_key_inner_and_outer()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from o in gs.OfType<Officer>()
                     orderby o.Nickname
@@ -4932,9 +4934,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Outer_parameter_in_group_join_key()
+        public virtual Task Outer_parameter_in_group_join_key()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from o in gs.OfType<Officer>()
                     orderby o.Nickname
@@ -4949,9 +4951,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Outer_parameter_in_group_join_with_DefaultIfEmpty()
+        public virtual Task Outer_parameter_in_group_join_with_DefaultIfEmpty()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from o in gs.OfType<Officer>()
                     orderby o.Nickname
@@ -4967,7 +4969,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_concat()
+        public virtual Task Include_with_concat()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -4975,15 +4977,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(o => o.Squad, "Squad")
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => g.Squad).Concat(gs),
                 expectedIncludes);
         }
 
         [ConditionalFact]
-        public virtual void Negated_bool_ternary_inside_anonymous_type_in_projection()
+        public virtual Task Negated_bool_ternary_inside_anonymous_type_in_projection()
         {
-            AssertQuery<CogTag>(
+            return AssertQueryAsync<CogTag>(
                 cts => cts.Select(
                     t => new
                     {
@@ -5000,35 +5002,35 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Order_by_entity_qsre()
+        public virtual Task Order_by_entity_qsre()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OrderBy(g => g.AssignedCity).ThenByDescending(g => g.Nickname).Select(f => f.FullName),
                 gs => gs.OrderBy(g => Maybe(g.AssignedCity, () => g.AssignedCity.Name)).ThenByDescending(g => g.Nickname).Select(f => f.FullName),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Order_by_entity_qsre_with_inheritance()
+        public virtual Task Order_by_entity_qsre_with_inheritance()
         {
-            AssertQuery<LocustLeader>(
+            return AssertQueryAsync<LocustLeader>(
                 lls => lls.OfType<LocustCommander>().OrderBy(lc => lc.HighCommand).ThenBy(lc => lc.Name).Select(lc => lc.Name),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Order_by_entity_qsre_composite_key()
+        public virtual Task Order_by_entity_qsre_composite_key()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.OrderBy(w => w.Owner).ThenBy(w => w.Id).Select(w => w.Name),
                 ws => ws.OrderBy(w => Maybe(w.Owner, () => w.Owner.Nickname)).ThenBy(w => MaybeScalar<int>(w.Owner, () => w.Owner.SquadId)).ThenBy(w => w.Id).Select(w => w.Name),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Order_by_entity_qsre_with_other_orderbys()
+        public virtual Task Order_by_entity_qsre_with_other_orderbys()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.OrderBy(w => w.IsAutomatic).ThenByDescending(w => w.Owner).ThenBy(w => w.SynergyWith).ThenBy(w => w.Name),
                 ws => ws
                     .OrderBy(w => w.IsAutomatic)
@@ -5039,9 +5041,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_on_entity_qsre_keys()
+        public virtual Task Join_on_entity_qsre_keys()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => from w1 in ws
                       join w2 in ws on w1 equals w2
                       select new
@@ -5053,9 +5055,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_on_entity_qsre_keys_composite_key()
+        public virtual Task Join_on_entity_qsre_keys_composite_key()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g1 in gs
                       join g2 in gs on g1 equals g2
                       select new
@@ -5067,9 +5069,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_on_entity_qsre_keys_inheritance()
+        public virtual Task Join_on_entity_qsre_keys_inheritance()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       join o in gs.OfType<Officer>() on g equals o
                       select new
@@ -5081,9 +5083,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_on_entity_qsre_keys_outer_key_is_navigation()
+        public virtual Task Join_on_entity_qsre_keys_outer_key_is_navigation()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => from w1 in ws
                       join w2 in ws on w1.SynergyWith equals w2
                       select new
@@ -5095,9 +5097,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_on_entity_qsre_keys_inner_key_is_navigation()
+        public virtual Task Join_on_entity_qsre_keys_inner_key_is_navigation()
         {
-            AssertQuery<City, Gear>(
+            return AssertQueryAsync<City, Gear>(
                 (cs, gs) =>
                     from c in cs
                     join g in gs on c equals g.AssignedCity
@@ -5110,9 +5112,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_on_entity_qsre_keys_inner_key_is_navigation_composite_key()
+        public virtual Task Join_on_entity_qsre_keys_inner_key_is_navigation_composite_key()
         {
-            AssertQuery<Gear, CogTag>(
+            return AssertQueryAsync<Gear, CogTag>(
                 (gs, ts) =>
                     from g in gs
                     join t in ts.Where(tt => tt.Note == "Cole's Tag" || tt.Note == "Dom's Tag") on g equals t.Gear
@@ -5125,9 +5127,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_on_entity_qsre_keys_inner_key_is_nested_navigation()
+        public virtual Task Join_on_entity_qsre_keys_inner_key_is_nested_navigation()
         {
-            AssertQuery<Squad, Weapon>(
+            return AssertQueryAsync<Squad, Weapon>(
                 (ss, ws) =>
                     from s in ss
                     join w in ws.Where(ww => ww.IsAutomatic) on s equals w.Owner.Squad
@@ -5140,9 +5142,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_on_entity_qsre_keys_inner_key_is_nested_navigation()
+        public virtual Task GroupJoin_on_entity_qsre_keys_inner_key_is_nested_navigation()
         {
-            AssertQuery<Squad, Weapon>(
+            return AssertQueryAsync<Squad, Weapon>(
                 (ss, ws) =>
                     from s in ss
                     join w in ws on s equals w.Owner.Squad into grouping
@@ -5165,9 +5167,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_with_complex_key_selector()
+        public virtual Task Join_with_complex_key_selector()
         {
-            AssertQuery<Squad, CogTag, Gear>(
+            return AssertQueryAsync<Squad, CogTag, Gear>(
                 (ss, ts, gs) => ss
                     .Join(
                         ts.Where(t => t.Note == "Marcus' Tag"), o => true, i => true, (o, i) => new
@@ -5304,9 +5306,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_one_value_type_from_empty_collection()
+        public virtual Task Project_one_value_type_from_empty_collection()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Where(s => s.Name == "Kilo").Select(
                     s => new
                     {
@@ -5316,16 +5318,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Filter_on_subquery_projecting_one_value_type_from_empty_collection()
+        public virtual Task Filter_on_subquery_projecting_one_value_type_from_empty_collection()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Where(s => s.Name == "Kilo").Where(s => s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() != 0).Select(s => s.Name));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_projecting_single_constant_int()
+        public virtual Task Select_subquery_projecting_single_constant_int()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Select(
                     s => new
                     {
@@ -5335,9 +5337,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_projecting_single_constant_string()
+        public virtual Task Select_subquery_projecting_single_constant_string()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Select(
                     s => new
                     {
@@ -5347,9 +5349,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_projecting_single_constant_bool()
+        public virtual Task Select_subquery_projecting_single_constant_bool()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Select(
                     s => new
                     {
@@ -5359,9 +5361,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_projecting_single_constant_inside_anonymous()
+        public virtual Task Select_subquery_projecting_single_constant_inside_anonymous()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Select(
                     s => new
                     {
@@ -5375,9 +5377,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_projecting_multiple_constants_inside_anonymous()
+        public virtual Task Select_subquery_projecting_multiple_constants_inside_anonymous()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Select(
                     s => new
                     {
@@ -5392,9 +5394,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_order_by_constant()
+        public virtual Task Include_with_order_by_constant()
         {
-            AssertIncludeQuery<Squad>(
+            return AssertIncludeQueryAsync<Squad>(
                 ss => ss.Include(s => s.Members).OrderBy(s => 42),
                 expectedQuery: ss => ss,
                 new List<IExpectedInclude>
@@ -5420,9 +5422,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collection_order_by_constant()
+        public virtual Task Correlated_collection_order_by_constant()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OrderByDescending(s => 1).Select(
                     g => new
                     {
@@ -5442,9 +5444,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_projecting_single_constant_null_of_non_mapped_type()
+        public virtual Task Select_subquery_projecting_single_constant_null_of_non_mapped_type()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Select(
                     s => new
                     {
@@ -5454,9 +5456,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_projecting_single_constant_of_non_mapped_type()
+        public virtual Task Select_subquery_projecting_single_constant_of_non_mapped_type()
         {
-            AssertQuery<Squad>(
+            return AssertQueryAsync<Squad>(
                 ss => ss.Select(
                     s => new
                     {
@@ -5468,9 +5470,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "issue #11567")]
-        public virtual void Include_with_order_by_constant_null_of_non_mapped_type()
+        public virtual Task Include_with_order_by_constant_null_of_non_mapped_type()
         {
-            AssertIncludeQuery<Squad>(
+            return AssertIncludeQueryAsync<Squad>(
                 ss => ss.Include(s => s.Members).OrderBy(s => (MyDTO)null),
                 expectedQuery: ss => ss,
                 new List<IExpectedInclude>
@@ -5496,9 +5498,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collection_order_by_constant_null_of_non_mapped_type()
+        public virtual Task Correlated_collection_order_by_constant_null_of_non_mapped_type()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OrderByDescending(s => (MyDTO)null).Select(
                     g => new
                     {
@@ -5539,9 +5541,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_OrderBy_aggregate()
+        public virtual Task Include_collection_OrderBy_aggregate()
         {
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 os => os.OfType<Officer>()
                     .Include(o => o.Reports)
                     .OrderBy(o => o.Weapons.Count),
@@ -5552,9 +5554,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_complex_OrderBy2()
+        public virtual Task Include_collection_with_complex_OrderBy2()
         {
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 os => os.OfType<Officer>()
                     .Include(o => o.Reports)
                     .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
@@ -5565,9 +5567,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_complex_OrderBy3()
+        public virtual Task Include_collection_with_complex_OrderBy3()
         {
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 os => os.OfType<Officer>()
                     .Include(o => o.Reports)
                     .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()),
@@ -5578,9 +5580,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collection_with_complex_OrderBy()
+        public virtual Task Correlated_collection_with_complex_OrderBy()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OfType<Officer>()
                     .OrderBy(o => o.Weapons.Count)
                     .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
@@ -5589,9 +5591,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collection_with_very_complex_order_by()
+        public virtual Task Correlated_collection_with_very_complex_order_by()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OfType<Officer>()
                     .OrderBy(o => o.Weapons.Where(w => w.IsAutomatic == gs.Where(g => g.Nickname == "Marcus").Select(g => g.HasSoulPatch).FirstOrDefault()).Count())
                     .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
@@ -5610,113 +5612,113 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Cast_to_derived_type_after_OfType_works()
+        public virtual Task Cast_to_derived_type_after_OfType_works()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs.OfType<Officer>().Cast<Officer>());
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_boolean()
+        public virtual Task Select_subquery_boolean()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => g.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_boolean_with_pushdown()
+        public virtual Task Select_subquery_boolean_with_pushdown()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_int_with_inside_cast_and_coalesce()
+        public virtual Task Select_subquery_int_with_inside_cast_and_coalesce()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => g.Weapons.OrderBy(w => w.Id).Select(w => (int?)w.Id).FirstOrDefault() ?? 42));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_int_with_outside_cast_and_coalesce()
+        public virtual Task Select_subquery_int_with_outside_cast_and_coalesce()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => (int?)g.Weapons.OrderBy(w => w.Id).Select(w => w.Id).FirstOrDefault() ?? 42));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_int_with_pushdown_and_coalesce()
+        public virtual Task Select_subquery_int_with_pushdown_and_coalesce()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => (int?)g.Weapons.OrderBy(w => w.Id).FirstOrDefault().Id ?? 42));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_boolean_empty()
+        public virtual Task Select_subquery_boolean_empty()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_boolean_empty_with_pushdown()
+        public virtual Task Select_subquery_boolean_empty_with_pushdown()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
                 gs => gs.Select(g => (bool?)null));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_distinct_singleordefault_boolean1()
+        public virtual Task Select_subquery_distinct_singleordefault_boolean1()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().Select(w => w.IsAutomatic).SingleOrDefault()),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_distinct_singleordefault_boolean2()
+        public virtual Task Select_subquery_distinct_singleordefault_boolean2()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Select(w => w.IsAutomatic).Distinct().SingleOrDefault()),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_distinct_singleordefault_boolean_with_pushdown()
+        public virtual Task Select_subquery_distinct_singleordefault_boolean_with_pushdown()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().SingleOrDefault().IsAutomatic),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_distinct_singleordefault_boolean_empty1()
+        public virtual Task Select_subquery_distinct_singleordefault_boolean_empty1()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name == "BFG").Distinct().Select(w => w.IsAutomatic).SingleOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_distinct_singleordefault_boolean_empty2()
+        public virtual Task Select_subquery_distinct_singleordefault_boolean_empty2()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Where(w => w.Name == "BFG").Select(w => w.IsAutomatic).Distinct().SingleOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Select_subquery_distinct_singleordefault_boolean_empty_with_pushdown()
+        public virtual Task Select_subquery_distinct_singleordefault_boolean_empty_with_pushdown()
         {
-            AssertQueryScalar<Gear>(
+            return AssertQueryScalarAsync<Gear>(
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").Distinct().SingleOrDefault().IsAutomatic),
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => (bool?)null),
                 assertOrder: true);
         }
 
         [ConditionalFact]
-        public virtual void Cast_subquery_to_base_type_using_typed_ToList()
+        public virtual Task Cast_subquery_to_base_type_using_typed_ToList()
         {
-            AssertQuery<City>(
+            return AssertQueryAsync<City>(
                 cs => cs.Where(c => c.Name == "Ephyra").Select(
                     c => c.StationedGears.Select(
                         g => new Officer
@@ -5735,9 +5737,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Cast_ordered_subquery_to_base_type_using_typed_ToArray()
+        public virtual Task Cast_ordered_subquery_to_base_type_using_typed_ToArray()
         {
-            AssertQuery<City>(
+            return AssertQueryAsync<City>(
                 cs => cs.Where(c => c.Name == "Ephyra").Select(
                     c => c.StationedGears.OrderByDescending(g => g.Nickname).Select(
                         g => new Officer
@@ -5756,10 +5758,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
+        public virtual Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
         {
             var nicknames = new List<string>();
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => from g in gs
                       orderby nicknames.Contains(g.Nickname) descending
                       select new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() },
@@ -5772,124 +5774,124 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Double_order_by_on_nullable_bool_coming_from_optional_navigation()
+        public virtual Task Double_order_by_on_nullable_bool_coming_from_optional_navigation()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.IsAutomatic).OrderBy(w => w.IsAutomatic),
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.IsAutomatic : false));
         }
 
         [ConditionalFact]
-        public virtual void Double_order_by_on_Like()
+        public virtual Task Double_order_by_on_Like()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => EF.Functions.Like(w.Name, "%Lancer")).OrderBy(w => EF.Functions.Like(w.Name, "%Lancer")),
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.EndsWith("Lancer") : false));
         }
 
         [ConditionalFact]
-        public virtual void Double_order_by_on_is_null()
+        public virtual Task Double_order_by_on_is_null()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name == null).OrderBy(w => w.Name == null),
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name == null : false));
         }
 
         [ConditionalFact]
-        public virtual void Double_order_by_on_string_compare()
+        public virtual Task Double_order_by_on_string_compare()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0),
                 ws => ws.OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false));
         }
 
         [ConditionalFact]
-        public virtual void Double_order_by_binary_expression()
+        public virtual Task Double_order_by_binary_expression()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.OrderBy(w => w.Id + 2).OrderBy(w => w.Id + 2).Select(w => new { Binary = w.Id + 2 }));
         }
 
         [ConditionalFact]
-        public virtual void String_compare_with_null_conditional_argument()
+        public virtual Task String_compare_with_null_conditional_argument()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0),
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false));
         }
 
         [ConditionalFact]
-        public virtual void String_compare_with_null_conditional_argument2()
+        public virtual Task String_compare_with_null_conditional_argument2()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => "Marcus' Lancer".CompareTo(w.Name) == 0),
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? "Marcus' Lancer".CompareTo(w.Name) == 0 : false));
         }
 
         [ConditionalFact]
-        public virtual void String_concat_with_null_conditional_argument()
+        public virtual Task String_concat_with_null_conditional_argument()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name + 5),
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name + 5 : null));
         }
 
         [ConditionalFact]
-        public virtual void String_concat_with_null_conditional_argument2()
+        public virtual Task String_concat_with_null_conditional_argument2()
         {
-            AssertQuery<Weapon>(
+            return AssertQueryAsync<Weapon>(
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => string.Concat(w.Name, "Marcus' Lancer")),
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? string.Concat(w.Name, "Marcus' Lancer") : null));
         }
 
         [ConditionalFact]
-        public virtual void Time_of_day_datetimeoffset()
+        public virtual Task Time_of_day_datetimeoffset()
         {
-            AssertQueryScalar<Mission>(
+            return AssertQueryScalarAsync<Mission>(
                ms => from m in ms
                      select m.Timeline.TimeOfDay);
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_Property_Include_Select_Average()
+        public virtual Task GroupBy_Property_Include_Select_Average()
         {
-            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth ).GroupBy(g => g.Rank).Select(g => g.Average(gg => gg.SquadId)));
+            return AssertQueryScalarAsync<Gear>(gs => gs.Include(g => g.CityOfBirth ).GroupBy(g => g.Rank).Select(g => g.Average(gg => gg.SquadId)));
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_Property_Include_Select_Sum()
+        public virtual Task GroupBy_Property_Include_Select_Sum()
         {
-            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Sum(gg => gg.SquadId)));
+            return AssertQueryScalarAsync<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Sum(gg => gg.SquadId)));
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_Property_Include_Select_Count()
+        public virtual Task GroupBy_Property_Include_Select_Count()
         {
-            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Count()));
+            return AssertQueryScalarAsync<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Count()));
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_Property_Include_Select_LongCount()
+        public virtual Task GroupBy_Property_Include_Select_LongCount()
         {
-            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.LongCount()));
+            return AssertQueryScalarAsync<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.LongCount()));
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_Property_Include_Select_Max()
+        public virtual Task GroupBy_Property_Include_Select_Max()
         {
-            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Max(gg => gg.SquadId)));
+            return AssertQueryScalarAsync<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Max(gg => gg.SquadId)));
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_Property_Include_Select_Min()
+        public virtual Task GroupBy_Property_Include_Select_Min()
         {
-            AssertQueryScalar<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Min(gg => gg.SquadId)));
+            return AssertQueryScalarAsync<Gear>(gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Min(gg => gg.SquadId)));
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_Property_Include_Aggregate_with_anonymous_selector()
+        public virtual Task GroupBy_Property_Include_Aggregate_with_anonymous_selector()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     gs.Include(g => g.CityOfBirth).GroupBy(g => g.Nickname).OrderBy(g => g.Key)
                         .Select(
@@ -5902,9 +5904,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "issue #12340")]
-        public virtual void Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector()
+        public virtual Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs
                     .GroupBy(g => g.CityOfBirth)
                     .OrderBy(g => g.Key.Name)
@@ -5921,9 +5923,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "issue #12340")]
-        public virtual void Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property()
+        public virtual Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs => gs
                     .GroupBy(g => g.CityOfBirth)
                     .OrderBy(g => g.Key.Name)
@@ -5940,9 +5942,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Group_by_with_include_with_entity_in_result_selector()
+        public virtual Task Group_by_with_include_with_entity_in_result_selector()
         {
-            AssertQuery<Gear>(
+            return AssertQueryAsync<Gear>(
                 gs =>
                     gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).OrderBy(g => g.Key)
                         .Select(
@@ -5967,7 +5969,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_group_by_and_FirstOrDefault_gets_properly_applied()
+        public virtual Task Include_with_group_by_and_FirstOrDefault_gets_properly_applied()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -5975,7 +5977,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Officer>(e => e.CityOfBirth, "CityOfBirth"),
             };
 
-            AssertIncludeQuery<Gear>(
+            return AssertIncludeQueryAsync<Gear>(
                 gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.FirstOrDefault(gg => gg.HasSoulPatch)),
                 expectedIncludes);
         }

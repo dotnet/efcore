@@ -57,15 +57,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public override async Task SelectMany_simple2()
+        public override Task SelectMany_simple2()
         {
-            await base.SelectMany_simple2();
+            return base.SelectMany_simple2();
         }
 
         [Fact]
-        public async Task Single_Predicate_Cancellation()
+        public Task Single_Predicate_Cancellation()
         {
-            await Assert.ThrowsAsync<OperationCanceledException>(
+            return Assert.ThrowsAsync<OperationCanceledException>(
                 async () =>
                     await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
@@ -173,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
+        public Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
         {
-            await AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }),
                 elementSorter: e => e.City + " " + e.Count);
         }
