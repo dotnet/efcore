@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -21,6 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     {
+        private static readonly HashSet<string> _spatialiteTypes
+            = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "GEOMETRY",
+                "GEOMETRYCOLLECTION",
+                "LINESTRING",
+                "MULTILINESTRING",
+                "MULTIPOINT",
+                "MULTIPOLYGON",
+                "POINT",
+                "POLYGON"
+            };
+
         private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
 
         /// <summary>
@@ -42,9 +57,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <returns> The list of commands to be executed or scripted. </returns>
         public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
-            => base.Generate(LiftForeignKeyOperations(operations), model);
+            => base.Generate(RewriteOperations(operations, model), model);
 
-        private static IReadOnlyList<MigrationOperation> LiftForeignKeyOperations(IReadOnlyList<MigrationOperation> migrationOperations)
+        /// <summary>
+        ///     Checks whether a column type is one of the SpatiaLite column types.
+        /// </summary>
+        /// <param name="columnType"> The column type to check. </param>
+        /// <returns> true if it's a SpatiaLite type; otherwise, false.  </returns>
+        public static bool IsSpatialiteType(string columnType)
+            => _spatialiteTypes.Contains(columnType);
+
+        private bool IsSpatialiteColumn(AddColumnOperation operation, IModel model)
+            => IsSpatialiteType(
+                operation.ColumnType
+                    ?? GetColumnType(
+                        operation.Schema,
+                        operation.Table,
+                        operation.Name,
+                        operation.ClrType,
+                        operation.IsUnicode,
+                        operation.MaxLength,
+                        operation.IsFixedLength,
+                        operation.IsRowVersion,
+                        model));
+
+        private IReadOnlyList<MigrationOperation> RewriteOperations(
+            IReadOnlyList<MigrationOperation> migrationOperations,
+            IModel model)
         {
             var operations = new List<MigrationOperation>();
             foreach (var operation in migrationOperations)
@@ -58,15 +97,120 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     if (table != null)
                     {
                         table.ForeignKeys.Add(foreignKeyOperation);
-                        //do not add to fk operation migration
-                        continue;
+                    }
+                    else
+                    {
+                        operations.Add(operation);
                     }
                 }
+                else if (operation is CreateTableOperation createTableOperation)
+                {
+                    var spatialiteColumns = new Stack<AddColumnOperation>();
+                    for (var i = createTableOperation.Columns.Count - 1; i >= 0; i--)
+                    {
+                        var addColumnOperation = createTableOperation.Columns[i];
 
-                operations.Add(operation);
+                        if (IsSpatialiteColumn(addColumnOperation, model))
+                        {
+                            spatialiteColumns.Push(addColumnOperation);
+                            createTableOperation.Columns.RemoveAt(i);
+                        }
+                    }
+
+                    operations.Add(operation);
+                    operations.AddRange(spatialiteColumns);
+                }
+                else
+                {
+                    operations.Add(operation);
+                }
             }
 
-            return operations.AsReadOnly();
+            return operations;
+        }
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="AlterDatabaseOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(AlterDatabaseOperation operation, IModel model, MigrationCommandListBuilder builder)
+        {
+            if (operation[SqliteAnnotationNames.InitSpatialMetaData] as bool? != true
+                || operation.OldDatabase[SqliteAnnotationNames.InitSpatialMetaData] as bool? == true)
+            {
+                return;
+            }
+
+            builder
+                .Append("SELECT InitSpatialMetaData()")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            EndStatement(builder);
+        }
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="AddColumnOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected override void Generate(AddColumnOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate)
+        {
+            if (!IsSpatialiteColumn(operation, model))
+            {
+                base.Generate(operation, model, builder, terminate);
+
+                return;
+            }
+
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+            var longTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(long));
+
+            var srid = operation[SqliteAnnotationNames.Srid] as int? ?? 0;
+            var dimension = operation[SqliteAnnotationNames.Dimension] as string;
+
+            var geometryType = operation.ColumnType
+                ?? GetColumnType(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    operation.ClrType,
+                    operation.IsUnicode,
+                    operation.MaxLength,
+                    operation.IsFixedLength,
+                    operation.IsRowVersion,
+                    model);
+            if (!string.IsNullOrEmpty(dimension))
+            {
+                geometryType += dimension;
+            }
+
+            builder
+                .Append("SELECT AddGeometryColumn(")
+                .Append(stringTypeMapping.GenerateSqlLiteral(operation.Table))
+                .Append(", ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(operation.Name))
+                .Append(", ")
+                .Append(longTypeMapping.GenerateSqlLiteral(srid))
+                .Append(", ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(geometryType))
+                .Append(", -1, ")
+                .Append(operation.IsNullable ? "0" : "1")
+                .Append(")");
+
+            if (terminate)
+            {
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
+            else
+            {
+                Debug.Fail("I have a bad feeling about this. Geometry columns don't compose well.");
+            }
         }
 
         /// <summary>

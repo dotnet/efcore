@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -75,6 +76,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override void OpenConnection()
         {
             Connection.Open();
+
+            ((SqliteConnection)Connection).EnableExtensions();
+            SpatialiteLoader.TryLoad(Connection);
 
             using (var command = Connection.CreateCommand())
             {

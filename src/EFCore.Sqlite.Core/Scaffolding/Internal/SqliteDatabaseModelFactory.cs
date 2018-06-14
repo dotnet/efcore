@@ -12,6 +12,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -82,6 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             if (!connectionStartedOpen)
             {
                 connection.Open();
+
+                ((SqliteConnection)connection).EnableExtensions();
+                SpatialiteLoader.TryLoad(connection);
             }
 
             try
@@ -146,9 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 command.CommandText = new StringBuilder()
                     .AppendLine("SELECT \"name\"")
                     .AppendLine("FROM \"sqlite_master\"")
-                    .Append("WHERE \"type\" = 'table' AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" <> '")
+                    .Append("WHERE \"type\" = 'table' AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" NOT IN ('")
                     .Append(HistoryRepository.DefaultTableName)
-                    .AppendLine("';")
+                    .AppendLine("', 'geometry_columns', 'spatial_ref_sys', 'spatialite_history');")
                     .ToString();
 
                 using (var reader = command.ExecuteReader())
