@@ -1940,8 +1940,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string>)definition;
             var p = (EntityEntryEventData)payload;
             return d.GenerateMessage(
-                p.EntityEntry.Metadata.ShortName(),
-                p.EntityEntry.Context.GetType().ShortDisplayName());
+                p.EntityEntry.Context.GetType().ShortDisplayName(),
+                p.EntityEntry.Metadata.ShortName());
         }
 
         /// <summary>
@@ -1981,9 +1981,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string, string>)definition;
             var p = (EntityEntryEventData)payload;
             return d.GenerateMessage(
+                p.EntityEntry.Context.GetType().ShortDisplayName(),
                 p.EntityEntry.Metadata.ShortName(),
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey().Properties),
-                p.EntityEntry.Context.GetType().ShortDisplayName());
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey().Properties));
         }
 
         /// <summary>
