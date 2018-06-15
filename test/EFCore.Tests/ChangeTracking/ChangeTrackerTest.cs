@@ -216,8 +216,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreStrings.LogStartedTrackingSensitive.GenerateMessage(nameof(Cat), "{Id: 1}", nameof(LikeAZooContextSensitive))
-                        : CoreStrings.LogStartedTracking.GenerateMessage(nameof(Cat), nameof(LikeAZooContext)),
+                        ? CoreStrings.LogStartedTrackingSensitive.GenerateMessage(nameof(LikeAZooContextSensitive), nameof(Cat), "{Id: 1}")
+                        : CoreStrings.LogStartedTracking.GenerateMessage(nameof(LikeAZooContext), nameof(Cat)),
                     message);
             }
         }
@@ -236,8 +236,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreStrings.LogStartedTrackingSensitive.GenerateMessage(nameof(Hat), "{Id: 88}", nameof(LikeAZooContextSensitive))
-                        : CoreStrings.LogStartedTracking.GenerateMessage(nameof(Hat), nameof(LikeAZooContext)),
+                        ? CoreStrings.LogStartedTrackingSensitive.GenerateMessage(nameof(LikeAZooContextSensitive), nameof(Hat), "{Id: 88}")
+                        : CoreStrings.LogStartedTracking.GenerateMessage(nameof(LikeAZooContext), nameof(Hat)),
                     message);
             }
         }
