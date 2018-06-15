@@ -27,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private readonly List<Expression> _taskExpressions = new List<Expression>();
 
+        private CancelationTokenFindingExpressionVisitor _cancelationTokenFinder;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -39,8 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public virtual Expression LiftTasks([NotNull] Expression expression)
         {
-            var newExpression = Visit(expression);
+            _cancelationTokenFinder = new CancelationTokenFindingExpressionVisitor();
 
+            var newExpression = Visit(expression);
             if (newExpression != expression)
             {
                 newExpression
@@ -145,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (CancellationTokenParameter == null)
                 {
-                    Visit(memberExpression.Expression);
+                    _cancelationTokenFinder.Visit(memberExpression.Expression);
+                    CancellationTokenParameter = _cancelationTokenFinder.CancellationTokenParameter;
                 }
 
                 return
@@ -177,7 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (CancellationTokenParameter == null)
                 {
-                    Visit(methodCallExpression.Arguments[0]);
+                    _cancelationTokenFinder.Visit(methodCallExpression.Arguments[0]);
+                    CancellationTokenParameter = _cancelationTokenFinder.CancellationTokenParameter;
                 }
 
                 return
@@ -204,5 +209,29 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitBlock(BlockExpression node) => node;
+
+        private class CancelationTokenFindingExpressionVisitor : RelinqExpressionVisitor
+        {
+            public ParameterExpression CancellationTokenParameter { get; private set; }
+
+            public override Expression Visit(Expression node)
+                => CancellationTokenParameter == null
+                ? base.Visit(node)
+                : node;
+
+            protected override Expression VisitParameter(ParameterExpression parameterExpression)
+            {
+                if (parameterExpression.Type == typeof(CancellationToken))
+                {
+                    CancellationTokenParameter = parameterExpression;
+                }
+
+                return parameterExpression;
+            }
+
+            // prune
+            protected override Expression VisitLambda<T>(Expression<T> node) => node;
+            protected override Expression VisitBlock(BlockExpression node) => node;
+        }
     }
 }
