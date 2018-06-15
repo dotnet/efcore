@@ -208,5 +208,15 @@
       "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.UShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
       "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "System.String GenerateParameterNamePlaceholder(System.String name)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+      "MemberId": "System.Void GenerateParameterNamePlaceholder(System.Text.StringBuilder builder, System.String name)",
+      "Kind": "Addition"
     }
 ]

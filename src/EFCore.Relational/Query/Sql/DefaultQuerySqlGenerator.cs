@@ -1744,7 +1744,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     parameterExpression.Type.IsNullableType());
             }
 
-            _relationalCommandBuilder.Append(parameterName);
+            var parameterNamePlaceholder = SqlGenerator.GenerateParameterNamePlaceholder(parameterExpression.Name);
+
+            _relationalCommandBuilder.Append(parameterNamePlaceholder);
 
             return parameterExpression;
         }
@@ -1780,7 +1782,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     propertyParameterExpression.Property);
             }
 
-            _relationalCommandBuilder.Append(parameterName);
+            var parameterNamePlaceholder
+                = SqlGenerator.GenerateParameterNamePlaceholder(
+                    propertyParameterExpression.PropertyParameterName);
+
+            _relationalCommandBuilder.Append(parameterNamePlaceholder);
 
             return propertyParameterExpression;
         }
