@@ -919,7 +919,7 @@ FROM [sys].[foreign_keys] AS [f]
 JOIN [sys].[tables] AS [t] ON [f].[parent_object_id] = [t].[object_id]
 JOIN [sys].[foreign_key_columns] AS [fc] ON [f].[object_id] = [fc].[constraint_object_id]
 WHERE " + tableFilter + @"
-ORDER BY [table_schema], [table_name], [name], [fc].[constraint_column_id]";
+ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
 
                 using (var reader = command.ExecuteReader())
                 {
