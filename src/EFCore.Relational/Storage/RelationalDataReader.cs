@@ -106,6 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual DbDataReader DbDataReader => _reader;
 
         /// <summary>
+        ///     Gets the underlying command for the result set.
+        /// </summary>
+        public virtual DbCommand DbCommand => _command;
+
+        /// <summary>
         ///     Calls Read on the underlying DbDataReader.
         /// </summary>
         /// <returns>true if there are more rows; otherwise false.</returns>
