@@ -140,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ModelBuiltConventions.Add(new ConstructorBindingConvention(Dependencies.ConstructorBindingFactory));
             conventionSet.ModelBuiltConventions.Add(new TypeMappingConvention(Dependencies.TypeMappingSource));
             conventionSet.ModelBuiltConventions.Add(new IgnoredMembersValidationConvention());
+            conventionSet.ModelBuiltConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ModelBuiltConventions.Add(
                 new PropertyMappingValidationConvention(

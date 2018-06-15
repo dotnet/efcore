@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
-            => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
+            => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues))).AsTracking();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

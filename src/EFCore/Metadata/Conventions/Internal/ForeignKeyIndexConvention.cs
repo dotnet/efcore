@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IBaseTypeChangedConvention,
         IIndexAddedConvention,
         IIndexRemovedConvention,
-        IIndexUniquenessChangedConvention
+        IIndexUniquenessChangedConvention,
+        IModelBuiltConvention
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var index in key.DeclaringEntityType.GetDerivedIndexesInclusive()
                 .Where(i => AreIndexedBy(i.Properties, i.IsUnique, key.Properties, true)).ToList())
             {
-                RemoveIndex(index, key.Properties);
+                RemoveIndex(index);
             }
 
             return keyBuilder;
@@ -126,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, existingIndexUniqueness: true));
                     if (coveringKey != null)
                     {
-                        RemoveIndex(index, coveringKey.Properties);
+                        RemoveIndex(index);
                     }
                     else
                     {
@@ -134,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             i => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, i.Properties, i.IsUnique));
                         if (coveringIndex != null)
                         {
-                            RemoveIndex(index, coveringIndex.Properties);
+                            RemoveIndex(index);
                         }
                     }
                 }
@@ -153,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var otherIndex in index.DeclaringEntityType.GetDerivedIndexesInclusive()
                 .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, index.IsUnique)).ToList())
             {
-                RemoveIndex(otherIndex, index.Properties);
+                RemoveIndex(otherIndex);
             }
 
             return indexBuilder;
@@ -195,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         .FirstOrDefault(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, existingIndexUniqueness: true));
                     if (coveringKey != null)
                     {
-                        RemoveIndex(index, coveringKey.Properties);
+                        RemoveIndex(index);
                         return relationshipBuilder;
                     }
 
@@ -203,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         .FirstOrDefault(i => AreIndexedBy(foreignKey.Properties, false, i.Properties, i.IsUnique));
                     if (coveringIndex != null)
                     {
-                        RemoveIndex(index, coveringIndex.Properties);
+                        RemoveIndex(index);
                         return relationshipBuilder;
                     }
                 }
@@ -226,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var otherIndex in index.DeclaringEntityType.GetDerivedIndexesInclusive()
                     .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, existingIndexUniqueness: true)).ToList())
                 {
-                    RemoveIndex(otherIndex, index.Properties);
+                    RemoveIndex(otherIndex);
                 }
             }
             else
@@ -248,16 +249,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual Index CreateIndex(
             [NotNull] IReadOnlyList<Property> properties, bool unique, [NotNull] InternalEntityTypeBuilder entityTypeBuilder)
         {
-            if (entityTypeBuilder.Metadata.GetKeys()
-                .Any(key => AreIndexedBy(properties, unique, key.Properties, existingIndexUniqueness: true)))
+            foreach (var key in entityTypeBuilder.Metadata.GetKeys())
             {
-                return null;
+                if (AreIndexedBy(properties, unique, key.Properties, existingIndexUniqueness: true))
+                {
+                    return null;
+                }
             }
 
-            if (entityTypeBuilder.Metadata.GetIndexes()
-                .Any(existingIndex => AreIndexedBy(properties, unique, existingIndex.Properties, existingIndex.IsUnique)))
+            foreach (var existingIndex in entityTypeBuilder.Metadata.GetIndexes())
             {
-                return null;
+                if (AreIndexedBy(properties, unique, existingIndex.Properties, existingIndex.IsUnique))
+                {
+                    return null;
+                }
             }
 
             var indexBuilder = entityTypeBuilder.HasIndex(properties, ConfigurationSource.Convention);
@@ -281,14 +286,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             => (!unique && existingIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
                || (unique && existingIndexUniqueness && existingIndexProperties.SequenceEqual(properties));
 
-        private void RemoveIndex(Index index, IReadOnlyList<IProperty> coveringProperties)
+        private void RemoveIndex(Index index)
+            => index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            if (index.Properties.Count != coveringProperties.Count)
+            var definition = CoreStrings.LogRedundantIndexRemoved;
+            if (definition.GetLogBehavior(_logger) == WarningBehavior.Ignore
+                && !_logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                _logger.RedundantIndexRemoved(index.Properties, coveringProperties);
+                return modelBuilder;
             }
 
-            index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            {
+                foreach (var declaredForeignKey in entityType.GetDeclaredForeignKeys())
+                {
+                    foreach (var key in entityType.GetKeys())
+                    {
+                        if (AreIndexedBy(declaredForeignKey.Properties, declaredForeignKey.IsUnique, key.Properties, existingIndexUniqueness: true))
+                        {
+                            if (declaredForeignKey.Properties.Count != key.Properties.Count)
+                            {
+                                _logger.RedundantIndexRemoved(declaredForeignKey.Properties, key.Properties);
+                            }
+                        }
+                    }
+
+                    foreach (var existingIndex in entityType.GetIndexes())
+                    {
+                        if (AreIndexedBy(declaredForeignKey.Properties, declaredForeignKey.IsUnique, existingIndex.Properties, existingIndex.IsUnique))
+                        {
+                            if (declaredForeignKey.Properties.Count != existingIndex.Properties.Count)
+                            {
+                                _logger.RedundantIndexRemoved(declaredForeignKey.Properties, existingIndex.Properties);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return modelBuilder;
         }
     }
 }

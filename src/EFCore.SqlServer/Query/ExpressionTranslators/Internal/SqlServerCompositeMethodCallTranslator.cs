@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             new SqlServerStringTrimEndTranslator(),
             new SqlServerStringTrimStartTranslator(),
             new SqlServerStringTrimTranslator(),
-            new SqlServerStringIndexOfTranslator()
+            new SqlServerStringIndexOfTranslator(),
+            new SqlServerStringConcatMethodCallTranslator()
         };
 
         /// <summary>

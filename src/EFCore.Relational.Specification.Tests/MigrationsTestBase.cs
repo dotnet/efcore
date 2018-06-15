@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected virtual async Task ExecuteAsync(IServiceProvider services, Action<MigrationBuilder> buildMigration)
+        protected virtual Task ExecuteAsync(IServiceProvider services, Action<MigrationBuilder> buildMigration)
         {
             var generator = services.GetRequiredService<IMigrationsSqlGenerator>();
             var executor = services.GetRequiredService<IMigrationCommandExecutor>();
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var commandList = generator.Generate(operations);
 
-            await executor.ExecuteNonQueryAsync(commandList, connection);
+            return executor.ExecuteNonQueryAsync(commandList, connection);
         }
 
         protected virtual void BuildFirstMigration(MigrationBuilder migrationBuilder)

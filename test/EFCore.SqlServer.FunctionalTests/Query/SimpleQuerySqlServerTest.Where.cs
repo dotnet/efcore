@@ -1,7 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -17,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 #error target frameworks need to be updated.
 #endif
 
-        public override void Where_simple()
+        public override async Task Where_simple()
         {
-            base.Where_simple();
+            await base.Where_simple();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -27,9 +31,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'London'");
         }
 
-        public override void Where_as_queryable_expression()
+        public override async Task Where_as_queryable_expression()
         {
-            base.Where_as_queryable_expression();
+            await base.Where_as_queryable_expression();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -44,9 +48,9 @@ WHERE EXISTS (
     WHERE [t].[CustomerID] = N'ALFKI')");
         }
 
-        public override void Where_simple_closure()
+        public override async Task Where_simple_closure()
         {
-            base.Where_simple_closure();
+            await base.Where_simple_closure();
 
             AssertSql(
                 @"@__city_0='London' (Size = 4000)
@@ -56,9 +60,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0");
         }
 
-        public override void Where_indexer_closure()
+        public override async Task Where_indexer_closure()
         {
-            base.Where_indexer_closure();
+            await base.Where_indexer_closure();
 
             AssertSql(
                 @"@__p_0='London' (Size = 4000)
@@ -68,9 +72,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__p_0");
         }
 
-        public override void Where_dictionary_key_access_closure()
+        public override async Task Where_dictionary_key_access_closure()
         {
-            base.Where_dictionary_key_access_closure();
+            await base.Where_dictionary_key_access_closure();
 
             AssertSql(
                 @"@__get_Item_0='London' (Size = 4000)
@@ -80,9 +84,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__get_Item_0");
         }
 
-        public override void Where_tuple_item_closure()
+        public override async Task Where_tuple_item_closure()
         {
-            base.Where_tuple_item_closure();
+            await base.Where_tuple_item_closure();
 
             AssertSql(
                 @"@__predicateTuple_Item2_0='London' (Size = 4000)
@@ -92,9 +96,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__predicateTuple_Item2_0");
         }
 
-        public override void Where_named_tuple_item_closure()
+        public override async Task Where_named_tuple_item_closure()
         {
-            base.Where_named_tuple_item_closure();
+            await base.Where_named_tuple_item_closure();
 
             AssertSql(
                 @"@__predicateTuple_Item2_0='London' (Size = 4000)
@@ -104,9 +108,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__predicateTuple_Item2_0");
         }
 
-        public override void Where_simple_closure_constant()
+        public override async Task Where_simple_closure_constant()
         {
-            base.Where_simple_closure_constant();
+            await base.Where_simple_closure_constant();
 
             AssertSql(
                 @"@__predicate_0='True'
@@ -116,9 +120,9 @@ FROM [Customers] AS [c]
 WHERE @__predicate_0 = 1");
         }
 
-        public override void Where_simple_closure_via_query_cache()
+        public override async Task Where_simple_closure_via_query_cache()
         {
-            base.Where_simple_closure_via_query_cache();
+            await base.Where_simple_closure_via_query_cache();
 
             AssertSql(
                 @"@__city_0='London' (Size = 4000)
@@ -134,9 +138,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0");
         }
 
-        public override void Where_method_call_nullable_type_closure_via_query_cache()
+        public override async Task Where_method_call_nullable_type_closure_via_query_cache()
         {
-            base.Where_method_call_nullable_type_closure_via_query_cache();
+            await base.Where_method_call_nullable_type_closure_via_query_cache();
 
             AssertSql(
                 @"@__city_Int_0='2'
@@ -152,9 +156,9 @@ FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__city_Int_0");
         }
 
-        public override void Where_method_call_nullable_type_reverse_closure_via_query_cache()
+        public override async Task Where_method_call_nullable_type_reverse_closure_via_query_cache()
         {
-            base.Where_method_call_nullable_type_reverse_closure_via_query_cache();
+            await base.Where_method_call_nullable_type_reverse_closure_via_query_cache();
 
             AssertSql(
                 @"@__city_NullableInt_0='1' (Nullable = true)
@@ -170,9 +174,9 @@ FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] > @__city_NullableInt_0");
         }
 
-        public override void Where_method_call_closure_via_query_cache()
+        public override async Task Where_method_call_closure_via_query_cache()
         {
-            base.Where_method_call_closure_via_query_cache();
+            await base.Where_method_call_closure_via_query_cache();
 
             AssertSql(
                 @"@__GetCity_0='London' (Size = 4000)
@@ -188,9 +192,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__GetCity_0");
         }
 
-        public override void Where_field_access_closure_via_query_cache()
+        public override async Task Where_field_access_closure_via_query_cache()
         {
-            base.Where_field_access_closure_via_query_cache();
+            await base.Where_field_access_closure_via_query_cache();
 
             AssertSql(
                 @"@__city_InstanceFieldValue_0='London' (Size = 4000)
@@ -206,9 +210,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstanceFieldValue_0");
         }
 
-        public override void Where_property_access_closure_via_query_cache()
+        public override async Task Where_property_access_closure_via_query_cache()
         {
-            base.Where_property_access_closure_via_query_cache();
+            await base.Where_property_access_closure_via_query_cache();
 
             AssertSql(
                 @"@__city_InstancePropertyValue_0='London' (Size = 4000)
@@ -224,9 +228,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstancePropertyValue_0");
         }
 
-        public override void Where_static_field_access_closure_via_query_cache()
+        public override async Task Where_static_field_access_closure_via_query_cache()
         {
-            base.Where_static_field_access_closure_via_query_cache();
+            await base.Where_static_field_access_closure_via_query_cache();
 
             AssertSql(
                 @"@__StaticFieldValue_0='London' (Size = 4000)
@@ -242,9 +246,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticFieldValue_0");
         }
 
-        public override void Where_static_property_access_closure_via_query_cache()
+        public override async Task Where_static_property_access_closure_via_query_cache()
         {
-            base.Where_static_property_access_closure_via_query_cache();
+            await base.Where_static_property_access_closure_via_query_cache();
 
             AssertSql(
                 @"@__StaticPropertyValue_0='London' (Size = 4000)
@@ -260,9 +264,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticPropertyValue_0");
         }
 
-        public override void Where_nested_field_access_closure_via_query_cache()
+        public override async Task Where_nested_field_access_closure_via_query_cache()
         {
-            base.Where_nested_field_access_closure_via_query_cache();
+            await base.Where_nested_field_access_closure_via_query_cache();
 
             AssertSql(
                 @"@__city_Nested_InstanceFieldValue_0='London' (Size = 4000)
@@ -278,9 +282,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0");
         }
 
-        public override void Where_nested_property_access_closure_via_query_cache()
+        public override async Task Where_nested_property_access_closure_via_query_cache()
         {
-            base.Where_nested_property_access_closure_via_query_cache();
+            await base.Where_nested_property_access_closure_via_query_cache();
 
             AssertSql(
                 @"@__city_Nested_InstancePropertyValue_0='London' (Size = 4000)
@@ -296,9 +300,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0");
         }
 
-        public override void Where_new_instance_field_access_closure_via_query_cache()
+        public override async Task Where_new_instance_field_access_closure_via_query_cache()
         {
-            base.Where_new_instance_field_access_closure_via_query_cache();
+            await base.Where_new_instance_field_access_closure_via_query_cache();
 
             AssertSql(
                 @"@__InstanceFieldValue_0='London' (Size = 4000)
@@ -314,9 +318,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__InstanceFieldValue_0");
         }
 
-        public override void Where_simple_closure_via_query_cache_nullable_type()
+        public override async Task Where_simple_closure_via_query_cache_nullable_type()
         {
-            base.Where_simple_closure_via_query_cache_nullable_type();
+            await base.Where_simple_closure_via_query_cache_nullable_type();
 
             AssertSql(
                 @"@__reportsTo_0='2' (Nullable = true)
@@ -336,9 +340,9 @@ FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL");
         }
 
-        public override void Where_simple_closure_via_query_cache_nullable_type_reverse()
+        public override async Task Where_simple_closure_via_query_cache_nullable_type_reverse()
         {
-            base.Where_simple_closure_via_query_cache_nullable_type_reverse();
+            await base.Where_simple_closure_via_query_cache_nullable_type_reverse();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -382,9 +386,9 @@ WHERE EXISTS (
     WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))");
         }
 
-        public override void Where_simple_shadow()
+        public override async Task Where_simple_shadow()
         {
-            base.Where_simple_shadow();
+            await base.Where_simple_shadow();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -392,9 +396,9 @@ FROM [Employees] AS [e]
 WHERE [e].[Title] = N'Sales Representative'");
         }
 
-        public override void Where_simple_shadow_projection()
+        public override async Task Where_simple_shadow_projection()
         {
-            base.Where_simple_shadow_projection();
+            await base.Where_simple_shadow_projection();
 
             AssertSql(
                 @"SELECT [e].[Title]
@@ -402,9 +406,9 @@ FROM [Employees] AS [e]
 WHERE [e].[Title] = N'Sales Representative'");
         }
 
-        public override void Where_shadow_subquery_FirstOrDefault()
+        public override async Task Where_shadow_subquery_FirstOrDefault()
         {
-            base.Where_shadow_subquery_FirstOrDefault();
+            await base.Where_shadow_subquery_FirstOrDefault();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -416,18 +420,18 @@ WHERE [e].[Title] = (
 )");
         }
 
-        public override void Where_client()
+        public override async Task Where_client()
         {
-            base.Where_client();
+            await base.Where_client();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_subquery_correlated()
+        public override async Task Where_subquery_correlated()
         {
-            base.Where_subquery_correlated();
+            await base.Where_subquery_correlated();
 
             AssertSql(
                 @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
@@ -438,9 +442,9 @@ WHERE EXISTS (
     WHERE [c1].[CustomerID] = [c2].[CustomerID])");
         }
 
-        public override void Where_subquery_correlated_client_eval()
+        public override async Task Where_subquery_correlated_client_eval()
         {
-            base.Where_subquery_correlated_client_eval();
+            await base.Where_subquery_correlated_client_eval();
 
             AssertSql(
                 @"@__p_0='5'
@@ -483,9 +487,9 @@ FROM [Customers] AS [c2]
 WHERE @_outer_CustomerID = [c2].[CustomerID]");
         }
 
-        public override void Where_client_and_server_top_level()
+        public override async Task Where_client_and_server_top_level()
         {
-            base.Where_client_and_server_top_level();
+            await base.Where_client_and_server_top_level();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -493,27 +497,27 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> N'AROUT'");
         }
 
-        public override void Where_client_or_server_top_level()
+        public override async Task Where_client_or_server_top_level()
         {
-            base.Where_client_or_server_top_level();
+            await base.Where_client_or_server_top_level();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_client_and_server_non_top_level()
+        public override async Task Where_client_and_server_non_top_level()
         {
-            base.Where_client_and_server_non_top_level();
+            await base.Where_client_and_server_non_top_level();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_client_deep_inside_predicate_and_server_top_level()
+        public override async Task Where_client_deep_inside_predicate_and_server_top_level()
         {
-            base.Where_client_deep_inside_predicate_and_server_top_level();
+            await base.Where_client_deep_inside_predicate_and_server_top_level();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -521,9 +525,9 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> N'ALFKI'");
         }
 
-        public override void Where_equals_method_string()
+        public override async Task Where_equals_method_string()
         {
-            base.Where_equals_method_string();
+            await base.Where_equals_method_string();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -531,9 +535,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'London'");
         }
 
-        public override void Where_equals_method_int()
+        public override async Task Where_equals_method_int()
         {
-            base.Where_equals_method_int();
+            await base.Where_equals_method_int();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -541,9 +545,9 @@ FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1");
         }
 
-        public override void Where_equals_using_object_overload_on_mismatched_types()
+        public override async Task Where_equals_using_object_overload_on_mismatched_types()
         {
-            base.Where_equals_using_object_overload_on_mismatched_types();
+            await base.Where_equals_using_object_overload_on_mismatched_types();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -554,9 +558,9 @@ WHERE 0 = 1");
         }
 
 #if !Test20
-        public override void Where_equals_using_int_overload_on_mismatched_types()
+        public override async Task Where_equals_using_int_overload_on_mismatched_types()
         {
-            base.Where_equals_using_int_overload_on_mismatched_types();
+            await base.Where_equals_using_int_overload_on_mismatched_types();
 
             AssertSql(
                 @"@__shortPrm_0='1'
@@ -567,9 +571,9 @@ WHERE [e].[EmployeeID] = @__shortPrm_0");
         }
 #endif
 
-        public override void Where_equals_on_mismatched_types_nullable_int_long()
+        public override async Task Where_equals_on_mismatched_types_nullable_int_long()
         {
-            base.Where_equals_on_mismatched_types_nullable_int_long();
+            await base.Where_equals_on_mismatched_types_nullable_int_long();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -585,9 +589,9 @@ WHERE 0 = 1");
             Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage($"e.ReportsTo.Equals(Convert(__longPrm_0{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log);
         }
 
-        public override void Where_equals_on_mismatched_types_nullable_long_nullable_int()
+        public override async Task Where_equals_on_mismatched_types_nullable_long_nullable_int()
         {
-            base.Where_equals_on_mismatched_types_nullable_long_nullable_int();
+            await base.Where_equals_on_mismatched_types_nullable_long_nullable_int();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -603,9 +607,9 @@ WHERE 0 = 1");
             Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage($"e.ReportsTo.Equals(Convert(__nullableLongPrm_0{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log);
         }
 
-        public override void Where_equals_on_mismatched_types_int_nullable_int()
+        public override async Task Where_equals_on_mismatched_types_int_nullable_int()
         {
-            base.Where_equals_on_mismatched_types_int_nullable_int();
+            await base.Where_equals_on_mismatched_types_int_nullable_int();
 
             AssertSql(
                 @"@__intPrm_0='2'
@@ -621,9 +625,9 @@ FROM [Employees] AS [e]
 WHERE @__intPrm_0 = [e].[ReportsTo]");
         }
 
-        public override void Where_equals_on_matched_nullable_int_types()
+        public override async Task Where_equals_on_matched_nullable_int_types()
         {
-            base.Where_equals_on_matched_nullable_int_types();
+            await base.Where_equals_on_matched_nullable_int_types();
 
             AssertSql(
                 @"@__nullableIntPrm_0='2' (Nullable = true)
@@ -639,9 +643,9 @@ FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__nullableIntPrm_0");
         }
 
-        public override void Where_equals_on_null_nullable_int_types()
+        public override async Task Where_equals_on_null_nullable_int_types()
         {
-            base.Where_equals_on_null_nullable_int_types();
+            await base.Where_equals_on_null_nullable_int_types();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -653,9 +657,9 @@ FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL");
         }
 
-        public override void Where_comparison_nullable_type_not_null()
+        public override async Task Where_comparison_nullable_type_not_null()
         {
-            base.Where_comparison_nullable_type_not_null();
+            await base.Where_comparison_nullable_type_not_null();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -663,9 +667,9 @@ FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = 2");
         }
 
-        public override void Where_comparison_nullable_type_null()
+        public override async Task Where_comparison_nullable_type_null()
         {
-            base.Where_comparison_nullable_type_null();
+            await base.Where_comparison_nullable_type_null();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -673,9 +677,9 @@ FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL");
         }
 
-        public override void Where_string_length()
+        public override async Task Where_string_length()
         {
-            base.Where_string_length();
+            await base.Where_string_length();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -684,9 +688,9 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
         }
 
 #if !Test20
-        public override void Where_string_indexof()
+        public override async Task Where_string_indexof()
         {
-            base.Where_string_indexof();
+            await base.Where_string_indexof();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -695,9 +699,9 @@ WHERE (CHARINDEX(N'Sea', [c].[City]) - 1) <> -1");
         }
 #endif
 
-        public override void Where_string_replace()
+        public override async Task Where_string_replace()
         {
-            base.Where_string_replace();
+            await base.Where_string_replace();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -705,9 +709,9 @@ FROM [Customers] AS [c]
 WHERE REPLACE([c].[City], N'Sea', N'Rea') = N'Reattle'");
         }
 
-        public override void Where_string_substring()
+        public override async Task Where_string_substring()
         {
-            base.Where_string_substring();
+            await base.Where_string_substring();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -716,9 +720,9 @@ WHERE SUBSTRING([c].[City], 2, 2) = N'ea'");
         }
 
 #if !Test20
-        public override void Where_datetime_now()
+        public override async Task Where_datetime_now()
         {
-            base.Where_datetime_now();
+            await base.Where_datetime_now();
 
             AssertSql(
                 @"@__myDatetime_0='2015-04-10T00:00:00'
@@ -728,9 +732,9 @@ FROM [Customers] AS [c]
 WHERE GETDATE() <> @__myDatetime_0");
         }
 
-        public override void Where_datetime_utcnow()
+        public override async Task Where_datetime_utcnow()
         {
-            base.Where_datetime_utcnow();
+            await base.Where_datetime_utcnow();
 
             AssertSql(
                 @"@__myDatetime_0='2015-04-10T00:00:00'
@@ -740,9 +744,9 @@ FROM [Customers] AS [c]
 WHERE GETUTCDATE() <> @__myDatetime_0");
         }
 
-        public override void Where_datetime_today()
+        public override async Task Where_datetime_today()
         {
-            base.Where_datetime_today();
+            await base.Where_datetime_today();
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -750,9 +754,9 @@ FROM [Employees] AS [e]
 WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
         }
 
-        public override void Where_datetime_date_component()
+        public override async Task Where_datetime_date_component()
         {
-            base.Where_datetime_date_component();
+            await base.Where_datetime_date_component();
 
             AssertSql(
                 @"@__myDatetime_0='1998-05-04T00:00:00' (DbType = DateTime)
@@ -762,9 +766,9 @@ FROM [Orders] AS [o]
 WHERE CONVERT(date, [o].[OrderDate]) = @__myDatetime_0");
         }
 
-        public override void Where_date_add_year_constant_component()
+        public override async Task Where_date_add_year_constant_component()
         {
-            base.Where_date_add_year_constant_component();
+            await base.Where_date_add_year_constant_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -772,9 +776,9 @@ FROM [Orders] AS [o]
 WHERE DATEPART(year, DATEADD(year, -1, [o].[OrderDate])) = 1997");
         }
 
-        public override void Where_datetime_year_component()
+        public override async Task Where_datetime_year_component()
         {
-            base.Where_datetime_year_component();
+            await base.Where_datetime_year_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -782,9 +786,9 @@ FROM [Orders] AS [o]
 WHERE DATEPART(year, [o].[OrderDate]) = 1998");
         }
 
-        public override void Where_datetime_month_component()
+        public override async Task Where_datetime_month_component()
         {
-            base.Where_datetime_month_component();
+            await base.Where_datetime_month_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -792,9 +796,9 @@ FROM [Orders] AS [o]
 WHERE DATEPART(month, [o].[OrderDate]) = 4");
         }
 
-        public override void Where_datetime_dayOfYear_component()
+        public override async Task Where_datetime_dayOfYear_component()
         {
-            base.Where_datetime_dayOfYear_component();
+            await base.Where_datetime_dayOfYear_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -802,9 +806,9 @@ FROM [Orders] AS [o]
 WHERE DATEPART(dayofyear, [o].[OrderDate]) = 68");
         }
 
-        public override void Where_datetime_day_component()
+        public override async Task Where_datetime_day_component()
         {
-            base.Where_datetime_day_component();
+            await base.Where_datetime_day_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -812,9 +816,9 @@ FROM [Orders] AS [o]
 WHERE DATEPART(day, [o].[OrderDate]) = 4");
         }
 
-        public override void Where_datetime_hour_component()
+        public override async Task Where_datetime_hour_component()
         {
-            base.Where_datetime_hour_component();
+            await base.Where_datetime_hour_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -822,9 +826,9 @@ FROM [Orders] AS [o]
 WHERE DATEPART(hour, [o].[OrderDate]) = 14");
         }
 
-        public override void Where_datetime_minute_component()
+        public override async Task Where_datetime_minute_component()
         {
-            base.Where_datetime_minute_component();
+            await base.Where_datetime_minute_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -832,9 +836,9 @@ FROM [Orders] AS [o]
 WHERE DATEPART(minute, [o].[OrderDate]) = 23");
         }
 
-        public override void Where_datetime_second_component()
+        public override async Task Where_datetime_second_component()
         {
-            base.Where_datetime_second_component();
+            await base.Where_datetime_second_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -842,9 +846,9 @@ FROM [Orders] AS [o]
 WHERE DATEPART(second, [o].[OrderDate]) = 44");
         }
 
-        public override void Where_datetime_millisecond_component()
+        public override async Task Where_datetime_millisecond_component()
         {
-            base.Where_datetime_millisecond_component();
+            await base.Where_datetime_millisecond_component();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -852,18 +856,18 @@ FROM [Orders] AS [o]
 WHERE DATEPART(millisecond, [o].[OrderDate]) = 88");
         }
 
-        public override void Where_datetimeoffset_now_component()
+        public override async Task Where_datetimeoffset_now_component()
         {
-            base.Where_datetimeoffset_now_component();
+            await base.Where_datetimeoffset_now_component();
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] = SYSDATETIMEOFFSET()");
         }
 
-        public override void Where_datetimeoffset_utcnow_component()
+        public override async Task Where_datetimeoffset_utcnow_component()
         {
-            base.Where_datetimeoffset_utcnow_component();
+            await base.Where_datetimeoffset_utcnow_component();
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -871,9 +875,9 @@ WHERE [o].[OrderDate] = CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
 #endif
 
-        public override void Where_simple_reversed()
+        public override async Task Where_simple_reversed()
         {
-            base.Where_simple_reversed();
+            await base.Where_simple_reversed();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -881,9 +885,9 @@ FROM [Customers] AS [c]
 WHERE N'London' = [c].[City]");
         }
 
-        public override void Where_is_null()
+        public override async Task Where_is_null()
         {
-            base.Where_is_null();
+            await base.Where_is_null();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -891,18 +895,18 @@ FROM [Customers] AS [c]
 WHERE [c].[City] IS NULL");
         }
 
-        public override void Where_null_is_null()
+        public override async Task Where_null_is_null()
         {
-            base.Where_null_is_null();
+            await base.Where_null_is_null();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_constant_is_null()
+        public override async Task Where_constant_is_null()
         {
-            base.Where_constant_is_null();
+            await base.Where_constant_is_null();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -910,9 +914,9 @@ FROM [Customers] AS [c]
 WHERE 0 = 1");
         }
 
-        public override void Where_is_not_null()
+        public override async Task Where_is_not_null()
         {
-            base.Where_is_not_null();
+            await base.Where_is_not_null();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -920,9 +924,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] IS NOT NULL");
         }
 
-        public override void Where_null_is_not_null()
+        public override async Task Where_null_is_not_null()
         {
-            base.Where_null_is_not_null();
+            await base.Where_null_is_not_null();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -930,18 +934,18 @@ FROM [Customers] AS [c]
 WHERE 0 = 1");
         }
 
-        public override void Where_constant_is_not_null()
+        public override async Task Where_constant_is_not_null()
         {
-            base.Where_constant_is_not_null();
+            await base.Where_constant_is_not_null();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_identity_comparison()
+        public override async Task Where_identity_comparison()
         {
-            base.Where_identity_comparison();
+            await base.Where_identity_comparison();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -949,9 +953,9 @@ FROM [Customers] AS [c]
 WHERE ([c].[City] = [c].[City]) OR ([c].[City] IS NULL AND [c].[City] IS NULL)");
         }
 
-        public override void Where_in_optimization_multiple()
+        public override async Task Where_in_optimization_multiple()
         {
-            base.Where_in_optimization_multiple();
+            await base.Where_in_optimization_multiple();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -960,9 +964,9 @@ CROSS JOIN [Employees] AS [e]
 WHERE ([c].[City] IN (N'London', N'Berlin') OR ([c].[CustomerID] = N'ALFKI')) OR ([c].[CustomerID] = N'ABCDE')");
         }
 
-        public override void Where_not_in_optimization1()
+        public override async Task Where_not_in_optimization1()
         {
-            base.Where_not_in_optimization1();
+            await base.Where_not_in_optimization1();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -971,9 +975,9 @@ CROSS JOIN [Employees] AS [e]
 WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([e].[City] <> N'London') OR [e].[City] IS NULL)");
         }
 
-        public override void Where_not_in_optimization2()
+        public override async Task Where_not_in_optimization2()
         {
-            base.Where_not_in_optimization2();
+            await base.Where_not_in_optimization2();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -982,9 +986,9 @@ CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] NOT IN (N'London', N'Berlin')");
         }
 
-        public override void Where_not_in_optimization3()
+        public override async Task Where_not_in_optimization3()
         {
-            base.Where_not_in_optimization3();
+            await base.Where_not_in_optimization3();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -993,9 +997,9 @@ CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle')");
         }
 
-        public override void Where_not_in_optimization4()
+        public override async Task Where_not_in_optimization4()
         {
-            base.Where_not_in_optimization4();
+            await base.Where_not_in_optimization4();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -1004,9 +1008,9 @@ CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle', N'Lisboa')");
         }
 
-        public override void Where_select_many_and()
+        public override async Task Where_select_many_and()
         {
-            base.Where_select_many_and();
+            await base.Where_select_many_and();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -1015,9 +1019,9 @@ CROSS JOIN [Employees] AS [e]
 WHERE (([c].[City] = N'London') AND ([c].[Country] = N'UK')) AND (([e].[City] = N'London') AND ([e].[Country] = N'UK'))");
         }
 
-        public override void Where_primitive()
+        public override async Task Where_primitive()
         {
-            base.Where_primitive();
+            await base.Where_primitive();
 
             AssertSql(
                 @"@__p_0='9'
@@ -1030,9 +1034,9 @@ FROM (
 WHERE [t].[EmployeeID] = 5");
         }
 
-        public override void Where_bool_member()
+        public override async Task Where_bool_member()
         {
-            base.Where_bool_member();
+            await base.Where_bool_member();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1040,9 +1044,9 @@ FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1");
         }
 
-        public override void Where_bool_member_false()
+        public override async Task Where_bool_member_false()
         {
-            base.Where_bool_member_false();
+            await base.Where_bool_member_false();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1050,9 +1054,9 @@ FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 0");
         }
 
-        public override void Where_bool_client_side_negated()
+        public override async Task Where_bool_client_side_negated()
         {
-            base.Where_bool_client_side_negated();
+            await base.Where_bool_client_side_negated();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1060,9 +1064,9 @@ FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1");
         }
 
-        public override void Where_bool_member_negated_twice()
+        public override async Task Where_bool_member_negated_twice()
         {
-            base.Where_bool_member_negated_twice();
+            await base.Where_bool_member_negated_twice();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1070,9 +1074,9 @@ FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1");
         }
 
-        public override void Where_bool_member_shadow()
+        public override async Task Where_bool_member_shadow()
         {
-            base.Where_bool_member_shadow();
+            await base.Where_bool_member_shadow();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1080,9 +1084,9 @@ FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1");
         }
 
-        public override void Where_bool_member_false_shadow()
+        public override async Task Where_bool_member_false_shadow()
         {
-            base.Where_bool_member_false_shadow();
+            await base.Where_bool_member_false_shadow();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1090,9 +1094,9 @@ FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 0");
         }
 
-        public override void Where_bool_member_equals_constant()
+        public override async Task Where_bool_member_equals_constant()
         {
-            base.Where_bool_member_equals_constant();
+            await base.Where_bool_member_equals_constant();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1100,9 +1104,9 @@ FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1");
         }
 
-        public override void Where_bool_member_in_complex_predicate()
+        public override async Task Where_bool_member_in_complex_predicate()
         {
-            base.Where_bool_member_in_complex_predicate();
+            await base.Where_bool_member_in_complex_predicate();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1110,9 +1114,9 @@ FROM [Products] AS [p]
 WHERE (([p].[ProductID] > 100) AND ([p].[Discontinued] = 1)) OR ([p].[Discontinued] = 1)");
         }
 
-        public override void Where_bool_member_compared_to_binary_expression()
+        public override async Task Where_bool_member_compared_to_binary_expression()
         {
-            base.Where_bool_member_compared_to_binary_expression();
+            await base.Where_bool_member_compared_to_binary_expression();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1123,9 +1127,9 @@ WHERE [p].[Discontinued] = CASE
 END");
         }
 
-        public override void Where_not_bool_member_compared_to_not_bool_member()
+        public override async Task Where_not_bool_member_compared_to_not_bool_member()
         {
-            base.Where_not_bool_member_compared_to_not_bool_member();
+            await base.Where_not_bool_member_compared_to_not_bool_member();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1133,9 +1137,9 @@ FROM [Products] AS [p]
 WHERE [p].[Discontinued] = [p].[Discontinued]");
         }
 
-        public override void Where_negated_boolean_expression_compared_to_another_negated_boolean_expression()
+        public override async Task Where_negated_boolean_expression_compared_to_another_negated_boolean_expression()
         {
-            base.Where_negated_boolean_expression_compared_to_another_negated_boolean_expression();
+            await base.Where_negated_boolean_expression_compared_to_another_negated_boolean_expression();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1149,9 +1153,9 @@ END = CASE
 END");
         }
 
-        public override void Where_not_bool_member_compared_to_binary_expression()
+        public override async Task Where_not_bool_member_compared_to_binary_expression()
         {
-            base.Where_not_bool_member_compared_to_binary_expression();
+            await base.Where_not_bool_member_compared_to_binary_expression();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1162,9 +1166,9 @@ WHERE [p].[Discontinued] <> CASE
 END");
         }
 
-        public override void Where_bool_parameter()
+        public override async Task Where_bool_parameter()
         {
-            base.Where_bool_parameter();
+            await base.Where_bool_parameter();
 
             AssertSql(
                 @"@__prm_0='True'
@@ -1174,9 +1178,9 @@ FROM [Products] AS [p]
 WHERE @__prm_0 = 1");
         }
 
-        public override void Where_bool_parameter_compared_to_binary_expression()
+        public override async Task Where_bool_parameter_compared_to_binary_expression()
         {
-            base.Where_bool_parameter_compared_to_binary_expression();
+            await base.Where_bool_parameter_compared_to_binary_expression();
 
             AssertSql(
                 @"@__prm_0='True'
@@ -1189,9 +1193,9 @@ WHERE CASE
 END <> @__prm_0");
         }
 
-        public override void Where_bool_member_and_parameter_compared_to_binary_expression_nested()
+        public override async Task Where_bool_member_and_parameter_compared_to_binary_expression_nested()
         {
-            base.Where_bool_member_and_parameter_compared_to_binary_expression_nested();
+            await base.Where_bool_member_and_parameter_compared_to_binary_expression_nested();
 
             AssertSql(
                 @"@__prm_0='True'
@@ -1207,9 +1211,9 @@ WHERE [p].[Discontinued] = CASE
 END");
         }
 
-        public override void Where_de_morgan_or_optimizated()
+        public override async Task Where_de_morgan_or_optimizated()
         {
-            base.Where_de_morgan_or_optimizated();
+            await base.Where_de_morgan_or_optimizated();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1217,9 +1221,9 @@ FROM [Products] AS [p]
 WHERE ([p].[Discontinued] = 0) AND ([p].[ProductID] >= 20)");
         }
 
-        public override void Where_de_morgan_and_optimizated()
+        public override async Task Where_de_morgan_and_optimizated()
         {
-            base.Where_de_morgan_and_optimizated();
+            await base.Where_de_morgan_and_optimizated();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1227,9 +1231,9 @@ FROM [Products] AS [p]
 WHERE ([p].[Discontinued] = 0) OR ([p].[ProductID] >= 20)");
         }
 
-        public override void Where_complex_negated_expression_optimized()
+        public override async Task Where_complex_negated_expression_optimized()
         {
-            base.Where_complex_negated_expression_optimized();
+            await base.Where_complex_negated_expression_optimized();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1238,9 +1242,9 @@ WHERE (([p].[Discontinued] = 0) AND ([p].[ProductID] < 60)) AND ([p].[ProductID]
         }
 
 #if !Test20
-        public override void Where_short_member_comparison()
+        public override async Task Where_short_member_comparison()
         {
-            base.Where_short_member_comparison();
+            await base.Where_short_member_comparison();
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1249,9 +1253,9 @@ WHERE [p].[UnitsInStock] > CAST(10 AS smallint)");
         }
 #endif
 
-        public override void Where_comparison_to_nullable_bool()
+        public override async Task Where_comparison_to_nullable_bool()
         {
-            base.Where_comparison_to_nullable_bool();
+            await base.Where_comparison_to_nullable_bool();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1259,18 +1263,18 @@ FROM [Customers] AS [c]
 WHERE RIGHT([c].[CustomerID], LEN(N'KI')) = N'KI'");
         }
 
-        public override void Where_true()
+        public override async Task Where_true()
         {
-            base.Where_true();
+            await base.Where_true();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_false()
+        public override async Task Where_false()
         {
-            base.Where_false();
+            await base.Where_false();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1278,9 +1282,9 @@ FROM [Customers] AS [c]
 WHERE 0 = 1");
         }
 
-        public override void Where_default()
+        public override async Task Where_default()
         {
-            base.Where_default();
+            await base.Where_default();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1288,9 +1292,9 @@ FROM [Customers] AS [c]
 WHERE [c].[Fax] IS NULL");
         }
 
-        public override void Where_expression_invoke()
+        public override async Task Where_expression_invoke()
         {
-            base.Where_expression_invoke();
+            await base.Where_expression_invoke();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1298,9 +1302,9 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
-        public override void Where_concat_string_int_comparison1()
+        public override async Task Where_concat_string_int_comparison1()
         {
-            base.Where_concat_string_int_comparison1();
+            await base.Where_concat_string_int_comparison1();
 
             AssertSql(
                 @"@__i_0='10'
@@ -1310,9 +1314,9 @@ FROM [Customers] AS [c]
 WHERE ([c].[CustomerID] + CAST(@__i_0 AS nvarchar(max))) = [c].[CompanyName]");
         }
 
-        public override void Where_concat_string_int_comparison2()
+        public override async Task Where_concat_string_int_comparison2()
         {
-            base.Where_concat_string_int_comparison2();
+            await base.Where_concat_string_int_comparison2();
 
             AssertSql(
                 @"@__i_0='10'
@@ -1322,9 +1326,9 @@ FROM [Customers] AS [c]
 WHERE (CAST(@__i_0 AS nvarchar(max)) + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
-        public override void Where_concat_string_int_comparison3()
+        public override async Task Where_concat_string_int_comparison3()
         {
-            base.Where_concat_string_int_comparison3();
+            await base.Where_concat_string_int_comparison3();
 
             AssertSql(
                 @"@__i_0='10'
@@ -1336,9 +1340,9 @@ WHERE (((CAST(@__i_0 + 20 AS nvarchar(max)) + [c].[CustomerID]) + CAST(@__j_1 AS
         }
 
 #if !Test20
-        public override void Where_ternary_boolean_condition_true()
+        public override async Task Where_ternary_boolean_condition_true()
         {
-            base.Where_ternary_boolean_condition_true();
+            await base.Where_ternary_boolean_condition_true();
 
             AssertSql(
                 @"@__flag_0='True'
@@ -1348,9 +1352,9 @@ FROM [Products] AS [p]
 WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < CAST(20 AS smallint)))");
         }
 
-        public override void Where_ternary_boolean_condition_false()
+        public override async Task Where_ternary_boolean_condition_false()
         {
-            base.Where_ternary_boolean_condition_false();
+            await base.Where_ternary_boolean_condition_false();
 
             AssertSql(
                 @"@__flag_0='False'
@@ -1360,9 +1364,9 @@ FROM [Products] AS [p]
 WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < CAST(20 AS smallint)))");
         }
 
-        public override void Where_ternary_boolean_condition_with_another_condition()
+        public override async Task Where_ternary_boolean_condition_with_another_condition()
         {
-            base.Where_ternary_boolean_condition_with_another_condition();
+            await base.Where_ternary_boolean_condition_with_another_condition();
 
             AssertSql(
                 @"@__productId_0='15'
@@ -1373,9 +1377,9 @@ FROM [Products] AS [p]
 WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < CAST(20 AS smallint))))");
         }
 
-        public override void Where_ternary_boolean_condition_with_false_as_result_true()
+        public override async Task Where_ternary_boolean_condition_with_false_as_result_true()
         {
-            base.Where_ternary_boolean_condition_with_false_as_result_true();
+            await base.Where_ternary_boolean_condition_with_false_as_result_true();
 
             AssertSql(
                 @"@__flag_0='True'
@@ -1385,9 +1389,9 @@ FROM [Products] AS [p]
 WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
         }
 
-        public override void Where_ternary_boolean_condition_with_false_as_result_false()
+        public override async Task Where_ternary_boolean_condition_with_false_as_result_false()
         {
-            base.Where_ternary_boolean_condition_with_false_as_result_false();
+            await base.Where_ternary_boolean_condition_with_false_as_result_false();
 
             AssertSql(
                 @"@__flag_0='False'
@@ -1398,90 +1402,90 @@ WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
         }
 #endif
 
-        public override void Where_compare_constructed_equal()
+        public override async Task Where_compare_constructed_equal()
         {
-            base.Where_compare_constructed_equal();
+            await base.Where_compare_constructed_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_constructed_multi_value_equal()
+        public override async Task Where_compare_constructed_multi_value_equal()
         {
-            base.Where_compare_constructed_multi_value_equal();
+            await base.Where_compare_constructed_multi_value_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_constructed_multi_value_not_equal()
+        public override async Task Where_compare_constructed_multi_value_not_equal()
         {
-            base.Where_compare_constructed_multi_value_not_equal();
+            await base.Where_compare_constructed_multi_value_not_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_tuple_constructed_equal()
+        public override async Task Where_compare_tuple_constructed_equal()
         {
-            base.Where_compare_tuple_constructed_equal();
+            await base.Where_compare_tuple_constructed_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_tuple_constructed_multi_value_equal()
+        public override async Task Where_compare_tuple_constructed_multi_value_equal()
         {
-            base.Where_compare_tuple_constructed_multi_value_equal();
+            await base.Where_compare_tuple_constructed_multi_value_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_tuple_constructed_multi_value_not_equal()
+        public override async Task Where_compare_tuple_constructed_multi_value_not_equal()
         {
-            base.Where_compare_tuple_constructed_multi_value_not_equal();
+            await base.Where_compare_tuple_constructed_multi_value_not_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_tuple_create_constructed_equal()
+        public override async Task Where_compare_tuple_create_constructed_equal()
         {
-            base.Where_compare_tuple_create_constructed_equal();
+            await base.Where_compare_tuple_create_constructed_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_tuple_create_constructed_multi_value_equal()
+        public override async Task Where_compare_tuple_create_constructed_multi_value_equal()
         {
-            base.Where_compare_tuple_create_constructed_multi_value_equal();
+            await base.Where_compare_tuple_create_constructed_multi_value_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_tuple_create_constructed_multi_value_not_equal()
+        public override async Task Where_compare_tuple_create_constructed_multi_value_not_equal()
         {
-            base.Where_compare_tuple_create_constructed_multi_value_not_equal();
+            await base.Where_compare_tuple_create_constructed_multi_value_not_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_null()
+        public override async Task Where_compare_null()
         {
-            base.Where_compare_null();
+            await base.Where_compare_null();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1489,18 +1493,18 @@ FROM [Customers] AS [c]
 WHERE [c].[City] IS NULL AND ([c].[Country] = N'UK')");
         }
 
-        public override void Where_Is_on_same_type()
+        public override async Task Where_Is_on_same_type()
         {
-            base.Where_Is_on_same_type();
+            await base.Where_Is_on_same_type();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_chain()
+        public override async Task Where_chain()
         {
-            base.Where_chain();
+            await base.Where_chain();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1532,9 +1536,9 @@ ORDER BY [t].[CustomerID]",
 FROM [Order Details] AS [od]");
         }
 
-        public override void Where_array_index()
+        public override async Task Where_array_index()
         {
-            base.Where_array_index();
+            await base.Where_array_index();
 
             AssertSql(
                 @"@__p_0='ALFKI' (Size = 5)
@@ -1544,9 +1548,9 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__p_0");
         }
 
-        public override void Where_multiple_contains_in_subquery_with_or()
+        public override async Task Where_multiple_contains_in_subquery_with_or()
         {
-            base.Where_multiple_contains_in_subquery_with_or();
+            await base.Where_multiple_contains_in_subquery_with_or();
 
             AssertSql(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
@@ -1562,9 +1566,9 @@ WHERE [od].[ProductID] IN (
 )");
         }
 
-        public override void Where_multiple_contains_in_subquery_with_and()
+        public override async Task Where_multiple_contains_in_subquery_with_and()
         {
-            base.Where_multiple_contains_in_subquery_with_and();
+            await base.Where_multiple_contains_in_subquery_with_and();
 
             AssertSql(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
@@ -1580,9 +1584,9 @@ WHERE [od].[ProductID] IN (
 )");
         }
 
-        public override void Where_contains_on_navigation()
+        public override async Task Where_contains_on_navigation()
         {
-            base.Where_contains_on_navigation();
+            await base.Where_contains_on_navigation();
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1597,9 +1601,9 @@ WHERE EXISTS (
     ))");
         }
 
-        public override void Where_subquery_FirstOrDefault_is_null()
+        public override async Task Where_subquery_FirstOrDefault_is_null()
         {
-            base.Where_subquery_FirstOrDefault_is_null();
+            await base.Where_subquery_FirstOrDefault_is_null();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1612,9 +1616,9 @@ WHERE (
 ) IS NULL");
         }
 
-        public override void Where_subquery_FirstOrDefault_compared_to_entity()
+        public override async Task Where_subquery_FirstOrDefault_compared_to_entity()
         {
-            base.Where_subquery_FirstOrDefault_compared_to_entity();
+            await base.Where_subquery_FirstOrDefault_compared_to_entity();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1625,6 +1629,14 @@ WHERE (
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [o].[OrderID]
 ) = 10243");
+        }
+
+        public override async Task Time_of_day_datetime()
+        {
+            await base.Time_of_day_datetime();
+
+            AssertSql(@"SELECT CAST([c].[OrderDate] AS time)
+FROM [Orders] AS [c]");
         }
     }
 }

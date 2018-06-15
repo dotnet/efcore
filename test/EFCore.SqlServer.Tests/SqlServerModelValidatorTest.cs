@@ -242,6 +242,36 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
         }
 
+        [Fact]
+        public void Throws_for_missing_include_properties()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<Dog>().Property(c => c.Type);
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), "Tag");
+
+            VerifyError(SqlServerStrings.IncludePropertyNotFound(nameof(Dog), "Tag"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Throws_for_duplicate_include_properties()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<Dog>().Property(c => c.Type);
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), nameof(Dog.Type));
+
+            VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Throws_for_indexed_include_properties()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<Dog>().Property(c => c.Type);
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Name));
+
+            VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name)), modelBuilder.Model);
+        }
+
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping] =
                 new SqlServerTypeMappingSource(

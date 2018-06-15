@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_with_nav_projected_in_subquery_when_client_eval()
+        public virtual Task Join_with_nav_projected_in_subquery_when_client_eval()
         {
-            AssertQuery<Customer, Order, OrderDetail>(
+            return AssertQueryAsync<Customer, Order, OrderDetail>(
                 (cs, os, ods) => (from c in cs
                                   join o in os.Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID
                                   join od in ods.Select(od => ClientProjection(od, od.Product)) on o.OrderID equals od.OrderID
@@ -49,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_nav_projected_in_subquery_when_client_eval()
+        public virtual Task GroupJoin_with_nav_projected_in_subquery_when_client_eval()
         {
-            AssertQuery<Customer, Order, OrderDetail>(
+            return AssertQueryAsync<Customer, Order, OrderDetail>(
                 (cs, os, ods) => (from c in cs
                                   join o in os.Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
                                   from o in grouping
@@ -62,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_with_nav_in_predicate_in_subquery_when_client_eval()
+        public virtual Task Join_with_nav_in_predicate_in_subquery_when_client_eval()
         {
-            AssertQuery<Customer, Order, OrderDetail>(
+            return AssertQueryAsync<Customer, Order, OrderDetail>(
                 (cs, os, ods) => (from c in cs
                                   join o in os.Where(o => ClientPredicate(o, o.Customer)) on c.CustomerID equals o.CustomerID
                                   join od in ods.Where(od => ClientPredicate(od, od.Product)) on o.OrderID equals od.OrderID
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_nav_in_predicate_in_subquery_when_client_eval()
+        public virtual Task GroupJoin_with_nav_in_predicate_in_subquery_when_client_eval()
         {
-            AssertQuery<Customer, Order, OrderDetail>(
+            return AssertQueryAsync<Customer, Order, OrderDetail>(
                 (cs, os, ods) => (from c in cs
                                   join o in os.Where(o => ClientPredicate(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
                                   from o in grouping
@@ -86,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Join_with_nav_in_orderby_in_subquery_when_client_eval()
+        public virtual Task Join_with_nav_in_orderby_in_subquery_when_client_eval()
         {
-            AssertQuery<Customer, Order, OrderDetail>(
+            return AssertQueryAsync<Customer, Order, OrderDetail>(
                 (cs, os, ods) => (from c in cs
                                   join o in os.OrderBy(o => ClientOrderBy(o, o.Customer)) on c.CustomerID equals o.CustomerID
                                   join od in ods.OrderBy(od => ClientOrderBy(od, od.Product)) on o.OrderID equals od.OrderID
@@ -97,9 +97,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_nav_in_orderby_in_subquery_when_client_eval()
+        public virtual Task GroupJoin_with_nav_in_orderby_in_subquery_when_client_eval()
         {
-            AssertQuery<Customer, Order, OrderDetail>(
+            return AssertQueryAsync<Customer, Order, OrderDetail>(
                 (cs, os, ods) => (from c in cs
                                   join o in os.OrderBy(o => ClientOrderBy(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
                                   from o in grouping
@@ -115,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static int ClientOrderBy<T>(T t, object _) => _randomGenrator.Next(0, 20);
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation()
+        public virtual Task Select_Where_Navigation()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.Customer.City == "Seattle"
                       select o,
@@ -125,9 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Contains()
+        public virtual Task Select_Where_Navigation_Contains()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.Customer.City.Contains("Sea")
                       select o,
@@ -149,9 +149,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
+        public virtual Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o1 in os.Where(o => o.OrderID < 10300)
                       from o2 in os.Where(o => o.OrderID < 10400)
                       where o1.Customer.City == o2.Customer.City
@@ -166,9 +166,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
+        public virtual Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o1 in os.Where(o => o.OrderID < 10300)
                       from o2 in os.Where(o => o.OrderID < 10400)
                       where o1.Customer.City == o2.Customer.City
@@ -181,9 +181,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Client()
+        public virtual Task Select_Where_Navigation_Client()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.Customer.IsLondon
                       select o,
@@ -191,9 +191,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Deep()
+        public virtual Task Select_Where_Navigation_Deep()
         {
-            AssertQuery<OrderDetail>(
+            return AssertQueryAsync<OrderDetail>(
                 ods => (from od in ods
                         where od.Order.Customer.City == "Seattle"
                         orderby od.OrderID, od.ProductID
@@ -202,31 +202,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Take_Select_Navigation()
+        public virtual Task Take_Select_Navigation()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Take(2)
                     .Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Select_collection_FirstOrDefault_project_single_column1()
+        public virtual Task Select_collection_FirstOrDefault_project_single_column1()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().CustomerID));
         }
 
         [ConditionalFact]
-        public virtual void Select_collection_FirstOrDefault_project_single_column2()
+        public virtual Task Select_collection_FirstOrDefault_project_single_column2()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Select_collection_FirstOrDefault_project_anonymous_type()
+        public virtual Task Select_collection_FirstOrDefault_project_anonymous_type()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).Select(
                         o => new
@@ -238,16 +238,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_collection_FirstOrDefault_project_entity()
+        public virtual Task Select_collection_FirstOrDefault_project_entity()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()));
         }
 
         [ConditionalFact]
-        public virtual void Skip_Select_Navigation()
+        public virtual Task Skip_Select_Navigation()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID)
                     .Skip(20)
                     .Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()),
@@ -255,9 +255,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Null()
+        public virtual Task Select_Where_Navigation_Null()
         {
-            AssertQuery<Employee>(
+            return AssertQueryAsync<Employee>(
                 es => from e in es
                       where e.Manager == null
                       select e,
@@ -265,9 +265,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Null_Reverse()
+        public virtual Task Select_Where_Navigation_Null_Reverse()
         {
-            AssertQuery<Employee>(
+            return AssertQueryAsync<Employee>(
                 es => from e in es
                       where null == e.Manager
                       select e,
@@ -275,9 +275,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Null_Deep()
+        public virtual Task Select_Where_Navigation_Null_Deep()
         {
-            AssertQuery<Employee>(
+            return AssertQueryAsync<Employee>(
                 es => from e in es
                       where e.Manager.Manager == null
                       select e,
@@ -288,9 +288,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Equals_Navigation()
+        public virtual Task Select_Where_Navigation_Equals_Navigation()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o1 in os
                       from o2 in os
                       where o1.CustomerID.StartsWith("A")
@@ -306,9 +306,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Included()
+        public virtual Task Select_Where_Navigation_Included()
         {
-            AssertIncludeQuery<Order>(
+            return AssertIncludeQueryAsync<Order>(
                 os => from o in os.Include(o => o.Customer)
                       where o.Customer.City == "Seattle"
                       select o,
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_with_multiple_optional_navigations()
+        public virtual Task Include_with_multiple_optional_navigations()
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Order>(o => o.Customer, "Customer", "Order")
             };
 
-            AssertIncludeQuery<OrderDetail>(
+            return AssertIncludeQueryAsync<OrderDetail>(
                 ods => ods
                     .Include(od => od.Order.Customer)
                     .Where(od => od.Order.Customer.City == "London"),
@@ -337,9 +337,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_count_plus_sum()
+        public virtual Task Select_count_plus_sum()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => os.Select(
                     o => new
                     {
@@ -349,9 +349,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Singleton_Navigation_With_Member_Access()
+        public virtual Task Singleton_Navigation_With_Member_Access()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.Customer.City == "Seattle"
                       where o.Customer.Phone != "555 555 5555"
@@ -363,9 +363,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Singleton_Navigation_With_Member_Access()
+        public virtual Task Select_Singleton_Navigation_With_Member_Access()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.Customer.City == "Seattle"
                       where o.Customer.Phone != "555 555 5555"
@@ -399,9 +399,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Where_Navigation_Multiple_Access()
+        public virtual Task Select_Where_Navigation_Multiple_Access()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.Customer.City == "Seattle"
                             && o.Customer.Phone != "555 555 5555"
@@ -410,18 +410,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Navigation()
+        public virtual Task Select_Navigation()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       select o.Customer,
                 entryCount: 89);
         }
 
         [ConditionalFact]
-        public virtual void Select_Navigations()
+        public virtual Task Select_Navigations()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       select new
                       {
@@ -438,9 +438,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_Navigations_Where_Navigations()
+        public virtual Task Select_Navigations_Where_Navigations()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.Customer.City == "Seattle"
                       where o.Customer.Phone != "555 555 5555"
@@ -459,9 +459,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_collection_navigation_simple()
+        public virtual Task Select_collection_navigation_simple()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where c.CustomerID.StartsWith("A")
                       orderby c.CustomerID
@@ -480,9 +480,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_collection_navigation_multi_part()
+        public virtual Task Select_collection_navigation_multi_part()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.CustomerID == "ALFKI"
                       select new
@@ -500,9 +500,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_collection_navigation_multi_part2()
+        public virtual Task Select_collection_navigation_multi_part2()
         {
-            AssertQuery<OrderDetail>(
+            return AssertQueryAsync<OrderDetail>(
                 ods =>
                     from od in ods
                     orderby od.OrderID, od.ProductID
@@ -517,9 +517,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_any()
+        public virtual Task Collection_select_nav_prop_any()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       select new
                       {
@@ -534,17 +534,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_predicate()
+        public virtual Task Collection_select_nav_prop_predicate()
         {
-            AssertQueryScalar<Customer>(
+            return AssertQueryScalarAsync<Customer>(
                 cs => cs.Select(c => c.Orders.Count > 0),
                 cs => cs.Select(c => (c.Orders ?? new List<Order>()).Count > 0));
         }
 
         [ConditionalFact]
-        public virtual void Collection_where_nav_prop_any()
+        public virtual Task Collection_where_nav_prop_any()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where c.Orders.Any()
                       select c,
@@ -555,9 +555,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_where_nav_prop_any_predicate()
+        public virtual Task Collection_where_nav_prop_any_predicate()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where c.Orders.Any(o => o.OrderID > 0)
                       select c,
@@ -568,9 +568,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_all()
+        public virtual Task Collection_select_nav_prop_all()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       select new
                       {
@@ -585,9 +585,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_all_client()
+        public virtual Task Collection_select_nav_prop_all_client()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       orderby c.CustomerID
                       select new
@@ -604,9 +604,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_where_nav_prop_all()
+        public virtual Task Collection_where_nav_prop_all()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where c.Orders.All(o => o.CustomerID == "ALFKI")
                       select c,
@@ -632,9 +632,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_count()
+        public virtual Task Collection_select_nav_prop_count()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       select new
                       {
@@ -649,9 +649,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_where_nav_prop_count()
+        public virtual Task Collection_where_nav_prop_count()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where c.Orders.Count() > 5
                       select c,
@@ -662,9 +662,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_where_nav_prop_count_reverse()
+        public virtual Task Collection_where_nav_prop_count_reverse()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where 5 < c.Orders.Count()
                       select c,
@@ -675,9 +675,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_orderby_nav_prop_count()
+        public virtual Task Collection_orderby_nav_prop_count()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       orderby c.Orders.Count()
                       select c,
@@ -688,9 +688,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_long_count()
+        public virtual Task Collection_select_nav_prop_long_count()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       select new
                       {
@@ -705,9 +705,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_multiple_complex_projections()
+        public virtual Task Select_multiple_complex_projections()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where o.CustomerID.StartsWith("A")
                       select new
@@ -724,9 +724,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_sum()
+        public virtual Task Collection_select_nav_prop_sum()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       select new
                       {
@@ -741,9 +741,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_where_nav_prop_sum()
+        public virtual Task Collection_where_nav_prop_sum()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where c.Orders.Sum(o => o.OrderID) > 1000
                       select c,
@@ -768,9 +768,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_first_or_default()
+        public virtual Task Collection_select_nav_prop_first_or_default()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       orderby c.CustomerID
                       select new
@@ -787,11 +787,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop()
+        public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop()
         {
             var orderIds = new[] { 10643, 10692, 10702, 10835, 10952, 11011 };
 
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs.Where(e => e.CustomerID.StartsWith("A"))
                       orderby c.CustomerID
                       select new
@@ -811,25 +811,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop_nested()
+        public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop_nested()
         {
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
                     .Select(c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City));
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_single_or_default_then_nav_prop_nested()
+        public virtual Task Collection_select_nav_prop_single_or_default_then_nav_prop_nested()
         {
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
                     .Select(c => os.SingleOrDefault(o => o.OrderID == 10643).Customer.City));
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method()
+        public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method()
         {
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
                     .Select(
                         c => EF.Property<string>(
@@ -846,18 +846,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby()
+        public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby()
         {
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 // ReSharper disable once StringStartsWithIsCultureSpecific
                 (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
                     .Select(c => os.OrderBy(o => o.CustomerID).FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City));
         }
 
         [ConditionalFact]
-        public virtual void Navigation_fk_based_inside_contains()
+        public virtual Task Navigation_fk_based_inside_contains()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where new[] { "ALFKI" }.Contains(o.Customer.CustomerID)
                       select o,
@@ -865,9 +865,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_inside_contains()
+        public virtual Task Navigation_inside_contains()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       where new[] { "Novigrad", "Seattle" }.Contains(o.Customer.City)
                       select o,
@@ -875,9 +875,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_inside_contains_nested()
+        public virtual Task Navigation_inside_contains_nested()
         {
-            AssertQuery<OrderDetail>(
+            return AssertQueryAsync<OrderDetail>(
                 ods => from od in ods
                        where new[] { "Novigrad", "Seattle" }.Contains(od.Order.Customer.City)
                        select od,
@@ -885,9 +885,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_from_join_clause_inside_contains()
+        public virtual Task Navigation_from_join_clause_inside_contains()
         {
-            AssertQuery<OrderDetail, Order>(
+            return AssertQueryAsync<OrderDetail, Order>(
                 (ods, os) => from od in ods
                              join o in os on od.OrderID equals o.OrderID
                              where new[] { "USA", "Redania" }.Contains(o.Customer.Country)
@@ -896,9 +896,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_on_navigation()
+        public virtual Task Where_subquery_on_navigation()
         {
-            AssertQuery<Product, OrderDetail>(
+            return AssertQueryAsync<Product, OrderDetail>(
                 (ps, ods) => from p in ps
                              where p.OrderDetails.Contains(ods.OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
                              select p,
@@ -906,9 +906,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_on_navigation2()
+        public virtual Task Where_subquery_on_navigation2()
         {
-            AssertQuery<Product, OrderDetail>(
+            return AssertQueryAsync<Product, OrderDetail>(
                 (ps, ods) => from p in ps
                              where p.OrderDetails.Contains(ods.OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault())
                              select p,
@@ -916,9 +916,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_on_navigation_client_eval()
+        public virtual Task Where_subquery_on_navigation_client_eval()
         {
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 (cs, os) => from c in cs
                             orderby c.CustomerID
                             where c.Orders.Select(o => o.OrderID)
@@ -970,9 +970,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupBy_on_nav_prop()
+        public virtual Task GroupBy_on_nav_prop()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => from o in os
                       group o by o.Customer.City
                       into og
@@ -983,9 +983,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_nav_prop_group_by()
+        public virtual Task Where_nav_prop_group_by()
         {
-            AssertQuery<OrderDetail>(
+            return AssertQueryAsync<OrderDetail>(
                 ods => from od in ods
                        where od.Order.CustomerID == "ALFKI"
                        group od by od.Quantity,
@@ -1001,9 +1001,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Let_group_by_nav_prop()
+        public virtual Task Let_group_by_nav_prop()
         {
-            AssertQuery<OrderDetail>(
+            return AssertQueryAsync<OrderDetail>(
                 ods => from od in ods
                        let customer = od.Order.CustomerID
                        group od by customer
@@ -1021,9 +1021,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue #6061
-        public virtual void Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default()
+        public virtual Task Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where c.CustomerID.Equals("FISSA")
                       select new
@@ -1041,9 +1041,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_single_scalar_value_subquery_is_properly_inlined()
+        public virtual Task Project_single_scalar_value_subquery_is_properly_inlined()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       select new
                       {
@@ -1060,9 +1060,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_single_entity_value_subquery_works()
+        public virtual Task Project_single_entity_value_subquery_works()
         {
-            AssertQuery<Customer>(
+            return AssertQueryAsync<Customer>(
                 cs => from c in cs
                       where c.CustomerID.StartsWith("A")
                       orderby c.CustomerID
@@ -1075,9 +1075,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Project_single_scalar_value_subquery_in_query_with_optional_navigation_works()
+        public virtual Task Project_single_scalar_value_subquery_in_query_with_optional_navigation_works()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => (from o in os
                        orderby o.OrderID
                        select new
@@ -1090,9 +1090,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_complex_subquery_and_LOJ_gets_flattened()
+        public virtual Task GroupJoin_with_complex_subquery_and_LOJ_gets_flattened()
         {
-            AssertQuery<Customer, Order, OrderDetail>(
+            return AssertQueryAsync<Customer, Order, OrderDetail>(
                 (cs, os, ods) => (from c in cs
                                   join subquery in
                                       (
@@ -1109,9 +1109,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void GroupJoin_with_complex_subquery_and_LOJ_gets_flattened2()
+        public virtual Task GroupJoin_with_complex_subquery_and_LOJ_gets_flattened2()
         {
-            AssertQuery<Customer, Order, OrderDetail>(
+            return AssertQueryAsync<Customer, Order, OrderDetail>(
                 (cs, os, ods) => (from c in cs
                                   join subquery in
                                       (
@@ -1127,17 +1127,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_with_collection_with_nullable_type_key()
+        public virtual Task Navigation_with_collection_with_nullable_type_key()
         {
-            AssertQuery<Order>(
+            return AssertQueryAsync<Order>(
                 os => os.Where(o => o.Customer.Orders.Count(oo => oo.OrderID > 10260) > 30),
                 entryCount: 31);
         }
 
         [ConditionalFact]
-        public virtual void Client_groupjoin_with_orderby_key_descending()
+        public virtual Task Client_groupjoin_with_orderby_key_descending()
         {
-            AssertQueryScalar<Customer, Order>(
+            return AssertQueryScalarAsync<Customer, Order>(
                 (cs, os) =>
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into grouping
@@ -1147,9 +1147,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_projection_on_groupjoin_qsre()
+        public virtual Task Navigation_projection_on_groupjoin_qsre()
         {
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 (cs, os) => from c in cs
                             join o in os on c.CustomerID equals o.CustomerID into grouping
                             where c.CustomerID == "ALFKI"
@@ -1174,9 +1174,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_projection_on_groupjoin_qsre_no_outer_in_final_result()
+        public virtual Task Navigation_projection_on_groupjoin_qsre_no_outer_in_final_result()
         {
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 (cs, os) => from c in cs
                             join o in os on c.CustomerID equals o.CustomerID into grouping
                             where c.CustomerID == "ALFKI"
@@ -1193,11 +1193,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_projection_on_groupjoin_qsre_with_empty_grouping()
+        public virtual Task Navigation_projection_on_groupjoin_qsre_with_empty_grouping()
         {
             var anatrsOrders = new[] { 10308, 10625, 10759, 10926 };
 
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 (cs, os) => from c in cs
                             join o in os.Where(oo => !anatrsOrders.Contains(oo.OrderID)) on c.CustomerID equals o.CustomerID into grouping
                             where c.CustomerID.StartsWith("A")
@@ -1263,9 +1263,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Group_join_doesnt_get_bound_directly_to_group_join_qsre()
+        public virtual Task Group_join_doesnt_get_bound_directly_to_group_join_qsre()
         {
-            AssertQuery<Customer, Order>(
+            return AssertQueryAsync<Customer, Order>(
                 (cs, os) => from c in cs
                             join o in os on c.CustomerID equals o.CustomerID into grouping
                             where c.CustomerID.StartsWith("A")

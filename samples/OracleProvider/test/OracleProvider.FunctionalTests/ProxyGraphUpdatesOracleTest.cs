@@ -29,8 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        // #11554
-        private class LazyLoading : ProxyGraphUpdatesOracleTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingOracleFixture>
+        public class LazyLoading : ProxyGraphUpdatesOracleTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingOracleFixture>
         {
             public LazyLoading(ProxyGraphUpdatesWithLazyLoadingOracleFixture fixture)
                 : base(fixture)

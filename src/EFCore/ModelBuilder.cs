@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the query type. </returns>
         public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
             where TQuery : class
-            => new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery)));
+            => new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Returns an object that can be used to configure a given query type in the model.
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(type, nameof(type));
 
-            return new QueryTypeBuilder(Builder.Query(type));
+            return new QueryTypeBuilder(Builder.Query(type, ConfigurationSource.Explicit));
         }
 
         /// <summary>

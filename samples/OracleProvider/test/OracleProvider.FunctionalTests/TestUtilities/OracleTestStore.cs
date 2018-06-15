@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             string name,
             string scriptPath = null,
             bool shared = true)
-            : base(name, shared)
+            : base(name.Substring(0, Math.Min(name.Length, 30)), shared)
         {
             if (scriptPath != null)
             {

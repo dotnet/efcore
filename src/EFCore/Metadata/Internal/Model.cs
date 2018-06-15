@@ -116,11 +116,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType AddQueryType([NotNull] Type type)
+        public virtual EntityType AddQueryType(
+            [NotNull] Type type,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(type, nameof(type));
 
-            var queryType = new EntityType(type, this, ConfigurationSource.Explicit)
+            var queryType = new EntityType(type, this, configurationSource)
             {
                 IsQueryType = true
             };
@@ -154,12 +157,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ClashingWeakEntityType(entityType.DisplayName()));
                 }
 
-                var previousLength = _entityTypes.Count;
-                _entityTypes[entityTypeName] = entityType;
-                if (previousLength == _entityTypes.Count)
+                if (_entityTypes.TryGetValue(entityTypeName, out var clashingEntityType))
                 {
+                    if (clashingEntityType.IsQueryType)
+                    {
+                        if (entityType.IsQueryType)
+                        {
+                            throw new InvalidOperationException(CoreStrings.DuplicateQueryType(entityType.DisplayName()));
+                        }
+                        throw new InvalidOperationException(CoreStrings.CannotAccessQueryAsEntity(entityType.DisplayName()));
+                    }
+
+                    if (entityType.IsQueryType)
+                    {
+                        throw new InvalidOperationException(CoreStrings.CannotAccessEntityAsQuery(entityType.DisplayName()));
+                    }
                     throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
                 }
+
+                _entityTypes.Add(entityTypeName, entityType);
             }
 
             return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;

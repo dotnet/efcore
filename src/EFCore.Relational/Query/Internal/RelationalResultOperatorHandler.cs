@@ -497,6 +497,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         key = new[] { sql };
                         break;
 
+                    case MethodCallExpression methodCallExpression
+                    when methodCallExpression.IsEFProperty():
+                        sql = sqlTranslatingExpressionVisitor.Visit(methodCallExpression);
+                        memberInfoMappings[groupByKeyMemberInfo] = sql;
+                        key = new[] { sql };
+                        break;
+
                     case NullConditionalExpression nullConditionalExpression:
                         sql = sqlTranslatingExpressionVisitor.Visit(nullConditionalExpression);
                         memberInfoMappings[groupByKeyMemberInfo] = sql;

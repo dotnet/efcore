@@ -344,11 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsOneBuilder<TNewRelatedEntity>(navigationExpression.GetPropertyAccess()));
-                return this;
-            }
+            buildAction.Invoke(OwnsOneBuilder<TNewRelatedEntity>(navigationExpression.GetPropertyAccess()));
+            return this;
         }
 
         private ReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity> OwnsOneBuilder<TNewRelatedEntity>(PropertyInfo navigation)

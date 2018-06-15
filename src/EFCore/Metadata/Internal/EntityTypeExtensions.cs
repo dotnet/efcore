@@ -32,7 +32,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this IEntityType type)
-            => ((ITypeBase)type).DisplayName();
+        {
+            if (type.ClrType != null)
+            {
+                return type.ClrType.ShortDisplayName();
+            }
+
+            var plusIndex = type.Name.LastIndexOf("+", StringComparison.Ordinal);
+            var dotIndex = type.Name.LastIndexOf(".", StringComparison.Ordinal);
+            return plusIndex == -1
+                ? dotIndex == -1
+                    ? type.Name
+                    : type.Name.Substring(dotIndex + 1, type.Name.Length - dotIndex - 1)
+                : type.Name.Substring(plusIndex + 1, type.Name.Length - plusIndex - 1);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -42,11 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         // Issue#11266 This method is being used by provider code. Do not break.
         public static string DisplayName([NotNull] this IEntityType type)
         {
-            if (type.ClrType == null)
-            {
-                return type.Name;
-            }
-
             if (!type.HasDefiningNavigation())
             {
                 return ((ITypeBase)type).DisplayName();

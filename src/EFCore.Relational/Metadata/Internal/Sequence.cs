@@ -196,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             typeof(byte),
             typeof(long),
             typeof(int),
-            typeof(short)
+            typeof(short),
+            typeof(decimal)
         };
 
         /// <summary>
@@ -340,7 +341,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         ? typeof(int)
                         : value == typeof(short).Name
                             ? typeof(short)
-                            : typeof(byte);
+                            : value == typeof(decimal).Name
+                                ? typeof(decimal)
+                                : typeof(byte);
 
             private static bool AsBool(string value)
                 => value != null && bool.Parse(value);

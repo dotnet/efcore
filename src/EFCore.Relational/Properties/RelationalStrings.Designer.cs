@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogDisposingDataReader")));
 
         /// <summary>
-        ///     Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.
+        ///     Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', 'Byte' and 'Decimal'.
         /// </summary>
         public static string BadSequenceType
             => GetString("BadSequenceType");

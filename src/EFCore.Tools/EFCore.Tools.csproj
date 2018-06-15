@@ -27,11 +27,26 @@ Update-Database
     <ProjectReference Include="..\ef\ef.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- PowerShell files should be code signed -->
+    <SignedPackageFile Include="tools/EntityFrameworkCore.PowerShell2.psd1" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/EntityFrameworkCore.PowerShell2.psm1" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/EntityFrameworkCore.psd1" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/EntityFrameworkCore.psm1" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/init.ps1" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/install.ps1" Certificate="$(AssemblySigningCertName)" />
+
+    <!-- Additional assemblies to be code signed -->
+    <SignedPackageFile Include="tools/net461/any/ef.exe" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/net461/win-x86/ef.exe" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/netcoreapp2.0/any/ef.dll" Certificate="$(AssemblySigningCertName)" />
+  </ItemGroup>
+
   <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg -->
       <IncludeSymbols>true</IncludeSymbols>
-      
+
       <NuspecProperties>
         id=$(PackageId);
         version=$(PackageVersion);

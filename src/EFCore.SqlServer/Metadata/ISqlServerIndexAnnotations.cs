@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -14,5 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     been specified.
         /// </summary>
         bool? IsClustered { get; }
+
+        /// <summary>
+        ///     Returns included property names, or <c>null</c> if they have not been specified.
+        /// </summary>
+        IReadOnlyList<string> IncludeProperties { get; }
     }
 }

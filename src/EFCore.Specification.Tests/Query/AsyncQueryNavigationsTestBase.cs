@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         [ConditionalFact]
-        public virtual async Task Include_with_multiple_optional_navigations()
+        public virtual Task Include_with_multiple_optional_navigations()
         {
-            await AssertQuery<OrderDetail>(
+            return AssertQueryAsync<OrderDetail>(
                 ods => ods
                     .Include(od => od.Order.Customer)
                     .Where(od => od.Order.Customer.City == "London"),
@@ -31,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual async Task Multiple_include_with_multiple_optional_navigations()
+        public virtual Task Multiple_include_with_multiple_optional_navigations()
         {
-            await AssertQuery<OrderDetail>(
+            return AssertQueryAsync<OrderDetail>(
                 ods => ods
                     .Include(od => od.Order.Customer)
                     .Include(od => od.Product)
