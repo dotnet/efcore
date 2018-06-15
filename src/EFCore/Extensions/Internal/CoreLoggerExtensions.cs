@@ -1920,7 +1920,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
-                    entry.StateManager.Context.GetType().ShortDisplayName()
+                    entry.StateManager.Context.GetType().ShortDisplayName(),
                     entry.EntityType.ShortName());
             }
 
