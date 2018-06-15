@@ -963,6 +963,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return handlerContext.EvalOnClient();
         }
 
+        private static readonly MethodInfo _castToNullableMethodInfo
+            = typeof(RelationalTaskExtensions).GetRuntimeMethods().Where(m => m.Name == nameof(RelationalTaskExtensions.CastToNullable)).Single();
+
         private static Expression HandleSum(HandlerContext handlerContext)
         {
             if (!handlerContext.QueryModelVisitor.RequiresClientProjection
@@ -990,10 +993,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             .MakeGenericMethod(sumExpression.Type.UnwrapNullableType())
                             .Invoke(null, new object[] { handlerContext, /*throwOnNullResult:*/ false });
 
-                    return
-                        sumExpression.Type.IsNullableType()
+                    if (handlerContext.QueryModelVisitor.QueryCompilationContext.IsAsyncQuery)
+                    {
+                        return sumExpression.Type.IsNullableType()
+                            ? Expression.Call(
+                                _castToNullableMethodInfo.MakeGenericMethod(sumExpression.Type.UnwrapNullableType()),
+                                clientExpression)
+                            : clientExpression;
+                    }
+                    else
+                    {
+                        return sumExpression.Type.IsNullableType()
                             ? Expression.Convert(clientExpression, sumExpression.Type)
                             : clientExpression;
+                    }
                 }
             }
 
