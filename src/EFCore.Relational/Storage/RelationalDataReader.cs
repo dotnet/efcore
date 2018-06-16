@@ -134,22 +134,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                _reader.Dispose();
-                _command.Parameters.Clear();
-                _command.Dispose();
-                _connection.Close();
+                _reader.Close();
 
-                _logger.DataReaderDisposing(
-                    _connection,
-                    _command,
-                    _reader,
-                    _commandId,
-                    _reader.RecordsAffected,
-                    _readCount,
-                    _startTime,
-                    _stopwatch.Elapsed);
+                try
+                {
+                    _logger.DataReaderDisposing(
+                        _connection,
+                        _command,
+                        _reader,
+                        _commandId,
+                        _reader.RecordsAffected,
+                        _readCount,
+                        _startTime,
+                        _stopwatch.Elapsed);
+                }
+                finally
+                {
+                    _disposed = true;
 
-                _disposed = true;
+                    _reader.Dispose();
+                    _command.Parameters.Clear();
+                    _command.Dispose();
+                    _connection.Close();
+                }
             }
         }
     }
