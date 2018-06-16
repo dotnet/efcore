@@ -400,23 +400,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             AssertConverters(
                 _selector.Select(typeof(string)).ToList(),
-                (typeof(StringToNumberConverter<int>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<long>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<short>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<byte>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<ulong>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<uint>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<ushort>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<sbyte>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<decimal>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<double>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToNumberConverter<float>), new ConverterMappingHints(size: 64)),
-                (typeof(StringToDateTimeConverter), new ConverterMappingHints(size: 48)),
-                (typeof(StringToDateTimeOffsetConverter), new ConverterMappingHints(size: 48)),
-                (typeof(StringToTimeSpanConverter), new ConverterMappingHints(size: 48)),
-                (typeof(StringToGuidConverter), new ConverterMappingHints(size: 36)),
-                (typeof(StringToBoolConverter), default),
-                (typeof(StringToCharConverter), new ConverterMappingHints(size: 1)),
                 (typeof(StringToBytesConverter), default));
         }
 

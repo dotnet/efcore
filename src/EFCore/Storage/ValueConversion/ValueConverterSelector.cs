@@ -151,7 +151,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             }
             else if (underlyingModelType == typeof(string))
             {
-                if (underlyingProviderType?.IsEnum == true)
+                if (underlyingProviderType == null
+                    || underlyingProviderType == typeof(byte[]))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(byte[])),
+                        k => StringToBytesConverter.DefaultInfo);
+                }
+                else if (underlyingProviderType.IsEnum)
                 {
                     yield return _converters.GetOrAdd(
                         (typeof(string), underlyingProviderType),
@@ -160,9 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                             .GetAnyProperty("DefaultInfo")
                             .GetValue(null));
                 }
-
-                if (underlyingProviderType == null
-                    || _numerics.Contains(underlyingProviderType))
+                else if (_numerics.Contains(underlyingProviderType))
                 {
                     foreach (var converterInfo in FindNumericConvertions(
                         typeof(string),
@@ -173,61 +178,41 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                         yield return converterInfo;
                     }
                 }
-
-                if (underlyingProviderType == null
-                    || underlyingProviderType == typeof(DateTime))
+                else if (underlyingProviderType == typeof(DateTime))
                 {
                     yield return _converters.GetOrAdd(
                         (underlyingModelType, typeof(DateTime)),
                         k => StringToDateTimeConverter.DefaultInfo);
                 }
-
-                if (underlyingProviderType == null
-                    || underlyingProviderType == typeof(DateTimeOffset))
+                else if (underlyingProviderType == typeof(DateTimeOffset))
                 {
                     yield return _converters.GetOrAdd(
                         (underlyingModelType, typeof(DateTimeOffset)),
                         k => StringToDateTimeOffsetConverter.DefaultInfo);
                 }
-
-                if (underlyingProviderType == null
-                    || underlyingProviderType == typeof(TimeSpan))
+                else if (underlyingProviderType == typeof(TimeSpan))
                 {
                     yield return _converters.GetOrAdd(
                         (underlyingModelType, typeof(TimeSpan)),
                         k => StringToTimeSpanConverter.DefaultInfo);
                 }
-
-                if (underlyingProviderType == null
-                    || underlyingProviderType == typeof(Guid))
+                else if (underlyingProviderType == typeof(Guid))
                 {
                     yield return _converters.GetOrAdd(
                         (underlyingModelType, typeof(Guid)),
                         k => StringToGuidConverter.DefaultInfo);
                 }
-
-                if (underlyingProviderType == null
-                    || underlyingProviderType == typeof(bool))
+                else if (underlyingProviderType == typeof(bool))
                 {
                     yield return _converters.GetOrAdd(
                         (underlyingModelType, typeof(bool)),
                         k => StringToBoolConverter.DefaultInfo);
                 }
-
-                if (underlyingProviderType == null
-                    || underlyingProviderType == typeof(char))
+                else if (underlyingProviderType == typeof(char))
                 {
                     yield return _converters.GetOrAdd(
                         (underlyingModelType, typeof(char)),
                         k => StringToCharConverter.DefaultInfo);
-                }
-
-                if (underlyingProviderType == null
-                    || underlyingProviderType == typeof(byte[]))
-                {
-                    yield return _converters.GetOrAdd(
-                        (underlyingModelType, typeof(byte[])),
-                        k => StringToBytesConverter.DefaultInfo);
                 }
             }
             else if (underlyingModelType == typeof(DateTime)
