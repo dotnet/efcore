@@ -158,8 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     ? builder.Navigations(ReferenceName, collection.Name, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
                     : builder.Navigations(ReferenceProperty, collection.Property, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
                 : collection.Property != null
-                ? builder.PrincipalToDependent(collection.Property, ConfigurationSource.Explicit)
-                : builder.PrincipalToDependent(collection.Name, ConfigurationSource.Explicit);
+                    ? builder.PrincipalToDependent(collection.Property, ConfigurationSource.Explicit)
+                    : builder.PrincipalToDependent(collection.Name, ConfigurationSource.Explicit);
         }
 
         /// <summary>

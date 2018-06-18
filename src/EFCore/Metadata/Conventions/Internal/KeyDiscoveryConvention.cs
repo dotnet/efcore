@@ -24,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IBaseTypeChangedConvention,
         IPropertyFieldChangedConvention,
         IForeignKeyAddedConvention,
-        IForeignKeyRemovedConvention
+        IForeignKeyRemovedConvention,
+        IForeignKeyUniquenessChangedConvention,
+        IForeignKeyOwnershipChangedConvention
     {
         private const string KeySuffix = "Id";
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
@@ -154,11 +156,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
-            var entityType = relationshipBuilder.Metadata.DeclaringEntityType;
-            if (entityType.HasDefiningNavigation())
+            if (relationshipBuilder.Metadata.IsOwnership)
             {
-                Apply(entityType.Builder);
+                Apply(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
             }
+
+            return relationshipBuilder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        InternalRelationshipBuilder IForeignKeyOwnershipChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
+        {
+            Apply(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
 
             return relationshipBuilder;
         }
@@ -169,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
-            if (entityTypeBuilder.Metadata.HasDefiningNavigation())
+            if (foreignKey.IsOwnership)
             {
                 Apply(entityTypeBuilder);
             }

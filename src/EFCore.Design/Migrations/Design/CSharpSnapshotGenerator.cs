@@ -137,13 +137,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var ownerNavigation = entityType.FindOwnership()?.PrincipalToDependent.Name;
+            var ownership = entityType.FindOwnership();
+            var ownerNavigation = ownership?.PrincipalToDependent.Name;
 
             stringBuilder
                 .Append(builderName)
                 .Append(
                     ownerNavigation != null
-                        ? ".OwnsOne("
+                        ? ownership.IsUnique ? ".OwnsOne(" : ".OwnsMany("
                         : ".Entity(")
                 .Append(Code.Literal(entityType.Name));
 
@@ -186,10 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     GenerateProperties(builderName, entityType.GetDeclaredProperties(), stringBuilder);
 
-                    if (ownerNavigation == null)
-                    {
-                        GenerateKeys(builderName, entityType.GetDeclaredKeys(), entityType.FindDeclaredPrimaryKey(), stringBuilder);
-                    }
+                    GenerateKeys(builderName, entityType.GetDeclaredKeys(), entityType.FindDeclaredPrimaryKey(), stringBuilder);
 
                     GenerateIndexes(builderName, entityType.GetDeclaredIndexes(), stringBuilder);
 
