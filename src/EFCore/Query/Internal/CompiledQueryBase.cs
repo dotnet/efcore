@@ -106,14 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return Expression.Constant(_context);
                 }
 
-                if (_parameters.Contains(parameterExpression))
-                {
-                    return Expression.Parameter(
+                return _parameters.Contains(parameterExpression)
+                    ? Expression.Parameter(
                         parameterExpression.Type,
-                        CompiledQueryCache.CompiledQueryParameterPrefix + parameterExpression.Name);
-                }
-
-                return parameterExpression;
+                        CompiledQueryCache.CompiledQueryParameterPrefix + parameterExpression.Name)
+                    : parameterExpression;
             }
         }
     }

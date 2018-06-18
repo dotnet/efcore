@@ -61,13 +61,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 throw new InvalidOperationException(message + exception, exception);
             }
 
-            if (exception is InvalidOperationException invalidOperationException
-                && invalidOperationException.Message == "Internal .Net Framework Data Provider error 6.")
-            {
-                return true;
-            }
-
-            return false;
+            return exception is InvalidOperationException invalidOperationException
+                && invalidOperationException.Message == "Internal .Net Framework Data Provider error 6."
+                ? true
+                : false;
         }
 
         public new virtual TimeSpan? GetNextDelay(Exception lastException)

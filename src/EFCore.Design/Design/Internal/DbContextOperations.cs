@@ -221,12 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var factory = contextType.GetTypeInfo().Assembly.GetConstructibleTypes()
                 .Where(t => factoryInterface.IsAssignableFrom(t))
                 .FirstOrDefault();
-            if (factory == null)
-            {
-                return null;
-            }
-
-            return () => CreateContextFromFactory(factory.AsType());
+            return factory == null ? (Func<DbContext>)null : (() => CreateContextFromFactory(factory.AsType()));
         }
 
         private DbContext CreateContextFromFactory(Type factory)

@@ -40,12 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             result = EntityTypePathComparer.Instance.Compare(x.PrincipalEntityType, y.PrincipalEntityType);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return EntityTypePathComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
+            return result != 0 ? result : EntityTypePathComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
         }
 
         /// <summary>

@@ -104,12 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var sourceClrType = sourceType.ClrType;
             var navigationProperty = sourceClrType?.GetMembersInHierarchy(navigationName).FirstOrDefault();
-            if (!IsCompatible(navigationName, navigationProperty, sourceType, targetType, null, shouldThrow))
-            {
-                return null;
-            }
-
-            return navigationProperty;
+            return !IsCompatible(navigationName, navigationProperty, sourceType, targetType, null, shouldThrow) ? null : navigationProperty;
         }
 
         /// <summary>

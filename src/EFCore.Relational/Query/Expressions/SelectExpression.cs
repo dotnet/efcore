@@ -1096,12 +1096,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return nullableExpression.Operand;
             }
 
-            if (expression is NullConditionalExpression nullConditionalExpression)
-            {
-                return nullConditionalExpression.AccessOperation;
-            }
-
-            return expression;
+            return expression is NullConditionalExpression nullConditionalExpression ? nullConditionalExpression.AccessOperation : expression;
         }
 
         /// <summary>
@@ -1440,12 +1435,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             public override Expression Visit(Expression expression)
             {
-                if (ReferenceEquals(expression, _oldExpression))
-                {
-                    return _newExpression;
-                }
-
-                return base.Visit(expression);
+                return ReferenceEquals(expression, _oldExpression) ? _newExpression : base.Visit(expression);
             }
 
             protected override Expression VisitExtension(Expression node)

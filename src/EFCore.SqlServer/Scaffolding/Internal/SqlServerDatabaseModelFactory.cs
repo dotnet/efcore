@@ -197,9 +197,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
         private static Func<string, string> GenerateSchemaFilter(IReadOnlyList<string> schemas)
         {
-            if (schemas.Any())
-            {
-                return s =>
+            return schemas.Any()
+                ? (s =>
                 {
                     var schemaFilterBuilder = new StringBuilder();
                     schemaFilterBuilder.Append(s);
@@ -207,10 +206,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                     schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
                     schemaFilterBuilder.Append(")");
                     return schemaFilterBuilder.ToString();
-                };
-            }
-
-            return null;
+                })
+                : (Func<string, string>)null;
         }
 
         private static (string Schema, string Table) Parse(string table)
@@ -232,10 +229,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             IReadOnlyList<(string Schema, string Table)> tables,
             Func<string, string> schemaFilter)
         {
-            if (schemaFilter != null
-                || tables.Any())
-            {
-                return (s, t) =>
+            return schemaFilter != null
+                || tables.Any()
+                ? ((s, t) =>
                 {
                     var tableFilterBuilder = new StringBuilder();
 
@@ -298,10 +294,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                     }
 
                     return tableFilterBuilder.ToString();
-                };
-            }
-
-            return null;
+                })
+                : (Func<string, string, string>)null;
         }
 
         private static string EscapeLiteral(string s)

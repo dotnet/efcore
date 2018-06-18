@@ -37,12 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
-            if (oldConfigurationSource == ConfigurationSource.DataAnnotation)
-            {
-                return false;
-            }
-
-            return true;
+            return oldConfigurationSource == ConfigurationSource.DataAnnotation ? false : true;
         }
 
         /// <summary>
@@ -66,14 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ContractAnnotation("left:notnull => notnull;right:notnull => notnull")]
         public static ConfigurationSource? Max(this ConfigurationSource? left, ConfigurationSource? right)
         {
-            if (!right.HasValue
+            return !right.HasValue
                 || (left.HasValue
-                    && left.Value.Overrides(right.Value)))
-            {
-                return left;
-            }
-
-            return right.Value;
+                    && left.Value.Overrides(right.Value))
+                ? left
+                : (ConfigurationSource?)right.Value;
         }
 
         /// <summary>

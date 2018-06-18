@@ -454,12 +454,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            if (_trackableIncludes == null)
-            {
-                return null;
-            }
-
-            return _trackableIncludes.TryGetValue(querySource, out var includes) ? includes : null;
+            return _trackableIncludes == null ? null : _trackableIncludes.TryGetValue(querySource, out var includes) ? includes : null;
         }
 
         /// <summary>

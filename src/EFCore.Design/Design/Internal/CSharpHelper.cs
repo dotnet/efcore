@@ -277,12 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 identifier = uniqueIdentifier;
             }
 
-            if (_keywords.Contains(identifier))
-            {
-                return "@" + identifier;
-            }
-
-            return identifier;
+            return _keywords.Contains(identifier) ? "@" + identifier : identifier;
         }
 
         /// <summary>
@@ -634,12 +629,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             if (ch < 'a')
             {
-                if (ch < 'A')
-                {
-                    return false;
-                }
-
-                return ch <= 'Z'
+                return ch < 'A'
+                    ? false
+                    : ch <= 'Z'
                        || ch == '_';
             }
 
@@ -648,25 +640,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return true;
             }
 
-            if (ch <= '\u007F') // max ASCII
-            {
-                return false;
-            }
-
-            return IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
+            return ch <= '\u007F' ? false : IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
         }
 
         private static bool IsIdentifierPartCharacter(char ch)
         {
             if (ch < 'a')
             {
-                if (ch < 'A')
-                {
-                    return ch >= '0'
-                           && ch <= '9';
-                }
-
-                return ch <= 'Z'
+                return ch < 'A'
+                    ? ch >= '0'
+                           && ch <= '9'
+                    : ch <= 'Z'
                        || ch == '_';
             }
 

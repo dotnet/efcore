@@ -316,12 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return DeclaringEntityType;
             }
 
-            if (RelatedEntityType.DisplayName() == entityTypeName)
-            {
-                return RelatedEntityType;
-            }
-
-            return null;
+            return RelatedEntityType.DisplayName() == entityTypeName ? RelatedEntityType : null;
         }
 
         /// <summary>
@@ -335,12 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return DeclaringEntityType;
             }
 
-            if (RelatedEntityType.ClrType == entityType)
-            {
-                return RelatedEntityType;
-            }
-
-            return null;
+            return RelatedEntityType.ClrType == entityType ? RelatedEntityType : null;
         }
 
         private EntityType GetOtherEntityType(EntityType entityType)

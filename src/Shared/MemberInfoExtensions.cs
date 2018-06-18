@@ -17,12 +17,9 @@ namespace System.Reflection
                 return otherPropertyInfo == null;
             }
 
-            if (otherPropertyInfo == null)
-            {
-                return false;
-            }
-
-            return Equals(propertyInfo, otherPropertyInfo)
+            return otherPropertyInfo == null
+                ? false
+                : Equals(propertyInfo, otherPropertyInfo)
                    || (propertyInfo.Name == otherPropertyInfo.Name
                        && (propertyInfo.DeclaringType == otherPropertyInfo.DeclaringType
                            || propertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(otherPropertyInfo.DeclaringType)

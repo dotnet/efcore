@@ -102,16 +102,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static bool CanBeGenerated(Property property)
         {
             var propertyType = property.ClrType.UnwrapNullableType();
-            if ((propertyType.IsInteger()
+            return (propertyType.IsInteger()
                  && propertyType != typeof(byte))
                 || propertyType == typeof(Guid)
                 || propertyType == typeof(string)
-                || propertyType == typeof(byte[]))
-            {
-                return true;
-            }
-
-            return false;
+                || propertyType == typeof(byte[])
+                ? true
+                : false;
         }
     }
 }

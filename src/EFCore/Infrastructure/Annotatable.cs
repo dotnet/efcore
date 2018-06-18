@@ -129,12 +129,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotEmpty(name, nameof(name));
 
-            if (!_annotations.HasValue)
-            {
-                return null;
-            }
-
-            return _annotations.Value.TryGetValue(name, out var annotation)
+            return !_annotations.HasValue
+                ? null
+                : _annotations.Value.TryGetValue(name, out var annotation)
                 ? annotation
                 : null;
         }

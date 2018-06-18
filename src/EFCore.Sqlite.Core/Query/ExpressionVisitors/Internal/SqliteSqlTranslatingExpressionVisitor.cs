@@ -137,15 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionVisitors.Internal
                 return null;
             }
 
-            if (_restrictedBinaryExpressions.TryGetValue(visitedExpression.NodeType, out var restrictedTypes)
+            return _restrictedBinaryExpressions.TryGetValue(visitedExpression.NodeType, out var restrictedTypes)
                 && visitedExpression is BinaryExpression visitedBinaryExpression
                 && (restrictedTypes.Contains(GetProviderType(visitedBinaryExpression.Left))
-                    || restrictedTypes.Contains(GetProviderType(visitedBinaryExpression.Right))))
-            {
-                return null;
-            }
-
-            return visitedExpression;
+                    || restrictedTypes.Contains(GetProviderType(visitedBinaryExpression.Right)))
+                ? null
+                : visitedExpression;
         }
 
         private static Type GetProviderType(Expression expression)

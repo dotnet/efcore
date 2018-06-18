@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             => (!unique && existingIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
                || (unique && existingIndexUniqueness && existingIndexProperties.SequenceEqual(properties));
 
-        private void RemoveIndex(Index index)
+        private static void RemoveIndex(Index index)
             => index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
 
         /// <summary>

@@ -52,13 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual TEntity Find(object[] keyValues)
         {
-            if (keyValues == null
-                || keyValues.Any(v => v == null))
-            {
-                return null;
-            }
-
-            return FindTracked(keyValues, out var keyProperties)
+            return keyValues == null
+                || keyValues.Any(v => v == null)
+                ? null
+                : FindTracked(keyValues, out var keyProperties)
                    ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
         }
 
@@ -295,12 +292,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IQueryable BuildQueryRoot(IEntityType entityType)
         {
             var definingEntityType = entityType.DefiningEntityType;
-            if (definingEntityType == null)
-            {
-                return (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
-            }
-
-            return BuildQueryRoot(definingEntityType, entityType);
+            return definingEntityType == null
+                ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType)
+                : BuildQueryRoot(definingEntityType, entityType);
         }
 
         private IQueryable BuildQueryRoot(IEntityType definingEntityType, IEntityType entityType)

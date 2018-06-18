@@ -43,13 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             {
                 var argument = methodCallExpression.Arguments[0];
 
-                if (methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
-                    && methodCallExpression.Object.Type != argument.Type)
-                {
-                    return TranslateEquals(methodCallExpression.Object, argument.RemoveConvert(), methodCallExpression);
-                }
-
-                return Expression.Equal(methodCallExpression.Object, argument);
+                return methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
+                    && methodCallExpression.Object.Type != argument.Type
+                    ? TranslateEquals(methodCallExpression.Object, argument.RemoveConvert(), methodCallExpression)
+                    : Expression.Equal(methodCallExpression.Object, argument);
             }
 
             if (methodCallExpression.Method.Name == nameof(object.Equals)
@@ -58,13 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             {
                 var left = methodCallExpression.Arguments[0].RemoveConvert();
                 var right = methodCallExpression.Arguments[1].RemoveConvert();
-                if (methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
-                    && left.Type != right.Type)
-                {
-                    return TranslateEquals(left, right, methodCallExpression);
-                }
-
-                return Expression.Equal(left, right);
+                return methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
+                    && left.Type != right.Type
+                    ? TranslateEquals(left, right, methodCallExpression)
+                    : Expression.Equal(left, right);
             }
 
             return null;

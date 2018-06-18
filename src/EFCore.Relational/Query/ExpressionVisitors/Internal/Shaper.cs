@@ -83,9 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public virtual Expression GetAccessorExpression([NotNull] IQuerySource querySource)
         {
-            if (_querySource == querySource)
-            {
-                return _accessorExpression != null
+            return _querySource == querySource
+                ? _accessorExpression != null
                     ? (Expression)Expression
                         .Lambda(
                             _accessorExpression,
@@ -93,10 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     : Expression
                         .Default(
                             typeof(Func<,>)
-                                .MakeGenericType(Type, typeof(object)));
-            }
-
-            return null;
+                                .MakeGenericType(Type, typeof(object)))
+                : null;
         }
 
         /// <summary>

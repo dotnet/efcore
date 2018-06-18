@@ -623,23 +623,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static TResult Maybe<TResult>(object caller, Func<TResult> expression)
             where TResult : class
         {
-            if (caller == null)
-            {
-                return null;
-            }
-
-            return expression();
+            return caller == null ? null : expression();
         }
 
         public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
             where TResult : struct
         {
-            if (caller == null)
-            {
-                return null;
-            }
-
-            return expression();
+            return caller == null ? null : expression();
         }
 
         #endregion

@@ -104,16 +104,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     mappingInfo.Size);
             }
 
-            if (mappingInfo.ClrType == typeof(byte[])
-                && _relationalTypeMapper.ByteArrayMapper != null)
-            {
-                return _relationalTypeMapper.ByteArrayMapper.FindMapping(
+            return mappingInfo.ClrType == typeof(byte[])
+                && _relationalTypeMapper.ByteArrayMapper != null
+                ? _relationalTypeMapper.ByteArrayMapper.FindMapping(
                     mappingInfo.IsRowVersion == true,
                     mappingInfo.IsKeyOrIndex,
-                    mappingInfo.Size);
-            }
-
-            return _relationalTypeMapper.FindMapping(mappingInfo.ClrType);
+                    mappingInfo.Size)
+                : _relationalTypeMapper.FindMapping(mappingInfo.ClrType);
         }
 
         private RelationalTypeMapping FindMappingForStoreTypeName(in RelationalTypeMappingInfo mappingInfo)

@@ -106,12 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return ContainsNullableColumnExpression(columnReferenceExpression.Expression);
             }
 
-            if (extensionExpression is AliasExpression aliasExpression)
-            {
-                return ContainsNullableColumnExpression(aliasExpression.Expression);
-            }
-
-            return false;
+            return extensionExpression is AliasExpression aliasExpression ? ContainsNullableColumnExpression(aliasExpression.Expression) : false;
         }
 
         /// <summary>
@@ -155,13 +150,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return null;
             }
 
-            if (left != null
-                && right != null)
-            {
-                return Expression.MakeBinary(expressionType, left, right);
-            }
-
-            return left ?? right;
+            return left != null
+                && right != null
+                ? Expression.MakeBinary(expressionType, left, right)
+                : left ?? right;
         }
 
         private void AddToResult(Expression expression)

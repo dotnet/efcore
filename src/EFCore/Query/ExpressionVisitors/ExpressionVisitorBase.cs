@@ -24,12 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="extensionExpression">The expression to visit.</param>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is NullConditionalExpression)
-            {
-                return extensionExpression;
-            }
-
-            return base.VisitExtension(extensionExpression);
+            return extensionExpression is NullConditionalExpression ? extensionExpression : base.VisitExtension(extensionExpression);
         }
 
         /// <summary>

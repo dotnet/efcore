@@ -215,15 +215,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             {
                                 var constantParameterValue = Expression.Constant(parameterValue);
 
-                                if (newArgument is UnaryExpression unaryExpression
-                                    && unaryExpression.NodeType == ExpressionType.Convert)
-                                {
-                                    newArgument = unaryExpression.Update(constantParameterValue);
-                                }
-                                else
-                                {
-                                    newArgument = constantParameterValue;
-                                }
+                                newArgument = newArgument is UnaryExpression unaryExpression
+                                    && unaryExpression.NodeType == ExpressionType.Convert
+                                    ? unaryExpression.Update(constantParameterValue)
+                                    : (Expression)constantParameterValue;
                             }
                         }
                     }
@@ -513,13 +508,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public override Expression Visit(Expression expression)
             {
-                if (expression != null
-                    && expression.Type.GetTypeInfo().IsAssignableFrom(_contextType))
-                {
-                    return ContextParameterExpression;
-                }
-
-                return base.Visit(expression);
+                return expression != null
+                    && expression.Type.GetTypeInfo().IsAssignableFrom(_contextType)
+                    ? ContextParameterExpression
+                    : base.Visit(expression);
             }
         }
 

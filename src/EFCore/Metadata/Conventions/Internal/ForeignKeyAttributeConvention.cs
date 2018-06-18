@@ -213,12 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             relationshipBuilder = relationshipBuilder.PrincipalToDependent((string)null, ConfigurationSource.DataAnnotation);
-            if (relationshipBuilder == null)
-            {
-                return null;
-            }
-
-            return foreignKey.PrincipalEntityType.Builder.Relationship(
+            return relationshipBuilder == null
+                ? null
+                : foreignKey.PrincipalEntityType.Builder.Relationship(
                        foreignKey.DeclaringEntityType.Builder,
                        principalToDepedentNavigationName,
                        null,

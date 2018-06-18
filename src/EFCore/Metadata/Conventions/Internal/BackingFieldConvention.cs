@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        private FieldInfo TryMatchFieldName(Model model, Type entityClrType, Type propertyType, string propertyName)
+        private static FieldInfo TryMatchFieldName(Model model, Type entityClrType, Type propertyType, string propertyName)
         {
             Dictionary<string, FieldInfo> fields;
             var entityType = model.FindEntityType(entityClrType);

@@ -810,15 +810,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var nextSource = source.DefiningEntityType ?? source.BaseType;
             var nextTarget = target.DefiningEntityType ?? target.BaseType;
-            if (nextSource == null
+            return nextSource == null
                 || !sourceTable.EntityTypes.Contains(nextSource)
                 || nextTarget == null
-                || !targetTable.EntityTypes.Contains(nextTarget))
-            {
-                return true;
-            }
-
-            return EntityTypePathEquals(nextSource, nextTarget, diffContext);
+                || !targetTable.EntityTypes.Contains(nextTarget)
+                ? true
+                : EntityTypePathEquals(nextSource, nextTarget, diffContext);
         }
 
         private static string GetDefiningNavigationName(IEntityType entityType)

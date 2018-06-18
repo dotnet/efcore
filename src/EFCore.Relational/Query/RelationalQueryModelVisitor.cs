@@ -1435,24 +1435,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var queryMethods = QueryCompilationContext.QueryMethodProvider;
 
-            if (methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.ShapedQueryMethod)
-                || methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.DefaultIfEmptyShapedQueryMethod))
-            {
-                return true;
-            }
-
-            return false;
+            return methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.ShapedQueryMethod)
+                || methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.DefaultIfEmptyShapedQueryMethod)
+                ? true
+                : false;
         }
 
         private MethodCallExpression UnwrapShapedQueryExpression(MethodCallExpression expression)
         {
-            if (expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty)
-                || expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg))
-            {
-                return (MethodCallExpression)expression.Arguments[0];
-            }
-
-            return expression;
+            return expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty)
+                || expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg)
+                ? (MethodCallExpression)expression.Arguments[0]
+                : expression;
         }
 
         private Shaper ExtractShaper(MethodCallExpression shapedQueryExpression, int offset)
@@ -1853,16 +1847,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             var referencedQuerySource
                 = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
-            if (referencedQuerySource != groupJoinClause
+            return referencedQuerySource != groupJoinClause
                 || queryModel.CountQuerySourceReferences(groupJoinClause) != 1
                 || subQueryModel.BodyClauses.Count != 0
                 || subQueryModel.ResultOperators.Count != 1
-                || !(subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator))
-            {
-                return false;
-            }
-
-            return true;
+                || !(subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator)
+                ? false
+                : true;
         }
 
         private bool TryFlattenGroupJoinDefaultIfEmpty(
@@ -2118,14 +2109,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return new PropertyParameterExpression(parameterExpression.Name, property);
                     }
 
-                    if (methodCallExpression.Arguments[0] is ConstantExpression constantExpression)
-                    {
-                        return Expression.Constant(
+                    return methodCallExpression.Arguments[0] is ConstantExpression constantExpression
+                        ? Expression.Constant(
                             property.GetGetter().GetClrValue(constantExpression.Value),
-                            methodCallExpression.Method.GetGenericArguments()[0]);
-                    }
-
-                    return null;
+                            methodCallExpression.Method.GetGenericArguments()[0])
+                        : null;
                 });
         }
 

@@ -246,9 +246,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (_methodInfoDateDiffMapping.TryGetValue(methodCallExpression.Method, out var datePart))
-            {
-                return new SqlFunctionExpression(
+            return _methodInfoDateDiffMapping.TryGetValue(methodCallExpression.Method, out var datePart)
+                ? new SqlFunctionExpression(
                     functionName: "DATEDIFF",
                     returnType: methodCallExpression.Type,
                     arguments: new[]
@@ -256,10 +255,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         new SqlFragmentExpression(datePart),
                         methodCallExpression.Arguments[1],
                         methodCallExpression.Arguments[2]
-                    });
-            }
-
-            return null;
+                    })
+                : null;
         }
     }
 }

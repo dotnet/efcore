@@ -211,12 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return (IQueryable<TEntity>)GetLevelThree(context);
                 }
 
-                if (typeof(TEntity) == typeof(Level4))
-                {
-                    return (IQueryable<TEntity>)GetLevelFour(context);
-                }
-
-                return context.Set<TEntity>();
+                return typeof(TEntity) == typeof(Level4) ? (IQueryable<TEntity>)GetLevelFour(context) : context.Set<TEntity>();
             }
 
             private static IQueryable<Level1> GetLevelOne(DbContext context)

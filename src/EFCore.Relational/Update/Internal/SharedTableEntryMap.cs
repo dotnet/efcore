@@ -213,12 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     return -1;
                 }
 
-                if (_principals[y.EntityType].Count == 0)
-                {
-                    return 1;
-                }
-
-                return StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
+                return _principals[y.EntityType].Count == 0 ? 1 : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
             }
         }
     }

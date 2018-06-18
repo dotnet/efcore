@@ -144,13 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             if (Property.ValueGenerated != ValueGenerated.OnAdd)
             {
                 var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTableRootPrimaryKeyProperty();
-                if (sharedTablePrincipalPrimaryKeyProperty != null
-                    && sharedTablePrincipalPrimaryKeyProperty.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
-                {
-                    return SqlServerValueGenerationStrategy.IdentityColumn;
-                }
-
-                return null;
+                return sharedTablePrincipalPrimaryKeyProperty != null
+                    && sharedTablePrincipalPrimaryKeyProperty.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                    ? (SqlServerValueGenerationStrategy?)SqlServerValueGenerationStrategy.IdentityColumn
+                    : null;
             }
 
             var modelStrategy = Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy;
@@ -161,13 +158,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return SqlServerValueGenerationStrategy.SequenceHiLo;
             }
 
-            if (modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
-                && IsCompatible(Property))
-            {
-                return SqlServerValueGenerationStrategy.IdentityColumn;
-            }
-
-            return null;
+            return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && IsCompatible(Property)
+                ? (SqlServerValueGenerationStrategy?)SqlServerValueGenerationStrategy.IdentityColumn
+                : null;
         }
 
         /// <summary>
@@ -283,13 +277,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The default value, or <c>null</c> if none has been set. </returns>
         protected override object GetDefaultValue(bool fallback)
         {
-            if (fallback
-                && ValueGenerationStrategy != null)
-            {
-                return null;
-            }
-
-            return base.GetDefaultValue(fallback);
+            return fallback
+                && ValueGenerationStrategy != null
+                ? null
+                : base.GetDefaultValue(fallback);
         }
 
         /// <summary>
@@ -327,13 +318,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The default expression, or <c>null</c> if none has been set. </returns>
         protected override string GetDefaultValueSql(bool fallback)
         {
-            if (fallback
-                && ValueGenerationStrategy != null)
-            {
-                return null;
-            }
-
-            return base.GetDefaultValueSql(fallback);
+            return fallback
+                && ValueGenerationStrategy != null
+                ? null
+                : base.GetDefaultValueSql(fallback);
         }
 
         /// <summary>
@@ -371,13 +359,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The computed expression, or <c>null</c> if none has been set. </returns>
         protected override string GetComputedColumnSql(bool fallback)
         {
-            if (fallback
-                && ValueGenerationStrategy != null)
-            {
-                return null;
-            }
-
-            return base.GetComputedColumnSql(fallback);
+            return fallback
+                && ValueGenerationStrategy != null
+                ? null
+                : base.GetComputedColumnSql(fallback);
         }
 
         /// <summary>

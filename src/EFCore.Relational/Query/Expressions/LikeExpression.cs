@@ -134,12 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((LikeExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((LikeExpression)obj);
         }
         private bool Equals(LikeExpression other)
             => ExpressionEqualityComparer.Instance.Equals(Match, other.Match)

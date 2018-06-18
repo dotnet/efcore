@@ -863,17 +863,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return null;
             }
 
-            if (column.GetUnderlyingStoreType() != null)
-            {
-                return new TypeScaffoldingInfo(
+            return column.GetUnderlyingStoreType() != null
+                ? new TypeScaffoldingInfo(
                     typeScaffoldingInfo.ClrType,
                     inferred: false,
                     scaffoldUnicode: typeScaffoldingInfo.ScaffoldUnicode,
                     scaffoldMaxLength: typeScaffoldingInfo.ScaffoldMaxLength,
-                    scaffoldFixedLength: typeScaffoldingInfo.ScaffoldFixedLength);
-            }
-
-            return typeScaffoldingInfo;
+                    scaffoldFixedLength: typeScaffoldingInfo.ScaffoldFixedLength)
+                : typeScaffoldingInfo;
         }
 
         private static void AssignOnDeleteAction(

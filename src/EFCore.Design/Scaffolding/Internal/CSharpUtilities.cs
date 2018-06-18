@@ -218,12 +218,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (ch < 'a')
             {
-                if (ch < 'A')
-                {
-                    return false;
-                }
-
-                return ch <= 'Z'
+                return ch < 'A'
+                    ? false
+                    : ch <= 'Z'
                        || ch == '_';
             }
 
@@ -232,25 +229,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return true;
             }
 
-            if (ch <= '\u007F') // max ASCII
-            {
-                return false;
-            }
-
-            return IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
+            return ch <= '\u007F' ? false : IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
         }
 
         private static bool IsIdentifierPartCharacter(char ch)
         {
             if (ch < 'a')
             {
-                if (ch < 'A')
-                {
-                    return ch >= '0'
-                           && ch <= '9';
-                }
-
-                return ch <= 'Z'
+                return ch < 'A'
+                    ? ch >= '0'
+                           && ch <= '9'
+                    : ch <= 'Z'
                        || ch == '_';
             }
 

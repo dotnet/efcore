@@ -37,12 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool ShouldBeOwnedType([NotNull] this IModel model, [NotNull] string value)
         {
-            if (!(model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes))
-            {
-                return false;
-            }
-
-            return ownedTypes.Contains(value);
+            return !(model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes) ? false : ownedTypes.Contains(value);
         }
 
         /// <summary>

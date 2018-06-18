@@ -160,17 +160,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            if (entityType.Model.ShouldBeOwnedType(entityType.ClrType)
-                && !entityType.IsInOwnershipPath(targetEntityTypeBuilder.Metadata))
-            {
-                return targetEntityTypeBuilder.Owns(
+            return entityType.Model.ShouldBeOwnedType(entityType.ClrType)
+                && !entityType.IsInOwnershipPath(targetEntityTypeBuilder.Metadata)
+                ? targetEntityTypeBuilder.Owns(
                     entityTypeBuilder.Metadata.ClrType,
                     inverseNavigationPropertyInfo,
                     navigationMemberInfo,
-                    ConfigurationSource.Convention);
-            }
-
-            return targetEntityTypeBuilder.Relationship(
+                    ConfigurationSource.Convention)
+                : targetEntityTypeBuilder.Relationship(
                 entityTypeBuilder,
                 inverseNavigationPropertyInfo,
                 navigationMemberInfo,
@@ -213,13 +210,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public override InternalRelationshipBuilder Apply(
             InternalRelationshipBuilder relationshipBuilder, Navigation navigation, InversePropertyAttribute attribute)
         {
-            if (relationshipBuilder.Metadata.DeclaringEntityType.HasDefiningNavigation()
-                || relationshipBuilder.Metadata.PrincipalEntityType.HasDefiningNavigation())
-            {
-                return relationshipBuilder;
-            }
-
-            return ConfigureInverseNavigation(
+            return relationshipBuilder.Metadata.DeclaringEntityType.HasDefiningNavigation()
+                || relationshipBuilder.Metadata.PrincipalEntityType.HasDefiningNavigation()
+                ? relationshipBuilder
+                : ConfigureInverseNavigation(
                 navigation.DeclaringEntityType.Builder, navigation.GetIdentifyingMemberInfo(), navigation.GetTargetType().Builder, attribute);
         }
 

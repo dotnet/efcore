@@ -52,12 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             public override bool Equals(object obj)
             {
-                if (obj is null)
-                {
-                    return false;
-                }
-
-                return obj is CacheKey && Equals((CacheKey)obj);
+                return obj is null ? false : obj is CacheKey && Equals((CacheKey)obj);
             }
 
             public override int GetHashCode()

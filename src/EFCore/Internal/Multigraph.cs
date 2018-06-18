@@ -355,12 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var currentCycleVertex = _vertices.First(
                     v =>
                     {
-                        if (predecessorCounts.TryGetValue(v, out var predecessorNumber))
-                        {
-                            return predecessorNumber != 0;
-                        }
-
-                        return false;
+                        return predecessorCounts.TryGetValue(v, out var predecessorNumber) ? predecessorNumber != 0 : false;
                     });
                 var cyclicWalk = new List<TVertex>
                 {

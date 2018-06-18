@@ -141,12 +141,9 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            if (CallOnWrappedException(lastException, IsMemoryOptimizedError))
-            {
-                return TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds);
-            }
-
-            return baseDelay;
+            return CallOnWrappedException(lastException, IsMemoryOptimizedError)
+                ? (TimeSpan?)TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
+                : baseDelay;
         }
 
         private static bool IsMemoryOptimizedError(Exception exception)

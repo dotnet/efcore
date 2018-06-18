@@ -103,12 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((DiscriminatorPredicateExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((DiscriminatorPredicateExpression)obj);
         }
 
         private bool Equals(DiscriminatorPredicateExpression other)
