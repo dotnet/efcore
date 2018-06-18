@@ -171,10 +171,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         public override Expression Visit(Expression expression)
         {
-            if (expression == null
-                || _targetSelectExpression == null)
+            if (expression == null)
             {
                 return expression;
+            }
+
+            // Skip over Include and Correlated Collection methods
+            // This is checked first because it should not call base when there is not _targetSelectExpression
+            if (expression is MethodCallExpression methodCallExpression
+                && (IncludeCompiler.IsIncludeMethod(methodCallExpression)
+                    || CorrelatedCollectionOptimizingVisitor.IsCorrelatedCollectionMethod(methodCallExpression)))
+            {
+                return expression;
+            }
+
+            if (_targetSelectExpression == null)
+            {
+                return base.Visit(expression);
             }
 
             switch (expression)
@@ -194,12 +207,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     }
 
                     return qsre;
-
-                // Skip over Include and Correlated Collection methods
-                case MethodCallExpression methodCallExpression
-                    when IncludeCompiler.IsIncludeMethod(methodCallExpression)
-                         || CorrelatedCollectionOptimizingVisitor.IsCorrelatedCollectionMethod(methodCallExpression):
-                    return methodCallExpression;
 
                 // Group By key translation to cover composite key cases
                 case MemberExpression memberExpression
