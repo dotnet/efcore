@@ -1279,17 +1279,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             var referencedQuerySource
                 = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
-            if (queryModel.BodyClauses.ElementAtOrDefault(index - 1) is GroupJoinClause groupJoinClause
+            return queryModel.BodyClauses.ElementAtOrDefault(index - 1) is GroupJoinClause groupJoinClause
                 && groupJoinClause == referencedQuerySource
                 && queryModel.CountQuerySourceReferences(groupJoinClause) == 1
                 && subQueryModel.BodyClauses.Count == 0
                 && subQueryModel.ResultOperators.Count == 1
-                && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator)
-            {
-                return true;
-            }
-
-            return false;
+                && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator
+                ? true
+                : false;
         }
 
         /// <summary>
@@ -1825,14 +1822,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     querySourceReferenceExpression.ReferencedQuerySource);
             }
 
-            if (properties.Count > 0)
-            {
-                return propertyBinder(
+            return properties.Count > 0
+                ? propertyBinder(
                     properties,
-                    null);
-            }
-
-            return default;
+                    null)
+                : (default);
         }
 
         /// <summary>

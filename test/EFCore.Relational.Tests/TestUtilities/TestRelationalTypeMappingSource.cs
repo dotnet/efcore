@@ -195,14 +195,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            if (storeTypeName != null
+            return storeTypeName != null
                 && _simpleNameMappings.TryGetValue(storeTypeName, out var mappingFromName)
-                && (clrType == null || mappingFromName.ClrType == clrType))
-            {
-                return mappingFromName;
-            }
-
-            return null;
+                && (clrType == null || mappingFromName.ClrType == clrType)
+                ? mappingFromName
+                : null;
         }
     }
 }

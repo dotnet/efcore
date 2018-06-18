@@ -406,13 +406,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 detachedProperties?.Attach(this);
             }
 
-            if (builder != null
-                && builder.Metadata.Builder == null)
-            {
-                return Metadata.FindProperty(propertyName)?.Builder;
-            }
-
-            return builder;
+            return builder != null
+                && builder.Metadata.Builder == null
+                ? Metadata.FindProperty(propertyName)?.Builder
+                : builder;
         }
 
         private InternalPropertyBuilder Property(
@@ -670,13 +667,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(name, nameof(name));
 
             var ignoredConfigurationSource = Metadata.FindIgnoredMemberConfigurationSource(name);
-            if (!configurationSource.HasValue
-                || !configurationSource.Value.Overrides(ignoredConfigurationSource))
-            {
-                return true;
-            }
-
-            return false;
+            return !configurationSource.HasValue
+                || !configurationSource.Value.Overrides(ignoredConfigurationSource)
+                ? true
+                : false;
         }
 
         /// <summary>

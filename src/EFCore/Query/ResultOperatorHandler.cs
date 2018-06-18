@@ -126,13 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = entityQueryModelVisitor.Expression.Type
                     .GetSequenceType().GetTypeInfo();
 
-            if (castResultOperator.CastItemType.GetTypeInfo()
-                .IsAssignableFrom(resultItemTypeInfo))
-            {
-                return entityQueryModelVisitor.Expression;
-            }
-
-            return Expression.Call(
+            return castResultOperator.CastItemType.GetTypeInfo()
+                .IsAssignableFrom(resultItemTypeInfo)
+                ? entityQueryModelVisitor.Expression
+                : Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider
                     .Cast.MakeGenericMethod(castResultOperator.CastItemType),
                 entityQueryModelVisitor.Expression);
@@ -559,9 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(methodInfo, nameof(methodInfo));
 
-            if (methodInfo.GetParameters().Last().ParameterType == typeof(CancellationToken))
-            {
-                return Expression.Call(
+            return methodInfo.GetParameters().Last().ParameterType == typeof(CancellationToken)
+                ? Expression.Call(
                     methodInfo,
                     arguments
                         .AsEnumerable()
@@ -571,10 +567,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Property(
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     _cancellationTokenProperty)
-                            }));
-            }
-
-            return Expression.Call(methodInfo, arguments);
+                            }))
+                : Expression.Call(methodInfo, arguments);
         }
     }
 }

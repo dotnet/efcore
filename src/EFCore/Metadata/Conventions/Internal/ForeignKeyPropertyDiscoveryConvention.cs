@@ -101,12 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         var invertedRelationshipBuilder = relationshipBuilder
                             .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
 
-                        if (invertedRelationshipBuilder != null)
-                        {
-                            return invertedRelationshipBuilder;
-                        }
-
-                        return foreignKey.Builder == null ? null : relationshipBuilder;
+                        return invertedRelationshipBuilder ?? (foreignKey.Builder == null ? null : relationshipBuilder);
                     }
                 }
 
@@ -214,12 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return newRelationshipBuilder;
             }
 
-            if (relationshipBuilder.Metadata.Builder == null)
-            {
-                return null;
-            }
-
-            return relationshipBuilder;
+            return relationshipBuilder.Metadata.Builder == null ? null : relationshipBuilder;
         }
 
         private IReadOnlyList<Property> FindCandidateForeignKeyProperties(
@@ -259,18 +249,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static IReadOnlyList<Property> GetCompatiblePrimaryKeyProperties(EntityType dependentEntityType, EntityType principalEntityType, IReadOnlyList<Property> propertiesToReference)
         {
             var dependentPkProperties = dependentEntityType.FindPrimaryKey()?.Properties;
-            if ((dependentPkProperties != null)
+            return (dependentPkProperties != null)
                 && ForeignKey.AreCompatible(
                     propertiesToReference,
                     dependentPkProperties,
                     principalEntityType,
                     dependentEntityType,
-                    false))
-            {
-                return dependentPkProperties;
-            }
-
-            return null;
+                    false)
+                ? dependentPkProperties
+                : null;
         }
 
         private bool TryFindMatchingProperties(

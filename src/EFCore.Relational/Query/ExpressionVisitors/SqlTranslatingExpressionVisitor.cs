@@ -732,13 +732,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 var sql = _queryModelVisitor.TryGetQuery(qsre.ReferencedQuerySource)
                     ?.GetProjectionForMemberInfo(memberExpression.Member);
 
-                if (_topLevelPredicate != null
-                    && sql is AliasExpression aliasExpression)
-                {
-                    return aliasExpression.Expression;
-                }
-
-                return sql;
+                return _topLevelPredicate != null
+                    && sql is AliasExpression aliasExpression
+                    ? aliasExpression.Expression
+                    : sql;
             }
 
             return null;
@@ -1160,14 +1157,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                           ?? _queryModelVisitor.QueryCompilationContext.Model
                               .FindEntityType(joinClause.ItemType);
 
-                    if (entityType != null)
-                    {
-                        return Visit(
+                    return entityType != null
+                        ? Visit(
                             expression.CreateEFPropertyExpression(
-                                entityType.FindPrimaryKey().Properties[0]));
-                    }
-
-                    return null;
+                                entityType.FindPrimaryKey().Properties[0]))
+                        : null;
                 }
             }
 

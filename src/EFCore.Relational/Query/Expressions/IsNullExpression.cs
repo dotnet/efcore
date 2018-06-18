@@ -90,12 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((IsNullExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((IsNullExpression)obj);
         }
 
         private bool Equals(IsNullExpression other) => Equals(_operand, other._operand);

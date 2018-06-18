@@ -267,13 +267,10 @@ namespace Microsoft.EntityFrameworkCore
                         : new SequentialGuidValueGenerator();
                 }
 
-                if (property.ClrType == typeof(string)
-                    && property.DeclaringEntityType.ClrType == typeof(SomeEntity))
-                {
-                    return new SomeEntityStringValueGenerator();
-                }
-
-                return null;
+                return property.ClrType == typeof(string)
+                    && property.DeclaringEntityType.ClrType == typeof(SomeEntity)
+                    ? new SomeEntityStringValueGenerator()
+                    : null;
             }
         }
     }

@@ -282,14 +282,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             // Skipping composite key with subquery since it requires to copy subquery
             // which would cause same subquery to be visited twice
-            if (keyProperties.Count > 1
+            return keyProperties.Count > 1
                 && (left.RemoveConvert() is SubQueryExpression
-                    || right.RemoveConvert() is SubQueryExpression))
-            {
-                return null;
-            }
-
-            return Expression.MakeBinary(
+                    || right.RemoveConvert() is SubQueryExpression)
+                ? null
+                : Expression.MakeBinary(
                 nodeType,
                 CreateKeyAccessExpression(left, keyProperties, nullComparison: false),
                 CreateKeyAccessExpression(right, keyProperties, nullComparison: false));

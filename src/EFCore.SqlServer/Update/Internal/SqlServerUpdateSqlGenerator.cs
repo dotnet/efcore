@@ -354,15 +354,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                            ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
             }
 
-            if (property.ClrType == typeof(byte[])
+            return property.ClrType == typeof(byte[])
                 && typeName != null
                 && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
-                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)))
-            {
-                return property.IsNullable ? "varbinary(8)" : "binary(8)";
-            }
-
-            return typeName;
+                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+                ? property.IsNullable ? "varbinary(8)" : "binary(8)"
+                : typeName;
         }
 
         // ReSharper disable once ParameterTypeCanBeEnumerable.Local

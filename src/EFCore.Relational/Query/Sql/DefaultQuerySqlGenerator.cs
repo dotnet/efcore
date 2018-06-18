@@ -2028,13 +2028,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 unaryExpression = unaryExpression.Update(operand);
 
                 // Convert nodes are transparent to SQL hence no conversion needed
-                if (unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
-                {
-                    return unaryExpression;
-                }
-
-                return ApplyConversion(unaryExpression);
+                return unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked
+                    ? unaryExpression
+                    : ApplyConversion(unaryExpression);
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -2066,14 +2063,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 expression = expression.RemoveConvert();
 
-                if (!(expression is BinaryExpression)
+                return !(expression is BinaryExpression)
                     && expression.NodeType != ExpressionType.Not
-                    && expression.NodeType != ExpressionType.Extension)
-                {
-                    return false;
-                }
-
-                return expression.IsComparisonOperation()
+                    && expression.NodeType != ExpressionType.Extension
+                    ? false
+                    : expression.IsComparisonOperation()
                        || expression.IsLogicalOperation()
                        || expression.NodeType == ExpressionType.Not
                        || expression is ExistsExpression

@@ -81,12 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return obj is AnonymousObject anonymousObject
+            return obj is null
+                ? false
+                : obj is AnonymousObject anonymousObject
                    && _values.SequenceEqual(anonymousObject._values);
         }
 

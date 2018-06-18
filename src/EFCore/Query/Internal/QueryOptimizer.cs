@@ -227,15 +227,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var innerMainFromClause = clonedSubQueryModel.MainFromClause;
                 var isGeneratedNameOuter = fromClause.HasGeneratedItemName();
 
-                if (innerMainFromClause.HasGeneratedItemName()
-                    && !isGeneratedNameOuter)
-                {
-                    itemName = fromClause.ItemName;
-                }
-                else
-                {
-                    itemName = innerMainFromClause.ItemName;
-                }
+                itemName = innerMainFromClause.HasGeneratedItemName()
+                    && !isGeneratedNameOuter
+                    ? fromClause.ItemName
+                    : innerMainFromClause.ItemName;
 
                 var fromClauseData
                     = new FromClauseData(

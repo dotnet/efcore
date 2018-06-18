@@ -443,13 +443,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return _identityMap1;
             }
 
-            if (_identityMaps == null
-                || !_identityMaps.TryGetValue(key, out var identityMap))
-            {
-                return null;
-            }
-
-            return identityMap;
+            return _identityMaps == null
+                || !_identityMaps.TryGetValue(key, out var identityMap)
+                ? null
+                : identityMap;
         }
 
         /// <summary>

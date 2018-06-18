@@ -153,12 +153,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var generationProperty = property.GetGenerationProperty();
 
-            if (generationProperty != null)
-            {
-                return _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType);
-            }
-
-            return null;
+            return generationProperty != null ? _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType) : null;
         }
     }
 }

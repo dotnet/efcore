@@ -190,15 +190,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 if (underlyingProviderType == null
                     || underlyingProviderType == typeof(byte[]))
                 {
-                    if (underlyingModelType == typeof(DateTimeOffset))
-                    {
-                        yield return _converters.GetOrAdd(
+                    yield return underlyingModelType == typeof(DateTimeOffset)
+                        ? _converters.GetOrAdd(
                             (underlyingModelType, typeof(byte[])),
-                            k => DateTimeOffsetToBytesConverter.DefaultInfo);
-                    }
-                    else
-                    {
-                        yield return _converters.GetOrAdd(
+                            k => DateTimeOffsetToBytesConverter.DefaultInfo)
+                        : _converters.GetOrAdd(
                             (underlyingModelType, typeof(byte[])),
                             k => new ValueConverterInfo(
                                 underlyingModelType,
@@ -209,7 +205,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                                     .ComposeWith(
                                         NumberToBytesConverter<long>.DefaultInfo.Create()),
                                 NumberToBytesConverter<long>.DefaultInfo.MappingHints));
-                    }
                 }
             }
             else if (_numerics.Contains(underlyingModelType)

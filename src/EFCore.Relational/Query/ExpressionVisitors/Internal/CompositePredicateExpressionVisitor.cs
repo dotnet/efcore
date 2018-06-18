@@ -67,21 +67,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
             {
-                if (binaryExpression.NodeType == ExpressionType.Equal
+                return binaryExpression.NodeType == ExpressionType.Equal
                     && binaryExpression.Left.RemoveConvert() is ConditionalExpression conditionalExpression
                     && conditionalExpression.Test is DiscriminatorPredicateExpression discriminatorPredicateExpression
-                    && conditionalExpression.IfFalse.IsNullConstantExpression())
-                {
-                    return Expression.AndAlso(
+                    && conditionalExpression.IfFalse.IsNullConstantExpression()
+                    ? Expression.AndAlso(
                         discriminatorPredicateExpression.Reduce(),
                         Expression.Equal(
                             conditionalExpression.IfTrue.Type == binaryExpression.Right.Type
                                 ? conditionalExpression.IfTrue
                                 : Expression.Convert(conditionalExpression.IfTrue, binaryExpression.Right.Type),
-                            binaryExpression.Right));
-                }
-
-                return base.VisitBinary(binaryExpression);
+                            binaryExpression.Right))
+                    : base.VisitBinary(binaryExpression);
             }
         }
     }

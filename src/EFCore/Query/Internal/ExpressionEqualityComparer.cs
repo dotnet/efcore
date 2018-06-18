@@ -442,14 +442,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return false;
                 }
 
-                if (a.IsEntityQueryable()
+                return a.IsEntityQueryable()
                     && b.IsEntityQueryable()
-                    && a.Value.GetType() == b.Value.GetType())
-                {
-                    return true;
-                }
-
-                return Equals(a.Value, b.Value);
+                    && a.Value.GetType() == b.Value.GetType()
+                    ? true
+                    : Equals(a.Value, b.Value);
             }
 
             private bool CompareParameter(ParameterExpression a, ParameterExpression b)
@@ -589,18 +586,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         nullConditionalExpressionB.AccessOperation);
                 }
 
-                if (a is NullSafeEqualExpression nullConditionalEqualExpressionA
-                    && b is NullSafeEqualExpression nullConditionalEqualExpressionB)
-                {
-                    return Compare(
+                return a is NullSafeEqualExpression nullConditionalEqualExpressionA
+                    && b is NullSafeEqualExpression nullConditionalEqualExpressionB
+                    ? Compare(
                                nullConditionalEqualExpressionA.OuterKeyNullCheck,
                                nullConditionalEqualExpressionB.OuterKeyNullCheck)
                            && Compare(
                                nullConditionalEqualExpressionA.EqualExpression,
-                               nullConditionalEqualExpressionB.EqualExpression);
-                }
-
-                return a.Equals(b);
+                               nullConditionalEqualExpressionB.EqualExpression)
+                    : a.Equals(b);
             }
 
             private bool CompareInvocation(InvocationExpression a, InvocationExpression b)

@@ -156,12 +156,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
 
             public override Expression Visit(Expression expression)
             {
-                if (expression is ExistsExpression existsExpression)
-                {
-                    return VisitExistExpression(existsExpression);
-                }
-
-                return expression is SelectExpression selectExpression
+                return expression is ExistsExpression existsExpression
+                    ? VisitExistExpression(existsExpression)
+                    : expression is SelectExpression selectExpression
                     ? VisitSelectExpression(selectExpression)
                     : base.Visit(expression);
             }

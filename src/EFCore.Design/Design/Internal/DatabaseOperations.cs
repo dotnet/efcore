@@ -146,13 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             var last = path[path.Length - 1];
-            if (last == Path.DirectorySeparatorChar
-                || last == Path.AltDirectorySeparatorChar)
-            {
-                return path;
-            }
-
-            return path + Path.DirectorySeparatorChar;
+            return last == Path.DirectorySeparatorChar
+                || last == Path.AltDirectorySeparatorChar
+                ? path
+                : path + Path.DirectorySeparatorChar;
         }
     }
 }

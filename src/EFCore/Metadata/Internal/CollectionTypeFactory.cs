@@ -62,12 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var listOfT = typeof(List<>).MakeGenericType(elementType);
-            if (collectionType.GetTypeInfo().IsAssignableFrom(listOfT.GetTypeInfo()))
-            {
-                return listOfT;
-            }
-
-            return null;
+            return collectionType.GetTypeInfo().IsAssignableFrom(listOfT.GetTypeInfo()) ? listOfT : null;
         }
     }
 }

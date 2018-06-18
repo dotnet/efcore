@@ -47,14 +47,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         typeof(TKey)), propertyAccessors);
             }
 
-            if (principalType.IsNullableType())
-            {
-                return (IDependentKeyValueFactory<TKey>)Activator.CreateInstance(
+            return principalType.IsNullableType()
+                ? (IDependentKeyValueFactory<TKey>)Activator.CreateInstance(
                     typeof(SimpleNullablePrincipalDependentKeyValueFactory<,>).MakeGenericType(
-                        typeof(TKey), typeof(TKey).UnwrapNullableType()), propertyAccessors);
-            }
-
-            return new SimpleNonNullableDependentKeyValueFactory<TKey>(propertyAccessors);
+                        typeof(TKey), typeof(TKey).UnwrapNullableType()), propertyAccessors)
+                : new SimpleNonNullableDependentKeyValueFactory<TKey>(propertyAccessors);
         }
 
         /// <summary>

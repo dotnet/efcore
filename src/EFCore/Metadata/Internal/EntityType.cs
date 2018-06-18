@@ -565,13 +565,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return _baseType.FindPrimaryKey(properties);
             }
 
-            if (_primaryKey != null
-                && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0)
-            {
-                return _primaryKey;
-            }
-
-            return null;
+            return _primaryKey != null
+                && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0
+                ? _primaryKey
+                : null;
         }
 
         /// <summary>

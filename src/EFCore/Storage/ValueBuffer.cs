@@ -106,12 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public override bool Equals(object obj)
         {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return obj is ValueBuffer buffer
+            return obj is null
+                ? false
+                : obj is ValueBuffer buffer
                    && Equals(buffer);
         }
 

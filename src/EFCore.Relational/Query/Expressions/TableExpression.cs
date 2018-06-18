@@ -78,12 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((TableExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((TableExpression)obj);
         }
 
         private bool Equals(TableExpression other)

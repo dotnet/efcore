@@ -691,15 +691,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             string navigationName,
             MemberInfo propertyInfo)
         {
-            if ((targetEntityTypeBuilder.Metadata.Builder == null
+            return (targetEntityTypeBuilder.Metadata.Builder == null
                  && sourceEntityTypeBuilder.ModelBuilder.IsIgnored(
                      targetEntityTypeBuilder.Metadata.Name, ConfigurationSource.Convention))
-                || !IsCandidateNavigationProperty(sourceEntityTypeBuilder, navigationName, propertyInfo))
-            {
-                return true;
-            }
-
-            return Apply(sourceEntityTypeBuilder.Metadata, propertyInfo);
+                || !IsCandidateNavigationProperty(sourceEntityTypeBuilder, navigationName, propertyInfo)
+                ? true
+                : Apply(sourceEntityTypeBuilder.Metadata, propertyInfo);
         }
 
         private bool Apply(EntityType entityType, MemberInfo navigationProperty)
@@ -880,13 +877,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static bool HasDeclaredAmbiguousNavigationsTo(EntityType sourceEntityType, Type targetClrType)
         {
             var ambigousNavigations = GetAmbigousNavigations(sourceEntityType);
-            if (ambigousNavigations != null
-                && ambigousNavigations.ContainsValue(targetClrType))
-            {
-                return true;
-            }
-
-            return false;
+            return ambigousNavigations != null
+                && ambigousNavigations.ContainsValue(targetClrType)
+                ? true
+                : false;
         }
 
         private static ImmutableSortedDictionary<MemberInfo, Type> GetAmbigousNavigations(EntityType entityType)

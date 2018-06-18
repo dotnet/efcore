@@ -379,12 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string definingNavigationName,
             [NotNull] string definingEntityTypeName)
         {
-            if (!_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType))
-            {
-                return null;
-            }
-
-            return entityTypesWithSameType
+            return !_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType)
+                ? null
+                : entityTypesWithSameType
                 .FirstOrDefault(
                     e => e.DefiningNavigationName == definingNavigationName
                          && e.DefiningEntityType.Name == definingEntityTypeName);
@@ -399,12 +396,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
         {
-            if (!_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType))
-            {
-                return null;
-            }
-
-            return entityTypesWithSameType
+            return !_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType)
+                ? null
+                : entityTypesWithSameType
                 .FirstOrDefault(e => e.DefiningNavigationName == definingNavigationName && e.DefiningEntityType == definingEntityType);
         }
 

@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     queryModel,
                     selectExpression);
 
-            if (relationalQueryModelVisitor.RequiresClientEval
+            return relationalQueryModelVisitor.RequiresClientEval
                 || relationalQueryModelVisitor.RequiresClientSelectMany
                 || relationalQueryModelVisitor.RequiresClientJoin
                 || relationalQueryModelVisitor.RequiresClientFilter
@@ -156,12 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || relationalQueryModelVisitor.RequiresClientResultOperator
                 || relationalQueryModelVisitor.RequiresStreamingGroupResultOperator
                 || !_resultHandlers.TryGetValue(resultOperator.GetType(), out var resultHandler)
-                || selectExpression == null)
-            {
-                return handlerContext.EvalOnClient();
-            }
-
-            return resultHandler(handlerContext);
+                || selectExpression == null
+                ? handlerContext.EvalOnClient()
+                : resultHandler(handlerContext);
         }
 
         private static Expression HandleAll(HandlerContext handlerContext)

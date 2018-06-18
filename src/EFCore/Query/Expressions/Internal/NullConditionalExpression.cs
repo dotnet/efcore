@@ -117,14 +117,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             var newCaller = visitor.Visit(Caller);
             var newAccessOperation = visitor.Visit(AccessOperation);
 
-            if (newCaller != Caller
+            return newCaller != Caller
                 || newAccessOperation != AccessOperation
-                && !(ExpressionEqualityComparer.Instance.Equals((newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation)))
-            {
-                return new NullConditionalExpression(newCaller, newAccessOperation);
-            }
-
-            return this;
+                && !(ExpressionEqualityComparer.Instance.Equals((newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation))
+                ? new NullConditionalExpression(newCaller, newAccessOperation)
+                : (this);
         }
 
         /// <summary>

@@ -129,13 +129,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitUnary(UnaryExpression node)
         {
             var newOperand = Visit(node.Operand);
-            if (node.NodeType == ExpressionType.Convert
-                && newOperand?.Type == typeof(ValueBuffer))
-            {
-                return newOperand;
-            }
-
-            return node.Update(newOperand);
+            return node.NodeType == ExpressionType.Convert
+                && newOperand?.Type == typeof(ValueBuffer)
+                ? newOperand
+                : node.Update(newOperand);
         }
 
         private static Expression ValueBufferNullComparisonCheck(Expression valueBufferExpression) => Expression.Not(
@@ -332,16 +329,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             firstArgument = firstArgument ?? newExpression.Arguments.FirstOrDefault();
 
-            if (newExpression != methodCallExpression
-                && firstArgument?.Type == typeof(ValueBuffer))
-            {
-                return
-                    _queryModelVisitor
+            return newExpression != methodCallExpression
+                && firstArgument?.Type == typeof(ValueBuffer)
+                ? _queryModelVisitor
                         .BindMethodCallToValueBuffer(methodCallExpression, firstArgument)
-                    ?? newExpression;
-            }
-
-            return _queryModelVisitor
+                    ?? newExpression
+                : _queryModelVisitor
                        .BindMethodCallExpression<Expression>(
                            methodCallExpression,
                            (property, _) =>
@@ -493,12 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         [UsedImplicitly]
         private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
         {
-            if (entity == null)
-            {
-                return default;
-            }
-
-            return (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
+            return entity == null ? (default) : (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
         }
 
         private static readonly MethodInfo _getValueFromEntityMethodInfo
@@ -508,12 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         [UsedImplicitly]
         private static T GetValueFromEntity<T>(IClrPropertyGetter clrPropertyGetter, object entity)
         {
-            if (entity == null)
-            {
-                return default;
-            }
-
-            return (T)clrPropertyGetter.GetClrValue(entity);
+            return entity == null ? (default) : (T)clrPropertyGetter.GetClrValue(entity);
         }
     }
 }

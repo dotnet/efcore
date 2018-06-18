@@ -685,12 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return false;
                 }
 
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return obj.GetType() == GetType() && Equals((CompositeDto)obj);
+                return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((CompositeDto)obj);
             }
 
             public override int GetHashCode() => 0;

@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 using (var context2 = CreateContext())
                 {
-                    Customer Query(NorthwindContext c2) =>
+                    Customer query(NorthwindContext c2) =>
                         (from c in context1.Customers
                          from o in c2.Orders
                          select c).First();
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(
                         CoreStrings.ErrorInvalidQueryable,
                         Assert.Throws<InvalidOperationException>(
-                            () => Query(context2)).Message);
+                            () => query(context2)).Message);
                 }
             }
         }
@@ -1353,12 +1353,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return false;
                 }
 
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return obj.GetType() == GetType() && Equals((OrderCountDTO)obj);
+                return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((OrderCountDTO)obj);
             }
 
             private bool Equals(OrderCountDTO other)
@@ -4086,12 +4081,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return false;
                 }
 
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return obj.GetType() == GetType() && Equals((DTO<T>)obj);
+                return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((DTO<T>)obj);
             }
 
             private bool Equals(DTO<T> other)

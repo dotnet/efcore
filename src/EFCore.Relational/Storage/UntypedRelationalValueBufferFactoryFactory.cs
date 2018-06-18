@@ -158,12 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
             }
 
-            if (conversions.Count == 0)
-            {
-                return null;
-            }
-
-            return Expression.Lambda<Action<object[]>>(
+            return conversions.Count == 0
+                ? null
+                : Expression.Lambda<Action<object[]>>(
                     Expression.Block(
                         conversions),
                     valuesParam)

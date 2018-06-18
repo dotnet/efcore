@@ -154,15 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         foreignKey.DependentToPrincipal.Name));
             }
 
-            if (referenceName != null
-                && RelatedEntityType != foreignKey.DeclaringEntityType)
-            {
-                return reference.Property == null && CollectionProperty == null
+            return referenceName != null
+                && RelatedEntityType != foreignKey.DeclaringEntityType
+                ? reference.Property == null && CollectionProperty == null
                     ? Builder.Navigations(reference.Name, CollectionName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
-                    : Builder.Navigations(reference.Property, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit);
-            }
-
-            return reference.Property == null
+                    : Builder.Navigations(reference.Property, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                : reference.Property == null
                 ? Builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
                 : Builder.DependentToPrincipal(reference.Property, ConfigurationSource.Explicit);
         }

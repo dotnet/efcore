@@ -32,12 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return true;
             }
 
-            if (property.IsPrimaryKey())
-            {
-                return false;
-            }
-
-            return property.DeclaringEntityType.FindPrimaryKey()?.Properties.First()
+            return property.IsPrimaryKey()
+                ? false
+                : property.DeclaringEntityType.FindPrimaryKey()?.Properties.First()
                        ?.FindSharedTableLink()?.PrincipalEntityType.BaseType != null;
         }
     }

@@ -26,12 +26,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual Func<ISnapshot> CreateEmpty([NotNull] IEntityType entityType)
         {
-            if (GetPropertyCount(entityType) == 0)
-            {
-                return () => Snapshot.Empty;
-            }
-
-            return Expression.Lambda<Func<ISnapshot>>(
+            return GetPropertyCount(entityType) == 0
+                ? (() => Snapshot.Empty)
+                : Expression.Lambda<Func<ISnapshot>>(
                     CreateConstructorExpression(entityType, null))
                 .Compile();
         }

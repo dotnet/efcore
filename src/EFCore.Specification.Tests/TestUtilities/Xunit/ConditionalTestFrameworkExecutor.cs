@@ -44,12 +44,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 
         private static IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
-            if (executionOptions.SynchronousMessageReportingOrDefault())
-            {
-                return new SynchronousMessageBus(messageSink);
-            }
-
-            return new MessageBus(messageSink);
+            return executionOptions.SynchronousMessageReportingOrDefault() ? new SynchronousMessageBus(messageSink) : (IMessageBus)new MessageBus(messageSink);
         }
 
         private static string EvaluateSkipConditions(IAssemblyInfo assembly)

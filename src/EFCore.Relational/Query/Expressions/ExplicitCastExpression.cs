@@ -99,12 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((ExplicitCastExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((ExplicitCastExpression)obj);
         }
 
         private bool Equals(ExplicitCastExpression other)

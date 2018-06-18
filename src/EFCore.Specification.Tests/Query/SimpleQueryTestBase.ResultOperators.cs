@@ -43,12 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return false;
                 }
 
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return obj.GetType() == GetType()
+                return ReferenceEquals(this, obj)
+                    ? true
+                    : obj.GetType() == GetType()
                        && string.Equals(Id, ((CustomerDeets)obj).Id);
             }
 
@@ -88,12 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return false;
                 }
 
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return obj.GetType() == GetType()
+                return ReferenceEquals(this, obj)
+                    ? true
+                    : obj.GetType() == GetType()
                        && Equals((ProjectedType)obj);
             }
 

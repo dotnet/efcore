@@ -519,12 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _isOwnership = ownership;
             UpdateIsOwnershipConfigurationSource(configurationSource);
 
-            if (isChanging)
-            {
-                return DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata;
-            }
-
-            return this;
+            return isChanging ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata : (this);
         }
 
         private static bool DefaultIsOwnership => false;
@@ -714,19 +709,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (principalProperties != null
+            return principalProperties != null
                 && dependentProperties != null
                 && !AreCompatible(
                     principalProperties,
                     dependentProperties,
                     principalEntityType,
                     dependentEntityType,
-                    shouldThrow))
-            {
-                return false;
-            }
-
-            return true;
+                    shouldThrow)
+                ? false
+                : true;
         }
 
         /// <summary>

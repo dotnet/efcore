@@ -904,12 +904,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IReadOnlyList<IProperty> properties,
             string lambdaIdentifier)
         {
-            if (properties.Count <= 0)
-            {
-                return "";
-            }
-
-            return properties.Count == 1
+            return properties.Count <= 0
+                ? ""
+                : properties.Count == 1
                 ? $"{lambdaIdentifier}.{properties[0].Name}"
                 : $"new {{ {string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name))} }}";
         }

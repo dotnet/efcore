@@ -86,12 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((NullableExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((NullableExpression)obj);
         }
 
         private bool Equals([NotNull] NullableExpression other)

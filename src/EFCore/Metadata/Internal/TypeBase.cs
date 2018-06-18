@@ -197,12 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
-            if (_ignoredMembers.TryGetValue(name, out var ignoredConfigurationSource))
-            {
-                return ignoredConfigurationSource;
-            }
-
-            return null;
+            return _ignoredMembers.TryGetValue(name, out var ignoredConfigurationSource) ? (ConfigurationSource?)ignoredConfigurationSource : null;
         }
 
         /// <summary>
