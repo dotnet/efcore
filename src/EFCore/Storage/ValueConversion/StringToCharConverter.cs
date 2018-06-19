@@ -1,15 +1,15 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Globalization;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
     ///     Converts strings to and from <see cref="char" /> values.
     /// </summary>
-    public class StringToCharConverter : ValueConverter<string, char>
+    public class StringToCharConverter : StringCharConverter<string, char>
     {
         private static readonly ConverterMappingHints _defaultHints
             = new ConverterMappingHints(size: 1);
@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public StringToCharConverter([CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                v => v == null || v.Length == 0 ? default : v[0],
-                v => string.Format(CultureInfo.InvariantCulture, "{0}", v),
+                ToChar(),
+                ToString(),
                 _defaultHints.With(mappingHints))
         {
         }

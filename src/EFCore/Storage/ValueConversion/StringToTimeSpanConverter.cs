@@ -2,19 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Globalization;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
     ///     Converts strings to and from <see cref="TimeSpan" /> values.
     /// </summary>
-    public class StringToTimeSpanConverter : ValueConverter<string, TimeSpan>
+    public class StringToTimeSpanConverter : StringTimeSpanConverter<string, TimeSpan>
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 48);
-
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
@@ -24,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public StringToTimeSpanConverter([CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                v => v == null ? default : TimeSpan.Parse(v, CultureInfo.InvariantCulture),
-                v => v.ToString("c"),
+                ToTimeSpan(),
+                ToString(),
                 _defaultHints.With(mappingHints))
         {
         }

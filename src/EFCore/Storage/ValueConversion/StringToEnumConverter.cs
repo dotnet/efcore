@@ -1,17 +1,15 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
     ///     Converts strings to and from enum values.
     /// </summary>
-    public class StringToEnumConverter<TEnum> : ValueConverter<string, TEnum>
+    public class StringToEnumConverter<TEnum> : StringEnumConverter<string, TEnum, TEnum>
         where TEnum : struct
     {
         /// <summary>
@@ -24,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public StringToEnumConverter([CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
                 ToEnum(),
-                v => v.ToString(),
+                ToString(),
                 mappingHints)
         {
         }
@@ -34,30 +32,5 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
             = new ValueConverterInfo(typeof(string), typeof(TEnum), i => new StringToEnumConverter<TEnum>(i.MappingHints));
-
-        private static Expression<Func<string, TEnum>> ToEnum()
-        {
-            if (!typeof(TEnum).UnwrapNullableType().IsEnum)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ConverterBadType(
-                        typeof(StringToEnumConverter<TEnum>).ShortDisplayName(),
-                        typeof(TEnum).ShortDisplayName(),
-                        "enum types"));
-            }
-
-            return v => ConvertToEnum(v);
-        }
-
-        private static TEnum ConvertToEnum(string value)
-            => Enum.TryParse<TEnum>(value, out var result)
-                ? result
-                : Enum.TryParse(value, true, out result)
-                    ? result
-                    : ulong.TryParse(value, out var ulongValue)
-                        ? (TEnum)(object)ulongValue
-                        : long.TryParse(value, out var longValue)
-                            ? (TEnum)(object)longValue
-                            : default;
     }
 }

@@ -3,19 +3,16 @@
 
 using System;
 using System.Globalization;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
     ///     Converts strings to and from <see cref="DateTimeOffset" /> values.
     /// </summary>
-    public class StringToDateTimeOffsetConverter : ValueConverter<string, DateTimeOffset>
+    public class StringToDateTimeOffsetConverter : StringDateTimeOffsetConverter<string, DateTimeOffset>
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 48);
-
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
@@ -26,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public StringToDateTimeOffsetConverter(
             [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                v => v == null ? default : DateTimeOffset.Parse(v, CultureInfo.InvariantCulture),
-                v => v.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz"),
+                ToDateTimeOffset(),
+                ToString(),
                 _defaultHints.With(mappingHints))
         {
         }

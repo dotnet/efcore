@@ -3,7 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -11,13 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts strings to and from a <see cref="Guid" /> using the
     ///     standard "8-4-4-4-12" format./>.
     /// </summary>
-    public class StringToGuidConverter : ValueConverter<string, Guid>
+    public class StringToGuidConverter : StringGuidConverter<string, Guid>
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(
-                size: 36,
-                valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
-
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
@@ -27,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public StringToGuidConverter([CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                v => v == null ? default : new Guid(v),
-                v => v.ToString("D"),
+                ToGuid(),
+                ToString(),
                 _defaultHints.With(mappingHints))
         {
         }
