@@ -214,5 +214,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }),
                 elementSorter: e => e.City + " " + e.Count);
         }
+
+        [Fact]
+        public async Task Sum_with_no_data_nullable_legacy_behavior()
+        {
+            AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12314", true);
+
+            try
+            {
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () => await AssertSingleResult<Order>(os => os.Where(o => o.OrderID < 0).Select(o => (int?)o.OrderID).SumAsync()));
+            }
+            finally
+            {
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12314", false);
+            }
+        }
     }
 }

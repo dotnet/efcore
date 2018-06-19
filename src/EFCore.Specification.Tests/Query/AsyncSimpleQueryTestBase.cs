@@ -3808,5 +3808,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertSingleResult<Customer>(cs => cs.Cast<Customer>().CountAsync());
         }
+
+        [ConditionalFact]
+        public virtual async Task Sum_with_no_data_nullable()
+        {
+            await AssertSingleResult<Order>(os => os.Where(o => o.OrderID < 0).Select(o => (int?)o.OrderID).SumAsync());
+        }
     }
 }

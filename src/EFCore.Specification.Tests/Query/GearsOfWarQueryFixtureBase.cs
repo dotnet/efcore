@@ -150,6 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 Assert.Equal(e.Id, a.Id);
                                 Assert.Equal(e.CodeName, a.CodeName);
+                                Assert.Equal(e.Rating, a.Rating);
                                 Assert.Equal(e.Timeline, a.Timeline);
                             }
                         }

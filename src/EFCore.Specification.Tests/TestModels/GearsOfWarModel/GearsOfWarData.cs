@@ -104,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<Mission> CreateMissions()
             => new List<Mission>
             {
-                new Mission { Id = 1, CodeName = "Lightmass Offensive", Timeline = new DateTimeOffset(2, 1, 2, 10, 0, 0, new TimeSpan(1, 30, 0)) },
-                new Mission { Id = 2, CodeName = "Hollow Storm", Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)) },
-                new Mission { Id = 3, CodeName = "Halvo Bay defense", Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan()) }
+                new Mission { Id = 1, CodeName = "Lightmass Offensive", Rating = 2.1, Timeline = new DateTimeOffset(2, 1, 2, 10, 0, 0, new TimeSpan(1, 30, 0)) },
+                new Mission { Id = 2, CodeName = "Hollow Storm", Rating = 4.2, Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)) },
+                new Mission { Id = 3, CodeName = "Halvo Bay defense", Rating = null, Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan()) }
             };
 
         public static IReadOnlyList<SquadMission> CreateSquadMissions()

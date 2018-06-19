@@ -1691,5 +1691,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
+
+        [ConditionalFact]
+        public virtual async Task Sum_with_no_data_nullable_double()
+        {
+            using (var ctx = CreateContext())
+            {
+                var result = await ctx.Missions.Where(m => m.CodeName == "Operation Foobar").Select(m => m.Rating).SumAsync();
+                Assert.Equal(0, result);
+            }
+        }
     }
 }

@@ -21,219 +21,249 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // one argument
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<object>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<object>> actualQuery,
             Func<IQueryable<TItem1>, Task<object>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<int>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<int>> actualQuery,
             Func<IQueryable<TItem1>, Task<int>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
+            Func<IQueryable<TItem1>, Task<int?>> query,
+            Action<object, object> asserter = null,
+            int entryCount = 0)
+            where TItem1 : class
+            => AssertSingleResult(query, query, asserter, entryCount);
+
+        protected virtual Task AssertSingleResult<TItem1>(
+            Func<IQueryable<TItem1>, Task<int?>> actualQuery,
+            Func<IQueryable<TItem1>, Task<int?>> expectedQuery,
+            Action<object, object> asserter = null,
+            int entryCount = 0)
+            where TItem1 : class
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<long>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<long>> actualQuery,
             Func<IQueryable<TItem1>, Task<long>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<bool>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<bool>> actualQuery,
             Func<IQueryable<TItem1>, Task<bool>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<decimal>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<decimal>> actualQuery,
             Func<IQueryable<TItem1>, Task<decimal>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<double>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1>(
+        protected virtual Task AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, Task<double>> actualQuery,
             Func<IQueryable<TItem1>, Task<double>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1, TResult>(
+        protected virtual Task AssertSingleResult<TItem1>(
+            Func<IQueryable<TItem1>, Task<double?>> query,
+            Action<object, object> asserter = null,
+            int entryCount = 0)
+            where TItem1 : class
+            => AssertSingleResult(query, query, asserter, entryCount);
+
+        protected virtual Task AssertSingleResult<TItem1>(
+            Func<IQueryable<TItem1>, Task<double?>> actualQuery,
+            Func<IQueryable<TItem1>, Task<double?>> expectedQuery,
+            Action<object, object> asserter = null,
+            int entryCount = 0)
+            where TItem1 : class
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+
+        protected virtual Task AssertSingleResult<TItem1, TResult>(
             Func<IQueryable<TItem1>, Task<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1, TResult>(
+        protected virtual Task AssertSingleResult<TItem1, TResult>(
             Func<IQueryable<TItem1>, Task<TResult>> actualQuery,
             Func<IQueryable<TItem1>, Task<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
         // two arguments
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2>(
+        public virtual Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<object>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2>(
+        public virtual Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<object>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2>(
+        public virtual Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<int>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2>(
+        public virtual Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<int>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<int>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2>(
+        public virtual Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<long>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2>(
+        public virtual Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<long>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<long>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2>(
+        public virtual Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<bool>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2>(
+        public virtual Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<bool>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<bool>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1, TItem2, TResult>(
+        protected virtual Task AssertSingleResult<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        protected virtual async Task AssertSingleResult<TItem1, TItem2, TResult>(
+        protected virtual Task AssertSingleResult<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
         // three arguments
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2, TItem3>(
+        public virtual Task AssertSingleResult<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<bool>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2, TItem3, TResult>(
+        public virtual Task AssertSingleResult<TItem1, TItem2, TItem3, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => await AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
-        public virtual async Task AssertSingleResult<TItem1, TItem2, TItem3, TResult>(
+        public virtual Task AssertSingleResult<TItem1, TItem2, TItem3, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<TResult>> expectedQuery,
             Action<object, object> asserter = null,
@@ -241,22 +271,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => await Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleResult(actualQuery, expectedQuery, asserter, entryCount);
 
         #endregion
 
         #region AssertQuery
 
-        public virtual async Task AssertQuery<TItem1>(
+        public virtual Task AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> query,
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
             bool assertOrder = false,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
+            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
 
-        public virtual async Task AssertQuery<TItem1>(
+        public virtual Task AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             Func<dynamic, object> elementSorter = null,
@@ -264,9 +294,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool assertOrder = false,
             int entryCount = 0)
             where TItem1 : class
-            => await Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
 
-        public virtual async Task AssertQuery<TItem1, TItem2>(
+        public virtual Task AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
@@ -274,9 +304,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
+            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
 
-        public virtual async Task AssertQuery<TItem1, TItem2>(
+        public virtual Task AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             Func<dynamic, object> elementSorter = null,
@@ -285,9 +315,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => await Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
 
-        public virtual async Task AssertQuery<TItem1, TItem2, TItem3>(
+        public virtual Task AssertQuery<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> query,
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
@@ -296,9 +326,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => await Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
+            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
 
-        public virtual async Task AssertQuery<TItem1, TItem2, TItem3>(
+        public virtual Task AssertQuery<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
             Func<dynamic, object> elementSorter = null,
@@ -308,89 +338,89 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => await Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: true);
 
         #endregion
 
         #region AssertQueryScalar
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<int>> query,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar(query, query, assertOrder);
+            => AssertQueryScalar(query, query, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<int>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<int>> expectedQuery,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<uint>> query,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar(query, query, assertOrder);
+            => AssertQueryScalar(query, query, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<uint>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<uint>> expectedQuery,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar<TItem1, uint>(actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, uint>(actualQuery, expectedQuery, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<long>> query,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar(query, query, assertOrder);
+            => AssertQueryScalar(query, query, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<short>> query,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar(query, query, assertOrder);
+            => AssertQueryScalar(query, query, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<double>> query,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar(query, query, assertOrder);
+            => AssertQueryScalar(query, query, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<bool>> query,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar(query, query, assertOrder);
+            => AssertQueryScalar(query, query, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<bool>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<bool>> expectedQuery,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar<TItem1, bool>(actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, bool>(actualQuery, expectedQuery, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1>(
+        public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<DateTimeOffset>> query,
             bool assertOrder = false)
             where TItem1 : class
-            => await AssertQueryScalar(query, query, assertOrder);
+            => AssertQueryScalar(query, query, assertOrder);
 
-        public virtual async Task AssertQueryScalar<TItem1, TResult>(
+        public virtual Task AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> query,
             bool assertOrder = false)
             where TItem1 : class
             where TResult : struct
-            => await Fixture.QueryAsserter.AssertQueryScalar(query, query, assertOrder, isAsync: true);
+            => Fixture.QueryAsserter.AssertQueryScalar(query, query, assertOrder, isAsync: true);
 
-        public virtual async Task AssertQueryScalar<TItem1, TResult>(
+        public virtual Task AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
             bool assertOrder = false)
             where TItem1 : class
             where TResult : struct
-            => await Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync: true);
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync: true);
 
         public virtual void AssertQueryScalar<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> query,

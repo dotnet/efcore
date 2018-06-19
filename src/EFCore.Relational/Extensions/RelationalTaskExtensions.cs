@@ -3,7 +3,7 @@
 
 namespace System.Threading.Tasks
 {
-    internal static class TaskExtensions
+    internal static class RelationalTaskExtensions
     {
         public static Task<TDerived> Cast<T, TDerived>(this Task<T> task)
             where TDerived : T
@@ -27,6 +27,33 @@ namespace System.Threading.Tasks
                             taskCompletionSource.TrySetResult((TDerived)t.Result);
                         }
                     },
+                TaskContinuationOptions.ExecuteSynchronously);
+
+            return taskCompletionSource.Task;
+        }
+
+        public static Task<T?> CastToNullable<T>(this Task<T> task)
+            where T : struct
+        {
+            var taskCompletionSource = new TaskCompletionSource<T?>();
+
+            task.ContinueWith(
+                t =>
+                {
+                    if (t.IsFaulted)
+                    {
+                        // ReSharper disable once PossibleNullReferenceException
+                        taskCompletionSource.TrySetException(t.Exception.InnerExceptions);
+                    }
+                    else if (t.IsCanceled)
+                    {
+                        taskCompletionSource.TrySetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletionSource.TrySetResult((T?)t.Result);
+                    }
+                },
                 TaskContinuationOptions.ExecuteSynchronously);
 
             return taskCompletionSource.Task;
