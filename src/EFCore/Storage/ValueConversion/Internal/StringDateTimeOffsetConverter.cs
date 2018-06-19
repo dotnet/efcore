@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
         protected static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 64);
+            = new ConverterMappingHints(size: 48);
 
 
         /// <summary>
