@@ -433,6 +433,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void Null_check_in_anonymous_type_projection_should_not_be_removed()
+        {
+        }
+
+        public override void Null_check_in_Dto_projection_should_not_be_removed()
+        {
+        }
+
         #endregion
     }
 }

@@ -3697,6 +3697,50 @@ CROSS APPLY (
 ORDER BY [l1].[Id]");
         }
 
+        public override void Null_check_in_anonymous_type_projection_should_not_be_removed()
+        {
+            base.Null_check_in_anonymous_type_projection_should_not_be_removed();
+
+            AssertSql(
+                @"SELECT [l1].[Id]
+FROM [LevelOne] AS [l1]
+ORDER BY [l1].[Id]",
+                //
+                @"SELECT [t].[Id], CASE
+    WHEN [l2.OneToOne_Required_FK].[Id] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, [l2.OneToOne_Required_FK].[Name], [l1.OneToMany_Optional].[OneToMany_Optional_InverseId]
+FROM [LevelTwo] AS [l1.OneToMany_Optional]
+LEFT JOIN [LevelThree] AS [l2.OneToOne_Required_FK] ON [l1.OneToMany_Optional].[Id] = [l2.OneToOne_Required_FK].[Level2_Required_Id]
+INNER JOIN (
+    SELECT [l10].[Id]
+    FROM [LevelOne] AS [l10]
+) AS [t] ON [l1.OneToMany_Optional].[OneToMany_Optional_InverseId] = [t].[Id]
+ORDER BY [t].[Id]");
+        }
+
+        public override void Null_check_in_Dto_projection_should_not_be_removed()
+        {
+            base.Null_check_in_Dto_projection_should_not_be_removed();
+
+            AssertSql(
+                @"SELECT [l1].[Id]
+FROM [LevelOne] AS [l1]
+ORDER BY [l1].[Id]",
+                //
+                @"SELECT [t].[Id], CASE
+    WHEN [l2.OneToOne_Required_FK].[Id] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, [l2.OneToOne_Required_FK].[Name] AS [Value], [l1.OneToMany_Optional].[OneToMany_Optional_InverseId]
+FROM [LevelTwo] AS [l1.OneToMany_Optional]
+LEFT JOIN [LevelThree] AS [l2.OneToOne_Required_FK] ON [l1.OneToMany_Optional].[Id] = [l2.OneToOne_Required_FK].[Level2_Required_Id]
+INNER JOIN (
+    SELECT [l10].[Id]
+    FROM [LevelOne] AS [l10]
+) AS [t] ON [l1.OneToMany_Optional].[OneToMany_Optional_InverseId] = [t].[Id]
+ORDER BY [t].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
         {
             Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

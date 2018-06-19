@@ -4033,5 +4033,50 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Level1>(
                 l1s => l1s.OrderBy(l1 => l1.Id).SelectMany(l1 => l1.OneToMany_Optional.Select(l2 => new { l2.Name })).Take(1));
         }
+
+        [ConditionalFact]
+        public virtual void Null_check_in_anonymous_type_projection_should_not_be_removed()
+        {
+            AssertQuery<Level1>(
+                l1s => l1s.OrderBy(l1 => l1.Id).Select(l1 => new
+                {
+                    Level2s = l1.OneToMany_Optional.Select(l2 => new
+                    {
+                        Level3 = l2.OneToOne_Required_FK == null
+                            ? null
+                            : new { l2.OneToOne_Required_FK.Name }
+                    }).ToList()
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) => {
+                    CollectionAsserter<dynamic>(
+                        elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Name, a1.Level3.Name))(e.Level2s, a.Level2s);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Null_check_in_Dto_projection_should_not_be_removed()
+        {
+            AssertQuery<Level1>(
+                l1s => l1s.OrderBy(l1 => l1.Id).Select(l1 => new
+                {
+                    Level2s = l1.OneToMany_Optional.Select(l2 => new
+                    {
+                        Level3 = l2.OneToOne_Required_FK == null
+                            ? null
+                            : new ProjectedDto<string> { Value = l2.OneToOne_Required_FK.Name }
+                    }).ToList()
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) => {
+                    CollectionAsserter<dynamic>(
+                        elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Value, a1.Level3.Value))(e.Level2s, a.Level2s);
+                });
+        }
+
+        private class ProjectedDto<T>
+        {
+            public T Value { get; set; }
+        }
     }
 }
