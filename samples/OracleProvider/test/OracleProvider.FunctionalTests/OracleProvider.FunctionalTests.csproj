@@ -7,8 +7,8 @@
     <NoWarn>$(NoWarn);CA1822</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">
-    <DefineConstants>$(DefineConstants);Test20</DefineConstants>
+  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
+    <DefineConstants>$(DefineConstants);Test21</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

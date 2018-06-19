@@ -556,11 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual Task Where_equals_using_object_overload_on_mismatched_types()
         {
-#if Test20
-            long longPrm = 1;
-#else
             ulong longPrm = 1;
-#endif
 
             return AssertQueryAsync<Employee>(
                 es => es.Where(e => e.EmployeeID.Equals(longPrm)));
@@ -569,11 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual Task Where_equals_using_int_overload_on_mismatched_types()
         {
-#if Test20
-            short shortPrm = 1;
-#else
             ushort shortPrm = 1;
-#endif
 
             return AssertQueryAsync<Employee>(
                 es => es.Where(e => e.EmployeeID.Equals(shortPrm)),
@@ -583,11 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_equals_on_mismatched_types_nullable_int_long()
         {
-#if Test20
-            long longPrm = 2;
-#else
             ulong longPrm = 2;
-#endif
 
             await AssertQueryAsync<Employee>(
                 es => es.Where(e => e.ReportsTo.Equals(longPrm)));
@@ -599,11 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_equals_on_mismatched_types_int_nullable_int()
         {
-#if Test20
-            var intPrm = 2;
-#else
             uint intPrm = 2;
-#endif
 
             await AssertQueryAsync<Employee>(
                 es => es.Where(e => e.ReportsTo.Equals(intPrm)),
@@ -617,11 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_equals_on_mismatched_types_nullable_long_nullable_int()
         {
-#if Test20
             ulong? nullableLongPrm = 2;
-#else
-            ulong? nullableLongPrm = 2;
-#endif
 
             await AssertQueryAsync<Employee>(
                 es => es.Where(e => nullableLongPrm.Equals(e.ReportsTo)));
@@ -633,11 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_equals_on_matched_nullable_int_types()
         {
-#if Test20
-            int? nullableIntPrm = 2;
-#else
             uint? nullableIntPrm = 2;
-#endif
 
             await AssertQueryAsync<Employee>(
                 es => es.Where(e => nullableIntPrm.Equals(e.ReportsTo)),
@@ -651,11 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_equals_on_null_nullable_int_types()
         {
-#if Test20
-            int? nullableIntPrm = null;
-#else
             uint? nullableIntPrm = null;
-#endif
 
             await AssertQueryAsync<Employee>(
                 es => es.Where(e => nullableIntPrm.Equals(e.ReportsTo)),

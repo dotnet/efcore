@@ -152,7 +152,6 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-#if !Test20
         [Theory]
         [InlineData(true, true)]
         [InlineData(true, false)]
@@ -477,7 +476,6 @@ namespace Microsoft.EntityFrameworkCore
 
             AssertStoreInitialState();
         }
-#endif
 
         [Fact]
         public virtual void SaveChanges_does_not_close_connection_opened_by_user()
@@ -996,7 +994,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-#if !Test20
         [Fact]
         public virtual void UseTransaction_throws_if_ambient_transaction_started()
         {
@@ -1239,7 +1236,6 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
         }
-#endif
 
         [Theory]
         [InlineData(true)]

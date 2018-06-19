@@ -341,7 +341,6 @@ FROM [Employees] AS [e20]
 WHERE [e20].[EmployeeID] = @_outer_ReportsTo");
         }
 
-#if !Test20
         public override async Task Where_query_composition_entity_equality_one_element_SingleOrDefault()
         {
             await base.Where_query_composition_entity_equality_one_element_SingleOrDefault();
@@ -439,7 +438,6 @@ WHERE (
     WHERE ([e2].[EmployeeID] <> [e1].[ReportsTo]) OR [e1].[ReportsTo] IS NULL
 ) = CAST(0 AS bigint)");
         }
-#endif
 
         public override async Task Where_query_composition2()
         {
@@ -766,7 +764,6 @@ FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID] - [e].[EmployeeID]");
         }
 
-#if !Test20
         public override async Task OrderBy_condition_comparison()
         {
             await base.OrderBy_condition_comparison();
@@ -792,7 +789,6 @@ ORDER BY CASE
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END, [p].[ProductID]");
         }
-#endif
 
         public override void OrderBy_any()
         {
@@ -2426,7 +2422,6 @@ WHERE N'Chai' IN (
 )");
         }
 
-#if !Test20
         public override async Task Where_subquery_on_collection()
         {
             await base.Where_subquery_on_collection();
@@ -2440,7 +2435,6 @@ WHERE CAST(5 AS smallint) IN (
     WHERE [o].[ProductID] = [p].[ProductID]
 )");
         }
-#endif
 
         public override async Task Select_many_cross_join_same_collection()
         {

@@ -80,11 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 4);
         }
 
-#if Test20
-        private static int GetEmployeeID(Employee employee)
-#else
         private static uint GetEmployeeID(Employee employee)
-#endif
         {
             return employee.EmployeeID;
         }
@@ -279,11 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Join_local_collection_int_closure_is_cached_correctly()
         {
-#if Test20
-            var ids = new int[] { 1, 2 };
-#else
             var ids = new uint[] { 1, 2 };
-#endif
 
             await AssertQueryScalarAsync<Employee>(
                 es =>
@@ -291,11 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join id in ids on e.EmployeeID equals id
                     select e.EmployeeID);
 
-#if Test20
-            ids = new int[] { 3 };
-#else
             ids = new uint[] { 3 };
-#endif
 
             await AssertQueryScalarAsync<Employee>(
                 es =>

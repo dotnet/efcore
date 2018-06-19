@@ -154,7 +154,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IndentedStringBuilder IncrementIndent(bool connectNode = false)
+        public virtual IndentedStringBuilder IncrementIndent()
+            => IncrementIndent(false);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IndentedStringBuilder IncrementIndent(bool connectNode)
         {
             var state = connectNode ? NodeConnectionState.Connected : NodeConnectionState.Disconnected;
             if (_indent == _nodeConnectionStates.Count)

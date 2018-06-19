@@ -913,6 +913,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+#if !Test21
         [Fact]
         public virtual void Can_query_Min_of_converted_types()
         {
@@ -1487,6 +1488,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1ul, result.TestUnsignedInt64);
             }
         }
+#endif
 
         public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
         {

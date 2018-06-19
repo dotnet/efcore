@@ -16,10 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+#if !Test21
         [ConditionalFact(Skip = "issue #10513")]
         public override Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
         {
             return Task.CompletedTask;
         }
+#endif
     }
 }

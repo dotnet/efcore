@@ -618,11 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected class NominalType
         {
             public string CustomerID { get; set; }
-#if Test20
-            public int? EmployeeID { get; set; }
-#else
             public uint? EmployeeID { get; set; }
-#endif
 
             public override bool Equals(object obj)
                 => obj is null
@@ -668,11 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public int Max { get; set; }
             public double Avg { get; set; }
             public string CustomerId { get; set; }
-#if Test20
-            public int? EmployeeId { get; set; }
-#else
             public uint? EmployeeId { get; set; }
-#endif
 
             public override bool Equals(object obj)
             {

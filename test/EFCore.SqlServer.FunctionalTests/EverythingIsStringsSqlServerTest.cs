@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -202,6 +202,19 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         public class SqlServerStringsTypeMappingSource : RelationalTypeMappingSource
         {
+#if Test21
+            private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
+                = new SqlServerStringTypeMapping("nchar", dbType: DbType.String, unicode: true);
+
+            private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
+                = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true);
+
+            private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
+                = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiString);
+
+            private readonly SqlServerStringTypeMapping _variableLengthAnsiString
+                = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString);
+#else
             private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
                 = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
 
@@ -213,6 +226,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             private readonly SqlServerStringTypeMapping _variableLengthAnsiString
                 = new SqlServerStringTypeMapping();
+#endif
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
@@ -279,12 +293,20 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                             size = isFixedLength ? maxSize : (int?)null;
                         }
 
+#if Test21
+                        return new SqlServerStringTypeMapping(
+                            baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
+                            isAnsi ? DbType.AnsiString : (DbType?)null,
+                            !isAnsi,
+                            size);
+#else
                         return new SqlServerStringTypeMapping(
                             baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
                             !isAnsi,
                             size,
                             isFixedLength,
                             storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
+#endif
                     }
                 }
 
@@ -293,4 +315,3 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         }
     }
 }
-#endif

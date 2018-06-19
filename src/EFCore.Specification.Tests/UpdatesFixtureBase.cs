@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Category>()
                 .Property(e => e.Id)
                 .ValueGeneratedNever();
-#if !Test20
             modelBuilder.Entity<LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly>(
                 eb =>
                 {
@@ -90,7 +89,6 @@ namespace Microsoft.EntityFrameworkCore
                         .WithOne(l => l.Profile)
                         .IsRequired();
                 });
-#endif
         }
 
         protected override void Seed(UpdatesContext context)

@@ -983,7 +983,6 @@ FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0)");
         }
 
-#if !Test20
         public override async Task Convert_ToInt64()
         {
             await base.Convert_ToInt64();
@@ -1021,7 +1020,6 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(bigint, [o].[Or
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS bigint))");
         }
-#endif
 
         public override async Task Convert_ToString()
         {
@@ -1061,7 +1059,6 @@ FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10')");
         }
 
-#if !Test20
         public override void Indexof_with_emptystring()
         {
             base.Indexof_with_emptystring();
@@ -1074,7 +1071,6 @@ END
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
-#endif
 
         public override void Replace_with_emptystring()
         {

@@ -790,7 +790,6 @@ LEFT JOIN (
 ) AS [t] ON ([cg].[GearNickName] = [t].[Nickname]) AND ([cg].[GearSquadId] = [t].[SquadId])");
         }
 
-#if !Test20
         public override async Task Enum_ToString_is_client_eval()
         {
             await base.Enum_ToString_is_client_eval();
@@ -801,7 +800,6 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [g].[SquadId], [g].[Nickname]");
         }
-#endif
 
         public override async Task Correlated_collections_naked_navigation_with_ToList()
         {
@@ -1916,6 +1914,7 @@ WHERE [g.Squad.Members.Weapons].[IsAutomatic] = 1
 ORDER BY [t7].[Note], [t7].[Nickname] DESC, [t7].[SquadId], [t7].[Id], [t7].[Nickname0], [t7].[SquadId0], [t7].[FullName]");
         }
 
+#if !Test21
         public override async Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join()
         {
             await base.Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join();
@@ -1966,6 +1965,7 @@ INNER JOIN (
 WHERE [w.Owner.Squad.Members.Weapons].[IsAutomatic] = 0
 ORDER BY [t4].[Name], [t4].[Id], [t4].[Id0], [t4].[FullName] DESC, [t4].[Nickname], [t4].[SquadId], [w.Owner.Squad.Members.Weapons].[Id]");
         }
+#endif
 
         public override async Task Correlated_collections_complex_scenario1()
         {
@@ -2303,6 +2303,7 @@ WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[Has
 ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
 
+#if !Test21
         public override async Task Correlated_collection_with_very_complex_order_by()
         {
             await base.Correlated_collection_with_very_complex_order_by();
@@ -2354,6 +2355,7 @@ INNER JOIN (
 WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[HasSoulPatch] = 0)
 ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
+#endif
 
         public override async Task Cast_subquery_to_base_type_using_typed_ToList()
         {

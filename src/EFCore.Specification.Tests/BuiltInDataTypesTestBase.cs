@@ -1231,6 +1231,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<BuiltInDataTypes>(
                     eb =>
                     {
+#if !Test21
                         eb.HasData(
                             new BuiltInDataTypes
                             {
@@ -1261,12 +1262,14 @@ namespace Microsoft.EntityFrameworkCore
                                 EnumU16 = EnumU16.SomeValue,
                                 EnumS8 = EnumS8.SomeValue
                             });
+#endif
                         eb.Property(e => e.Id).ValueGeneratedNever();
                     });
                 modelBuilder.Entity<BuiltInDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();
                 modelBuilder.Entity<BuiltInNullableDataTypes>(
                     eb =>
                     {
+#if !Test21
                         eb.HasData(
                             new BuiltInNullableDataTypes
                             {
@@ -1296,6 +1299,7 @@ namespace Microsoft.EntityFrameworkCore
                                 EnumU16 = EnumU16.SomeValue,
                                 EnumS8 = EnumS8.SomeValue
                             });
+#endif
                         eb.Property(e => e.Id).ValueGeneratedNever();
                     });
                 modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();

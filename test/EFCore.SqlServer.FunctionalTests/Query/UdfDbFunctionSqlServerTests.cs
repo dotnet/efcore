@@ -54,7 +54,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
 
-#if !Test20
         [Fact]
         public override void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Static()
         {
@@ -218,7 +217,6 @@ SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_0, [dbo].[CustomerO
 FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_1");
         }
-#endif
 
         [Fact]
         public override void Scalar_Nested_Function_Unwind_Client_Eval_Where_Static()
@@ -341,7 +339,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-#if !Test20
         [Fact]
         public override void Scalar_Nested_Function_BCL_UDF_Static()
         {
@@ -352,7 +349,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]
 WHERE 3 = ABS([dbo].[CustomerOrderCount]([c].[Id]))");
         }
-#endif
 
         [Fact]
         public override void Scalar_Nested_Function_UDF_Client_Static()
@@ -364,7 +360,6 @@ WHERE 3 = ABS([dbo].[CustomerOrderCount]([c].[Id]))");
 FROM [Customers] AS [c]");
         }
 
-#if !Test20
         [Fact]
         public override void Scalar_Nested_Function_UDF_BCL_Static()
         {
@@ -375,7 +370,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]
 WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
         }
-#endif
 
         [Fact]
         public override void Nullable_navigation_property_access_preserves_schema_for_sql_function()
@@ -393,7 +387,6 @@ ORDER BY [o].[Id]");
 
         #region Instance
 
-#if !Test20
         [Fact]
         public override void Scalar_Function_Non_Static()
         {
@@ -404,7 +397,6 @@ ORDER BY [o].[Id]");
 FROM [Customers] AS [c]
 WHERE [c].[Id] = 1");
         }
-#endif
 
         [Fact]
         public override void Scalar_Function_Extension_Method_Instance()
@@ -432,8 +424,6 @@ SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
-
-#if !Test20
 
         [Fact]
         public override void Scalar_Function_Constant_Parameter_Instance()
@@ -592,7 +582,6 @@ SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerO
 FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_2");
         }
-#endif
 
         [Fact]
         public override void Scalar_Nested_Function_Unwind_Client_Eval_Where_Instance()
@@ -715,7 +704,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-#if !Test20
         [Fact]
         public override void Scalar_Nested_Function_BCL_UDF_Instance()
         {
@@ -747,7 +735,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]
 WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
         }
-#endif
 
         #endregion
 

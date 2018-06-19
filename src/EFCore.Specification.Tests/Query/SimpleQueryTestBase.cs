@@ -2113,11 +2113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public string Bar { get; set; }
         }
 
-#if Test20
-        protected const int NonExistentID = -1;
-#else
         protected const uint NonExistentID = uint.MaxValue;
-#endif
 
         [ConditionalFact]
         public virtual Task Default_if_empty_top_level()

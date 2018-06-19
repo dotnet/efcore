@@ -9,12 +9,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
-#if Test20
-using Microsoft.EntityFrameworkCore.Internal;
-#else
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-#endif
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -211,7 +207,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         public override void AlterColumnOperation()
         {
             base.AlterColumnOperation();
@@ -443,6 +438,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test21
         [Fact]
         public virtual void AlterColumnOperation_with_index_included_column()
         {
@@ -484,6 +480,7 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]) INCLUDE ([Name]);" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void AlterColumnOperation_with_index_no_oldColumn()
@@ -631,7 +628,6 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void AlterColumnOperation_add_identity()
@@ -675,7 +671,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
         }
 
-#if !Test20
         [Fact]
         public virtual void CreateDatabaseOperation()
         {
@@ -781,7 +776,6 @@ namespace Microsoft.EntityFrameworkCore
                 "END;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void AlterDatabaseOperationOperation()
@@ -806,7 +800,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         public override void CreateIndexOperation_unique()
         {
             base.CreateIndexOperation_unique();
@@ -815,7 +808,6 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique_non_legacy()
@@ -871,6 +863,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test21
         [Fact]
         public virtual void CreateIndexOperation_with_include()
         {
@@ -961,8 +954,8 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);" + EOL,
                 Sql);
         }
+#endif
 
-#if !Test20
         [Fact]
         public virtual void CreateIndexOperation_unique_bound_null()
         {
@@ -980,7 +973,6 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique_bound_not_null()
@@ -1000,7 +992,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
@@ -1019,7 +1010,6 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [dbo].[People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
@@ -1087,7 +1077,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         public override void DropColumnOperation()
         {
             base.DropColumnOperation();
@@ -1122,7 +1111,6 @@ namespace Microsoft.EntityFrameworkCore
                 "DROP DATABASE [Northwind];" + EOL,
                 Sql);
         }
-#endif
 
         public override void DropIndexOperation()
         {
@@ -1165,7 +1153,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public virtual void MoveSequenceOperation()
         {
@@ -1201,7 +1188,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void MoveTableOperation_legacy()
@@ -1219,7 +1205,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public virtual void MoveTableOperation()
         {
@@ -1289,7 +1274,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC sp_rename N'[dbo].[People].[IX_People_Name]', N'IX_People_FullName', N'INDEX';" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void RenameIndexOperations_throws_when_no_table()
@@ -1306,7 +1290,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
         }
 
-#if !Test20
         [Fact]
         public virtual void RenameSequenceOperation_legacy()
         {
@@ -1360,7 +1343,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC sp_rename N'[dbo].[People]', N'Person';" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void SqlOperation_handles_backslash()
@@ -1444,7 +1426,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         public override void InsertDataOperation()
         {
             base.InsertDataOperation();
@@ -1462,7 +1443,6 @@ namespace Microsoft.EntityFrameworkCore
                 "    SET IDENTITY_INSERT [People] OFF;" + EOL,
                 Sql);
         }
-#endif
 
         public override void DeleteDataOperation_simple_key()
         {

@@ -487,11 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static int ClientEvalSelectorStateless() => 42;
 
-#if Test20
-        protected internal int ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
-#else
         protected internal uint ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
-#endif
 
         [ConditionalFact]
         public virtual Task Distinct()
@@ -785,21 +781,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Contains_with_local_int_array_closure()
         {
-#if Test20
-            var ids = new int[] { 0, 1 };
-#else
             var ids = new uint[] { 0, 1 };
-#endif
 
             await AssertQueryAsync<Employee>(
                 es =>
                     es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
 
-#if Test20
-            ids = new int[] { 0 };
-#else
             ids = new uint[] { 0 };
-#endif
 
             await AssertQueryAsync<Employee>(
                 es =>
@@ -809,21 +797,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Contains_with_local_nullable_int_array_closure()
         {
-#if Test20
-            var ids = new int?[] { 0, 1 };
-#else
             var ids = new uint?[] { 0, 1 };
-#endif
 
             await AssertQueryAsync<Employee>(
                 es =>
                     es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
 
-#if Test20
-            ids = new int?[] { 0 };
-#else
             ids = new uint?[] { 0 };
-#endif
 
             await AssertQueryAsync<Employee>(
                 es =>

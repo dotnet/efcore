@@ -12,11 +12,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#else
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-#endif
 
 // ReSharper disable MethodSupportsCancellation
 // ReSharper disable AccessToDisposedClosure

@@ -560,7 +560,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Prop);
         }
 
-#if !Test20
         [ConditionalFact]
         public virtual Task Enum_ToString_is_client_eval()
         {
@@ -570,7 +569,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ThenBy(g => g.Nickname)
                         .Select(g => g.Rank.ToString()));
         }
-#endif
 
         [ConditionalFact]
         public virtual Task Correlated_collections_naked_navigation_with_ToList()
@@ -1303,6 +1301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         elementAsserter: (ee, aa) => CollectionAsserter<Weapon>(eee => eee.Id, (eee, aaa) => Assert.Equal(eee.Id, aaa.Id))));
         }
 
+#if !Test21
         [ConditionalFact]
         public virtual Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join()
         {
@@ -1330,6 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         })(e, a);
                 });
         }
+#endif
 
         [ConditionalFact]
         public virtual Task Correlated_collections_complex_scenario1()

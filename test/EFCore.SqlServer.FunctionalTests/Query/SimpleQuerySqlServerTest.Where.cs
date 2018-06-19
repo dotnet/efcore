@@ -557,7 +557,6 @@ WHERE 0 = 1");
             Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage($"e.EmployeeID.Equals(Convert(__longPrm_0{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log);
         }
 
-#if !Test20
         public override async Task Where_equals_using_int_overload_on_mismatched_types()
         {
             await base.Where_equals_using_int_overload_on_mismatched_types();
@@ -569,7 +568,6 @@ SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Report
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = @__shortPrm_0");
         }
-#endif
 
         public override async Task Where_equals_on_mismatched_types_nullable_int_long()
         {
@@ -687,7 +685,6 @@ FROM [Customers] AS [c]
 WHERE CAST(LEN([c].[City]) AS int) = 6");
         }
 
-#if !Test20
         public override async Task Where_string_indexof()
         {
             await base.Where_string_indexof();
@@ -697,7 +694,6 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
 FROM [Customers] AS [c]
 WHERE (CHARINDEX(N'Sea', [c].[City]) - 1) <> -1");
         }
-#endif
 
         public override async Task Where_string_replace()
         {
@@ -719,7 +715,6 @@ FROM [Customers] AS [c]
 WHERE SUBSTRING([c].[City], 2, 2) = N'ea'");
         }
 
-#if !Test20
         public override async Task Where_datetime_now()
         {
             await base.Where_datetime_now();
@@ -873,7 +868,6 @@ WHERE [o].[OrderDate] = SYSDATETIMEOFFSET()");
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] = CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
-#endif
 
         public override async Task Where_simple_reversed()
         {
@@ -1241,7 +1235,6 @@ FROM [Products] AS [p]
 WHERE (([p].[Discontinued] = 0) AND ([p].[ProductID] < 60)) AND ([p].[ProductID] > 30)");
         }
 
-#if !Test20
         public override async Task Where_short_member_comparison()
         {
             await base.Where_short_member_comparison();
@@ -1251,7 +1244,6 @@ WHERE (([p].[Discontinued] = 0) AND ([p].[ProductID] < 60)) AND ([p].[ProductID]
 FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] > CAST(10 AS smallint)");
         }
-#endif
 
         public override async Task Where_comparison_to_nullable_bool()
         {
@@ -1339,7 +1331,6 @@ FROM [Customers] AS [c]
 WHERE (((CAST(@__i_0 + 20 AS nvarchar(max)) + [c].[CustomerID]) + CAST(@__j_1 AS nvarchar(max))) + CAST(42 AS nvarchar(max))) = [c].[CompanyName]");
         }
 
-#if !Test20
         public override async Task Where_ternary_boolean_condition_true()
         {
             await base.Where_ternary_boolean_condition_true();
@@ -1400,7 +1391,6 @@ SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID],
 FROM [Products] AS [p]
 WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
         }
-#endif
 
         public override async Task Where_compare_constructed_equal()
         {

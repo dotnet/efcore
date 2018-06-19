@@ -933,11 +933,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateF1Context())
             {
-#if Test20
-                var ferrari = context.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.Ferrari);
-#else
                 var ferrari = context.Teams.Single(t => t.Id == Team.Ferrari);
-#endif
+
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
                 var localDrivers = context.Drivers.Local;
 

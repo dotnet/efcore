@@ -11,11 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-#if Test20
-using Microsoft.EntityFrameworkCore.Design.Internal;
-#else
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
-#endif
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {

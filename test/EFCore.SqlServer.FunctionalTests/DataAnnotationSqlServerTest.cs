@@ -12,9 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#endif
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -88,11 +85,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
-#if Test20
-            var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMapper>().FindMapping(property).StoreType;
-#else
+
             var storeType = property.FindRelationalMapping().StoreType;
-#endif
+
             Assert.Equal("nvarchar(64)", storeType);
 
             return modelBuilder;
@@ -103,11 +98,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
-#if Test20
-            var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMapper>().FindMapping(property).StoreType;
-#else
+
             var storeType = property.FindRelationalMapping().StoreType;
-#endif
+
             Assert.Equal("rowversion", storeType);
 
             return modelBuilder;

@@ -14,12 +14,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-#if Test20
-using Microsoft.EntityFrameworkCore.Internal;
-#else
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-#endif
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -66,18 +62,14 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData(true, false)]
-#if !Test20
         [InlineData(false, true)]
-#endif
         public Task Returns_true_when_database_exists(bool async, bool ambientTransaction)
         {
             return Returns_true_when_database_exists_test(async, ambientTransaction, file: false);
         }
 
         [ConditionalTheory]
-#if !Test20
         [InlineData(true, true)]
-#endif
         [InlineData(false, false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Returns_true_when_database_with_filename_exists(bool async, bool ambientTransaction)
@@ -109,10 +101,8 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
-#if !Test20
         [InlineData(true, true, true)]
         [InlineData(false, false, true)]
-#endif
         [InlineData(true, false, false)]
         [InlineData(false, true, false)]
         public Task Deletes_database(bool async, bool open, bool ambientTransaction)
@@ -122,10 +112,8 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData(true, true, false)]
-#if !Test20
         [InlineData(true, false, true)]
         [InlineData(false, true, true)]
-#endif
         [InlineData(false, false, false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Deletes_database_with_filename(bool async, bool open, bool ambientTransaction)
@@ -219,9 +207,7 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
-#if !Test20
         [InlineData(true, true)]
-#endif
         [InlineData(false, false)]
         public Task Creates_schema_in_existing_database(bool async, bool ambientTransaction)
         {
@@ -230,9 +216,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData(true, false)]
-#if !Test20
         [InlineData(false, true)]
-#endif
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Creates_schema_in_existing_database_with_filename(bool async, bool ambientTransaction)
         {
@@ -249,9 +233,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData(true, false)]
-#if !Test20
         [InlineData(false, true)]
-#endif
         [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
         public Task Creates_physical_database_and_schema(bool async, bool ambientTransaction)
         {
@@ -259,9 +241,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-#if !Test20
         [InlineData(true, true)]
-#endif
         [InlineData(false, false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Creates_physical_database_with_filename_and_schema(bool async, bool ambientTransaction)
@@ -420,9 +400,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData(true, false)]
-#if !Test20
         [InlineData(false, true)]
-#endif
         public async Task Returns_false_when_database_exists_but_has_no_tables(bool async, bool ambientTransaction)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("Empty"))
@@ -436,9 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-#if !Test20
         [InlineData(true, true)]
-#endif
         [InlineData(false, false)]
         public async Task Returns_true_when_database_exists_and_has_any_tables(bool async, bool ambientTransaction)
         {
@@ -458,9 +434,7 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
-#if !Test20
         [InlineData(true, true)]
-#endif
         [InlineData(false, false)]
         public static async Task Deletes_database(bool async, bool ambientTransaction)
         {
@@ -489,9 +463,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-#if !Test20
         [InlineData(true)]
-#endif
         [InlineData(false)]
         public async Task Throws_when_database_does_not_exist(bool async)
         {
@@ -528,9 +500,7 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
-#if !Test20
         [InlineData(true, true)]
-#endif
         [InlineData(false, false)]
         public async Task Creates_schema_in_existing_database_test(bool async, bool ambientTransaction)
         {
@@ -606,7 +576,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-#if !Test20
         [Fact]
         public void GenerateCreateScript_works()
         {
@@ -635,7 +604,6 @@ namespace Microsoft.EntityFrameworkCore
                     script);
             }
         }
-#endif
 
         private static readonly string _eol = Environment.NewLine;
     }
@@ -645,9 +613,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalTheory]
         [InlineData(true, false)]
-#if !Test20
         [InlineData(false, true)]
-#endif
         public async Task Creates_physical_database_but_not_tables(bool async, bool ambientTransaction)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreate("CreateTest"))

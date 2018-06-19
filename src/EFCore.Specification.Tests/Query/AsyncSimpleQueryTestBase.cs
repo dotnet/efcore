@@ -2527,11 +2527,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-#if Test20
-        private const int NonExistentID = -1;
-#else
         private const uint NonExistentID = uint.MaxValue;
-#endif
 
         [ConditionalFact]
         public virtual Task Default_if_empty_top_level()
@@ -3074,11 +3070,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static int ClientEvalSelectorStateless() => 42;
 
-#if Test20
-        protected internal int ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
-#else
         protected internal uint ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
-#endif
 
         [ConditionalFact]
         public virtual Task Distinct()

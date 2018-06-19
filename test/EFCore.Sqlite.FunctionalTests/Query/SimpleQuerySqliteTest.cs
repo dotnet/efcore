@@ -41,8 +41,6 @@ ORDER BY ""t"".""ContactName""
 LIMIT -1 OFFSET @__p_1");
         }
 
-#if !Test20
-
         public override async Task Where_datetime_now()
         {
             await base.Where_datetime_now();
@@ -168,7 +166,6 @@ WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
 FROM ""Orders"" AS ""o""
 WHERE ((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) = 88");
         }
-#endif
 
         public override async Task String_StartsWith_Literal()
         {
@@ -200,7 +197,6 @@ FROM ""Customers"" AS ""c""
 WHERE (""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%' AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = '')");
         }
 
-#if !Test20
         public override async Task String_StartsWith_MethodCall()
         {
             await base.String_StartsWith_MethodCall();
@@ -212,7 +208,6 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM ""Customers"" AS ""c""
 WHERE (""c"".""ContactName"" LIKE @__LocalMethod1_0 || '%' AND (substr(""c"".""ContactName"", 1, length(@__LocalMethod1_0)) = @__LocalMethod1_0)) OR (@__LocalMethod1_0 = '')");
         }
-#endif
 
         public override async Task String_EndsWith_Literal()
         {
@@ -244,7 +239,6 @@ FROM ""Customers"" AS ""c""
 WHERE (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = '')");
         }
 
-#if !Test20
         public override async Task String_EndsWith_MethodCall()
         {
             await base.String_EndsWith_MethodCall();
@@ -256,7 +250,6 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM ""Customers"" AS ""c""
 WHERE (substr(""c"".""ContactName"", -length(@__LocalMethod2_0)) = @__LocalMethod2_0) OR (@__LocalMethod2_0 = '')");
         }
-#endif
 
         public override async Task String_Contains_Literal()
         {
@@ -288,7 +281,6 @@ FROM ""Customers"" AS ""c""
 WHERE (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0) OR (""c"".""ContactName"" = '')");
         }
 
-#if !Test20
         public override async Task String_Contains_MethodCall()
         {
             await base.String_Contains_MethodCall();
@@ -300,7 +292,6 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM ""Customers"" AS ""c""
 WHERE (instr(""c"".""ContactName"", @__LocalMethod1_0) > 0) OR (@__LocalMethod1_0 = '')");
         }
-#endif
 
         public override async Task IsNullOrWhiteSpace_in_predicate()
         {
@@ -322,7 +313,6 @@ FROM ""Customers"" AS ""c""
 WHERE length(""c"".""City"") = 6");
         }
 
-#if !Test20
         public override async Task Where_string_indexof()
         {
             await base.Where_string_indexof();
@@ -404,7 +394,6 @@ SELECT substr(""c"".""ContactName"", @__start_0 + 1, 3)
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
-#endif
 
         public override void Substring_with_client_eval()
         {
@@ -416,7 +405,6 @@ FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
-#if !Test20
         public override void Substring_with_zero_length()
         {
             base.Substring_with_zero_length();
@@ -426,7 +414,6 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
-#endif
 
         public override async Task Where_math_abs1()
         {
@@ -460,7 +447,6 @@ FROM ""Order Details"" AS ""od""
 WHERE @__Abs_0 < ""od"".""ProductID""");
         }
 
-#if !Test20
         public override async Task Select_math_round_int()
         {
             await base.Select_math_round_int();
@@ -490,7 +476,6 @@ WHERE (""od"".""OrderID"" = 11077) AND (min(""od"".""OrderID"", ""od"".""Product
 FROM ""Order Details"" AS ""od""
 WHERE (""od"".""OrderID"" = 11077) AND (max(""od"".""OrderID"", ""od"".""ProductID"") = ""od"".""OrderID"")");
         }
-#endif
 
         public override async Task Where_string_to_lower()
         {
@@ -602,7 +587,6 @@ FROM ""Customers"" AS ""c""
 WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
         }
 
-#if !Test20
         public override void Sum_with_coalesce()
         {
             base.Sum_with_coalesce();
@@ -803,7 +787,6 @@ SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', rtrim(rtrim(strftime('%Y-%m-%d 
 FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
-#endif
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

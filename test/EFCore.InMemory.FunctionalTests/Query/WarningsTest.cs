@@ -10,9 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
-#if !Test20
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-#endif
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
@@ -21,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class WarningsTest
     {
-#if !Test20
         [Fact]
         public void Should_throw_by_default_when_transaction()
         {
@@ -40,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => context.Database.BeginTransaction()).Message);
             }
         }
-#endif
 
         [Fact]
         public void Should_throw_by_default_when_transaction_enlisted()
@@ -51,12 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = new DbContext(optionsBuilder.Options))
             {
-#if Test20
-                Assert.Equal(
-                    CoreStrings.TransactionsNotSupported,
-                    Assert.Throws<NotSupportedException>(
-                        () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
-#else
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         InMemoryEventId.TransactionIgnoredWarning,
@@ -64,7 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "InMemoryEventId.TransactionIgnoredWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
-#endif
             }
         }
 
@@ -141,7 +130,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-#if !Test20 // Uses lazy-loading (doesn't work with 2.0 in-memory provider)
         [Fact]
         public void Throws_by_default_for_lazy_load_with_disposed_context()
         {
@@ -239,7 +227,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Log.Select(l => l.Message));
             }
         }
-#endif
 
         [Fact]
         public void No_throw_when_event_id_not_registered()

@@ -66,6 +66,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Precision = precision ?? converterHints?.Precision;
                 Scale = scale ?? converterHints?.Scale;
                 FixedLength = fixedLength;
+#pragma warning disable 618
+                PrecisionAndScaleOverriden = false;
+#pragma warning restore 618
+            }
+
+            // #12405
+            private RelationalTypeMappingParameters(
+                CoreTypeMappingParameters coreParameters,
+                [NotNull] string storeType,
+                StoreTypePostfix storeTypePostfix = StoreTypePostfix.None,
+                DbType? dbType = null,
+                bool unicode = false,
+                int? size = null,
+                bool fixedLength = false,
+                int? precision = null,
+                int? scale = null,
+                bool precisionAndScaleOverriden = false)
+                : this(coreParameters, storeType, storeTypePostfix, dbType, unicode, size, fixedLength, precision, scale)
+            {
+#pragma warning disable 618
+                PrecisionAndScaleOverriden = precisionAndScaleOverriden;
+#pragma warning restore 618
             }
 
             /// <summary>
@@ -102,6 +124,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ///     The mapping scale.
             /// </summary>
             public int? Scale { get; }
+
+            /// <summary>
+            ///     This is provided for compatibility with 2.1 providers and shouldn't be used
+            /// </summary>
+            // If not set fallback to 2.1 behavior by using Precision and Scale from the converter
+            // #12405
+            [Obsolete("This is provided for compatibility with 2.1 providers and shouldn't be used")]
+            public bool PrecisionAndScaleOverriden { get; }
 
             /// <summary>
             ///     The mapping fixed-length flag.
@@ -173,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     Size,
                     FixedLength,
                     precision,
-                    scale);
+                    scale,
+                    precisionAndScaleOverriden: true);
 
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
@@ -254,10 +285,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
                          || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
                 {
                     var precision = parameters.Precision;
+                    var converter = parameters.CoreParameters.Converter;
+                    // Fallback to 2.1 behavior
+                    // #12405
+#pragma warning disable 618
+                    var oldBehavior = !parameters.PrecisionAndScaleOverriden;
+#pragma warning restore 618
+                    if (oldBehavior)
+                    {
+                        precision = converter?.MappingHints?.Precision;
+                    }
 
                     if (precision != null)
                     {
                         var scale = parameters.Scale;
+                        if (oldBehavior)
+                        {
+                            scale = converter.MappingHints?.Scale;
+                        }
 
                         storeType = GetBaseName(storeType)
                                     + "("
@@ -297,9 +342,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : this(
-                new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
+            : this(new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
         {
         }
 
@@ -370,6 +414,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     : Clone(
                         mappingInfo.Precision ?? Parameters.Precision,
                         mappingInfo.Scale ?? Parameters.Scale);
+
+                if (clone.GetType() != GetType())
+                {
+                    // Fallback to 2.1 behavior
+                    // #12405
+                    clone = storeTypeOrSizeChanged
+                        ? Clone(
+                            mappingInfo.StoreTypeName ?? StoreType,
+                            mappingInfo.Size ?? Size)
+                        : this;
+                }
             }
             else
             {

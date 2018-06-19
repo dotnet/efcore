@@ -2,12 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -613,7 +611,6 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)");
         }
 
-#if !Test20
         public override async Task Where_bitwise_and_integral()
         {
             await base.Where_bitwise_and_integral();
@@ -635,7 +632,6 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)",
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)");
         }
-#endif
 
         public override async Task Where_bitwise_and_nullable_enum_with_constant()
         {
@@ -3045,7 +3041,6 @@ END
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
         }
 
-#if !Test20
         public override async Task Where_datetimeoffset_now()
         {
             await base.Where_datetimeoffset_now();
@@ -3065,7 +3060,6 @@ WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()");
 FROM [Missions] AS [m]
 WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
-#endif
 
         public override async Task Where_datetimeoffset_date_component()
         {
@@ -4657,7 +4651,6 @@ LEFT JOIN (
 
         public override async Task Enum_ToString_is_client_eval()
         {
-#if !Test20
             await base.Enum_ToString_is_client_eval();
 
             AssertSql(
@@ -4665,7 +4658,6 @@ LEFT JOIN (
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [g].[SquadId], [g].[Nickname]");
-#endif
         }
 
         public override async Task Correlated_collections_naked_navigation_with_ToList()
@@ -5802,6 +5794,7 @@ WHERE [g.Squad.Members.Weapons].[IsAutomatic] = 1
 ORDER BY [t7].[Note], [t7].[Nickname] DESC, [t7].[SquadId], [t7].[Id], [t7].[Nickname0], [t7].[SquadId0], [t7].[FullName]");
         }
 
+#if !Test21
         public override async Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join()
         {
             await base.Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join();
@@ -5852,6 +5845,7 @@ INNER JOIN (
 WHERE [w.Owner.Squad.Members.Weapons].[IsAutomatic] = 0
 ORDER BY [t4].[Name], [t4].[Id], [t4].[Id0], [t4].[FullName] DESC, [t4].[Nickname], [t4].[SquadId], [w.Owner.Squad.Members.Weapons].[Id]");
         }
+#endif
 
         public override async Task Correlated_collections_complex_scenario1()
         {
@@ -7110,6 +7104,7 @@ WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[Has
 ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
 
+#if !Test21
         public override async Task Correlated_collection_with_very_complex_order_by()
         {
             await base.Correlated_collection_with_very_complex_order_by();
@@ -7161,6 +7156,7 @@ INNER JOIN (
 WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[HasSoulPatch] = 0)
 ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
+#endif
 
         public override async Task Cast_to_derived_type_after_OfType_works()
         {
@@ -7475,6 +7471,7 @@ WHERE [c.StationedGears].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [t].[Name], [c.StationedGears].[Nickname] DESC");
         }
 
+#if !Test21
         public override async Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
         {
             await base.Correlated_collection_with_complex_order_by_funcletized_to_constant_bool();
@@ -7494,6 +7491,7 @@ INNER JOIN (
 ) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
 ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
         }
+#endif
 
         public override async Task Double_order_by_on_nullable_bool_coming_from_optional_navigation()
         {

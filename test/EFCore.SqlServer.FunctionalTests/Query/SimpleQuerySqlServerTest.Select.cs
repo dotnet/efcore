@@ -173,7 +173,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-#if !Test20
         public override async Task Select_anonymous_conditional_expression()
         {
             await base.Select_anonymous_conditional_expression();
@@ -185,7 +184,6 @@ FROM [Customers] AS [c]");
 END AS [IsAvailable]
 FROM [Products] AS [p]");
         }
-#endif
 
         public override async Task Select_constant_int()
         {
@@ -591,7 +589,6 @@ ORDER BY [e].[EmployeeID]
 OFFSET @__p_0 ROWS");
         }
 
-#if !Test20
         public override async Task Projection_containing_DateTime_subtraction()
         {
             await base.Projection_containing_DateTime_subtraction();
@@ -601,7 +598,6 @@ OFFSET @__p_0 ROWS");
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300");
         }
-#endif
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault()
         {
@@ -852,7 +848,6 @@ FROM [Orders] AS [o]");
 FROM [Orders] AS [o]");
         }
 
-#if !Test20
         public override async Task Select_byte_constant()
         {
             await base.Select_byte_constant();
@@ -888,7 +883,6 @@ FROM [Customers] AS [c]");
 END
 FROM [Customers] AS [c]");
         }
-#endif
 
         public override async Task Anonymous_projection_AsNoTracking_Selector()
         {

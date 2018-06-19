@@ -992,7 +992,6 @@ LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[Custom
 WHERE [o.Customer].[Country] IN (N'USA', N'Redania')");
         }
 
-#if !Test20
         public override async Task Where_subquery_on_navigation()
         {
             await base.Where_subquery_on_navigation();
@@ -1035,7 +1034,6 @@ WHERE EXISTS (
         ORDER BY [o0].[OrderID] DESC, [o0].[ProductID]
     ) AS [t1] ON ([t0].[OrderID] = [t1].[OrderID]) AND ([t0].[ProductID] = [t1].[ProductID]))");
         }
-#endif
 
         public override async Task Where_subquery_on_navigation_client_eval()
         {

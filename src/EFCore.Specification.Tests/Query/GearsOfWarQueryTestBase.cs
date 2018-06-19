@@ -4523,6 +4523,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         elementAsserter: (ee, aa) => CollectionAsserter<Weapon>(eee => eee.Id, (eee, aaa) => Assert.Equal(eee.Id, aaa.Id))));
         }
 
+#if !Test21
         [ConditionalFact]
         public virtual Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join()
         {
@@ -4550,6 +4551,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         })(e, a);
                 });
         }
+#endif
 
         [ConditionalFact]
         public virtual Task Correlated_collections_complex_scenario1()
@@ -5590,6 +5592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
         }
 
+#if !Test21
         [ConditionalFact]
         public virtual Task Correlated_collection_with_very_complex_order_by()
         {
@@ -5600,6 +5603,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
         }
+#endif
 
         [ConditionalFact]
         public virtual void Cast_to_derived_type_causes_client_eval()
@@ -5757,6 +5761,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
+#if !Test21
         [ConditionalFact]
         public virtual Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
         {
@@ -5772,6 +5777,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CollectionAsserter<string>(ee => ee)(e.Weapons, a.Weapons);
                 });
         }
+#endif
 
         [ConditionalFact]
         public virtual Task Double_order_by_on_nullable_bool_coming_from_optional_navigation()

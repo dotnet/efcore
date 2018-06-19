@@ -4,11 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
-#if Test20
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-#else
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-#endif
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore

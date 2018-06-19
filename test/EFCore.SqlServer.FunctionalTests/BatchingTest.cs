@@ -141,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(2, context.Owners.Count()));
         }
 
-#if !Test20
         [Theory]
         [InlineData(3)]
         [InlineData(4)]
@@ -180,7 +179,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(minBatchSize <= 3 ? 2 : 4, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
                     }, context => AssertDatabaseState(context, false, expectedBlogs));
         }
-#endif
 
         private void AssertDatabaseState(DbContext context, bool clientOrder, List<Blog> expectedBlogs)
         {

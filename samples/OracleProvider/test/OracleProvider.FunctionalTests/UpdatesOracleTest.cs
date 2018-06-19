@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-#if !Test20
         public override void Identifiers_are_generated_correctly()
         {
             using (var context = CreateContext())
@@ -27,6 +26,5 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal("IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~", entityType.GetIndexes().Single().Relational().Name);
             }
         }
-#endif
     }
 }

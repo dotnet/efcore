@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -195,6 +195,16 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
         public class SqlServerBytesTypeMappingSource : RelationalTypeMappingSource
         {
+#if Test21
+            private readonly SqlServerByteArrayTypeMapping _rowversion
+                = new SqlServerByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
+
+            private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
+                = new SqlServerByteArrayTypeMapping("varbinary");
+
+            private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
+                = new SqlServerByteArrayTypeMapping("binary");
+#else
             private readonly SqlServerByteArrayTypeMapping _rowversion
                 = new SqlServerByteArrayTypeMapping("rowversion", size: 8);
 
@@ -203,6 +213,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
             private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
                 = new SqlServerByteArrayTypeMapping(fixedLength: true);
+#endif
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
@@ -260,11 +271,18 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                             size = isFixedLength ? 8000 : (int?)null;
                         }
 
+#if Test21
+                        return new SqlServerByteArrayTypeMapping(
+                            "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
+                            DbType.Binary,
+                            size);
+#else
                         return new SqlServerByteArrayTypeMapping(
                             "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
                             size,
                             isFixedLength,
                             storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
+#endif
                     }
                 }
 
@@ -273,4 +291,3 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
         }
     }
 }
-#endif

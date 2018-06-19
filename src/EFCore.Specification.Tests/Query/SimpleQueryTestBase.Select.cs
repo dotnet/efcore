@@ -69,11 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryAsync<Employee>(
                 es => es.Where(e => e.EmployeeID == 1)
                     .Select(e => new[] { e.EmployeeID, e.ReportsTo }),
-#if Test20
-                elementAsserter: (e, a) => AssertArrays<int?>(e, a, 2));
-#else
                 elementAsserter: (e, a) => AssertArrays<uint?>(e, a, 2));
-#endif
         }
 
         private static void AssertArrays<T>(object e, object a, int count)
@@ -572,11 +568,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
-#if Test20
-                    .Select(o => (int)o.EmployeeID),
-#else
                     .Select(o => (uint)o.EmployeeID),
-#endif
                 assertOrder: true);
         }
 
@@ -692,7 +684,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Skip(1));
         }
 
-#if !Test20
         [ConditionalFact]
         public virtual Task Projection_containing_DateTime_subtraction()
         {
@@ -700,7 +691,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => o.OrderID < 10300)
                     .Select(o => o.OrderDate.Value - new DateTime(1997, 1, 1)));
         }
-#endif
 
         [ConditionalFact]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault()
@@ -851,7 +841,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalarAsync<Order>(os => os.Select(o => o.OrderDate.Value.TimeOfDay));
         }
 
-#if !Test20
         [ConditionalFact]
         public virtual Task Select_byte_constant()
         {
@@ -869,7 +858,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalarAsync<Customer, bool>(cs => cs.Select(c => c.CustomerID == "ALFKI" ? true : false));
         }
-#endif
 
         [ConditionalFact]
         public virtual Task Anonymous_projection_AsNoTracking_Selector()

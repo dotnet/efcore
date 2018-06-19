@@ -4,11 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#else
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-#endif
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {

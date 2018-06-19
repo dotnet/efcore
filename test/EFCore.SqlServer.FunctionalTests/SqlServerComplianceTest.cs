@@ -7,13 +7,6 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerComplianceTest : RelationalComplianceTestBase
     {
-#if Test20
-        protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>()
-        {
-            typeof(CustomConvertersTestBase<>)
-        };
-#endif
-
         protected override Assembly TargetAssembly { get; } = typeof(SqlServerComplianceTest).Assembly;
     }
 }

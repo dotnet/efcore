@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             var typeMapping = GetTypeMapping(typeof(decimal));
 
             Assert.Null(typeMapping.DbType);
-            Assert.Equal("decimal(18,2)", typeMapping.StoreType);
+            Assert.Equal("decimal(18, 2)", typeMapping.StoreType);
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             var typeMapping = GetTypeMapping(typeof(decimal?));
 
             Assert.Null(typeMapping.DbType);
-            Assert.Equal("decimal(18,2)", typeMapping.StoreType);
+            Assert.Equal("decimal(18, 2)", typeMapping.StoreType);
         }
 
         [Theory]
@@ -667,8 +667,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("datetime", typeof(DateTime), null, false)]
         [InlineData("datetime2", typeof(DateTime), null, false)]
         [InlineData("datetimeoffset", typeof(DateTimeOffset), null, false)]
-        [InlineData("dec", typeof(decimal), null, false, "dec(18,2)")]
-        [InlineData("decimal", typeof(decimal), null, false, "decimal(18,2)")]
+        [InlineData("dec", typeof(decimal), null, false)]
+        [InlineData("decimal", typeof(decimal), null, false)]
         [InlineData("float", typeof(double), null, false)] // This is correct. SQL Server 'float' type maps to C# double
         [InlineData("float(10,8)", typeof(double), null, false)]
         [InlineData("image", typeof(byte[]), null, false)]
@@ -681,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("national character(333)", typeof(string), 333, true)]
         [InlineData("nchar(333)", typeof(string), 333, true)]
         [InlineData("ntext", typeof(string), null, true)]
-        [InlineData("numeric", typeof(decimal), null, false, "numeric(18,2)")]
+        [InlineData("numeric", typeof(decimal), null, false)]
         [InlineData("nvarchar(333)", typeof(string), 333, true)]
         [InlineData("nvarchar(max)", typeof(string), null, true)]
         [InlineData("real", typeof(float), null, false)]

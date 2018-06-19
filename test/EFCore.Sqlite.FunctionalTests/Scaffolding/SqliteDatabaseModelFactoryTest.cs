@@ -16,12 +16,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
-#if Test20
-using Microsoft.EntityFrameworkCore.Design.Internal;
-#else
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-#endif
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -383,7 +379,6 @@ CREATE TABLE DefaultValue (
                 @"DROP TABLE DefaultValue;");
         }
 
-#if !Test20
         [Theory]
         [InlineData("DOUBLE NOT NULL DEFAULT 0")]
         [InlineData("FLOAT NOT NULL DEFAULT 0")]
@@ -405,7 +400,6 @@ CREATE TABLE DefaultValue (
                 },
                 "DROP TABLE DefaultValueClr");
         }
-#endif
 
         #endregion
 

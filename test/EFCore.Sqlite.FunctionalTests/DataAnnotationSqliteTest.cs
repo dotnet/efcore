@@ -10,9 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#endif
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -67,11 +64,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
-#if Test20
-            var storeType = TestServiceFactory.Instance.Create<SqliteTypeMapper>().FindMapping(property).StoreType;
-#else
+
             var storeType = property.FindRelationalMapping().StoreType;
-#endif
+
             Assert.Equal("TEXT", storeType);
 
             return modelBuilder;
@@ -82,11 +77,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
-#if Test20
-            var storeType = TestServiceFactory.Instance.Create<SqliteTypeMapper>().FindMapping(property).StoreType;
-#else
+
             var storeType = property.FindRelationalMapping().StoreType;
-#endif
+
             Assert.Equal("BLOB", storeType);
 
             return modelBuilder;
@@ -102,7 +95,6 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
-#if !Test20
         public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
@@ -158,7 +150,6 @@ namespace Microsoft.EntityFrameworkCore
                 @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
                 Sql);
         }
-#endif
 
         // Sqlite does not support length
         public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -181,8 +172,6 @@ namespace Microsoft.EntityFrameworkCore
                 @"@p1='' (Nullable = false)" + _eol,
                 Sql);
         }
-
-#if !Test20
 
         public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
         {
@@ -216,7 +205,6 @@ namespace Microsoft.EntityFrameworkCore
                 @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
                 Sql);
         }
-#endif
 
         // Sqlite does not support length
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()

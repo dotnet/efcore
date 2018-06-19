@@ -187,21 +187,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.LogClientEvalWarning.GenerateMessage(
-#if Test20
-                            "join Int32 i in __p_0 on [e1].EmployeeID equals [i]"
-#else
                             "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
-#endif
                         ),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
-#if Test20
-                             join i in new int[] { 1, 2, 3 } on e1.EmployeeID equals i
-#else
                              join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i
-#endif
                              select e1)
                             .ToList()).Message);
             }
@@ -216,21 +208,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.LogClientEvalWarning.GenerateMessage(
-#if Test20
-                            "join Int32 i in __p_0 on [e1].EmployeeID equals [i]"
-#else
                             "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
-#endif
                         ),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
-#if Test20
-                             join i in new int[] { 1, 2, 3 } on e1.EmployeeID equals i into g
-#else
                              join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
-#endif
                              select e1)
                             .ToList()).Message);
             }

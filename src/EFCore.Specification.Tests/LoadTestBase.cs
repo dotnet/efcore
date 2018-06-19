@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-#if !Test20
         [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -1305,7 +1304,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(deposit, product.Deposit);
             }
         }
-#endif
 
         [Theory]
         [InlineData(EntityState.Unchanged, true)]

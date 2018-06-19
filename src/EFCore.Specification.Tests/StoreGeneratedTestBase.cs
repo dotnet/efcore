@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-#if !Test20
         [Fact]
         public virtual void Value_generation_throws_for_common_cases()
         {
@@ -70,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(id, context.Set<TEntity>().Single(e => e.Id.Equals(id)).Id);
             }
         }
-#endif
 
         [Theory]
         [InlineData(nameof(Anais.NeverThrowBeforeUseAfter))]
@@ -1261,12 +1259,10 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-#if !Test20
                 modelBuilder.Entity<IntToString>().Property(e => e.Id).HasConversion<string>();
                 modelBuilder.Entity<GuidToString>().Property(e => e.Id).HasConversion<string>();
                 modelBuilder.Entity<GuidToBytes>().Property(e => e.Id).HasConversion<byte[]>();
                 modelBuilder.Entity<ShortToBytes>().Property(e => e.Id).HasConversion<byte[]>();
-#endif
 
                 modelBuilder.Entity<Gumball>(
                     b =>

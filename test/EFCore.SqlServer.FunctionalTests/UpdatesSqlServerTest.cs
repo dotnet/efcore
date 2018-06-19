@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-#if !Test20
         public override void Save_replaced_principal()
         {
             base.Save_replaced_principal();
@@ -49,6 +48,5 @@ SELECT @@ROWCOUNT;"
                 Assert.Equal("IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~", entityType.GetIndexes().Single().Relational().Name);
             }
         }
-#endif
     }
 }

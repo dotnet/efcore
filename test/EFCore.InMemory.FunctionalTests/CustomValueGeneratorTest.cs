@@ -10,11 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-#if Test20
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-#else
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
-#endif
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore

@@ -451,7 +451,6 @@ ALTER TABLE ""Person"" MODIFY ""Id"" NUMBER(10) NOT NULL;",
                 Sql);
         }
 
-#if !Test20
         public override void RenameTableOperation()
         {
             base.RenameTableOperation();
@@ -460,7 +459,6 @@ ALTER TABLE ""Person"" MODIFY ""Id"" NUMBER(10) NOT NULL;",
                 "ALTER TABLE \"People\" RENAME TO \"Person\"",
                 Sql);
         }
-#endif
 
         [Fact]
         public override void InsertDataOperation()

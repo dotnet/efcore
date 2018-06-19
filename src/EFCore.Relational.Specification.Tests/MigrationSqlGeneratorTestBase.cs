@@ -389,7 +389,6 @@ namespace Microsoft.EntityFrameworkCore
                     NewName = "Person"
                 });
 
-#if !Test20
         [Fact]
         public virtual void RenameTableOperation()
             => Generate(
@@ -401,7 +400,6 @@ namespace Microsoft.EntityFrameworkCore
                     NewName = "Person",
                     NewSchema = "dbo"
                 });
-#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique()

@@ -11,11 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#else
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-#endif
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -28,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-#if !Test20
         public override void Can_generate_migration_from_initial_database_to_initial()
         {
             base.Can_generate_migration_from_initial_database_to_initial();
@@ -345,7 +340,6 @@ GO
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
-#endif
 
         public override void Can_get_active_provider()
         {
