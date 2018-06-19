@@ -2565,7 +2565,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
         /// <returns>
-        ///     A new query where the result set will not be tracked by the context.
+        ///     A new query where the result set will be tracked by the context.
         /// </returns>
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
