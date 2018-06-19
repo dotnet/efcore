@@ -1495,7 +1495,7 @@ OFFSET @__p_1 ROWS",
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT [c0].[CustomerID], 0 AS [c]
+    SELECT [c0].[CustomerID], CAST(0 AS bit) AS [c]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
     ORDER BY [c], [c0].[CustomerID]
@@ -1522,7 +1522,7 @@ OFFSET @__p_1 ROWS",
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT [c0].[CustomerID], 1 AS [c]
+    SELECT [c0].[CustomerID], CAST(1 AS bit) AS [c]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
     ORDER BY [c], [c0].[CustomerID]

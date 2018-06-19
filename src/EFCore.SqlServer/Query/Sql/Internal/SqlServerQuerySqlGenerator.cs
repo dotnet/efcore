@@ -132,17 +132,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override void GenerateProjection(Expression projection)
+        protected override Expression ApplyExplicitCastToBoolInProjectionOptimization(Expression expression)
         {
-            var aliasedProjection = projection as AliasExpression;
-            var expressionToProcess = aliasedProjection?.Expression ?? projection;
+            var aliasedProjection = expression as AliasExpression;
+            var expressionToProcess = aliasedProjection?.Expression ?? expression;
+
             var updatedExpression = ExplicitCastToBool(expressionToProcess);
 
-            expressionToProcess = aliasedProjection != null
+            return aliasedProjection != null
                 ? new AliasExpression(aliasedProjection.Alias, updatedExpression)
                 : updatedExpression;
-
-            base.GenerateProjection(expressionToProcess);
         }
 
         private static Expression ExplicitCastToBool(Expression expression)

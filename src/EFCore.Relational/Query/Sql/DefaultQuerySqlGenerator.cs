@@ -517,7 +517,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="projection"> The projection expression. </param>
         protected virtual void GenerateProjection([NotNull] Expression projection)
-            => Visit(ApplyOptimizations(projection, searchCondition: false));
+        {
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12175", out var isEnabled) && isEnabled)
+            {
+                Visit(
+                    ApplyOptimizations(
+                        ApplyExplicitCastToBoolInProjectionOptimization(projection),
+                        searchCondition: false));
+            }
+            else
+            {
+                Visit(
+                    ApplyExplicitCastToBoolInProjectionOptimization(
+                        ApplyOptimizations(projection, searchCondition: false)));
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Expression ApplyExplicitCastToBoolInProjectionOptimization(Expression expression) => expression;
 
         /// <summary>
         ///     Visit the predicate in SQL WHERE clause
