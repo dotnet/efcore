@@ -1,29 +1,29 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
-    ///     Converts <see cref="DateTime" /> to and from strings.
+    ///     Converts strings to and from numeric values.
     /// </summary>
-    public class DateTimeToStringConverter : StringDateTimeConverter<DateTime, string>
+    public class StringToNumberConverter<TNumber> : StringNumberConverter<string, TNumber, TNumber>
     {
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeToStringConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public StringToNumberConverter(
+            [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                ToString(),
-                ToDateTime(),
-                _defaultHints.With(mappingHints))
+                  ToNumber(),
+                  ToString(),
+                  _defaultHints.With(mappingHints))
         {
         }
 
@@ -31,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(DateTime), typeof(string), i => new DateTimeToStringConverter(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(typeof(string), typeof(TNumber), i => new StringToNumberConverter<TNumber>(i.MappingHints), _defaultHints);
     }
 }

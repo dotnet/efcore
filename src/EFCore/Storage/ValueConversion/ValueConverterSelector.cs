@@ -158,6 +158,62 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                         (underlyingModelType, typeof(byte[])),
                         k => StringToBytesConverter.DefaultInfo);
                 }
+                else if (underlyingProviderType.IsEnum)
+                {
+                    yield return _converters.GetOrAdd(
+                        (typeof(string), underlyingProviderType),
+                        k => (ValueConverterInfo)typeof(StringToEnumConverter<>)
+                            .MakeGenericType(k.ProviderClrType)
+                            .GetAnyProperty("DefaultInfo")
+                            .GetValue(null));
+                }
+                else if (_numerics.Contains(underlyingProviderType))
+                {
+                    foreach (var converterInfo in FindNumericConvertions(
+                        typeof(string),
+                        underlyingProviderType,
+                        typeof(StringToNumberConverter<>),
+                        null))
+                    {
+                        yield return converterInfo;
+                    }
+                }
+                else if (underlyingProviderType == typeof(DateTime))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(DateTime)),
+                        k => StringToDateTimeConverter.DefaultInfo);
+                }
+                else if (underlyingProviderType == typeof(DateTimeOffset))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(DateTimeOffset)),
+                        k => StringToDateTimeOffsetConverter.DefaultInfo);
+                }
+                else if (underlyingProviderType == typeof(TimeSpan))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(TimeSpan)),
+                        k => StringToTimeSpanConverter.DefaultInfo);
+                }
+                else if (underlyingProviderType == typeof(Guid))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(Guid)),
+                        k => StringToGuidConverter.DefaultInfo);
+                }
+                else if (underlyingProviderType == typeof(bool))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(bool)),
+                        k => StringToBoolConverter.DefaultInfo);
+                }
+                else if (underlyingProviderType == typeof(char))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(char)),
+                        k => StringToCharConverter.DefaultInfo);
+                }
             }
             else if (underlyingModelType == typeof(DateTime)
                      || underlyingModelType == typeof(DateTimeOffset)
