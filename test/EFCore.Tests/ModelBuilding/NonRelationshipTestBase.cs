@@ -1225,17 +1225,56 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Entity_field_expression_composite_key_test()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().HasKey(e => new { e.TenantId, e.CompanyId });
+                var entity = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey));
+                var primaryKeyProperties = entity.FindPrimaryKey().Properties;
+
+                Assert.Equal(2, primaryKeyProperties.Count);
+                var first = primaryKeyProperties[0];
+                var second = primaryKeyProperties[1];
+                Assert.Equal(nameof(EntityWithFieldKey.TenantId), first.Name);
+                Assert.Null(first.PropertyInfo);
+                Assert.NotNull(first.FieldInfo);
+                Assert.Equal(nameof(EntityWithFieldKey.CompanyId), second.Name);
+                Assert.Null(second.PropertyInfo);
+                Assert.NotNull(second.FieldInfo);
+            }
+
+            [Fact]
             public virtual void Entity_field_expression_alternate_key_test()
             {
                 var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-                modelBuilder.Entity<EntityWithFieldKey>().HasAlternateKey(e => e.Year);
+                modelBuilder.Entity<EntityWithFieldKey>().HasAlternateKey(e => e.CompanyId);
                 var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties();
 
                 Assert.Equal(1, properties.Count());
                 var property = properties.Single();
-                Assert.Equal(nameof(EntityWithFieldKey.Year), property.Name);
+                Assert.Equal(nameof(EntityWithFieldKey.CompanyId), property.Name);
                 Assert.Null(property.PropertyInfo);
                 Assert.NotNull(property.FieldInfo);
+            }
+
+            [Fact]
+            public virtual void Entity_field_expression_composite_alternate_key_test()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().HasAlternateKey(e => new { e.TenantId, e.CompanyId });
+                var keys = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetKeys();
+
+                Assert.Equal(1, keys.Count());
+                var properties = keys.Single().Properties;
+                Assert.Equal(2, properties.Count);
+                var first = properties[0];
+                var second = properties[1];
+                Assert.Equal(nameof(EntityWithFieldKey.TenantId), first.Name);
+                Assert.Null(first.PropertyInfo);
+                Assert.NotNull(first.FieldInfo);
+                Assert.Equal(nameof(EntityWithFieldKey.CompanyId), second.Name);
+                Assert.Null(second.PropertyInfo);
+                Assert.NotNull(second.FieldInfo);
             }
 
             [Fact]
@@ -1256,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Entity_field_expression_index_test()
             {
                 var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-                modelBuilder.Entity<EntityWithFieldKey>().HasIndex(e => e.Year);
+                modelBuilder.Entity<EntityWithFieldKey>().HasIndex(e => e.CompanyId);
                 var indexes = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetIndexes();
 
                 Assert.Equal(1, indexes.Count());
@@ -1265,6 +1304,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var property = index.Properties.Single();
                 Assert.Null(property.PropertyInfo);
                 Assert.NotNull(property.FieldInfo);
+            }
+
+            [Fact]
+            public virtual void Entity_field_expression_composite_index_test()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+                modelBuilder.Entity<EntityWithFieldKey>().HasIndex(e => new { e.TenantId, e.CompanyId });
+                var indexes = modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetIndexes();
+
+                Assert.Equal(1, indexes.Count());
+                var index = indexes.Single();
+                Assert.Equal(2, index.Properties.Count);
+                var properties = index.Properties;
+                var first = properties[0];
+                var second = properties[1];
+                Assert.Equal(nameof(EntityWithFieldKey.TenantId), first.Name);
+                Assert.Null(first.PropertyInfo);
+                Assert.NotNull(first.FieldInfo);
+                Assert.Equal(nameof(EntityWithFieldKey.CompanyId), second.Name);
+                Assert.Null(second.PropertyInfo);
+                Assert.NotNull(second.FieldInfo);
             }
 
             [Fact]
@@ -1289,7 +1349,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Entity_field_expression_ignore_test()
             {
                 var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-                modelBuilder.Entity<EntityWithFieldKey>().Ignore(e => e.Year);
+                modelBuilder.Entity<EntityWithFieldKey>().Ignore(e => e.CompanyId);
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityWithFieldKey)).GetProperties());
             }

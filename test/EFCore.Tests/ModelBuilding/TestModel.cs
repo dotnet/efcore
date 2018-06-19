@@ -578,7 +578,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class EntityWithFieldKey
         {
             public long Id;
-            public int Year;
+            public int CompanyId;
+            public int TenantId;
             public QueryWithField Query;
         }
 
