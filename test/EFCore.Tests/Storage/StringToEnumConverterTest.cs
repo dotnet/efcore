@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,42 +9,15 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    public class EnumToStringConverterTest
+    public class StringToEnumConverterTest
     {
-        private static readonly ValueConverter<Beatles, string> _enumToString
-            = new EnumToStringConverter<Beatles>();
-
-        [Fact]
-        public void Can_convert_enums_to_strings()
-        {
-            var converter = _enumToString.ConvertToProviderExpression.Compile();
-
-            Assert.Equal("John", converter(Beatles.John));
-            Assert.Equal("Paul", converter(Beatles.Paul));
-            Assert.Equal("George", converter(Beatles.George));
-            Assert.Equal("Ringo", converter(Beatles.Ringo));
-            Assert.Equal("77", converter((Beatles)77));
-            Assert.Equal("0", converter(default));
-        }
-
-        [Fact]
-        public void Can_convert_enums_to_strings_object()
-        {
-            var converter = _enumToString.ConvertToProvider;
-
-            Assert.Equal("John", converter(Beatles.John));
-            Assert.Equal("Paul", converter(Beatles.Paul));
-            Assert.Equal("George", converter(Beatles.George));
-            Assert.Equal("Ringo", converter(Beatles.Ringo));
-            Assert.Equal("77", converter((Beatles)77));
-            Assert.Equal("0", converter(default(Beatles)));
-            Assert.Null(converter(null));
-        }
+        private static readonly ValueConverter<string, Beatles> _stringToEnum
+            = new StringToEnumConverter<Beatles>();
 
         [Fact]
         public void Can_convert_strings_to_enums()
         {
-            var converter = _enumToString.ConvertFromProviderExpression.Compile();
+            var converter = _stringToEnum.ConvertToProviderExpression.Compile();
 
             Assert.Equal(Beatles.John, converter("John"));
             Assert.Equal(Beatles.Paul, converter("Paul"));
@@ -61,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_strings_to_enums_object()
         {
-            var converter = _enumToString.ConvertFromProvider;
+            var converter = _stringToEnum.ConvertToProvider;
 
             Assert.Equal(Beatles.John, converter("John"));
             Assert.Equal(Beatles.Paul, converter("Paul"));
@@ -76,15 +49,42 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [Fact]
-        public void Enum_to_string_converter_throws_for_bad_types()
+        public void Can_convert_enums_to_strings()
+        {
+            var converter = _stringToEnum.ConvertFromProviderExpression.Compile();
+
+            Assert.Equal("John", converter(Beatles.John));
+            Assert.Equal("Paul", converter(Beatles.Paul));
+            Assert.Equal("George", converter(Beatles.George));
+            Assert.Equal("Ringo", converter(Beatles.Ringo));
+            Assert.Equal("77", converter((Beatles)77));
+            Assert.Equal("0", converter(default));
+        }
+
+        [Fact]
+        public void Can_convert_enums_to_strings_object()
+        {
+            var converter = _stringToEnum.ConvertFromProvider;
+
+            Assert.Equal("John", converter(Beatles.John));
+            Assert.Equal("Paul", converter(Beatles.Paul));
+            Assert.Equal("George", converter(Beatles.George));
+            Assert.Equal("Ringo", converter(Beatles.Ringo));
+            Assert.Equal("77", converter((Beatles)77));
+            Assert.Equal("0", converter(default(Beatles)));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void String_to_enum_converter_throws_for_bad_types()
         {
             Assert.Equal(
                 CoreStrings.ConverterBadType(
-                    typeof(StringEnumConverter<Guid, string, Guid>).ShortDisplayName(),
+                    typeof(StringEnumConverter<string, Guid, Guid>).ShortDisplayName(),
                     "Guid",
                     "enum types"),
                 Assert.Throws<InvalidOperationException>(
-                    () => new EnumToStringConverter<Guid>()).Message);
+                    () => new StringToEnumConverter<Guid>()).Message);
         }
 
         private enum Beatles
