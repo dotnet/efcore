@@ -7437,25 +7437,6 @@ INNER JOIN (
 ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
         }
 
-        [ConditionalFact]
-        public virtual void Correlated_collection_with_complex_order_by_funcletized_to_constant_bool_legacy_behavior()
-        {
-            var nicknames = new List<string>();
-            AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12175", true);
-            try
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () => AssertQuery<Gear>(
-                        gs => from g in gs
-                                orderby nicknames.Contains(g.Nickname) descending
-                                select new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }));
-            }
-            finally
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12175", false);
-            }
-        }
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
