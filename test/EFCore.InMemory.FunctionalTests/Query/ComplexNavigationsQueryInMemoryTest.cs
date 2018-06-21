@@ -15,16 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalFact(Skip = "issue #4311")]
-        public override Task Nested_group_join_with_take()
+        [ConditionalTheory(Skip = "issue #4311")]
+        public override Task Nested_group_join_with_take(bool IsAsync)
         {
-            return base.Nested_group_join_with_take();
+            return base.Nested_group_join_with_take(IsAsync);
         }
 
-        [ConditionalFact(Skip = "issue #9591")]
-        public override Task Multi_include_with_groupby_in_subquery()
+        [ConditionalTheory(Skip = "issue #9591")]
+        public override Task Multi_include_with_groupby_in_subquery(bool IsAsync)
         {
-            return base.Multi_include_with_groupby_in_subquery();
+            return base.Multi_include_with_groupby_in_subquery(IsAsync);
         }
     }
 }

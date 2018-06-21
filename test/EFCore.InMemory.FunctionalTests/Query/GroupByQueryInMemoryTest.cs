@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalFact(Skip = "See issue #9591")]
-        public override Task Select_Distinct_GroupBy()
+        [ConditionalTheory(Skip = "See issue #9591")]
+        public override Task Select_Distinct_GroupBy(bool isAsync)
         {
-            return base.Select_Distinct_GroupBy();
+            return base.Select_Distinct_GroupBy(isAsync);
         }
     }
 }
