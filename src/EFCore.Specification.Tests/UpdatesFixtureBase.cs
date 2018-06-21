@@ -19,6 +19,10 @@ namespace Microsoft.EntityFrameworkCore
                 .Property(e => e.Id)
                 .ValueGeneratedNever();
 
+            modelBuilder.Entity<ProductWithBytes>()
+                .Property(e => e.Id)
+                .ValueGeneratedNever();
+
             modelBuilder.Entity<Category>()
                 .Property(e => e.Id)
                 .ValueGeneratedNever();

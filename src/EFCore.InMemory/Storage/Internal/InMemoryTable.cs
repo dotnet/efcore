@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -103,7 +104,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 for (var index = 0; index < valueBuffer.Length; index++)
                 {
                     if (properties[index].IsConcurrencyToken
-                        && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
+                        && !StructuralComparisons.StructuralEqualityComparer.Equals(
+                            _rows[key][index],
+                            entry.GetOriginalValue(properties[index])))
                     {
                         concurrencyConflicts.Add(properties[index], _rows[key][index]);
                         continue;
