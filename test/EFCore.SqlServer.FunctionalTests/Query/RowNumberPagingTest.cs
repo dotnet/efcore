@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.All(Fixture.TestSqlLoggerFactory.SqlStatements, t => Assert.DoesNotContain("FETCH", t));
         }
 
-        public override async Task Skip()
+        public override async Task Skip(bool isAsync)
         {
-            await base.Skip();
+            await base.Skip(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -41,9 +41,9 @@ FROM (
 WHERE [t].[__RowNumber__] > @__p_0");
         }
 
-        public override async Task Skip_no_orderby()
+        public override async Task Skip_no_orderby(bool isAsync)
         {
-            await base.Skip_no_orderby();
+            await base.Skip_no_orderby(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -56,9 +56,9 @@ FROM (
 WHERE [t].[__RowNumber__] > @__p_0");
         }
 
-        public override async Task Skip_Take()
+        public override async Task Skip_Take(bool isAsync)
         {
-            await base.Skip_Take();
+            await base.Skip_Take(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -72,9 +72,9 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
-        public override async Task Join_Customers_Orders_Skip_Take()
+        public override async Task Join_Customers_Orders_Skip_Take(bool isAsync)
         {
-            await base.Join_Customers_Orders_Skip_Take();
+            await base.Join_Customers_Orders_Skip_Take(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -89,9 +89,9 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
-        public override async Task Join_Customers_Orders_Projection_With_String_Concat_Skip_Take()
+        public override async Task Join_Customers_Orders_Projection_With_String_Concat_Skip_Take(bool isAsync)
         {
-            await base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take();
+            await base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -106,9 +106,9 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
-        public override async Task Join_Customers_Orders_Orders_Skip_Take_Same_Properties()
+        public override async Task Join_Customers_Orders_Orders_Skip_Take_Same_Properties(bool isAsync)
         {
-            await base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties();
+            await base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -124,9 +124,9 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
-        public override async Task Take_Skip()
+        public override async Task Take_Skip(bool isAsync)
         {
-            await base.Take_Skip();
+            await base.Take_Skip(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -144,9 +144,9 @@ FROM (
 WHERE [t0].[__RowNumber__] > @__p_1");
         }
 
-        public override async Task Take_Skip_Distinct()
+        public override async Task Take_Skip_Distinct(bool isAsync)
         {
-            await base.Take_Skip_Distinct();
+            await base.Take_Skip_Distinct(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -167,9 +167,9 @@ FROM (
 ) AS [t0]");
         }
 
-        public override async Task Take_skip_null_coalesce_operator()
+        public override async Task Take_skip_null_coalesce_operator(bool isAsync)
         {
-            await base.Take_skip_null_coalesce_operator();
+            await base.Take_skip_null_coalesce_operator(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -190,9 +190,9 @@ FROM (
 ) AS [t0]");
         }
 
-        public override async Task Select_take_skip_null_coalesce_operator()
+        public override async Task Select_take_skip_null_coalesce_operator(bool isAsync)
         {
-            await base.Select_take_skip_null_coalesce_operator();
+            await base.Select_take_skip_null_coalesce_operator(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -210,9 +210,10 @@ FROM (
 WHERE [t0].[__RowNumber__] > @__p_1");
         }
 
-        public override async Task String_Contains_Literal()
+        public override async Task String_Contains_Literal(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
@@ -223,9 +224,10 @@ FROM [Customers] AS [c]
 WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         }
 
-        public override async Task String_Contains_MethodCall()
+        public override async Task String_Contains_MethodCall(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
                 entryCount: 34);
@@ -238,9 +240,9 @@ FROM [Customers] AS [c]
 WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_0 = N'')");
         }
 
-        public override async Task OrderBy_skip_take()
+        public override async Task OrderBy_skip_take(bool isAsync)
         {
-            await base.OrderBy_skip_take();
+            await base.OrderBy_skip_take(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -254,9 +256,9 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
-        public override async Task OrderBy_skip_skip_take()
+        public override async Task OrderBy_skip_skip_take(bool isAsync)
         {
-            await base.OrderBy_skip_skip_take();
+            await base.OrderBy_skip_skip_take(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -278,9 +280,9 @@ FROM (
 WHERE ([t1].[__RowNumber__1] > @__p_1) AND ([t1].[__RowNumber__1] <= (@__p_1 + @__p_2))");
         }
 
-        public override async Task OrderBy_skip_take_take()
+        public override async Task OrderBy_skip_take_take(bool isAsync)
         {
-            await base.OrderBy_skip_take_take();
+            await base.OrderBy_skip_take_take(isAsync);
 
             AssertSql(
                 @"@__p_2='3'
@@ -299,9 +301,9 @@ FROM (
 ORDER BY [t].[ContactTitle], [t].[ContactName]");
         }
 
-        public override async Task OrderBy_skip_take_take_take_take()
+        public override async Task OrderBy_skip_take_take_take_take(bool isAsync)
         {
-            await base.OrderBy_skip_take_take_take_take();
+            await base.OrderBy_skip_take_take_take_take(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -329,9 +331,9 @@ FROM (
 ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
         }
 
-        public override async Task OrderBy_skip_take_skip_take_skip()
+        public override async Task OrderBy_skip_take_skip_take_skip(bool isAsync)
         {
-            await base.OrderBy_skip_take_skip_take_skip();
+            await base.OrderBy_skip_take_skip_take_skip(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -361,9 +363,9 @@ FROM (
 WHERE [t3].[__RowNumber__2] > @__p_0");
         }
 
-        public override async Task OrderBy_skip_take_distinct()
+        public override async Task OrderBy_skip_take_distinct(bool isAsync)
         {
-            await base.OrderBy_skip_take_distinct();
+            await base.OrderBy_skip_take_distinct(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -380,9 +382,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task OrderBy_coalesce_take_distinct()
+        public override async Task OrderBy_coalesce_take_distinct(bool isAsync)
         {
-            await base.OrderBy_coalesce_take_distinct();
+            await base.OrderBy_coalesce_take_distinct(isAsync);
 
             AssertSql(
                 @"@__p_0='15'
@@ -395,9 +397,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task OrderBy_coalesce_skip_take_distinct()
+        public override async Task OrderBy_coalesce_skip_take_distinct(bool isAsync)
         {
-            await base.OrderBy_coalesce_skip_take_distinct();
+            await base.OrderBy_coalesce_skip_take_distinct(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -414,9 +416,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task OrderBy_coalesce_skip_take_distinct_take()
+        public override async Task OrderBy_coalesce_skip_take_distinct_take(bool isAsync)
         {
-            await base.OrderBy_coalesce_skip_take_distinct_take();
+            await base.OrderBy_coalesce_skip_take_distinct_take(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -433,9 +435,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task OrderBy_skip_take_distinct_orderby_take()
+        public override async Task OrderBy_skip_take_distinct_orderby_take(bool isAsync)
         {
-            await base.OrderBy_skip_take_distinct_orderby_take();
+            await base.OrderBy_skip_take_distinct_orderby_take(isAsync);
 
             AssertSql(
                 @"@__p_2='8'
@@ -457,9 +459,9 @@ FROM (
 ORDER BY [t0].[ContactTitle]");
         }
 
-        public override void Skip_Take_Any()
+        public override async Task Skip_Take_Any(bool isAsync)
         {
-            base.Skip_Take_Any();
+            await base.Skip_Take_Any(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -477,9 +479,9 @@ SELECT CASE
 END");
         }
 
-        public override void Skip_Take_All()
+        public override async Task Skip_Take_All(bool isAsync)
         {
-            base.Skip_Take_All();
+            await base.Skip_Take_All(isAsync);
 
             AssertSql(
                 @"@__p_0='4'
@@ -501,9 +503,9 @@ SELECT CASE
 END");
         }
 
-        public override void Take_All()
+        public override async Task Take_All(bool isAsync)
         {
-            base.Take_All();
+            await base.Take_All(isAsync);
 
             AssertSql(
                 @"@__p_0='4'
@@ -521,9 +523,9 @@ SELECT CASE
 END");
         }
 
-        public override void Skip_Take_Any_with_predicate()
+        public override async Task Skip_Take_Any_with_predicate(bool isAsync)
         {
-            base.Skip_Take_Any_with_predicate();
+            await base.Skip_Take_Any_with_predicate(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -545,9 +547,9 @@ SELECT CASE
 END");
         }
 
-        public override void Take_Any_with_predicate()
+        public override async Task Take_Any_with_predicate(bool isAsync)
         {
-            base.Take_Any_with_predicate();
+            await base.Take_Any_with_predicate(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -565,9 +567,9 @@ SELECT CASE
 END");
         }
 
-        public override async Task Include_with_orderby_skip_preserves_ordering()
+        public override async Task Include_with_orderby_skip_preserves_ordering(bool isAsync)
         {
-            await base.Include_with_orderby_skip_preserves_ordering();
+            await base.Include_with_orderby_skip_preserves_ordering(isAsync);
 
             AssertSql(
                 @"@__p_0='40'
@@ -598,9 +600,9 @@ INNER JOIN (
 ORDER BY [t].[City], [t].[CustomerID]");
         }
 
-        public override async Task GroupJoin_customers_orders_count_preserves_ordering()
+        public override async Task GroupJoin_customers_orders_count_preserves_ordering(bool isAsync)
         {
-            await base.GroupJoin_customers_orders_count_preserves_ordering();
+            await base.GroupJoin_customers_orders_count_preserves_ordering(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -616,9 +618,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[City], [t].[CustomerID]");
         }
 
-        public override void Select_take_average()
+        public override async Task Select_take_average(bool isAsync)
         {
-            base.Select_take_average();
+            await base.Select_take_average(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -631,9 +633,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_take_count()
+        public override async Task Select_take_count(bool isAsync)
         {
-            base.Select_take_count();
+            await base.Select_take_count(isAsync);
 
             AssertSql(
                 @"@__p_0='7'
@@ -645,9 +647,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_orderBy_take_count()
+        public override async Task Select_orderBy_take_count(bool isAsync)
         {
-            base.Select_orderBy_take_count();
+            await base.Select_orderBy_take_count(isAsync);
 
             AssertSql(
                 @"@__p_0='7'
@@ -660,9 +662,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_take_long_count()
+        public override async Task Select_take_long_count(bool isAsync)
         {
-            base.Select_take_long_count();
+            await base.Select_take_long_count(isAsync);
 
             AssertSql(
                 @"@__p_0='7'
@@ -674,9 +676,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_orderBy_take_long_count()
+        public override async Task Select_orderBy_take_long_count(bool isAsync)
         {
-            base.Select_orderBy_take_long_count();
+            await base.Select_orderBy_take_long_count(isAsync);
 
             AssertSql(
                 @"@__p_0='7'
@@ -689,9 +691,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_take_max()
+        public override async Task Select_take_max(bool isAsync)
         {
-            base.Select_take_max();
+            await base.Select_take_max(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -704,9 +706,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_take_min()
+        public override async Task Select_take_min(bool isAsync)
         {
-            base.Select_take_min();
+            await base.Select_take_min(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -719,9 +721,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_take_sum()
+        public override async Task Select_take_sum(bool isAsync)
         {
-            base.Select_take_sum();
+            await base.Select_take_sum(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -734,9 +736,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_skip_average()
+        public override async Task Select_skip_average(bool isAsync)
         {
-            base.Select_skip_average();
+            await base.Select_skip_average(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -752,9 +754,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_skip_count()
+        public override async Task Select_skip_count(bool isAsync)
         {
-            base.Select_skip_count();
+            await base.Select_skip_count(isAsync);
 
             AssertSql(
                 @"@__p_0='7'
@@ -770,9 +772,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_orderBy_skip_count()
+        public override async Task Select_orderBy_skip_count(bool isAsync)
         {
-            base.Select_orderBy_skip_count();
+            await base.Select_orderBy_skip_count(isAsync);
 
             AssertSql(
                 @"@__p_0='7'
@@ -788,9 +790,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_skip_long_count()
+        public override async Task Select_skip_long_count(bool isAsync)
         {
-            base.Select_skip_long_count();
+            await base.Select_skip_long_count(isAsync);
 
             AssertSql(
                 @"@__p_0='7'
@@ -806,9 +808,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_orderBy_skip_long_count()
+        public override async Task Select_orderBy_skip_long_count(bool isAsync)
         {
-            base.Select_orderBy_skip_long_count();
+            await base.Select_orderBy_skip_long_count(isAsync);
 
             AssertSql(
                 @"@__p_0='7'
@@ -824,9 +826,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_skip_max()
+        public override async Task Select_skip_max(bool isAsync)
         {
-            base.Select_skip_max();
+            await base.Select_skip_max(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -842,9 +844,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_skip_min()
+        public override async Task Select_skip_min(bool isAsync)
         {
-            base.Select_skip_min();
+            await base.Select_skip_min(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -860,9 +862,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override void Select_skip_sum()
+        public override async Task Select_skip_sum(bool isAsync)
         {
-            base.Select_skip_sum();
+            await base.Select_skip_sum(isAsync);
 
             AssertSql(
                 @"@__p_0='10'
@@ -878,9 +880,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task OrderBy_Dto_projection_skip_take()
+        public override async Task OrderBy_Dto_projection_skip_take(bool isAsync)
         {
-            await base.OrderBy_Dto_projection_skip_take();
+            await base.OrderBy_Dto_projection_skip_take(isAsync);
 
             AssertSql(
                 @"@__p_0='5'
@@ -894,9 +896,9 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
-        public override async Task Projection_in_a_subquery_should_be_liftable()
+        public override async Task Projection_in_a_subquery_should_be_liftable(bool isAsync)
         {
-            await base.Projection_in_a_subquery_should_be_liftable();
+            await base.Projection_in_a_subquery_should_be_liftable(isAsync);
 
             AssertSql(
                 @"@__p_0='1'

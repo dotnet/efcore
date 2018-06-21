@@ -17,16 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override async Task GroupBy_Composite_Select_Average()
-        {
-            await base.GroupBy_Composite_Select_Average();
-
-            AssertSql(
-                @"SELECT AVG(CAST([o].[OrderID] AS float))
-FROM [Orders] AS [o]
-GROUP BY [o].[CustomerID], [o].[EmployeeID]");
-        }
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

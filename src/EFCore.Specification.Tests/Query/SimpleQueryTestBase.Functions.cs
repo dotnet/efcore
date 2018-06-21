@@ -23,159 +23,213 @@ namespace Microsoft.EntityFrameworkCore.Query
     // ReSharper disable once UnusedTypeParameter
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
-        [ConditionalFact]
-        public virtual Task String_StartsWith_Literal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_StartsWith_Literal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.StartsWith("M")),
                 entryCount: 12);
         }
 
-        [ConditionalFact]
-        public virtual Task String_StartsWith_Identity()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_StartsWith_Identity(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task String_StartsWith_Column()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_StartsWith_Column(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task String_StartsWith_MethodCall()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_StartsWith_MethodCall(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.StartsWith(LocalMethod1())),
                 entryCount: 12);
         }
 
-        [ConditionalFact]
-        public virtual Task String_EndsWith_Literal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_EndsWith_Literal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.EndsWith("b")),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task String_EndsWith_Identity()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_EndsWith_Identity(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task String_EndsWith_Column()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_EndsWith_Column(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task String_EndsWith_MethodCall()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_EndsWith_MethodCall(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.EndsWith(LocalMethod2())),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task String_Contains_Literal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_Contains_Literal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.Contains("M")),
                 entryCount: 19);
         }
 
-        [ConditionalFact]
-        public virtual Task String_Contains_Identity()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_Contains_Identity(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.Contains(c.ContactName)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task String_Contains_Column()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_Contains_Column(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.Contains(c.ContactName)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task String_Contains_MethodCall()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task String_Contains_MethodCall(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())),
                 entryCount: 19);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_simple_zero()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_simple_zero(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 0),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 != string.Compare(c.CustomerID, "ALFKI")),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > 0),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 >= string.Compare(c.CustomerID, "ALFKI")),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 < string.Compare(c.CustomerID, "ALFKI")),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") <= 0),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_simple_one()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_simple_one(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 1),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => -1 == string.Compare(c.CustomerID, "ALFKI")));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") < 1),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 1 > string.Compare(c.CustomerID, "ALFKI")),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > -1),
                 entryCount: 91);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => -1 < string.Compare(c.CustomerID, "ALFKI")),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_compare_with_parameter()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_compare_with_parameter(bool isAsync)
         {
             Customer customer = null;
             using (var context = CreateContext())
@@ -185,137 +239,178 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ClearLog();
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, customer.CustomerID) == 1),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => -1 == string.Compare(c.CustomerID, customer.CustomerID)));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, customer.CustomerID) < 1),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 1 > string.Compare(c.CustomerID, customer.CustomerID)),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, customer.CustomerID) > -1),
                 entryCount: 91);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => -1 < string.Compare(c.CustomerID, customer.CustomerID)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_simple_client()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_simple_client(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 42));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > 42));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 42 > string.Compare(c.CustomerID, "ALFKI")),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_nested()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_nested(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "M" + c.CustomerID) == 0));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 != string.Compare(c.CustomerID, c.CustomerID.ToUpper())));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 >= string.Compare(c.CustomerID, "M" + c.CustomerID)),
                 entryCount: 51);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 1 == string.Compare(c.CustomerID, c.CustomerID.ToUpper())));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) == -1),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_multi_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_multi_predicate(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > -1).Where(c => string.Compare(c.CustomerID, "CACTU") == -1),
                 entryCount: 11);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Compare(c.ContactTitle, "Owner") == 0).Where(c => string.Compare(c.Country, "USA") != 0),
                 entryCount: 15);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_to_simple_zero()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_to_simple_zero(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 0),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 != c.CustomerID.CompareTo("ALFKI")),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > 0),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 >= c.CustomerID.CompareTo("ALFKI")),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 < c.CustomerID.CompareTo("ALFKI")),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") <= 0),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_to_simple_one()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_to_simple_one(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 1),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => -1 == c.CustomerID.CompareTo("ALFKI")));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") < 1),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 1 > c.CustomerID.CompareTo("ALFKI")),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > -1),
                 entryCount: 91);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => -1 < c.CustomerID.CompareTo("ALFKI")),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_compare_to_with_parameter()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_compare_to_with_parameter(bool isAsync)
         {
             Customer customer = null;
             using (var context = CreateContext())
@@ -325,76 +420,99 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ClearLog();
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo(customer.CustomerID) == 1),
                 entryCount: 90);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => -1 == c.CustomerID.CompareTo(customer.CustomerID)));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo(customer.CustomerID) < 1),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 1 > c.CustomerID.CompareTo(customer.CustomerID)),
                 entryCount: 1);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo(customer.CustomerID) > -1),
                 entryCount: 91);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => -1 < c.CustomerID.CompareTo(customer.CustomerID)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_to_simple_client()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_to_simple_client(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") == 42));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > 42));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 42 > c.CustomerID.CompareTo("ALFKI")),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_to_nested()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_to_nested(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("M" + c.CustomerID) == 0));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 != c.CustomerID.CompareTo(c.CustomerID.ToUpper())));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 0 >= c.CustomerID.CompareTo("M" + c.CustomerID)),
                 entryCount: 51);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => 1 == c.CustomerID.CompareTo(c.CustomerID.ToUpper())));
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) == -1),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task String_Compare_to_multi_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task String_Compare_to_multi_predicate(bool isAsync)
         {
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.CompareTo("ALFKI") > -1).Where(c => c.CustomerID.CompareTo("CACTU") == -1),
                 entryCount: 11);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.CompareTo("Owner") == 0).Where(c => c.Country.CompareTo("USA") != 0),
                 entryCount: 15);
         }
@@ -409,82 +527,112 @@ namespace Microsoft.EntityFrameworkCore.Query
             return "m";
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_abs1()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_abs1(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Abs(od.ProductID) > 10),
                 entryCount: 1939);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_abs2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_abs2(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Abs(od.Quantity) > 10),
                 entryCount: 1547);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_abs3()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_abs3(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Abs(od.UnitPrice) > 10),
                 entryCount: 1677);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_abs_uncorrelated()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_abs_uncorrelated(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Abs(-10) < od.ProductID),
                 entryCount: 1939);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_ceiling1()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_ceiling1(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Ceiling(od.Discount) > 0),
                 entryCount: 838);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_ceiling2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_ceiling2(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Ceiling(od.UnitPrice) > 10),
                 entryCount: 1677);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_floor()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_floor(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Floor(od.UnitPrice) > 10),
                 entryCount: 1658);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_power()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_power(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Pow(od.Discount, 2) > 0.05f),
                 entryCount: 154);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_round()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_round(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Round(od.UnitPrice) > 10),
                 entryCount: 1662);
         }
 
-        [ConditionalFact]
-        public virtual Task Select_math_round_int()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Select_math_round_int(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(
                     o => new
                     {
@@ -493,10 +641,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.A);
         }
 
-        [ConditionalFact]
-        public virtual Task Select_math_truncate_int()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Select_math_truncate_int(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(
                     o => new
                     {
@@ -505,176 +656,241 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.A);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_round2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_round2(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Round(od.UnitPrice, 2) > 100),
                 entryCount: 46);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_truncate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_truncate(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Math.Truncate(od.UnitPrice) > 10),
                 entryCount: 1658);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_exp()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_exp(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Exp(od.Discount) > 1),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_log10()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_log10(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log10(od.Discount) < 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_log()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_log(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount) < 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_log_new_base()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_log_new_base(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount, 7) < 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_sqrt()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_sqrt(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Sqrt(od.Discount) > 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_acos()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_acos(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Acos(od.Discount) > 1),
                 entryCount: 25);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_asin()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_asin(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Asin(od.Discount) > 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_atan()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_atan(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Atan(od.Discount) > 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_atan2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_atan2(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Atan2(od.Discount, 1) > 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_cos()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_cos(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Cos(od.Discount) > 0),
                 entryCount: 25);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_sin()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_sin(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Sin(od.Discount) > 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_tan()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_tan(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Tan(od.Discount) > 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_sign()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_sign(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Sign(od.Discount) > 0),
                 entryCount: 13);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_max()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_max(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Max(od.OrderID, od.ProductID) == od.OrderID),
                 entryCount: 25);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_math_min()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_math_min(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Min(od.OrderID, od.ProductID) == od.ProductID),
                 entryCount: 25);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_guid_newguid()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_guid_newguid(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail>(
+            return AssertQuery<OrderDetail>(
+                isAsync,
                 ods => ods.Where(od => Guid.NewGuid() != default),
                 entryCount: 2155);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_string_to_upper()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_string_to_upper(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.ToUpper() == "ALFKI"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_string_to_lower()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_string_to_lower(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID.ToLower() == "alfki"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_functions_nested()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_functions_nested(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => Math.Pow(c.CustomerID.Length, 2) == 25),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task Convert_ToByte()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Convert_ToByte(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
@@ -690,15 +906,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var convertMethod in convertMethods)
             {
-                await AssertQueryAsync<Order>(
+                await AssertQuery<Order>(
+                    isAsync,
                     os => os.Where(o => o.CustomerID == "ALFKI")
                         .Where(convertMethod),
                     entryCount: 6);
             }
         }
 
-        [ConditionalFact]
-        public virtual async Task Convert_ToDecimal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Convert_ToDecimal(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
@@ -714,15 +933,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var convertMethod in convertMethods)
             {
-                await AssertQueryAsync<Order>(
+                await AssertQuery<Order>(
+                    isAsync,
                     os => os.Where(o => o.CustomerID == "ALFKI")
                         .Where(convertMethod),
                     entryCount: 6);
             }
         }
 
-        [ConditionalFact]
-        public virtual async Task Convert_ToDouble()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Convert_ToDouble(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
@@ -738,15 +960,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var convertMethod in convertMethods)
             {
-                await AssertQueryAsync<Order>(
+                await AssertQuery<Order>(
+                    isAsync,
                     os => os.Where(o => o.CustomerID == "ALFKI")
                         .Where(convertMethod),
                     entryCount: 6);
             }
         }
 
-        [ConditionalFact]
-        public virtual async Task Convert_ToInt16()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Convert_ToInt16(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
@@ -762,15 +987,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var convertMethod in convertMethods)
             {
-                await AssertQueryAsync<Order>(
+                await AssertQuery<Order>(
+                    isAsync,
                     os => os.Where(o => o.CustomerID == "ALFKI")
                         .Where(convertMethod),
                     entryCount: 6);
             }
         }
 
-        [ConditionalFact]
-        public virtual async Task Convert_ToInt32()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Convert_ToInt32(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
@@ -786,15 +1014,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var convertMethod in convertMethods)
             {
-                await AssertQueryAsync<Order>(
+                await AssertQuery<Order>(
+                    isAsync,
                     os => os.Where(o => o.CustomerID == "ALFKI")
                         .Where(convertMethod),
                     entryCount: 6);
             }
         }
 
-        [ConditionalFact]
-        public virtual async Task Convert_ToInt64()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Convert_ToInt64(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
@@ -810,15 +1041,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var convertMethod in convertMethods)
             {
-                await AssertQueryAsync<Order>(
+                await AssertQuery<Order>(
+                    isAsync,
                     os => os.Where(o => o.CustomerID == "ALFKI")
                         .Where(convertMethod),
                     entryCount: 6);
             }
         }
 
-        [ConditionalFact]
-        public virtual async Task Convert_ToString()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Convert_ToString(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
@@ -834,70 +1068,95 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var convertMethod in convertMethods)
             {
-                await AssertQueryAsync<Order>(
+                await AssertQuery<Order>(
+                    isAsync,
                     os => os.Where(o => o.CustomerID == "ALFKI")
                         .Where(convertMethod),
                     entryCount: 6);
             }
         }
 
-        [ConditionalFact]
-        public virtual void Indexof_with_emptystring()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Indexof_with_emptystring(bool isAsync)
         {
             // ReSharper disable once StringIndexOfIsCultureSpecific.1
-            AssertSingleResult<Customer>(
+            return AssertQueryScalar<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf(string.Empty)));
         }
 
-        [ConditionalFact]
-        public virtual void Replace_with_emptystring()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Replace_with_emptystring(bool isAsync)
         {
-            AssertSingleResult<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Replace("ari", string.Empty)));
         }
 
-        [ConditionalFact]
-        public virtual void Substring_with_zero_startindex()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Substring_with_zero_startindex(bool isAsync)
         {
-            AssertSingleResult<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(0, 3)));
         }
 
-        [ConditionalFact]
-        public virtual void Substring_with_zero_length()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Substring_with_zero_length(bool isAsync)
         {
-            AssertSingleResult<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(2, 0)));
         }
 
-        [ConditionalFact]
-        public virtual void Substring_with_constant()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Substring_with_constant(bool isAsync)
         {
-            AssertSingleResult<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(1, 3)));
         }
 
-        [ConditionalFact]
-        public virtual void Substring_with_closure()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Substring_with_closure(bool isAsync)
         {
             // ReSharper disable once ConvertToConstant.Local
             var start = 2;
 
-            AssertSingleResult<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(start, 3)));
         }
 
-        [ConditionalFact]
-        public virtual void Substring_with_client_eval()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Substring_with_client_eval(bool isAsync)
         {
-            AssertSingleResult<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(c.ContactName.IndexOf('a'), 3)));
         }
 
-        [ConditionalFact]
-        public virtual Task IsNullOrEmpty_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task IsNullOrEmpty_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.IsNullOrEmpty(c.Region)),
                 entryCount: 60);
         }
@@ -938,118 +1197,160 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual Task IsNullOrWhiteSpace_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task IsNullOrWhiteSpace_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.IsNullOrWhiteSpace(c.Region)),
                 entryCount: 60);
         }
 
-        [ConditionalFact]
-        public virtual Task TrimStart_without_arguments_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task TrimStart_without_arguments_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.TrimStart() == "Owner"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task TrimStart_with_char_argument_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task TrimStart_with_char_argument_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.TrimStart('O') == "wner"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task TrimStart_with_char_array_argument_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.TrimStart('O', 'w') == "ner"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task TrimEnd_without_arguments_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task TrimEnd_without_arguments_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.TrimEnd() == "Owner"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task TrimEnd_with_char_argument_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.TrimEnd('r') == "Owne"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task TrimEnd_with_char_array_argument_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.TrimEnd('e', 'r') == "Own"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task Trim_without_argument_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Trim_without_argument_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.Trim() == "Owner"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task Trim_with_char_argument_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Trim_with_char_argument_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.Trim('O') == "wner"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task Trim_with_char_array_argument_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Trim_with_char_array_argument_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.ContactTitle.Trim('O', 'r') == "wne"),
                 entryCount: 17);
         }
 
-        [ConditionalFact]
-        public virtual Task Order_by_length_twice()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Order_by_length_twice(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Static_string_equals_in_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Static_string_equals_in_predicate(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => string.Equals(c.CustomerID, "ANATR")),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Static_equals_nullable_datetime_compared_to_non_nullable()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Static_equals_nullable_datetime_compared_to_non_nullable(bool isAsync)
         {
             var arg = new DateTime(1996, 7, 4);
 
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => Equals(o.OrderDate, arg)),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Static_equals_int_compared_to_long()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Static_equals_int_compared_to_long(bool isAsync)
         {
             long arg = 10248;
 
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => Equals(o.OrderID, arg)));
         }
     }

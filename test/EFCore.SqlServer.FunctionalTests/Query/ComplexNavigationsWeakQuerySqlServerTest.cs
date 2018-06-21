@@ -16,36 +16,36 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override async Task Simple_owned_level1()
+        public override async Task Simple_owned_level1(bool isAsync)
         {
-            await base.Simple_owned_level1();
+            await base.Simple_owned_level1(isAsync);
 
             AssertSql(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToOne_Optional_PK_InverseId]
 FROM [Level1] AS [l1]");
         }
 
-        public override async Task Simple_owned_level1_convention()
+        public override async Task Simple_owned_level1_convention(bool isAsync)
         {
-            await base.Simple_owned_level1_convention();
+            await base.Simple_owned_level1_convention(isAsync);
 
             AssertSql(
                 @"SELECT [l].[Id], [l].[Date], [l].[Name]
 FROM [Level1] AS [l]");
         }
 
-        public override async Task Simple_owned_level1_level2()
+        public override async Task Simple_owned_level1_level2(bool isAsync)
         {
-            await base.Simple_owned_level1_level2();
+            await base.Simple_owned_level1_level2(isAsync);
 
             AssertSql(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[Level3_OneToOne_Optional_PK_InverseId]
 FROM [Level1] AS [l1]");
         }
 
-        public override async Task Simple_owned_level1_level2_GroupBy_Count()
+        public override async Task Simple_owned_level1_level2_GroupBy_Count(bool isAsync)
         {
-            await base.Simple_owned_level1_level2_GroupBy_Count();
+            await base.Simple_owned_level1_level2_GroupBy_Count(isAsync);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -53,9 +53,9 @@ FROM [Level1] AS [l1]
 GROUP BY [l1].[Level3_Name]");
         }
 
-        public override async Task Simple_owned_level1_level2_GroupBy_Having_Count()
+        public override async Task Simple_owned_level1_level2_GroupBy_Having_Count(bool isAsync)
         {
-            await base.Simple_owned_level1_level2_GroupBy_Having_Count();
+            await base.Simple_owned_level1_level2_GroupBy_Having_Count(isAsync);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -64,18 +64,18 @@ GROUP BY [l1].[Level3_Name]
 HAVING MIN(COALESCE([l1].[Id], 0)) > 0");
         }
 
-        public override async Task Simple_owned_level1_level2_level3()
+        public override async Task Simple_owned_level1_level2_level3(bool isAsync)
         {
-            await base.Simple_owned_level1_level2_level3();
+            await base.Simple_owned_level1_level2_level3(isAsync);
 
             AssertSql(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[Level3_OneToOne_Optional_PK_InverseId], [l1].[Id], [l1].[Level3_Optional_Id], [l1].[Level3_Required_Id], [l1].[Level4_Name], [l1].[Level4_OneToOne_Optional_PK_InverseId]
 FROM [Level1] AS [l1]");
         }
 
-        public override async Task Nested_group_join_with_take()
+        public override async Task Nested_group_join_with_take(bool isAsync)
         {
-            await base.Nested_group_join_with_take();
+            await base.Nested_group_join_with_take(isAsync);
 
             AssertContainsSql(
                 @"@__p_0='2'
@@ -98,9 +98,9 @@ LEFT JOIN (
 ) AS [t3] ON [t1].[Id] = [t3].[Level1_Optional_Id]");
         }
 
-        public override async Task Explicit_GroupJoin_in_subquery_with_unrelated_projection2()
+        public override async Task Explicit_GroupJoin_in_subquery_with_unrelated_projection2(bool isAsync)
         {
-            await base.Explicit_GroupJoin_in_subquery_with_unrelated_projection2();
+            await base.Explicit_GroupJoin_in_subquery_with_unrelated_projection2(isAsync);
 
             AssertSql(
                 @"SELECT [t1].[Id]
@@ -116,9 +116,9 @@ FROM (
 ) AS [t1]");
         }
 
-        public override void Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty()
+        public override async Task Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty(bool isAsync)
         {
-            base.Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty();
+            await base.Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty(isAsync);
 
             AssertSql(
                 @"SELECT SUM(CASE

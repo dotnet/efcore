@@ -16,234 +16,292 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
-        [ConditionalFact]
-        public virtual Task Where_simple()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_simple(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == "London"),
                 entryCount: 6);
         }
 
         private static readonly Expression<Func<Order, bool>> _filter = o => o.CustomerID == "ALFKI";
 
-        [ConditionalFact]
-        public virtual Task Where_as_queryable_expression()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_as_queryable_expression(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.Orders.AsQueryable().Any(_filter)),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_simple_closure()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_simple_closure(bool isAsync)
         {
             // ReSharper disable once ConvertToConstant.Local
             var city = "London";
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_indexer_closure()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_indexer_closure(bool isAsync)
         {
             var cities = new[] { "London" };
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == cities[0]),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_dictionary_key_access_closure()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_dictionary_key_access_closure(bool isAsync)
         {
             var predicateMap = new Dictionary<string, string>
             {
                 ["City"] = "London"
             };
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == predicateMap["City"]),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_tuple_item_closure()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_tuple_item_closure(bool isAsync)
         {
             var predicateTuple = new Tuple<string, string>("ALFKI", "London");
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == predicateTuple.Item2),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_named_tuple_item_closure()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_named_tuple_item_closure(bool isAsync)
         {
             (string CustomerID, string City) predicateTuple = ("ALFKI", "London");
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == predicateTuple.City),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_simple_closure_constant()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_simple_closure_constant(bool isAsync)
         {
             // ReSharper disable once ConvertToConstant.Local
             var predicate = true;
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => predicate),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_simple_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_simple_closure_via_query_cache(bool isAsync)
         {
             var city = "London";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city),
                 entryCount: 6);
 
             city = "Seattle";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_method_call_nullable_type_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_method_call_nullable_type_closure_via_query_cache(bool isAsync)
         {
             var city = new City
             {
                 Int = 2
             };
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == city.Int),
                 entryCount: 5);
 
             city.Int = 5;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == city.Int),
                 entryCount: 3);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_method_call_nullable_type_reverse_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool isAsync)
         {
             var city = new City
             {
                 NullableInt = 1
             };
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.EmployeeID > city.NullableInt),
                 entryCount: 8);
 
             city.NullableInt = 5;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.EmployeeID > city.NullableInt),
                 entryCount: 4);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_method_call_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_method_call_closure_via_query_cache(bool isAsync)
         {
             var city = new City
             {
                 InstanceFieldValue = "London"
             };
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.GetCity()),
                 entryCount: 6);
 
             city.InstanceFieldValue = "Seattle";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.GetCity()),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_field_access_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_field_access_closure_via_query_cache(bool isAsync)
         {
             var city = new City
             {
                 InstanceFieldValue = "London"
             };
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.InstanceFieldValue),
                 entryCount: 6);
 
             city.InstanceFieldValue = "Seattle";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.InstanceFieldValue),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_property_access_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_property_access_closure_via_query_cache(bool isAsync)
         {
             var city = new City
             {
                 InstancePropertyValue = "London"
             };
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.InstancePropertyValue),
                 entryCount: 6);
 
             city.InstancePropertyValue = "Seattle";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.InstancePropertyValue),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_static_field_access_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_static_field_access_closure_via_query_cache(bool isAsync)
         {
             City.StaticFieldValue = "London";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == City.StaticFieldValue),
                 entryCount: 6);
 
             City.StaticFieldValue = "Seattle";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == City.StaticFieldValue),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_static_property_access_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_static_property_access_closure_via_query_cache(bool isAsync)
         {
             City.StaticPropertyValue = "London";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == City.StaticPropertyValue),
                 entryCount: 6);
 
             City.StaticPropertyValue = "Seattle";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == City.StaticPropertyValue),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_nested_field_access_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_nested_field_access_closure_via_query_cache(bool isAsync)
         {
             var city = new City
             {
@@ -253,19 +311,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             };
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.Nested.InstanceFieldValue),
                 entryCount: 6);
 
             city.Nested.InstanceFieldValue = "Seattle";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.Nested.InstanceFieldValue),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_nested_property_access_closure_via_query_cache()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_nested_property_access_closure_via_query_cache(bool isAsync)
         {
             var city = new City
             {
@@ -275,13 +337,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             };
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.Nested.InstancePropertyValue),
                 entryCount: 6);
 
             city.Nested.InstancePropertyValue = "Seattle";
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city.Nested.InstancePropertyValue),
                 entryCount: 1);
         }
@@ -301,6 +365,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual async Task Where_nested_field_access_closure_via_query_cache_error_null_async()
+        {
+            var city = new City();
+
+            using (var context = CreateContext())
+            {
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () =>
+                        await context.Set<Customer>()
+                            .Where(c => c.City == city.Nested.InstanceFieldValue)
+                            .ToListAsync());
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Where_nested_field_access_closure_via_query_cache_error_method_null()
         {
             var city = new City();
@@ -315,9 +394,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual async Task Where_new_instance_field_access_closure_via_query_cache()
+        public virtual async Task Where_nested_field_access_closure_via_query_cache_error_method_null_async()
         {
-            await AssertQueryAsync<Customer>(
+            var city = new City();
+
+            using (var context = CreateContext())
+            {
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () =>
+                        await context.Set<Customer>()
+                            .Where(c => c.City == city.Throw().InstanceFieldValue)
+                            .ToListAsync());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)
+        {
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(
                     c => c.City == new City
                     {
@@ -325,7 +422,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }.InstanceFieldValue),
                 entryCount: 6);
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(
                     c => c.City == new City
                     {
@@ -361,46 +459,56 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_simple_closure_via_query_cache_nullable_type()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_simple_closure_via_query_cache_nullable_type(bool isAsync)
         {
             int? reportsTo = 2;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 5);
 
             reportsTo = 5;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 3);
 
             reportsTo = null;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_simple_closure_via_query_cache_nullable_type_reverse()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool isAsync)
         {
             int? reportsTo = null;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 1);
 
             reportsTo = 5;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 3);
 
             reportsTo = 2;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 5);
         }
@@ -428,26 +536,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual Task Where_simple_shadow()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_simple_shadow(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_simple_shadow_projection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_simple_shadow_projection(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
                     .Select(e => EF.Property<string>(e, "Title")));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_simple_shadow_projection_mixed()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_simple_shadow_projection_mixed(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
                     .Select(
                         e => new
@@ -459,20 +576,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_simple_shadow_subquery()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_simple_shadow_subquery(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => from e in es.OrderBy(e => e.EmployeeID).Take(5)
                       where EF.Property<string>(e, "Title") == "Sales Representative"
                       select e,
                 entryCount: 3);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_shadow_subquery_FirstOrDefault()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_shadow_subquery_FirstOrDefault(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es =>
                     from e in es
                     where EF.Property<string>(e, "Title")
@@ -481,399 +604,545 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_client()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_client(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.IsLondon),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_subquery_correlated()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_subquery_correlated(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID)),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_subquery_correlated_client_eval()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_subquery_correlated_client_eval(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Take(5).OrderBy(c1 => c1.CustomerID).Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_client_and_server_top_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_client_and_server_top_level(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.IsLondon && c.CustomerID != "AROUT"),
                 entryCount: 5);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_client_or_server_top_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_client_or_server_top_level(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.IsLondon || c.CustomerID == "ALFKI"),
                 entryCount: 7);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_client_and_server_non_top_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_client_and_server_non_top_level(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID != "ALFKI" == (c.IsLondon && c.CustomerID != "AROUT")),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_client_deep_inside_predicate_and_server_top_level()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_client_deep_inside_predicate_and_server_top_level(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "MAUMAR" || (c.CustomerID != "AROUT" && c.IsLondon))),
                 entryCount: 5);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_equals_method_string()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_equals_method_string(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City.Equals("London")),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_equals_method_int()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_equals_method_int(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.EmployeeID.Equals(1)),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_equals_using_object_overload_on_mismatched_types()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_equals_using_object_overload_on_mismatched_types(bool isAsync)
         {
             ulong longPrm = 1;
 
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.EmployeeID.Equals(longPrm)));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_equals_using_int_overload_on_mismatched_types()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_equals_using_int_overload_on_mismatched_types(bool isAsync)
         {
             ushort shortPrm = 1;
 
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.EmployeeID.Equals(shortPrm)),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_equals_on_mismatched_types_nullable_int_long()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_equals_on_mismatched_types_nullable_int_long(bool isAsync)
         {
             ulong longPrm = 2;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo.Equals(longPrm)));
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => longPrm.Equals(e.ReportsTo)));
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_equals_on_mismatched_types_int_nullable_int()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_equals_on_mismatched_types_int_nullable_int(bool isAsync)
         {
             uint intPrm = 2;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo.Equals(intPrm)),
                 entryCount: 5);
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => intPrm.Equals(e.ReportsTo)),
                 entryCount: 5);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_equals_on_mismatched_types_nullable_long_nullable_int()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_equals_on_mismatched_types_nullable_long_nullable_int(bool isAsync)
         {
             ulong? nullableLongPrm = 2;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => nullableLongPrm.Equals(e.ReportsTo)));
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo.Equals(nullableLongPrm)));
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_equals_on_matched_nullable_int_types()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_equals_on_matched_nullable_int_types(bool isAsync)
         {
             uint? nullableIntPrm = 2;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => nullableIntPrm.Equals(e.ReportsTo)),
                 entryCount: 5);
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo.Equals(nullableIntPrm)),
                 entryCount: 5);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_equals_on_null_nullable_int_types()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_equals_on_null_nullable_int_types(bool isAsync)
         {
             uint? nullableIntPrm = null;
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => nullableIntPrm.Equals(e.ReportsTo)),
                 entryCount: 1);
 
-            await AssertQueryAsync<Employee>(
+            await AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo.Equals(nullableIntPrm)),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_comparison_nullable_type_not_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_comparison_nullable_type_not_null(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == 2),
                 entryCount: 5);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_comparison_nullable_type_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_comparison_nullable_type_null(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == null),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_string_length()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_string_length(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City.Length == 6),
                 entryCount: 20);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_string_indexof()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_string_indexof(bool isAsync)
         {
             // ReSharper disable once StringIndexOfIsCultureSpecific.1
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City.IndexOf("Sea") != -1),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_string_replace()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_string_replace(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City.Replace("Sea", "Rea") == "Reattle"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_string_substring()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_string_substring(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City.Substring(1, 2) == "ea"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_now()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_now(bool isAsync)
         {
             var myDatetime = new DateTime(2015, 4, 10);
-            return AssertQueryAsync<Customer>(
+
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => DateTime.Now != myDatetime),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_utcnow()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_utcnow(bool isAsync)
         {
             var myDatetime = new DateTime(2015, 4, 10);
-            return AssertQueryAsync<Customer>(
+
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => DateTime.UtcNow != myDatetime),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_today()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_today(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => DateTime.Now.Date == DateTime.Today),
                 entryCount: 9);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_date_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_date_component(bool isAsync)
         {
             var myDatetime = new DateTime(1998, 5, 4);
-            return AssertQueryAsync<Order>(
+
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(
                     o =>
                         o.OrderDate.Value.Date == myDatetime),
                 entryCount: 3);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_date_add_year_constant_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_date_add_year_constant_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.AddYears(-1).Year == 1997),
                 entryCount: 270);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_year_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_year_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.Year == 1998),
                 entryCount: 270);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_month_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_month_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.Month == 4),
                 entryCount: 105);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_dayOfYear_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_dayOfYear_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.DayOfYear == 68),
                 entryCount: 3);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_day_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_day_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.Day == 4),
                 entryCount: 27);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_hour_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_hour_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.Hour == 14));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_minute_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_minute_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.Minute == 23));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_second_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_second_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.Second == 44));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetime_millisecond_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetime_millisecond_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate.Value.Millisecond == 88));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetimeoffset_now_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetimeoffset_now_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate == DateTimeOffset.Now));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_datetimeoffset_utcnow_component()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_datetimeoffset_utcnow_component(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 oc => oc.Where(o => o.OrderDate == DateTimeOffset.UtcNow));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_simple_reversed()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_simple_reversed(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => "London" == c.City),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_is_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_is_null(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == null));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_null_is_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_null_is_null(bool isAsync)
         {
             // ReSharper disable once EqualExpressionComparison
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => null == null),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_constant_is_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_constant_is_null(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => "foo" == null));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_is_not_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_is_not_null(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City != null),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_null_is_not_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_null_is_not_null(bool isAsync)
         {
             // ReSharper disable once EqualExpressionComparison
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => null != null));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_constant_is_not_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_constant_is_not_null(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => "foo" != null),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_identity_comparison()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_identity_comparison(bool isAsync)
         {
             // ReSharper disable once EqualExpressionComparison
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == c.City),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_in_optimization_multiple()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_in_optimization_multiple(bool isAsync)
         {
-            return AssertQueryAsync<Customer, Employee>(
+            return AssertQuery<Customer, Employee>(
+                isAsync,
                 (cs, es) =>
                     from c in cs
                     from e in es
@@ -890,10 +1159,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 16);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_not_in_optimization1()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_not_in_optimization1(bool isAsync)
         {
-            return AssertQueryAsync<Customer, Employee>(
+            return AssertQuery<Customer, Employee>(
+                isAsync,
                 (cs, es) =>
                     from c in cs
                     from e in es
@@ -908,10 +1180,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_not_in_optimization2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_not_in_optimization2(bool isAsync)
         {
-            return AssertQueryAsync<Customer, Employee>(
+            return AssertQuery<Customer, Employee>(
+                isAsync,
                 (cs, es) =>
                     from c in cs
                     from e in es
@@ -926,10 +1201,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 93);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_not_in_optimization3()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_not_in_optimization3(bool isAsync)
         {
-            return AssertQueryAsync<Customer, Employee>(
+            return AssertQuery<Customer, Employee>(
+                isAsync,
                 (cs, es) =>
                     from c in cs
                     from e in es
@@ -945,10 +1223,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 92);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_not_in_optimization4()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_not_in_optimization4(bool isAsync)
         {
-            return AssertQueryAsync<Customer, Employee>(
+            return AssertQuery<Customer, Employee>(
+                isAsync,
                 (cs, es) =>
                     from c in cs
                     from e in es
@@ -965,10 +1246,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_select_many_and()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_select_many_and(bool isAsync)
         {
-            return AssertQueryAsync<Customer, Employee>(
+            return AssertQuery<Customer, Employee>(
+                isAsync,
                 (cs, es) =>
                     from c in cs
                     from e in es
@@ -984,25 +1268,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 10);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_primitive()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_primitive(bool isAsync)
         {
-            return AssertQueryScalarAsync<Employee>(
+            return AssertQueryScalar<Employee>(
+                isAsync,
                 es => es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_primitive_tracked()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_primitive_tracked(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Take(9).Where(e => e.EmployeeID == 5),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_primitive_tracked2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_primitive_tracked2(bool isAsync)
         {
-            return AssertQueryAsync<Employee>(
+            return AssertQuery<Employee>(
+                isAsync,
                 es => es.Take(9).Select(
                     e => new
                     {
@@ -1012,22 +1305,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => p.Discontinued), entryCount: 8);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => p.Discontinued), entryCount: 8);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member_false()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member_false(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !p.Discontinued), entryCount: 69);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !p.Discontinued), entryCount: 69);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_client_side_negated()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_client_side_negated(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8);
         }
 
         private static bool ClientFunc(int id)
@@ -1035,154 +1340,238 @@ namespace Microsoft.EntityFrameworkCore.Query
             return false;
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member_negated_twice()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member_negated_twice(bool isAsync)
         {
             // ReSharper disable once NegativeEqualityExpression
             // ReSharper disable once DoubleNegationOperator
             // ReSharper disable once RedundantBoolCompare
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !!(p.Discontinued == true)), entryCount: 8);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !!(p.Discontinued == true)), entryCount: 8);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member_shadow()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member_shadow(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => EF.Property<bool>(p, "Discontinued")), entryCount: 8);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => EF.Property<bool>(p, "Discontinued")), entryCount: 8);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member_false_shadow()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member_false_shadow(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !EF.Property<bool>(p, "Discontinued")), entryCount: 69);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !EF.Property<bool>(p, "Discontinued")), entryCount: 69);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member_equals_constant()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member_equals_constant(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => p.Discontinued.Equals(true)), entryCount: 8);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => p.Discontinued.Equals(true)), entryCount: 8);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member_in_complex_predicate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member_in_complex_predicate(bool isAsync)
         {
             // ReSharper disable once RedundantBoolCompare
-            return AssertQueryAsync<Product>(ps => ps.Where(p => p.ProductID > 100 && p.Discontinued || (p.Discontinued == true)), entryCount: 8);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => p.ProductID > 100 && p.Discontinued || (p.Discontinued == true)), entryCount: 8);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member_compared_to_binary_expression()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member_compared_to_binary_expression(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => p.Discontinued == (p.ProductID > 50)), entryCount: 44);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => p.Discontinued == (p.ProductID > 50)), entryCount: 44);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_not_bool_member_compared_to_not_bool_member()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_not_bool_member_compared_to_not_bool_member(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !p.Discontinued == !p.Discontinued), entryCount: 77);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !p.Discontinued == !p.Discontinued), entryCount: 77);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_negated_boolean_expression_compared_to_another_negated_boolean_expression()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_negated_boolean_expression_compared_to_another_negated_boolean_expression(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !(p.ProductID > 50) == !(p.ProductID > 20)), entryCount: 47);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !(p.ProductID > 50) == !(p.ProductID > 20)), entryCount: 47);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_not_bool_member_compared_to_binary_expression()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_not_bool_member_compared_to_binary_expression(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !p.Discontinued == (p.ProductID > 50)), entryCount: 33);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !p.Discontinued == (p.ProductID > 50)), entryCount: 33);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_parameter()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_parameter(bool isAsync)
         {
             var prm = true;
-            return AssertQueryAsync<Product>(ps => ps.Where(p => prm), entryCount: 77);
+
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => prm), entryCount: 77);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_parameter_compared_to_binary_expression()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_parameter_compared_to_binary_expression(bool isAsync)
         {
             var prm = true;
-            return AssertQueryAsync<Product>(ps => ps.Where(p => (p.ProductID > 50) != prm), entryCount: 50);
+
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => (p.ProductID > 50) != prm), entryCount: 50);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_bool_member_and_parameter_compared_to_binary_expression_nested()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_bool_member_and_parameter_compared_to_binary_expression_nested(bool isAsync)
         {
             var prm = true;
-            return AssertQueryAsync<Product>(ps => ps.Where(p => p.Discontinued == ((p.ProductID > 50) != prm)), entryCount: 33);
+
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => p.Discontinued == ((p.ProductID > 50) != prm)), entryCount: 33);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_de_morgan_or_optimizated()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_de_morgan_or_optimizated(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !(p.Discontinued || (p.ProductID < 20))), entryCount: 53);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !(p.Discontinued || (p.ProductID < 20))), entryCount: 53);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_de_morgan_and_optimizated()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_de_morgan_and_optimizated(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !(p.Discontinued && (p.ProductID < 20))), entryCount: 74);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !(p.Discontinued && (p.ProductID < 20))), entryCount: 74);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_complex_negated_expression_optimized()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_complex_negated_expression_optimized(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => !(!(!p.Discontinued && (p.ProductID < 60)) || !(p.ProductID > 30))), entryCount: 27);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => !(!(!p.Discontinued && (p.ProductID < 60)) || !(p.ProductID > 30))), entryCount: 27);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_short_member_comparison()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_short_member_comparison(bool isAsync)
         {
-            return AssertQueryAsync<Product>(ps => ps.Where(p => p.UnitsInStock > 10), entryCount: 63);
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => p.UnitsInStock > 10), entryCount: 63);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_comparison_to_nullable_bool()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_comparison_to_nullable_bool(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(cs => cs.Where(c => c.CustomerID.EndsWith("KI") == ((bool?)true)), entryCount: 1);
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.EndsWith("KI") == ((bool?)true)), entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_true()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_true(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => true),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_false()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_false(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => false));
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_bool_closure()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_bool_closure(bool isAsync)
         {
             var boolean = false;
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && boolean));
 
             boolean = true;
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && boolean),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual async Task Where_poco_closure()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Where_poco_closure(bool isAsync)
         {
             var customer = new Customer
             {
                 CustomerID = "ALFKI"
             };
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.Equals(customer)).Select(c => c.CustomerID));
 
             customer = new Customer
@@ -1190,12 +1579,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CustomerID = "ANATR"
             };
 
-            await AssertQueryAsync<Customer>(
+            await AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.Equals(customer)).Select(c => c.CustomerID));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_default()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_default(bool isAsync)
         {
             var parameter = Expression.Parameter(typeof(Customer), "c");
 
@@ -1208,77 +1600,102 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Default(typeof(string))),
                     parameter);
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 es => es.Where(defaultExpression),
                 entryCount: 22);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_expression_invoke()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_expression_invoke(bool isAsync)
         {
             Expression<Func<Customer, bool>> expression = c => c.CustomerID == "ALFKI";
             var parameter = Expression.Parameter(typeof(Customer), "c");
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(
                     Expression.Lambda<Func<Customer, bool>>(Expression.Invoke(expression, parameter), parameter)),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_concat_string_int_comparison1()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_concat_string_int_comparison1(bool isAsync)
         {
             var i = 10;
-            return AssertQueryAsync<Customer>(
+
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID + i == c.CompanyName).Select(c => c.CustomerID));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_concat_string_int_comparison2()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_concat_string_int_comparison2(bool isAsync)
         {
             var i = 10;
-            return AssertQueryAsync<Customer>(
+
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => i + c.CustomerID == c.CompanyName).Select(c => c.CustomerID));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_concat_string_int_comparison3()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_concat_string_int_comparison3(bool isAsync)
         {
             var i = 10;
             var j = 21;
-            return AssertQueryAsync<Customer>(
+
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => i + 20 + c.CustomerID + j + 42 == c.CompanyName).Select(c => c.CustomerID));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_ternary_boolean_condition_true()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_ternary_boolean_condition_true(bool isAsync)
         {
             var flag = true;
 
-            return AssertQueryAsync<Product>(
+            return AssertQuery<Product>(
+                isAsync,
                 ps => ps
                     .Where(p => flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20),
                 entryCount: 51);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_ternary_boolean_condition_false()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_ternary_boolean_condition_false(bool isAsync)
         {
             var flag = false;
 
-            return AssertQueryAsync<Product>(
+            return AssertQuery<Product>(
+                isAsync,
                 ps => ps
                     .Where(p => flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20),
                 entryCount: 26);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_ternary_boolean_condition_with_another_condition()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_ternary_boolean_condition_with_another_condition(bool isAsync)
         {
             var flag = true;
             var productId = 15;
 
-            return AssertQueryAsync<Product>(
+            return AssertQuery<Product>(
+                isAsync,
                 ps => ps
                     .Where(
                         p => p.ProductID < productId
@@ -1286,24 +1703,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 9);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_ternary_boolean_condition_with_false_as_result_true()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_ternary_boolean_condition_with_false_as_result_true(bool isAsync)
         {
             var flag = true;
 
-            return AssertQueryAsync<Product>(
+            return AssertQuery<Product>(
+                isAsync,
                 ps => ps
                     // ReSharper disable once SimplifyConditionalTernaryExpression
                     .Where(p => flag ? p.UnitsInStock >= 20 : false),
                 entryCount: 51);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_ternary_boolean_condition_with_false_as_result_false()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_ternary_boolean_condition_with_false_as_result_false(bool isAsync)
         {
             var flag = false;
 
-            return AssertQueryAsync<Product>(
+            return AssertQuery<Product>(
+                isAsync,
                 ps => ps
                     // ReSharper disable once SimplifyConditionalTernaryExpression
                     .Where(p => flag ? p.UnitsInStock >= 20 : false));
@@ -1350,10 +1773,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         //         AssertQuery<Customer>(cs => cs.Select(c => c != alfki)));
         // }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_constructed_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_constructed_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(
                     c => new
                     {
@@ -1364,10 +1790,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_constructed_multi_value_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_constructed_multi_value_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(
                     c => new
                     {
@@ -1380,10 +1809,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_constructed_multi_value_not_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_constructed_multi_value_not_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(
                     c => new
                     {
@@ -1397,76 +1829,106 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_tuple_constructed_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_tuple_constructed_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => new Tuple<string>(c.City) == new Tuple<string>("London")));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_tuple_constructed_multi_value_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_tuple_constructed_multi_value_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => new Tuple<string, string>(c.City, c.Country) == new Tuple<string, string>("London", "UK")));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_tuple_constructed_multi_value_not_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_tuple_constructed_multi_value_not_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => new Tuple<string, string>(c.City, c.Country) != new Tuple<string, string>("London", "UK")),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_tuple_create_constructed_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_tuple_create_constructed_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => Tuple.Create(c.City) == Tuple.Create("London")));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_tuple_create_constructed_multi_value_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_tuple_create_constructed_multi_value_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => Tuple.Create(c.City, c.Country) == Tuple.Create("London", "UK")));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_tuple_create_constructed_multi_value_not_equal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_tuple_create_constructed_multi_value_not_equal(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => Tuple.Create(c.City, c.Country) != Tuple.Create("London", "UK")),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_compare_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_compare_null(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == null && c.Country == "UK"));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_projection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_projection(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == "London").Select(c => c.CompanyName));
         }
 
-        [ConditionalFact]
-        public virtual Task Where_Is_on_same_type()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_Is_on_same_type(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c is Customer),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_chain()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_chain(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 order => order
                     .Where(o => o.CustomerID == "QUICK")
                     .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
@@ -1484,20 +1946,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual Task Where_array_index()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_array_index(bool isAsync)
         {
             var customers = new[] { "ALFKI", "ANATR" };
 
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == customers[0]),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_multiple_contains_in_subquery_with_or()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_multiple_contains_in_subquery_with_or(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail, Product, Order>(
+            return AssertQuery<OrderDetail, Product, Order>(
+                isAsync,
                 (ods, ps, os) =>
                     ods.Where(
                         od =>
@@ -1506,10 +1974,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 41);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_multiple_contains_in_subquery_with_and()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_multiple_contains_in_subquery_with_and(bool isAsync)
         {
-            return AssertQueryAsync<OrderDetail, Product, Order>(
+            return AssertQuery<OrderDetail, Product, Order>(
+                isAsync,
                 (ods, ps, os) =>
                     ods.Where(
                         od =>
@@ -1518,26 +1989,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 5);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_contains_on_navigation()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_contains_on_navigation(bool isAsync)
         {
-            return AssertQueryAsync<Order, Customer>(
+            return AssertQuery<Order, Customer>(
+                isAsync,
                 (os, cs) => os.Where(o => cs.Any(c => c.Orders.Contains(o))),
                 entryCount: 830);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_subquery_FirstOrDefault_is_null()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_subquery_FirstOrDefault_is_null(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
                 entryCount: 2);
         }
 
-        [ConditionalFact]
-        public virtual Task Where_subquery_FirstOrDefault_compared_to_entity()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Where_subquery_FirstOrDefault_compared_to_entity(bool isAsync)
         {
-            return AssertQueryAsync<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order
                     {
@@ -1545,10 +2025,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [ConditionalFact]
-        public virtual Task Time_of_day_datetime()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Time_of_day_datetime(bool isAsync)
         {
-            return AssertQueryScalarAsync<Order>(
+            return AssertQueryScalar<Order>(
+                isAsync,
                 o => o.Select(c => c.OrderDate.Value.TimeOfDay));
         }
     }
