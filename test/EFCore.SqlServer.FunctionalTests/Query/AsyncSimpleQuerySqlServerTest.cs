@@ -75,22 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
         }
 
-        public override Task String_Contains_Literal()
-        {
-            return AssertQueryAsync<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
-                entryCount: 34);
-        }
-
-        public override Task String_Contains_MethodCall()
-        {
-            return AssertQueryAsync<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
-        }
-
         [Fact]
         public Task Single_Predicate_Cancellation()
         {
@@ -199,19 +183,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
             }
-        }
-
-        [Fact]
-        public Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
-        {
-            return AssertQueryAsync<Order>(
-                os => os.Select(
-                    o => new
-                    {
-                        o.Customer.City,
-                        Count = o.OrderDetails.Count()
-                    }),
-                elementSorter: e => e.City + " " + e.Count);
         }
     }
 }

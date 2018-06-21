@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
 #if !Test21
         [ConditionalFact(Skip = "issue #10513")]
-        public override Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool()
+        public override Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(bool isAsync)
         {
             return Task.CompletedTask;
         }
