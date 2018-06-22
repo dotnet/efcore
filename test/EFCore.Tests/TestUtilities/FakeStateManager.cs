@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public InternalEntityEntry StartTracking(InternalEntityEntry entry) => throw new NotImplementedException();
         public void StopTracking(InternalEntityEntry entry) => throw new NotImplementedException();
         public void RecordReferencedUntrackedEntity(object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry) => throw new NotImplementedException();
-        public IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers(object referencedEntity, bool clear) => throw new NotImplementedException();
+        public IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear) => throw new NotImplementedException();
         public InternalEntityEntry GetPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey) => throw new NotImplementedException();
         public InternalEntityEntry GetPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry entityEntry, IForeignKey foreignKey) => throw new NotImplementedException();
         public InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey) => throw new NotImplementedException();

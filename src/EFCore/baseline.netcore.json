@@ -66491,7 +66491,7 @@
         },
         {
           "Kind": "Method",
-          "Name": "GetRecordedReferers",
+          "Name": "GetRecordedReferrers",
           "Parameters": [
             {
               "Name": "referencedEntity",
@@ -75546,7 +75546,7 @@
         },
         {
           "Kind": "Method",
-          "Name": "GetRecordedReferers",
+          "Name": "GetRecordedReferrers",
           "Parameters": [
             {
               "Name": "referencedEntity",
