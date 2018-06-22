@@ -134,10 +134,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                _reader.Close();
-
                 try
                 {
+                    _reader.Close(); // can throw
+
                     _logger.DataReaderDisposing(
                         _connection,
                         _command,
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         _reader.RecordsAffected,
                         _readCount,
                         _startTime,
-                        _stopwatch.Elapsed);
+                        _stopwatch.Elapsed); // can throw
                 }
                 finally
                 {
