@@ -221,7 +221,7 @@ namespace Microsoft.Data.Sqlite
             => CreateParameter();
 
         /// <summary>
-        ///     Creates a prepared version of the command on the database. This has no effect.
+        ///     Creates a prepared version of the command on the database.
         /// </summary>
         public override void Prepare()
         {
