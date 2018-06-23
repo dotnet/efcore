@@ -234,4 +234,7 @@
   <data name="IncludePropertyNotFound" xml:space="preserve">
     <value>Include property '{entityType}.{property}' not found</value>
   </data>
+  <data name="ContainsFunctionOnClient" xml:space="preserve">
+    <value>The 'Contains' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
+  </data>
 </root>

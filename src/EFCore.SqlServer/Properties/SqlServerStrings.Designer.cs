@@ -345,6 +345,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 GetString("IncludePropertyNotFound", nameof(entityType), nameof(property)),
                 entityType, property);
 
+        /// <summary>
+        ///     The 'Contains' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
+        /// </summary>
+        public static string ContainsFunctionOnClient
+            => GetString("ContainsFunctionOnClient");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
