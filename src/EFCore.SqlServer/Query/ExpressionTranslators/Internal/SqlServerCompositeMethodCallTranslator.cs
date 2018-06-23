@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             new SqlServerDateAddTranslator(),
             new SqlServerDateDiffTranslator(),
             new SqlServerEndsWithOptimizedTranslator(),
-            new SqlServerFreeTextMethodCallTranslator(),
+            new SqlServerFullTextSearchMethodCallTranslator(),
             new SqlServerMathTranslator(),
             new SqlServerNewGuidTranslator(),
             new SqlServerObjectToStringTranslator(),
