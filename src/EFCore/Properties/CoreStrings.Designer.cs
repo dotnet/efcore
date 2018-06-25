@@ -2234,11 +2234,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, value, property, type);
 
         /// <summary>
-        ///     The seed entity for entity type '{entityType}' cannot be added because there was no value provided for the required property '{property}'. Please note that 0 is not a valid value for the '{property}' field. Please start incrementing from 1.
+        ///     The seed entity for entity type '{entityType}' cannot be added because there was no value provided for the required property '{property}'.
         /// </summary>
         public static string SeedDatumMissingValue([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
                 GetString("SeedDatumMissingValue", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.
+        /// </summary>
+        public static string SeedDatumDefaultValue([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object defaultValue)
+            => string.Format(
+                GetString("SeedDatumDefaultValue", nameof(entityType), nameof(property), nameof(defaultValue)),
+                entityType, property, defaultValue);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because a non-zero value is required for property '{property}'. Consider providing a negative value to avoid collisions with non-seed data.
+        /// </summary>
+        public static string SeedDatumSignedNumericValue([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("SeedDatumSignedNumericValue", nameof(entityType), nameof(property)),
                 entityType, property);
 
         /// <summary>
