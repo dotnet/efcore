@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                         else if (foreignKey.PrincipalToDependent != null)
                         {
-                            foreach (var danglerEntry in stateManager.GetRecordedReferers(entry.Entity, clear: false))
+                            foreach (var danglerEntry in stateManager.GetRecordedReferrers(entry.Entity, clear: false))
                             {
                                 if (danglerEntry.Item1 == foreignKey.PrincipalToDependent)
                                 {
