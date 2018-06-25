@@ -619,7 +619,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_scalar_element_selector_Count();
 
             AssertSql(
-                @"SELECT COUNT(*)
+                @"SELECT COUNT([o].[OrderID])
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -629,7 +629,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_scalar_element_selector_LongCount();
 
             AssertSql(
-                @"SELECT COUNT_BIG(*)
+                @"SELECT COUNT_BIG([o].[OrderID])
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -1420,9 +1420,38 @@ ORDER BY [o].[CustomerID]");
             await base.GroupBy_Where_in_aggregate();
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT COUNT(CASE
+    WHEN [o].[OrderID] < 10300
+    THEN 1 ELSE NULL
+END)
 FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]");
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_count_with_predicate()
+        {
+            await base.GroupBy_count_with_predicate();
+
+            AssertSql(
+                @"SELECT COUNT(CASE
+    WHEN [o].[OrderDate] IS NOT NULL
+    THEN 1 ELSE NULL
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_long_count_with_predicate()
+        {
+            await base.GroupBy_long_count_with_predicate();
+
+            AssertSql(
+                @"SELECT COUNT_BIG(CASE
+    WHEN [o].[OrderDate] IS NOT NULL
+    THEN 1 ELSE NULL
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
         }
 
         public override async Task GroupBy_Key_as_part_of_element_selector()

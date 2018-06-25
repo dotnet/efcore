@@ -1901,6 +1901,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual Task GroupBy_count_with_predicate()
+        {
+            return AssertQueryScalarAsync<Order>(
+                os => os.GroupBy(o => o.CustomerID)
+                    .Select(g => g.Count(o => o.OrderDate != null)));
+        }
+
+        [ConditionalFact]
+        public virtual Task GroupBy_long_count_with_predicate()
+        {
+            return AssertQueryScalarAsync<Order>(
+                os => os.GroupBy(o => o.CustomerID)
+                    .Select(g => g.LongCount(o => o.OrderDate != null)));
+        }
+
+        [ConditionalFact]
         public virtual Task GroupBy_Key_as_part_of_element_selector()
         {
             return AssertQueryAsync<Order>(

@@ -257,6 +257,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
             }
+            else if ((expression.QueryModel.ResultOperators[0] is CountResultOperator
+                     || expression.QueryModel.ResultOperators[0] is LongCountResultOperator)
+                     && expression.QueryModel.BodyClauses.OfType<WhereClause>().FirstOrDefault() is WhereClause whereClause)
+            {
+                expression.QueryModel.SelectClause.Selector = Expression.Condition(
+                    whereClause.Predicate,
+                    Expression.Constant(1, typeof(int?)),
+                    Expression.Constant(null, typeof(int?)));
+
+                expression.QueryModel.BodyClauses.Remove(whereClause);
+            }
 
             return expression;
         }
@@ -264,7 +275,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private bool IsGroupByAggregateSubQuery(QueryModel queryModel)
         {
             if (queryModel.MainFromClause.FromExpression.Type.IsGrouping()
-                && queryModel.BodyClauses.Count == 0
                 && queryModel.ResultOperators.Count == 1
                 && _aggregateResultOperators.Contains(queryModel.ResultOperators[0].GetType())
                 && _queryModelStack.Count > 0
