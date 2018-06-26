@@ -706,11 +706,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_missing_key_values_in_seeds()
         {
+            var entity = new NonSignedIntegerKeyEntity();
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<A>(e => { e.HasData(entity); });
+
+            VerifyError(
+                CoreStrings.SeedDatumDefaultValue(nameof(A), nameof(A.Id), entity.Id),
+                modelBuilder.Model);
+        }
+
+
+        [Fact]
+        public virtual void Detects_missing_signed_integer_key_values_in_seeds()
+        {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<A>(e => { e.HasData(new A()); });
 
             VerifyError(
-                CoreStrings.SeedDatumMissingValue(nameof(A), nameof(A.Id)),
+                CoreStrings.SeedDatumSignedNumericValue(nameof(A), nameof(A.Id)),
                 modelBuilder.Model);
         }
 
@@ -874,5 +887,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected override IModelValidator CreateModelValidator()
             => new ModelValidator(new ModelValidatorDependencies(Logger, ModelLogger));
+
+        private class NonSignedIntegerKeyEntity
+        {
+            public uint Id { get; set; }
+        }
     }
 }
