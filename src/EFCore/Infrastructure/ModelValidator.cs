@@ -553,16 +553,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             }
                         }
                         else if (property.RequiresValueGenerator()
-                                 && property.IsKey())
+                                 && property.IsKey()
+                                 && property.ClrType.IsDefaultValue(value))
                         {
                             if (property.ClrType.IsSignedInteger())
                             {
                                 throw new InvalidOperationException(CoreStrings.SeedDatumSignedNumericValue(entityType.DisplayName(), property.Name));
                             }
-                            if (property.ClrType.IsDefaultValue(value))
-                            {
-                                throw new InvalidOperationException(CoreStrings.SeedDatumDefaultValue(entityType.DisplayName(), property.Name, property.ClrType.GetDefaultValue()));
-                            }
+                            throw new InvalidOperationException(CoreStrings.SeedDatumDefaultValue(entityType.DisplayName(), property.Name, property.ClrType.GetDefaultValue()));
                         }
                         else if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
                         {

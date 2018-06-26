@@ -51,7 +51,10 @@ namespace System
 
         public static bool IsSignedInteger(this Type type)
         {
-            return type.IsInteger() && Convert.ToBoolean(type.GetFieldInfo("MinValue").GetValue(null));
+            return type == typeof(int)
+                   || type == typeof(long)
+                   || type == typeof(short)
+                   || type == typeof(sbyte);
         }
 
         public static PropertyInfo GetAnyProperty(this Type type, string name)
