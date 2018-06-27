@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseCosmosSql(
-                new Uri("http://localhost"),
-                "dummy",
-                "fake");
+                new Uri(TestEnvironment.DefaultConnection),
+                TestEnvironment.AuthToken,
+                "UnitTests");
         }
     }
 }
