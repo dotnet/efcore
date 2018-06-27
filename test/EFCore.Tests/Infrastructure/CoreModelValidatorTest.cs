@@ -708,10 +708,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var entity = new NonSignedIntegerKeyEntity();
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<A>(e => { e.HasData(entity); });
+            modelBuilder.Entity<NonSignedIntegerKeyEntity>(e => { e.HasData(entity); });
 
             VerifyError(
-                CoreStrings.SeedDatumDefaultValue(nameof(A), nameof(A.Id), entity.Id),
+                CoreStrings.SeedDatumDefaultValue(nameof(NonSignedIntegerKeyEntity), nameof(NonSignedIntegerKeyEntity.Id), entity.Id),
                 modelBuilder.Model);
         }
 
