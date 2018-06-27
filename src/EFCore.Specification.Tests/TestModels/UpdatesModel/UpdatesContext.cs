@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
     {
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProductWithBytes> ProductWithBytes { get; set; }
 
         public UpdatesContext(DbContextOptions options)
             : base(options)
@@ -27,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
                     Id = 78,
                     PrincipalId = 778
                 });
+
             context.Add(
                 new Product
                 {
@@ -35,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
                     Price = 1.49M,
                     DependentId = 778
                 });
+
             context.Add(
                 new Product
                 {
@@ -42,6 +45,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
                     Name = "Apple Cobler",
                     Price = 2.49M,
                     DependentId = 778
+                });
+
+            context.Add(
+                new ProductWithBytes
+                {
+                    Id = productId1,
+                    Name = "MegaChips",
+                    Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
                 });
 
             context.SaveChanges();
