@@ -546,6 +546,24 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ExecuteReader_throws_when_transaction_completed_externally()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    connection.ExecuteNonQuery("ROLLBACK;");
+
+                    var ex = Assert.Throws<InvalidOperationException>(() => connection.ExecuteNonQuery("SELECT 1;"));
+
+                    Assert.Equal(Resources.TransactionCompleted, ex.Message);
+                }
+            }
+        }
+
+        [Fact]
         public void ExecuteNonQuery_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

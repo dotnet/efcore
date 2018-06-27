@@ -310,6 +310,10 @@ namespace Microsoft.Data.Sqlite
                         ? Resources.TransactionRequired
                         : Resources.TransactionConnectionMismatch);
             }
+            if (_connection.Transaction?.ExternalRollback == true)
+            {
+                throw new InvalidOperationException(Resources.TransactionCompleted);
+            }
 
             var hasChanges = false;
             var changes = 0;
