@@ -3,7 +3,7 @@
     RootModule = 'EntityFrameworkCore.psm1'
 
     # Version number of this module.
-    ModuleVersion = '2.1.2'
+    ModuleVersion = '${VersionPrefix}'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
