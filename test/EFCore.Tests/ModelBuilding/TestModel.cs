@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,9 +7,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
@@ -425,6 +425,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int KappaId { get; set; }
 
             public Kappa Kappa { get; set; }
+        }
+
+        protected class JsonProperty
+        {
+            public int Id { get; set; }
+
+            public JObject JObject { get; set; }
         }
 
         protected interface IEntityBase
