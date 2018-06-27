@@ -934,6 +934,12 @@
   <data name="SeedDatumMissingValue" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because there was no value provided for the required property '{property}'.</value>
   </data>
+  <data name="SeedDatumDefaultValue" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.</value>
+  </data>
+  <data name="SeedDatumSignedNumericValue" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because a non-zero value is required for property '{property}'. Consider providing a negative value to avoid collisions with non-seed data.</value>
+  </data>
   <data name="SeedDatumNavigation" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
   </data>

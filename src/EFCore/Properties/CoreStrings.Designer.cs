@@ -2242,6 +2242,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property);
 
         /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.
+        /// </summary>
+        public static string SeedDatumDefaultValue([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object defaultValue)
+            => string.Format(
+                GetString("SeedDatumDefaultValue", nameof(entityType), nameof(property), nameof(defaultValue)),
+                entityType, property, defaultValue);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because a non-zero value is required for property '{property}'. Consider providing a negative value to avoid collisions with non-seed data.
+        /// </summary>
+        public static string SeedDatumSignedNumericValue([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("SeedDatumSignedNumericValue", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.
         /// </summary>
         public static string SeedDatumNavigation([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object relatedEntityType, [CanBeNull] object foreignKeyProperties)

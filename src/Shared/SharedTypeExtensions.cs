@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace System
@@ -46,6 +47,14 @@ namespace System
                    || type == typeof(ushort)
                    || type == typeof(sbyte)
                    || type == typeof(char);
+        }
+
+        public static bool IsSignedInteger(this Type type)
+        {
+            return type == typeof(int)
+                   || type == typeof(long)
+                   || type == typeof(short)
+                   || type == typeof(sbyte);
         }
 
         public static PropertyInfo GetAnyProperty(this Type type, string name)
