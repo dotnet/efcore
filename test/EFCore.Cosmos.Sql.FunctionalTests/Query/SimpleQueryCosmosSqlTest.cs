@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
@@ -26,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
         }
 
         [ConditionalFact]
-        public virtual void Test()
+        public virtual void Simple_IQuaryable()
         {
-            Assert.True(true);
+            AssertQuery<Customer>(cs => cs, entryCount: 91);
         }
     }
 }

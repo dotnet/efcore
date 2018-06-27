@@ -10,20 +10,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
 {
     public class CosmosClient
     {
-        private readonly DocumentClient _documentClient;
-        private readonly string _databaseId;
-
         // TODO: Do caching here.
         public CosmosClient(IDbContextOptions dbContextOptions)
         {
             var options = dbContextOptions.Extensions.OfType<CosmosSqlDbOptionsExtension>().Single();
 
-            _databaseId = options.DatabaseName;
-            _documentClient = new DocumentClient(options.ServiceEndPoint, options.AuthKeyOrResourceToken);
+            DatabaseId = options.DatabaseName;
+            DocumentClient = new DocumentClient(options.ServiceEndPoint, options.AuthKeyOrResourceToken);
         }
 
-        public virtual DocumentClient DocumentClient => _documentClient;
+        public virtual DocumentClient DocumentClient { get; }
 
-        public virtual string DatabaseId => _databaseId;
+        public virtual string DatabaseId { get; }
     }
 }
