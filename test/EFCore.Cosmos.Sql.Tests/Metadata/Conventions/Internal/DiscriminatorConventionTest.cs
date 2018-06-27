@@ -69,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal
             Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.CosmosSql().DiscriminatorValue);
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.CosmosSql().DiscriminatorValue);
             Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.CosmosSql().DiscriminatorValue);
-
         }
 
         private class EntityBase
