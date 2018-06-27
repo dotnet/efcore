@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -66,10 +67,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 for (var index = 0; index < properties.Count; index++)
                 {
-                    if (properties[index].IsConcurrencyToken && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
-                    {
-                        concurrencyConflicts.Add(properties[index], _rows[key][index]);
-                    }
+                    IsConcurrencyConflict(entry, properties[index], _rows[key][index], concurrencyConflicts);
                 }
 
                 if (concurrencyConflicts.Any())
@@ -83,6 +81,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             {
                 throw new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, new[] { entry });
             }
+        }
+
+        private static bool IsConcurrencyConflict(
+            IUpdateEntry entry,
+            IProperty property,
+            object rowValue,
+            Dictionary<IProperty, object> concurrencyConflicts)
+        {
+            if (property.IsConcurrencyToken
+                && !StructuralComparisons.StructuralEqualityComparer.Equals(
+                    rowValue,
+                    entry.GetOriginalValue(property)))
+            {
+                concurrencyConflicts.Add(property, rowValue);
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -101,11 +118,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 for (var index = 0; index < valueBuffer.Length; index++)
                 {
-                    if (properties[index].IsConcurrencyToken && !Equals(_rows[key][index], entry.GetOriginalValue(properties[index])))
+                    if (IsConcurrencyConflict(entry, properties[index], _rows[key][index], concurrencyConflicts))
                     {
-                        concurrencyConflicts.Add(properties[index], _rows[key][index]);
                         continue;
                     }
+
                     valueBuffer[index] = entry.IsModified(properties[index])
                         ? entry.GetCurrentValue(properties[index])
                         : _rows[key][index];

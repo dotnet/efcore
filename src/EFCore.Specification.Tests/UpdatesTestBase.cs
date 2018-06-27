@@ -99,6 +99,112 @@ namespace Microsoft.EntityFrameworkCore
                                 () => context.SaveChanges()).Message);
                     });
         }
+
+        [Fact]
+        public virtual void Update_on_bytes_concurrency_token_original_value_mismatch_throws()
+        {
+            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entry = context.ProductWithBytes.Attach(
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 }
+                        });
+
+                    entry.Entity.Name = "GigaChips";
+
+                    Assert.Throws<DbUpdateConcurrencyException>(
+                        () => context.SaveChanges());
+                },
+                context =>
+                {
+                    Assert.Equal("MegaChips", context.ProductWithBytes.Find(productId).Name);
+                });
+        }
+
+        [Fact]
+        public virtual void Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
+        {
+            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entry = context.ProductWithBytes.Attach(
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
+
+                    entry.Entity.Name = "GigaChips";
+
+                    Assert.Equal(1, context.SaveChanges());
+                },
+                context =>
+                {
+                    Assert.Equal("GigaChips", context.ProductWithBytes.Find(productId).Name);
+                });
+        }
+
+        [Fact]
+        public virtual void Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
+        {
+            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entry = context.ProductWithBytes.Attach(
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 }
+                        });
+
+                    entry.State = EntityState.Deleted;
+
+                    Assert.Throws<DbUpdateConcurrencyException>(
+                        () => context.SaveChanges());
+                },
+                context =>
+                {
+                    Assert.Equal("MegaChips", context.ProductWithBytes.Find(productId).Name);
+                });
+        }
+
+        [Fact]
+        public virtual void Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
+        {
+            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entry = context.ProductWithBytes.Attach(
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
+
+                    entry.State = EntityState.Deleted;
+
+                    Assert.Equal(1, context.SaveChanges());
+                },
+                context =>
+                {
+                    Assert.Null(context.ProductWithBytes.Find(productId));
+                });
+        }
 #endif
 
         [Fact]
