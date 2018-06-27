@@ -313,6 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             private IQuerySource _querySource;
             private string _propertyName;
             private bool? _canRemoveNullCheck;
+            private bool _quirk12412Enabled;
 
             public NullCheckRemovalTestingVisitor(RelationalQueryModelVisitor queryModelVisitor)
                 => _queryModelVisitor = queryModelVisitor;
@@ -326,6 +327,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 {
                     return false;
                 }
+
+                _quirk12412Enabled = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12412", out var isEnabled)
+                            && isEnabled;
 
                 Visit(resultExpression);
 
@@ -437,10 +441,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             // We skip these nodes because test ? null : new { ... } cannot remove null check
-            protected override Expression VisitNew(NewExpression newExpression) => newExpression;
+            protected override Expression VisitNew(NewExpression newExpression)
+                => _quirk12412Enabled ? base.VisitNew(newExpression) : newExpression;
 
             protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
-                => memberInitExpression;
+                => _quirk12412Enabled ? base.VisitMemberInit(memberInitExpression) : memberInitExpression;
 
             protected override Expression VisitBinary(BinaryExpression node)
             {
