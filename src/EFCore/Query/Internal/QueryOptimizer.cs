@@ -274,6 +274,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
+            if ((resultOperator is CountResultOperator
+                || resultOperator is LongCountResultOperator)
+                    && queryModel.MainFromClause.FromExpression.Type.IsGrouping()
+                    && queryModel.BodyClauses.Count == 1
+                    && queryModel.BodyClauses[0] is WhereClause whereClause)
+            {
+                queryModel.SelectClause.Selector = Expression.Condition(
+                    whereClause.Predicate,
+                    Expression.Constant(1, typeof(int?)),
+                    Expression.Constant(null, typeof(int?)));
+
+                queryModel.BodyClauses.Remove(whereClause);
+            }
+
             if (resultOperator is ValueFromSequenceResultOperatorBase
                 && !(resultOperator is FirstResultOperator)
                 && !(resultOperator is SingleResultOperator)

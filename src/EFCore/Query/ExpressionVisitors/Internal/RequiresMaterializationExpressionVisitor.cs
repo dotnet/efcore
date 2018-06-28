@@ -283,7 +283,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (qsre != null
                     || queryModel.SelectClause.Selector.RemoveConvert() is ConstantExpression
                     || groupResultOperator.ElementSelector.NodeType == ExpressionType.New
-                    || groupResultOperator.ElementSelector.NodeType == ExpressionType.MemberInit)
+                    || groupResultOperator.ElementSelector.NodeType == ExpressionType.MemberInit
+                    || queryModel.SelectClause.Selector is ConditionalExpression)
                 {
                     return true;
                 }

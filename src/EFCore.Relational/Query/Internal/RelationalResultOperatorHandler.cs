@@ -339,16 +339,36 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return handlerContext.EvalOnClient();
         }
 
+        private static Expression GetProjectionForCountAggregate(HandlerContext handlerContext)
+        {
+            Expression projection = null;
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection
+                && handlerContext.SelectExpression.Projection.Count == 1
+                && handlerContext.QueryModel.MainFromClause.FromExpression.Type.IsGrouping())
+            {
+                var expression = handlerContext.SelectExpression.Projection[0];
+
+                if (!(expression.RemoveConvert() is SelectExpression))
+                {
+                    projection = UnwrapAliasExpression(expression);
+                }
+            }
+
+            return new SqlFunctionExpression(
+                "COUNT",
+                handlerContext.ResultOperator is LongCountResultOperator
+                    ? typeof(long)
+                    : typeof(int),
+                new[] { projection ?? new SqlFragmentExpression("*") });
+        }
+
         private static Expression HandleCount(HandlerContext handlerContext)
         {
             PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
 
-            handlerContext.SelectExpression
-                .SetProjectionExpression(
-                    new SqlFunctionExpression(
-                        "COUNT",
-                        typeof(int),
-                        new[] { new SqlFragmentExpression("*") }));
+            var expression = GetProjectionForCountAggregate(handlerContext);
+
+            handlerContext.SelectExpression.SetProjectionExpression(expression);
 
             handlerContext.SelectExpression.ClearOrderBy();
 
@@ -833,12 +853,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
 
-            handlerContext.SelectExpression
-                .SetProjectionExpression(
-                    new SqlFunctionExpression(
-                        "COUNT",
-                        typeof(long),
-                        new[] { new SqlFragmentExpression("*") }));
+            var expression = GetProjectionForCountAggregate(handlerContext);
+
+            handlerContext.SelectExpression.SetProjectionExpression(expression);
 
             handlerContext.SelectExpression.ClearOrderBy();
 
