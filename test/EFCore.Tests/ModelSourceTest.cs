@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -129,8 +130,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
             var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
+            var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().Single(m => m.Key == "PackageVersion").Value;
 
-            Assert.StartsWith("2.1.2", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
+            Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
 
         private class Context1 : DbContext

@@ -27,11 +27,17 @@ Update-Database
     <ProjectReference Include="..\ef\ef.csproj" />
   </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
+  <ItemGroup>
+    <GeneratedContent Include="*.psd1.in">
+      <Properties>VersionPrefix=$(VersionPrefix)</Properties>
+    </GeneratedContent>
+  </ItemGroup>
+
+  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="ResolveCommitHash">
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg -->
       <IncludeSymbols>true</IncludeSymbols>
-      
+
       <NuspecProperties>
         id=$(PackageId);
         version=$(PackageVersion);
@@ -46,13 +52,19 @@ Update-Database
         author=$(Authors);
         copyright=$(Copyright);
         description=$(Description);
+        targetDir=$(TargetDir);
       </NuspecProperties>
     </PropertyGroup>
   </Target>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
-  <Target Name="Compile" />
+  <Target Name="Compile"
+    Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
+    Outputs="@(GeneratedContent->'$(TargetDir)%(FileName)'">
+    <Sdk_GenerateFileFromTemplate TemplateFile="%(GeneratedContent.Identity)" OutputPath="$(TargetDir)%(FileName)" Properties="%(Properties)" />
+  </Target>
+
   <Target Name="CopyFilesToOutputDirectory" />
 
 </Project>
