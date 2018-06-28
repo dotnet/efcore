@@ -69,9 +69,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }));
         }
 
+        [Fact]
+        public void Delegate_getter_is_returned_for_IProperty_struct_property()
+        {
+            var entityType = new Model().AddEntityType(typeof(Customer));
+            var fuelProperty = entityType.AddProperty("Fuel", typeof(Fuel));
+
+            Assert.Equal(
+                new Fuel(1.0),
+                new ClrPropertyGetterFactory().Create(fuelProperty).GetClrValue(
+                    new Customer
+                    {
+                        Id = 7,
+                        Fuel = new Fuel(1.0)
+                    }));
+        }
+
+        [Fact]
+        public void Delegate_getter_is_returned_for_struct_property_info()
+        {
+            Assert.Equal(
+                new Fuel(1.0),
+                new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValue(
+                    new Customer
+                    {
+                        Id = 7,
+                        Fuel = new Fuel(1.0)
+                    }));
+        }
+
         private class Customer
         {
             internal int Id { get; set; }
+            internal Fuel Fuel { get; set; }
+        }
+
+        private struct Fuel
+        {
+            public Fuel(double volume) => Volume = volume;
+            public double Volume { get; }
         }
     }
 }
