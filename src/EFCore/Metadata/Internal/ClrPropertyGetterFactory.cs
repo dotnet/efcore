@@ -60,13 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     });
             }
 
-            var useRtmBehaviour = AppContext.TryGetSwitch(
-                                      "Microsoft.EntityFrameworkCore.Issue12290",
-                                      out var isEnabled)
-                                  && isEnabled;
-
             var property = propertyBase as IProperty;
-            var comparer = memberType.IsNullableType() || useRtmBehaviour
+            var comparer = memberType.IsNullableType()
                 ? null
                 : property?.GetValueComparer()
                   ?? property?.FindMapping()?.Comparer
