@@ -436,6 +436,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return base.VisitMethodCall(node);
             }
 
+            // We skip these nodes because test ? null : new { ... } cannot remove null check
+            protected override Expression VisitNew(NewExpression newExpression) => newExpression;
+
+            protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+                => memberInitExpression;
+
             protected override Expression VisitBinary(BinaryExpression node)
             {
                 // not safe to make the optimization due to null semantics

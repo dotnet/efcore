@@ -531,6 +531,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
+        public override Task Null_check_in_anonymous_type_projection_should_not_be_removed()
+        {
+            return Task.CompletedTask;
+        }
+
+        public override Task Null_check_in_Dto_projection_should_not_be_removed()
+        {
+            return Task.CompletedTask;
+        }
+
         #endregion
     }
 }
