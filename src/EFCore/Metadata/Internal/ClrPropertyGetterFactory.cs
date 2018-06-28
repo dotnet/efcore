@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -32,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
+            var memberType = memberInfo.GetMemberType();
+            var defaultExpression = Expression.Default(memberType);
 
             Expression readExpression;
             if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
@@ -52,12 +55,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.TypeAs(entityParameter, memberInfo.DeclaringType)),
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
-                            Expression.Default(memberInfo.GetMemberType()),
+                            defaultExpression,
                             Expression.MakeMemberAccess(converted, memberInfo))
                     });
             }
 
-            var hasDefaultValueExpression = Expression.Equal(readExpression, Expression.Default(memberInfo.GetMemberType()));
+            var useRtmBehaviour = AppContext.TryGetSwitch(
+                                      "Microsoft.EntityFrameworkCore.Issue12290",
+                                      out var isEnabled)
+                                  && isEnabled;
+
+            var property = propertyBase as IProperty;
+            var comparer = memberType.IsNullableType() || useRtmBehaviour
+                ? null
+                : property?.GetValueComparer()
+                  ?? property?.FindMapping()?.Comparer
+                  ?? (ValueComparer)Activator.CreateInstance(
+                      typeof(ValueComparer<>).MakeGenericType(memberType),
+                      new object[] { false });
+
+            var hasDefaultValueExpression = comparer == null
+                ? Expression.Equal(readExpression, defaultExpression)
+                : comparer.ExtractEqualsBody(readExpression, defaultExpression);
 
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
