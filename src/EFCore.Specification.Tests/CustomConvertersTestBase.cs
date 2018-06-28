@@ -68,6 +68,42 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Can_query_and_update_with_conversion_for_custom_struct()
+        {
+            int id;
+            using (var context = CreateContext())
+            {
+                var load = context.Set<Load>().Add(
+                    new Load { Fuel = new Fuel(1.1) }).Entity;
+
+                Assert.Equal(1, context.SaveChanges());
+
+                id = load.LoadId;
+            }
+
+            using (var context = CreateContext())
+            {
+                var load = context.Set<Load>().Single(e => e.LoadId == id && e.Fuel.Equals(new Fuel(1.1)));
+
+                Assert.Equal(id, load.LoadId);
+                Assert.Equal(1.1, load.Fuel.Volume);
+            }
+        }
+
+        protected class Load
+        {
+            public int LoadId { get; private set; }
+
+            public Fuel Fuel { get; set; }
+        }
+
+        protected struct Fuel
+        {
+            public Fuel(double volume) => Volume = volume;
+            public double Volume { get; }
+        }
+
+        [Fact]
         public virtual void Can_insert_and_read_back_with_case_insensitive_string_key()
         {
             using (var context = CreateContext())
@@ -162,6 +198,13 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             b.Property(x => x.Email).HasConversion(email => (string)email, value => Email.Create(value));
                             b.Property(e => e.Id).ValueGeneratedNever();
+                        });
+
+                modelBuilder
+                    .Entity<Load>(
+                        b =>
+                        {
+                            b.Property(x => x.Fuel).HasConversion(f => f.Volume, v => new Fuel(v));
                         });
 
                 modelBuilder.Entity<BuiltInDataTypes>(
