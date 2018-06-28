@@ -89,14 +89,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             object rowValue,
             Dictionary<IProperty, object> concurrencyConflicts)
         {
-            if (property.IsConcurrencyToken
-                && !StructuralComparisons.StructuralEqualityComparer.Equals(
-                    rowValue,
-                    entry.GetOriginalValue(property)))
+            if (property.IsConcurrencyToken)
             {
-                concurrencyConflicts.Add(property, rowValue);
+                var originalValue = entry.GetOriginalValue(property);
 
-                return true;
+                var revertPatchBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12214", out var isEnabled)
+                                          && isEnabled;
+
+                if ((revertPatchBehavior
+                    && !Equals(rowValue, originalValue))
+                    || (!revertPatchBehavior
+                        && !StructuralComparisons.StructuralEqualityComparer.Equals(rowValue, originalValue)))
+                {
+                    concurrencyConflicts.Add(property, rowValue);
+
+                    return true;
+                }
             }
 
             return false;
