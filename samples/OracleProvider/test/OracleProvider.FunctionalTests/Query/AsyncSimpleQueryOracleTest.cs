@@ -35,33 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        public override Task Query_with_nav()
-        {
-            // TODO: #10680
-
-            return Task.CompletedTask;
-        }
-
-        public override Task Select_query_where_navigation()
-        {
-            // TODO: #10680
-
-            return Task.CompletedTask;
-        }
-
-        public override Task Select_query_where_navigation_multi_level()
-        {
-            // TODO: #10680
-
-            return Task.CompletedTask;
-        }
-
-        [Fact]
-        public override Task SelectMany_simple2()
-        {
-            return base.SelectMany_simple2();
-        }
-
         [Fact]
         public Task Single_Predicate_Cancellation()
         {
@@ -173,9 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
+        public Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection(bool isAsync)
         {
-            return AssertQueryAsync<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }),
                 elementSorter: e => e.City + " " + e.Count);
         }
