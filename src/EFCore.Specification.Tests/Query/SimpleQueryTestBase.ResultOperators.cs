@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [Theory]
         [InlineData(false)]
-        //[InlineData(true)] issue #12314
+        [InlineData(true)]
         public virtual Task Sum_with_no_data_nullable(bool isAsync)
         {
             return AssertSum<Order>(

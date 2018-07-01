@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 && selectExpression.Projection.Count == 1
                 && _restrictedOperators.TryGetValue(resultOperator.GetType(), out var restrictedTypes))
             {
-                PrepareSelectExpressionForAggregate(selectExpression);
+                PrepareSelectExpressionForAggregate(selectExpression, queryModel);
 
                 if (!(selectExpression.Projection[0].RemoveConvert() is SelectExpression))
                 {

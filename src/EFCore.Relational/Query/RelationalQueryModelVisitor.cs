@@ -850,6 +850,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var subSelectExpression = subQueryModelVisitor.Queries.First();
                 AddQuery(querySource, subSelectExpression);
 
+                RequiresStreamingGroupResultOperator = true;
+
                 return subQueryModelVisitor.Expression;
             }
 

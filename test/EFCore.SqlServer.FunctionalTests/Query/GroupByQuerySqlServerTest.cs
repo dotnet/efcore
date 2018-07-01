@@ -1832,6 +1832,75 @@ FROM [Orders] AS [o0]
 ORDER BY [o0].[OrderID], [o0].[OrderDate]");
         }
 
+        public override async Task Count_after_GroupBy_aggregate(bool isAsync)
+        {
+            await base.Count_after_GroupBy_aggregate(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT SUM([o].[OrderID]) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]");
+        }
+
+        public override async Task LongCount_after_client_GroupBy(bool isAsync)
+        {
+            await base.LongCount_after_client_GroupBy(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
+        }
+
+        public override async Task MinMax_after_GroupBy_aggregate(bool isAsync)
+        {
+            await base.MinMax_after_GroupBy_aggregate(isAsync);
+
+            AssertSql(
+                @"SELECT MIN([t].[c])
+FROM (
+    SELECT SUM([o].[OrderID]) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]",
+                //
+                @"SELECT MAX([t].[c])
+FROM (
+    SELECT SUM([o].[OrderID]) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]");
+        }
+
+        public override async Task AllAny_after_GroupBy_aggregate(bool isAsync)
+        {
+            await base.AllAny_after_GroupBy_aggregate(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM (
+            SELECT SUM([o].[OrderID]) AS [c]
+            FROM [Orders] AS [o]
+            GROUP BY [o].[CustomerID]
+        ) AS [t]
+        WHERE 0 = 1)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                //
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        GROUP BY [o].[CustomerID])
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
