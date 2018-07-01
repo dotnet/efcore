@@ -1798,7 +1798,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [Theory]
         [InlineData(false)]
-        //[InlineData(true)] issue #12314
+        [InlineData(true)]
         public virtual Task Result_operator_nav_prop_reference_optional_Sum(bool isAsync)
         {
             return AssertSum<Level1,Level1>(

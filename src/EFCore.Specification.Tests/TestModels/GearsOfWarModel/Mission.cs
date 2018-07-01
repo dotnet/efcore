@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public int Id { get; set; }
 
         public string CodeName { get; set; }
+        public double? Rating { get; set; }
         public DateTimeOffset Timeline { get; set; }
 
         public virtual ICollection<SquadMission> ParticipatingSquads { get; set; }

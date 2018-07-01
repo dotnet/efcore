@@ -199,6 +199,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool isAsync = false)
             where TItem1 : class;
 
+        public abstract Task AssertAny<TItem1, TResult>(
+            Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
+            bool isAsync = false)
+            where TItem1 : class;
+
         public abstract Task AssertAny<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,

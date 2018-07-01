@@ -33,6 +33,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             => Fixture.QueryAsserter.AssertAny(actualQuery, expectedQuery, isAsync);
 
+        protected virtual Task AssertAny<TItem1, TResult>(
+            bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> query)
+            where TItem1 : class
+            => AssertAny(isAsync, query, query);
+
+        protected virtual Task AssertAny<TItem1, TResult>(
+            bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery)
+            where TItem1 : class
+            => Fixture.QueryAsserter.AssertAny(actualQuery, expectedQuery, isAsync);
+
         protected virtual Task AssertAny<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query)
@@ -1372,6 +1385,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<IQueryable<TItem1>, int> actualSyncQuery,
             Func<IQueryable<TItem1>, Task<int>> actualAsyncQuery,
             Func<IQueryable<TItem1>, int> expectedQuery,
+            Action<object, object> asserter = null,
+            int entryCount = 0)
+            where TItem1 : class
+            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync);
+
+        protected Task AssertSingleResult<TItem1>(
+            bool isAsync,
+            Func<IQueryable<TItem1>, long> syncQuery,
+            Func<IQueryable<TItem1>, Task<long>> asyncQuery,
+            Action<object, object> asserter = null,
+            int entryCount = 0)
+            where TItem1 : class
+            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount);
+
+        protected Task AssertSingleResult<TItem1>(
+            bool isAsync,
+            Func<IQueryable<TItem1>, long> actualSyncQuery,
+            Func<IQueryable<TItem1>, Task<long>> actualAsyncQuery,
+            Func<IQueryable<TItem1>, long> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class

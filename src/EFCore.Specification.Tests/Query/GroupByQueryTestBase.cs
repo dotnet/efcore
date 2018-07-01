@@ -2970,5 +2970,64 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region ResultOperatorsAfterGroupBy
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task Count_after_GroupBy_aggregate(bool isAsync)
+        {
+            return AssertSingleResult<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).Count(),
+                os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).CountAsync());
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual Task LongCount_after_client_GroupBy(bool isAsync)
+        {
+            return AssertSingleResult<Order>(
+                isAsync,
+                os => (from o in os
+                      group o by new { o.CustomerID } into g
+                      select g.Where(e => e.OrderID < 10300).Count()).LongCount(),
+                os => (from o in os
+                       group o by new { o.CustomerID } into g
+                       select g.Where(e => e.OrderID < 10300).Count()).LongCountAsync());
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task MinMax_after_GroupBy_aggregate(bool isAsync)
+        {
+            await AssertMin<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
+
+            await AssertMax<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task AllAny_after_GroupBy_aggregate(bool isAsync)
+        {
+            await AssertAll<Order, int>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)),
+                predicate: ee => true);
+
+            await AssertAny<Order, int>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
+        }
+
+        #endregion
     }
 }

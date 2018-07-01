@@ -859,6 +859,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
+        public override async Task AssertAny<TItem1, TResult>(
+            Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
+            bool isAsync = false)
+        {
+            using (var context = _contextCreator())
+            {
+                var actual = isAsync
+                    ? await actualQuery(SetExtractor.Set<TItem1>(context)).AnyAsync()
+                    : actualQuery(SetExtractor.Set<TItem1>(context)).Any();
+
+                var expected = expectedQuery(ExpectedData.Set<TItem1>()).Any();
+
+                Assert.Equal(expected, actual);
+            }
+        }
+
         public override async Task AssertAny<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
