@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public InheritanceRelationshipsQuerySqlServerTest(InheritanceRelationshipsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void Include_reference_with_inheritance1()
@@ -791,6 +792,16 @@ INNER JOIN (
     FROM [ReferencedEntities] AS [e0]
 ) AS [t] ON [e.Principals].[ReferencedEntityId] = [t].[Id]
 ORDER BY [t].[Id]");
+        }
+
+        public override void Derived_dependent_to_principal_navigation_null_equality()
+        {
+            base.Derived_dependent_to_principal_navigation_null_equality();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Discriminator], [b].[Name], [b].[BaseId]
+FROM [BaseEntities] AS [b]
+WHERE [b].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')");
         }
 
         private void AssertSql(params string[] expected)

@@ -609,6 +609,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Fact]
+        public virtual void Derived_dependent_to_principal_navigation_null_equality()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.BaseEntities
+                    .Where(b => b is DerivedInheritanceRelationshipEntity
+                                    ? (b as DerivedInheritanceRelationshipEntity).BaseSelfRerefenceOnDerived == null
+                                    : false)
+                    .ToList();
+
+                Assert.Equal(3, query.Count);
+            }
+        }
+
         protected InheritanceRelationshipsContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
