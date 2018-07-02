@@ -924,12 +924,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
                     }
 
-                    if (newRelationshipBuilder.Metadata.IsUnique)
-                    {
-                        newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                            newRelationshipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
-                    }
-
                     newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.RemoveNonOwnershipRelationships(configurationSource);
                 }
                 else
@@ -1014,10 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
-            return !configurationSource.HasValue
-                || !configurationSource.Value.Overrides(Metadata.GetDeleteBehaviorConfigurationSource())
-                ? false
-                : true;
+            return configurationSource.HasValue && configurationSource.Value.Overrides(Metadata.GetDeleteBehaviorConfigurationSource());
         }
 
         /// <summary>
@@ -1054,12 +1045,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (builder == null)
                 {
                     return null;
-                }
-
-                if (unique && builder.Metadata.IsOwnership)
-                {
-                    builder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                        builder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
                 }
 
                 return batch.Run(builder);

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -111,14 +112,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
         }
 
-        protected class CustomerDetails : DetailsBase
+        protected class CustomerDetails : DetailsBase, INotifyPropertyChanged
         {
             public int CustomerId { get; set; }
 
             public Customer Customer { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                if (PropertyChanged == null)
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
 
-        protected class Order
+        protected class Order : INotifyPropertyChanged
         {
             public static readonly PropertyInfo DetailsProperty = typeof(Order).GetProperty(nameof(Details));
 
@@ -131,6 +141,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OrderCombination OrderCombination { get; set; }
 
             public OrderDetails Details { get; set; }
+            public ICollection<Product> Products { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                if (PropertyChanged == null)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
+
+        [NotMapped]
+        protected class Product
+        {
+            public int Id { get; set; }
+            public Order Order { get; set; }
         }
 
         [Owned]
@@ -143,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         [NotMapped]
         protected class SpecialOrder : Order
         {
+            public int SpecialOrderId { get; set; }
             public int? SpecialCustomerId { get; set; }
             public SpecialCustomer SpecialCustomer { get; set; }
             public BackOrder BackOrder { get; set; }

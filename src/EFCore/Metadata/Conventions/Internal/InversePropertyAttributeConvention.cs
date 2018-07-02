@@ -325,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var inverseNavigation in inverseNavigations)
             {
-                if (IsAmbiguousInverse(navigation, entityType.ClrType, entityType.Model, inverseNavigation.Value))
+                if (inverseNavigation.Key.GetMemberType().IsAssignableFrom(entityType.ClrType)
+                    && IsAmbiguousInverse(navigation, entityType.ClrType, entityType.Model, inverseNavigation.Value))
                 {
                     return true;
                 }

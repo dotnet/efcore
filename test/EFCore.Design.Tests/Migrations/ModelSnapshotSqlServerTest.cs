@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -45,13 +46,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public EntityWithOneProperty EntityWithOneProperty { get; set; }
 
             [NotMapped]
-            public EntityWithStringProperty EntityWithStringProperty { get; set; }
+            public EntityWithStringKey EntityWithStringKey { get; set; }
         }
 
         private class EntityWithStringProperty
         {
             public int Id { get; set; }
             public string Name { get; set; }
+
+            [NotMapped]
+            public EntityWithOneProperty EntityWithOneProperty { get; set; }
         }
 
         private class EntityWithStringKey
@@ -792,24 +796,37 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
             Test(
                 builder =>
                 {
-                    builder
-                        .Entity<EntityWithOneProperty>()
-                        .OwnsOne(
-                            eo => eo.EntityWithTwoProperties, eb =>
+                    builder.Entity<EntityWithOneProperty>(b =>
+                    {
+                        b.OwnsOne(eo => eo.EntityWithTwoProperties, eb =>
+                        {
+                            eb.HasForeignKey(e => e.AlternateId);
+                            eb.HasOne(e => e.EntityWithOneProperty)
+                                .WithOne(e => e.EntityWithTwoProperties);
+                            eb.HasIndex(e => e.Id);
+
+                            eb.HasOne(e => e.EntityWithStringKey).WithOne();
+
+                            eb.HasData(new EntityWithTwoProperties
                             {
-                                eb.HasForeignKey(e => e.AlternateId);
-                                eb.HasOne(e => e.EntityWithOneProperty)
-                                        .WithOne(e => e.EntityWithTwoProperties);
-                                eb.HasIndex(e => e.Id);
+                                AlternateId = 1,
+                                Id = -1
+                            });
+                        });
 
-                                eb.OwnsOne(e => e.EntityWithStringProperty);
+                        b.HasData(new EntityWithOneProperty
+                        {
+                            Id = 1
+                        });
+                    });
 
-                                eb.HasData(new EntityWithTwoProperties
-                                {
-                                    AlternateId = 1
-                                });
-                            })
-                        .HasData(new EntityWithOneProperty { Id = 1 });
+                    builder.Entity<EntityWithStringKey>(b =>
+                    {
+                        b.OwnsMany(es => es.Properties, es =>
+                        {
+                            es.HasOne(e => e.EntityWithOneProperty).WithOne();
+                        });
+                    });
                 },
                 GetHeading() + @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
@@ -827,6 +844,16 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         );
     });
 
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
+    {
+        b.Property<string>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithStringKey"");
+    });
+
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
@@ -835,7 +862,15 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     .ValueGeneratedOnAdd()
                     .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b1.Property<string>(""EntityWithStringKeyId"");
+
                 b1.Property<int>(""Id"");
+
+                b1.HasKey(""AlternateId"");
+
+                b1.HasIndex(""EntityWithStringKeyId"")
+                    .IsUnique()
+                    .HasFilter(""[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL"");
 
                 b1.HasIndex(""Id"");
 
@@ -846,47 +881,102 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
                     .OnDelete(DeleteBehavior.Cascade);
 
-                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithStringProperty"", b2 =>
-                    {
-                        b2.Property<int>(""Id"")
-                            .ValueGeneratedOnAdd()
-                            .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                        b2.Property<string>(""Name"");
-
-                        b2.ToTable(""EntityWithOneProperty"");
-
-                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"")
-                            .WithOne(""EntityWithStringProperty"")
-                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Id"")
-                            .OnDelete(DeleteBehavior.Cascade);
-                    });
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", ""EntityWithStringKey"")
+                    .WithOne()
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"");
 
                 b1.HasData(
-                    new { AlternateId = 1, Id = 0 }
+                    new { AlternateId = 1, Id = -1 }
                 );
+            });
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
+    {
+        b.OwnsMany(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Properties"", b1 =>
+            {
+                b1.Property<int>(""Id"")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b1.Property<int?>(""EntityWithOnePropertyId"");
+
+                b1.Property<string>(""EntityWithStringKeyId"")
+                    .IsRequired();
+
+                b1.Property<string>(""Name"");
+
+                b1.HasKey(""Id"");
+
+                b1.HasIndex(""EntityWithOnePropertyId"")
+                    .IsUnique()
+                    .HasFilter(""[EntityWithOnePropertyId] IS NOT NULL"");
+
+                b1.HasIndex(""EntityWithStringKeyId"");
+
+                b1.ToTable(""EntityWithStringProperty"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+                    .WithOne()
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithOnePropertyId"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"")
+                    .WithMany(""Properties"")
+                    .HasForeignKey(""EntityWithStringKeyId"")
+                    .OnDelete(DeleteBehavior.Cascade);
             });
     });
 ",
                 o =>
                 {
-                    var ownership1 = o.FindEntityType(typeof(EntityWithOneProperty)).GetReferencingForeignKeys().Single();
-                    Assert.Equal("AlternateId", ownership1.Properties[0].Name);
-                    Assert.Equal("EntityWithTwoProperties", ownership1.PrincipalToDependent.Name);
-                    Assert.Equal("EntityWithOneProperty", ownership1.DependentToPrincipal.Name);
+                    var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                    Assert.Equal(new object[] { 1 }, entityWithOneProperty.GetData().Single().Values);
+
+                    var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                        .ForeignKey;
+                    Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownership1.Properties[0].Name);
+                    Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
                     Assert.True(ownership1.IsRequired);
+                    Assert.Equal(DeleteBehavior.Cascade, ownership1.DeleteBehavior);
                     var ownedType1 = ownership1.DeclaringEntityType;
-                    Assert.Equal("AlternateId", ownedType1.FindPrimaryKey().Properties[0].Name);
+                    Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey().Properties[0].Name);
                     Assert.Equal(1, ownedType1.GetKeys().Count());
-                    Assert.Equal("Id", ownedType1.GetIndexes().Single().Properties[0].Name);
-                    var ownership2 = ownedType1.GetReferencingForeignKeys().Single();
-                    Assert.Equal("Id", ownership2.Properties[0].Name);
-                    Assert.Equal("EntityWithStringProperty", ownership2.PrincipalToDependent.Name);
+                    Assert.Equal(2, ownedType1.GetIndexes().Count());
+                    var owned1index1 = ownedType1.GetIndexes().First();
+                    Assert.Equal("EntityWithStringKeyId", owned1index1.Properties[0].Name);
+                    Assert.True(owned1index1.IsUnique);
+                    Assert.Equal("[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL", owned1index1.Relational().Filter);
+                    var owned1index2 = ownedType1.GetIndexes().Last();
+                    Assert.Equal("Id", owned1index2.Properties[0].Name);
+                    Assert.False(owned1index2.IsUnique);
+                    Assert.Null(owned1index2.Relational().Filter);
+                    Assert.Equal(new object[] { 1, -1 }, ownedType1.GetData().Single().Values);
+                    Assert.Equal(nameof(EntityWithOneProperty), ownedType1.Relational().TableName);
+
+                    var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey));
+                    Assert.Same(entityWithStringKey, ownedType1.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey)).GetTargetType());
+                    Assert.Equal(nameof(EntityWithStringKey), entityWithStringKey.Relational().TableName);
+
+                    var ownership2 = entityWithStringKey.FindNavigation(nameof(EntityWithStringKey.Properties)).ForeignKey;
+                    Assert.Equal(DeleteBehavior.Cascade, ownership2.DeleteBehavior);
+                    Assert.Equal("EntityWithStringKeyId", ownership2.Properties[0].Name);
                     Assert.Null(ownership2.DependentToPrincipal);
                     Assert.True(ownership2.IsRequired);
                     var ownedType2 = ownership2.DeclaringEntityType;
-                    Assert.Equal("Id", ownedType2.FindPrimaryKey().Properties[0].Name);
+                    Assert.Equal(nameof(EntityWithStringProperty.Id), ownedType2.FindPrimaryKey().Properties[0].Name);
                     Assert.Equal(1, ownedType2.GetKeys().Count());
+                    Assert.Equal(2, ownedType2.GetIndexes().Count());
+                    var owned2index1 = ownedType2.GetIndexes().First();
+                    Assert.Equal("EntityWithOnePropertyId", owned2index1.Properties[0].Name);
+                    Assert.True(owned2index1.IsUnique);
+                    Assert.Equal("[EntityWithOnePropertyId] IS NOT NULL", owned2index1.Relational().Filter);
+                    var owned2index2 = ownedType2.GetIndexes().Last();
+                    Assert.Equal("EntityWithStringKeyId", owned2index2.Properties[0].Name);
+                    Assert.False(owned2index2.IsUnique);
+                    Assert.Null(owned2index2.Relational().Filter);
+                    Assert.Equal(nameof(EntityWithStringProperty), ownedType2.Relational().TableName);
+
+                    Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().GetTargetType());
                 });
         }
 
@@ -929,6 +1019,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     .ValueGeneratedOnAdd()
                     .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b1.HasKey(""OrderId"");
+
                 b1.ToTable(""Order"");
 
                 b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
@@ -943,6 +1035,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                             .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                         b2.Property<string>(""City"");
+
+                        b2.HasKey(""OrderInfoOrderId"");
 
                         b2.ToTable(""Order"");
 
@@ -959,6 +1053,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     .ValueGeneratedOnAdd()
                     .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b1.HasKey(""OrderId"");
+
                 b1.ToTable(""Order"");
 
                 b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
@@ -973,6 +1069,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                             .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                         b2.Property<string>(""City"");
+
+                        b2.HasKey(""OrderDetailsOrderId"");
 
                         b2.ToTable(""Order"");
 
@@ -989,6 +1087,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     .ValueGeneratedOnAdd()
                     .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b1.HasKey(""OrderId"");
+
                 b1.ToTable(""Order"");
 
                 b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
@@ -1003,6 +1103,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                             .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                         b2.Property<string>(""City"");
+
+                        b2.HasKey(""OrderDetailsOrderId"");
 
                         b2.ToTable(""Order"");
 
@@ -2703,8 +2805,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
             var factoryType = assembly.GetType("ModelSnapshot");
             var property = factoryType.GetTypeInfo().GetDeclaredProperty("Model");
             var value = (IModel)property.GetValue(null);
-
             Assert.NotNull(value);
+
+            var reporter = new TestOperationReporter();
+            value = new SnapshotModelProcessor(reporter).Process(value);
+
             assert(value);
         }
 

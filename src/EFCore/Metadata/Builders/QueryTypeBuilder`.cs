@@ -81,9 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>(
             [NotNull] Expression<Func<TQuery, TProperty>> propertyExpression) => new PropertyBuilder<TProperty>(
-            Builder.Property(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
-                ConfigurationSource.Explicit));
+                Builder.Property(
+                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
+                    ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Excludes the given property from the query type. This method is typically used to remove properties
@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     A lambda expression representing the property to be ignored
         ///     (<c>blog => blog.Url</c>).
         /// </param>
-        public virtual QueryTypeBuilder<TQuery> Ignore([NotNull] Expression<Func<TQuery, object>> propertyExpression) =>
-            (QueryTypeBuilder<TQuery>)base.Ignore(
+        public virtual QueryTypeBuilder<TQuery> Ignore([NotNull] Expression<Func<TQuery, object>> propertyExpression)
+            => (QueryTypeBuilder<TQuery>)base.Ignore(
                 Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().Name);
 
         /// <summary>
@@ -102,8 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     from the query type that were added by convention.
         /// </summary>
         /// <param name="propertyName"> The name of then property to be removed from the query type. </param>
-        public new virtual QueryTypeBuilder<TQuery> Ignore([NotNull] string propertyName) =>
-            (QueryTypeBuilder<TQuery>)base.Ignore(propertyName);
+        public new virtual QueryTypeBuilder<TQuery> Ignore([NotNull] string propertyName)
+            => (QueryTypeBuilder<TQuery>)base.Ignore(propertyName);
 
         /// <summary>
         ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
@@ -111,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="filter">The LINQ predicate expression.</param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual QueryTypeBuilder<TQuery> HasQueryFilter([CanBeNull] Expression<Func<TQuery, bool>> filter) =>
-            (QueryTypeBuilder<TQuery>)base.HasQueryFilter(filter);
+        public virtual QueryTypeBuilder<TQuery> HasQueryFilter([CanBeNull] Expression<Func<TQuery, bool>> filter)
+            => (QueryTypeBuilder<TQuery>)base.HasQueryFilter(filter);
 
         /// <summary>
         ///     Configures a query used to provide data for a query type.

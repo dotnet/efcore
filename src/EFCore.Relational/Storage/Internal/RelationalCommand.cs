@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             command.CommandText = AdjustCommandText(CommandText);
 
             ConfigureCommand(command);
-            
+
             if (connection.CurrentTransaction != null)
             {
                 command.Transaction = connection.CurrentTransaction.GetDbTransaction();
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected virtual void ConfigureCommand(DbCommand command)
         {
         }
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.

@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     eb.HasKey(e => e.Id);
                     var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
-                    owned.OwnedEntityType.SetPrimaryKey(new[] { owned.OwnedEntityType.FindProperty("Id") });
+                    owned.HasKey("Id");
                     owned.Property(e => e.Value);
                 });
 

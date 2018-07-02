@@ -130,9 +130,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyRemovedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyUniquenessChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.ForeignKeyUniquenessChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyUniquenessChangedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(new NavigationEagerLoadingConvention());
+            conventionSet.ForeignKeyOwnershipChangedConventions.Add(keyDiscoveryConvention);
+            conventionSet.ForeignKeyOwnershipChangedConventions.Add(relationshipDiscoveryConvention);
 
             conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);

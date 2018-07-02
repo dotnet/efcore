@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -43,41 +44,67 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public virtual IModel Process(IModel model)
         {
-            if (model != null
-                && model.GetProductVersion()?.StartsWith("1.") == true)
+            if (model == null)
             {
-                ProcessElement(model);
+                return null;
+            }
 
-                foreach (var entityType in model.GetEntityTypes())
+            var version = model.GetProductVersion();
+            if (version == null)
+            {
+                return model;
+            }
+
+            ProcessElement(model, version);
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                ProcessElement(entityType, version);
+                ProcessCollection(entityType.GetProperties(), version);
+                ProcessCollection(entityType.GetKeys(), version);
+                ProcessCollection(entityType.GetIndexes(), version);
+
+                foreach (var element in entityType.GetForeignKeys())
                 {
-                    ProcessElement(entityType);
-                    ProcessCollection(entityType.GetProperties());
-                    ProcessCollection(entityType.GetKeys());
-                    ProcessCollection(entityType.GetIndexes());
-
-                    foreach (var element in entityType.GetForeignKeys())
-                    {
-                        ProcessElement(element);
-                        ProcessElement(element.DependentToPrincipal);
-                        ProcessElement(element.PrincipalToDependent);
-                    }
+                    ProcessElement(element, version);
+                    ProcessElement(element.DependentToPrincipal, version);
+                    ProcessElement(element.PrincipalToDependent, version);
                 }
             }
 
             return model;
         }
 
-        private void ProcessCollection(IEnumerable<IAnnotatable> metadata)
+        private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)
         {
             foreach (var element in metadata)
             {
-                ProcessElement(element);
+                ProcessElement(element, version);
             }
         }
 
-        private void ProcessElement(IAnnotatable metadata)
+        private void ProcessElement(IEntityType entityType, string version)
         {
-            if (metadata is IMutableAnnotatable mutableMetadata)
+            ProcessElement((IAnnotatable)entityType, version);
+
+            if ((version.StartsWith("2.0", StringComparison.Ordinal)
+                 || version.StartsWith("2.1", StringComparison.Ordinal))
+                && entityType is IMutableEntityType mutableEntityType
+                && entityType.FindPrimaryKey() == null)
+            {
+                var ownership = mutableEntityType.FindOwnership();
+                if (ownership is IMutableForeignKey mutableOwnership
+                    && ownership.IsUnique)
+                {
+                    mutableEntityType.SetPrimaryKey(mutableOwnership.Properties);
+                }
+            }
+        }
+
+        private void ProcessElement(IAnnotatable metadata, string version)
+        {
+            if (version.StartsWith("1.", StringComparison.Ordinal)
+                && metadata is IMutableAnnotatable mutableMetadata)
             {
                 foreach (var annotation in mutableMetadata.GetAnnotations().ToList())
                 {

@@ -2055,24 +2055,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var type = rawSeed.GetType();
                 foreach (var memberInfo in type.GetMembersInHierarchy())
                 {
-                    ValueConverter valueConverter = null;
-                    if (providerValues)
+                    if (!properties.TryGetValue(memberInfo.Name, out var propertyBase))
                     {
-                        if (!properties.TryGetValue(memberInfo.Name, out var propertyBase))
+                        continue;
+                    }
+
+                    ValueConverter valueConverter = null;
+                    if (providerValues
+                        && !valueConverters.TryGetValue(memberInfo.Name, out valueConverter))
+                    {
+                        if (propertyBase is IProperty property)
                         {
-                            continue;
+                            valueConverter = property.FindMapping()?.Converter
+                                             ?? property.GetValueConverter();
                         }
 
-                        if (!valueConverters.TryGetValue(memberInfo.Name, out valueConverter))
-                        {
-                            if (propertyBase is IProperty property)
-                            {
-                                valueConverter = property.FindMapping()?.Converter
-                                                 ?? property.GetValueConverter();
-                            }
-
-                            valueConverters[memberInfo.Name] = valueConverter;
-                        }
+                        valueConverters[memberInfo.Name] = valueConverter;
                     }
 
                     object value = null;

@@ -642,6 +642,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(-1, entityType.FindProperty("Strange").GetOriginalValueIndex());
                 Assert.Equal(2, entityType.FindProperty("Top").GetOriginalValueIndex());
                 Assert.Equal(-1, entityType.FindProperty("Bottom").GetOriginalValueIndex());
+
+                Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.GetChangeTrackingStrategy());
             }
 
             [Fact]

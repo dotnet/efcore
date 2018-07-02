@@ -251,7 +251,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         bb.OwnsOne(
                             b => b.AlternateLabel, tb =>
                             {
+                                tb.HasConstraintName("AlternateLabelFK");
                                 tb.ToTable("TT", "TS");
+                                tb.ForSqlServerIsMemoryOptimized();
                                 tb.OwnsOne(
                                     l => l.AnotherBookLabel, ab =>
                                     {
@@ -303,12 +305,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var bookLabel2Ownership11 = bookLabel2Ownership1.DeclaringEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel)).ForeignKey;
                 var bookLabel2Ownership21 = bookLabel2Ownership2.DeclaringEntityType.FindNavigation(nameof(BookLabel.AnotherBookLabel)).ForeignKey;
 
+                Assert.Equal("AlternateLabelFK", bookOwnership2.Relational().Name);
+
                 Assert.Equal("BS", book.SqlServer().Schema);
                 Assert.Equal("BT", book.SqlServer().TableName);
                 Assert.Equal("LS", bookOwnership1.DeclaringEntityType.SqlServer().Schema);
                 Assert.Equal("LT", bookOwnership1.DeclaringEntityType.SqlServer().TableName);
+                Assert.False(bookOwnership1.DeclaringEntityType.SqlServer().IsMemoryOptimized);
                 Assert.Equal("TS", bookOwnership2.DeclaringEntityType.SqlServer().Schema);
                 Assert.Equal("TT", bookOwnership2.DeclaringEntityType.SqlServer().TableName);
+                Assert.True(bookOwnership2.DeclaringEntityType.SqlServer().IsMemoryOptimized);
                 Assert.Equal("AS2", bookLabel1Ownership1.DeclaringEntityType.SqlServer().Schema);
                 Assert.Equal("AT2", bookLabel1Ownership1.DeclaringEntityType.SqlServer().TableName);
                 Assert.Equal("SS1", bookLabel1Ownership2.DeclaringEntityType.SqlServer().Schema);
@@ -346,6 +352,60 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
+            }
+
+            [Fact]
+            public virtual void Owned_type_collections_can_be_mapped_to_different_tables()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().OwnsMany(
+                    c => c.Orders,
+                    r =>
+                    {
+                        r.ForSqlServerIsMemoryOptimized();
+                        r.Ignore(o => o.OrderCombination);
+                        r.Ignore(o => o.Details);
+                    });
+
+                modelBuilder.Validate();
+
+                var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
+                var owned = ownership.DeclaringEntityType;
+                Assert.True(ownership.IsOwnership);
+                Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
+                Assert.Equal("FK_Order_Customer_CustomerId", ownership.Relational().Name);
+
+                Assert.Equal(1, owned.GetForeignKeys().Count());
+                Assert.Equal(1, owned.GetIndexes().Count());
+                Assert.Equal(new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
+                    owned.GetProperties().Select(p => p.SqlServer().ColumnName));
+                Assert.Equal(nameof(Order), owned.SqlServer().TableName);
+                Assert.Null(owned.SqlServer().Schema);
+                Assert.True(owned.SqlServer().IsMemoryOptimized);
+
+                modelBuilder.Entity<Customer>().OwnsMany(
+                    c => c.Orders,
+                    r =>
+                    {
+                        r.HasConstraintName("Owned");
+                        r.ToTable("bar", "foo");
+                    });
+
+                Assert.Equal("bar", owned.SqlServer().TableName);
+                Assert.Equal("foo", owned.SqlServer().Schema);
+                Assert.Equal("Owned", ownership.Relational().Name);
+
+                modelBuilder.Entity<Customer>().OwnsMany(
+                    c => c.Orders,
+                    r =>
+                    {
+                        r.ToTable("blah");
+                    });
+
+                Assert.Equal("blah", owned.SqlServer().TableName);
+                Assert.Equal("foo", owned.SqlServer().Schema);
             }
 
             protected override TestModelBuilder CreateModelBuilder()

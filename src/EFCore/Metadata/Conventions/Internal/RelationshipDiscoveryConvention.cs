@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IBaseTypeChangedConvention,
         INavigationRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
-        INavigationAddedConvention
+        INavigationAddedConvention,
+        IForeignKeyOwnershipChangedConvention
     {
         private readonly IMemberClassifier _memberClassifier;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
@@ -64,12 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
+            var relationshipCandidates = FindRelationshipCandidates(entityTypeBuilder);
+            relationshipCandidates = RemoveIncompatibleWithExistingRelationships(relationshipCandidates, entityTypeBuilder);
+            relationshipCandidates = RemoveInheritedInverseNavigations(relationshipCandidates);
+            relationshipCandidates = RemoveSingleSidedBaseNavigations(relationshipCandidates, entityTypeBuilder);
+
             using (entityTypeBuilder.Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                var relationshipCandidates = FindRelationshipCandidates(entityTypeBuilder);
-                relationshipCandidates = RemoveIncompatibleWithExistingRelationships(relationshipCandidates, entityTypeBuilder);
-                relationshipCandidates = RemoveInheritedInverseNavigations(relationshipCandidates);
-                relationshipCandidates = RemoveSingleSidedBaseNavigations(relationshipCandidates, entityTypeBuilder);
                 CreateRelationships(relationshipCandidates, entityTypeBuilder);
             }
 
@@ -140,9 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         }
                     }
                 }
-                else if ( // #8172
-                    //ownership != null &&
-                    navigationPropertyInfo.PropertyType.TryGetSequenceType() != null)
+                else if (ownership != null
+                         && navigationPropertyInfo.PropertyType.TryGetSequenceType() != null)
                 {
                     continue;
                 }
@@ -179,9 +180,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         || navigationPropertyInfo.IsSameAs(inversePropertyInfo)
                         || entityType.IsQueryType
                         || (ownership != null
+                            && !candidateTargetEntityType.IsInOwnershipPath(entityTypeBuilder.Metadata)
                             && (ownership.PrincipalEntityType != candidateTargetEntityType
                                 || ownership.PrincipalToDependent.Name != inversePropertyInfo.Name))
                         || (entityType.HasDefiningNavigation()
+                            && !candidateTargetEntityType.IsInDefinitionPath(entityTypeBuilder.Metadata)
                             && (entityType.DefiningEntityType != candidateTargetEntityType
                                 || entityType.DefiningNavigationName != inversePropertyInfo.Name))
                         || !IsCandidateNavigationProperty(
@@ -808,6 +811,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+        {
+            DiscoverRelationships(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
+            return relationshipBuilder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
             => _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
@@ -878,9 +891,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var ambigousNavigations = GetAmbigousNavigations(sourceEntityType);
             return ambigousNavigations != null
-                && ambigousNavigations.ContainsValue(targetClrType)
-                ? true
-                : false;
+                   && ambigousNavigations.ContainsValue(targetClrType);
         }
 
         private static ImmutableSortedDictionary<MemberInfo, Type> GetAmbigousNavigations(EntityType entityType)
