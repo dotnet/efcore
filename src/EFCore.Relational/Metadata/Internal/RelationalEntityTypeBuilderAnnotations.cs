@@ -146,15 +146,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] PropertyInfo propertyInfo)
-        {
-            return propertyInfo == null
+        public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] MemberInfo memberInfo)
+        {   
+            return memberInfo == null
                 ? RemoveDiscriminator()
                 : DiscriminatorProperty != null
-                   && DiscriminatorProperty.Name == propertyInfo.Name
-                   && DiscriminatorProperty.ClrType == propertyInfo.PropertyType
+                   && DiscriminatorProperty.Name == memberInfo.Name
+                   && DiscriminatorProperty.ClrType == memberInfo.GetMemberType()
                 ? DiscriminatorBuilder(null, null)
-                : DiscriminatorBuilder(b => b.Property(propertyInfo, Annotations.ConfigurationSource), null);
+                : DiscriminatorBuilder(b => b.Property(memberInfo, Annotations.ConfigurationSource), null);
         }
 
         private DiscriminatorBuilder RemoveDiscriminator()

@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
-            => WithOneBuilder(PropertyIdentity.Create(navigationProperty));
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] MemberInfo navigationMemberInfo)
+            => WithOneBuilder(PropertyIdentity.Create(navigationMemberInfo));
 
         private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)
         {

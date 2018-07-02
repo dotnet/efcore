@@ -160,10 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
             [NotNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
-            [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
+            [NotNull] IReadOnlyList<MemberInfo> foreignKeyMembers)
             => HasForeignKeyBuilder(
                 dependentEntityType, dependentEntityTypeName,
-                (b, d) => b.HasForeignKey(foreignKeyProperties, d, ConfigurationSource.Explicit));
+                (b, d) => b.HasForeignKey(foreignKeyMembers, d, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder HasForeignKeyBuilder(
             EntityType dependentEntityType,
@@ -266,10 +266,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
-            [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
+            [NotNull] IReadOnlyList<MemberInfo> foreignKeyMembers)
             => HasPrincipalKeyBuilder(
                 principalEntityType, principalEntityTypeName,
-                b => b.HasPrincipalKey(foreignKeyProperties, ConfigurationSource.Explicit));
+                b => b.HasPrincipalKey(foreignKeyMembers, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder HasPrincipalKeyBuilder(
             EntityType principalEntityType,

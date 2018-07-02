@@ -37,27 +37,43 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
+        public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression) =>
+            GetInternalMemberAccess<PropertyInfo>(propertyAccessExpression);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static MemberInfo GetMemberAccess([NotNull] this LambdaExpression memberAccessExpression) =>
+            GetInternalMemberAccess<MemberInfo>(memberAccessExpression);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        private static TMemberInfo GetInternalMemberAccess<TMemberInfo>([NotNull] this LambdaExpression memberAccessExpression)
+            where TMemberInfo : MemberInfo
         {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+            Debug.Assert(memberAccessExpression.Parameters.Count == 1);
 
-            var parameterExpression = propertyAccessExpression.Parameters.Single();
-            var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);
+            var parameterExpression = memberAccessExpression.Parameters[0];
+            var memberInfo = parameterExpression.MatchSimplePropertyAccess<TMemberInfo>(memberAccessExpression.Body);
 
-            if (propertyInfo == null)
+            if (memberInfo == null)
             {
                 throw new ArgumentException(
-                    CoreStrings.InvalidPropertyExpression(propertyAccessExpression),
-                    nameof(propertyAccessExpression));
+                    CoreStrings.InvalidPropertyExpression(memberAccessExpression),
+                    nameof(memberAccessExpression));
             }
 
-            var declaringType = propertyInfo.DeclaringType;
+            var declaringType = memberInfo.DeclaringType;
             var parameterType = parameterExpression.Type;
 
             if (declaringType != null
                 && declaringType != parameterType
                 && declaringType.GetTypeInfo().IsInterface
-                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo()))
+                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo())
+                && memberInfo is PropertyInfo propertyInfo)
             {
                 var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
@@ -67,24 +83,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     if (targetMethod.Equals(runtimeProperty.GetMethod))
                     {
-                        return runtimeProperty;
+                        return runtimeProperty as TMemberInfo;
                     }
                 }
             }
 
-            return propertyInfo;
+            return memberInfo;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+
         public static IReadOnlyList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
 
             var propertyPaths
-                = MatchPropertyAccessList(propertyAccessExpression, (p, e) => e.MatchSimplePropertyAccess(p));
+                = MatchMemberAccessList(propertyAccessExpression, (p, e) => e.MatchSimplePropertyAccess<PropertyInfo>(p));
 
             if (propertyPaths == null)
             {
@@ -100,42 +117,66 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        private static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
-            this LambdaExpression lambdaExpression, Func<Expression, Expression, PropertyInfo> propertyMatcher)
+        public static IReadOnlyList<MemberInfo> GetMemberAccessList([NotNull] this LambdaExpression lambdaExpression)
         {
-            Debug.Assert(lambdaExpression.Body != null);
+            Debug.Assert(lambdaExpression.Parameters.Count == 1);
 
-            var parameterExpression
-                = lambdaExpression.Parameters.Single();
+            var memberPaths
+                = MatchMemberAccessList(lambdaExpression, (p, e) => e.MatchSimplePropertyAccess<MemberInfo>(p));
 
-            if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
+            if (memberPaths == null)
             {
-                var propertyInfos
-                    = newExpression
-                        .Arguments
-                        .Select(a => propertyMatcher(a, parameterExpression))
-                        .Where(p => p != null)
-                        .ToList();
-
-                return propertyInfos.Count != newExpression.Arguments.Count ? null : propertyInfos;
+                throw new ArgumentException(
+                    CoreStrings.InvalidPropertiesExpression(lambdaExpression),
+                    nameof(lambdaExpression));
             }
 
-            var propertyPath
-                = propertyMatcher(lambdaExpression.Body, parameterExpression);
-
-            return propertyPath != null ? new[] { propertyPath } : null;
+            return memberPaths;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        private static PropertyInfo MatchSimplePropertyAccess(
-            this Expression parameterExpression, Expression propertyAccessExpression)
+        private static IReadOnlyList<T> MatchMemberAccessList<T>(
+            this LambdaExpression lambdaExpression, Func<Expression, Expression, T> propertyMatcher)
+            where T : MemberInfo
         {
-            var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
+            Debug.Assert(lambdaExpression.Body != null);
+            Debug.Assert(lambdaExpression.Parameters.Count == 1);
 
-            return propertyInfos != null && propertyInfos.Count == 1 ? propertyInfos[0] : null;
+            var parameterExpression
+                = lambdaExpression.Parameters[0];
+
+            if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
+            {
+                var memberInfos
+                    = newExpression
+                        .Arguments
+                        .Select(a => propertyMatcher(a, parameterExpression))
+                        .Where(p => p != null)
+                        .ToList();
+
+                return memberInfos.Count != newExpression.Arguments.Count ? null : memberInfos;
+            }
+
+            var memberPath
+                = propertyMatcher(lambdaExpression.Body, parameterExpression);
+
+            return memberPath != null ? new[] { memberPath } : null;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        private static TMemberInfo MatchSimplePropertyAccess<TMemberInfo>(
+            this Expression parameterExpression, Expression propertyAccessExpression)
+            where TMemberInfo : MemberInfo
+        {
+            var membersInfos = MatchPropertyAccess<TMemberInfo>(parameterExpression, propertyAccessExpression);
+
+            return membersInfos != null && membersInfos.Count == 1 ? membersInfos[0] : null;
         }
 
         /// <summary>
@@ -169,15 +210,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 = propertyAccessExpression
                     .Parameters
                     .Single()
-                    .MatchPropertyAccess(propertyAccessExpression.Body);
+                    .MatchPropertyAccess<PropertyInfo>(propertyAccessExpression.Body);
 
             return propertyPath != null;
         }
 
-        private static IReadOnlyList<PropertyInfo> MatchPropertyAccess(
+        private static IReadOnlyList<TMemberInfo> MatchPropertyAccess<TMemberInfo>(
             this Expression parameterExpression, Expression propertyAccessExpression)
+            where TMemberInfo : MemberInfo
         {
-            var propertyInfos = new List<PropertyInfo>();
+            var propertyInfos = new List<TMemberInfo>();
 
             MemberExpression memberExpression;
 
@@ -185,14 +227,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 memberExpression = RemoveTypeAs(RemoveConvert(propertyAccessExpression)) as MemberExpression;
 
-                var propertyInfo = memberExpression?.Member as PropertyInfo;
+                var memberInfo = memberExpression?.Member as TMemberInfo;
 
-                if (propertyInfo == null)
+                if (memberInfo == null)
                 {
                     return null;
                 }
 
-                propertyInfos.Insert(0, propertyInfo);
+                propertyInfos.Insert(0, memberInfo);
 
                 propertyAccessExpression = memberExpression.Expression;
             }

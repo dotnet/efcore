@@ -113,5 +113,40 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
     "MemberId": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IServiceProperty> GetServiceProperties()",
     "Kind": "Addition"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilderBase",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder HasForeignKeyBuilder(Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType dependentEntityType, System.String dependentEntityTypeName, System.Collections.Generic.IReadOnlyList<System.Reflection.PropertyInfo> foreignKeyProperties)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder : Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilderBase",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder HasPrincipalKeyBuilder(Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType principalEntityType, System.String principalEntityTypeName, System.Collections.Generic.IReadOnlyList<System.Reflection.PropertyInfo> foreignKeyProperties)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder HasForeignKeyBuilder(System.Collections.Generic.IReadOnlyList<System.Reflection.PropertyInfo> foreignKeyProperties)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>, Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder HasPrincipalKeyBuilder(System.Collections.Generic.IReadOnlyList<System.Reflection.PropertyInfo> keyProperties)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder WithManyBuilder(System.Reflection.PropertyInfo navigationProperty)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder WithOneBuilder(System.Reflection.PropertyInfo navigationProperty)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public class Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>",
+    "MemberId": "protected virtual Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder WithOneBuilder(System.Reflection.PropertyInfo navigationProperty)",
+    "Kind": "Removal"
   }
 ]

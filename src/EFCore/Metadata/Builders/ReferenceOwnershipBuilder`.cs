@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
         {
             Builder = Builder.HasForeignKey(
-                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList(),
+                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList(),
                 RelatedEntityType,
                 ConfigurationSource.Explicit);
             return new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TEntity, object>> keyExpression)
         {
             Builder = Builder.HasPrincipalKey(
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
+                Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
                 ConfigurationSource.Explicit);
             return new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
                 Builder,
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TRelatedEntity, TProperty>> propertyExpression)
             => new PropertyBuilder<TProperty>(
                 RelatedEntityType.Builder.Property(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
+                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
                     ConfigurationSource.Explicit));
 
         /// <summary>
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> Ignore(
             [NotNull] Expression<Func<TRelatedEntity, object>> propertyExpression)
             => (ReferenceOwnershipBuilder<TEntity, TRelatedEntity>)
-                base.Ignore(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().Name);
+                base.Ignore(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess().Name);
 
         /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TRelatedEntity, object>> indexExpression)
             => new IndexBuilder(
                 RelatedEntityType.Builder.HasIndex(
-                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                    Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity> OwnsOne<TNewRelatedEntity>(
             [NotNull] Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression)
             where TNewRelatedEntity : class
-            => OwnsOneBuilder<TNewRelatedEntity>(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess());
+            => OwnsOneBuilder<TNewRelatedEntity>(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess());
 
         /// <summary>
         ///     <para>
@@ -344,17 +344,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsOneBuilder<TNewRelatedEntity>(navigationExpression.GetPropertyAccess()));
+            buildAction.Invoke(OwnsOneBuilder<TNewRelatedEntity>(navigationExpression.GetMemberAccess()));
             return this;
         }
 
-        private ReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity> OwnsOneBuilder<TNewRelatedEntity>(PropertyInfo navigation)
+        private ReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity> OwnsOneBuilder<TNewRelatedEntity>(MemberInfo navigationMember)
             where TNewRelatedEntity : class
         {
             InternalRelationshipBuilder relationship;
             using (var batch = RelatedEntityType.Model.ConventionDispatcher.StartBatch())
             {
-                relationship = RelatedEntityType.Builder.Owns(typeof(TNewRelatedEntity), navigation, ConfigurationSource.Explicit);
+                relationship = RelatedEntityType.Builder.Owns(typeof(TNewRelatedEntity), navigationMember, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
                 relationship = batch.Run(relationship.Metadata).Builder;
             }

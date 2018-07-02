@@ -1561,10 +1561,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder HasPrincipalKey(
-            [NotNull] IReadOnlyList<PropertyInfo> properties,
+            [NotNull] IReadOnlyList<MemberInfo> members,
             ConfigurationSource configurationSource)
             => HasPrincipalKey(
-                Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(properties, configurationSource),
+                Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(members, configurationSource),
                 configurationSource);
 
         /// <summary>
