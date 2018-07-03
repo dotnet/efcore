@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
@@ -38,6 +39,15 @@ WHERE [x].[OrderID] = 10248",
         public override void Paging_operation_without_orderby_issues_warning()
         {
             base.Paging_operation_without_orderby_issues_warning();
+
+            Assert.Contains(
+                CoreStrings.LogRowLimitingOperationWithoutOrderBy.GenerateMessage(
+                    "(from Customer <generated>_2 in DbSet<Customer> select [<generated>_2]).Skip(__p_0).Take(__p_1)"), Fixture.TestSqlLoggerFactory.Log);
+        }
+
+        public override async Task Paging_operation_without_orderby_issues_warning_async()
+        {
+            await base.Paging_operation_without_orderby_issues_warning_async();
 
             Assert.Contains(
                 CoreStrings.LogRowLimitingOperationWithoutOrderBy.GenerateMessage(

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -52,6 +53,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = context.Customers.Skip(2).Take(3).ToList();
+                Assert.Equal(3, query.Count);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Paging_operation_without_orderby_issues_warning_async()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Customers.Skip(2).Take(3).ToListAsync();
                 Assert.Equal(3, query.Count);
             }
         }
