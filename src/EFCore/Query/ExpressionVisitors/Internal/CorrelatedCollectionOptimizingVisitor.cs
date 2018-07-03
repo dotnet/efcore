@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -49,9 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.ToList));
 
         private List<Ordering> _parentOrderings { get; } = new List<Ordering>();
-
-        private static readonly ParameterExpression _cancellationTokenParameter
-            = Expression.Parameter(typeof(CancellationToken), name: "ct");
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -387,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (_queryCompilationContext.IsAsyncQuery)
             {
-                arguments.Add(_cancellationTokenParameter);
+                arguments.Add(QueryCompilationContext.CancellationTokenParameter);
             }
 
             var result = Expression.Call(

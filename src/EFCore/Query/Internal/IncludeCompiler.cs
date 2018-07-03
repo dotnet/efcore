@@ -37,9 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly ParameterExpression _includedParameter
             = Expression.Parameter(typeof(object[]), name: "included");
 
-        private static readonly ParameterExpression _cancellationTokenParameter
-            = Expression.Parameter(typeof(CancellationToken), name: "ct");
-
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;
         private readonly List<IncludeResultOperator> _includeResultOperators;

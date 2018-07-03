@@ -4659,7 +4659,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [Theory]
         [InlineData(false)]
-        //[InlineData(true)] issue #12463
+        [InlineData(true)]
         public virtual Task Project_collection_and_include(bool isAsync)
         {
             return AssertQuery<Level1>(

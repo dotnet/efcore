@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             typeof(Func<>).MakeGenericType(asyncEnumerableType));
 
                     includeCollectionMethodInfo = _queryBufferIncludeCollectionAsyncMethodInfo;
-                    cancellationTokenExpression = _cancellationTokenParameter;
+                    cancellationTokenExpression = QueryCompilationContext.CancellationTokenParameter;
                 }
 
                 return
