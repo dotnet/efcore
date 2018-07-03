@@ -22,9 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static readonly ParameterExpression _resultsParameter
             = Expression.Parameter(typeof(object[]), name: "results");
 
-        private static readonly ParameterExpression _dummyCancellationToken
-            = Expression.Parameter(typeof(CancellationToken), name: "ct");
-
         private readonly List<Expression> _taskExpressions = new List<Expression>();
 
         /// <summary>
@@ -51,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (CancellationTokenParameter == null)
                 {
-                    CancellationTokenParameter = _dummyCancellationToken;
+                    CancellationTokenParameter = QueryCompilationContext.CancellationTokenParameter;
                 }
             }
 
@@ -143,11 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 memberExpressionType.GenericTypeArguments[0]),
                             memberExpression.Expression)));
 
-                if (CancellationTokenParameter == null)
-                {
-                    Visit(memberExpression.Expression);
-                }
-
                 return
                     Expression.Convert(
                         Expression.ArrayAccess(
@@ -174,11 +166,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             _toObjectTask.MakeGenericMethod(
                                 methodCallExpression.Method.ReturnType),
                             methodCallExpression.Arguments[0])));
-
-                if (CancellationTokenParameter == null)
-                {
-                    Visit(methodCallExpression.Arguments[0]);
-                }
 
                 return
                     Expression.Convert(

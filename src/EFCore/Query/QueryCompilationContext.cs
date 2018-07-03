@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
@@ -66,6 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         internal ISet<QueryModel> DuplicateQueryModels = new HashSet<QueryModel>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static readonly ParameterExpression CancellationTokenParameter
+            = Expression.Parameter(typeof(CancellationToken), name: "ct");
 
         /// <summary>
         ///     Registers a mapping between correlated collection query models and metadata needed to process them.
