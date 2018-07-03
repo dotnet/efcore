@@ -15,7 +15,7 @@ dotnet ef dbcontext scaffold
 dotnet ef database drop
 dotnet ef database update
     </Description>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <GenerateToolShims>true</GenerateToolShims>
@@ -78,12 +78,12 @@ dotnet ef database update
 
   <ItemGroup>
     <!-- Additional files to be code signed -->
-    <SignedPackageFile Include="tools/netcoreapp2.2/any/tools/netcoreapp2.0/any/ef.dll" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/netcoreapp2.2/any/tools/net461/any/ef.exe" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/netcoreapp2.2/any/tools/net461/win-x86/ef.exe" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/$(TargetFramework)/any/tools/netcoreapp2.0/any/ef.dll" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/$(TargetFramework)/any/tools/net461/any/ef.exe" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="tools/$(TargetFramework)/any/tools/net461/win-x86/ef.exe" Certificate="$(AssemblySigningCertName)" />
 
     <!-- Third-party assemblies should be signed with the 3PartyDual certificate -->
-    <SignedPackageFile Include="tools/netcoreapp2.2/any/Newtonsoft.Json.dll" Certificate="3PartyDual" />
+    <SignedPackageFile Include="tools/$(TargetFramework)/any/Newtonsoft.Json.dll" Certificate="3PartyDual" />
   </ItemGroup>
 
   <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
