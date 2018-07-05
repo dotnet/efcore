@@ -57,7 +57,8 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [b.LeafBAddress]
     WHERE [b.LeafBAddress].[Discriminator] = N'LeafB'
 ) AS [t5] ON [b].[Id] = [t5].[Id]
-WHERE [a].[Discriminator] = N'LeafA'");
+WHERE [a].[Discriminator] = N'LeafA'
+ORDER BY [a].[Id]");
         }
 
         public override void Query_for_base_type_loads_all_owned_navs()
@@ -108,7 +109,57 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o.PersonAddress.Country]
     WHERE [o.PersonAddress.Country].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
 ) AS [t6] ON [t5].[Id] = [t6].[Id]
-WHERE [o].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')");
+WHERE [o].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+ORDER BY [o].[Id]",
+                //
+                @"SELECT [o.Orders].[Id], [o.Orders].[ClientId]
+FROM [Order] AS [o.Orders]
+INNER JOIN (
+    SELECT DISTINCT [o0].[Id]
+    FROM [OwnedPerson] AS [o0]
+    LEFT JOIN (
+        SELECT [l.LeafBAddress0].*
+        FROM [OwnedPerson] AS [l.LeafBAddress0]
+        WHERE [l.LeafBAddress0].[Discriminator] = N'LeafB'
+    ) AS [t7] ON [o0].[Id] = [t7].[Id]
+    LEFT JOIN (
+        SELECT [l.LeafBAddress.Country0].*
+        FROM [OwnedPerson] AS [l.LeafBAddress.Country0]
+        WHERE [l.LeafBAddress.Country0].[Discriminator] = N'LeafB'
+    ) AS [t8] ON [t7].[Id] = [t8].[Id]
+    LEFT JOIN (
+        SELECT [l.LeafAAddress0].*
+        FROM [OwnedPerson] AS [l.LeafAAddress0]
+        WHERE [l.LeafAAddress0].[Discriminator] = N'LeafA'
+    ) AS [t9] ON [o0].[Id] = [t9].[Id]
+    LEFT JOIN (
+        SELECT [l.LeafAAddress.Country0].*
+        FROM [OwnedPerson] AS [l.LeafAAddress.Country0]
+        WHERE [l.LeafAAddress.Country0].[Discriminator] = N'LeafA'
+    ) AS [t10] ON [t9].[Id] = [t10].[Id]
+    LEFT JOIN (
+        SELECT [b.BranchAddress0].*
+        FROM [OwnedPerson] AS [b.BranchAddress0]
+        WHERE [b.BranchAddress0].[Discriminator] IN (N'LeafA', N'Branch')
+    ) AS [t11] ON [o0].[Id] = [t11].[Id]
+    LEFT JOIN (
+        SELECT [b.BranchAddress.Country0].*
+        FROM [OwnedPerson] AS [b.BranchAddress.Country0]
+        WHERE [b.BranchAddress.Country0].[Discriminator] IN (N'LeafA', N'Branch')
+    ) AS [t12] ON [t11].[Id] = [t12].[Id]
+    LEFT JOIN (
+        SELECT [o.PersonAddress0].*
+        FROM [OwnedPerson] AS [o.PersonAddress0]
+        WHERE [o.PersonAddress0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+    ) AS [t13] ON [o0].[Id] = [t13].[Id]
+    LEFT JOIN (
+        SELECT [o.PersonAddress.Country0].*
+        FROM [OwnedPerson] AS [o.PersonAddress.Country0]
+        WHERE [o.PersonAddress.Country0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+    ) AS [t14] ON [t13].[Id] = [t14].[Id]
+    WHERE [o0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+) AS [t15] ON [o.Orders].[ClientId] = [t15].[Id]
+ORDER BY [t15].[Id]");
         }
 
         public override void No_ignored_include_warning_when_implicit_load()
@@ -158,7 +209,47 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o.PersonAddress.Country]
     WHERE [o.PersonAddress.Country].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
 ) AS [t4] ON [t3].[Id] = [t4].[Id]
-WHERE [o].[Discriminator] IN (N'LeafA', N'Branch')");
+WHERE [o].[Discriminator] IN (N'LeafA', N'Branch')
+ORDER BY [o].[Id]",
+                //
+                @"SELECT [o.Orders].[Id], [o.Orders].[ClientId]
+FROM [Order] AS [o.Orders]
+INNER JOIN (
+    SELECT DISTINCT [o0].[Id]
+    FROM [OwnedPerson] AS [o0]
+    LEFT JOIN (
+        SELECT [l.LeafAAddress0].*
+        FROM [OwnedPerson] AS [l.LeafAAddress0]
+        WHERE [l.LeafAAddress0].[Discriminator] = N'LeafA'
+    ) AS [t5] ON [o0].[Id] = [t5].[Id]
+    LEFT JOIN (
+        SELECT [l.LeafAAddress.Country0].*
+        FROM [OwnedPerson] AS [l.LeafAAddress.Country0]
+        WHERE [l.LeafAAddress.Country0].[Discriminator] = N'LeafA'
+    ) AS [t6] ON [t5].[Id] = [t6].[Id]
+    LEFT JOIN (
+        SELECT [b.BranchAddress0].*
+        FROM [OwnedPerson] AS [b.BranchAddress0]
+        WHERE [b.BranchAddress0].[Discriminator] IN (N'LeafA', N'Branch')
+    ) AS [t7] ON [o0].[Id] = [t7].[Id]
+    LEFT JOIN (
+        SELECT [b.BranchAddress.Country0].*
+        FROM [OwnedPerson] AS [b.BranchAddress.Country0]
+        WHERE [b.BranchAddress.Country0].[Discriminator] IN (N'LeafA', N'Branch')
+    ) AS [t8] ON [t7].[Id] = [t8].[Id]
+    LEFT JOIN (
+        SELECT [o.PersonAddress0].*
+        FROM [OwnedPerson] AS [o.PersonAddress0]
+        WHERE [o.PersonAddress0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+    ) AS [t9] ON [o0].[Id] = [t9].[Id]
+    LEFT JOIN (
+        SELECT [o.PersonAddress.Country0].*
+        FROM [OwnedPerson] AS [o.PersonAddress.Country0]
+        WHERE [o.PersonAddress.Country0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+    ) AS [t10] ON [t9].[Id] = [t10].[Id]
+    WHERE [o0].[Discriminator] IN (N'LeafA', N'Branch')
+) AS [t11] ON [o.Orders].[ClientId] = [t11].[Id]
+ORDER BY [t11].[Id]");
         }
 
         public override void Query_for_leaf_type_loads_all_owned_navs()
@@ -166,7 +257,7 @@ WHERE [o].[Discriminator] IN (N'LeafA', N'Branch')");
             base.Query_for_leaf_type_loads_all_owned_navs();
 
             AssertSql(
-                @"SELECT [o].[Id], [o].[Discriminator], [t].[Id], [t0].[Id], [t0].[LeafAAddress_Country_Name], [t1].[Id], [t2].[Id], [t2].[BranchAddress_Country_Name], [t3].[Id], [t4].[Id], [t4].[PersonAddress_Country_Name]
+               @"SELECT [o].[Id], [o].[Discriminator], [t].[Id], [t0].[Id], [t0].[LeafAAddress_Country_Name], [t1].[Id], [t2].[Id], [t2].[BranchAddress_Country_Name], [t3].[Id], [t4].[Id], [t4].[PersonAddress_Country_Name]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [l.LeafAAddress].*
@@ -198,7 +289,47 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o.PersonAddress.Country]
     WHERE [o.PersonAddress.Country].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
 ) AS [t4] ON [t3].[Id] = [t4].[Id]
-WHERE [o].[Discriminator] = N'LeafA'");
+WHERE [o].[Discriminator] = N'LeafA'
+ORDER BY [o].[Id]",
+               //
+               @"SELECT [o.Orders].[Id], [o.Orders].[ClientId]
+FROM [Order] AS [o.Orders]
+INNER JOIN (
+    SELECT DISTINCT [o0].[Id]
+    FROM [OwnedPerson] AS [o0]
+    LEFT JOIN (
+        SELECT [l.LeafAAddress0].*
+        FROM [OwnedPerson] AS [l.LeafAAddress0]
+        WHERE [l.LeafAAddress0].[Discriminator] = N'LeafA'
+    ) AS [t5] ON [o0].[Id] = [t5].[Id]
+    LEFT JOIN (
+        SELECT [l.LeafAAddress.Country0].*
+        FROM [OwnedPerson] AS [l.LeafAAddress.Country0]
+        WHERE [l.LeafAAddress.Country0].[Discriminator] = N'LeafA'
+    ) AS [t6] ON [t5].[Id] = [t6].[Id]
+    LEFT JOIN (
+        SELECT [b.BranchAddress0].*
+        FROM [OwnedPerson] AS [b.BranchAddress0]
+        WHERE [b.BranchAddress0].[Discriminator] IN (N'LeafA', N'Branch')
+    ) AS [t7] ON [o0].[Id] = [t7].[Id]
+    LEFT JOIN (
+        SELECT [b.BranchAddress.Country0].*
+        FROM [OwnedPerson] AS [b.BranchAddress.Country0]
+        WHERE [b.BranchAddress.Country0].[Discriminator] IN (N'LeafA', N'Branch')
+    ) AS [t8] ON [t7].[Id] = [t8].[Id]
+    LEFT JOIN (
+        SELECT [o.PersonAddress0].*
+        FROM [OwnedPerson] AS [o.PersonAddress0]
+        WHERE [o.PersonAddress0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+    ) AS [t9] ON [o0].[Id] = [t9].[Id]
+    LEFT JOIN (
+        SELECT [o.PersonAddress.Country0].*
+        FROM [OwnedPerson] AS [o.PersonAddress.Country0]
+        WHERE [o.PersonAddress.Country0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+    ) AS [t10] ON [t9].[Id] = [t10].[Id]
+    WHERE [o0].[Discriminator] = N'LeafA'
+) AS [t11] ON [o.Orders].[ClientId] = [t11].[Id]
+ORDER BY [t11].[Id]");
         }
 
         public override void Query_when_group_by()

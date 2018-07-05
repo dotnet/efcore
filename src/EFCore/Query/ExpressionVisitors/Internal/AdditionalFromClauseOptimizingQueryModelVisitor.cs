@@ -16,6 +16,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     /// </summary>
     public class AdditionalFromClauseOptimizingQueryModelVisitor : QueryModelVisitorBase
     {
+        private QueryCompilationContext _queryCompilationContext;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public AdditionalFromClauseOptimizingQueryModelVisitor(QueryCompilationContext queryCompilationContext)
+        {
+            _queryCompilationContext = queryCompilationContext;
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -56,6 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var newSubQueryModel = new QueryModel(newMainFromClause, newSelectClause);
 
                 ShiftBodyClauses(subQueryExpression.QueryModel, newSubQueryModel);
+
+                var entityType = _queryCompilationContext.FindEntityType(subQueryExpression.QueryModel.MainFromClause);
+                if (entityType != null)
+                {
+                    _queryCompilationContext.AddOrUpdateMapping(newMainFromClause, entityType);
+                }
 
                 var newSubQueryExpression = new SubQueryExpression(newSubQueryModel);
 

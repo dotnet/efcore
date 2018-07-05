@@ -69,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual void CompileIncludes(
             [NotNull] QueryModel queryModel,
             bool trackingQuery,
-            bool asyncQuery)
+            bool asyncQuery,
+            bool shouldThrow)
         {
             if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
             {
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             _targetQueryModel = _targetQueryModel ?? queryModel;
 
-            foreach (var includeLoadTree in CreateIncludeLoadTrees(queryModel))
+            foreach (var includeLoadTree in CreateIncludeLoadTrees(queryModel, shouldThrow))
             {
                 includeLoadTree.Compile(
                     _queryCompilationContext,
@@ -127,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private IEnumerable<IncludeLoadTree> CreateIncludeLoadTrees(QueryModel queryModel)
+        private IEnumerable<IncludeLoadTree> CreateIncludeLoadTrees(QueryModel queryModel, bool shouldThrow)
         {
             var querySourceTracingExpressionVisitor
                 = _querySourceTracingExpressionVisitorFactory.Create();
@@ -176,7 +177,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     includeLoadTrees.Add(includeLoadTree = new IncludeLoadTree(querySourceReferenceExpression));
                 }
 
-                PopulateIncludeLoadTree(includeResultOperator, includeLoadTree);
+                if (!TryPopulateIncludeLoadTree(includeResultOperator, includeLoadTree, shouldThrow))
+                {
+                    includeLoadTrees.Remove(includeLoadTree);
+                    continue;
+                }
 
                 _queryCompilationContext.Logger.NavigationIncluded(includeResultOperator);
                 _includeResultOperators.Remove(includeResultOperator);
@@ -185,7 +190,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return includeLoadTrees;
         }
 
-        private void PopulateIncludeLoadTree(IncludeResultOperator includeResultOperator, IncludeLoadTree includeLoadTree)
+        private bool TryPopulateIncludeLoadTree(
+            IncludeResultOperator includeResultOperator,
+            IncludeLoadTree includeLoadTree,
+            bool shouldThrow)
         {
             if (includeResultOperator.NavigationPaths != null)
             {
@@ -194,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     includeLoadTree.AddLoadPath(navigationPath);
                 }
 
-                return;
+                return true;
             }
 
             IEntityType entityType = null;
@@ -222,17 +230,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (entityType == null)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(
-                        includeResultOperator.ToString(),
-                        includeResultOperator.NavigationPropertyPaths.FirstOrDefault()));
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(
+                            includeResultOperator.ToString(),
+                            includeResultOperator.NavigationPropertyPaths.FirstOrDefault()));
+                }
+
+                return false;
             }
 
-            WalkNavigations(entityType, includeResultOperator.NavigationPropertyPaths, includeLoadTree);
+            return WalkNavigations(entityType, includeResultOperator.NavigationPropertyPaths, includeLoadTree, shouldThrow);
         }
 
-        private static void WalkNavigations(
-            IEntityType entityType, IReadOnlyList<string> navigationPropertyPaths, IncludeLoadTree includeLoadTree)
+        private static bool WalkNavigations(
+            IEntityType entityType,
+            IReadOnlyList<string> navigationPropertyPaths,
+            IncludeLoadTree includeLoadTree,
+            bool shouldThrow)
         {
             var longestMatchFound
                 = WalkNavigationsInternal(
@@ -244,11 +260,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (longestMatchFound.Depth < navigationPropertyPaths.Count)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.IncludeBadNavigation(
-                        navigationPropertyPaths[longestMatchFound.Depth],
-                        longestMatchFound.EntityType.DisplayName()));
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.IncludeBadNavigation(
+                            navigationPropertyPaths[longestMatchFound.Depth],
+                            longestMatchFound.EntityType.DisplayName()));
+                }
+
+                return false;
             }
+
+            return true;
         }
 
         private static (int Depth, IEntityType EntityType) WalkNavigationsInternal(

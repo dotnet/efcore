@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // Rewrite includes/navigations
 
             var includeCompiler = new IncludeCompiler(QueryCompilationContext, _querySourceTracingExpressionVisitorFactory);
-            includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery);
+            includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery, shouldThrow: false);
 
             queryModel.TransformExpressions(new CollectionNavigationSubqueryInjector(this).Visit);
             queryModel.TransformExpressions(new CollectionNavigationSetOperatorSubqueryInjector(this).Visit);
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
-            includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery);
+            includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery, shouldThrow: true);
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 

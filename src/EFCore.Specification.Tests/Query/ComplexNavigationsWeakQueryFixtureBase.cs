@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
@@ -33,18 +34,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Ignore(e => e.OneToMany_Required_Self)
                 .Ignore(e => e.OneToMany_Required_Self_Inverse)
                 .Ignore(e => e.OneToMany_Optional_Self)
-                .Ignore(e => e.OneToMany_Optional_Self_Inverse)
-                .Ignore(e => e.OneToMany_Required)
-                .Ignore(e => e.OneToMany_Optional);
+                .Ignore(e => e.OneToMany_Optional_Self_Inverse);
 
             var level1 = level1Builder.Metadata;
-            var level2 = level1.Model.AddEntityType(typeof(Level2), nameof(Level1.OneToOne_Required_PK), level1);
-            var level2Fk = level2.AddForeignKey(level2.FindProperty(nameof(Level2.Id)), level1.FindPrimaryKey(), level1);
-            level2Fk.HasPrincipalToDependent(nameof(Level1.OneToOne_Required_PK));
-            level2Fk.IsUnique = true;
-            level2Fk.DeleteBehavior = DeleteBehavior.Restrict;
 
-            Configure(new ReferenceOwnershipBuilder<Level1, Level2>((EntityType)level1, (EntityType)level2, ((ForeignKey)level2Fk).Builder));
+            ForeignKey level2Fk;
+            var level2 = level1.Model.AddEntityType(typeof(Level2), nameof(Level1.OneToOne_Required_PK), level1);
+            using (var batch = ((Model)modelBuilder.Model).ConventionDispatcher.StartBatch())
+            {
+                level2Fk = (ForeignKey)level2.AddForeignKey(level2.FindProperty(nameof(Level2.Id)), level1.FindPrimaryKey(), level1);
+                level2Fk.HasPrincipalToDependent(nameof(Level1.OneToOne_Required_PK));
+                level2Fk.HasDependentToPrincipal(nameof(Level2.OneToOne_Required_PK_Inverse));
+                level2Fk.IsUnique = true;
+                level2Fk.DeleteBehavior = DeleteBehavior.Restrict;
+                level2Fk = batch.Run(level2Fk);
+            }
+
+            Configure(new ReferenceOwnershipBuilder<Level1, Level2>((EntityType)level1, level2Fk.DeclaringEntityType, level2Fk.Builder));
 
             modelBuilder.Entity<InheritanceBase1>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<InheritanceBase2>().Property(e => e.Id).ValueGeneratedNever();
@@ -89,10 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Ignore(e => e.OneToMany_Required_Self_Inverse)
                 .Ignore(e => e.OneToMany_Optional_Self)
                 .Ignore(e => e.OneToMany_Optional_Self_Inverse)
-                .Ignore(e => e.OneToMany_Required)
-                .Ignore(e => e.OneToMany_Required_Inverse)
-                .Ignore(e => e.OneToMany_Optional)
-                .Ignore(e => e.OneToMany_Optional_Inverse).OwnedEntityType;
+                .OwnedEntityType;
 
             l2.Property(e => e.Id).ValueGeneratedNever();
 
@@ -112,13 +115,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .HasForeignKey<Level2>(e => e.Level1_Optional_Id)
                 .IsRequired(false);
 
-            var level3 = level2.Model.AddEntityType(typeof(Level3), nameof(Level2.OneToOne_Required_PK), level2);
-            var level3Fk = level3.AddForeignKey(level3.FindProperty(nameof(Level3.Id)), level2.FindPrimaryKey(), level2);
-            level3Fk.HasPrincipalToDependent(nameof(Level2.OneToOne_Required_PK));
-            level3Fk.IsUnique = true;
-            level3Fk.DeleteBehavior = DeleteBehavior.Restrict;
+            l2.HasOne(e => e.OneToMany_Required_Inverse)
+                .WithMany(e => e.OneToMany_Required)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
-            Configure(new ReferenceOwnershipBuilder<Level2, Level3>((EntityType)level2, (EntityType)level3, ((ForeignKey)level3Fk).Builder));
+            l2.HasOne(e => e.OneToMany_Optional_Inverse)
+                .WithMany(e => e.OneToMany_Optional)
+                .IsRequired(false);
+
+            ForeignKey level3Fk;
+            var level3 = level2.Model.AddEntityType(typeof(Level3), nameof(Level2.OneToOne_Required_PK), level2);
+            using (var batch = ((Model)level2.Model).ConventionDispatcher.StartBatch())
+            {
+                level3Fk = (ForeignKey)level3.AddForeignKey(level3.FindProperty(nameof(Level3.Id)), level2.FindPrimaryKey(), level2);
+                level3Fk.HasPrincipalToDependent(nameof(Level2.OneToOne_Required_PK));
+                level3Fk.HasDependentToPrincipal(nameof(Level3.OneToOne_Required_PK_Inverse));
+                level3Fk.IsUnique = true;
+                level3Fk.DeleteBehavior = DeleteBehavior.Restrict;
+                level3Fk = batch.Run(level3Fk);
+            }
+
+            Configure(new ReferenceOwnershipBuilder<Level2, Level3>((EntityType)level2, level3Fk.DeclaringEntityType, level3Fk.Builder));
         }
 
         protected virtual void Configure(ReferenceOwnershipBuilder<Level2, Level3> l3)
@@ -128,10 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Ignore(e => e.OneToMany_Required_Self_Inverse)
                 .Ignore(e => e.OneToMany_Optional_Self)
                 .Ignore(e => e.OneToMany_Optional_Self_Inverse)
-                .Ignore(e => e.OneToMany_Required)
-                .Ignore(e => e.OneToMany_Required_Inverse)
-                .Ignore(e => e.OneToMany_Optional)
-                .Ignore(e => e.OneToMany_Optional_Inverse).OwnedEntityType;
+                .OwnedEntityType;
 
             l3.Property(e => e.Id).ValueGeneratedNever();
 
@@ -151,13 +166,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .HasForeignKey<Level3>(e => e.Level2_Optional_Id)
                 .IsRequired(false);
 
-            var level4 = level3.Model.AddEntityType(typeof(Level4), nameof(Level3.OneToOne_Required_PK), level3);
-            var level4Fk = level4.AddForeignKey(level4.FindProperty(nameof(Level4.Id)), level3.FindPrimaryKey(), level3);
-            level4Fk.HasPrincipalToDependent(nameof(Level3.OneToOne_Required_PK));
-            level4Fk.IsUnique = true;
-            level4Fk.DeleteBehavior = DeleteBehavior.Restrict;
+            l3.HasOne(e => e.OneToMany_Required_Inverse)
+                .WithMany(e => e.OneToMany_Required)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
-            Configure(new ReferenceOwnershipBuilder<Level3, Level4>((EntityType)level3, (EntityType)level4, ((ForeignKey)level4Fk).Builder));
+            l3.HasOne(e => e.OneToMany_Optional_Inverse)
+                .WithMany(e => e.OneToMany_Optional)
+                .IsRequired(false);
+
+            ForeignKey level4Fk;
+            var level4 = level3.Model.AddEntityType(typeof(Level4), nameof(Level3.OneToOne_Required_PK), level3);
+            using (var batch = ((Model)level3.Model).ConventionDispatcher.StartBatch())
+            {
+                level4Fk = (ForeignKey)level4.AddForeignKey(level4.FindProperty(nameof(Level4.Id)), level3.FindPrimaryKey(), level3);
+                level4Fk.HasPrincipalToDependent(nameof(Level3.OneToOne_Required_PK));
+                level4Fk.HasDependentToPrincipal(nameof(Level4.OneToOne_Required_PK_Inverse));
+                level4Fk.IsUnique = true;
+                level4Fk.DeleteBehavior = DeleteBehavior.Restrict;
+                level4Fk = batch.Run(level4Fk);
+            }
+
+            Configure(new ReferenceOwnershipBuilder<Level3, Level4>((EntityType)level3, level4Fk.DeclaringEntityType, level4Fk.Builder));
         }
 
         protected virtual void Configure(ReferenceOwnershipBuilder<Level3, Level4> l4)
@@ -166,9 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Ignore(e => e.OneToMany_Required_Self)
                 .Ignore(e => e.OneToMany_Required_Self_Inverse)
                 .Ignore(e => e.OneToMany_Optional_Self)
-                .Ignore(e => e.OneToMany_Optional_Self_Inverse)
-                .Ignore(e => e.OneToMany_Required_Inverse)
-                .Ignore(e => e.OneToMany_Optional_Inverse);
+                .Ignore(e => e.OneToMany_Optional_Self_Inverse);
 
             l4.Property(e => e.Id).ValueGeneratedNever();
 
@@ -186,6 +214,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             l4.HasOne(e => e.OneToOne_Optional_FK_Inverse)
                 .WithOne(e => e.OneToOne_Optional_FK)
                 .HasForeignKey<Level4>(e => e.Level3_Optional_Id)
+                .IsRequired(false);
+
+            l4.HasOne(e => e.OneToMany_Required_Inverse)
+                .WithMany(e => e.OneToMany_Required)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            l4.HasOne(e => e.OneToMany_Optional_Inverse)
+                .WithMany(e => e.OneToMany_Optional)
                 .IsRequired(false);
         }
 

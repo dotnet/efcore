@@ -718,7 +718,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         return false;
                     }
 
-                    if (foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(
+                    var isDependent = navigation.IsDependentToPrincipal();
+                    var navigationConfigurationSource = isDependent
+                        ? foreignKey.GetDependentToPrincipalConfigurationSource()
+                        : foreignKey.GetPrincipalToDependentConfigurationSource();
+                    if (foreignKey.GetConfigurationSource() != navigationConfigurationSource)
+                    {
+                        if (foreignKey.Builder.Navigations(
+                            isDependent ? PropertyIdentity.None : (PropertyIdentity?)null,
+                            isDependent ? (PropertyIdentity?)null : PropertyIdentity.None,
+                            configurationSource) == null)
+                        {
+                            Metadata.Unignore(name);
+                            return false;
+                        }
+                    }
+                    else if (foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(
                             foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
                     {
                         Metadata.Unignore(name);

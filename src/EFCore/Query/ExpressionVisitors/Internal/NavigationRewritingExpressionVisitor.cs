@@ -1023,6 +1023,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     var innerQuerySourceReferenceExpression
                         = new QuerySourceReferenceExpression(_queryModel.MainFromClause);
+                    _queryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(_queryModel.MainFromClause, targetEntityType);
 
                     var leftKeyAccess = CreateKeyAccessExpression(
                         querySourceReferenceExpression,
@@ -1048,10 +1049,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var navigationJoin
                     = navigationJoins
-                        .FirstOrDefault(
-                            nj =>
-                                nj.QuerySource == querySourceReferenceExpression.ReferencedQuerySource
-                                && nj.Navigation == navigation);
+                        .FirstOrDefault(nj =>
+                            nj.QuerySource == querySourceReferenceExpression.ReferencedQuerySource
+                            && nj.Navigation == navigation);
 
                 if (navigationJoin == null)
                 {
@@ -1123,6 +1123,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var groupJoinSubqueryModelMainFromClause = new MainFromClause(joinClause.ItemName + "_groupItem", joinClause.ItemType, groupReferenceExpression);
             var newQuerySourceReferenceExpression = new QuerySourceReferenceExpression(groupJoinSubqueryModelMainFromClause);
+            _queryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(groupJoinSubqueryModelMainFromClause, targetEntityType);
 
             var groupJoinSubqueryModel = new QueryModel(
                 groupJoinSubqueryModelMainFromClause,
@@ -1145,9 +1146,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 querySourceMapping.AddMapping(groupJoinSubqueryMainFromClause, newQuerySourceReferenceExpression);
 
                 groupJoinSubqueryModel.TransformExpressions(
-                    e =>
-                        ReferenceReplacingExpressionVisitor
-                            .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+                    e => ReferenceReplacingExpressionVisitor
+                        .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
             }
 
             var defaultIfEmptySubquery = new SubQueryExpression(groupJoinSubqueryModel);
@@ -1199,9 +1199,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             querySourceMapping.AddMapping(additionalFromClauseBeingProcessed, querySourceReferenceExpression);
 
             _queryModel.TransformExpressions(
-                e =>
-                    ReferenceReplacingExpressionVisitor
-                        .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+                e => ReferenceReplacingExpressionVisitor
+                    .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
             AdjustIncludeAnnotations(querySourceMapping, additionalFromClauseBeingProcessed, querySourceReferenceExpression.ReferencedQuerySource);
 

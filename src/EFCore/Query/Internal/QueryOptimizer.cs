@@ -53,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private QueryCompilationContext _queryCompilationContext;
 
         private readonly TransformingQueryModelExpressionVisitor<QueryOptimizer> _transformingExpressionVisitor;
-        private readonly AdditionalFromClauseOptimizingQueryModelVisitor _additionalFromClauseOptimizingQueryModelVisitor;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -62,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public QueryOptimizer()
         {
             _transformingExpressionVisitor = new TransformingQueryModelExpressionVisitor<QueryOptimizer>(this);
-            _additionalFromClauseOptimizingQueryModelVisitor = new AdditionalFromClauseOptimizingQueryModelVisitor();
         }
 
         /// <summary>
@@ -75,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _queryCompilationContext = queryCompilationContext;
 
-            _additionalFromClauseOptimizingQueryModelVisitor.VisitQueryModel(queryModel);
+            new AdditionalFromClauseOptimizingQueryModelVisitor(_queryCompilationContext).VisitQueryModel(queryModel);
 
             VisitQueryModel(queryModel);
 
@@ -218,8 +216,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || emptyQueryModelWithResultOperatorThatIgnoresElementCountAndDistinctInSubquery
                 || subqueryInMainClauseWithoutResultOperatorsProjectingItsMainClause)
             {
-                string itemName;
-
                 var querySourceMapping = new QuerySourceMapping();
                 var clonedSubQueryModel = subQueryModel.Clone(querySourceMapping);
                 UpdateQueryAnnotations(subQueryModel, querySourceMapping);
@@ -227,8 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var innerMainFromClause = clonedSubQueryModel.MainFromClause;
                 var isGeneratedNameOuter = fromClause.HasGeneratedItemName();
 
-                itemName = innerMainFromClause.HasGeneratedItemName()
-                    && !isGeneratedNameOuter
+                var itemName = innerMainFromClause.HasGeneratedItemName()
+                                  && !isGeneratedNameOuter
                     ? fromClause.ItemName
                     : innerMainFromClause.ItemName;
 
@@ -299,7 +295,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    var entityType = _queryCompilationContext.Model.FindEntityType(searchedItemType);
+                    var entityType = _queryCompilationContext.Model.FindEntityType(searchedItemType)
+                        ?? _queryCompilationContext.FindEntityType(queryModel.MainFromClause);
 
                     if (entityType != null)
                     {
@@ -317,6 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     entityQueryProvider.CreateEntityQueryableExpression(entityType.ClrType));
 
                             queryModel.MainFromClause = newMainFromClause;
+
+                            _queryCompilationContext.AddOrUpdateMapping(newMainFromClause, entityType);
 
                             UpdateQuerySourceMapping(
                                 queryModel,
@@ -401,13 +400,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             querySourceMapping.AddMapping(oldQuerySource, newExpression);
 
             queryModel.TransformExpressions(
-                e =>
-                    ReferenceReplacingExpressionVisitor
-                        .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+                e => ReferenceReplacingExpressionVisitor
+                    .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
             if (newExpression is QuerySourceReferenceExpression qsre)
             {
                 var newQuerySource = qsre.ReferencedQuerySource;
+                var entityType = _queryCompilationContext.FindEntityType(oldQuerySource);
+                if (entityType != null)
+                {
+                    _queryCompilationContext.AddOrUpdateMapping(newQuerySource, entityType);
+                }
                 foreach (var queryAnnotation in _queryCompilationContext.QueryAnnotations.Where(qa => qa.QuerySource == oldQuerySource))
                 {
                     queryAnnotation.QuerySource = newQuerySource;

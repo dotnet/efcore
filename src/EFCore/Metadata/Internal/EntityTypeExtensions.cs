@@ -249,23 +249,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
-            => FindInDefinitionPath(entityType, targetType) != null;
+            => entityType.FindInDefinitionPath(targetType) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] string targetTypeName)
-            => FindInDefinitionPath(entityType, targetTypeName) != null;
+            => entityType.FindInDefinitionPath(targetTypeName) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] IEntityType targetType)
-            => targetType.ClrType == null
-                ? FindInDefinitionPath(entityType, targetType.Name) != null
-                : FindInDefinitionPath(entityType, targetType.ClrType) != null;
+        public static IEntityType FindInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
+        {
+            var owner = entityType;
+            while (true)
+            {
+                var ownership = owner.FindOwnership();
+                if (ownership == null)
+                {
+                    return null;
+                }
+
+                owner = ownership.PrincipalEntityType;
+                if (owner.ClrType == targetType)
+                {
+                    return owner;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsInOwnershipPath([NotNull] this EntityType entityType, [NotNull] Type targetType)
+            => entityType.FindInOwnershipPath(targetType) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

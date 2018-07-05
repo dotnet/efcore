@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         .FromExpression)
                     .QueryModel.ResultOperators.Last();
 
-                var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                MemberAccessBindingExpressionVisitor.GetPropertyPath(
                     queryModel.SelectClause.Selector, _queryModelVisitor.QueryCompilationContext, out var qsre);
 
                 if (qsre != null

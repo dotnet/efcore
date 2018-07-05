@@ -144,6 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var collectionQuerySourceReferenceExpression
                     = new QuerySourceReferenceExpression(collectionQueryModel.MainFromClause);
 
+                _queryCompilationContext.AddOrUpdateMapping(collectionQueryModel.MainFromClause, navigation.GetTargetType());
+
                 var joinQuerySourceReferenceExpression
                     = CreateJoinToParentQuery(
                         clonedParentQueryModel,

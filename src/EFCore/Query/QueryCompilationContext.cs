@@ -195,7 +195,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the entity type mapped to the given query source
         /// </summary>
         public virtual void AddOrUpdateMapping([NotNull] IQuerySource querySource, [NotNull] IEntityType entityType)
-            => _querySourceEntityTypeMapping[Check.NotNull(querySource, nameof(querySource))] = entityType;
+        {
+            if (entityType.ClrType.IsAssignableFrom(querySource.ItemType))
+            {
+                _querySourceEntityTypeMapping[Check.NotNull(querySource, nameof(querySource))] = entityType;
+            }
+        }
 
         /// <summary>
         ///     Updates the query source mappings to the new query sources
