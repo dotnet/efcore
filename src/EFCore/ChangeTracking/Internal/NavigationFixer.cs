@@ -530,6 +530,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityType = (EntityType)entry.EntityType;
             var stateManager = entry.StateManager;
+            IForeignKey conflictingPrincipalForeignKey = null;
+            var matchingPrincipal = false;
 
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
@@ -541,31 +543,46 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         if (!foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType))
                         {
-                            if (_sensitiveLoggingEnabled)
-                            {
-                                throw new InvalidOperationException(CoreStrings.IncompatiblePrincipalEntrySensitive(
-                                    entry.BuildCurrentValuesString(foreignKey.Properties),
-                                    entityType.DisplayName(),
-                                    entry.BuildOriginalValuesString(entityType.FindPrimaryKey().Properties),
-                                    principalEntry.EntityType.DisplayName(),
-                                    foreignKey.PrincipalEntityType.DisplayName()));
-                            }
-
-                            throw new InvalidOperationException(CoreStrings.IncompatiblePrincipalEntry(
-                                Property.Format(foreignKey.Properties),
-                                entityType.DisplayName(),
-                                principalEntry.EntityType.DisplayName(),
-                                foreignKey.PrincipalEntityType.DisplayName()));
+                            conflictingPrincipalForeignKey = foreignKey;
                         }
+                        else
+                        {
+                            matchingPrincipal = true;
 
-                        // Set navigation to principal based on FK properties
-                        SetNavigation(entry, foreignKey.DependentToPrincipal, principalEntry);
+                            // Set navigation to principal based on FK properties
+                            SetNavigation(entry, foreignKey.DependentToPrincipal, principalEntry);
 
-                        // Add this entity to principal's collection, or set inverse for 1:1
-                        ToDependentFixup(entry, principalEntry, foreignKey);
+                            // Add this entity to principal's collection, or set inverse for 1:1
+                            ToDependentFixup(entry, principalEntry, foreignKey);
+                        }
                     }
                 }
             }
+
+            if (!matchingPrincipal
+                && conflictingPrincipalForeignKey != null)
+            {
+                var principalEntry = stateManager.GetPrincipal(entry, conflictingPrincipalForeignKey);
+
+                if (_sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.IncompatiblePrincipalEntrySensitive(
+                            entry.BuildCurrentValuesString(conflictingPrincipalForeignKey.Properties),
+                            entityType.DisplayName(),
+                            entry.BuildOriginalValuesString(entityType.FindPrimaryKey().Properties),
+                            principalEntry.EntityType.DisplayName(),
+                            conflictingPrincipalForeignKey.PrincipalEntityType.DisplayName()));
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.IncompatiblePrincipalEntry(
+                        Property.Format(conflictingPrincipalForeignKey.Properties),
+                        entityType.DisplayName(),
+                        principalEntry.EntityType.DisplayName(),
+                        conflictingPrincipalForeignKey.PrincipalEntityType.DisplayName()));
+            }
+
 
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
             {
@@ -829,7 +846,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 for (var i = 0; i < foreignKey.Properties.Count; i++)
                 {
                     if (!PrincipalValueEqualsDependentValue(
-                        principalProperties[i], 
+                        principalProperties[i],
                         dependentEntry[dependentProperties[i]],
                         principalEntry[principalProperties[i]]))
                     {
