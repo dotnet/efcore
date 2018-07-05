@@ -30,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupByProperty
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Average(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -40,8 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Count(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -50,8 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_LongCount(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -60,8 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Max(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -70,8 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Min(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -80,8 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Sum(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -91,8 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Sum_Min_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -110,8 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Average(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -127,8 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Count(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -144,8 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_LongCount(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -161,8 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Max(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -178,8 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Min(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -195,8 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -212,8 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Sum_Min_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -232,8 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -256,8 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupByAnonymousAggregate
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Average(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -270,8 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Count(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -284,8 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_LongCount(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -298,8 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Max(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -312,8 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Min(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -326,8 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Sum(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -340,8 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Sum_Min_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -363,8 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_with_alias_Select_Key_Sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -383,8 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Average(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -398,8 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Count(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -413,8 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_LongCount(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -428,8 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Max(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -443,8 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Min(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -458,8 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -473,8 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum_Min_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -497,8 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Average(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -519,8 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Count(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -541,8 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_LongCount(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -563,8 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Max(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -585,8 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Min(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -607,8 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -629,8 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Sum_Min_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -654,8 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -679,8 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum_Min_Key_flattened_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -705,8 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Dto_as_key_Select_Sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -726,8 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Dto_as_element_selector_Select_Sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -768,8 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Dto_Sum_Min_Key_flattened_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -824,8 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum_Min_part_Key_flattened_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -849,8 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -869,8 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_with_element_selector_Select_Sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -885,8 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_with_element_selector_Select_Sum2(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -901,8 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_with_element_selector_Select_Sum3(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -917,8 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_after_predicate_Constant_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -937,8 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_with_element_selector_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -954,8 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
             var a = 2;
@@ -976,8 +926,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_with_element_selector_Select_Sum(bool isAsync)
         {
             var a = 2;
@@ -994,8 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_with_element_selector_Select_Sum2(bool isAsync)
         {
             var a = 2;
@@ -1012,8 +960,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_with_element_selector_Select_Sum3(bool isAsync)
         {
             var a = 2;
@@ -1030,8 +977,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_with_element_selector_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
             var a = 2;
@@ -1053,8 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupByWithElementSelectorAggregate
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Average(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1063,8 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Count(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1073,8 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_LongCount(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1083,8 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Max(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1093,8 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Min(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1103,8 +1044,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Sum(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1113,8 +1053,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Sum_Min_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1132,8 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Average(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1147,8 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Count(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1162,8 +1099,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_LongCount(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1177,8 +1113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Max(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1192,8 +1127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Min(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1207,8 +1141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Sum(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1222,8 +1155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Sum_Min_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1246,8 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_element_selector_complex_aggregate(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1257,8 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_element_selector_complex_aggregate2(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1268,8 +1198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_element_selector_complex_aggregate3(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1279,8 +1208,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_element_selector_complex_aggregate4(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1294,8 +1222,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupByAfterComposition
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_empty_key_Aggregate(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1309,8 +1236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_empty_key_Aggregate_Key(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1329,8 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1342,8 +1267,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1356,8 +1280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Take_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1370,8 +1293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_Take_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1385,8 +1307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Distinct_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1404,8 +1325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Anonymous_projection_Distinct_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1429,8 +1349,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1448,8 +1367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1469,8 +1387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_required_navigation_member_Aggregate(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -1488,8 +1405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_complex_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1510,8 +1426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1534,8 +1449,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate_2(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1557,8 +1471,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate_3(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1580,8 +1493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate_4(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1603,8 +1515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate_5(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1626,8 +1537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_optional_navigation_member_Aggregate(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1645,8 +1555,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_complex_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1670,8 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Self_join_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Order, Order>(
@@ -1691,8 +1599,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_multi_navigation_members_Aggregate(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -1716,8 +1623,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
 
         [Theory(Skip = "Unable to bind group by. See Issue#6658")]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_simple_groupby(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1735,8 +1641,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_anonymous_GroupBy_Aggregate(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1761,8 +1666,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_principal_key_property_optimization(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1780,8 +1684,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupByAggregateComposition
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_OrderBy_key(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1799,8 +1702,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_OrderBy_count(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1819,8 +1721,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_OrderBy_count_Select_sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1839,8 +1740,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_aggregate_Contains(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1854,8 +1754,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_aggregate_Pushdown(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1889,8 +1788,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_filter_key(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1907,8 +1805,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_filter_count(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1925,8 +1822,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_filter_count_OrderBy_count_Select_sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1946,8 +1842,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Aggregate_Join(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1972,8 +1867,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_multijoins(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -1999,8 +1893,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_single_join(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -2025,8 +1918,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_with_another_join(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -2054,8 +1946,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_in_subquery(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -2088,8 +1979,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_on_key(bool isAsync)
         {
             return AssertQuery<Order, Customer>(
@@ -2115,8 +2005,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_result_selector(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2138,8 +2027,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Sum_constant(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -2148,8 +2036,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Sum_constant_cast(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -2158,8 +2045,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Distinct_GroupBy_OrderBy_key(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2248,8 +2134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Where_in_aggregate(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -2264,8 +2149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Key_as_part_of_element_selector(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2286,8 +2170,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_composite_Key_as_part_of_element_selector(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2316,8 +2199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupByWithoutAggregate
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -2333,8 +2215,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_with_where(bool isAsync)
         {
             var countries = new[] { "Argentina", "Austria", "Brazil", "France", "Germany", "USA" };
@@ -2353,8 +2234,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory(Skip = "Test does not pass. See issue#7160")]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_subquery(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -2371,8 +2251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_nested_order_by_enumerable(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -2391,8 +2270,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_join_default_if_empty_anonymous(bool isAsync)
         {
             return AssertQuery<Order, OrderDetail>(
@@ -2415,8 +2293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_SelectMany(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -2426,8 +2303,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_simple(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2439,8 +2315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_simple2(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2452,8 +2327,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_first(bool isAsync)
         {
             return AssertFirst<Order>(
@@ -2464,8 +2338,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2478,8 +2351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector2(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2492,8 +2364,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector3(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -2511,8 +2382,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_DateTimeOffset_Property(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2524,8 +2394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_SelectMany(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2538,8 +2407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_SelectMany_shadow(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -2552,8 +2420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2565,8 +2432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_and_anonymous_projection(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2589,8 +2455,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_take_skip_distinct(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2602,8 +2467,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_join_anonymous(bool isAsync)
         {
             return AssertQuery<Order, OrderDetail>(
@@ -2626,8 +2490,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Distinct(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2638,8 +2501,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_GroupBy(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2651,8 +2513,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Take_GroupBy(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2664,8 +2525,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_Take_GroupBy(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2677,8 +2537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Distinct_GroupBy(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2694,8 +2553,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_aggregate_through_navigation_property(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2759,8 +2617,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region GroupBySelectFirst
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -2774,8 +2631,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow2(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -2789,8 +2645,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow3(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -2802,8 +2657,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Select_First_GroupBy(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -2974,8 +2828,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region ResultOperatorsAfterGroupBy
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Count_after_GroupBy_aggregate(bool isAsync)
         {
             return AssertSingleResult<Order>(
@@ -2985,8 +2838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task LongCount_after_client_GroupBy(bool isAsync)
         {
             return AssertSingleResult<Order>(
@@ -3000,8 +2852,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task MinMax_after_GroupBy_aggregate(bool isAsync)
         {
             await AssertMin<Order>(
@@ -3014,8 +2865,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task AllAny_after_GroupBy_aggregate(bool isAsync)
         {
             await AssertAll<Order, int>(
