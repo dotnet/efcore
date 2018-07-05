@@ -38,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_nav_projected_in_subquery_when_client_eval(bool isAsync)
         {
             return AssertQuery<Customer, Order, OrderDetail>(
@@ -52,8 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_nav_projected_in_subquery_when_client_eval(bool isAsync)
         {
             return AssertQuery<Customer, Order, OrderDetail>(
@@ -68,8 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_nav_in_predicate_in_subquery_when_client_eval(bool isAsync)
         {
             return AssertQuery<Customer, Order, OrderDetail>(
@@ -82,8 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_nav_in_predicate_in_subquery_when_client_eval(bool isAsync)
         {
             return AssertQuery<Customer, Order, OrderDetail>(
@@ -98,8 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_nav_in_orderby_in_subquery_when_client_eval(bool isAsync)
         {
             return AssertQuery<Customer, Order, OrderDetail>(
@@ -112,8 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_nav_in_orderby_in_subquery_when_client_eval(bool isAsync)
         {
             return AssertQuery<Customer, Order, OrderDetail>(
@@ -133,8 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static int ClientOrderBy<T>(T t, object _) => _randomGenrator.Next(0, 20);
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -146,8 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Contains(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -173,8 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -193,8 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -211,8 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Client(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -224,8 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Deep(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -238,8 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Take_Select_Navigation(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -249,8 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_FirstOrDefault_project_single_column1(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -259,8 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_FirstOrDefault_project_single_column2(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -269,8 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_FirstOrDefault_project_anonymous_type(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -286,8 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_FirstOrDefault_project_entity(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -296,8 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Skip_Select_Navigation(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -309,8 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Null(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -322,8 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Null_Reverse(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -335,8 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Null_Deep(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -351,8 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Equals_Navigation(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -372,8 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Included(bool isAsync)
         {
             return AssertIncludeQuery<Order>(
@@ -389,8 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_multiple_optional_navigations(bool isAsync)
         {
             var expectedIncludes = new List<IExpectedInclude>
@@ -409,8 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_count_plus_sum(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -424,8 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Singleton_Navigation_With_Member_Access(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -441,8 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Singleton_Navigation_With_Member_Access(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -480,8 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Multiple_Access(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -494,8 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Navigation(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -506,8 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Navigations(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -528,8 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Navigations_Where_Navigations(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -552,8 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_navigation_simple(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -576,8 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_navigation_multi_part(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -599,8 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_navigation_multi_part2(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -619,8 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_any(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -639,8 +604,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_predicate(bool isAsync)
         {
             return AssertQueryScalar<Customer>(
@@ -650,8 +614,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_where_nav_prop_any(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -666,8 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_where_nav_prop_any_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -682,8 +645,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_all(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -702,8 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_all_client(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -724,8 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_where_nav_prop_all(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -755,8 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_count(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -775,8 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_where_nav_prop_count(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -791,8 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_where_nav_prop_count_reverse(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -807,8 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_orderby_nav_prop_count(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -823,8 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_long_count(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -843,8 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_multiple_complex_projections(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -865,8 +819,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_sum(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -885,8 +838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_where_nav_prop_sum(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -915,8 +867,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -937,8 +888,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop(bool isAsync)
         {
             var orderIds = new[] { 10643, 10692, 10702, 10835, 10952, 11011 };
@@ -964,8 +914,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop_nested(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -975,8 +924,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_single_or_default_then_nav_prop_nested(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -986,8 +934,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -1008,8 +955,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -1020,8 +966,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_fk_based_inside_contains(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1033,8 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_inside_contains(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1046,8 +990,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_inside_contains_nested(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -1059,8 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_from_join_clause_inside_contains(bool isAsync)
         {
             return AssertQuery<OrderDetail, Order>(
@@ -1073,8 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_on_navigation(bool isAsync)
         {
             return AssertQuery<Product, OrderDetail>(
@@ -1086,8 +1027,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_on_navigation2(bool isAsync)
         {
             return AssertQuery<Product, OrderDetail>(
@@ -1099,8 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_on_navigation_client_eval(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -1156,8 +1095,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_on_nav_prop(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1172,8 +1110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_nav_prop_group_by(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -1193,8 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Let_group_by_nav_prop(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -1217,8 +1153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
 
         [Theory(Skip = "issue #6061")]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1240,8 +1175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_scalar_value_subquery_is_properly_inlined(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1262,8 +1196,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_entity_value_subquery_works(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1280,8 +1213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_scalar_value_subquery_in_query_with_optional_navigation_works(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1298,8 +1230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_complex_subquery_and_LOJ_gets_flattened(bool isAsync)
         {
             return AssertQuery<Customer, Order, OrderDetail>(
@@ -1320,8 +1251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_complex_subquery_and_LOJ_gets_flattened2(bool isAsync)
         {
             return AssertQuery<Customer, Order, OrderDetail>(
@@ -1341,8 +1271,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_with_collection_with_nullable_type_key(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -1352,8 +1281,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_groupjoin_with_orderby_key_descending(bool isAsync)
         {
             return AssertQueryScalar<Customer, Order>(
@@ -1492,8 +1420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_join_doesnt_get_bound_directly_to_group_join_qsre(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -1509,8 +1436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_include_with_multiple_optional_navigations(bool isAsync)
         {
             return AssertQuery<OrderDetail>(

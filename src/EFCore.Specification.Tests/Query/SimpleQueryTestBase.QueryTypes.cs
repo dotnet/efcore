@@ -16,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_simple(bool isAsync)
         {
             return AssertQuery<CustomerView>(
@@ -26,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_where_simple(bool isAsync)
         {
             return AssertQuery<CustomerView>(
@@ -72,8 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_defining_query(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
@@ -82,8 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_mixed_tracking(bool isAsync)
         {
             return AssertQuery<Customer, OrderQuery>(
@@ -100,8 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_included_nav(bool isAsync)
         {
             return AssertIncludeQuery<OrderQuery>(
@@ -116,8 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_included_navs_multi_level(bool isAsync)
         {
             return AssertIncludeQuery<OrderQuery>(
@@ -133,8 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_select_where_navigation(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
@@ -145,8 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_select_where_navigation_multi_level(bool isAsync)
         {
             return AssertQuery<OrderQuery>(

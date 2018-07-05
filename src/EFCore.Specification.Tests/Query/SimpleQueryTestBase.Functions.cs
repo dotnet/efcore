@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_StartsWith_Literal(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -35,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_StartsWith_Identity(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -46,8 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_StartsWith_Column(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -57,8 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_StartsWith_MethodCall(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -68,8 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_Literal(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -79,8 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_Identity(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -90,8 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_Column(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -101,8 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_MethodCall(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -112,8 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Literal(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -123,8 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Identity(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -134,8 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Column(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -145,8 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_MethodCall(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -156,8 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_simple_zero(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -192,8 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_simple_one(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -227,8 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_compare_with_parameter(bool isAsync)
         {
             Customer customer = null;
@@ -270,8 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_simple_client(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -289,8 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_nested(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -321,8 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_multi_predicate(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -337,8 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_simple_zero(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -373,8 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_simple_one(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -408,8 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_compare_to_with_parameter(bool isAsync)
         {
             Customer customer = null;
@@ -451,8 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_simple_client(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -470,8 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_nested(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -502,8 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_multi_predicate(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -528,8 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_abs1(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -539,8 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_abs2(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -550,8 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_abs3(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -561,8 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_abs_uncorrelated(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -572,8 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_ceiling1(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -583,8 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_ceiling2(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -594,8 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_floor(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -605,8 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_power(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -616,8 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_round(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -627,8 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_math_round_int(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -642,8 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_math_truncate_int(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -657,8 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_round2(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -668,8 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_truncate(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -679,8 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_exp(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -690,8 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_log10(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -701,8 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_log(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -712,8 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_log_new_base(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -723,8 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_sqrt(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -734,8 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_acos(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -745,8 +702,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_asin(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -756,8 +712,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_atan(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -767,8 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_atan2(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -778,8 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_cos(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -789,8 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_sin(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -800,8 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_tan(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -811,8 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_sign(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -822,8 +772,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_max(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -833,8 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_min(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -844,8 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_guid_newguid(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -855,8 +802,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_string_to_upper(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -866,8 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_string_to_lower(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -877,8 +822,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_functions_nested(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -888,8 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToByte(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -915,8 +858,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToDecimal(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -942,8 +884,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToDouble(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -969,8 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToInt16(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -996,8 +936,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToInt32(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -1023,8 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToInt64(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -1050,8 +988,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToString(bool isAsync)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -1077,8 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Indexof_with_emptystring(bool isAsync)
         {
             // ReSharper disable once StringIndexOfIsCultureSpecific.1
@@ -1088,8 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Replace_with_emptystring(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1098,8 +1033,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_zero_startindex(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1108,8 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_zero_length(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1118,8 +1051,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_constant(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1128,8 +1060,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_closure(bool isAsync)
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -1141,8 +1072,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_client_eval(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1151,8 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task IsNullOrEmpty_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1198,8 +1127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task IsNullOrWhiteSpace_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1209,8 +1137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_without_arguments_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1220,8 +1147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_with_char_argument_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1231,8 +1157,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1242,8 +1167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimEnd_without_arguments_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1253,8 +1177,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1264,8 +1187,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1275,8 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Trim_without_argument_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1286,8 +1207,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Trim_with_char_argument_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1297,8 +1217,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Trim_with_char_array_argument_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1308,8 +1227,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_length_twice(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1319,8 +1237,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Static_string_equals_in_predicate(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1330,8 +1247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Static_equals_nullable_datetime_compared_to_non_nullable(bool isAsync)
         {
             var arg = new DateTime(1996, 7, 4);
@@ -1343,8 +1259,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Static_equals_int_compared_to_long(bool isAsync)
         {
             long arg = 10248;

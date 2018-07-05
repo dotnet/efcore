@@ -18,6 +18,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
+        public static IEnumerable<object[]> IsAsyncData = new[]
+        {
+            new object[] { false },
+            new object[] { true }
+        };
+
         #region AssertAny
 
         protected virtual Task AssertAny<TItem1>(
