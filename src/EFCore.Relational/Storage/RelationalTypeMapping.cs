@@ -360,7 +360,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
 
-            if (Converter != null)
+            if (Converter != null
+                && !IsLegacyEnumValue(Converter, value))
             {
                 value = Converter.ConvertToProvider(value);
             }
@@ -386,6 +387,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ConfigureParameter(parameter);
 
             return parameter;
+        }
+
+        // Avoid converting value from enum to integer if it is already an integer; preserves 2.0 behavior
+        private static bool IsLegacyEnumValue(ValueConverter converter, object value)
+            => value != null
+               && IsLegacyInteger(value.GetType())
+               && converter.GetType().IsGenericType
+               && converter.GetType().GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>);
+
+        private static bool IsLegacyInteger(Type type)
+        {
+            type = type.UnwrapNullableType();
+
+            return type == typeof(int)
+                   || type == typeof(long)
+                   || type == typeof(short)
+                   || type == typeof(byte);
         }
 
         /// <summary>

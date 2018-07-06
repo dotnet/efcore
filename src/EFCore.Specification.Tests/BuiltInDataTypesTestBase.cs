@@ -261,6 +261,38 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<EnumS8>(e, nameof(BuiltInDataTypes.EnumS8)) == param24).ToList().Single());
                 }
 
+                if (UnwrapNullableType(entityType.FindProperty(nameof(BuiltInDataTypes.Enum64))?.GetProviderClrType()) == typeof(long))
+                {
+                    var param25 = 1;
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<Enum64>(e, nameof(BuiltInDataTypes.Enum64)) == (Enum64)param25).ToList().Single());
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && (int)EF.Property<Enum64>(e, nameof(BuiltInDataTypes.Enum64)) == param25).ToList().Single());
+
+                }
+
+                if (UnwrapNullableType(entityType.FindProperty(nameof(BuiltInDataTypes.Enum32))?.GetProviderClrType()) == typeof(int))
+                {
+                    var param26 = 1;
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<Enum32>(e, nameof(BuiltInDataTypes.Enum32)) == (Enum32)param26).ToList().Single());
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && (int)EF.Property<Enum32>(e, nameof(BuiltInDataTypes.Enum32)) == param26).ToList().Single());
+
+                }
+
+                if (UnwrapNullableType(entityType.FindProperty(nameof(BuiltInDataTypes.Enum16))?.GetProviderClrType()) == typeof(short))
+                {
+                    var param27 = 1;
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<Enum16>(e, nameof(BuiltInDataTypes.Enum16)) == (Enum16)param27).ToList().Single());
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && (int)EF.Property<Enum16>(e, nameof(BuiltInDataTypes.Enum16)) == param27).ToList().Single());
+
+                }
+
+                if (UnwrapNullableType(entityType.FindProperty(nameof(BuiltInDataTypes.Enum8))?.GetProviderClrType()) == typeof(byte))
+                {
+                    var param28 = 1;
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<Enum8>(e, nameof(BuiltInDataTypes.Enum8)) == (Enum8)param28).ToList().Single());
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && (int)EF.Property<Enum8>(e, nameof(BuiltInDataTypes.Enum8)) == param28).ToList().Single());
+
+                }
+
                 foreach (var propertyEntry in context.Entry(entity).Properties)
                 {
                     Assert.Equal(
@@ -455,6 +487,37 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<EnumS8>(e, nameof(BuiltInNullableDataTypes.EnumS8)) == param24).ToList().Single());
                 }
 
+                if (UnwrapNullableType(entityType.FindProperty(nameof(BuiltInNullableDataTypes.Enum64))?.GetProviderClrType()) == typeof(long))
+                {
+                    int? param25 = 1;
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<Enum64?>(e, nameof(BuiltInNullableDataTypes.Enum64)) == (Enum64)param25).ToList().Single());
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && (int)EF.Property<Enum64?>(e, nameof(BuiltInNullableDataTypes.Enum64)) == param25).ToList().Single());
+                }
+
+                if (UnwrapNullableType(entityType.FindProperty(nameof(BuiltInNullableDataTypes.Enum32))?.GetProviderClrType()) == typeof(int))
+                {
+                    int? param26 = 1;
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<Enum32?>(e, nameof(BuiltInNullableDataTypes.Enum32)) == (Enum32)param26).ToList().Single());
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && (int)EF.Property<Enum32?>(e, nameof(BuiltInNullableDataTypes.Enum32)) == param26).ToList().Single());
+
+                }
+
+                if (UnwrapNullableType(entityType.FindProperty(nameof(BuiltInNullableDataTypes.Enum16))?.GetProviderClrType()) == typeof(short))
+                {
+                    int? param27 = 1;
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<Enum16?>(e, nameof(BuiltInNullableDataTypes.Enum16)) == (Enum16)param27).ToList().Single());
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && (int)EF.Property<Enum16?>(e, nameof(BuiltInNullableDataTypes.Enum16)) == param27).ToList().Single());
+
+                }
+
+                if (UnwrapNullableType(entityType.FindProperty(nameof(BuiltInNullableDataTypes.Enum8))?.GetProviderClrType()) == typeof(byte))
+                {
+                    int? param28 = 1;
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && EF.Property<Enum8?>(e, nameof(BuiltInNullableDataTypes.Enum8)) == (Enum8)param28).ToList().Single());
+                    Assert.Same(entity, set.Where(e => e.Id == 11 && (int)EF.Property<Enum8?>(e, nameof(BuiltInNullableDataTypes.Enum8)) == param28).ToList().Single());
+
+                }
+
                 foreach (var propertyEntry in context.Entry(entity).Properties)
                 {
                     Assert.Equal(
@@ -463,6 +526,10 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
         }
+
+        private static Type UnwrapNullableType(Type type)
+            => type == null ? null : Nullable.GetUnderlyingType(type) ?? type;
+
 
         private EntityEntry<TEntity> AddTestBuiltInNullableDataTypes<TEntity>(DbSet<TEntity> set)
             where TEntity : BuiltInNullableDataTypesBase, new()
