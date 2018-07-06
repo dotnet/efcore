@@ -1185,7 +1185,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "DECLARE @defaultSchema sysname = SCHEMA_NAME();" + EOL +
-                "EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
+                "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
                 Sql);
         }
 
@@ -1237,7 +1237,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "DECLARE @defaultSchema sysname = SCHEMA_NAME();" + EOL +
-                "EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [dbo].[People];');" + EOL,
+                "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');" + EOL,
                 Sql);
         }
 
