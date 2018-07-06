@@ -902,5 +902,15 @@ FROM [Orders] AS [o]");
 FROM [Customers] AS [c]
 ORDER BY [B]");
         }
+
+        public override async Task Anonymous_projection_with_repeated_property_being_ordered_2(bool isAsync)
+        {
+            await base.Anonymous_projection_with_repeated_property_being_ordered_2(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [B]
+FROM [Orders] AS [o]
+ORDER BY [B]");
+        }
     }
 }

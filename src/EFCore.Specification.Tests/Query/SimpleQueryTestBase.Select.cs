@@ -1043,5 +1043,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                           B = c.CustomerID
                       });
         }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Anonymous_projection_with_repeated_property_being_ordered_2(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => from o in os
+                      orderby o.CustomerID
+                      select new
+                      {
+                          A = o.Customer.CustomerID,
+                          B = o.CustomerID
+                      });
+        }
     }
 }
