@@ -33,6 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddScoped<CosmosClient, CosmosClient>()
+                        .TryAddScoped<IDocumentCollectionFactory, DocumentCollectionFactory>()
 
                 );
 

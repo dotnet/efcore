@@ -39,12 +39,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
         {
             // TODO : Converters
             // TODO : TryCatch for invalid values
-            return Expression.Convert(
+
+            var expression = Expression.Convert(
                 Expression.Call(
                     jObjectExpression,
                     _getItemMethodInfo,
                     Expression.Constant(property.Name)),
                 property.ClrType);
+
+            return property.ClrType.IsValueType
+                ? Expression.Convert(expression, typeof(object))
+                : expression;
         }
     }
 }
