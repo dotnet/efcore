@@ -1528,10 +1528,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder
                     .AppendLine("DECLARE @defaultSchema sysname = SCHEMA_NAME();")
                     .Append("EXEC(")
-                    .Append("N'ALTER SCHEMA ' + @defaultSchema + ")
+                    .Append("N'ALTER SCHEMA [' + @defaultSchema + ")
                     .Append(
                         stringTypeMapping.GenerateSqlLiteral(
-                            " TRANSFER " + Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema) + ";"))
+                            "] TRANSFER " + Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema) + ";"))
                     .AppendLine(");");
             }
             else
