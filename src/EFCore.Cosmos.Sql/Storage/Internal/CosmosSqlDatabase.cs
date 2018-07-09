@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -13,9 +16,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
 {
     public class CosmosSqlDatabase : Database
     {
-        public CosmosSqlDatabase([NotNull] DatabaseDependencies dependencies)
+        private readonly CosmosClient _cosmosClient;
+        private readonly IDocumentCollectionFactory _documentCollectionFactory;
+        private Dictionary<IEntityType, IDocumentCollection> _documentCollections
+            = new Dictionary<IEntityType, IDocumentCollection>();
+
+        public CosmosSqlDatabase(
+            [NotNull] DatabaseDependencies dependencies,
+            CosmosClient cosmosClient,
+            IDocumentCollectionFactory documentCollectionFactory)
             : base(dependencies)
         {
+            _cosmosClient = cosmosClient;
+            _documentCollectionFactory = documentCollectionFactory;
         }
 
         public override int SaveChanges(IReadOnlyList<IUpdateEntry> entries)
@@ -23,10 +36,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
             throw new NotImplementedException();
         }
 
-        public override Task<int> SaveChangesAsync(
+        public override async Task<int> SaveChangesAsync(
             IReadOnlyList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var rowsAffected = 0;
+
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                var entityType = entry.EntityType;
+
+                Debug.Assert(!entityType.IsAbstract());
+
+                if (!_documentCollections.TryGetValue(entityType, out var documentCollection))
+                {
+                    _documentCollections.Add(
+                        entityType, documentCollection = _documentCollectionFactory.Create(entityType));
+                }
+
+                await documentCollection.SaveAsync(entry, cancellationToken);
+
+                rowsAffected++;
+            }
+
+            return rowsAffected;
         }
     }
 }
