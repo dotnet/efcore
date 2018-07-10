@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal;
@@ -10,6 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
     public class CosmosSqlGenerator : ExpressionVisitor
     {
         private StringBuilder _sqlBuilder = new StringBuilder();
+
+        private IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
+        {
+            { ExpressionType.Equal, " = " },
+            { ExpressionType.AndAlso, " AND " },
+        };
 
         public CosmosSqlGenerator()
         {
@@ -22,30 +29,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             return _sqlBuilder.ToString();
         }
 
-        protected override Expression VisitBinary(BinaryExpression node)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (node.NodeType == ExpressionType.Equal)
+            if (_operatorMap.ContainsKey(binaryExpression.NodeType))
             {
-                Visit(node.Left);
-                _sqlBuilder.Append(" = ");
-                Visit(node.Right);
+                Visit(binaryExpression.Left);
+                _sqlBuilder.Append(_operatorMap[binaryExpression.NodeType]);
+                Visit(binaryExpression.Right);
 
-                return node;
+                return binaryExpression;
             }
 
-            return base.VisitBinary(node);
+            return base.VisitBinary(binaryExpression);
         }
 
-        protected override Expression VisitConstant(ConstantExpression node)
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
-            _sqlBuilder.Append($"\"{node.Value}\"");
+            _sqlBuilder.Append($"\"{constantExpression.Value}\"");
 
-            return node;
+            return constantExpression;
         }
 
-        protected override Expression VisitExtension(Expression node)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            switch (node)
+            switch (extensionExpression)
             {
                 case SelectExpression selectExpression:
 
@@ -59,24 +66,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
 
                     _sqlBuilder.Append("WHERE ");
                     Visit(selectExpression.FilterExpression);
-                    _sqlBuilder.AppendLine();
 
-                    return node;
+                    return extensionExpression;
 
                 case RootReferenceExpression rootReferenceExpression:
                     _sqlBuilder.Append(rootReferenceExpression.ToString());
-                    return node;
+                    return extensionExpression;
 
                 case KeyAccessExpression keyAccessExpression:
                     _sqlBuilder.Append(keyAccessExpression.ToString());
-                    return node;
+                    return extensionExpression;
 
                 case EntityProjectionExpression entityProjectionExpression:
                     _sqlBuilder.Append(entityProjectionExpression.ToString());
-                    return node;
+                    return extensionExpression;
             }
 
-            return base.VisitExtension(node);
+            return base.VisitExtension(extensionExpression);
         }
     }
 }
