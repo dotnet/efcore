@@ -391,6 +391,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<BadCustomer>();
                 modelBuilder.Entity<BadOrder>();
+
+                modelBuilder.Entity<QuestTask>();
+
+                modelBuilder.Entity<QuizTask>()
+                    .HasMany(qt => qt.Choices)
+                    .WithOne()
+                    .HasForeignKey(tc => tc.QuestTaskId);
+
+                modelBuilder.Entity<HiddenAreaTask>()
+                    .HasMany(hat => hat.Choices)
+                    .WithOne()
+                    .HasForeignKey(tc => tc.QuestTaskId);
+
+                modelBuilder.Entity<TaskChoice>();
             }
 
             protected virtual object CreateFullGraph()
@@ -2689,6 +2703,54 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _badCustomer;
                 set => SetWithNotify(value, ref _badCustomer);
+            }
+        }
+
+        protected class HiddenAreaTask : TaskWithChoices
+        {
+        }
+
+        protected abstract class QuestTask : NotifyingEntity
+        {
+            private int _id;
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+        }
+
+        protected class QuizTask : TaskWithChoices
+        {
+        }
+
+        protected class TaskChoice : NotifyingEntity
+        {
+            private int _id;
+            private int _questTaskId;
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public int QuestTaskId
+            {
+                get => _questTaskId;
+                set => SetWithNotify(value, ref _questTaskId);
+            }
+        }
+
+        protected abstract class TaskWithChoices : QuestTask
+        {
+            private ICollection<TaskChoice> _choices = new ObservableHashSet<TaskChoice>(ReferenceEqualityComparer.Instance);
+
+            public ICollection<TaskChoice> Choices
+            {
+                get => _choices;
+                set => SetWithNotify(value, ref _choices);
             }
         }
 
