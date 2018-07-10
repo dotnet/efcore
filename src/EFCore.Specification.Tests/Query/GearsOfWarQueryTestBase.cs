@@ -6066,8 +6066,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [Theory]
-        [MemberData(nameof(IsAsyncData))]
+        // corefx issue #30955
+        //[Theory]
+        //[MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_projecting_single_constant_of_non_mapped_type(bool isAsync)
         {
             return AssertQuery<Squad>(
