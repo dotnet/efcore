@@ -29,6 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
                 _shaper.CreateShaperLambda());
         }
 
+        public Expression QueryExpression => _queryExpression;
+
         private static IEnumerable<T> _Shape<T>(
             IEnumerable<JObject> innerEnumerable,
             Func<JObject, T> shaper)
