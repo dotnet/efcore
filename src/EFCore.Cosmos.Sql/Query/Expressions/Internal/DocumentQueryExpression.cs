@@ -28,6 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
             _cosmosClient = cosmosClient;
         }
 
+        public SelectExpression SelectExpression => _selectExpression;
+
         public override bool CanReduce => true;
 
         // TODO: Reduce based on sync/async
@@ -88,10 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
                 {
                     if (_underlyingEnumerator == null)
                     {
-                        _underlyingEnumerator = _cosmosClient.DocumentClient
-                            .CreateDocumentQuery<Document>(
-                                UriFactory.CreateDocumentCollectionUri(_cosmosClient.DatabaseId, _collectionId),
-                                new SqlQuerySpec(_selectExpression.ToString())).GetEnumerator();
+                        _underlyingEnumerator = _cosmosClient.ExecuteSqlQuery(
+                            _collectionId,
+                            new SqlQuerySpec(_selectExpression.ToString()));
                     }
 
                     var hasNext = _underlyingEnumerator.MoveNext();

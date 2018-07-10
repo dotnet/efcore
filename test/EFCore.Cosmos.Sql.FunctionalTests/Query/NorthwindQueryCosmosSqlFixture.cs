@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
@@ -12,5 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
         where TModelCustomizer : IModelCustomizer, new()
     {
         protected override ITestStoreFactory TestStoreFactory => CosmosSqlNorthwindTestStoreFactory.Instance;
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
     }
 }

@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
                 new DocumentQueryExpression(
                     QueryModelVisitor.QueryCompilationContext.IsAsyncQuery,
                     entityType.CosmosSql().CollectionName,
-                    new SelectExpression(entityType),
+                    new SelectExpression(entityType, _querySource),
                     _cosmosClient),
                 new EntityShaper(entityType, _entityMaterializerSource));
         }
