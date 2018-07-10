@@ -7731,6 +7731,26 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [g].[Rank]");
         }
 
+        public override async Task Include_collection_with_Cast_to_base(bool isAsync)
+        {
+            await base.Include_collection_with_Cast_to_base(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] = N'Officer'
+ORDER BY [g].[FullName]",
+                //
+                @"SELECT [g.Weapons].[Id], [g.Weapons].[AmmunitionType], [g.Weapons].[IsAutomatic], [g.Weapons].[Name], [g.Weapons].[OwnerFullName], [g.Weapons].[SynergyWithId]
+FROM [Weapons] AS [g.Weapons]
+INNER JOIN (
+    SELECT [g0].[FullName]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] = N'Officer'
+) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
+ORDER BY [t].[FullName]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

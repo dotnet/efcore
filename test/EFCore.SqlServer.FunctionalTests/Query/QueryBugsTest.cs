@@ -4475,6 +4475,102 @@ FROM [Prices] AS [e]");
 
         #endregion
 
+        #region Bug12582
+
+        [Fact]
+        public virtual void Include_collection_with_OfType_base()
+        {
+            using (CreateDatabase12582())
+            {
+                using (var context = new MyContext12582(_options))
+                {
+                    var query = context.Employees
+                        .Include(i => i.Devices)
+                        .OfType<IEmployee12582>()
+                        .ToList();
+
+                    Assert.Equal(1, query.Count);
+
+                    var employee = (Employee12582)query[0];
+                    Assert.Equal(2, employee.Devices.Count);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Correlated_collection_with_OfType_base()
+        {
+            using (CreateDatabase12582())
+            {
+                using (var context = new MyContext12582(_options))
+                {
+                    var query = context.Employees
+                        .Select(e => e.Devices.Where(d => d.Device != "foo").Cast<IEmployeeDevice12582>())
+                        .ToList();
+
+                    Assert.Equal(1, query.Count);
+                    var result = query[0];
+                    Assert.Equal(2, result.Count());
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase12582()
+        {
+            return CreateTestStore(
+                () => new MyContext12582(_options),
+                context =>
+                {
+                    var d1 = new EmployeeDevice12582 { Device = "d1" };
+                    var d2 = new EmployeeDevice12582 { Device = "d2" };
+                    var e = new Employee12582 { Devices = new List<EmployeeDevice12582> { d1, d2 }, Name = "e" };
+
+                    context.Devices.AddRange(d1, d2);
+                    context.Employees.Add(e);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public interface IEmployee12582
+        {
+            string Name { get; set; }
+        }
+
+        public class Employee12582 : IEmployee12582
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public ICollection<EmployeeDevice12582> Devices { get; set; }
+        }
+
+        public interface IEmployeeDevice12582
+        {
+            string Device { get; set; }
+        }
+
+        public class EmployeeDevice12582 : IEmployeeDevice12582
+        {
+            public int Id { get; set; }
+            public int EmployeeId { get; set; }
+            public string Device { get; set; }
+            public Employee12582 Employee { get; set; }
+        }
+
+        public class MyContext12582 : DbContext
+        {
+            public DbSet<Employee12582> Employees { get; set; }
+            public DbSet<EmployeeDevice12582> Devices { get; set; }
+
+            public MyContext12582(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

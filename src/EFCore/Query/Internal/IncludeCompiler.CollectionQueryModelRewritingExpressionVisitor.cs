@@ -363,11 +363,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     lastResultOperator = choiceResultOperator is LastResultOperator;
                 }
 
-                foreach (var groupResultOperator
-                    in queryModel.ResultOperators.OfType<GroupResultOperator>()
-                        .ToArray())
+                foreach (var typeChangingResultOperator
+                    in queryModel.ResultOperators.Where(ro => ro is GroupResultOperator || ro is CastResultOperator || ro is OfTypeResultOperator).ToList())
                 {
-                    queryModel.ResultOperators.Remove(groupResultOperator);
+                    queryModel.ResultOperators.Remove(typeChangingResultOperator);
                 }
 
                 if (queryModel.BodyClauses

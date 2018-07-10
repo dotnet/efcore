@@ -6695,6 +6695,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_Cast_to_base(bool isAsync)
+        {
+            return AssertIncludeQuery<Gear>(
+                isAsync,
+                gs => gs.OfType<Officer>().Include(o => o.Weapons).Cast<Gear>(),
+                new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Weapons, "Weapons") });
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
