@@ -16,8 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
             : base(fixture)
         {
             ClearLog();
-            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         [ConditionalFact]
         public virtual void Simple_IQuaryable()
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE c[""Discriminator""] = ""Customer""");
+WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         protected virtual void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
