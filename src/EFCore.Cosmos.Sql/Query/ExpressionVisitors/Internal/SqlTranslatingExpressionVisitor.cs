@@ -20,17 +20,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             _queryCompilationContext = queryCompilationContext;
         }
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
-        {
-            return base.VisitBinary(binaryExpression);
-        }
-
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(memberExpression,
                 _queryCompilationContext, out var qsre);
 
             return _selectExpression.BindPropertyPath(qsre, properties) ?? base.VisitMember(memberExpression);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(methodCallExpression,
+                _queryCompilationContext, out var qsre);
+
+            return _selectExpression.BindPropertyPath(qsre, properties) ?? base.VisitMethodCall(methodCallExpression);
         }
     }
 }

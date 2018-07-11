@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
@@ -37,24 +37,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
             => Call(
                 typeof(DocumentQueryExpression).GetTypeInfo().GetDeclaredMethod(nameof(_Query)),
                 Constant(_cosmosClient),
+                EntityQueryModelVisitor.QueryContextParameter,
                 Constant(_collectionId),
                 Constant(_selectExpression));
 
         private static IEnumerable<JObject> _Query(
             CosmosClient cosmosClient,
+            QueryContext queryContext,
             string collectionId,
             SelectExpression selectExpression)
-            => new DocumentEnumerable(cosmosClient, collectionId, selectExpression);
+            => new DocumentEnumerable(cosmosClient, queryContext, collectionId, selectExpression);
 
         private class DocumentEnumerable : IEnumerable<JObject>
         {
             private readonly CosmosClient _cosmosClient;
+            private readonly QueryContext _queryContext;
             private readonly string _collectionId;
             private readonly SelectExpression _selectExpression;
 
-            public DocumentEnumerable(CosmosClient cosmosClient, string collectionId, SelectExpression selectExpression)
+            public DocumentEnumerable(
+                CosmosClient cosmosClient, QueryContext queryContext, string collectionId, SelectExpression selectExpression)
             {
                 _cosmosClient = cosmosClient;
+                _queryContext = queryContext;
                 _collectionId = collectionId;
                 _selectExpression = selectExpression;
             }
@@ -67,12 +72,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
             {
                 private IEnumerator<Document> _underlyingEnumerator;
                 private readonly CosmosClient _cosmosClient;
+                private readonly QueryContext _queryContext;
                 private readonly string _collectionId;
                 private readonly SelectExpression _selectExpression;
 
                 public Enumerator(DocumentEnumerable documentEnumerable)
                 {
                     _cosmosClient = documentEnumerable._cosmosClient;
+                    _queryContext = documentEnumerable._queryContext;
                     _collectionId = documentEnumerable._collectionId;
                     _selectExpression = documentEnumerable._selectExpression;
                 }
@@ -92,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
                     {
                         _underlyingEnumerator = _cosmosClient.ExecuteSqlQuery(
                             _collectionId,
-                            new SqlQuerySpec(_selectExpression.ToString()));
+                            _selectExpression.ToSqlQuery(_queryContext.ParameterValues));
                     }
 
                     var hasNext = _underlyingEnumerator.MoveNext();
