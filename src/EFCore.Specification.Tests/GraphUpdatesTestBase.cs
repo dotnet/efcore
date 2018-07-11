@@ -5734,101 +5734,199 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
-        [ConditionalFact]
-        public virtual void Can_add_valid_first_depedent_when_multiple_possible_principal_sides()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Can_add_valid_first_depedent_when_multiple_possible_principal_sides(bool quirk)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            try
+            {
+                if (quirk)
                 {
-                    var quizTask = new QuizTask();
-                    quizTask.Choices.Add(new TaskChoice());
+                    AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12227", true);
+                }
 
-                    context.Add(quizTask);
+                ExecuteWithStrategyInTransaction(
+                    context =>
+                    {
+                        var quizTask = new QuizTask();
+                        quizTask.Choices.Add(new TaskChoice());
 
-                    context.SaveChanges();
-                },
-                context =>
-                {
-                    var quizTask = context.Set<QuizTask>().Include(e => e.Choices).Single();
+                        if (quirk)
+                        {
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Add(quizTask));
+                        }
+                        else
+                        {
+                            context.Add(quizTask);
+                        }
 
-                    Assert.Equal(quizTask.Id, quizTask.Choices.Single().QuestTaskId);
+                        context.SaveChanges();
+                    },
+                    context =>
+                    {
+                        if (quirk)
+                        {
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Set<QuizTask>().Include(e => e.Choices).Single());
+                        }
+                        else
+                        {
+                            var quizTask = context.Set<QuizTask>().Include(e => e.Choices).Single();
 
-                    Assert.Same(quizTask.Choices.Single(), context.Set<TaskChoice>().Single());
+                            Assert.Equal(quizTask.Id, quizTask.Choices.Single().QuestTaskId);
 
-                    Assert.Empty(context.Set<HiddenAreaTask>().Include(e => e.Choices));
-                });
+                            Assert.Same(quizTask.Choices.Single(), context.Set<TaskChoice>().Single());
+
+                            Assert.Empty(context.Set<HiddenAreaTask>().Include(e => e.Choices));
+                        }
+                    });
+            }
+            finally
+            {
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12227", false);
+            }
         }
 
-        [ConditionalFact]
-        public virtual void Can_add_valid_second_depedent_when_multiple_possible_principal_sides()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Can_add_valid_second_depedent_when_multiple_possible_principal_sides(bool quirk)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            try
+            {
+                if (quirk)
                 {
-                    var hiddenAreaTask = new HiddenAreaTask();
-                    hiddenAreaTask.Choices.Add(new TaskChoice());
+                    AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12227", true);
+                }
 
-                    context.Add(hiddenAreaTask);
+                ExecuteWithStrategyInTransaction(
+                    context =>
+                    {
+                        var hiddenAreaTask = new HiddenAreaTask();
+                        hiddenAreaTask.Choices.Add(new TaskChoice());
 
-                    context.SaveChanges();
-                },
-                context =>
-                {
-                    var hiddenAreaTask = context.Set<HiddenAreaTask>().Include(e => e.Choices).Single();
+                        if (quirk)
+                        {
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Add(hiddenAreaTask));
+                        }
+                        else
+                        {
+                            context.Add(hiddenAreaTask);
+                        }
 
-                    Assert.Equal(hiddenAreaTask.Id, hiddenAreaTask.Choices.Single().QuestTaskId);
+                        context.SaveChanges();
+                    },
+                    context =>
+                    {
+                        if (quirk)
+                        {
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Set<HiddenAreaTask>().Include(e => e.Choices).Single());
+                        }
+                        else
+                        {
+                            var hiddenAreaTask = context.Set<HiddenAreaTask>().Include(e => e.Choices).Single();
 
-                    Assert.Same(hiddenAreaTask.Choices.Single(), context.Set<TaskChoice>().Single());
+                            Assert.Equal(hiddenAreaTask.Id, hiddenAreaTask.Choices.Single().QuestTaskId);
 
-                    Assert.Empty(context.Set<QuizTask>().Include(e => e.Choices));
-                });
+                            Assert.Same(hiddenAreaTask.Choices.Single(), context.Set<TaskChoice>().Single());
+
+                            Assert.Empty(context.Set<QuizTask>().Include(e => e.Choices));
+                        }
+                    });
+            }
+            finally
+            {
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12227", false);
+            }
         }
 
-        [ConditionalFact]
-        public virtual void Can_add_multiple_depedents_when_multiple_possible_principal_sides()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Can_add_multiple_depedents_when_multiple_possible_principal_sides(bool quirk)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            try
+            {
+                if (quirk)
                 {
-                    var quizTask = new QuizTask();
-                    quizTask.Choices.Add(new TaskChoice());
-                    quizTask.Choices.Add(new TaskChoice());
+                    AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12227", true);
+                }
 
-                    context.Add(quizTask);
-
-                    var hiddenAreaTask = new HiddenAreaTask();
-                    hiddenAreaTask.Choices.Add(new TaskChoice());
-                    hiddenAreaTask.Choices.Add(new TaskChoice());
-
-                    context.Add(hiddenAreaTask);
-
-                    context.SaveChanges();
-                },
-                context =>
-                {
-                    var quizTask = context.Set<QuizTask>().Include(e => e.Choices).Single();
-                    var hiddenAreaTask = context.Set<HiddenAreaTask>().Include(e => e.Choices).Single();
-
-                    Assert.Equal(2, quizTask.Choices.Count);
-                    foreach (var quizTaskChoice in quizTask.Choices)
+                ExecuteWithStrategyInTransaction(
+                    context =>
                     {
-                        Assert.Equal(quizTask.Id, quizTaskChoice.QuestTaskId);
-                    }
+                        var quizTask = new QuizTask();
+                        quizTask.Choices.Add(new TaskChoice());
+                        quizTask.Choices.Add(new TaskChoice());
 
-                    Assert.Equal(2, hiddenAreaTask.Choices.Count);
-                    foreach (var hiddenAreaTaskChoice in hiddenAreaTask.Choices)
-                    {
-                        Assert.Equal(hiddenAreaTask.Id, hiddenAreaTaskChoice.QuestTaskId);
-                    }
+                        if (quirk)
+                        {
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Add(quizTask));
+                        }
+                        else
+                        {
+                            context.Add(quizTask);
+                        }
 
-                    foreach (var taskChoice in context.Set<TaskChoice>())
+                        var hiddenAreaTask = new HiddenAreaTask();
+                        hiddenAreaTask.Choices.Add(new TaskChoice());
+                        hiddenAreaTask.Choices.Add(new TaskChoice());
+
+                        if (quirk)
+                        {
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Add(hiddenAreaTask));
+                        }
+                        else
+                        {
+                            context.Add(hiddenAreaTask);
+                        }
+
+                        context.SaveChanges();
+                    },
+                    context =>
                     {
-                        Assert.Equal(
-                            1,
-                            quizTask.Choices.Count(e => e.Id == taskChoice.Id)
-                            + hiddenAreaTask.Choices.Count(e => e.Id == taskChoice.Id));
-                    }
-                });
+                        if (quirk)
+                        {
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Set<QuizTask>().Include(e => e.Choices).Single());
+                        }
+                        else
+                        {
+                            var quizTask = context.Set<QuizTask>().Include(e => e.Choices).Single();
+                            var hiddenAreaTask = context.Set<HiddenAreaTask>().Include(e => e.Choices).Single();
+
+                            Assert.Equal(2, quizTask.Choices.Count);
+                            foreach (var quizTaskChoice in quizTask.Choices)
+                            {
+                                Assert.Equal(quizTask.Id, quizTaskChoice.QuestTaskId);
+                            }
+
+                            Assert.Equal(2, hiddenAreaTask.Choices.Count);
+                            foreach (var hiddenAreaTaskChoice in hiddenAreaTask.Choices)
+                            {
+                                Assert.Equal(hiddenAreaTask.Id, hiddenAreaTaskChoice.QuestTaskId);
+                            }
+
+                            foreach (var taskChoice in context.Set<TaskChoice>())
+                            {
+                                Assert.Equal(
+                                    1,
+                                    quizTask.Choices.Count(e => e.Id == taskChoice.Id)
+                                    + hiddenAreaTask.Choices.Count(e => e.Id == taskChoice.Id));
+                            }
+                        }
+                    });
+            }
+            finally
+            {
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12227", false);
+            }
         }
     }
 }

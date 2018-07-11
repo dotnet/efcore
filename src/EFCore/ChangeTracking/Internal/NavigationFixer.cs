@@ -543,6 +543,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         if (!foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType))
                         {
+                            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12227", out var isEnabled) && isEnabled)
+                            {
+                                if (_sensitiveLoggingEnabled)
+                                {
+                                    throw new InvalidOperationException(CoreStrings.IncompatiblePrincipalEntrySensitive(
+                                        entry.BuildCurrentValuesString(foreignKey.Properties),
+                                        entityType.DisplayName(),
+                                        entry.BuildOriginalValuesString(entityType.FindPrimaryKey().Properties),
+                                        principalEntry.EntityType.DisplayName(),
+                                        foreignKey.PrincipalEntityType.DisplayName()));
+                                }
+
+                                throw new InvalidOperationException(CoreStrings.IncompatiblePrincipalEntry(
+                                    Property.Format(foreignKey.Properties),
+                                    entityType.DisplayName(),
+                                    principalEntry.EntityType.DisplayName(),
+                                    foreignKey.PrincipalEntityType.DisplayName()));
+                            }
+
                             conflictingPrincipalForeignKey = foreignKey;
                         }
                         else
