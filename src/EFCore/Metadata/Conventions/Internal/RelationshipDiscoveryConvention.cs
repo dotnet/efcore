@@ -133,13 +133,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var targetOwnership = candidateTargetEntityType.FindOwnership();
                     if (targetOwnership != null
                         && (targetOwnership.PrincipalEntityType != entityTypeBuilder.Metadata
-                            || targetOwnership.PrincipalToDependent.Name != navigationPropertyInfo.Name))
+                            || targetOwnership.PrincipalToDependent.Name != navigationPropertyInfo.Name)
+                        && (ownership == null
+                            || ownership.PrincipalEntityType != candidateTargetEntityType))
                     {
-                        if (ownership == null
-                            || ownership.PrincipalEntityType != candidateTargetEntityType)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
                 }
                 else if (ownership != null
@@ -181,10 +179,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         || entityType.IsQueryType
                         || (ownership != null
                             && !candidateTargetEntityType.IsInOwnershipPath(entityTypeBuilder.Metadata)
+                            && (!candidateTargetEntityType.HasDefiningNavigation()
+                                || candidateTargetEntityType.DefiningEntityType != entityType)
                             && (ownership.PrincipalEntityType != candidateTargetEntityType
                                 || ownership.PrincipalToDependent.Name != inversePropertyInfo.Name))
                         || (entityType.HasDefiningNavigation()
-                            && !candidateTargetEntityType.IsInDefinitionPath(entityTypeBuilder.Metadata)
+                            && !candidateTargetEntityType.IsInDefinitionPath(entityTypeBuilder.Metadata.ClrType)
                             && (entityType.DefiningEntityType != candidateTargetEntityType
                                 || entityType.DefiningNavigationName != inversePropertyInfo.Name))
                         || !IsCandidateNavigationProperty(
@@ -792,10 +792,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var entityType in navigation.DeclaringEntityType.GetDerivedTypesInclusive())
             {
                 // Only run the convention if an ambiguity might have been removed
-                if (RemoveAmbiguous(entityType, navigation.GetTargetType().ClrType)
-                    | RemoveAmbiguous(navigation.GetTargetType(), entityType.ClrType))
+                var ambiguityRemoved = RemoveAmbiguous(entityType, navigation.GetTargetType().ClrType);
+                var targetAmbiguityRemoved = RemoveAmbiguous(navigation.GetTargetType(), entityType.ClrType);
+
+                if (ambiguityRemoved)
                 {
                     DiscoverRelationships(entityType.Builder);
+                }
+
+                if (targetAmbiguityRemoved)
+                {
+                    DiscoverRelationships(navigation.GetTargetType().Builder);
                 }
             }
 
@@ -811,7 +818,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+        InternalRelationshipBuilder IForeignKeyOwnershipChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
         {
             DiscoverRelationships(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
             return relationshipBuilder;

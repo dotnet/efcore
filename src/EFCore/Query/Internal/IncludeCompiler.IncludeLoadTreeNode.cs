@@ -95,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     collectionId = collectionIncludeId++;
                 }
 
-                var targetType = Navigation.GetTargetType().ClrType;
+                var targetEntityType = Navigation.GetTargetType();
+                var targetType = targetEntityType.ClrType;
 
                 var mainFromClause
                     = new MainFromClause(
@@ -107,6 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var querySourceReferenceExpression
                     = new QuerySourceReferenceExpression(mainFromClause);
+
+                queryCompilationContext.AddOrUpdateMapping(mainFromClause, targetEntityType);
 
                 var collectionQueryModel
                     = new QueryModel(

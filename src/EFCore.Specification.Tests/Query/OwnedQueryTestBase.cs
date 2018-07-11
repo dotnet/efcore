@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -72,6 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(people.OfType<Branch>().All(b => b.BranchAddress != null));
                 Assert.True(people.OfType<LeafA>().All(a => a.LeafAAddress != null));
                 Assert.True(people.OfType<LeafB>().All(b => b.LeafBAddress != null));
+
+                Assert.True(people.All(p => p.Orders.Count == (p.Id == 1 ? 2 : 1)));
             }
         }
 
@@ -97,6 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(people.All(p => p.PersonAddress != null));
                 Assert.True(people.All(b => b.BranchAddress != null));
                 Assert.True(people.OfType<LeafA>().All(a => a.LeafAAddress != null));
+
+                Assert.True(people.All(p => p.Orders.Count == 1));
             }
         }
 
@@ -207,6 +212,38 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         OwnedAddressOwnedPersonId = 4,
                                         Name = "USA"
                                     });
+                            });
+
+                        eb.OwnsMany(
+                            p => p.Orders, ob =>
+                            {
+                                ob.HasData(
+                                    new
+                                    {
+                                        Id = -10,
+                                        ClientId = 1
+                                    },
+                                    new
+                                    {
+                                        Id = -11,
+                                        ClientId = 1
+                                    },
+                                    new
+                                    {
+                                        Id = -20,
+                                        ClientId = 2
+                                    },
+                                    new
+                                    {
+                                        Id = -30,
+                                        ClientId = 3
+                                    },
+                                    new
+                                    {
+                                        Id = -40,
+                                        ClientId = 4
+                                    }
+                                    );
                             });
                     });
 
@@ -324,6 +361,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public int Id { get; set; }
             public OwnedAddress PersonAddress { get; set; }
+            public ICollection<Order> Orders { get; set; }
+        }
+
+        protected class Order
+        {
+            public int Id { get; set; }
+            public OwnedPerson Client { get; set; }
         }
 
         protected class Branch : OwnedPerson

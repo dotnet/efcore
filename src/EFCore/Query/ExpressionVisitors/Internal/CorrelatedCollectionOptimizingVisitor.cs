@@ -225,9 +225,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var clonedParentQuerySourceReferenceExpression
                 = (QuerySourceReferenceExpression)querySourceMapping.GetExpression(parentQuerySource);
 
-            var clonedParentQuerySource
-                = clonedParentQuerySourceReferenceExpression.ReferencedQuerySource;
-
             var parentItemName
                 = parentQuerySource.HasGeneratedItemName()
                     ? navigation.DeclaringEntityType.DisplayName()[0].ToString().ToLowerInvariant()

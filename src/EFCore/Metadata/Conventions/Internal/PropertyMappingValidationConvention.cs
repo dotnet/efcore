@@ -46,9 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var unmappedProperty = entityType.GetProperties().FirstOrDefault(
-                    p =>
-                        (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()) || !p.IsShadowProperty)
-                        && !IsMappedPrimitiveProperty(p));
+                    p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()) || !p.IsShadowProperty)
+                         && !IsMappedPrimitiveProperty(p));
 
                 if (unmappedProperty != null)
                 {
@@ -113,7 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                              || !targetType.GetTypeInfo().Equals(entityType.ClrType.GetTypeInfo()))
                             && entityType.GetDerivedTypes().All(
                                 dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
-                            && !entityType.IsInDefinitionPath(targetType))
+                            && (!entityType.IsInOwnershipPath(targetType)
+                                || entityType.FindOwnership().PrincipalEntityType.ClrType.GetTypeInfo().Equals(targetType.GetTypeInfo()))
+                            && (!entityType.IsInDefinitionPath(targetType)
+                                || entityType.DefiningEntityType.ClrType.GetTypeInfo().Equals(targetType.GetTypeInfo())))
                         {
                             throw new InvalidOperationException(
                                 CoreStrings.NavigationNotAdded(

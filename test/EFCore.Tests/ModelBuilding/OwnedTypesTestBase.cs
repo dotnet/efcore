@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -625,15 +624,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Book>().OwnsOne(
                     b => b.Label, bb =>
                     {
-                        bb.OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.SpecialBookLabel); });
-                        bb.OwnsOne(l => l.SpecialBookLabel, sb => { sb.OwnsOne(l => l.AnotherBookLabel); });
+                        bb.Ignore(l => l.Book);
+                        bb.OwnsOne(l => l.AnotherBookLabel, ab =>
+                        {
+                            ab.Ignore(l => l.Book);
+                            ab.OwnsOne(l => l.SpecialBookLabel).Ignore(l => l.Book).Ignore(s => s.BookLabel);
+                        });
+                        bb.OwnsOne(l => l.SpecialBookLabel, sb =>
+                        {
+                            sb.Ignore(l => l.Book);
+                            sb.OwnsOne(l => l.AnotherBookLabel).Ignore(l => l.Book);
+                        });
                     });
 
                 modelBuilder.Entity<Book>().OwnsOne(
                     b => b.AlternateLabel, bb =>
                     {
-                        bb.OwnsOne(l => l.SpecialBookLabel, sb => { sb.OwnsOne(l => l.AnotherBookLabel); });
-                        bb.OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.SpecialBookLabel); });
+                        bb.Ignore(l => l.Book);
+                        bb.OwnsOne(l => l.SpecialBookLabel, sb =>
+                        {
+                            sb.Ignore(l => l.Book);
+                            sb.OwnsOne(l => l.AnotherBookLabel).Ignore(l => l.Book);
+                        });
+                        bb.OwnsOne(l => l.AnotherBookLabel, ab =>
+                        {
+                            ab.Ignore(l => l.Book);
+                            ab.OwnsOne(l => l.SpecialBookLabel).Ignore(l => l.Book).Ignore(s => s.BookLabel);
+                        });
                     });
 
                 modelBuilder.Validate();
@@ -647,16 +664,42 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label, bb =>
-                { bb.OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.SpecialBookLabel); }); });
+                {
+                    bb.OwnsOne(l => l.AnotherBookLabel, ab =>
+                    {
+                        ab.OwnsOne(l => l.SpecialBookLabel).Ignore(s => s.BookLabel).Ignore(l => l.Book);
+                        ab.Ignore(l => l.Book);
+                    });
+                    bb.Ignore(l => l.Book);
+                });
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb =>
-                { bb.OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.SpecialBookLabel); }); });
+                {
+                    bb.OwnsOne(l => l.AnotherBookLabel, ab =>
+                    {
+                        ab.OwnsOne(l => l.SpecialBookLabel).Ignore(s => s.BookLabel).Ignore(l => l.Book);
+                        ab.Ignore(l => l.Book);
+                    });
+                    bb.Ignore(l => l.Book);
+                });
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label, bb =>
-                { bb.OwnsOne(l => l.SpecialBookLabel, sb => { sb.OwnsOne(l => l.AnotherBookLabel); }); });
+                {
+                    bb.OwnsOne(l => l.SpecialBookLabel, sb =>
+                    {
+                        sb.OwnsOne(l => l.AnotherBookLabel).Ignore(l => l.Book);
+                        sb.Ignore(l => l.Book);
+                    });
+                });
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb =>
-                { bb.OwnsOne(l => l.SpecialBookLabel, sb => { sb.OwnsOne(l => l.AnotherBookLabel); }); });
+                {
+                    bb.OwnsOne(l => l.SpecialBookLabel, sb =>
+                    {
+                        sb.OwnsOne(l => l.AnotherBookLabel).Ignore(l => l.Book);
+                        sb.Ignore(l => l.Book);
+                    });
+                });
 
                 modelBuilder.Validate();
 
@@ -669,8 +712,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Owned<BookLabel>();
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).Ignore(l => l.Book);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).Ignore(l => l.Book);
 
                 modelBuilder.Validate();
 
@@ -684,8 +727,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Book>();
                 modelBuilder.Owned<BookLabel>();
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).Ignore(l => l.Book);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).Ignore(l => l.Book);
 
                 modelBuilder.Validate();
 
@@ -696,9 +739,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var bookOwnership1 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label)).ForeignKey;
                 var bookOwnership2 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)).ForeignKey;
+
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
                 Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
                 Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Null(bookOwnership1.DependentToPrincipal);
+                Assert.Null(bookOwnership2.DependentToPrincipal);
 
                 var bookLabel1Ownership1 = bookOwnership1.DeclaringEntityType.FindNavigation(
                     nameof(BookLabel.AnotherBookLabel)).ForeignKey;
@@ -709,6 +755,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var bookLabel2Ownership2 = bookOwnership2.DeclaringEntityType.FindNavigation(
                     nameof(BookLabel.SpecialBookLabel)).ForeignKey;
 
+                Assert.Null(bookLabel1Ownership1.DependentToPrincipal);
+                Assert.Equal(nameof(SpecialBookLabel.BookLabel), bookLabel1Ownership2.DependentToPrincipal.Name);
+                Assert.Null(bookLabel2Ownership1.DependentToPrincipal);
+                Assert.Equal(nameof(SpecialBookLabel.BookLabel), bookLabel2Ownership2.DependentToPrincipal.Name);
+
                 var bookLabel1Ownership1Subownership = bookLabel1Ownership1.DeclaringEntityType.FindNavigation(
                     nameof(BookLabel.SpecialBookLabel)).ForeignKey;
                 var bookLabel1Ownership2Subownership = bookLabel1Ownership2.DeclaringEntityType.FindNavigation(
@@ -717,6 +768,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     nameof(BookLabel.SpecialBookLabel)).ForeignKey;
                 var bookLabel2Ownership2Subownership = bookLabel2Ownership2.DeclaringEntityType.FindNavigation(
                     nameof(BookLabel.AnotherBookLabel)).ForeignKey;
+
                 Assert.NotSame(bookLabel1Ownership1.DeclaringEntityType, bookLabel2Ownership1.DeclaringEntityType);
                 Assert.NotSame(bookLabel1Ownership2.DeclaringEntityType, bookLabel2Ownership2.DeclaringEntityType);
                 Assert.Equal(1, bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys().Count());
@@ -727,6 +779,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1, bookLabel1Ownership2Subownership.DeclaringEntityType.GetForeignKeys().Count());
                 Assert.Equal(1, bookLabel2Ownership1Subownership.DeclaringEntityType.GetForeignKeys().Count());
                 Assert.Equal(1, bookLabel2Ownership2Subownership.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Equal(nameof(SpecialBookLabel.AnotherBookLabel), bookLabel1Ownership1Subownership.DependentToPrincipal.Name);
+                Assert.Equal(nameof(AnotherBookLabel.SpecialBookLabel), bookLabel1Ownership2Subownership.DependentToPrincipal.Name);
+                Assert.Equal(nameof(SpecialBookLabel.AnotherBookLabel), bookLabel2Ownership1Subownership.DependentToPrincipal.Name);
+                Assert.Equal(nameof(AnotherBookLabel.SpecialBookLabel), bookLabel2Ownership2Subownership.DependentToPrincipal.Name);
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
