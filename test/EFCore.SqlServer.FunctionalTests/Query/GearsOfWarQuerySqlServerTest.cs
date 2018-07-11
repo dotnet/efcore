@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -670,7 +670,7 @@ WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
                     .GenerateMessage(
                         typeof(AmmunitionType).ShortDisplayName(),
                         new EnumToNumberConverter<AmmunitionType, int>().GetType().ShortDisplayName()),
-                Fixture.TestSqlLoggerFactory.Log);
+                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Where_bitwise_and_nullable_enum_with_nullable_parameter(bool isAsync)
@@ -695,7 +695,7 @@ WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
                     .GenerateMessage(
                         typeof(AmmunitionType).ShortDisplayName(),
                         new EnumToNumberConverter<AmmunitionType, int>().GetType().ShortDisplayName()),
-                Fixture.TestSqlLoggerFactory.Log);
+                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Where_bitwise_or_enum(bool isAsync)

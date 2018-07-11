@@ -55,11 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.AddKey(keyProperty);
 
-            Validate(model);
-
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Debug, Log[0].Level);
-            Assert.Equal(CoreStrings.LogShadowPropertyCreated.GenerateMessage("Key", "A"), Log[0].Message);
+            VerifyWarning(CoreStrings.LogShadowPropertyCreated.GenerateMessage("Key", "A"), model, LogLevel.Debug);
         }
 
         [Fact]
@@ -67,14 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(A));
-            var keyProperty = entityType.AddProperty("Key", typeof(int), configurationSource: ConfigurationSource.Convention);
+            var keyProperty = entityType.AddProperty("Key", typeof(int), ConfigurationSource.Convention);
             entityType.SetPrimaryKey(keyProperty);
 
-            Validate(model);
-
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Debug, Log[0].Level);
-            Assert.Equal(CoreStrings.LogShadowPropertyCreated.GenerateMessage("Key", "A"), Log[0].Message);
+            VerifyWarning(CoreStrings.LogShadowPropertyCreated.GenerateMessage("Key", "A"), model, LogLevel.Debug);
         }
 
         [Fact]
@@ -732,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_duplicate_seeds(bool sensitiveDataLoggingEnabled)
         {
-            Logger = CreateLogger(sensitiveDataLoggingEnabled);
+            ValidationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<A>().HasData(
                 new A
@@ -757,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_incompatible_values(bool sensitiveDataLoggingEnabled)
         {
-            Logger = CreateLogger(sensitiveDataLoggingEnabled);
+            ValidationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<A>(
                 e =>
@@ -782,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_reference_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
         {
-            Logger = CreateLogger(sensitiveDataLoggingEnabled);
+            ValidationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<SampleEntity>(
                 e =>
@@ -819,7 +811,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_collection_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
         {
-            Logger = CreateLogger(sensitiveDataLoggingEnabled);
+            ValidationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<SampleEntity>(
                 e =>
@@ -886,7 +878,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         protected override IModelValidator CreateModelValidator()
-            => new ModelValidator(new ModelValidatorDependencies(Logger, ModelLogger));
+            => new ModelValidator(new ModelValidatorDependencies(ValidationLogger, ModelLogger));
 
         private class NonSignedIntegerKeyEntity
         {

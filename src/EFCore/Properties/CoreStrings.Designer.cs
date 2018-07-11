@@ -2703,6 +2703,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("DuplicateQueryType", nameof(queryType)),
                 queryType);
 
+        /// <summary>
+        ///     {error}
+        /// </summary>
+        public static readonly EventDefinition<Exception> LogOptimisticConcurrencyException
+            = new EventDefinition<Exception>(
+                CoreEventId.OptimisticConcurrencyException,
+                LogLevel.Debug,
+                "CoreEventId.OptimisticConcurrencyException",
+                LoggerMessage.Define<Exception>(
+                    LogLevel.Debug,
+                    CoreEventId.OptimisticConcurrencyException,
+                    _resourceManager.GetString("LogOptimisticConcurrencyException")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

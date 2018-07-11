@@ -73,6 +73,45 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void OptimisticConcurrencyException(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] Exception exception)
+        {
+            var definition = CoreStrings.LogOptimisticConcurrencyException;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    exception);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new DbContextErrorEventData(
+                        definition,
+                        OptimisticConcurrencyException,
+                        context,
+                        exception));
+            }
+        }
+
+        private static string OptimisticConcurrencyException(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<Exception>)definition;
+            var p = (DbContextErrorEventData)payload;
+            return d.GenerateMessage(p.Exception);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void DuplicateDependentEntityTypeInstanceWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] IEntityType dependent1,

@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -25,12 +25,13 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : DataAnnotationTestBase<TFixture>.DataAnnotationFixtureBase, new()
     {
-        protected DataAnnotationTestBase(TFixture fixture) => Fixture = fixture;
+        protected DataAnnotationTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            fixture.ListLoggerFactory.Clear();
+        }
 
         protected TFixture Fixture { get; }
-
-        protected List<(LogLevel Level, EventId Id, string Message)> Log { get; }
-            = new List<(LogLevel, EventId, string)>();
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
@@ -45,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var context = CreateContext();
             var conventionSetBuilder = CreateConventionSetBuilder(context);
-            var conventionSet = new CoreConventionSetBuilder(
-                    context.GetService<CoreConventionSetBuilderDependencies>().With(CreateLogger()))
+            var conventionSet = new CoreConventionSetBuilder(context.GetService<CoreConventionSetBuilderDependencies>())
                 .CreateConventionSet();
             conventionSet = conventionSetBuilder == null
                 ? conventionSet
@@ -56,17 +56,6 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual IConventionSetBuilder CreateConventionSetBuilder(DbContext context)
             => new CompositeConventionSetBuilder(context.GetService<IEnumerable<IConventionSetBuilder>>().ToList());
-
-        protected virtual DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
-        {
-            var options = new LoggingOptions();
-            options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
-            var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
-                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
-                options,
-                new DiagnosticListener("Fake"));
-            return modelLogger;
-        }
 
         protected virtual void Validate(ModelBuilder modelBuilder)
         {
@@ -1843,15 +1832,15 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
             Assert.Equal("PostId", model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Warning, Log[0].Level);
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
                 CoreStrings.LogForeignKeyAttributesOnBothProperties.GenerateMessage(
                     nameof(PostDetails), nameof(PostDetails.Post),
                     nameof(Post), nameof(Post.PostDetails),
                     nameof(PostDetails.PostId),
                     nameof(Post.PostDetailsId)),
-                Log[0].Message);
+                logEntry.Message);
         }
 
         [Fact]
@@ -1869,11 +1858,11 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
             Assert.Equal("PostId", model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Warning, Log[0].Level);
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
                 CoreStrings.LogForeignKeyAttributesOnBothNavigations.GenerateMessage(
-                    nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), Log[0].Message);
+                    nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), logEntry.Message);
         }
 
         [Fact]
@@ -1898,11 +1887,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(new[] { "Id", "AuthorId" }, authorDetails.GetProperties().Select(p => p.Name));
             Assert.Equal(new[] { "Id", "AuthorDetailsIdByAttribute" }, author.GetProperties().Select(p => p.Name));
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Warning, Log[0].Level);
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
                 CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty.GenerateMessage(
-                    nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)), Log[0].Message);
+                    nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
+                logEntry.Message);
         }
 
         protected class Post
@@ -2206,6 +2196,14 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<BookDetails>();
                 modelBuilder.Entity<Book>().Property(d => d.Id).ValueGeneratedNever();
             }
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(c => c
+                    .Log(CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning )
+                    .Log(CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning)
+                    .Log(CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning));
+
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Model.Name;
 
             protected override void Seed(PoolableDbContext context)
             {

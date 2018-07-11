@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
+                .AddSingleton<ILoggerFactory>(new ListLoggerFactory())
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 

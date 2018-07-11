@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -28,7 +29,7 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
 
             // Validating that we don't generate warning when translating GroupBy. See Issue#11157
-            Assert.DoesNotContain("The LINQ expression 'GroupBy([o].CustomerID, [o])' could not be translated and will be evaluated locally.", Fixture.TestSqlLoggerFactory.Log);
+            Assert.DoesNotContain("The LINQ expression 'GroupBy([o].CustomerID, [o])' could not be translated and will be evaluated locally.", Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task GroupBy_Property_Select_Count(bool isAsync)

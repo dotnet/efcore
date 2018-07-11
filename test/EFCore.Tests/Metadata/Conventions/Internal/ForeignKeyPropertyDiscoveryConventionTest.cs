@@ -396,11 +396,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.NotSame(fkProperty, fk.Properties.Single());
             Assert.Null(((ForeignKey)fk).GetForeignKeyPropertiesConfigurationSource());
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Debug, Log[0].Level);
+            var logEntry = ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
                 CoreStrings.LogIncompatibleMatchingForeignKeyProperties.GenerateMessage(
-                    "{'PeeKay' : string}", "{'PeeKay' : int}"), Log[0].Message);
+                    "{'PeeKay' : string}", "{'PeeKay' : int}"), logEntry.Message);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
         }
@@ -702,11 +702,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Warning, Log[0].Level);
+            var logEntry = ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
                 CoreStrings.LogConflictingShadowForeignKeys.GenerateMessage(
-                    nameof(DependentEntity), nameof(PrincipalEntity), nameof(DependentEntity)), Log[0].Message);
+                    nameof(DependentEntity), nameof(PrincipalEntity), nameof(DependentEntity)), logEntry.Message);
         }
 
         [Fact]
@@ -976,17 +976,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private ForeignKeyPropertyDiscoveryConvention CreateForeignKeyPropertyDiscoveryConvention()
         {
+            ListLoggerFactory.Clear();
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
             return new ForeignKeyPropertyDiscoveryConvention(
                 new DiagnosticsLogger<DbLoggerCategory.Model>(
-                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                    ListLoggerFactory,
                     options,
                     new DiagnosticListener("Fake")));
         }
 
-        public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
-            = new List<(LogLevel, EventId, string)>();
+        public ListLoggerFactory ListLoggerFactory { get; }
+            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
 
         private Property PrimaryKey => PrincipalType.Metadata.FindPrimaryKey().Properties.Single();
 

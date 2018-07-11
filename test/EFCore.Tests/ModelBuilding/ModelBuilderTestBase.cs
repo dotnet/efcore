@@ -6,19 +6,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -130,15 +126,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             protected TestModelBuilder(TestHelpers testHelpers)
             {
-                Log = new List<(LogLevel, EventId, string)>();
                 var options = new LoggingOptions();
                 options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
+                ValidationLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name);
                 var validationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
+                    ValidationLoggerFactory,
                     options,
                     new DiagnosticListener("Fake"));
+
+                ModelLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
                 var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
-                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                    ModelLoggerFactory,
                     options,
                     new DiagnosticListener("Fake"));
 
@@ -157,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual IMutableModel Model => ModelBuilder.Model;
             protected ModelBuilder ModelBuilder { get; }
             protected IModelValidator ModelValidator { get; }
-            public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
+            public ListLoggerFactory ValidationLoggerFactory { get; }
+            public ListLoggerFactory ModelLoggerFactory { get; }
 
             public TestModelBuilder HasAnnotation(string annotation, object value)
             {

@@ -6,13 +6,14 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable MethodSupportsCancellation
 // ReSharper disable AccessToDisposedClosure
@@ -102,6 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
                 connection.CommitFailures.Enqueue(new bool?[] { realFailure });
+                Fixture.TestSqlLoggerFactory.Clear();
 
                 context.Products.Add(new Product());
                 execute(new TestSqlServerRetryingExecutionStrategy(context), context);
@@ -112,11 +114,13 @@ namespace Microsoft.EntityFrameworkCore
                     "System.Data.SqlClient.SqlException (0x80131904): Bang!";
                 if (realFailure)
                 {
-                    Assert.Contains(retryMessage, Fixture.TestSqlLoggerFactory.Log);
+                    var logEntry = Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == CoreEventId.ExecutionStrategyRetrying);
+                    Assert.Contains(retryMessage, logEntry.Message);
+                    Assert.Equal(LogLevel.Information, logEntry.Level);
                 }
                 else
                 {
-                    Assert.DoesNotContain(retryMessage, Fixture.TestSqlLoggerFactory.Log);
+                    Assert.Empty(Fixture.TestSqlLoggerFactory.Log.Where(l => l.Id == CoreEventId.ExecutionStrategyRetrying));
                 }
 
                 Assert.Equal(realFailure ? 3 : 2, connection.OpenCount);
@@ -569,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override bool UsePooling => false;
             protected override string StoreName { get; } = nameof(ExecutionStrategyTest);
             public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(ExecutionStrategyContext);
 
@@ -587,6 +591,9 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlServerDbContextOptionsBuilder(options).MaxBatchSize(1);
                 return options;
             }
+
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Infrastructure.Name;
         }
     }
 }

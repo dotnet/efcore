@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -131,24 +132,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected ModelValidatorTest()
         {
-            Log = new List<(LogLevel, EventId, string)>();
-            Logger = CreateLogger();
+            LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
+            ValidationLogger = CreateValidationLogger();
             ModelLogger = CreateModelLogger();
         }
 
-        protected List<(LogLevel Level, EventId Id, string Message)> Log { get; }
+        protected ListLoggerFactory LoggerFactory { get; }
 
-        protected IDiagnosticsLogger<DbLoggerCategory.Model.Validation> Logger { get; set; }
+        protected IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; set; }
 
         protected IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; set; }
 
-        protected virtual void VerifyWarning(string expectedMessage, IModel model)
+        protected virtual void VerifyWarning(string expectedMessage, IModel model, LogLevel level = LogLevel.Warning)
         {
             Validate(model);
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(expectedMessage, Log[0].Message);
+            var logEntry = LoggerFactory.Log.Single(l => l.Level == level);
+            Assert.Equal(expectedMessage, logEntry.Message);
         }
 
         protected virtual void VerifyError(string expectedMessage, IModel model)
@@ -163,12 +163,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             CreateModelValidator().Validate(model);
         }
 
-        protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateLogger(bool sensitiveDataLoggingEnabled = false)
+        protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(sensitiveDataLoggingEnabled).Options);
             return new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
+                LoggerFactory,
                 options,
                 new DiagnosticListener("Fake"));
         }
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(sensitiveDataLoggingEnabled).Options);
             return new DiagnosticsLogger<DbLoggerCategory.Model>(
-                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                LoggerFactory,
                 options,
                 new DiagnosticListener("Fake"));
         }

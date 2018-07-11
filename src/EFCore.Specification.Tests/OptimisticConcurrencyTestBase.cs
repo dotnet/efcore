@@ -5,10 +5,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
@@ -18,7 +20,11 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class OptimisticConcurrencyTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : F1FixtureBase, new()
     {
-        protected OptimisticConcurrencyTestBase(TFixture fixture) => Fixture = fixture;
+        protected OptimisticConcurrencyTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            fixture.ListLoggerFactory.Clear();
+        }
 
         protected TFixture Fixture { get; }
 
@@ -135,8 +141,6 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Chassis>(entry.Entity);
                     entry.Reload();
@@ -148,6 +152,9 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     catch (DbUpdateConcurrencyException ex2)
                     {
+                        Assert.Equal(LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(l =>
+                            l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+
                         var entry2 = ex2.Entries.Single();
                         Assert.IsAssignableFrom<Team>(entry2.Entity);
                         entry2.Reload();
@@ -179,8 +186,6 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Driver>(entry.Entity);
                     entry.Reload();
@@ -192,6 +197,9 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     catch (DbUpdateConcurrencyException ex2)
                     {
+                        Assert.Equal(LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(l =>
+                            l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+
                         var entry2 = ex2.Entries.Single();
                         Assert.IsAssignableFrom<Team>(entry2.Entity);
                         entry2.Reload();
@@ -215,8 +223,6 @@ namespace Microsoft.EntityFrameworkCore
                     c.EngineSuppliers.Single(s => s.Name == "Renault"),
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Engine>(entry.Entity);
                     entry.Reload();
@@ -238,7 +244,6 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Teams.Single(t => t.Id == Team.Ferrari).Engine = c.Engines.Single(s => s.Name == "FO 108X"),
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Team>(entry.Entity);
                 },
@@ -256,7 +261,6 @@ namespace Microsoft.EntityFrameworkCore
                         c.Engines.Single(s => s.Name == "FO 108X"),
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Team>(entry.Entity);
                 },
@@ -272,7 +276,6 @@ namespace Microsoft.EntityFrameworkCore
                     c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell"))),
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Team>(entry.Entity);
                 },
@@ -288,7 +291,6 @@ namespace Microsoft.EntityFrameworkCore
                     c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA"))),
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Team>(entry.Entity);
                 },
@@ -306,8 +308,6 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Location>(entry.Entity);
                     entry.Reload();
@@ -321,23 +321,49 @@ namespace Microsoft.EntityFrameworkCore
         #region Tests for update exceptions involving adding and deleting entities
 
         [Fact]
-        public virtual Task Adding_the_same_entity_twice_results_in_DbUpdateException()
+        public virtual async Task Adding_the_same_entity_twice_results_in_DbUpdateException()
         {
-            return ConcurrencyTestAsync(
-                c =>
-                    c.Teams.Add(
-                        new Team
+            using (var c = CreateF1Context())
+            {
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                    c, async context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
                         {
-                            Id = -1,
-                            Name = "Wubbsy Racing",
-                            Chassis = new Chassis
+                            context.Teams.Add(
+                                new Team
+                                {
+                                    Id = -1,
+                                    Name = "Wubbsy Racing",
+                                    Chassis = new Chassis
+                                    {
+                                        TeamId = -1,
+                                        Name = "Wubbsy"
+                                    }
+                                });
+
+                            using (var innerContext = CreateF1Context())
                             {
-                                TeamId = -1,
-                                Name = "Wubbsy"
+                                UseTransaction(innerContext.Database, transaction);
+                                innerContext.Teams.Add(
+                                    new Team
+                                    {
+                                        Id = -1,
+                                        Name = "Wubbsy Racing",
+                                        Chassis = new Chassis
+                                        {
+                                            TeamId = -1,
+                                            Name = "Wubbsy"
+                                        }
+                                    });
+
+                                await innerContext.SaveChangesAsync();
+
+                                await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
                             }
-                        }),
-                (c, ex) => Assert.IsType<DbUpdateException>(ex),
-                null);
+                        }
+                    });
+            }
         }
 
         [Fact]
@@ -347,8 +373,6 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Driver>(entry.Entity);
                     entry.Reload();
@@ -364,8 +388,6 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Driver>(entry.Entity);
                     entry.Reload();
@@ -381,8 +403,6 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Driver>(entry.Entity);
 
@@ -403,8 +423,6 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Driver>(entry.Entity);
                     entry.Reload();
@@ -420,8 +438,6 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 (c, ex) =>
                 {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
                     var entry = ex.Entries.Single();
                     Assert.IsAssignableFrom<Driver>(entry.Entity);
                     var storeValues = entry.GetDatabaseValues();
@@ -607,12 +623,7 @@ namespace Microsoft.EntityFrameworkCore
             => ConcurrencyTestAsync(
                 c => c.Drivers.Single(d => d.CarNumber == 1).Podiums = StorePodiums,
                 c => c.Drivers.Single(d => d.CarNumber == 1).Podiums = ClientPodiums,
-                (c, ex) =>
-                {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
-                    resolver(c, (DbUpdateConcurrencyException)ex);
-                },
+                resolver,
                 c => Assert.Equal(expectedPodiums, c.Drivers.Single(d => d.CarNumber == 1).Podiums));
 
         /// <summary>
@@ -624,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the database at the end of the process can be validated.
         /// </summary>
         private Task ConcurrencyTestAsync(
-            Action<F1Context> change, Action<F1Context, DbUpdateException> resolver,
+            Action<F1Context> change, Action<F1Context, DbUpdateConcurrencyException> resolver,
             Action<F1Context> validator) => ConcurrencyTestAsync(change, change, resolver, validator);
 
         /// <summary>
@@ -637,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         protected virtual async Task ConcurrencyTestAsync(
             Action<F1Context> storeChange, Action<F1Context> clientChange,
-            Action<F1Context, DbUpdateException> resolver, Action<F1Context> validator)
+            Action<F1Context, DbUpdateConcurrencyException> resolver, Action<F1Context> validator)
         {
             using (var c = CreateF1Context())
             {
@@ -654,7 +665,11 @@ namespace Microsoft.EntityFrameworkCore
                                 storeChange(innerContext);
                                 await innerContext.SaveChangesAsync();
 
-                                var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                                var updateException = await Assert.ThrowsAnyAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+
+                                Assert.Equal(LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(l =>
+                                    l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                                Fixture.ListLoggerFactory.Clear();
 
                                 resolver(context, updateException);
 

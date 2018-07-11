@@ -12,7 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class OwnedQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : OwnedQueryTestBase<TFixture>.OwnedQueryFixtureBase, new()
     {
-        protected OwnedQueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected OwnedQueryTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            fixture.ListLoggerFactory.Clear();
+        }
 
         protected TFixture Fixture { get; }
 

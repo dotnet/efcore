@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
@@ -242,7 +243,7 @@ WHERE @_outer_OrderID = [od0].[OrderID]");
 
             Assert.Contains(
                 RelationalStrings.LogQueryPossibleExceptionWithAggregateOperator.GenerateMessage(),
-                Fixture.TestSqlLoggerFactory.Log);
+                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Average_on_float_column_in_subquery_with_cast(bool isAsync)
@@ -1060,7 +1061,7 @@ WHERE [o].[ProductID] = 42");
 
             Assert.DoesNotContain(
                 CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
-                    @"(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"), Fixture.TestSqlLoggerFactory.Log);
+                    @"(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Project_constant_Sum(bool isAsync)

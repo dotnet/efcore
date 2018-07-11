@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected TableSplittingTestBase(ITestOutputHelper testOutputHelper)
         {
-            TestOutputHelper = testOutputHelper;
+            TestSqlLoggerFactory = (TestSqlLoggerFactory)TestStoreFactory.CreateListLoggerFactory(l => true);
+            //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         [Fact]
@@ -269,8 +270,7 @@ namespace Microsoft.EntityFrameworkCore
         protected TestStore TestStore { get; set; }
         protected abstract ITestStoreFactory TestStoreFactory { get; }
         protected IServiceProvider ServiceProvider { get; set; }
-        protected TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-        protected ITestOutputHelper TestOutputHelper { get; }
+        protected TestSqlLoggerFactory TestSqlLoggerFactory { get; }
 
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
@@ -299,14 +299,12 @@ namespace Microsoft.EntityFrameworkCore
 
             ServiceProvider = TestStoreFactory.AddProviderServices(new ServiceCollection())
                 .AddSingleton(TestModelSource.GetFactory(onModelCreating))
+                .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
             TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());
 
             TestSqlLoggerFactory.Clear();
-
-            // To enable logging
-            //TestSqlLoggerFactory.SetTestOutputHelper(TestOutputHelper);
 
             return TestStore;
         }
