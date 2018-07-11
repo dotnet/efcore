@@ -121,11 +121,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
 
         private sealed class Logger : ILogger
         {
+            private CancellationTokenSource _cancellationTokenSource;
+            private static ISet<EventId> _excludedEventIds = new HashSet<EventId>
+            {
+                CoreEventId.StartedTracking,
+                CoreEventId.DetectChangesStarting,
+                CoreEventId.DetectChangesCompleted
+            };
+
             public IndentedStringBuilder LogBuilder { get; } = new IndentedStringBuilder();
             public List<string> SqlStatements { get; } = new List<string>();
             public List<string> Parameters { get; } = new List<string>();
 
-            private CancellationTokenSource _cancellationTokenSource;
 
             public ITestOutputHelper TestOutputHelper { get; set; }
 
@@ -188,7 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
                             LogBuilder.AppendLine(format);
                         }
 
-                        TestOutputHelper?.WriteLine(format + _eol);
+                        if (!_excludedEventIds.Contains(eventId.Id))
+                        {
+                            TestOutputHelper?.WriteLine(format + _eol);
+                        }
 
                         LogBuilder.AppendLine(format);
                     }

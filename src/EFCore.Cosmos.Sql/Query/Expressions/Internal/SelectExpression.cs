@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.Azure.Documents;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json.Linq;
@@ -68,8 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
         public IEntityType EntityType { get; }
 
         public override string ToString()
-        {
-            return new CosmosSqlGenerator().GenerateSql(this);
-        }
+            => new CosmosSqlGenerator().GenerateSqlQuerySpec(this, new Dictionary<string, object>()).QueryText;
+
+        public SqlQuerySpec ToSqlQuery(IReadOnlyDictionary<string, object> parameterValues)
+            => new CosmosSqlGenerator().GenerateSqlQuerySpec(this, parameterValues);
     }
 }
