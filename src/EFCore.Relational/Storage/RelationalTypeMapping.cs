@@ -361,7 +361,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.ParameterName = name;
 
             if (Converter != null
-                && !IsLegacyEnumValue(Converter, value))
+                && ((AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12557", out var isEnabled) && isEnabled)
+                    || !IsLegacyEnumValue(Converter, value)))
             {
                 value = Converter.ConvertToProvider(value);
             }
