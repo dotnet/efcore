@@ -58,6 +58,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
         /// </summary>
         /// <param name="functionName"> Name of the function. </param>
+        /// <param name="returnType"> The return type. </param>
+        /// <param name="niladic"> A value indicating whether the function is niladic. </param>
+        public SqlFunctionExpression(
+            [NotNull] string functionName,
+            [NotNull] Type returnType,
+            bool niladic)
+            : this(
+                instance: null,
+                Check.NotEmpty(functionName, nameof(functionName)),
+                schema: null,
+                Check.NotNull(returnType, nameof(returnType)),
+                niladic,
+                arguments: Enumerable.Empty<Expression>())
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
+        /// </summary>
+        /// <param name="functionName"> Name of the function. </param>
         /// <param name="schema"> The schema this function exists in if any. </param>
         /// <param name="returnType"> The return type. </param>
         /// <param name="arguments"> The arguments. </param>
@@ -71,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 Check.NotEmpty(functionName, nameof(functionName)),
                 schema,
                 Check.NotNull(returnType, nameof(returnType)),
+                niladic: false,
                 Check.NotNull(arguments, nameof(arguments)))
         {
         }
@@ -92,7 +113,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 Check.NotEmpty(functionName, nameof(functionName)),
                 /*schema*/ null,
                 Check.NotNull(returnType, nameof(returnType)),
+                niladic: false,
                 Check.NotNull(arguments, nameof(arguments)))
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
+        /// </summary>
+        /// <param name="instance"> The instance on which the function is called. </param>
+        /// <param name="functionName"> Name of the function. </param>
+        /// <param name="returnType"> The return type. </param>
+        /// <param name="niladic"> A value indicating whether the function is niladic. </param>
+        public SqlFunctionExpression(
+            [NotNull] Expression instance,
+            [NotNull] string functionName,
+            [NotNull] Type returnType,
+            bool niladic)
+            : this(
+                Check.NotNull(instance, nameof(instance)),
+                Check.NotEmpty(functionName, nameof(functionName)),
+                schema: null,
+                Check.NotNull(returnType, nameof(returnType)),
+                niladic,
+                arguments: Enumerable.Empty<Expression>())
         {
         }
 
@@ -101,12 +145,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string functionName,
             [CanBeNull] string schema,
             [NotNull] Type returnType,
+            bool niladic,
             [NotNull] IEnumerable<Expression> arguments)
         {
             Instance = instance;
             FunctionName = functionName;
             Type = returnType;
             Schema = schema;
+            IsNiladic = niladic;
             _arguments = arguments.ToList().AsReadOnly();
         }
 
@@ -130,6 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The instance.
         /// </summary>
         public virtual Expression Instance { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the function is niladic.
+        /// </summary>
+        /// <value>A value indicating whether the function is niladic.</value>
+        public virtual bool IsNiladic { get; }
 
         /// <summary>
         ///     The arguments.
@@ -179,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newArguments = visitor.VisitAndConvert(_arguments, nameof(VisitChildren));
 
             return newInstance != Instance || newArguments != _arguments
-                ? new SqlFunctionExpression(newInstance, FunctionName, Schema, Type, newArguments)
+                ? new SqlFunctionExpression(newInstance, FunctionName, Schema, Type, IsNiladic, newArguments)
                 : this;
         }
 
@@ -204,6 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             => Type == other.Type
                && string.Equals(FunctionName, other.FunctionName)
                && string.Equals(Schema, other.Schema)
+               && IsNiladic == other.IsNiladic
                && _arguments.SequenceEqual(other._arguments)
                && (Instance == null && other.Instance == null
                    || Instance?.Equals(other.Instance) == true);
@@ -219,6 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             unchecked
             {
                 var hashCode = _arguments.Aggregate(0, (current, argument) => current + ((current * 397) ^ argument.GetHashCode()));
+                hashCode = (hashCode * 397) ^ IsNiladic.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Instance?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ FunctionName.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Schema?.GetHashCode() ?? 0);
@@ -233,6 +287,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>A <see cref="string" /> representation of the Expression.</returns>
         public override string ToString()
             => (Instance != null ? Instance + "." : Schema != null ? Schema + "." : "") +
-               $"{FunctionName}({string.Join("", "", Arguments)}";
+               $"{FunctionName}" + (IsNiladic ? "" : $"({string.Join(", ", Arguments)})");
     }
 }
