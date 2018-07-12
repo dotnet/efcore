@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx
 
         private static readonly char[] _regexSpecialChars
-            = { '.', '$', '^', '{', '[', '(', '|', ')', '*', '+', '?', '\\' };
+            = { '.', '$', '^', '{', '(', '|', ')', '*', '+', '?', '\\' };
 
         private static readonly string _defaultEscapeRegexCharsPattern
             = BuildEscapeRegexCharsPattern(_regexSpecialChars);
@@ -140,6 +140,11 @@ namespace Microsoft.EntityFrameworkCore
                     case '%':
                     {
                         stringBuilder.Append(escaped ? "%" : ".*");
+                        break;
+                    },
+                    case '[':
+                    {
+                        stringBuilder.Append(escaped ? @"\[" : "[");
                         break;
                     }
                     default:
