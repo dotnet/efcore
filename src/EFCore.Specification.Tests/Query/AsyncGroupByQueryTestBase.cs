@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && EmployeeID == other.EmployeeID;
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "https://github.com/dotnet/corefx/issues/30955")]
         public virtual async Task GroupBy_Composite_Select_Dto_Sum_Min_Key_flattened_Max_Avg()
         {
             await AssertQuery<Order>(

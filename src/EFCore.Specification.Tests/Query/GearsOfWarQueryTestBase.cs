@@ -4804,7 +4804,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Select(s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => (MyDTO)null).FirstOrDefault() }));
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "https://github.com/dotnet/corefx/issues/30955")]
         public virtual void Select_subquery_projecting_single_constant_of_non_mapped_type()
         {
             AssertQuery<Squad>(
