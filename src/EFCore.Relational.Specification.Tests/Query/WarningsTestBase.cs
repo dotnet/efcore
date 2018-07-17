@@ -17,9 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected WarningsTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            fixture.ListLoggerFactory.Clear();
+        }
 
-        protected WarningsTestBase(TFixture fixture) => Fixture = fixture;
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         [Fact]
         public virtual void Throws_when_warning_as_error()

@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -174,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Contains(minBatchSize == 3
                             ? RelationalStrings.LogBatchReadyForExecution.GenerateMessage(3)
                             : RelationalStrings.LogBatchSmallerThanMinBatchSize.GenerateMessage(3, 4),
-                            Fixture.TestSqlLoggerFactory.Log);
+                            Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 
                         Assert.Equal(minBatchSize <= 3 ? 2 : 4, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
                     }, context => AssertDatabaseState(context, false, expectedBlogs));
@@ -258,10 +256,13 @@ namespace Microsoft.EntityFrameworkCore
 
         public class BatchingTestFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
             protected override string StoreName { get; } = "BatchingTest";
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(BloggingContext);
+
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Update.Name;
 
             protected override void Seed(PoolableDbContext context)
             {

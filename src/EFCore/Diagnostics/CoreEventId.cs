@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CascadeDeleteOrphan,
             SaveChangesStarting,
             SaveChangesCompleted,
+            OptimisticConcurrencyException,
 
             // Query events
             QueryIterationFailed = CoreBaseId + 100,
@@ -757,6 +758,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId SaveChangesCompleted = MakeUpdateId(Id.SaveChangesCompleted);
+
+        /// <summary>
+        ///     <para>
+        ///         An <see cref="OptimisticConcurrencyException"/> was thrown during the call to
+        ///         <see cref="DbContext.SaveChanges()" />
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="DbContextErrorEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OptimisticConcurrencyException = MakeUpdateId(Id.OptimisticConcurrencyException);
 
         /// <summary>
         ///     <para>

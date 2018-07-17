@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public Task Single_Predicate_Cancellation()
         {
-            return Assert.ThrowsAsync<TaskCanceledException>(
+            return Assert.ThrowsAnyAsync<OperationCanceledException>(
                 () => Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 

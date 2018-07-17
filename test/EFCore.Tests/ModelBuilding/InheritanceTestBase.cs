@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Validate();
 
-                var (Level, _, Message) = modelBuilder.Log.Single(e => e.Id == CoreEventId.RedundantIndexRemoved);
+                var (Level, _, Message, _, _) = modelBuilder.ModelLoggerFactory.Log.Single(e => e.Id == CoreEventId.RedundantIndexRemoved);
                 Assert.Equal(LogLevel.Debug, Level);
                 Assert.Equal(CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", "{'CustomerId', 'AnotherCustomerId'}"), Message);
 
@@ -619,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var indexRemoveMessage =
                     CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", "{'CustomerId', 'AnotherCustomerId'}");
-                Assert.Equal(2, modelBuilder.Log.Count(l => l.Message == indexRemoveMessage));
+                Assert.Equal(2, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
 
                 dependentEntityBuilder.HasIndex(
                         o => new

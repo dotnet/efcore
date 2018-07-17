@@ -33,15 +33,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             using (var context = new LikeAZooContext())
             {
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 context.SaveChanges();
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.DetectChangesStarting.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.DetectChangesStarting.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(CoreStrings.LogDetectChangesStarting.GenerateMessage(nameof(LikeAZooContext)), message);
 
-                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.DetectChangesCompleted.Id);
+                (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.DetectChangesCompleted.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(CoreStrings.LogDetectChangesCompleted.GenerateMessage(nameof(LikeAZooContext)), message);
             }
@@ -58,12 +58,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var cat = context.Cats.Find(1);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 cat.Name = "Smoke-a-doke";
                 context.ChangeTracker.DetectChanges();
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -71,12 +71,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         : CoreStrings.LogPropertyChangeDetected.GenerateMessage(nameof(Cat), nameof(Cat.Name)),
                     message);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 cat.Name = "Little Artichoke";
                 context.ChangeTracker.DetectChanges();
 
-                Assert.Empty(_log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+                Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
             }
         }
 
@@ -91,13 +91,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 var hat = cat.Hats.Single(h => h.Id == 77);
                 hat.CatId = 2;
                 context.ChangeTracker.DetectChanges();
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ForeignKeyChangeDetected.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ForeignKeyChangeDetected.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -105,12 +105,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         : CoreStrings.LogForeignKeyChangeDetected.GenerateMessage(nameof(Hat), nameof(Hat.CatId)),
                     message);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 hat.CatId = 1;
                 context.ChangeTracker.DetectChanges();
 
-                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ForeignKeyChangeDetected.Id);
+                (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ForeignKeyChangeDetected.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -132,12 +132,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
                 var hat = cat.Hats.Single(h => h.Id == 77);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 cat.Hats.Clear();
                 context.ChangeTracker.DetectChanges();
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.CollectionChangeDetected.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.CollectionChangeDetected.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -145,12 +145,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         : CoreStrings.LogCollectionChangeDetected.GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Hats)),
                     message);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 cat.Hats.Add(hat);
                 context.ChangeTracker.DetectChanges();
 
-                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.CollectionChangeDetected.Id);
+                (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.CollectionChangeDetected.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -172,12 +172,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
                 var hat = cat.Hats.Single(h => h.Id == 77);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 hat.Cat = null;
                 context.ChangeTracker.DetectChanges();
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ReferenceChangeDetected.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ReferenceChangeDetected.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -185,12 +185,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         : CoreStrings.LogReferenceChangeDetected.GenerateMessage(nameof(Hat), nameof(Hat.Cat)),
                     message);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 hat.Cat = cat;
                 context.ChangeTracker.DetectChanges();
 
-                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ReferenceChangeDetected.Id);
+                (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ReferenceChangeDetected.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -209,10 +209,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
             {
-                _log.Clear();
+                _loggerFactory.Log.Clear();
                 context.Cats.Find(1);
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.StartedTracking.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.StartedTracking.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -229,10 +229,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
             {
-                _log.Clear();
+                _loggerFactory.Log.Clear();
                 context.Attach(new Hat(88));
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.StartedTracking.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.StartedTracking.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -253,11 +253,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var cat = context.Cats.Find(1);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 context.Entry(cat).State = EntityState.Deleted;
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.StateChanged.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.StateChanged.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     context.Model.FindEntityType(typeof(Hat)).FindProperty(nameof(Hat.Id)),
                     temporary);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 if (async)
                 {
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     await context.AddAsync(new Hat(0));
                 }
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ValueGenerated.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ValueGenerated.Id);
                 Assert.Equal(LogLevel.Debug, level);
 
                 if (temporary)
@@ -360,11 +360,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 context.Entry(cat).State = EntityState.Deleted;
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 context.SaveChanges();
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -387,11 +387,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 cat.Hats.Clear();
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 context.SaveChanges();
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 context.Entry(cat).State = EntityState.Deleted;
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
 
                 if (async)
                 {
@@ -425,11 +425,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     context.SaveChanges();
                 }
 
-                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.SaveChangesStarting.Id);
+                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.SaveChangesStarting.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(CoreStrings.LogSaveChangesStarting.GenerateMessage(nameof(LikeAZooContext)), message);
 
-                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.SaveChangesCompleted.Id);
+                (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.SaveChangesCompleted.Id);
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(CoreStrings.LogSaveChangesCompleted.GenerateMessage(nameof(LikeAZooContext), 1), message);
             }
@@ -442,10 +442,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 context.Cats.Find(1);
 
-                _log.Clear();
+                _loggerFactory.Log.Clear();
             }
 
-            var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ContextDisposed.Id);
+            var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ContextDisposed.Id);
             Assert.Equal(LogLevel.Debug, level);
             Assert.Equal(CoreStrings.LogContextDisposed.GenerateMessage(nameof(LikeAZooContext)), message);
         }
@@ -799,11 +799,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public Cat Cat { get; set; }
         }
 
-        private static readonly List<(LogLevel Level, EventId Id, string Message)> _log
-            = new List<(LogLevel, EventId, string)>();
-
-        private static readonly LoggerFactory _loggerFactory
-            = new LoggerFactory(new[] { new ListLoggerProvider(_log) });
+        private static readonly ListLoggerFactory _loggerFactory
+            = new ListLoggerFactory();
 
         private class LikeAZooContext : DbContext
         {

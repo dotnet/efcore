@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected abstract string DatabaseSchema { get; }
             protected override string StoreName { get; } = "Northwind";
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

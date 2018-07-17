@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -116,10 +117,47 @@ namespace Microsoft.EntityFrameworkCore
 
         private class MyLoggerProvider : ILoggerProvider
         {
-            public ILogger CreateLogger(string categoryName) => new ListLogger(Log);
+            public ILogger CreateLogger(string categoryName) => new MyListLogger(Log);
 
             public void Dispose()
             {
+            }
+
+            private class MyListLogger : ILogger
+            {
+                public MyListLogger(List<(LogLevel, EventId, string)> logMessage)
+                {
+                    LogMessages = logMessage;
+                }
+
+                private List<(LogLevel, EventId, string)> LogMessages { get; }
+
+                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+                {
+                    var message = new StringBuilder();
+                    if (formatter != null)
+                    {
+                        message.Append(formatter(state, exception));
+                    }
+                    else if (state != null)
+                    {
+                        message.Append(state);
+
+                        if (exception != null)
+                        {
+                            message.Append(Environment.NewLine);
+                            message.Append(exception);
+                        }
+                    }
+
+                    LogMessages?.Add((logLevel, eventId, message.ToString()));
+                }
+
+                public bool IsEnabled(LogLevel logLevel) => true;
+
+                public IDisposable BeginScope(object state) => throw new NotImplementedException();
+
+                public IDisposable BeginScope<TState>(TState state) => null;
             }
         }
 
@@ -257,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Required_low_level_services_are_not_added_if_already_present()
         {
             var serviceCollection = new ServiceCollection();
-            var loggerFactory = new ListLoggerFactory(Log);
+            var loggerFactory = new ListLoggerFactory();
 
             serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
 
@@ -272,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Low_level_services_can_be_replaced_after_being_added()
         {
             var serviceCollection = new ServiceCollection();
-            var loggerFactory = new ListLoggerFactory(Log);
+            var loggerFactory = new ListLoggerFactory();
 
             new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
@@ -2615,7 +2653,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseLoggerFactory(new ListLoggerFactory(Log))
+                    .UseLoggerFactory(new ListLoggerFactory())
                     .UseInternalServiceProvider(
                         new ServiceCollection()
                             .AddEntityFrameworkInMemoryDatabase()
@@ -2632,7 +2670,7 @@ namespace Microsoft.EntityFrameworkCore
                     new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider())
-                .UseLoggerFactory(new ListLoggerFactory(Log))
+                .UseLoggerFactory(new ListLoggerFactory())
                 .Options;
 
             Assert.Equal(
@@ -2649,7 +2687,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
-                    (p, b) => b.UseLoggerFactory(new ListLoggerFactory(Log))
+                    (p, b) => b.UseLoggerFactory(new ListLoggerFactory())
                         .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(p))
                 .BuildServiceProvider();

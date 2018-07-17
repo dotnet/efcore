@@ -288,15 +288,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override IModelValidator CreateModelValidator()
             => new SqlServerModelValidator(
-                new ModelValidatorDependencies(
-                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<DbLoggerCategory.Model>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake"))),
+                new ModelValidatorDependencies(ValidationLogger, ModelLogger),
                 new RelationalModelValidatorDependencies(
 #pragma warning disable 618
                     TestServiceFactory.Instance.Create<ObsoleteRelationalTypeMapper>(),

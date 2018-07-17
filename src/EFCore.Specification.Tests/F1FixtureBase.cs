@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore
@@ -11,6 +12,13 @@ namespace Microsoft.EntityFrameworkCore
 
         // #12126
         protected override bool UsePooling => false;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w =>
+                w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
+
+        protected override bool ShouldLogCategory(string logCategory)
+            => logCategory == DbLoggerCategory.Update.Name;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

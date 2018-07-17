@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -1094,15 +1093,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override IModelValidator CreateModelValidator()
             => new RelationalModelValidator(
-                new ModelValidatorDependencies(
-                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<DbLoggerCategory.Model>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake"))),
+                new ModelValidatorDependencies(ValidationLogger, ModelLogger),
                 new RelationalModelValidatorDependencies(
 #pragma warning disable 618
                     new ObsoleteRelationalTypeMapper(),

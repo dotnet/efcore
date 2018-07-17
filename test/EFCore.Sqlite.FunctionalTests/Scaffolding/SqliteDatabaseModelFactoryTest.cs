@@ -26,9 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     {
         protected SqliteDatabaseModelFixture Fixture { get; }
 
-        public SqliteDatabaseModelFactoryTest(SqliteDatabaseModelFixture fixture) => Fixture = fixture;
-
-        private readonly List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
+        public SqliteDatabaseModelFactoryTest(SqliteDatabaseModelFixture fixture)
+        {
+            Fixture = fixture;
+            Fixture.ListLoggerFactory.Clear();
+        }
 
         private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
         {
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                     .AddSingleton<IRelationalTypeMappingSource, FallbackRelationalTypeMappingSource>()
                     .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
-                    .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new ListLoggerProvider(Log)));
+                    .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory);
                 new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
                 var databaseModelFactory = services
                     .BuildServiceProvider()
@@ -857,7 +859,7 @@ DROP TABLE PrincipalTable;");
                 new[] { "dbo" },
                 dbModel =>
                 {
-                    var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                    var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
                     Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, Id);
                     Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), Message);
@@ -876,7 +878,7 @@ DROP TABLE PrincipalTable;");
                 {
                     Assert.Empty(dbModel.Tables);
 
-                    var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                    var (Level, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
                     Assert.Equal(SqliteStrings.LogMissingTable.EventId, Id);
                     Assert.Equal(SqliteStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
@@ -902,7 +904,7 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 dbModel =>
                 {
-                    var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                    var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
                     Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.EventId, Id);
                     Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0"), Message);
@@ -930,7 +932,7 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 dbModel =>
                 {
-                    var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                    var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
                     Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.EventId, Id);
                     Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"), Message);
@@ -947,6 +949,9 @@ DROP TABLE PrincipalTable;");
             protected override string StoreName { get; } = nameof(SqliteDatabaseModelFactoryTest);
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
             public new SqliteTestStore TestStore => (SqliteTestStore)base.TestStore;
+
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Scaffolding.Name;
         }
     }
 }

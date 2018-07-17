@@ -148,8 +148,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Should_log_writes()
         {
-            var log = new List<(LogLevel Level, EventId Id, string Message)>();
-            var loggerFactory = new ListLoggerFactory(log);
+            var loggerFactory = new ListLoggerFactory();
 
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
@@ -168,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
 
             await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
 
-            var (Level, Id, Message) = log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
+            var (Level, _, Message, _, _) = loggerFactory.Log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
 
             Assert.Equal(LogLevel.Information, Level);
             Assert.Equal(InMemoryStrings.LogSavedChanges.GenerateMessage(1), Message);

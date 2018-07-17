@@ -1093,4 +1093,8 @@
   <data name="DuplicateQueryType" xml:space="preserve">
     <value>The query type '{queryType}' cannot be added to the model because a query type with the same name already exists.</value>
   </data>
+  <data name="LogOptimisticConcurrencyException" xml:space="preserve">
+    <value>{error}</value>
+    <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>
+  </data>
 </root>

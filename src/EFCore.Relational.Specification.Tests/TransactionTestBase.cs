@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -33,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
                 TestStore.OpenConnection();
             }
 
-            Fixture.Log.Clear();
+            Fixture.ListLoggerFactory.Log.Clear();
         }
 
         protected TFixture Fixture { get; set; }
@@ -191,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.AutoTransactionsEnabled = true;
                 }
 
-                Assert.Equal(RelationalStrings.LogExplicitTransactionEnlisted.GenerateMessage("Serializable"), Fixture.Log.Single().Message);
+                Assert.Equal(RelationalStrings.LogExplicitTransactionEnlisted.GenerateMessage("Serializable"),
+                    Fixture.ListLoggerFactory.Log.Single().Message);
             }
 
             AssertStoreInitialState();
@@ -344,7 +343,8 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.AutoTransactionsEnabled = true;
                 }
 
-                Assert.Equal(RelationalStrings.LogAmbientTransactionEnlisted.GenerateMessage("Serializable"), Fixture.Log.Single().Message);
+                Assert.Equal(RelationalStrings.LogAmbientTransactionEnlisted.GenerateMessage("Serializable"),
+                    Fixture.ListLoggerFactory.Log.Single().Message);
             }
 
             if (closeConnection)
@@ -1298,12 +1298,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class TransactionFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
-            public List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
             protected override string StoreName { get; } = "TransactionTest";
 
-            protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-                => base.AddServices(serviceCollection).AddSingleton<ILoggerFactory>(
-                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Database.Transaction.Name));
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Database.Transaction.Name;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

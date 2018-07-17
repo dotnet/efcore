@@ -439,6 +439,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 return entitiesSaved;
             }
+            catch (DbUpdateConcurrencyException exception)
+            {
+                DbContextDependencies.UpdateLogger.OptimisticConcurrencyException(this, exception);
+
+                throw;
+            }
             catch (Exception exception)
             {
                 DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
@@ -533,6 +539,12 @@ namespace Microsoft.EntityFrameworkCore
                 DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
 
                 return entitiesSaved;
+            }
+            catch (DbUpdateConcurrencyException exception)
+            {
+                DbContextDependencies.UpdateLogger.OptimisticConcurrencyException(this, exception);
+
+                throw;
             }
             catch (Exception exception)
             {

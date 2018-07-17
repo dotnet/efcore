@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure
 {
@@ -12,6 +10,6 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
     {
         protected override string StoreName { get; } = "adventureworks";
         protected override ITestStoreFactory TestStoreFactory => SqlServerAdventureWorksTestStoreFactory.Instance;
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
     }
 }

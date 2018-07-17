@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     using CommandAction = Action<
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
     public class RelationalCommandTest
     {
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         [Fact]
         public void Configures_DbCommand()
@@ -900,13 +901,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var options = CreateOptions();
 
-            var log = new List<(LogLevel Level, EventId Id, string Message)>();
+            var logFactory = new ListLoggerFactory();
 
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
-                    new ListLoggerFactory(log),
+                    logFactory,
                     new FakeLoggingOptions(false),
                     new DiagnosticListener("Fake")),
                 commandText: "Logged Command",
@@ -927,17 +928,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues);
             }
 
-            Assert.Equal(2, log.Count);
+            Assert.Equal(2, logFactory.Log.Count);
 
-            Assert.Equal(LogLevel.Debug, log[0].Level);
-            Assert.Equal(LogLevel.Information, log[1].Level);
+            Assert.Equal(LogLevel.Debug, logFactory.Log[0].Level);
+            Assert.Equal(LogLevel.Information, logFactory.Log[1].Level);
 
-            foreach (var (Level, Id, Message) in log)
+            foreach (var (_, _, message, _, _) in logFactory.Log)
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + EOL +
+                    @"[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol +
                     @"Logged Command",
-                    Message);
+                    message);
             }
         }
 
@@ -952,13 +953,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var options = CreateOptions(optionsExtension);
 
-            var log = new List<(LogLevel Level, EventId Id, string Message)>();
+            var logFactory = new ListLoggerFactory();
 
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
-                    new ListLoggerFactory(log),
+                    logFactory,
                     new FakeLoggingOptions(true),
                     new DiagnosticListener("Fake")),
                 commandText: "Logged Command",
@@ -979,19 +980,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues);
             }
 
-            Assert.Equal(3, log.Count);
-            Assert.Equal(LogLevel.Warning, log[0].Level);
-            Assert.Equal(CoreStrings.LogSensitiveDataLoggingEnabled.GenerateMessage(), log[0].Message);
+            Assert.Equal(3, logFactory.Log.Count);
+            Assert.Equal(LogLevel.Warning, logFactory.Log[0].Level);
+            Assert.Equal(CoreStrings.LogSensitiveDataLoggingEnabled.GenerateMessage(), logFactory.Log[0].Message);
 
-            Assert.Equal(LogLevel.Debug, log[1].Level);
-            Assert.Equal(LogLevel.Information, log[2].Level);
+            Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
+            Assert.Equal(LogLevel.Information, logFactory.Log[2].Level);
 
-            foreach (var (Level, Id, Message) in log.Skip(1))
+            foreach (var (_, _, message, _, _) in logFactory.Log.Skip(1))
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + EOL +
+                    @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol +
                     @"Logged Command",
-                    Message);
+                    message);
             }
         }
 
@@ -1010,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var relationalCommand = CreateRelationalCommand(
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
-                    new ListLoggerFactory(new List<(LogLevel, EventId, string)>()),
+                    new ListLoggerFactory(),
                     new FakeLoggingOptions(false),
                     new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
@@ -1076,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var relationalCommand = CreateRelationalCommand(
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
-                    new ListLoggerFactory(new List<(LogLevel, EventId, string)>()),
+                    new ListLoggerFactory(),
                     new FakeLoggingOptions(false),
                     new ListDiagnosticSource(diagnostic)),
                 parameters: new[]
