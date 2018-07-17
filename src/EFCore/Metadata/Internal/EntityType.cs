@@ -2097,8 +2097,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void AddData([NotNull] object[] data)
+        public virtual void AddData([NotNull] IEnumerable<object> data)
         {
+            if (_data == null)
+            {
+                _data = new List<object>();
+            }
+
             foreach (var entity in data)
             {
                 if (ClrType != null
@@ -2109,14 +2114,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.SeedDatumDerivedType(
                             this.DisplayName(), entity.GetType().ShortDisplayName()));
                 }
-            }
 
-            if (_data == null)
-            {
-                _data = new List<object>();
+                _data.Add(entity);
             }
-
-            _data.AddRange(data);
         }
 
         #endregion

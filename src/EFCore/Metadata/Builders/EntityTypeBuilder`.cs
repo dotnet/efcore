@@ -664,11 +664,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the model data. </returns>
         public virtual DataBuilder<TEntity> HasData([NotNull] params TEntity[] data)
-        {
-            base.HasData(data);
+            => HasData((IEnumerable<object>)data);
 
-            return new DataBuilder<TEntity>();
-        }
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
+        ///     An array of seed data of the same type as the entity.
+        /// </param>
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public virtual DataBuilder<TEntity> HasData([NotNull] IEnumerable<TEntity> data)
+            => HasData((IEnumerable<object>)data);
 
         /// <summary>
         ///     Configures this entity to have seed data. It is used to generate data motion migrations.
@@ -678,6 +684,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the model data. </returns>
         public new virtual DataBuilder<TEntity> HasData([NotNull] params object[] data)
+            => HasData((IEnumerable<object>)data);
+
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
+        ///     An array of seed data represented by anonymous types.
+        /// </param>
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public new virtual DataBuilder<TEntity> HasData([NotNull] IEnumerable<object> data)
         {
             base.HasData(data);
 

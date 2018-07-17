@@ -260,6 +260,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract DataBuilder<TEntity> HasData(params TEntity[] data);
 
             public abstract DataBuilder<TEntity> HasData(params object[] data);
+
+            public abstract DataBuilder<TEntity> HasData(IEnumerable<TEntity> data);
+
+            public abstract DataBuilder<TEntity> HasData(IEnumerable<object> data);
         }
 
         public abstract class TestOwnedEntityTypeBuilder<TEntity>

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -1228,6 +1229,66 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<EntityBase>().Ignore(e => ((IEntityBase)e).Target);
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
+            }
+
+            [Fact]
+            public virtual void Can_add_seed_data_objects()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Beta>(c =>
+                {
+                    c.HasData(new Beta
+                    {
+                        Id = -1
+                    });
+                    var customers = new List<Beta>
+                    {
+                        new Beta
+                        {
+                            Id = -2
+                        }
+                    };
+                    c.HasData(customers);
+                });
+
+                modelBuilder.Validate();
+
+                var customer = model.FindEntityType(typeof(Beta));
+                var data = customer.GetData();
+                Assert.Equal(2, data.Count());
+                Assert.Equal(-1, data.First()[nameof(Beta.Id)]);
+                Assert.Equal(-2, data.Last()[nameof(Beta.Id)]);
+            }
+
+            [Fact]
+            public virtual void Can_add_seed_data_anonymous_objects()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Beta>(c =>
+                {
+                    c.HasData(new
+                    {
+                        Id = -1
+                    });
+                    var customers = new List<object>
+                    {
+                        new
+                        {
+                            Id = -2
+                        }
+                    };
+                    c.HasData(customers);
+                });
+
+                modelBuilder.Validate();
+
+                var customer = model.FindEntityType(typeof(Beta));
+                var data = customer.GetData();
+                Assert.Equal(2, data.Count());
+                Assert.Equal(-1, data.First().Values.Single());
+                Assert.Equal(-2, data.Last().Values.Single());
             }
         }
     }
