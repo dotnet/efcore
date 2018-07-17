@@ -242,6 +242,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override DataBuilder<TEntity> HasData(params object[] data)
                 => EntityTypeBuilder.HasData(data);
 
+            public override DataBuilder<TEntity> HasData(IEnumerable<TEntity> data)
+                => EntityTypeBuilder.HasData(data);
+
+            public override DataBuilder<TEntity> HasData(IEnumerable<object> data)
+                => EntityTypeBuilder.HasData(data);
+
             public EntityTypeBuilder<TEntity> Instance => EntityTypeBuilder;
         }
 

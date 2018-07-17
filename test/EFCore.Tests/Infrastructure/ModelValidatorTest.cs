@@ -130,6 +130,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public bool? ImNot { get; set; }
         }
 
+        protected class EntityWithInvalidProperties
+        {
+            public int Id { get; set; }
+            public bool NotImplemented
+            {
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
+            }
+
+            public static int Static { get; set; }
+
+            public int WriteOnly
+            {
+                // ReSharper disable once ValueParameterNotUsed
+                set { }
+            }
+
+            // ReSharper disable once UnassignedGetOnlyAutoProperty
+            public int ReadOnly { get; }
+
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            public int PrivateGetter { private get; set; }
+
+            public int this[int index]
+            {
+                get => 0;
+                // ReSharper disable once ValueParameterNotUsed
+                set { }
+            }
+        }
+
         protected ModelValidatorTest()
         {
             LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);

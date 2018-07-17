@@ -641,6 +641,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
+        public virtual void Passes_for_ignored_invalid_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<EntityWithInvalidProperties>(eb =>
+            {
+                eb.Ignore(e => e.NotImplemented);
+
+                eb.HasData(
+                    new EntityWithInvalidProperties
+                    {
+                        Id = -1
+                    });
+
+                eb.HasData(
+                    new {
+                        Id = -2,
+                        NotImplemented = true,
+                        Static = 1,
+                        WriteOnly = 1,
+                        ReadOnly = 1,
+                        PrivateGetter = 1
+                    });
+            });
+
+            Validate(modelBuilder.Model);
+
+            var data = modelBuilder.Model.GetEntityTypes().Single().GetData();
+            Assert.Equal(-1, data.First().Values.Single());
+            Assert.Equal(-2, data.Last().Values.Single());
+        }
+
+        [Fact]
         public virtual void Detects_derived_seeds()
         {
             var modelBuilder = CreateModelBuilder();
