@@ -631,8 +631,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             else
             {
                 var processedExperssion = ApplyOptimizations(orderingExpression, searchCondition: false);
-                if (processedExperssion is ConstantExpression
-                    || processedExperssion is ParameterExpression)
+                if (processedExperssion.RemoveConvert() is ConstantExpression
+                    || processedExperssion.RemoveConvert() is ParameterExpression)
                 {
                     _relationalCommandBuilder.Append("(SELECT 1)");
                 }
