@@ -6706,7 +6706,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Weapons, "Weapons") });
         }
 
-        // Remember to add any new tests to Async version of this test class
+        [ConditionalFact]
+        public virtual Task Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Squads
+                    .Include(s => s.Members)
+                    .ThenInclude(g => g.Weapons)
+                    .Where(s => s.Name == "Delta")
+                    .Select(s => new { s.Name, Client(s).Members });
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+
+                var topLevel = result[0];
+
+                Assert.Equal(4, topLevel.Members.Count);
+                Assert.True(topLevel.Members.First().Weapons.Count > 0);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public  TEntity Client<TEntity>(TEntity entity) => entity;
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
