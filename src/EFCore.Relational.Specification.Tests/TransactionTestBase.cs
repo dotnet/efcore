@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(RelationalStrings.LogExplicitTransactionEnlisted.GenerateMessage("Serializable"),
-                    Fixture.ListLoggerFactory.Log.Single().Message);
+                    Fixture.ListLoggerFactory.Log.First().Message);
             }
 
             AssertStoreInitialState();
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(RelationalStrings.LogAmbientTransactionEnlisted.GenerateMessage("Serializable"),
-                    Fixture.ListLoggerFactory.Log.Single().Message);
+                    Fixture.ListLoggerFactory.Log.First().Message);
             }
 
             if (closeConnection)
