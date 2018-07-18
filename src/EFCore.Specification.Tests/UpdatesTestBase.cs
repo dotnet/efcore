@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
                             () => context.SaveChanges()).Message);
                 });
         }
-        
+
         [Fact]
         public virtual void Save_partial_update_on_concurrency_token_original_value_mismatch_throws()
         {
@@ -126,6 +126,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+#if !Test21
         [Fact]
         public virtual void Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
@@ -151,6 +152,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("GigaChips", context.ProductWithBytes.Find(productId).Name);
                 });
         }
+#endif
 
         [Fact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
@@ -179,6 +181,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+#if !Test21
         [Fact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
@@ -204,6 +207,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Null(context.ProductWithBytes.Find(productId));
                 });
         }
+#endif
 
         [Fact]
         public virtual void Can_remove_partial()

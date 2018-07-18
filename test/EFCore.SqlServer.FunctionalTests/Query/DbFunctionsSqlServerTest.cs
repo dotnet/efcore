@@ -255,6 +255,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
             }
         }
 
+#if !Test21
         [ConditionalFact]
         public void Contains_should_throw_on_client_eval()
         {
@@ -409,6 +410,7 @@ LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeI
 WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([c].[Title], N'""Ins*""'))");
             }
         }
+#endif
 
         [ConditionalFact]
         public virtual void DateDiff_Year()

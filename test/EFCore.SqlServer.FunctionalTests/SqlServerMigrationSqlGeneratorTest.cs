@@ -1171,6 +1171,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if  !Test21
         [Fact]
         public virtual void MoveSequenceOperation_into_default()
         {
@@ -1188,6 +1189,7 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void MoveTableOperation_legacy()
@@ -1223,6 +1225,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test21
         [Fact]
         public virtual void MoveTableOperation_into_default()
         {
@@ -1240,6 +1243,7 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void RenameColumnOperation()
