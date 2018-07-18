@@ -119,6 +119,30 @@ FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1");
         }
 
+        public override async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
+        {
+            await base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(isAsync);
+
+            AssertSql(
+                @"@__boolean_0='False'
+
+SELECT @__boolean_0 AS [f]
+FROM [Customers] AS [c]
+ORDER BY (SELECT 1)");
+        }
+
+        public override async Task Select_bool_closure_with_order_parameter_with_cast_to_nullable(bool isAsync)
+        {
+            await base.Select_bool_closure_with_order_parameter_with_cast_to_nullable(isAsync);
+
+            AssertSql(
+                @"@__boolean_0='False'
+
+SELECT @__boolean_0
+FROM [Customers] AS [c]
+ORDER BY (SELECT 1)");
+        }
+
         public override async Task Select_scalar(bool isAsync)
         {
             await base.Select_scalar(isAsync);

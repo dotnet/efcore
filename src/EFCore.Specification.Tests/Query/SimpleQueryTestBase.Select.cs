@@ -128,6 +128,33 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [Theory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
+        {
+            var boolean = false;
+
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Select(
+                    c => new
+                    {
+                        f = boolean
+                    }).OrderBy(e => (bool?)e.f),
+                e => e.f);
+        }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Select_bool_closure_with_order_parameter_with_cast_to_nullable(bool isAsync)
+        {
+            var boolean = false;
+
+            await AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.Select(c => boolean).OrderBy(e => (bool?)e));
+        }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_scalar(bool isAsync)
         {
             return AssertQuery<Customer>(
