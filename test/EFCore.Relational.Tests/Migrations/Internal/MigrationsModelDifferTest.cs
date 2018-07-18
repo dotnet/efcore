@@ -6417,40 +6417,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 Value1 = 32
                             });
                     }),
-                upOps => Assert.Collection(
-                    upOps,
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal("42", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal("42", v),
-                            v => Assert.Equal(32, v));
-                    }),
-                downOps => Assert.Collection(
-                    downOps,
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal("42", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal("42", v),
-                            v => Assert.Equal(32, v));
-                    }));
+                Assert.Empty,
+                Assert.Empty);
         }
 
         [Fact]
@@ -6526,6 +6494,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             m.Values,
                             v => Assert.Equal((int)SomeEnum.NonDefault, v));
                     }));
+        }
+
+        [Fact]
+        public void SeedData_no_change_enum_key()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithEnumKey",
+                    x =>
+                    {
+                        x.ToTable("EntityWithEnumKey", "schema");
+                        x.Property<int>("Enum");
+                        x.HasKey("Enum");
+                        x.HasData(
+                            new
+                            {
+                                Enum = 1
+                            });
+                    }),
+                target => target.Entity(
+                    "EntityWithEnumKey",
+                    x =>
+                    {
+                        x.ToTable("EntityWithEnumKey", "schema");
+                        x.Property<SomeEnum>("Enum");
+                        x.HasKey("Enum");
+                        x.HasData(
+                            new
+                            {
+                                Enum = SomeEnum.NonDefault
+                            });
+                    }),
+                Assert.Empty,
+                Assert.Empty);
         }
 
         [Fact]
