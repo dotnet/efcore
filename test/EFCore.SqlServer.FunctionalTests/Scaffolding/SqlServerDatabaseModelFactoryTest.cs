@@ -846,6 +846,7 @@ DROP TYPE dbo.TestTypeAlias;
 DROP TYPE db2.TestTypeAlias;");
         }
 
+#if !Test21
         [Fact]
         public void Column_with_sysname_assigns_underlying_store_type_and_nullability()
         {
@@ -869,6 +870,7 @@ CREATE TABLE TypeAlias (
                 @"
 DROP TABLE TypeAlias;");
         }
+#endif
 
         [Fact]
         public void Decimal_numeric_types_have_precision_scale()
@@ -1497,9 +1499,9 @@ DROP TABLE dbo.HiddenColumnsTable;
 ");
         }
 
-        #endregion
+#endregion
 
-        #region PrimaryKeyFacets
+#region PrimaryKeyFacets
 
         [Fact]
         public void Create_composite_primary_key()
@@ -1646,9 +1648,9 @@ CREATE TABLE PrimaryKeyName (
                 "DROP TABLE PrimaryKeyName;");
         }
 
-        #endregion
+#endregion
 
-        #region UniqueConstraintFacets
+#region UniqueConstraintFacets
 
         [Fact]
         public void Create_composite_unique_constraint()
@@ -1738,9 +1740,9 @@ CREATE TABLE UniqueConstraintName (
                 "DROP TABLE UniqueConstraintName;");
         }
 
-        #endregion
+#endregion
 
-        #region IndexFacets
+#region IndexFacets
 
         [Fact]
         public void Create_composite_index()
@@ -1867,9 +1869,9 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                 "DROP TABLE FilteredIndexTable;");
         }
 
-        #endregion
+#endregion
 
-        #region ForeignKeyFacets
+#region ForeignKeyFacets
 
         [Fact]
         public void Create_composite_foreign_key()
@@ -2118,9 +2120,9 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        #endregion
+#endregion
 
-        #region Warnings
+#region Warnings
 
         [Fact]
         public void Warn_missing_schema()
@@ -2194,7 +2196,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        #endregion
+#endregion
 
         private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
         {
