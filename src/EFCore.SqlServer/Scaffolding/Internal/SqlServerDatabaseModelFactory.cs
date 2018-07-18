@@ -319,7 +319,7 @@ SELECT
     CAST([t].[scale] AS int) AS [scale]
 FROM [sys].[types] AS [t]
 JOIN [sys].[types] AS [t2] ON [t].[system_type_id] = [t2].[user_type_id]
-WHERE [t].[is_user_defined] = 1";
+WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id]";
 
                 using (var reader = command.ExecuteReader())
                 {

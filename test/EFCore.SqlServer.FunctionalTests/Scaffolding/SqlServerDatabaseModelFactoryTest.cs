@@ -847,6 +847,30 @@ DROP TYPE db2.TestTypeAlias;");
         }
 
         [Fact]
+        public void Column_with_sysname_assigns_underlying_store_type_and_nullability()
+        {
+            Test(
+                @"
+CREATE TABLE TypeAlias (
+    Id int,
+    typeAliasColumn sysname
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var column = Assert.Single(dbModel.Tables.Single().Columns.Where(c => c.Name == "typeAliasColumn"));
+
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("sysname", column.StoreType);
+                    Assert.Equal("nvarchar(128)", column.GetUnderlyingStoreType());
+                    Assert.False(column.IsNullable);
+                },
+                @"
+DROP TABLE TypeAlias;");
+        }
+
+        [Fact]
         public void Decimal_numeric_types_have_precision_scale()
         {
             Test(

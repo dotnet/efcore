@@ -7752,6 +7752,41 @@ INNER JOIN (
 ORDER BY [t].[FullName]");
         }
 
+        public override async Task Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection()
+        {
+            await base.Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection();
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE [s].[Name] = N'Delta'
+ORDER BY [s].[Id]",
+                //
+                @"SELECT [s.Members].[Nickname], [s.Members].[SquadId], [s.Members].[AssignedCityName], [s.Members].[CityOrBirthName], [s.Members].[Discriminator], [s.Members].[FullName], [s.Members].[HasSoulPatch], [s.Members].[LeaderNickname], [s.Members].[LeaderSquadId], [s.Members].[Rank]
+FROM [Gears] AS [s.Members]
+INNER JOIN (
+    SELECT [s0].[Id]
+    FROM [Squads] AS [s0]
+    WHERE [s0].[Name] = N'Delta'
+) AS [t] ON [s.Members].[SquadId] = [t].[Id]
+WHERE [s.Members].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[Id], [s.Members].[FullName]",
+                //
+                @"SELECT [s.Members.Weapons].[Id], [s.Members.Weapons].[AmmunitionType], [s.Members.Weapons].[IsAutomatic], [s.Members.Weapons].[Name], [s.Members.Weapons].[OwnerFullName], [s.Members.Weapons].[SynergyWithId]
+FROM [Weapons] AS [s.Members.Weapons]
+INNER JOIN (
+    SELECT DISTINCT [s.Members0].[FullName], [t0].[Id]
+    FROM [Gears] AS [s.Members0]
+    INNER JOIN (
+        SELECT [s1].[Id]
+        FROM [Squads] AS [s1]
+        WHERE [s1].[Name] = N'Delta'
+    ) AS [t0] ON [s.Members0].[SquadId] = [t0].[Id]
+    WHERE [s.Members0].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t1] ON [s.Members.Weapons].[OwnerFullName] = [t1].[FullName]
+ORDER BY [t1].[Id], [t1].[FullName]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
