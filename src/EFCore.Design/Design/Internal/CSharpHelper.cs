@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Literal(string value) =>
-            value.Contains(Environment.NewLine)
+            value.Contains('\n') || value.Contains('\r')
                 ? "@\"" + value.Replace("\"", "\"\"") + "\""
                 : "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
 
@@ -351,7 +351,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 value.Minute,
                 value.Second,
                 value.Millisecond,
-                value.Kind);
+                value.Kind)
+               + (value.Ticks % 10000 == 0
+                   ? ""
+                   : string.Format(
+                       CultureInfo.InvariantCulture,
+                       ".AddTicks({0})",
+                       value.Ticks % 10000));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -415,14 +421,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Literal(TimeSpan value)
-            => string.Format(
-                CultureInfo.InvariantCulture,
-                "new TimeSpan({0}, {1}, {2}, {3}, {4})",
-                value.Days,
-                value.Hours,
-                value.Minutes,
-                value.Seconds,
-                value.Milliseconds);
+            => value.Ticks % 10000 == 0
+                ? string.Format(
+                    CultureInfo.InvariantCulture,
+                    "new TimeSpan({0}, {1}, {2}, {3}, {4})",
+                    value.Days,
+                    value.Hours,
+                    value.Minutes,
+                    value.Seconds,
+                    value.Milliseconds)
+                : string.Format(
+                    CultureInfo.InvariantCulture,
+                    "new TimeSpan({0})",
+                    value.Ticks);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -554,7 +565,66 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Literal(Enum value) => Reference(value.GetType()) + "." + value;
+        public virtual string Literal(Enum value)
+        {
+            var type = value.GetType();
+            var name = Enum.GetName(type, value);
+
+            return name == null
+                ? GetCompositeEnumValue(type, value)
+                : GetSimpleEnumValue(type, name);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual string GetSimpleEnumValue(Type type, string name)
+            => Reference(type) + "." + name;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual string GetCompositeEnumValue(Type type, Enum flags)
+        {
+            var allValues = new HashSet<Enum>(GetFlags(flags));
+            foreach (var currentValue in allValues.ToList())
+            {
+                var decomposedValues = GetFlags(currentValue);
+                if (decomposedValues.Count > 1)
+                {
+                    allValues.ExceptWith(decomposedValues.Where(v => !Equals(v, currentValue)));
+                }
+            }
+
+            return allValues.Aggregate((string)null,
+                (previous, current) =>
+                    previous == null
+                        ? GetSimpleEnumValue(type, Enum.GetName(type, current))
+                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)));
+        }
+
+        internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)
+        {
+            var values = new List<Enum>();
+            var type = flags.GetType();
+            var defaultValue = Enum.ToObject(type, value: 0);
+            foreach (Enum currValue in Enum.GetValues(type))
+            {
+                if (currValue.Equals(defaultValue))
+                {
+                    continue;
+                }
+
+                if (flags.HasFlag(currValue))
+                {
+                    values.Add(currValue);
+                }
+            }
+
+            return values;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
