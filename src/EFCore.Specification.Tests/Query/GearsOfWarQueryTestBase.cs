@@ -5175,6 +5175,97 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collections_with_funky_orderby_complex_scenario1(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs =>
+                    from r in gs
+                    orderby r.FullName, r.Nickname descending, r.FullName
+                    select new
+                    {
+                        r.FullName,
+                        OuterCollection = (from w in r.Weapons
+                                           select new
+                                           {
+                                               w.Id,
+                                               InnerCollection = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname).Select(
+                                                   mm => new
+                                                   {
+                                                       mm.Nickname,
+                                                       mm.HasSoulPatch
+                                                   }).ToList()
+                                           }).ToList()
+                    },
+                elementSorter: e => e.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.FullName, a.FullName);
+
+                    CollectionAsserter<dynamic>(
+                        ee => ee.Id,
+                        (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Id, aa.Id);
+                            CollectionAsserter<dynamic>(eee => eee.Nickname)(ee.InnerCollection, aa.InnerCollection);
+                        })(e.OuterCollection, a.OuterCollection);
+                });
+        }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collections_with_funky_orderby_complex_scenario2(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.HasSoulPatch, o.LeaderNickname, o.HasSoulPatch descending, o.LeaderNickname descending, o.FullName
+                    select new
+                    {
+                        o.FullName,
+                        OuterCollection = (from r in o.Reports
+                                           orderby r.FullName, r.HasSoulPatch descending, r.FullName descending 
+                                           select new
+                                           {
+                                               r.FullName,
+                                               InnerCollection = (from w in r.Weapons
+                                                                  orderby w.IsAutomatic, w.Name descending, w.Name, w.IsAutomatic descending, w.IsAutomatic descending
+                                                                  select new
+                                                                  {
+                                                                      w.Id,
+                                                                      InnerSecond = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname).Select(
+                                                                          mm => new
+                                                                          {
+                                                                              mm.Nickname,
+                                                                              mm.HasSoulPatch
+                                                                          }).ToList()
+                                                                  }).ToList()
+                                           }).ToList()
+                    },
+                elementSorter: e => e.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.FullName, a.FullName);
+
+                    CollectionAsserter<dynamic>(
+                        ee => ee.FullName,
+                        (ee, aa) =>
+                        {
+                            Assert.Equal(ee.FullName, aa.FullName);
+                            CollectionAsserter<dynamic>(
+                                eee => eee.Id,
+                                (eee, aaa) =>
+                                {
+                                    Assert.Equal(eee.Id, aaa.Id);
+                                    CollectionAsserter<dynamic>()(eee.InnerSecond, aaa.InnerSecond);
+                                })(ee.InnerCollection, aa.InnerCollection);
+                        })(e.OuterCollection, a.OuterCollection);
+                });
+        }
+
         [ConditionalFact]
         public virtual void Correlated_collection_with_top_level_FirstOrDefault()
         {

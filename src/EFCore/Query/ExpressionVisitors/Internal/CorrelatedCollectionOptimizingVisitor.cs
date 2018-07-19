@@ -236,13 +236,32 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = new QuerySourceReferenceExpression(collectionQueryModel.MainFromClause);
 
             var subQueryProjection = new List<Expression>();
-            foreach (var exisitingClonedOrdering in clonedParentQueryModel.BodyClauses.OfType<OrderByClause>())
+            var orderingsToProjectionMapping = new List<int>();
+            foreach (var exisitingClonedOrderByClause in clonedParentQueryModel.BodyClauses.OfType<OrderByClause>())
             {
-                subQueryProjection.AddRange(exisitingClonedOrdering.Orderings.Select(o => o.Expression));
+                foreach (var existingClonedOrdering in exisitingClonedOrderByClause.Orderings)
+                {
+                    var matchingIndex = subQueryProjection
+                        .Select((o, i) => new { o, i })
+                        .Where(e => ExpressionEqualityComparer.Instance.Equals(e.o, existingClonedOrdering.Expression)
+                             || AreEquivalentPropertyExpressions(e.o, existingClonedOrdering.Expression)).Select(e => (int?)e.i).FirstOrDefault();
+
+                    if (matchingIndex == null)
+                    {
+                        orderingsToProjectionMapping.Add(subQueryProjection.Count);
+                        subQueryProjection.Add(existingClonedOrdering.Expression);
+                    }
+                    else
+                    {
+                        orderingsToProjectionMapping.Add(matchingIndex.Value);
+                    }
+                }
             }
 
-            foreach (var parentOrdering in parentOrderings.Skip(subQueryProjection.Count))
+            var index = subQueryProjection.Count;
+            foreach (var parentOrdering in parentOrderings.Skip(orderingsToProjectionMapping.Count))
             {
+                orderingsToProjectionMapping.Add(index++);
                 subQueryProjection.Add(CloningExpressionVisitor.AdjustExpressionAfterCloning(parentOrdering.Expression, querySourceMapping));
             }
 
@@ -260,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var clonedParentOrderings = new List<Ordering>();
             for (var i = 0; i < parentOrderings.Count; i++)
             {
-                clonedParentOrderings.Add(new Ordering(subQueryProjection[i], parentOrderings[i].OrderingDirection));
+                clonedParentOrderings.Add(new Ordering(subQueryProjection[orderingsToProjectionMapping[i]], parentOrderings[i].OrderingDirection));
             }
 
             ApplyParentOrderings(
@@ -272,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             LiftOrderBy(
                 joinQuerySourceReferenceExpression,
                 clonedParentQueryModel,
-                collectionQueryModel);
+                collectionQueryModel,
+                orderingsToProjectionMapping);
 
             clonedParentQueryModel.SelectClause.Selector
                 = Expression.New(
@@ -542,8 +562,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 propertyName2 = memberExpression2.Member.Name;
             }
 
-            return qsre1?.ReferencedQuerySource == qsre2?.ReferencedQuerySource
-                   && propertyName1 == propertyName2;
+            return qsre1!= null
+                && qsre2 != null
+                && propertyName1 != null
+                && propertyName2 != null
+                && qsre1.ReferencedQuerySource == qsre2.ReferencedQuerySource
+                && propertyName1 == propertyName2;
         }
 
         private static bool ProcessResultOperators(QueryModel queryModel)
@@ -701,7 +725,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static void LiftOrderBy(
             Expression targetExpression,
             QueryModel fromQueryModel,
-            QueryModel toQueryModel)
+            QueryModel toQueryModel,
+            List<int> orderingsToProjectionMapping)
         {
             var canRemove
                 = !fromQueryModel.ResultOperators
@@ -717,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         = Expression.Call(
                             targetExpression,
                             MaterializedAnonymousObject.GetValueMethodInfo,
-                            Expression.Constant(i));
+                            Expression.Constant(orderingsToProjectionMapping[i]));
 
                     outerOrderByClause.Orderings
                         .Add(new Ordering(newExpression, orderByClause.Orderings[i].OrderingDirection));
