@@ -1487,18 +1487,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            var targetKeys = target.EntityTypes.SelectMany(Metadata.Internal.EntityTypeExtensions.GetDeclaredKeys).ToList();
-            var keyMapping = new Dictionary<IEntityType, Dictionary<IKey, List<IProperty>>>();
+            var targetKeys = target.EntityTypes.SelectMany(Metadata.Internal.EntityTypeExtensions.GetDeclaredKeys)
+                .Where(k => k.IsPrimaryKey()).ToList();
+            var keyMapping = new Dictionary<IEntityType,
+                Dictionary<IKey, List<(IProperty Property, ValueConverter SourceConverter, ValueConverter TargetConverter)>>>();
             foreach (var sourceEntityType in source.EntityTypes)
             {
                 foreach (var targetKey in targetKeys)
                 {
-                    if (!targetKey.IsPrimaryKey())
-                    {
-                        continue;
-                    }
-
-                    var keyPropertiesMap = new List<IProperty>();
+                    var keyPropertiesMap = new List<(IProperty, ValueConverter, ValueConverter)>();
                     foreach (var keyProperty in targetKey.Properties)
                     {
                         var sourceProperty = diffContext.FindSource(keyProperty);
@@ -1507,16 +1504,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             break;
                         }
 
-                        var keySourceProperty = sourceEntityType.GetProperties().FirstOrDefault(
-                            p =>
-                                p.ClrType == keyProperty.ClrType
-                                && p.Relational().ColumnName == sourceProperty.Relational().ColumnName);
-                        if (keySourceProperty == null)
+                        foreach (var matchingSourceProperty in sourceEntityType.GetProperties())
                         {
-                            break;
-                        }
+                            if (matchingSourceProperty.Relational().ColumnName == sourceProperty.Relational().ColumnName)
+                            {
+                                var sourceConverter = GetValueConverter(sourceProperty);
+                                var targetConverter = GetValueConverter(keyProperty);
+                                if (matchingSourceProperty.ClrType != keyProperty.ClrType
+                                    && (sourceConverter == null || sourceConverter.ProviderClrType != keyProperty.ClrType)
+                                    && (targetConverter == null || targetConverter.ProviderClrType != matchingSourceProperty.ClrType))
+                                {
+                                    continue;
+                                }
 
-                        keyPropertiesMap.Add(keySourceProperty);
+                                keyPropertiesMap.Add((matchingSourceProperty, sourceConverter, targetConverter));
+                                break;
+                            }
+                        }
                     }
 
                     if (keyPropertiesMap.Count == targetKey.Properties.Count)
@@ -1557,7 +1561,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var targetKeyValues = new object[keyPropertiesMap.Count];
                         for (var i = 0; i < keyPropertiesMap.Count; i++)
                         {
-                            targetKeyValues[i] = sourceEntry.GetCurrentValue(keyPropertiesMap[i]);
+                            var (sourceProperty, sourceConverter, targetConverter) = keyPropertiesMap[i];
+                            var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
+                            if (targetKey.Properties[i].ClrType != sourceProperty.ClrType)
+                            {
+                                if (sourceConverter != null)
+                                {
+                                    targetKeyValues[i] = sourceConverter.ConvertToProvider(sourceValue);
+                                }
+                                else
+                                {
+                                    targetKeyValues[i] = targetConverter.ConvertFromProvider(sourceValue);
+                                }
+                            }
+                            else
+                            {
+                                targetKeyValues[i] = sourceValue;
+                            }
                         }
 
                         var entry = _targetStateManager.TryGetEntry(targetKey, targetKeyValues);
