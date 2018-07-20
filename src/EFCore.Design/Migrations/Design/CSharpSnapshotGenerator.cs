@@ -341,18 +341,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(properties, nameof(properties));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var firstProperty = true;
             foreach (var property in properties)
             {
-                if (!firstProperty)
-                {
-                    stringBuilder.AppendLine();
-                }
-                else
-                {
-                    firstProperty = false;
-                }
-
                 GenerateProperty(builderName, property, stringBuilder);
             }
         }
@@ -415,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GeneratePropertyAnnotations(property, stringBuilder);
             }
 
-            stringBuilder.Append(";");
+            stringBuilder.AppendLine(";");
         }
 
         /// <summary>
@@ -549,21 +539,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GenerateKey(builderName, primaryKey, stringBuilder, primary: true);
             }
 
-            var firstKey = true;
             foreach (var key in keys.Where(
                 key => key != primaryKey
                        && (!key.GetReferencingForeignKeys().Any()
                            || key.GetAnnotations().Any())))
             {
-                if (!firstKey)
-                {
-                    stringBuilder.AppendLine();
-                }
-                else
-                {
-                    firstKey = false;
-                }
-
                 GenerateKey(builderName, key, stringBuilder);
             }
         }
@@ -587,7 +567,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .AppendLine()
                 .Append(builderName)
                 .Append(primary ? ".HasKey(" : ".HasAlternateKey(")
                 .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(p.Name))))
@@ -602,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GenerateAnnotations(annotations, stringBuilder);
             }
 
-            stringBuilder.Append(";");
+            stringBuilder.AppendLine(";");
         }
 
         /// <summary>
@@ -622,7 +601,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             foreach (var index in indexes)
             {
-                stringBuilder.AppendLine();
                 GenerateIndex(builderName, index, stringBuilder);
             }
         }
@@ -666,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GenerateAnnotations(annotations, stringBuilder);
             }
 
-            stringBuilder.Append(";");
+            stringBuilder.AppendLine(";");
         }
 
         /// <summary>
@@ -688,15 +666,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var tableNameAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.TableName);
             var schemaAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.Schema);
 
-            stringBuilder
-                .AppendLine()
-                .AppendLine()
-                .Append(builderName)
-                .Append(".")
-                .Append(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
-                .Append("(")
-                .Append(Code.Literal((string)tableNameAnnotation?.Value ?? entityType.DisplayName()));
-            annotations.Remove(tableNameAnnotation);
+            var nonDefaultName = false;
+            if (tableNameAnnotation?.Value != null
+                || entityType.BaseType == null)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(builderName)
+                    .Append(".")
+                    .Append(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
+                    .Append("(")
+                    .Append(Code.Literal((string)tableNameAnnotation?.Value ?? entityType.Relational().TableName));
+                annotations.Remove(tableNameAnnotation);
+                nonDefaultName = true;
+            }
 
             if (schemaAnnotation?.Value != null)
             {
@@ -704,9 +687,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(",")
                     .Append(Code.Literal((string)schemaAnnotation.Value));
                 annotations.Remove(schemaAnnotation);
+                nonDefaultName = true;
             }
 
-            stringBuilder.AppendLine(");");
+            if (nonDefaultName)
+            {
+                stringBuilder.AppendLine(");");
+            }
 
             var discriminatorPropertyAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.DiscriminatorProperty);
             var discriminatorValueAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.DiscriminatorValue);
@@ -785,8 +772,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     GenerateAnnotation(annotation, stringBuilder);
 
                     stringBuilder
-                        .Append(";")
-                        .AppendLine();
+                        .AppendLine(";");
                 }
             }
         }

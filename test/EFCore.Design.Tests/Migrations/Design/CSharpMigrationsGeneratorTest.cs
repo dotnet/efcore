@@ -33,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     public class CSharpMigrationsGeneratorTest
     {
         private static readonly string _nl = Environment.NewLine;
-        private static readonly string _nl2 = Environment.NewLine + Environment.NewLine;
-        private static readonly string _toTable = _nl2 + @"modelBuilder.ToTable(""WithAnnotations"");";
+        private static readonly string _toTable = _nl + @"modelBuilder.ToTable(""WithAnnotations"");" + _nl;
 
         [Fact]
         public void Test_new_annotations_handled_for_entity_types()
@@ -75,27 +74,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 {
                     RelationalAnnotationNames.TableName,
-                    ("MyTable", _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable) + @"(""MyTable"");" + _nl)
+                    ("MyTable", _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable) + @"(""MyTable"");" + _nl)
                 },
                 {
                     RelationalAnnotationNames.Schema,
-                    ("MySchema", _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable) + @"(""WithAnnotations"",""MySchema"");" + _nl)
+                    ("MySchema", _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable) + @"(""WithAnnotations"",""MySchema"");" + _nl)
                 },
                 {
                     RelationalAnnotationNames.DiscriminatorProperty,
-                    ("Id", _toTable + _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator) + @"<int>(""Id"");" + _nl)
+                    ("Id", _toTable + _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator) + @"<int>(""Id"");" + _nl)
                 },
                 {
                     RelationalAnnotationNames.DiscriminatorValue,
                     ("MyDiscriminatorValue",
-                        _toTable + _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator)
+                        _toTable + _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator)
                         + "()." + nameof(DiscriminatorBuilder.HasValue) + @"(""MyDiscriminatorValue"");" + _nl)
                 }
             };
 
             MissingAnnotationCheck(
                 entityType, notForEntityType, forEntityType,
-                _toTable + _nl,
+                _toTable,
                 (g, m, b) => g.TestGenerateEntityTypeAnnotations("modelBuilder", (IEntityType)m, b));
         }
 
