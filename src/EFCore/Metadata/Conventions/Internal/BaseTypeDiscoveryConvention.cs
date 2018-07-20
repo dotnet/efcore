@@ -21,14 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var clrType = entityType.ClrType;
             if (clrType == null
                 || entityType.HasDefiningNavigation()
-                || entityType.FindDeclaredOwnership() != null)
+                || entityType.FindDeclaredOwnership() != null
+                || entityType.Model.ShouldBeOwnedType(entityType.Model.GetDisplayName(clrType)))
             {
                 return entityTypeBuilder;
             }
 
             var baseEntityType = FindClosestBaseType(entityType);
             return baseEntityType == null
-                || baseEntityType.DefiningNavigationName != null
+                   || baseEntityType.HasDefiningNavigation()
                 ? entityTypeBuilder
                 : entityTypeBuilder.HasBaseType(baseEntityType, ConfigurationSource.Convention);
         }

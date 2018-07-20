@@ -2140,7 +2140,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set => QueryFilter = value;
         }
 
-        IEntityType IEntityType.DefiningEntityType => DefiningEntityType;
+        IEntityType IEntityType.DefiningEntityType
+        {
+            [DebuggerStepThrough]
+            get { return DefiningEntityType; }
+        }
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
             => SetPrimaryKey(properties?.Cast<Property>().ToList());

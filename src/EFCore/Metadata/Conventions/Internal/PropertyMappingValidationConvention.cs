@@ -117,6 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             && (!entityType.IsInDefinitionPath(targetType)
                                 || entityType.DefiningEntityType.ClrType.GetTypeInfo().Equals(targetType.GetTypeInfo())))
                         {
+                            if (modelBuilder.Metadata.ShouldBeOwnedType(entityType.ClrType)
+                                && modelBuilder.Metadata.ShouldBeOwnedType(targetType))
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.AmbiguousOwnedNavigation(entityType.DisplayName(), targetType.ShortDisplayName()));
+                            }
                             throw new InvalidOperationException(
                                 CoreStrings.NavigationNotAdded(
                                     entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));

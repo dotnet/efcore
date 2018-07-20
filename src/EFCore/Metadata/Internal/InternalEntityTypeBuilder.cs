@@ -1353,6 +1353,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
+            if (entityType.HasDefiningNavigation())
+            {
+                entityType.Model.AddDetachedEntityType(entityType.Name, entityType.DefiningNavigationName, entityType.DefiningEntityType.Name);
+            }
+
             List<RelationshipSnapshot> detachedRelationships = null;
             foreach (var relationshipToBeDetached in entityType.GetDeclaredForeignKeys().ToList())
             {
@@ -1389,6 +1394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             && dependentEntityType.DefiningNavigationName == relationshipToBeDetached.PrincipalToDependent?.Name)
                         {
                             weakSnapshot = DetachAllMembers(dependentEntityType);
+                            entityType.Model.Builder.RemoveEntityType(dependentEntityType, ConfigurationSource.Explicit);
                         }
 
                         detachedRelationship.WeakEntityTypeSnapshot = weakSnapshot;
@@ -2096,7 +2102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
             => Owns(
                 new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationName),
-                inverse: null, configurationSource: configurationSource);
+                inverse: null, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -2108,7 +2114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
             => Owns(
                 new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationProperty),
-                inverse: null, configurationSource: configurationSource);
+                inverse: null, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -2119,10 +2125,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
             => Owns(
-                new TypeIdentity(targetEntityType, Metadata.Model),
-                PropertyIdentity.Create(navigationName),
-                inverse: null,
-                configurationSource: configurationSource);
+                new TypeIdentity(targetEntityType, Metadata.Model), PropertyIdentity.Create(navigationName),
+                inverse: null, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -2133,10 +2137,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] PropertyInfo navigationProperty,
             ConfigurationSource configurationSource)
             => Owns(
-                new TypeIdentity(targetEntityType, Metadata.Model),
-                PropertyIdentity.Create(navigationProperty),
-                inverse: null,
-                configurationSource: configurationSource);
+                new TypeIdentity(targetEntityType, Metadata.Model), PropertyIdentity.Create(navigationProperty),
+                inverse: null, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -2181,7 +2183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
-                            .RemoveForeignKey(existingNavigation.ForeignKey, configurationSource) == null)
+                        .RemoveForeignKey(existingNavigation.ForeignKey, configurationSource) == null)
                     {
                         return null;
                     }
@@ -2197,7 +2199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : ModelBuilder.Metadata.FindEntityType(targetType)?.Builder;
                 if (ownedEntityType == null)
                 {
-                    if (Metadata.Model.HasEntityTypeWithDefiningNavigation(targetTypeName))
+                    if (Metadata.Model.EntityTypeShouldHaveDefiningNavigation(targetTypeName))
                     {
                         if (!configurationSource.Overrides(ConfigurationSource.Explicit)
                             && (targetType == null
@@ -2213,9 +2215,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                     else
                     {
+                        if (ModelBuilder.IsIgnored(targetTypeName, configurationSource))
+                        {
+                            return null;
+                        }
+
+                        ModelBuilder.Metadata.Unignore(targetTypeName);
+
                         ownedEntityType = targetType == null
-                            ? ModelBuilder.Entity(targetTypeName, configurationSource)
-                            : ModelBuilder.Entity(targetType, configurationSource);
+                            ? ModelBuilder.Entity(targetTypeName, configurationSource, allowOwned: true)
+                            : ModelBuilder.Entity(targetType,  configurationSource, allowOwned: true);
                     }
 
                     if (ownedEntityType == null)
@@ -2281,16 +2290,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void RemoveNonOwnershipRelationships(ConfigurationSource configurationSource)
+        public virtual bool RemoveNonOwnershipRelationships(ConfigurationSource configurationSource)
         {
-            foreach (var foreignKey in Metadata.GetDerivedForeignKeysInclusive()
+            var referencingRelationships = Metadata.GetDerivedForeignKeysInclusive()
                 .Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null)
-                .Concat(
-                    Metadata.GetDerivedReferencingForeignKeysInclusive()
-                        .Where(fk => !fk.IsOwnership && fk.DependentToPrincipal != null)).ToList())
+                .Concat(Metadata.GetDerivedReferencingForeignKeysInclusive()
+                    .Where(fk => !fk.IsOwnership)).ToList();
+
+            if (referencingRelationships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
+            {
+                return false;
+            }
+
+            foreach (var foreignKey in referencingRelationships)
             {
                 foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
             }
+
+            return true;
         }
 
         /// <summary>
