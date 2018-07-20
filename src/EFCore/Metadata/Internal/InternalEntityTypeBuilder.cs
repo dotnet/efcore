@@ -106,8 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             .ToList();
                         foreach (var referencingForeignKey in referencingForeignKeys)
                         {
-                            var tuple = DetachRelationship(referencingForeignKey);
-                            tuple.Item1.Attach(tuple.Item1.Metadata.DeclaringEntityType.Builder);
+                            DetachRelationship(referencingForeignKey).Attach();
                         }
                     }
                 }
@@ -225,14 +224,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var detachedRelationship in detachedRelationships)
                 {
-                    detachedRelationship.Item1.Attach(detachedRelationship.Item1.Metadata.DeclaringEntityType.Builder);
+                    detachedRelationship.Attach();
                 }
 
                 RemoveShadowPropertiesIfUnused(key.Properties);
                 foreach (var property in key.Properties)
                 {
                     if (!property.IsKey()
-                        && property.ClrType.IsNullableType())
+                        && property.ClrType.IsNullableType()
+                        && !property.GetContainingForeignKeys().Any(fk => fk.IsRequired))
                     {
                         // TODO: This should be handled by reference tracking
                         property.Builder?.IsRequired(false, configurationSource);
@@ -243,9 +243,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return currentConfigurationSource;
         }
 
-        private static List<(InternalKeyBuilder, ConfigurationSource?)> DetachKeys(IEnumerable<Key> keysToDetach)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static List<(InternalKeyBuilder, ConfigurationSource?)> DetachKeys(IEnumerable<Key> keysToDetach)
         {
-            var keysToDetachList = keysToDetach.ToList();
+            var keysToDetachList = (keysToDetach as List<Key>) ?? keysToDetach.ToList();
             if (keysToDetachList.Count == 0)
             {
                 return null;
@@ -645,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool CanAddNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
-            => !IsIgnored(navigationName, configurationSource: configurationSource)
+            => !IsIgnored(navigationName, configurationSource)
                && !Metadata.FindNavigationsInHierarchy(navigationName).Any();
 
         /// <summary>
@@ -653,10 +657,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool CanAddOrReplaceNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
-            => !IsIgnored(navigationName, configurationSource: configurationSource)
+            => !IsIgnored(navigationName, configurationSource)
                && Metadata.FindNavigationsInHierarchy(navigationName).All(
-                   n =>
-                       n.ForeignKey.Builder.CanSetNavigation((string)null, n.IsDependentToPrincipal(), configurationSource));
+                   n => n.ForeignKey.Builder.CanSetNavigation((string)null, n.IsDependentToPrincipal(), configurationSource));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -668,9 +671,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var ignoredConfigurationSource = Metadata.FindIgnoredMemberConfigurationSource(name);
             return !configurationSource.HasValue
-                || !configurationSource.Value.Overrides(ignoredConfigurationSource)
-                ? true
-                : false;
+                   || !configurationSource.Value.Overrides(ignoredConfigurationSource);
         }
 
         /// <summary>
@@ -904,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             using (Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                List<(InternalRelationshipBuilder, EntityType.Snapshot)> detachedRelationships = null;
+                List<RelationshipSnapshot> detachedRelationships = null;
                 PropertiesSnapshot detachedProperties = null;
                 IReadOnlyList<(InternalKeyBuilder, ConfigurationSource?)> detachedKeys = null;
                 // We use at least DataAnnotation as ConfigurationSource while removing to allow us
@@ -942,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         if (detachedRelationships == null)
                         {
-                            detachedRelationships = new List<(InternalRelationshipBuilder, EntityType.Snapshot)>();
+                            detachedRelationships = new List<RelationshipSnapshot>();
                         }
 
                         detachedRelationships.Add(DetachRelationship(relationshipToBeRemoved));
@@ -954,7 +955,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             if (detachedRelationships == null)
                             {
-                                detachedRelationships = new List<(InternalRelationshipBuilder, EntityType.Snapshot)>();
+                                detachedRelationships = new List<RelationshipSnapshot>();
                             }
 
                             detachedRelationships.Add(DetachRelationship(referencingForeignKey));
@@ -1027,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                             if (detachedRelationships == null)
                             {
-                                detachedRelationships = new List<(InternalRelationshipBuilder, EntityType.Snapshot)>();
+                                detachedRelationships = new List<RelationshipSnapshot>();
                             }
 
                             detachedRelationships.Add(DetachRelationship(foreignKey));
@@ -1053,9 +1054,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         foreach (var key in Metadata.GetKeys()
-                            .Where(
-                                k => k.ReferencingForeignKeys != null
-                                     && k.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                            .Where(k => k.ReferencingForeignKeys != null
+                                        && k.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
                         {
                             foreach (var referencingForeignKey in key.ReferencingForeignKeys.ToList())
                             {
@@ -1063,7 +1063,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 {
                                     if (detachedRelationships == null)
                                     {
-                                        detachedRelationships = new List<(InternalRelationshipBuilder, EntityType.Snapshot)>();
+                                        detachedRelationships = new List<RelationshipSnapshot>();
                                     }
 
                                     detachedRelationships.Add(DetachRelationship(referencingForeignKey));
@@ -1129,9 +1129,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (detachedRelationships != null)
                 {
-                    foreach (var detachedRelationshipTuple in detachedRelationships)
+                    foreach (var detachedRelationship in detachedRelationships)
                     {
-                        detachedRelationshipTuple.Item1.Attach(detachedRelationshipTuple.Item1.Metadata.DeclaringEntityType.Builder);
+                        detachedRelationship.Attach();
                     }
                 }
             }
@@ -1147,22 +1147,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            List<(InternalRelationshipBuilder, EntityType.Snapshot)> detachedRelationships = null;
+            List<RelationshipSnapshot> detachedRelationships = null;
             foreach (var propertyToDetach in propertiesToDetachList)
             {
                 foreach (var relationship in propertyToDetach.GetContainingForeignKeys().ToList())
                 {
                     if (detachedRelationships == null)
                     {
-                        detachedRelationships = new List<(InternalRelationshipBuilder, EntityType.Snapshot)>();
+                        detachedRelationships = new List<RelationshipSnapshot>();
                     }
 
                     detachedRelationships.Add(DetachRelationship(relationship));
                 }
             }
 
-            var detachedIndexes = propertiesToDetachList.SelectMany(p => p.GetContainingIndexes()).Distinct().ToList()
-                .Select(DetachIndex).ToList();
+            var detachedIndexes = DetachIndexes(propertiesToDetachList.SelectMany(p => p.GetContainingIndexes()).Distinct());
 
             var keysToDetach = propertiesToDetachList.SelectMany(p => p.GetContainingKeys()).Distinct().ToList();
             foreach (var key in keysToDetach)
@@ -1171,7 +1170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (detachedRelationships == null)
                     {
-                        detachedRelationships = new List<(InternalRelationshipBuilder, EntityType.Snapshot)>();
+                        detachedRelationships = new List<RelationshipSnapshot>();
                     }
 
                     detachedRelationships.Add(DetachRelationship(referencingForeignKey));
@@ -1284,24 +1283,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Debug.Assert(removedProperty == property);
                 }
 
-                foreach (var detachedRelationshipTuple in detachedRelationships)
+                foreach (var relationshipSnapshot in detachedRelationships)
                 {
-                    detachedRelationshipTuple.Item1.Attach(detachedRelationshipTuple.Item1.Metadata.DeclaringEntityType.Builder);
+                    relationshipSnapshot.Attach();
                 }
             }
 
             return currentConfigurationSource;
         }
 
-        private static (InternalRelationshipBuilder, EntityType.Snapshot) DetachRelationship(
-            [NotNull] ForeignKey foreignKey)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static RelationshipSnapshot DetachRelationship([NotNull] ForeignKey foreignKey)
         {
-            var relationshipBuilder = foreignKey.Builder;
+            var snapshot = new RelationshipSnapshot(foreignKey.Builder, null);
+
             var relationshipConfigurationSource = foreignKey.DeclaringEntityType.Builder
                 .RemoveForeignKey(foreignKey, foreignKey.GetConfigurationSource());
             Debug.Assert(relationshipConfigurationSource != null);
 
-            return (relationshipBuilder, (EntityType.Snapshot)null);
+            return snapshot;
         }
 
         /// <summary>
@@ -1345,16 +1348,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static EntityType.Snapshot DetachAllMembers([NotNull] EntityType entityType)
         {
-            List<(InternalRelationshipBuilder, EntityType.Snapshot)> detachedRelationships = null;
+            if (entityType.Builder == null)
+            {
+                return null;
+            }
+
+            List<RelationshipSnapshot> detachedRelationships = null;
             foreach (var relationshipToBeDetached in entityType.GetDeclaredForeignKeys().ToList())
             {
                 if (detachedRelationships == null)
                 {
-                    detachedRelationships = new List<(InternalRelationshipBuilder, EntityType.Snapshot)>();
+                    detachedRelationships = new List<RelationshipSnapshot>();
                 }
 
                 var detachedRelationship = DetachRelationship(relationshipToBeDetached);
-                if (detachedRelationship.Item1.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
+                if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
                     || relationshipToBeDetached.IsOwnership)
                 {
                     detachedRelationships.Add(detachedRelationship);
@@ -1368,11 +1376,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (detachedRelationships == null)
                     {
-                        detachedRelationships = new List<(InternalRelationshipBuilder, EntityType.Snapshot)>();
+                        detachedRelationships = new List<RelationshipSnapshot>();
                     }
 
                     var detachedRelationship = DetachRelationship(relationshipToBeDetached);
-                    if (detachedRelationship.Item1.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
+                    if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
                         || relationshipToBeDetached.IsOwnership)
                     {
                         EntityType.Snapshot weakSnapshot = null;
@@ -1383,7 +1391,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             weakSnapshot = DetachAllMembers(dependentEntityType);
                         }
 
-                        detachedRelationships.Add((detachedRelationship.Item1, weakSnapshot));
+                        detachedRelationship.WeakEntityTypeSnapshot = weakSnapshot;
+                        detachedRelationships.Add(detachedRelationship);
                     }
                 }
 
@@ -1563,6 +1572,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             RemoveShadowPropertiesIfUnused(index.Properties);
 
             return currentConfigurationSource;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static List<InternalIndexBuilder> DetachIndexes(IEnumerable<Index> indexesToDetach)
+        {
+            var indexesToDetachList = (indexesToDetach as List<Index>) ?? indexesToDetach.ToList();
+            if (indexesToDetachList.Count == 0)
+            {
+                return null;
+            }
+
+            var detachedIndexes = new List<InternalIndexBuilder>();
+            foreach (var indexToDetach in indexesToDetachList)
+            {
+                var detachedIndex = DetachIndex(indexToDetach);
+                detachedIndexes.Add(detachedIndex);
+            }
+
+            return detachedIndexes;
         }
 
         private static InternalIndexBuilder DetachIndex(Index indexToDetach)
@@ -2367,7 +2398,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention).Metadata;
                     }
 
-                    var baseName = string.IsNullOrEmpty(navigationToPrincipalName) ? principalType.ShortName() : navigationToPrincipalName;
+                    var baseName = string.IsNullOrEmpty(navigationToPrincipalName)
+                        ? principalType.ShortName()
+                        : navigationToPrincipalName;
                     dependentProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, baseName);
                 }
 
@@ -2424,7 +2457,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 using (var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator())
                 {
                     for (var i = 0;
-                         i < newProperties.Length
+                         i < propertyCount
                          && principalPropertyNamesEnumerator.MoveNext()
                          && principalPropertyTypesEnumerator.MoveNext();
                          i++)
@@ -2442,7 +2475,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
                             if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
                                 && clrProperties?.ContainsKey(propertyName) != true
-                                && clrFields?.ContainsKey(propertyName) != true)
+                                && clrFields?.ContainsKey(propertyName) != true
+                                && !IsIgnored(propertyName, ConfigurationSource.Convention))
                             {
                                 var propertyBuilder = Property(propertyName, clrType, ConfigurationSource.Convention, typeConfigurationSource: null);
                                 if (propertyBuilder == null)

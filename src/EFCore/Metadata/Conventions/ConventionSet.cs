@@ -127,6 +127,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IForeignKeyUniquenessChangedConvention> ForeignKeyUniquenessChangedConventions { get; } = new List<IForeignKeyUniquenessChangedConvention>();
 
         /// <summary>
+        ///     Conventions to run when the uniqueness of a foreign key is changed.
+        /// </summary>
+        public virtual IList<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; } = new List<IForeignKeyRequirednessChangedConvention>();
+
+        /// <summary>
         ///     Conventions to run when the ownership of a foreign key is changed.
         /// </summary>
         public virtual IList<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; } = new List<IForeignKeyOwnershipChangedConvention>();

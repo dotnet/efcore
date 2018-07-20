@@ -11,21 +11,16 @@ namespace System.Reflection
             => (memberInfo as PropertyInfo)?.PropertyType ?? ((FieldInfo)memberInfo)?.FieldType;
 
         public static bool IsSameAs(this MemberInfo propertyInfo, MemberInfo otherPropertyInfo)
-        {
-            if (propertyInfo == null)
-            {
-                return otherPropertyInfo == null;
-            }
-
-            return otherPropertyInfo == null
-                ? false
-                : Equals(propertyInfo, otherPropertyInfo)
-                   || (propertyInfo.Name == otherPropertyInfo.Name
-                       && (propertyInfo.DeclaringType == otherPropertyInfo.DeclaringType
-                           || propertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(otherPropertyInfo.DeclaringType)
-                           || otherPropertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(propertyInfo.DeclaringType)
-                           || propertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces.Contains(otherPropertyInfo.DeclaringType)
-                           || otherPropertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces.Contains(propertyInfo.DeclaringType)));
-        }
+            => propertyInfo == null
+                ? otherPropertyInfo == null
+                : (otherPropertyInfo == null
+                    ? false
+                    : Equals(propertyInfo, otherPropertyInfo)
+                      || (propertyInfo.Name == otherPropertyInfo.Name
+                          && (propertyInfo.DeclaringType == otherPropertyInfo.DeclaringType
+                              || propertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(otherPropertyInfo.DeclaringType)
+                              || otherPropertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(propertyInfo.DeclaringType)
+                              || propertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces.Contains(otherPropertyInfo.DeclaringType)
+                              || otherPropertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces.Contains(propertyInfo.DeclaringType))));
     }
 }

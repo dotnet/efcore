@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual OnNavigationAddedNode VisitOnNavigationAdded(OnNavigationAddedNode node) => node;
             public virtual OnNavigationRemovedNode VisitOnNavigationRemoved(OnNavigationRemovedNode node) => node;
             public virtual OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node) => node;
+            public virtual OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(OnForeignKeyRequirednessChangedNode node) => node;
             public virtual OnForeignKeyOwnershipChangedNode VisitOnForeignKeyOwnershipChanged(OnForeignKeyOwnershipChangedNode node) => node;
             public virtual OnPrincipalEndChangedNode VisitOnPrincipalEndChanged(OnPrincipalEndChangedNode node) => node;
             public virtual OnPropertyAddedNode VisitOnPropertyAdded(OnPropertyAddedNode node) => node;
@@ -184,6 +185,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node)
             {
                 Dispatcher._immediateConventionScope.OnForeignKeyUniquenessChanged(node.RelationshipBuilder);
+                return null;
+            }
+
+            public override OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(OnForeignKeyRequirednessChangedNode node)
+            {
+                Dispatcher._immediateConventionScope.OnForeignKeyRequirednessChanged(node.RelationshipBuilder);
                 return null;
             }
 
