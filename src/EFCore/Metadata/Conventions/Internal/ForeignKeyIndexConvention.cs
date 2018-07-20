@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Key key)
         {
             foreach (var otherForeignKey in key.DeclaringEntityType.GetDerivedForeignKeysInclusive()
-                .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, key.Properties, existingIndexUniqueness: true)))
+                .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, key.Properties, coveringIndexUniqueness: true)))
             {
                 CreateIndex(otherForeignKey.Properties, otherForeignKey.IsUnique, otherForeignKey.DeclaringEntityType.Builder);
             }
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 else if (baseType != null)
                 {
                     var coveringKey = baseKeys.FirstOrDefault(
-                        k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, existingIndexUniqueness: true));
+                        k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUniqueness: true));
                     if (coveringKey != null)
                     {
                         RemoveIndex(index);
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (!foreignKey.IsUnique)
                 {
                     var coveringKey = foreignKey.DeclaringEntityType.GetKeys()
-                        .FirstOrDefault(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, existingIndexUniqueness: true));
+                        .FirstOrDefault(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, coveringIndexUniqueness: true));
                     if (coveringKey != null)
                     {
                         RemoveIndex(index);
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (index.IsUnique)
             {
                 foreach (var otherIndex in index.DeclaringEntityType.GetDerivedIndexesInclusive()
-                    .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, existingIndexUniqueness: true)).ToList())
+                    .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUniqueness: true)).ToList())
                 {
                     RemoveIndex(otherIndex);
                 }
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             else
             {
                 foreach (var foreignKey in index.DeclaringEntityType.GetDerivedForeignKeysInclusive()
-                    .Where(fk => fk.IsUnique && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, existingIndexUniqueness: true)))
+                    .Where(fk => fk.IsUnique && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, coveringIndexUniqueness: true)))
                 {
                     CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
                 }
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var key in entityTypeBuilder.Metadata.GetKeys())
             {
-                if (AreIndexedBy(properties, unique, key.Properties, existingIndexUniqueness: true))
+                if (AreIndexedBy(properties, unique, key.Properties, coveringIndexUniqueness: true))
                 {
                     return null;
                 }
@@ -281,10 +281,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual bool AreIndexedBy(
             [NotNull] IReadOnlyList<Property> properties,
             bool unique,
-            [NotNull] IReadOnlyList<Property> existingIndexProperties,
-            bool existingIndexUniqueness)
-            => (!unique && existingIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
-               || (unique && existingIndexUniqueness && existingIndexProperties.SequenceEqual(properties));
+            [NotNull] IReadOnlyList<Property> coveringIndexProperties,
+            bool coveringIndexUniqueness)
+            => (!unique && coveringIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
+               || (unique && coveringIndexUniqueness && coveringIndexProperties.SequenceEqual(properties));
 
         private static void RemoveIndex(Index index)
             => index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     foreach (var key in entityType.GetKeys())
                     {
-                        if (AreIndexedBy(declaredForeignKey.Properties, declaredForeignKey.IsUnique, key.Properties, existingIndexUniqueness: true))
+                        if (AreIndexedBy(declaredForeignKey.Properties, declaredForeignKey.IsUnique, key.Properties, coveringIndexUniqueness: true))
                         {
                             if (declaredForeignKey.Properties.Count != key.Properties.Count)
                             {

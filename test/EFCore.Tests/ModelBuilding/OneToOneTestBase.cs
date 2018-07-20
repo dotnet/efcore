@@ -144,7 +144,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasOne<CustomerDetails>()
                     .WithOne()
                     .HasForeignKey<CustomerDetails>(e => e.Id);
-                modelBuilder.Entity<CustomerDetails>();
                 modelBuilder.Ignore<Order>();
 
                 var dependentType = model.FindEntityType(typeof(CustomerDetails));

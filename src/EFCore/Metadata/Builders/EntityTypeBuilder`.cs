@@ -244,11 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(new PropertyIdentity(navigationName)));
-                return this;
-            }
+            buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(new PropertyIdentity(navigationName)));
+            return this;
         }
 
         /// <summary>
@@ -279,11 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(new PropertyIdentity(navigationExpression.GetPropertyAccess())));
-                return this;
-            }
+            buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(new PropertyIdentity(navigationExpression.GetPropertyAccess())));
+            return this;
         }
 
         private ReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOneBuilder<TRelatedEntity>(PropertyIdentity navigation)
@@ -380,11 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsManyBuilder<TRelatedEntity>(new PropertyIdentity(navigationName)));
-                return this;
-            }
+            buildAction.Invoke(OwnsManyBuilder<TRelatedEntity>(new PropertyIdentity(navigationName)));
+            return this;
         }
 
         /// <summary>
@@ -415,11 +406,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsManyBuilder<TRelatedEntity>(new PropertyIdentity(navigationExpression.GetPropertyAccess())));
-                return this;
-            }
+            buildAction.Invoke(OwnsManyBuilder<TRelatedEntity>(new PropertyIdentity(navigationExpression.GetPropertyAccess())));
+            return this;
         }
 
         private CollectionOwnershipBuilder<TEntity, TRelatedEntity> OwnsManyBuilder<TRelatedEntity>(PropertyIdentity navigation)

@@ -125,9 +125,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
-                ModelBuilder.Entity<TEntity>(
-                    entityTypeBuilder =>
-                        buildAction(new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
+                    buildAction(new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
                 return this;
             }
 

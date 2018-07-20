@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 var candidateTargetEntityTypeBuilder = GetTargetEntityTypeBuilder(
-                    entityTypeBuilder, targetClrType, navigationPropertyInfo, ConfigurationSource.Convention);
+                    entityTypeBuilder, targetClrType, navigationPropertyInfo, ownership, ConfigurationSource.Convention);
 
                 if (candidateTargetEntityTypeBuilder == null)
                 {
@@ -223,6 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     entityTypeBuilder,
                     relationshipCandidate.TargetTypeBuilder.Metadata.ClrType,
                     relationshipCandidate.NavigationProperties.Single(),
+                    ownership,
                     ConfigurationSource.Convention);
 
                 if (actualTargetEntityTypeBuilder == null)
@@ -244,51 +245,77 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public static InternalEntityTypeBuilder GetTargetEntityTypeBuilder(
             InternalEntityTypeBuilder entityTypeBuilder,
             Type targetClrType,
-            PropertyInfo navigationPropertyInfo,
+            MemberInfo navigationInfo,
+            ConfigurationSource? configurationSource)
+            => GetTargetEntityTypeBuilder(entityTypeBuilder, targetClrType, navigationInfo,
+                entityTypeBuilder.Metadata.FindOwnership(), configurationSource);
+
+        private static InternalEntityTypeBuilder GetTargetEntityTypeBuilder(
+            InternalEntityTypeBuilder entityTypeBuilder,
+            Type targetClrType,
+            MemberInfo navigationInfo,
+            ForeignKey ownership,
             ConfigurationSource? configurationSource)
         {
-            var entityType = entityTypeBuilder.Metadata;
-            InternalEntityTypeBuilder targetEntityTypeBuilder = null;
             // ReSharper disable CheckForReferenceEqualityInstead.1
             // ReSharper disable CheckForReferenceEqualityInstead.3
+            if (ownership != null)
+            {
+                if (targetClrType.Equals(entityTypeBuilder.Metadata.ClrType))
+                {
+                    return null;
+                }
+
+                if (targetClrType.IsAssignableFrom(ownership.PrincipalEntityType.ClrType))
+                {
+                    if (configurationSource != null)
+                    {
+                        ownership.PrincipalEntityType.UpdateConfigurationSource(configurationSource.Value);
+                    }
+
+                    return ownership.PrincipalEntityType.Builder;
+                }
+            }
+
+            var entityType = entityTypeBuilder.Metadata;
+            InternalEntityTypeBuilder targetEntityTypeBuilder = null;
             if (!entityTypeBuilder.ModelBuilder.Metadata.EntityTypeShouldHaveDefiningNavigation(targetClrType))
             {
-                var existingOwnership = entityTypeBuilder.ModelBuilder.Metadata.FindEntityType(targetClrType)
-                    ?.FindOwnership();
+                var targetEntityType = entityTypeBuilder.ModelBuilder.Metadata.FindEntityType(targetClrType);
 
+                var existingOwnership = targetEntityType?.FindOwnership();
                 if (existingOwnership != null
                     && entityType.Model.ShouldBeOwnedType(targetClrType)
                     && (existingOwnership.PrincipalEntityType != entityType
-                        || existingOwnership.PrincipalToDependent.Name != navigationPropertyInfo.Name))
+                        || existingOwnership.PrincipalToDependent.Name != navigationInfo.Name))
                 {
                     return configurationSource.HasValue
                            && !targetClrType.Equals(entityTypeBuilder.Metadata.ClrType)
                         ? entityTypeBuilder.ModelBuilder.Entity(
-                            targetClrType, navigationPropertyInfo.Name, entityType, configurationSource.Value)
+                            targetClrType, navigationInfo.Name, entityType, configurationSource.Value)
                         : null;
                 }
 
                 targetEntityTypeBuilder = configurationSource.HasValue
                     ? entityTypeBuilder.ModelBuilder.Entity(targetClrType, configurationSource.Value, allowOwned: true)
-                    : entityTypeBuilder.ModelBuilder.Metadata.FindEntityType(targetClrType).Builder;
+                    : targetEntityType?.Builder;
             }
             else if (!targetClrType.Equals(entityTypeBuilder.Metadata.ClrType))
             {
                 if (entityType.DefiningEntityType?.ClrType.Equals(targetClrType) == true)
                 {
+                    if (configurationSource != null)
+                    {
+                        entityType.DefiningEntityType.UpdateConfigurationSource(configurationSource.Value);
+                    }
+
                     return entityType.DefiningEntityType.Builder;
                 }
 
-                var ownership = entityType.FindOwnership();
-                if (ownership?.PrincipalEntityType.ClrType.Equals(targetClrType) == true)
-                {
-                    return ownership.PrincipalEntityType.Builder;
-                }
-
                 targetEntityTypeBuilder =
-                    entityType.FindNavigation(navigationPropertyInfo.Name)?.GetTargetType().Builder
+                    entityType.FindNavigation(navigationInfo.Name)?.GetTargetType().Builder
                     ?? entityType.Model.FindEntityType(
-                        targetClrType, navigationPropertyInfo.Name, entityType)?.Builder;
+                        targetClrType, navigationInfo.Name, entityType)?.Builder;
 
                 if (targetEntityTypeBuilder == null
                     && configurationSource.HasValue
@@ -296,7 +323,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     && !entityType.IsInOwnershipPath(targetClrType))
                 {
                     return entityTypeBuilder.ModelBuilder.Entity(
-                        targetClrType, navigationPropertyInfo.Name, entityType, configurationSource.Value);
+                        targetClrType, navigationInfo.Name, entityType, configurationSource.Value);
+                }
+
+                if (configurationSource != null)
+                {
+                    targetEntityTypeBuilder?.Metadata.UpdateConfigurationSource(configurationSource.Value);
                 }
             }
             // ReSharper restore CheckForReferenceEqualityInstead.1
@@ -607,6 +639,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 var ambiguousOwnership = relationshipCandidate.NavigationProperties.Count == 1
                                          && relationshipCandidate.InverseProperties.Count == 1
+                                         && entityType.GetConfigurationSource() != ConfigurationSource.Explicit
+                                         && targetEntityType.GetConfigurationSource() != ConfigurationSource.Explicit
                                          && targetEntityType.Model.ShouldBeOwnedType(entityType.ClrType)
                                          && targetEntityType.Model.ShouldBeOwnedType(targetEntityType.ClrType);
 
@@ -615,9 +649,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var existingNavigation = entityType.FindNavigation(relationshipCandidate.NavigationProperties.Single().Name);
                     if (existingNavigation != null
                          && existingNavigation.ForeignKey.DeclaringEntityType == targetEntityType
-                         && existingNavigation.ForeignKey.GetConfigurationSource().OverridesStrictly(ConfigurationSource.Convention))
+                         && existingNavigation.ForeignKey.GetPrincipalEndConfigurationSource().OverridesStrictly(ConfigurationSource.Convention))
                     {
                         ambiguousOwnership = false;
+                    }
+                    else
+                    {
+                        var existingInverse = targetEntityType.FindNavigation(relationshipCandidate.InverseProperties.Single().Name);
+                        if (existingInverse != null
+                            && existingInverse.ForeignKey.PrincipalEntityType == targetEntityType
+                            && existingInverse.ForeignKey.GetPrincipalEndConfigurationSource().OverridesStrictly(ConfigurationSource.Convention))
+                        {
+                            ambiguousOwnership = false;
+                        }
                     }
                 }
 
@@ -633,10 +677,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     if (!isAmbiguousOnBase)
                     {
-                        AddAmbiguous(entityTypeBuilder, relationshipCandidate.NavigationProperties, targetEntityType.ClrType);
-
-                        AddAmbiguous(targetEntityType.Builder, relationshipCandidate.InverseProperties, entityType.ClrType);
-
                         _logger.MultipleNavigationProperties(
                             relationshipCandidate.NavigationProperties.Count == 0
                                 ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
@@ -646,18 +686,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 : relationshipCandidate.InverseProperties.Select(n => new Tuple<MemberInfo, Type>(n, targetEntityType.ClrType)));
                     }
 
-                    foreach (var navigationProperty in relationshipCandidate.NavigationProperties)
+                    foreach (var navigationProperty in relationshipCandidate.NavigationProperties.ToList())
                     {
-                        var existingForeignKey = entityType.FindDeclaredNavigation(navigationProperty.Name)?.ForeignKey;
-                        existingForeignKey?.DeclaringEntityType.Builder
-                            .RemoveForeignKey(existingForeignKey, ConfigurationSource.Convention);
+                        var existingNavigation = entityType.FindDeclaredNavigation(navigationProperty.Name);
+                        if (existingNavigation != null
+                            && existingNavigation.ForeignKey.DeclaringEntityType.Builder
+                                .RemoveForeignKey(existingNavigation.ForeignKey, ConfigurationSource.Convention) == null
+                            && existingNavigation.ForeignKey.Builder.Navigations(
+                                existingNavigation.IsDependentToPrincipal() ? PropertyIdentity.None : (PropertyIdentity?)null,
+                                existingNavigation.IsDependentToPrincipal() ? (PropertyIdentity?)null : PropertyIdentity.None,
+                                ConfigurationSource.Convention) == null)
+                        {
+                            // Navigations of higher configuration source are not ambiguous
+                            relationshipCandidate.NavigationProperties.Remove(navigationProperty);
+                        }
                     }
 
-                    foreach (var inverseProperty in relationshipCandidate.InverseProperties)
+                    foreach (var inverseProperty in relationshipCandidate.InverseProperties.ToList())
                     {
-                        var existingForeignKey = targetEntityType.FindDeclaredNavigation(inverseProperty.Name)?.ForeignKey;
-                        existingForeignKey?.DeclaringEntityType.Builder
-                            .RemoveForeignKey(existingForeignKey, ConfigurationSource.Convention);
+                        var existingInverse = targetEntityType.FindDeclaredNavigation(inverseProperty.Name);
+                        if (existingInverse != null
+                            && existingInverse.ForeignKey.DeclaringEntityType.Builder
+                                .RemoveForeignKey(existingInverse.ForeignKey, ConfigurationSource.Convention) == null
+                            && existingInverse.ForeignKey.Builder.Navigations(
+                                existingInverse.IsDependentToPrincipal() ? PropertyIdentity.None : (PropertyIdentity?)null,
+                                existingInverse.IsDependentToPrincipal() ? (PropertyIdentity?)null : PropertyIdentity.None,
+                                ConfigurationSource.Convention) == null)
+                        {
+                            // Navigations of higher configuration source are not ambiguous
+                            relationshipCandidate.InverseProperties.Remove(inverseProperty);
+                        }
+                    }
+
+                    if (!isAmbiguousOnBase)
+                    {
+                        AddAmbiguous(entityTypeBuilder, relationshipCandidate.NavigationProperties, targetEntityType.ClrType);
+
+                        AddAmbiguous(targetEntityType.Builder, relationshipCandidate.InverseProperties, entityType.ClrType);
                     }
 
                     unusedEntityTypes.Add(targetEntityType);
@@ -713,9 +778,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         {
                             var existingInverse = targetEntityType.FindNavigation(inverse.Name);
                             if (inverse.PropertyType.TryGetSequenceType() != null
+                                || targetEntityType.GetConfigurationSource() == ConfigurationSource.Explicit
                                 || (existingInverse != null
                                     && existingInverse.ForeignKey.DeclaringEntityType == entityType
-                                    && existingInverse.ForeignKey.GetConfigurationSource().OverridesStrictly(ConfigurationSource.Convention)))
+                                    && existingInverse.ForeignKey.GetPrincipalEndConfigurationSource().OverridesStrictly(ConfigurationSource.Convention)))
                             {
                                 // Target type is the principal, so the ownership should be configured from the other side
                                 targetOwned = false;
@@ -905,7 +971,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var targetClrType = ambigousNavigation.Value.Value;
                 RemoveAmbiguous(derivedEntityType, targetClrType);
 
-                var targetType = entityTypeBuilder.Metadata.Model.FindEntityType(targetClrType);
+                var targetType = GetTargetEntityTypeBuilder(
+                    entityTypeBuilder, targetClrType, ambigousNavigation.Value.Key, null)?.Metadata;
                 if (targetType != null)
                 {
                     RemoveAmbiguous(targetType, derivedEntityType.ClrType);
@@ -1043,8 +1110,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 as ImmutableSortedDictionary<MemberInfo, Type>;
 
         private static void AddAmbiguous(
-            InternalEntityTypeBuilder entityTypeBuilder, IEnumerable<PropertyInfo> navigationProperties, Type targetType)
+            InternalEntityTypeBuilder entityTypeBuilder, IReadOnlyList<PropertyInfo> navigationProperties, Type targetType)
         {
+            if (navigationProperties.Count == 0)
+            {
+                return;
+            }
+
             var currentAmbiguousNavigations = GetAmbigousNavigations(entityTypeBuilder.Metadata);
             var newAmbiguousNavigations = ImmutableSortedDictionary.CreateRange(
                 MemberInfoNameComparer.Instance,
@@ -1053,7 +1125,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (currentAmbiguousNavigations != null)
             {
-                newAmbiguousNavigations = currentAmbiguousNavigations.AddRange(newAmbiguousNavigations);
+                newAmbiguousNavigations = newAmbiguousNavigations.Count > 0
+                    ? currentAmbiguousNavigations.AddRange(newAmbiguousNavigations)
+                    : currentAmbiguousNavigations;
             }
 
             SetAmbigousNavigations(entityTypeBuilder, newAmbiguousNavigations);
@@ -1062,12 +1136,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static bool RemoveAmbiguous(EntityType entityType, Type targetType)
         {
             var ambigousNavigations = GetAmbigousNavigations(entityType);
-            if (ambigousNavigations != null)
+            if (ambigousNavigations != null
+                && !ambigousNavigations.IsEmpty)
             {
                 var newAmbigousNavigations = ambigousNavigations;
                 foreach (var ambigousNavigation in ambigousNavigations)
                 {
-                    if (ambigousNavigation.Value == targetType)
+                    if (targetType.IsAssignableFrom(ambigousNavigation.Value))
                     {
                         newAmbigousNavigations = newAmbigousNavigations.Remove(ambigousNavigation.Key);
                     }

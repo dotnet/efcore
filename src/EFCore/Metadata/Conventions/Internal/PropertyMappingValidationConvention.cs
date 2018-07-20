@@ -108,14 +108,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             || modelBuilder.Metadata.FindEntityType(targetType) != null
                             || targetType.GetRuntimeProperties().Any(p => p.IsCandidateProperty())))
                     {
-                        if ((!isTargetWeakOrOwned
-                             || !targetType.GetTypeInfo().Equals(entityType.ClrType.GetTypeInfo()))
-                            && entityType.GetDerivedTypes().All(
-                                dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
-                            && (!entityType.IsInOwnershipPath(targetType)
-                                || entityType.FindOwnership().PrincipalEntityType.ClrType.GetTypeInfo().Equals(targetType.GetTypeInfo()))
-                            && (!entityType.IsInDefinitionPath(targetType)
-                                || entityType.DefiningEntityType.ClrType.GetTypeInfo().Equals(targetType.GetTypeInfo())))
+                        // ReSharper disable CheckForReferenceEqualityInstead.1
+                        // ReSharper disable CheckForReferenceEqualityInstead.3
+                        if (entityType.GetDerivedTypes().All(
+                            dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
+                            && (!isTargetWeakOrOwned
+                                || (!targetType.Equals(entityType.ClrType)
+                                    && (!entityType.IsInOwnershipPath(targetType)
+                                        || (entityType.FindOwnership().PrincipalEntityType.ClrType.Equals(targetType)
+                                            && targetSequenceType == null))
+                                    && (!entityType.IsInDefinitionPath(targetType)
+                                        || (entityType.DefiningEntityType.ClrType.Equals(targetType)
+                                            && targetSequenceType == null)))))
                         {
                             if (modelBuilder.Metadata.ShouldBeOwnedType(entityType.ClrType)
                                 && modelBuilder.Metadata.ShouldBeOwnedType(targetType))
@@ -127,6 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 CoreStrings.NavigationNotAdded(
                                     entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
                         }
+                        // ReSharper restore CheckForReferenceEqualityInstead.3
+                        // ReSharper restore CheckForReferenceEqualityInstead.1
                     }
                     else if (targetSequenceType == null && propertyType.GetTypeInfo().IsInterface
                              || targetSequenceType != null && targetSequenceType.GetTypeInfo().IsInterface)

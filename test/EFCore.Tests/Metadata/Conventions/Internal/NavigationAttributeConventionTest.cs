@@ -761,6 +761,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreateForeignKeyAttributeConvention().Apply(relationshipBuilder)).Message);
         }
 
+        [Fact]
+        public void ForeignKeyAttribute_throws_when_specified_on_principal_property_with_collection()
+        {
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
+            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(InvertedPrincipal), ConfigurationSource.Convention);
+
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                principalEntityTypeBuilder,
+                null,
+                nameof(InvertedPrincipal.Dependents),
+                ConfigurationSource.Convention);
+
+            var convention = CreateForeignKeyAttributeConvention();
+            Assert.Null(convention.Apply(relationshipBuilder));
+
+            Assert.Equal(
+                CoreStrings.FkAttributeOnNonUniquePrincipal(
+                    nameof(InvertedPrincipal.Dependents),
+                    nameof(InvertedPrincipal),
+                    nameof(Dependent)),
+                Assert.Throws<InvalidOperationException>(() => convention.Apply(dependentEntityTypeBuilder.ModelBuilder)).Message);
+        }
+
         #endregion
 
         [Fact]
@@ -1019,6 +1042,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             [ForeignKey("CommonFkProperty")]
             public Principal Two { get; set; }
+        }
+
+        private class InvertedPrincipal
+        {
+            public static readonly PropertyInfo DependentIdProperty = typeof(Principal).GetProperty("DependentId");
+
+            public int Id { get; set; }
+
+            [ForeignKey("Dependents")]
+            public int DependentId { get; set; }
+
+            public ICollection<Dependent> Dependents { get; set; }
         }
     }
 }
