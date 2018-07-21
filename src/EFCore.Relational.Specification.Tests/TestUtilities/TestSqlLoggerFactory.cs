@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return;
             }
 #endif
-
             try
             {
                 if (assertOrder)
