@@ -5,21 +5,21 @@
   <PropertyGroup Label="Package Versions">
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
-    <InternalAspNetCoreSdkPackageVersion>3.0.0-alpha1-10009</InternalAspNetCoreSdkPackageVersion>
-    <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>3.0.0-alpha1-10081</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>3.0.0-alpha1-10011</InternalAspNetCoreSdkPackageVersion>
+    <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>3.0.0-alpha1-10123</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <MicrosoftCSharpPackageVersion>4.6.0-preview1-26708-04</MicrosoftCSharpPackageVersion>
-    <MicrosoftDataSqliteCorePackageVersion>3.0.0-alpha1-10081</MicrosoftDataSqliteCorePackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-alpha1-10081</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>3.0.0-alpha1-10081</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-alpha1-10081</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-alpha1-10081</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-alpha1-10081</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-alpha1-10081</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftDataSqliteCorePackageVersion>3.0.0-alpha1-10123</MicrosoftDataSqliteCorePackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-alpha1-10123</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>3.0.0-alpha1-10123</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-alpha1-10123</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-alpha1-10123</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-alpha1-10123</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-alpha1-10123</MicrosoftExtensionsDependencyInjectionPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview1-26710-03</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-alpha1-10081</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-alpha1-10123</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftNETCoreApp11PackageVersion>1.1.9</MicrosoftNETCoreApp11PackageVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.9</MicrosoftNETCoreApp20PackageVersion>
     <MicrosoftNETCoreApp30PackageVersion>3.0.0-preview1-26710-03</MicrosoftNETCoreApp30PackageVersion>
@@ -34,7 +34,7 @@
     <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview1-26708-04</SystemComponentModelAnnotationsPackageVersion>
     <SystemDataSqlClientPackageVersion>4.6.0-preview1-26708-04</SystemDataSqlClientPackageVersion>
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview1-26708-04</SystemDiagnosticsDiagnosticSourcePackageVersion>
-    <SystemInteractiveAsyncPackageVersion>3.1.1</SystemInteractiveAsyncPackageVersion>
+    <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
     <XunitAssertPackageVersion>2.3.1</XunitAssertPackageVersion>
     <XunitCorePackageVersion>2.3.1</XunitCorePackageVersion>
     <XunitRunnerVisualStudioPackageVersion>2.4.0-rc.1.build4038</XunitRunnerVisualStudioPackageVersion>
