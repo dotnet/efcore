@@ -286,8 +286,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.Property<string>(""Title"");
 
-        b.ToTable(""AnotherDerivedEntity"");
-
         b.HasDiscriminator().HasValue(""AnotherDerivedEntity"");
     });
 
@@ -296,8 +294,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
 
         b.Property<string>(""Name"");
-
-        b.ToTable(""DerivedEntity"");
 
         b.HasDiscriminator().HasValue(""DerivedEntity"");
     });
@@ -351,8 +347,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.Property<string>(""Title"");
 
-        b.ToTable(""AnotherDerivedEntity"");
-
         b.HasDiscriminator().HasValue(""AnotherDerivedEntity"");
     });
 
@@ -361,8 +355,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
 
         b.Property<string>(""Name"");
-
-        b.ToTable(""DerivedEntity"");
 
         b.HasDiscriminator().HasValue(""DerivedEntity"");
     });
@@ -797,9 +789,12 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                 {
                     builder.Entity<EntityWithOneProperty>(b =>
                     {
+                        b.HasKey(e => e.Id).HasName("PK_Custom");
+
                         b.OwnsOne(eo => eo.EntityWithTwoProperties, eb =>
                         {
-                            eb.HasForeignKey(e => e.AlternateId);
+                            eb.HasKey(e => e.AlternateId).HasName("PK_Custom");
+                            eb.HasForeignKey(e => e.AlternateId).HasConstraintName("FK_Custom");
                             eb.HasOne(e => e.EntityWithOneProperty)
                                 .WithOne(e => e.EntityWithTwoProperties);
                             eb.HasIndex(e => e.Id);
@@ -834,7 +829,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
             .ValueGeneratedOnAdd()
             .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
-        b.HasKey(""Id"");
+        b.HasKey(""Id"")
+            .HasName(""PK_Custom"");
 
         b.ToTable(""EntityWithOneProperty"");
 
@@ -865,19 +861,22 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
                 b1.Property<int>(""Id"");
 
-                b1.HasKey(""AlternateId"");
+                b1.HasKey(""AlternateId"")
+                    .HasName(""PK_Custom"");
 
                 b1.HasIndex(""EntityWithStringKeyId"")
                     .IsUnique()
                     .HasFilter(""[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL"");
 
-                b1.HasIndex(""Id"");
+                b1.HasIndex(""Id"")
+                    .IsUnique();
 
                 b1.ToTable(""EntityWithOneProperty"");
 
                 b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
                     .WithOne(""EntityWithTwoProperties"")
                     .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
+                    .HasConstraintName(""FK_Custom"")
                     .OnDelete(DeleteBehavior.Cascade);
 
                 b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", ""EntityWithStringKey"")
@@ -929,6 +928,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                 o =>
                 {
                     var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                    Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().Relational().Name);
                     Assert.Equal(new object[] { 1 }, entityWithOneProperty.GetData().Single().Values);
 
                     var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
@@ -937,9 +937,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
                     Assert.True(ownership1.IsRequired);
                     Assert.Equal(DeleteBehavior.Cascade, ownership1.DeleteBehavior);
+                    Assert.Equal("FK_Custom", ownership1.Relational().Name);
                     var ownedType1 = ownership1.DeclaringEntityType;
                     Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey().Properties[0].Name);
-                    Assert.Equal(1, ownedType1.GetKeys().Count());
+                    Assert.Equal("PK_Custom", ownedType1.GetKeys().Single().Relational().Name);
                     Assert.Equal(2, ownedType1.GetIndexes().Count());
                     var owned1index1 = ownedType1.GetIndexes().First();
                     Assert.Equal("EntityWithStringKeyId", owned1index1.Properties[0].Name);
@@ -947,7 +948,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     Assert.Equal("[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL", owned1index1.Relational().Filter);
                     var owned1index2 = ownedType1.GetIndexes().Last();
                     Assert.Equal("Id", owned1index2.Properties[0].Name);
-                    Assert.False(owned1index2.IsUnique);
+                    Assert.True(owned1index2.IsUnique);
                     Assert.Null(owned1index2.Relational().Filter);
                     Assert.Equal(new object[] { 1, -1 }, ownedType1.GetData().Single().Values);
                     Assert.Equal(nameof(EntityWithOneProperty), ownedType1.Relational().TableName);
@@ -2487,9 +2488,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedType"", b =>
     {
         b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseType"");
-
-
-        b.ToTable(""DerivedType"");
 
         b.HasDiscriminator().HasValue(""DerivedType"");
     });
