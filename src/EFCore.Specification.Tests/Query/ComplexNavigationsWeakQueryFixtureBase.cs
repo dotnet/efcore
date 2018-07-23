@@ -30,21 +30,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Level1>().Property(e => e.Id).ValueGeneratedNever();
 
             var level1Builder = modelBuilder.Entity<Level1>()
-                .Ignore(e => e.OneToOne_Optional_Self)
-                .Ignore(e => e.OneToMany_Required_Self)
-                .Ignore(e => e.OneToMany_Required_Self_Inverse)
-                .Ignore(e => e.OneToMany_Optional_Self)
-                .Ignore(e => e.OneToMany_Optional_Self_Inverse);
+                .Ignore(e => e.OneToOne_Optional_Self1)
+                .Ignore(e => e.OneToMany_Required_Self1)
+                .Ignore(e => e.OneToMany_Required_Self_Inverse1)
+                .Ignore(e => e.OneToMany_Optional_Self1)
+                .Ignore(e => e.OneToMany_Optional_Self_Inverse1);
 
             var level1 = level1Builder.Metadata;
 
             ForeignKey level2Fk;
-            var level2 = level1.Model.AddEntityType(typeof(Level2), nameof(Level1.OneToOne_Required_PK), level1);
+            var level2 = level1.Model.AddEntityType(typeof(Level2), nameof(Level1.OneToOne_Required_PK1), level1);
             using (var batch = ((Model)modelBuilder.Model).ConventionDispatcher.StartBatch())
             {
                 level2Fk = (ForeignKey)level2.AddForeignKey(level2.FindProperty(nameof(Level2.Id)), level1.FindPrimaryKey(), level1);
-                level2Fk.HasPrincipalToDependent(nameof(Level1.OneToOne_Required_PK));
-                level2Fk.HasDependentToPrincipal(nameof(Level2.OneToOne_Required_PK_Inverse));
+                level2Fk.HasPrincipalToDependent(nameof(Level1.OneToOne_Required_PK1));
+                level2Fk.HasDependentToPrincipal(nameof(Level2.OneToOne_Required_PK_Inverse2));
                 level2Fk.IsUnique = true;
                 level2Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level2Fk = batch.Run(level2Fk);
@@ -90,47 +90,47 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual void Configure(ReferenceOwnershipBuilder<Level1, Level2> l2)
         {
-            var level2 = l2.Ignore(e => e.OneToOne_Optional_Self)
-                .Ignore(e => e.OneToMany_Required_Self)
-                .Ignore(e => e.OneToMany_Required_Self_Inverse)
-                .Ignore(e => e.OneToMany_Optional_Self)
-                .Ignore(e => e.OneToMany_Optional_Self_Inverse)
+            var level2 = l2.Ignore(e => e.OneToOne_Optional_Self2)
+                .Ignore(e => e.OneToMany_Required_Self2)
+                .Ignore(e => e.OneToMany_Required_Self_Inverse2)
+                .Ignore(e => e.OneToMany_Optional_Self2)
+                .Ignore(e => e.OneToMany_Optional_Self_Inverse2)
                 .OwnedEntityType;
 
             l2.Property(e => e.Id).ValueGeneratedNever();
 
-            l2.HasOne(e => e.OneToOne_Optional_PK_Inverse)
-                .WithOne(e => e.OneToOne_Optional_PK)
+            l2.HasOne(e => e.OneToOne_Optional_PK_Inverse2)
+                .WithOne(e => e.OneToOne_Optional_PK1)
                 .HasPrincipalKey<Level1>(e => e.Id)
                 .IsRequired(false);
 
-            l2.HasOne(e => e.OneToOne_Required_FK_Inverse)
-                .WithOne(e => e.OneToOne_Required_FK)
+            l2.HasOne(e => e.OneToOne_Required_FK_Inverse2)
+                .WithOne(e => e.OneToOne_Required_FK1)
                 .HasForeignKey<Level2>(e => e.Level1_Required_Id)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            l2.HasOne(e => e.OneToOne_Optional_FK_Inverse)
-                .WithOne(e => e.OneToOne_Optional_FK)
+            l2.HasOne(e => e.OneToOne_Optional_FK_Inverse2)
+                .WithOne(e => e.OneToOne_Optional_FK1)
                 .HasForeignKey<Level2>(e => e.Level1_Optional_Id)
                 .IsRequired(false);
 
-            l2.HasOne(e => e.OneToMany_Required_Inverse)
-                .WithMany(e => e.OneToMany_Required)
+            l2.HasOne(e => e.OneToMany_Required_Inverse2)
+                .WithMany(e => e.OneToMany_Required1)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            l2.HasOne(e => e.OneToMany_Optional_Inverse)
-                .WithMany(e => e.OneToMany_Optional)
+            l2.HasOne(e => e.OneToMany_Optional_Inverse2)
+                .WithMany(e => e.OneToMany_Optional1)
                 .IsRequired(false);
 
             ForeignKey level3Fk;
-            var level3 = level2.Model.AddEntityType(typeof(Level3), nameof(Level2.OneToOne_Required_PK), level2);
+            var level3 = level2.Model.AddEntityType(typeof(Level3), nameof(Level2.OneToOne_Required_PK2), level2);
             using (var batch = ((Model)level2.Model).ConventionDispatcher.StartBatch())
             {
                 level3Fk = (ForeignKey)level3.AddForeignKey(level3.FindProperty(nameof(Level3.Id)), level2.FindPrimaryKey(), level2);
-                level3Fk.HasPrincipalToDependent(nameof(Level2.OneToOne_Required_PK));
-                level3Fk.HasDependentToPrincipal(nameof(Level3.OneToOne_Required_PK_Inverse));
+                level3Fk.HasPrincipalToDependent(nameof(Level2.OneToOne_Required_PK2));
+                level3Fk.HasDependentToPrincipal(nameof(Level3.OneToOne_Required_PK_Inverse3));
                 level3Fk.IsUnique = true;
                 level3Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level3Fk = batch.Run(level3Fk);
@@ -141,47 +141,47 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual void Configure(ReferenceOwnershipBuilder<Level2, Level3> l3)
         {
-            var level3 = l3.Ignore(e => e.OneToOne_Optional_Self)
-                .Ignore(e => e.OneToMany_Required_Self)
-                .Ignore(e => e.OneToMany_Required_Self_Inverse)
-                .Ignore(e => e.OneToMany_Optional_Self)
-                .Ignore(e => e.OneToMany_Optional_Self_Inverse)
+            var level3 = l3.Ignore(e => e.OneToOne_Optional_Self3)
+                .Ignore(e => e.OneToMany_Required_Self3)
+                .Ignore(e => e.OneToMany_Required_Self_Inverse3)
+                .Ignore(e => e.OneToMany_Optional_Self3)
+                .Ignore(e => e.OneToMany_Optional_Self_Inverse3)
                 .OwnedEntityType;
 
             l3.Property(e => e.Id).ValueGeneratedNever();
 
-            l3.HasOne(e => e.OneToOne_Optional_PK_Inverse)
-                .WithOne(e => e.OneToOne_Optional_PK)
+            l3.HasOne(e => e.OneToOne_Optional_PK_Inverse3)
+                .WithOne(e => e.OneToOne_Optional_PK2)
                 .HasPrincipalKey<Level2>(e => e.Id)
                 .IsRequired(false);
 
-            l3.HasOne(e => e.OneToOne_Required_FK_Inverse)
-                .WithOne(e => e.OneToOne_Required_FK)
+            l3.HasOne(e => e.OneToOne_Required_FK_Inverse3)
+                .WithOne(e => e.OneToOne_Required_FK2)
                 .HasForeignKey<Level3>(e => e.Level2_Required_Id)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            l3.HasOne(e => e.OneToOne_Optional_FK_Inverse)
-                .WithOne(e => e.OneToOne_Optional_FK)
+            l3.HasOne(e => e.OneToOne_Optional_FK_Inverse3)
+                .WithOne(e => e.OneToOne_Optional_FK2)
                 .HasForeignKey<Level3>(e => e.Level2_Optional_Id)
                 .IsRequired(false);
 
-            l3.HasOne(e => e.OneToMany_Required_Inverse)
-                .WithMany(e => e.OneToMany_Required)
+            l3.HasOne(e => e.OneToMany_Required_Inverse3)
+                .WithMany(e => e.OneToMany_Required2)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            l3.HasOne(e => e.OneToMany_Optional_Inverse)
-                .WithMany(e => e.OneToMany_Optional)
+            l3.HasOne(e => e.OneToMany_Optional_Inverse3)
+                .WithMany(e => e.OneToMany_Optional2)
                 .IsRequired(false);
 
             ForeignKey level4Fk;
-            var level4 = level3.Model.AddEntityType(typeof(Level4), nameof(Level3.OneToOne_Required_PK), level3);
+            var level4 = level3.Model.AddEntityType(typeof(Level4), nameof(Level3.OneToOne_Required_PK3), level3);
             using (var batch = ((Model)level3.Model).ConventionDispatcher.StartBatch())
             {
                 level4Fk = (ForeignKey)level4.AddForeignKey(level4.FindProperty(nameof(Level4.Id)), level3.FindPrimaryKey(), level3);
-                level4Fk.HasPrincipalToDependent(nameof(Level3.OneToOne_Required_PK));
-                level4Fk.HasDependentToPrincipal(nameof(Level4.OneToOne_Required_PK_Inverse));
+                level4Fk.HasPrincipalToDependent(nameof(Level3.OneToOne_Required_PK3));
+                level4Fk.HasDependentToPrincipal(nameof(Level4.OneToOne_Required_PK_Inverse4));
                 level4Fk.IsUnique = true;
                 level4Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level4Fk = batch.Run(level4Fk);
@@ -192,37 +192,37 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual void Configure(ReferenceOwnershipBuilder<Level3, Level4> l4)
         {
-            l4.Ignore(e => e.OneToOne_Optional_Self)
-                .Ignore(e => e.OneToMany_Required_Self)
-                .Ignore(e => e.OneToMany_Required_Self_Inverse)
-                .Ignore(e => e.OneToMany_Optional_Self)
-                .Ignore(e => e.OneToMany_Optional_Self_Inverse);
+            l4.Ignore(e => e.OneToOne_Optional_Self4)
+                .Ignore(e => e.OneToMany_Required_Self4)
+                .Ignore(e => e.OneToMany_Required_Self_Inverse4)
+                .Ignore(e => e.OneToMany_Optional_Self4)
+                .Ignore(e => e.OneToMany_Optional_Self_Inverse4);
 
             l4.Property(e => e.Id).ValueGeneratedNever();
 
-            l4.HasOne(e => e.OneToOne_Optional_PK_Inverse)
-                .WithOne(e => e.OneToOne_Optional_PK)
+            l4.HasOne(e => e.OneToOne_Optional_PK_Inverse4)
+                .WithOne(e => e.OneToOne_Optional_PK3)
                 .HasPrincipalKey<Level3>()
                 .IsRequired(false);
 
-            l4.HasOne(e => e.OneToOne_Required_FK_Inverse)
-                .WithOne(e => e.OneToOne_Required_FK)
+            l4.HasOne(e => e.OneToOne_Required_FK_Inverse4)
+                .WithOne(e => e.OneToOne_Required_FK3)
                 .HasForeignKey<Level4>(e => e.Level3_Required_Id)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            l4.HasOne(e => e.OneToOne_Optional_FK_Inverse)
-                .WithOne(e => e.OneToOne_Optional_FK)
+            l4.HasOne(e => e.OneToOne_Optional_FK_Inverse4)
+                .WithOne(e => e.OneToOne_Optional_FK3)
                 .HasForeignKey<Level4>(e => e.Level3_Optional_Id)
                 .IsRequired(false);
 
-            l4.HasOne(e => e.OneToMany_Required_Inverse)
-                .WithMany(e => e.OneToMany_Required)
+            l4.HasOne(e => e.OneToMany_Required_Inverse4)
+                .WithMany(e => e.OneToMany_Required3)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            l4.HasOne(e => e.OneToMany_Optional_Inverse)
-                .WithMany(e => e.OneToMany_Optional)
+            l4.HasOne(e => e.OneToMany_Optional_Inverse4)
+                .WithMany(e => e.OneToMany_Optional3)
                 .IsRequired(false);
         }
 
@@ -255,13 +255,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => context.Set<Level1>();
 
             private static IQueryable<Level2> GetLevelTwo(DbContext context)
-                => GetLevelOne(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+                => GetLevelOne(context).Select(t => t.OneToOne_Required_PK1).Where(t => t != null);
 
             private static IQueryable<Level3> GetLevelThree(DbContext context)
-                => GetLevelTwo(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+                => GetLevelTwo(context).Select(t => t.OneToOne_Required_PK2).Where(t => t != null);
 
             private static IQueryable<Level4> GetLevelFour(DbContext context)
-                => GetLevelThree(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+                => GetLevelThree(context).Select(t => t.OneToOne_Required_PK3).Where(t => t != null);
         }
 
         private class ComplexNavigationsOwnedData : ComplexNavigationsData
@@ -305,13 +305,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => SplitLevelOnes.AsQueryable();
 
             private IQueryable<Level2> GetExpectedLevelTwo()
-                => GetExpectedLevelOne().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+                => GetExpectedLevelOne().Select(t => t.OneToOne_Required_PK1).Where(t => t != null);
 
             private IQueryable<Level3> GetExpectedLevelThree()
-                => GetExpectedLevelTwo().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+                => GetExpectedLevelTwo().Select(t => t.OneToOne_Required_PK2).Where(t => t != null);
 
             private IQueryable<Level4> GetExpectedLevelFour()
-                => GetExpectedLevelThree().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+                => GetExpectedLevelThree().Select(t => t.OneToOne_Required_PK3).Where(t => t != null);
         }
     }
 }
