@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -3468,6 +3469,76 @@ GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        #endregion
+
+        #region Bug12748
+
+        [Fact]
+        public virtual void Correlated_collection_correctly_associates_entities_with_byte_array_keys()
+        {
+            using (CreateDatabase12748())
+            {
+                using (var context = new MyContext12748(_options))
+                {
+                    var query = from blog in context.Blogs
+                                select new
+                                {
+                                    blog.Name,
+                                    Comments = blog.Comments.Select(u => new
+                                    {
+                                        u.Id,
+                                    }).ToArray(),
+                                };
+
+                    var result = query.ToList();
+                    Assert.Equal(1, result[0].Comments.Count());
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase12748()
+        {
+            return CreateTestStore(
+                () => new MyContext12748(_options),
+                context =>
+                {
+                    context.Blogs.Add(new Blog12748 { Name = Encoding.UTF8.GetBytes("Awesome Blog") });
+                    context.Comments.Add(new Comment12748 { BlogName = Encoding.UTF8.GetBytes("Awesome Blog") });
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext12748 : DbContext
+        {
+            public DbSet<Blog12748> Blogs { get; set; }
+            public DbSet<Comment12748> Comments { get; set; }
+
+            public MyContext12748(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        public class Blog12748
+        {
+            [Key]
+            public byte[] Name { get; set; }
+            public List<Comment12748> Comments { get; set; }
+        }
+
+        public class Comment12748
+        {
+            public int Id { get; set; }
+            public byte[] BlogName { get; set; }
+            public Blog12748 Blog { get; set; }
         }
 
         #endregion
