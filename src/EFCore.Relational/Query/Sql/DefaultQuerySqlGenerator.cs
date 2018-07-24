@@ -1523,20 +1523,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            var parentTypeMapping = _typeMapping;
-
-            _typeMapping = null;
-
             GenerateSqlFunctionName(sqlFunctionExpression);
 
-            _relationalCommandBuilder.Append("(");
+            if (!sqlFunctionExpression.IsNiladic)
+            {
+                _relationalCommandBuilder.Append("(");
 
-            _typeMapping = null;
+                var parentTypeMapping = _typeMapping;
+                _typeMapping = null;
 
-            GenerateList(sqlFunctionExpression.Arguments);
+                GenerateList(sqlFunctionExpression.Arguments);
 
-            _relationalCommandBuilder.Append(")");
-            _typeMapping = parentTypeMapping;
+                _typeMapping = parentTypeMapping;
+
+                _relationalCommandBuilder.Append(")");
+            }
 
             return sqlFunctionExpression;
         }
