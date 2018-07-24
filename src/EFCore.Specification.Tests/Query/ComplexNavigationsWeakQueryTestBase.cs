@@ -441,6 +441,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void SelectMany_navigation_property_followed_by_select_collection_navigation()
+        {
+        }
+
+        public override void Multiple_SelectMany_navigation_property_followed_by_select_collection_navigation()
+        {
+        }
+
+        public override void SelectMany_navigation_property_with_include_and_followed_by_select_collection_navigation()
+        {
+        }
+
         #endregion
     }
 }

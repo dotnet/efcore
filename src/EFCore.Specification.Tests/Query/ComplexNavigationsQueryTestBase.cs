@@ -4078,5 +4078,44 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public T Value { get; set; }
         }
+
+        [ConditionalFact]
+        public virtual void SelectMany_navigation_property_followed_by_select_collection_navigation()
+        {
+            AssertQuery<Level1>(
+                l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional).Select(l2 => new { l2.Id, l2.OneToMany_Optional }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    CollectionAsserter<Level3>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OneToMany_Optional, a.OneToMany_Optional);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_SelectMany_navigation_property_followed_by_select_collection_navigation()
+        {
+            AssertQuery<Level1>(
+                l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional).SelectMany(l2 => l2.OneToMany_Optional).Select(l2 => new { l2.Id, l2.OneToMany_Optional }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    CollectionAsserter<Level4>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OneToMany_Optional, a.OneToMany_Optional);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_navigation_property_with_include_and_followed_by_select_collection_navigation()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.LevelOne.SelectMany(l1 => l1.OneToMany_Optional).Include(l2 => l2.OneToMany_Required).Select(l2 => new { l2, l2.OneToMany_Optional });
+                var result = query.ToList();
+
+                Assert.True(result.All(r => r.l2.OneToMany_Required != null));
+                Assert.True(result.Any(r => r.OneToMany_Optional.Count > 0));
+            }
+        }
     }
 }

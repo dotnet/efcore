@@ -57,6 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// <summary>
         ///     Query source that is origin of the collection navigation.
         /// </summary>
-        public virtual IQuerySource ParentQuerySource { get; }
+        public virtual IQuerySource ParentQuerySource { get; internal set; }
     }
 }
