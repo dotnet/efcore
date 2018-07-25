@@ -6,14 +6,13 @@
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
     <InternalAspNetCoreSdkPackageVersion>2.2.0-preview1-17099</InternalAspNetCoreSdkPackageVersion>
-    <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.2.0-preview1-34755</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
+    <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.2.0-preview1-rename-17095</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
     <MicrosoftDataSqliteCorePackageVersion>2.2.0-preview1-34755</MicrosoftDataSqliteCorePackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0-preview1-34755</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftHostingPackageVersion>2.2.0-preview1-rename-17095</MicrosoftHostingPackageVersion>
     <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.2.0-preview1-34755</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
     <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.2.0-preview1-34755</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
     <MicrosoftExtensionsConfigurationJsonPackageVersion>2.2.0-preview1-34755</MicrosoftExtensionsConfigurationJsonPackageVersion>
