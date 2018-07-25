@@ -13,7 +13,7 @@
     <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
     <MicrosoftDataSqliteCorePackageVersion>2.2.0-preview1-34755</MicrosoftDataSqliteCorePackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0-preview1-34755</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftHostingPackageVersion>2.2.0-preview1-rename-17095</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftHostingPackageVersion>2.2.0-preview1-rename-17095</MicrosoftHostingPackageVersion>
     <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.2.0-preview1-34755</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
     <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.2.0-preview1-34755</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
     <MicrosoftExtensionsConfigurationJsonPackageVersion>2.2.0-preview1-34755</MicrosoftExtensionsConfigurationJsonPackageVersion>
