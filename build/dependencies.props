@@ -6,7 +6,7 @@
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
     <InternalAspNetCoreSdkPackageVersion>2.2.0-preview1-17099</InternalAspNetCoreSdkPackageVersion>
-    <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.2.0-preview1-rename-17095</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
+    <InternalWebHostBuilderFactorySourcesPackageVersion>2.2.0-a-preview1-rename-17095</InternalWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
