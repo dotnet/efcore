@@ -33,3 +33,7 @@ To run a complete build on command line only, execute `build.cmd` or `build.sh` 
 This will execute only the part of the build script that downloads and initializes a few required build tools and packages.
 
 See [developer documentation](https://github.com/aspnet/EntityFrameworkCore/wiki/Getting-and-Building-the-Code) for more details.
+
+## Benchmarks
+
+The EF Core codebase in this repository includes [benchmarks](https://github.com/aspnet/EntityFrameworkCore/tree/release/2.2/benchmarks) we use to compare the performance of different versions of EF on different .NET runtimes, and to detect any unintended performance regressions as work to enhance the product. The current results are available [at this location](https://aka.ms/ef/benchmarks).
