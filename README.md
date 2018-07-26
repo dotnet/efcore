@@ -36,4 +36,4 @@ See [developer documentation](https://github.com/aspnet/EntityFrameworkCore/wiki
 
 ## Benchmarks
 
-The EF Core codebase in this repository includes [benchmarks](https://github.com/aspnet/EntityFrameworkCore/tree/release/2.2/benchmarks) we use to compare the performance of different versions of EF on different .NET runtimes, and to detect any unintended performance regressions as work to enhance the product. The current results are available [at this location](https://aka.ms/ef/benchmarks).
+The EF Core codebase in this repository includes [benchmarks](https://github.com/aspnet/EntityFrameworkCore/tree/master/benchmarks) we use to compare the performance of different versions of EF on different .NET runtimes, and to detect any unintended performance regressions as work to enhance the product. The current results are available [at this location](https://aka.ms/ef/benchmarks).
