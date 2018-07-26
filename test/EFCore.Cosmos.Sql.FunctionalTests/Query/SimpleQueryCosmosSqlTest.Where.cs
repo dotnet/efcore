@@ -452,5 +452,37 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__reportsT
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""Title""] = ""Sales Representative""))");
         }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        public virtual void Where_client_property(bool isAsync)
+        {
+            AssertQuery<Employee>(
+                isAsync,
+                es => es.Where(e => ClientMethod(e.ReportsTo)),
+                entryCount: 1);
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")");
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        public virtual void Where_client_ef_property(bool isAsync)
+        {
+            AssertQuery<Employee>(
+                isAsync,
+                es => es.Where(e => ClientMethod(EF.Property<uint?>(e, "ReportsTo"))),
+                entryCount: 1);
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")");
+        }
+
+        private static bool ClientMethod(uint? value) => value == null;
     }
 }
