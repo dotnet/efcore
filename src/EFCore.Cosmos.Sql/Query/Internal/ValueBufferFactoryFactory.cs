@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
 
         private static Expression CreateGetValueExpression(
             Expression jObjectExpression,
-            IProperty property)
+            IPropertyBase property)
         {
             // TODO : Converters
             // TODO : TryCatch for invalid values

@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
         public Expression BindPropertyPath(
             QuerySourceReferenceExpression querySourceReferenceExpression, List<IPropertyBase> properties)
         {
-            if (querySourceReferenceExpression.ReferencedQuerySource != _querySource)
+            if (querySourceReferenceExpression == null
+                || querySourceReferenceExpression.ReferencedQuerySource != _querySource)
             {
                 return null;
             }
