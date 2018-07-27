@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -170,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             => Operand.Equals(other.Operand)
                && (Values == null
                    ? other.Values == null
-                   : Values.SequenceEqual(other.Values))
+                    : ExpressionEqualityComparer.Instance.SequenceEquals(Values, other.Values))
                && (SubQuery == null
                    ? other.SubQuery == null
                    : SubQuery.Equals(other.SubQuery));

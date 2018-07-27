@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -257,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                && string.Equals(FunctionName, other.FunctionName)
                && string.Equals(Schema, other.Schema)
                && IsNiladic == other.IsNiladic
-               && _arguments.SequenceEqual(other._arguments)
+               && ExpressionEqualityComparer.Instance.SequenceEquals(_arguments, other._arguments)
                && (Instance == null && other.Instance == null
                    || Instance?.Equals(other.Instance) == true);
 
