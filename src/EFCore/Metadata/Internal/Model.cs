@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -23,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<string, EntityType> _entityTypes
             = new SortedDictionary<string, EntityType>();
 
-        private readonly Dictionary<Type, string> _clrTypeNameMap
-            = new Dictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap
+            = new ConcurrentDictionary<Type, string>();
 
         private readonly SortedDictionary<string, SortedSet<EntityType>> _entityTypesWithDefiningNavigation
             = new SortedDictionary<string, SortedSet<EntityType>>();
@@ -349,15 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string GetDisplayName(Type type)
-        {
-            if (!_clrTypeNameMap.TryGetValue(type, out var name))
-            {
-                name = type.DisplayName();
-                _clrTypeNameMap[type] = name;
-            }
-
-            return name;
-        }
+            => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
