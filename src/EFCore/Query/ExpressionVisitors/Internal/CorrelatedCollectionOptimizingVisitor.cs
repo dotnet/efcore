@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -487,7 +488,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 }
                             }
 
-                            equalityExpression = Expression.Equal(typedOuterKeyAccess, typedInnerKeyAccess);
+                            if (typeof(IStructuralEquatable).GetTypeInfo()
+                                .IsAssignableFrom(typedOuterKeyAccess.Type.GetTypeInfo()))
+                            {
+                                equalityExpression = Expression.Call(_structuralEqualsMethod, typedOuterKeyAccess, typedInnerKeyAccess);
+                            }
+                            else
+                            {
+                                equalityExpression = Expression.Equal(typedOuterKeyAccess, typedInnerKeyAccess);
+                            }
 
                             return
                                 (Expression)Expression.Condition(
@@ -500,6 +509,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     .Aggregate((e1, e2) => Expression.AndAlso(e1, e2)),
                 outerKeyParameter,
                 innerKeyParameter);
+        }
+
+        private static readonly MethodInfo _structuralEqualsMethod
+            = typeof(CorrelatedCollectionOptimizingVisitor).GetTypeInfo()
+                .GetDeclaredMethod(nameof(StructuralEquals));
+
+        private static bool StructuralEquals(object x, object y)
+        {
+            return StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
         }
 
         private static void TryAddPropertyToOrderings(
