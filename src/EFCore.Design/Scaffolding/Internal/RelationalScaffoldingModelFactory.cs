@@ -492,6 +492,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
+            if (!string.IsNullOrEmpty(primaryKey.Name)
+                && primaryKey.Name != ConstraintNamer.GetDefaultName(keyBuilder.Metadata))
+            {
+                keyBuilder.HasName(primaryKey.Name);
+            }
+
             keyBuilder.Metadata.AddAnnotations(primaryKey.GetAnnotations());
 
             return keyBuilder;
@@ -539,7 +545,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var propertyNames = uniqueConstraint.Columns.Select(GetPropertyName).ToArray();
             var indexBuilder = builder.HasIndex(propertyNames).IsUnique();
 
-            if (!string.IsNullOrEmpty(uniqueConstraint.Name))
+            if (!string.IsNullOrEmpty(uniqueConstraint.Name)
+                && uniqueConstraint.Name != ConstraintNamer.GetDefaultName(indexBuilder.Metadata))
             {
                 indexBuilder.HasName(uniqueConstraint.Name);
             }

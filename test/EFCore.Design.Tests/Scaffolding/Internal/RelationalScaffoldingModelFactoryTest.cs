@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore
                     new DatabaseTable
                     {
                         Name = "PkTable",
-                        PrimaryKey = new DatabasePrimaryKey()
+                        PrimaryKey = new DatabasePrimaryKey { Name="MyPk" }
                     }
                 }
             };
@@ -466,7 +466,50 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
 
+            Assert.Equal(model.FindPrimaryKey().Relational().Name, "MyPk");
             Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
+        }
+
+        [Fact]
+        public void Unique_constraint()
+        {
+            var myColumn = new DatabaseColumn
+            {
+                Name = "MyColumn",
+                StoreType = "int"
+            };
+
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "MyTable",
+                        Columns =
+                        {
+                            IdColumn,
+                            myColumn
+                        },
+                        PrimaryKey = IdPrimaryKey,
+                        UniqueConstraints =
+                        {
+                            new DatabaseUniqueConstraint
+                            {
+                                Name = "MyUniqueConstraint",
+                                Columns = { myColumn }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var entityType = (EntityType)_factory.Create(databaseModel, false).GetEntityTypes().Single();
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsUnique);
+            Assert.Equal("MyUniqueConstraint", index.Relational().Name);
+            Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
         }
 
         [Fact]
@@ -586,7 +629,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [Fact]
         public void Foreign_key()
-
         {
             var parentTable = new DatabaseTable
             {
@@ -656,7 +698,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [Fact]
         public void Unique_foreign_key()
-
         {
             var parentTable = new DatabaseTable
             {
@@ -712,7 +753,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [Fact]
         public void Composite_foreign_key()
-
         {
             var ida = new DatabaseColumn
             {
@@ -808,7 +848,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [Fact]
         public void It_loads_self_referencing_foreign_key()
-
         {
             var table = new DatabaseTable
             {
