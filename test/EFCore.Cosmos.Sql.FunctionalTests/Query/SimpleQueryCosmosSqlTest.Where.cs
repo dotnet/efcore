@@ -6,15 +6,18 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
     public partial class SimpleQueryCosmosSqlTest : QueryTestBase<NorthwindQueryCosmosSqlFixture<NoopModelCustomizer>>
     {
-        [ConditionalFact]
-        public virtual void Where_add()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_add(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => o.OrderID + 10 == 10258),
                 entryCount: 1);
 
@@ -24,10 +27,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] + 10) = 10258))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_subtract()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_subtract(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => o.OrderID - 10 == 10238),
                 entryCount: 1);
 
@@ -37,10 +42,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] - 10) = 10238))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_multiply()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_multiply(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => o.OrderID * 1 == 10248),
                 entryCount: 1);
 
@@ -50,10 +57,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] * 1) = 10248))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_divide()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_divide(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => o.OrderID / 1 == 10248),
                 entryCount: 1);
 
@@ -63,10 +72,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] / 1) = 10248))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_modulo()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_modulo(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => o.OrderID % 10248 == 0),
                 entryCount: 1);
 
@@ -76,10 +87,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] % 10248) = 0))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_bitwise_or()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_bitwise_or(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => (o.OrderID | 10248) == 10248),
                 entryCount: 1);
 
@@ -89,10 +102,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] | 10248) = 10248))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_bitwise_and()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_bitwise_and(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => (o.OrderID & 11067) == 11067),
                 entryCount: 2);
 
@@ -102,10 +117,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] & 11067) = 11067))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_bitwise_xor()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_bitwise_xor(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => (o.OrderID ^ 10248) == 0),
                 entryCount: 1);
 
@@ -115,10 +132,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] ^ 10248) = 0))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_bitwise_leftshift()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_bitwise_leftshift(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => (o.OrderID << 1) == 20496),
                 entryCount: 1);
 
@@ -128,10 +147,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] << 1) = 20496))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_bitwise_rightshift()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_bitwise_rightshift(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => (o.OrderID >> 1) == 5124),
                 entryCount: 2);
 
@@ -141,10 +162,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] >> 1) = 5124))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_logical_and()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_logical_and(bool isAsync)
         {
             AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == "Seattle" && c.ContactTitle == "Owner"),
                 entryCount: 1);
 
@@ -154,10 +177,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""City""] = ""Seattle"") AND (c[""ContactTitle""] = ""Owner"")))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_logical_or()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_logical_or(bool isAsync)
         {
             AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR"),
                 entryCount: 2);
 
@@ -167,10 +192,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] = ""ALFKI"") OR (c[""CustomerID""] = ""ANATR"")))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_logical_not()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_logical_not(bool isAsync)
         {
             AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => !(c.City != "Seattle")),
                 entryCount: 1);
 
@@ -180,10 +207,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND NOT((c[""City""] != ""Seattle"")))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_equality()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_equality(bool isAsync)
         {
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == 2),
                 entryCount: 5);
 
@@ -193,10 +222,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = 2))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_inequality()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_inequality(bool isAsync)
         {
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo != 2),
                 entryCount: 4);
 
@@ -206,10 +237,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] != 2))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_greaterthan()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_greaterthan(bool isAsync)
         {
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo > 2),
                 entryCount: 3);
 
@@ -219,10 +252,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] > 2))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_greaterthanorequal()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_greaterthanorequal(bool isAsync)
         {
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo >= 2),
                 entryCount: 8);
 
@@ -232,10 +267,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] >= 2))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_lessthan()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_lessthan(bool isAsync)
         {
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo < 2),
                 entryCount: 0);
 
@@ -245,10 +282,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] < 2))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_lessthanorequal()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_lessthanorequal(bool isAsync)
         {
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo <= 2),
                 entryCount: 5);
 
@@ -258,10 +297,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] <= 2))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_string_concat()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_string_concat(bool isAsync)
         {
             AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID + "END" == "ALFKIEND"),
                 entryCount: 1);
 
@@ -271,10 +312,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] || ""END"") = ""ALFKIEND""))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_unary_minus()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_unary_minus(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => -o.OrderID == -10248),
                 entryCount: 1);
 
@@ -284,10 +327,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (-(c[""OrderID""]) = -10248))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_bitwise_not()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_bitwise_not(bool isAsync)
         {
             AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => ~o.OrderID == -10249),
                 entryCount: 1);
 
@@ -297,10 +342,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (~(c[""OrderID""]) = -10249))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_ternary()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_ternary(bool isAsync)
         {
             AssertQuery<Customer>(
+                isAsync,
 #pragma warning disable IDE0029 // Use coalesce expression
                 cs => cs.Where(c => (c.Region != null ? c.Region : "SP") == "BC"),
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -312,10 +359,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""Region""] != null) ? c[""Region""] : ""SP"") = ""BC""))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_coalesce()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_coalesce(bool isAsync)
         {
             AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => (c.Region ?? "SP") == "BC"),
                 entryCount: 2);
 
@@ -325,12 +374,14 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""Region""] ?? ""SP"") = ""BC""))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_simple_closure()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_simple_closure(bool isAsync)
         {
             var city = "London";
 
             AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == city),
                 entryCount: 6);
 
@@ -342,24 +393,28 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_simple_closure_nullable_type()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_simple_closure_nullable_type(bool isAsync)
         {
             int? reportsTo = 2;
 
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 5);
 
             reportsTo = 5;
 
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 3);
 
             reportsTo = null;
 
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => e.ReportsTo == reportsTo),
                 entryCount: 1);
 
@@ -383,10 +438,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__reportsTo_0))");
         }
 
-        [ConditionalFact]
-        public virtual void Where_simple_shadow()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Where_simple_shadow(bool isAsync)
         {
             AssertQuery<Employee>(
+                isAsync,
                 es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"),
                 entryCount: 6);
 

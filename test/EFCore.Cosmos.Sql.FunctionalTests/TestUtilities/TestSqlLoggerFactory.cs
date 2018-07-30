@@ -5,34 +5,44 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
 {
-    public class TestSqlLoggerFactory : ILoggerFactory
+    public class TestSqlLoggerFactory : ListLoggerFactory
     {
         private const string FileNewLine = @"
 ";
 
         private static readonly string _eol = Environment.NewLine;
 
+        public TestSqlLoggerFactory()
+            : this(_ => true)
+        {
+        }
+
+        public TestSqlLoggerFactory(Func<string, bool> shouldLogCategory)
+            : base(c => shouldLogCategory(c) || c == DbLoggerCategory.Database.Command.Name)
+        {
+            Logger = new TestSqlLogger(shouldLogCategory(DbLoggerCategory.Database.Command.Name));
+        }
+
+        public IReadOnlyList<string> SqlStatements => ((TestSqlLogger)Logger).SqlStatements;
+        public IReadOnlyList<string> Parameters => ((TestSqlLogger)Logger).Parameters;
+        public string Sql => string.Join(_eol + _eol, SqlStatements);
+
         public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
-            var sqlStatements
-                = _logger.SqlStatements;
-
             try
             {
                 if (assertOrder)
                 {
                     for (var i = 0; i < expected.Length; i++)
                     {
-                        Assert.Equal(expected[i], sqlStatements[i], ignoreLineEndingDifferences: true);
+                        Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
                     }
                 }
                 else
@@ -42,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
                         var normalizedExpectedFragment = expectedFragment.Replace("\r", string.Empty).Replace("\n", _eol);
                         Assert.Contains(
                             normalizedExpectedFragment,
-                            sqlStatements);
+                            SqlStatements);
                     }
                 }
             }
@@ -68,15 +78,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
                 var testInfo = $"{testName + " : " + lineNumber}" + FileNewLine;
 
                 var newBaseLine = $@"            AssertSql(
-                {string.Join("," + indent + "//" + indent, sqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});";
+                {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});";
 
-                if (sqlStatements.Count > 9)
+                if (SqlStatements.Count > 9)
                 {
                     newBaseLine += "Output truncated.";
                 }
 
-                _logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
-                _logger.TestOutputHelper?.WriteLine(newBaseLine);
+                Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
+                Logger.TestOutputHelper?.WriteLine(newBaseLine);
 
                 var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
 
@@ -86,132 +96,53 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
             }
         }
 
-        private readonly Logger _logger = new Logger();
-
-        public void Clear()
+        protected class TestSqlLogger : ListLogger
         {
-            _logger.Clear();
-        }
+            private readonly bool _shouldLogCommands;
 
-        public string Log => _logger.LogBuilder.ToString();
+            public TestSqlLogger(bool shouldLogCommands) => _shouldLogCommands = shouldLogCommands;
 
-        public IReadOnlyList<string> SqlStatements => _logger.SqlStatements;
-
-        public IReadOnlyList<string> Parameters => _logger.Parameters;
-
-        public string Sql => string.Join(_eol + _eol, SqlStatements);
-
-        public CancellationToken CancelQuery()
-        {
-            return _logger.CancelQuery();
-        }
-
-        public void SetTestOutputHelper(ITestOutputHelper testOutputHelper)
-        {
-            _logger.TestOutputHelper = testOutputHelper;
-        }
-
-        ILogger ILoggerFactory.CreateLogger(string categoryName) => _logger;
-
-        void ILoggerFactory.AddProvider(ILoggerProvider provider) => throw new NotImplementedException();
-
-        void IDisposable.Dispose()
-        {
-        }
-
-        private sealed class Logger : ILogger
-        {
-            private CancellationTokenSource _cancellationTokenSource;
-            private static ISet<EventId> _excludedEventIds = new HashSet<EventId>
-            {
-                CoreEventId.StartedTracking,
-                CoreEventId.DetectChangesStarting,
-                CoreEventId.DetectChangesCompleted
-            };
-
-            public IndentedStringBuilder LogBuilder { get; } = new IndentedStringBuilder();
             public List<string> SqlStatements { get; } = new List<string>();
             public List<string> Parameters { get; } = new List<string>();
 
-
-            public ITestOutputHelper TestOutputHelper { get; set; }
-
-            private readonly object _sync = new object();
-
-            public void Clear()
+            protected override void UnsafeClear()
             {
-                lock (_sync) // Guard against tests with explicit concurrency
-                {
-                    SqlStatements.Clear();
-                    LogBuilder.Clear();
-                    Parameters.Clear();
+                base.UnsafeClear();
 
-                    _cancellationTokenSource = null;
-                }
+                SqlStatements.Clear();
+                Parameters.Clear();
             }
 
-            public CancellationToken CancelQuery()
+            protected override void UnsafeLog<TState>(
+                LogLevel logLevel, EventId eventId, string message, TState state, Exception exception)
             {
-                lock (_sync) // Guard against tests with explicit concurrency
+                if (eventId.Id == CoreEventId.ProviderBaseId)
                 {
-                    _cancellationTokenSource = new CancellationTokenSource();
-
-                    return _cancellationTokenSource.Token;
-                }
-            }
-
-            void ILogger.Log<TState>(
-                LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-            {
-                var format = formatter(state, exception)?.Trim();
-
-                lock (_sync) // Guard against tests with explicit concurrency
-                {
-                    if (format != null)
+                    if (_shouldLogCommands)
                     {
-                        if (_cancellationTokenSource != null)
+                        base.UnsafeLog(logLevel, eventId, message, state, exception);
+                    }
+
+                    if (message != null
+                        && eventId.Id == CoreEventId.ProviderBaseId)
+                    {
+                        var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+
+                        var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
+                        var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();
+
+                        if (!string.IsNullOrWhiteSpace(parameters))
                         {
-                            _cancellationTokenSource.Cancel();
-                            _cancellationTokenSource = null;
+                            Parameters.Add(parameters);
+                            parameters = parameters.Replace(", ", _eol) + _eol + _eol;
                         }
 
-                        if (eventId.Id == CoreEventId.ProviderBaseId)
-                        {
-                            var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
-
-                            var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
-                            var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();
-
-                            if (!string.IsNullOrWhiteSpace(parameters))
-                            {
-                                Parameters.Add(parameters);
-                                parameters = parameters.Replace(", ", _eol) + _eol + _eol;
-                            }
-
-                            SqlStatements.Add(parameters + commandText);
-                        }
-                        else
-                        {
-                            LogBuilder.AppendLine(format);
-                        }
-
-                        if (!_excludedEventIds.Contains(eventId.Id))
-                        {
-                            TestOutputHelper?.WriteLine(format + _eol);
-                        }
-
-                        LogBuilder.AppendLine(format);
+                        SqlStatements.Add(parameters + commandText);
                     }
                 }
-            }
-
-            bool ILogger.IsEnabled(LogLevel logLevel) => true;
-
-            IDisposable ILogger.BeginScope<TState>(TState state)
-            {
-                lock (_sync) // Guard against tests with explicit concurrency
+                else
                 {
-                    return LogBuilder.Indent();
+                    base.UnsafeLog(logLevel, eventId, message, state, exception);
                 }
             }
         }
