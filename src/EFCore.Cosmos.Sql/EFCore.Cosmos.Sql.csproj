@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <Description>Cosmos SQL API provider for Entity Framework Core.</Description>
-    <PackageVersion>0.1.0-preview1</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.Cosmos.Sql</AssemblyName>

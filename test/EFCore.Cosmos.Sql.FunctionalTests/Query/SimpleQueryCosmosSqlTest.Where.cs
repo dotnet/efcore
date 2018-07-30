@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
     public partial class SimpleQueryCosmosSqlTest : QueryTestBase<NorthwindQueryCosmosSqlFixture<NoopModelCustomizer>>
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_add(bool isAsync)
         {
@@ -27,7 +27,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] + 10) = 10258))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_subtract(bool isAsync)
         {
@@ -42,7 +42,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] - 10) = 10238))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_multiply(bool isAsync)
         {
@@ -57,7 +57,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] * 1) = 10248))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_divide(bool isAsync)
         {
@@ -72,7 +72,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] / 1) = 10248))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_modulo(bool isAsync)
         {
@@ -87,7 +87,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] % 10248) = 0))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_bitwise_or(bool isAsync)
         {
@@ -102,7 +102,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] | 10248) = 10248))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_bitwise_and(bool isAsync)
         {
@@ -117,7 +117,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] & 11067) = 11067))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_bitwise_xor(bool isAsync)
         {
@@ -132,7 +132,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] ^ 10248) = 0))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_bitwise_leftshift(bool isAsync)
         {
@@ -147,7 +147,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] << 1) = 20496))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_bitwise_rightshift(bool isAsync)
         {
@@ -162,7 +162,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] >> 1) = 5124))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_logical_and(bool isAsync)
         {
@@ -177,7 +177,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""City""] = ""Seattle"") AND (c[""ContactTitle""] = ""Owner"")))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_logical_or(bool isAsync)
         {
@@ -192,7 +192,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] = ""ALFKI"") OR (c[""CustomerID""] = ""ANATR"")))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_logical_not(bool isAsync)
         {
@@ -207,7 +207,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND NOT((c[""City""] != ""Seattle"")))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_equality(bool isAsync)
         {
@@ -222,7 +222,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = 2))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_inequality(bool isAsync)
         {
@@ -237,7 +237,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] != 2))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_greaterthan(bool isAsync)
         {
@@ -252,7 +252,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] > 2))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_greaterthanorequal(bool isAsync)
         {
@@ -267,7 +267,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] >= 2))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_lessthan(bool isAsync)
         {
@@ -282,7 +282,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] < 2))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_lessthanorequal(bool isAsync)
         {
@@ -297,7 +297,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] <= 2))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_string_concat(bool isAsync)
         {
@@ -312,7 +312,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] || ""END"") = ""ALFKIEND""))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_unary_minus(bool isAsync)
         {
@@ -327,7 +327,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (-(c[""OrderID""]) = -10248))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_bitwise_not(bool isAsync)
         {
@@ -342,7 +342,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (~(c[""OrderID""]) = -10249))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_ternary(bool isAsync)
         {
@@ -359,7 +359,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""Region""] != null) ? c[""Region""] : ""SP"") = ""BC""))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_coalesce(bool isAsync)
         {
@@ -374,7 +374,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""Region""] ?? ""SP"") = ""BC""))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_simple_closure(bool isAsync)
         {
@@ -393,7 +393,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_simple_closure_nullable_type(bool isAsync)
         {
@@ -438,7 +438,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__reportsTo_0))");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Where_simple_shadow(bool isAsync)
         {
