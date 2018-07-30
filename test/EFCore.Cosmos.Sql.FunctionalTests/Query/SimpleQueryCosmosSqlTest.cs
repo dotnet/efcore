@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
@@ -21,10 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        [ConditionalFact]
-        public virtual void Simple_IQuaryable()
+        [Theory]
+        [InlineData(false)]
+        public virtual void Simple_IQuaryable(bool isAsync)
         {
-            AssertQuery<Customer>(cs => cs, entryCount: 91);
+            AssertQuery<Customer>(isAsync, cs => cs, entryCount: 91);
 
             AssertSql(
                 @"SELECT c AS query

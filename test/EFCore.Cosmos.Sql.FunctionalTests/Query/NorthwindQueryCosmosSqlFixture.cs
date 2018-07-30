@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
     {
         protected override ITestStoreFactory TestStoreFactory => CosmosSqlNorthwindTestStoreFactory.Instance;
 
+        protected override bool UsePooling => false;
+
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
     }
