@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         public virtual void Simple_IQuaryable(bool isAsync)
         {

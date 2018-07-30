@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
             Fixture = fixture;
         }
 
-        [Fact]
+        [ConditionalFact]
         // TODO: Remove ToList when Single/Count works
         public async Task Can_add_update_delete_end_to_end()
         {
