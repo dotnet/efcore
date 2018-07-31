@@ -1305,5 +1305,38 @@ WHERE [o].[OrderDate] = @__arg_0");
 FROM [Orders] AS [o]
 WHERE 0 = 1");
         }
+
+        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool isAsync)
+        {
+            await base.Projecting_Math_Truncate_and_ordering_by_it_twice(isAsync);
+
+            AssertSql(
+                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250
+ORDER BY [A]");
+        }
+
+        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool isAsync)
+        {
+            await base.Projecting_Math_Truncate_and_ordering_by_it_twice2(isAsync);
+
+            AssertSql(
+                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250
+ORDER BY [A] DESC");
+        }
+
+        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool isAsync)
+        {
+            await base.Projecting_Math_Truncate_and_ordering_by_it_twice3(isAsync);
+
+            AssertSql(
+                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250
+ORDER BY [A] DESC");
+        }
     }
 }

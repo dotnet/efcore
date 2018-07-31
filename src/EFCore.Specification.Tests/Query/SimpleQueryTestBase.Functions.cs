@@ -1268,5 +1268,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.Where(o => Equals(o.OrderID, arg)));
         }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A).OrderBy(r => r.A));
+        }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A).OrderByDescending(r => r.A));
+        }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderByDescending(r => r.A).ThenBy(r => r.A));
+        }
     }
 }

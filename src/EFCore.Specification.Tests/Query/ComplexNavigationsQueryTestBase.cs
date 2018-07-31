@@ -4994,5 +4994,48 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public T Value { get; set; }
         }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_navigation_property_followed_by_select_collection_navigation(bool isAsync)
+        {
+            return AssertQuery<Level1>(
+                isAsync,
+                l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional1).Select(l2 => new { l2.Id, l2.OneToMany_Optional2 }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    CollectionAsserter<Level3>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OneToMany_Optional2, a.OneToMany_Optional2);
+                });
+        }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_SelectMany_navigation_property_followed_by_select_collection_navigation(bool isAsync)
+        {
+            return AssertQuery<Level1>(
+                isAsync,
+                l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional1).SelectMany(l2 => l2.OneToMany_Optional2).Select(l2 => new { l2.Id, l2.OneToMany_Optional3 }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    CollectionAsserter<Level4>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OneToMany_Optional3, a.OneToMany_Optional3);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_navigation_property_with_include_and_followed_by_select_collection_navigation()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.LevelOne.SelectMany(l1 => l1.OneToMany_Optional1).Include(l2 => l2.OneToMany_Required2).Select(l2 => new { l2, l2.OneToMany_Optional2 });
+                var result = query.ToList();
+
+                Assert.True(result.All(r => r.l2.OneToMany_Required2 != null));
+                Assert.True(result.Any(r => r.OneToMany_Optional2.Count > 0));
+            }
+        }
     }
 }

@@ -311,6 +311,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool SequenceEquals(IEnumerable<Expression> x, IEnumerable<Expression> y)
+        {
+            if (x == null || y == null)
+            {
+                return false;
+            }
+
+            if (x.Count() != y.Count())
+            {
+                return false;
+            }
+
+            var comparer = new ExpressionComparer();
+
+            return x.Zip(y, (l, r) => comparer.Compare(l, r)).All(r => r);
+        }
+
         private sealed class ExpressionComparer
         {
             private ScopedDictionary<ParameterExpression, ParameterExpression> _parameterScope;
@@ -586,15 +607,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         nullConditionalExpressionB.AccessOperation);
                 }
 
-                return a is NullSafeEqualExpression nullConditionalEqualExpressionA
-                    && b is NullSafeEqualExpression nullConditionalEqualExpressionB
-                    ? Compare(
+                if (a is NullSafeEqualExpression nullConditionalEqualExpressionA
+                    && b is NullSafeEqualExpression nullConditionalEqualExpressionB)
+                {
+                    return Compare(
                                nullConditionalEqualExpressionA.OuterKeyNullCheck,
                                nullConditionalEqualExpressionB.OuterKeyNullCheck)
                            && Compare(
                                nullConditionalEqualExpressionA.EqualExpression,
-                               nullConditionalEqualExpressionB.EqualExpression)
-                    : a.Equals(b);
+                               nullConditionalEqualExpressionB.EqualExpression);
+                }
+
+                return a.Equals(b);
             }
 
             private bool CompareInvocation(InvocationExpression a, InvocationExpression b)
