@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <value>
         ///     true if this SQL query is cacheable, false if not.
         /// </value>
-        public virtual bool IsCacheable { get; private set; }
+        public virtual bool IsCacheable { get; protected set; }
 
         /// <summary>
         ///     Gets the select expression.
