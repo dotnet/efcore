@@ -6821,6 +6821,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_same_expression_containing_IsNull_correctly_deduplicates_the_ordering(bool isAsync)
+        {
+            return AssertQueryScalar<Gear>(
+                isAsync,
+                gs => gs.Select(g => g.LeaderNickname != null ? (bool?)(g.Nickname.Length == 5) : (bool?)null).OrderBy(e => e.HasValue).ThenBy(e => e.HasValue));
+        }
+
         public  TEntity Client<TEntity>(TEntity entity) => entity;
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

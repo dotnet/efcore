@@ -7899,6 +7899,32 @@ INNER JOIN (
 ORDER BY [t1].[Id], [t1].[FullName]");
         }
 
+        public override async Task OrderBy_same_expression_containing_IsNull_correctly_deduplicates_the_ordering(bool isAsync)
+        {
+            await base.OrderBy_same_expression_containing_IsNull_correctly_deduplicates_the_ordering(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [g].[LeaderNickname] IS NOT NULL
+    THEN CASE
+        WHEN CAST(LEN([g].[Nickname]) AS int) = 5
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END ELSE NULL
+END
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY CASE
+    WHEN CASE
+        WHEN [g].[LeaderNickname] IS NOT NULL
+        THEN CASE
+            WHEN CAST(LEN([g].[Nickname]) AS int) = 5
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END ELSE NULL
+    END IS NOT NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
