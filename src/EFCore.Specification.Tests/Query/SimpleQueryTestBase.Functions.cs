@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     // ReSharper disable once UnusedTypeParameter
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_StartsWith_Literal(bool isAsync)
         {
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 12);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_StartsWith_Identity(bool isAsync)
         {
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_StartsWith_Column(bool isAsync)
         {
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_StartsWith_MethodCall(bool isAsync)
         {
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 12);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_Literal(bool isAsync)
         {
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_Identity(bool isAsync)
         {
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_Column(bool isAsync)
         {
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_MethodCall(bool isAsync)
         {
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Literal(bool isAsync)
         {
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Identity(bool isAsync)
         {
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Column(bool isAsync)
         {
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_MethodCall(bool isAsync)
         {
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_simple_zero(bool isAsync)
         {
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_simple_one(bool isAsync)
         {
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_compare_with_parameter(bool isAsync)
         {
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_simple_client(bool isAsync)
         {
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_nested(bool isAsync)
         {
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_multi_predicate(bool isAsync)
         {
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 15);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_simple_zero(bool isAsync)
         {
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_simple_one(bool isAsync)
         {
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_compare_to_with_parameter(bool isAsync)
         {
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_simple_client(bool isAsync)
         {
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_nested(bool isAsync)
         {
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task String_Compare_to_multi_predicate(bool isAsync)
         {
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return "m";
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_abs1(bool isAsync)
         {
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1939);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_abs2(bool isAsync)
         {
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1547);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_abs3(bool isAsync)
         {
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1677);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_abs_uncorrelated(bool isAsync)
         {
@@ -543,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1939);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_ceiling1(bool isAsync)
         {
@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 838);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_ceiling2(bool isAsync)
         {
@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1677);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_floor(bool isAsync)
         {
@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1658);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_power(bool isAsync)
         {
@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 154);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_round(bool isAsync)
         {
@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1662);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_math_round_int(bool isAsync)
         {
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.A);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_math_truncate_int(bool isAsync)
         {
@@ -621,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.A);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_round2(bool isAsync)
         {
@@ -631,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 46);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_truncate(bool isAsync)
         {
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1658);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_exp(bool isAsync)
         {
@@ -651,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_log10(bool isAsync)
         {
@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_log(bool isAsync)
         {
@@ -671,7 +671,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_log_new_base(bool isAsync)
         {
@@ -681,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_sqrt(bool isAsync)
         {
@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_acos(bool isAsync)
         {
@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 25);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_asin(bool isAsync)
         {
@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_atan(bool isAsync)
         {
@@ -721,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_atan2(bool isAsync)
         {
@@ -731,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_cos(bool isAsync)
         {
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 25);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_sin(bool isAsync)
         {
@@ -751,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_tan(bool isAsync)
         {
@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_sign(bool isAsync)
         {
@@ -771,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_max(bool isAsync)
         {
@@ -781,7 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 25);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_min(bool isAsync)
         {
@@ -791,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 25);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_guid_newguid(bool isAsync)
         {
@@ -801,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2155);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_string_to_upper(bool isAsync)
         {
@@ -811,7 +811,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_string_to_lower(bool isAsync)
         {
@@ -821,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_functions_nested(bool isAsync)
         {
@@ -831,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToByte(bool isAsync)
         {
@@ -857,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToDecimal(bool isAsync)
         {
@@ -883,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToDouble(bool isAsync)
         {
@@ -909,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToInt16(bool isAsync)
         {
@@ -935,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToInt32(bool isAsync)
         {
@@ -961,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToInt64(bool isAsync)
         {
@@ -987,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToString(bool isAsync)
         {
@@ -1013,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Indexof_with_emptystring(bool isAsync)
         {
@@ -1023,7 +1023,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf(string.Empty)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Replace_with_emptystring(bool isAsync)
         {
@@ -1032,7 +1032,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Replace("ari", string.Empty)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_zero_startindex(bool isAsync)
         {
@@ -1041,7 +1041,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(0, 3)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_zero_length(bool isAsync)
         {
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(2, 0)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_constant(bool isAsync)
         {
@@ -1059,7 +1059,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(1, 3)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_closure(bool isAsync)
         {
@@ -1071,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(start, 3)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Substring_with_client_eval(bool isAsync)
         {
@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(c.ContactName.IndexOf('a'), 3)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsNullOrEmpty_in_predicate(bool isAsync)
         {
@@ -1126,7 +1126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsNullOrWhiteSpace_in_predicate(bool isAsync)
         {
@@ -1136,7 +1136,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 60);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_without_arguments_in_predicate(bool isAsync)
         {
@@ -1146,7 +1146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_with_char_argument_in_predicate(bool isAsync)
         {
@@ -1156,7 +1156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
         {
@@ -1166,7 +1166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimEnd_without_arguments_in_predicate(bool isAsync)
         {
@@ -1176,7 +1176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
         {
@@ -1186,7 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
         {
@@ -1196,7 +1196,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Trim_without_argument_in_predicate(bool isAsync)
         {
@@ -1206,7 +1206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Trim_with_char_argument_in_predicate(bool isAsync)
         {
@@ -1216,7 +1216,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Trim_with_char_array_argument_in_predicate(bool isAsync)
         {
@@ -1226,7 +1226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_length_twice(bool isAsync)
         {
@@ -1236,7 +1236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Static_string_equals_in_predicate(bool isAsync)
         {
@@ -1246,7 +1246,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Static_equals_nullable_datetime_compared_to_non_nullable(bool isAsync)
         {
@@ -1258,7 +1258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Static_equals_int_compared_to_long(bool isAsync)
         {
@@ -1269,7 +1269,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => Equals(o.OrderID, arg)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool isAsync)
         {
@@ -1278,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A).OrderBy(r => r.A));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool isAsync)
         {
@@ -1287,7 +1287,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A).OrderByDescending(r => r.A));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool isAsync)
         {
