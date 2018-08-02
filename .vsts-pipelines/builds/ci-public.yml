@@ -4,10 +4,19 @@ queue:
 steps:
 - checkout: self
   clean: true
-- script: .\build.cmd -ci
+- script: .\build.cmd -ci /bl:artifacts/logs/build.binlog
   timeoutInMinutes: 55
+- task: PublishBuildArtifacts@1
+  displayName: Upload binlog
+  condition: always()
+  inputs:
+    artifactName: binlog
+    artifactType: Container
+    pathtoPublish: artifacts/logs/build.binlog
 - powershell: |
    $all_Processes = gwmi win32_process -ComputerName . | select ProcessID,ParentProcessID,Description,@{l="Username";e={$_.getowner().user}},CommandLine | where{$_.Username -like $env:username}
+   write-host -f Magenta "------All------"
+   $all_Processes
    $all_processIDs = $all_Processes.Processid
    $parent_processIDs = $all_Processes.ParentProcessId
    $gone = New-Object System.Collections.ArrayList
@@ -17,6 +26,7 @@ steps:
            $gone.Add($_) | Out-Null
        }
    }
+   write-host -f Magenta "------Orphaned------"
    $all_Processes | Where-Object {$gone -contains $_.ParentProcessId} | ForEach-Object {$_}
   displayName: List orphan processes
   condition: always()
