@@ -4,6 +4,8 @@ queue:
 steps:
 - checkout: self
   clean: true
+- script: sqllocaldb start
+  displayName: Start LocalDB
 - script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:VSTestBlame=true /p:VSTestVerboseOutput=true
   timeoutInMinutes: 20
 - task: PublishBuildArtifacts@1
