@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_and_collection_order_by(bool useString)
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_then_include_collection(bool useString)
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Message);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Then_include_collection_order_by_collection_column(bool useString)
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Message);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_closes_reader(bool useString)
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_when_result_operator(bool useString)
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection(bool useString)
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_then_reference(bool useString)
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_last(bool useString)
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_last_no_orderby(bool useString)
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_skip_no_order_by(bool useString)
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_take_no_order_by(bool useString)
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_skip_take_no_order_by(bool useString)
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_list(bool useString)
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_alias_generation(bool useString)
@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_and_reference(bool useString)
@@ -568,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_as_no_tracking(bool useString)
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_as_no_tracking2(bool useString)
@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_dependent_already_tracked(bool useString)
@@ -679,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_dependent_already_tracked_as_no_tracking(bool useString)
@@ -718,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_additional_from_clause(bool useString)
@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_additional_from_clause_no_tracking(bool useString)
@@ -788,7 +788,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_additional_from_clause_with_filter(bool useString)
@@ -827,7 +827,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_additional_from_clause2(bool useString)
@@ -861,7 +861,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_where_skip_take_projection(bool useString)
@@ -1133,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_collection_column(bool useString)
@@ -1167,7 +1167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_key(bool useString)
@@ -1202,7 +1202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_non_key(bool useString)
@@ -1274,7 +1274,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_non_key_with_skip(bool useString)
@@ -1313,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_non_key_with_first_or_default(bool useString)
@@ -1345,7 +1345,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_subquery(bool useString)
@@ -1378,7 +1378,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_principal_already_tracked(bool useString)
@@ -1414,7 +1414,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_principal_already_tracked_as_no_tracking(bool useString)
@@ -1453,7 +1453,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_single_or_default_no_result(bool useString)
@@ -1473,7 +1473,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_when_projection(bool useString)
@@ -1496,7 +1496,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_filter(bool useString)
@@ -1531,7 +1531,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_filter_reordered(bool useString)
@@ -1566,7 +1566,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_collection(bool useString)
@@ -1635,7 +1635,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_collection_result_operator(bool useString)
@@ -1706,7 +1706,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_collection_result_operator2(bool useString)
@@ -1774,7 +1774,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_reference(bool useString)
@@ -1845,7 +1845,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_reference2(bool useString)
@@ -1913,7 +1913,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_reference3(bool useString)
@@ -1981,7 +1981,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_client_filter(bool useString)
@@ -2018,7 +2018,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multi_level_reference_and_collection_predicate(bool useString)
@@ -2047,7 +2047,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multi_level_collection_and_then_include_reference_predicate(bool useString)
@@ -2077,7 +2077,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references(bool useString)
@@ -2114,7 +2114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_and_collection_multi_level(bool useString)
@@ -2149,7 +2149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_and_collection_multi_level_reverse(bool useString)
@@ -2184,7 +2184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_multi_level(bool useString)
@@ -2218,7 +2218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_multi_level_reverse(bool useString)
@@ -2252,7 +2252,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference(bool useString)
@@ -2286,7 +2286,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_alias_generation(bool useString)
@@ -2317,7 +2317,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_and_collection(bool useString)
@@ -2350,7 +2350,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_force_alias_uniquefication(bool useString)
@@ -2384,7 +2384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_as_no_tracking(bool useString)
@@ -2419,7 +2419,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_dependent_already_tracked(bool useString)
@@ -2459,7 +2459,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_single_or_default_when_no_result(bool useString)
@@ -2479,7 +2479,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_when_projection(bool useString)
@@ -2502,7 +2502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_when_entity_in_projection(bool useString)
@@ -2546,7 +2546,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_with_filter(bool useString)
@@ -2582,7 +2582,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_with_filter_reordered(bool useString)
@@ -2618,7 +2618,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_and_collection_multi_level(bool useString)
@@ -2651,7 +2651,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_then_include_collection(bool useString)
@@ -2683,7 +2683,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_then_include_collection_then_include_reference(bool useString)
@@ -2715,7 +2715,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_then_include_collection_predicate(bool useString)
@@ -2744,7 +2744,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_and_collection_multi_level_predicate(bool useString)
@@ -2779,7 +2779,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_multi_level(bool useString)
@@ -2811,7 +2811,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multi_level_reference_then_include_collection_predicate(bool useString)
@@ -2840,7 +2840,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_then_include_collection_multi_level(bool useString)
@@ -2875,7 +2875,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_then_include_collection_multi_level_reverse(bool useString)
@@ -2910,7 +2910,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_then_include_multi_level(bool useString)
@@ -2944,7 +2944,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_then_include_multi_level_reverse(bool useString)
@@ -2978,7 +2978,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_then_include_collection_multi_level(bool useString)
@@ -3011,7 +3011,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_then_include_collection_multi_level_predicate(bool useString)
@@ -3046,7 +3046,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_then_include_multi_level(bool useString)
@@ -3078,7 +3078,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_with_complex_projection(bool useString)
@@ -3109,7 +3109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_with_complex_projection_does_not_change_ordering_of_projection(bool useString)
@@ -3140,7 +3140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_with_take(bool useString)
@@ -3172,7 +3172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_with_skip(bool useString)
@@ -3204,7 +3204,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_conditional_order_by(bool useString)
@@ -3244,7 +3244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_specified_on_non_entity_not_supported(bool useString)
@@ -3266,7 +3266,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_GroupBy_Select(bool useString)
@@ -3301,7 +3301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_GroupBy_Select(bool useString)
@@ -3336,7 +3336,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_Join_GroupBy_Select(bool useString)
@@ -3381,7 +3381,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_Join_GroupBy_Select(bool useString)
@@ -3426,7 +3426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Join_Include_collection_GroupBy_Select(bool useString)
@@ -3469,7 +3469,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Join_Include_reference_GroupBy_Select(bool useString)
@@ -3510,7 +3510,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_GroupJoin_GroupBy_Select(bool useString)
@@ -3555,7 +3555,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_GroupJoin_GroupBy_Select(bool useString)
@@ -3600,7 +3600,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void GroupJoin_Include_collection_GroupBy_Select(bool useString)
@@ -3643,7 +3643,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void GroupJoin_Include_reference_GroupBy_Select(bool useString)
@@ -3686,7 +3686,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_SelectMany_GroupBy_Select(bool useString)
@@ -3721,7 +3721,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_SelectMany_GroupBy_Select(bool useString)
@@ -3756,7 +3756,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void SelectMany_Include_collection_GroupBy_Select(bool useString)
@@ -3791,7 +3791,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void SelectMany_Include_reference_GroupBy_Select(bool useString)
@@ -3826,7 +3826,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_distinct_is_server_evaluated(bool useString)
@@ -3859,7 +3859,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_distinct_is_server_evaluated(bool useString)
@@ -3891,7 +3891,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_object(bool useString)
@@ -3924,7 +3924,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_empty_list_contains(bool useString)
@@ -3959,7 +3959,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_empty_list_does_not_contains(bool useString)
@@ -3994,7 +3994,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_list_contains(bool useString)
@@ -4032,7 +4032,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_list_does_not_contains(bool useString)
@@ -4070,7 +4070,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -4092,7 +4092,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -4141,7 +4141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         // async blocked by issue #11917
@@ -4168,7 +4168,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         // async blocked by issue #11917

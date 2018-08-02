@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByProperty
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Average(bool isAsync)
         {
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Average(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Count(bool isAsync)
         {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Count()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_LongCount(bool isAsync)
         {
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Max(bool isAsync)
         {
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Max(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Min(bool isAsync)
         {
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Min(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Sum(bool isAsync)
         {
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     o => EF.Property<string>(o, "CustomerID")).Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Sum_Min_Max_Avg(bool isAsync)
         {
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Average(bool isAsync)
         {
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Count(bool isAsync)
         {
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_LongCount(bool isAsync)
         {
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Max(bool isAsync)
         {
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Min(bool isAsync)
         {
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Sum(bool isAsync)
         {
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Key_Sum_Min_Max_Avg(bool isAsync)
         {
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByAnonymousAggregate
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Average(bool isAsync)
         {
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Average(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Count(bool isAsync)
         {
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Count()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_LongCount(bool isAsync)
         {
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.LongCount()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Max(bool isAsync)
         {
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Max(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Min(bool isAsync)
         {
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Min(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Sum(bool isAsync)
         {
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_Select_Sum_Min_Max_Avg(bool isAsync)
         {
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_with_alias_Select_Key_Sum(bool isAsync)
         {
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Average(bool isAsync)
         {
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Average(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Count(bool isAsync)
         {
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Count()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_LongCount(bool isAsync)
         {
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.LongCount()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Max(bool isAsync)
         {
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Max(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Min(bool isAsync)
         {
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Min(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum(bool isAsync)
         {
@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum_Min_Max_Avg(bool isAsync)
         {
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Average(bool isAsync)
         {
@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key.CustomerID + " " + e.Key.EmployeeID);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Count(bool isAsync)
         {
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key.CustomerID + " " + e.Key.EmployeeID);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_LongCount(bool isAsync)
         {
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key.CustomerID + " " + e.Key.EmployeeID);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Max(bool isAsync)
         {
@@ -550,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key.CustomerID + " " + e.Key.EmployeeID);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Min(bool isAsync)
         {
@@ -571,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key.CustomerID + " " + e.Key.EmployeeID);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Sum(bool isAsync)
         {
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key.CustomerID + " " + e.Key.EmployeeID);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Key_Sum_Min_Max_Avg(bool isAsync)
         {
@@ -616,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
@@ -640,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum_Min_Key_flattened_Max_Avg(bool isAsync)
         {
@@ -665,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Dto_as_key_Select_Sum(bool isAsync)
         {
@@ -685,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Dto_as_element_selector_Select_Sum(bool isAsync)
         {
@@ -727,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // corefx issue #30955
-        //[Theory]
+        //[ConditionalTheory]
         //[MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Dto_Sum_Min_Key_flattened_Max_Avg(bool isAsync)
         {
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                    && string.Equals(CustomerId, other.CustomerId);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Sum_Min_part_Key_flattened_Max_Avg(bool isAsync)
         {
@@ -806,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
@@ -825,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_with_element_selector_Select_Sum(bool isAsync)
         {
@@ -840,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_with_element_selector_Select_Sum2(bool isAsync)
         {
@@ -855,7 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_with_element_selector_Select_Sum3(bool isAsync)
         {
@@ -870,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_after_predicate_Constant_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Constant_with_element_selector_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
@@ -905,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
@@ -926,7 +926,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_with_element_selector_Select_Sum(bool isAsync)
         {
@@ -943,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_with_element_selector_Select_Sum2(bool isAsync)
         {
@@ -960,7 +960,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_with_element_selector_Select_Sum3(bool isAsync)
         {
@@ -977,7 +977,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_with_element_selector_Select_Sum_Min_Key_Max_Avg(bool isAsync)
         {
@@ -999,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByWithElementSelectorAggregate
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Average(bool isAsync)
         {
@@ -1008,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Average()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Count(bool isAsync)
         {
@@ -1017,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Count()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_LongCount(bool isAsync)
         {
@@ -1026,7 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.LongCount()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Max(bool isAsync)
         {
@@ -1035,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Max()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Min(bool isAsync)
         {
@@ -1044,7 +1044,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Min()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Sum(bool isAsync)
         {
@@ -1053,7 +1053,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_scalar_element_selector_Sum_Min_Max_Avg(bool isAsync)
         {
@@ -1071,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Average(bool isAsync)
         {
@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Average(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Count(bool isAsync)
         {
@@ -1099,7 +1099,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Count()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_LongCount(bool isAsync)
         {
@@ -1113,7 +1113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.LongCount()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Max(bool isAsync)
         {
@@ -1127,7 +1127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Max(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Min(bool isAsync)
         {
@@ -1141,7 +1141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Min(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Sum(bool isAsync)
         {
@@ -1155,7 +1155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_anonymous_element_selector_Sum_Min_Max_Avg(bool isAsync)
         {
@@ -1178,7 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum + " " + e.Avg);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_element_selector_complex_aggregate(bool isAsync)
         {
@@ -1188,7 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Sum(e => e.OrderID + 1)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_element_selector_complex_aggregate2(bool isAsync)
         {
@@ -1198,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Sum(e => e.OrderID + 1)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_element_selector_complex_aggregate3(bool isAsync)
         {
@@ -1208,7 +1208,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Sum(e => e + 1)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_element_selector_complex_aggregate4(bool isAsync)
         {
@@ -1222,7 +1222,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByAfterComposition
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_empty_key_Aggregate(bool isAsync)
         {
@@ -1236,7 +1236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_empty_key_Aggregate_Key(bool isAsync)
         {
@@ -1255,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_Aggregate(bool isAsync)
         {
@@ -1267,7 +1267,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_GroupBy_Aggregate(bool isAsync)
         {
@@ -1280,7 +1280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Average(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Take_GroupBy_Aggregate(bool isAsync)
         {
@@ -1293,7 +1293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Min(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_Take_GroupBy_Aggregate(bool isAsync)
         {
@@ -1307,7 +1307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Max(o => o.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distinct_GroupBy_Aggregate(bool isAsync)
         {
@@ -1325,7 +1325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Anonymous_projection_Distinct_GroupBy_Aggregate(bool isAsync)
         {
@@ -1349,7 +1349,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_GroupBy_Aggregate(bool isAsync)
         {
@@ -1367,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate(bool isAsync)
         {
@@ -1387,7 +1387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_required_navigation_member_Aggregate(bool isAsync)
         {
@@ -1405,7 +1405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.CustomerId);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_complex_GroupBy_Aggregate(bool isAsync)
         {
@@ -1426,7 +1426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate(bool isAsync)
         {
@@ -1449,7 +1449,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate_2(bool isAsync)
         {
@@ -1471,7 +1471,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate_3(bool isAsync)
         {
@@ -1493,7 +1493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate_4(bool isAsync)
         {
@@ -1515,7 +1515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Value);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_GroupBy_Aggregate_5(bool isAsync)
         {
@@ -1537,7 +1537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Value);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_optional_navigation_member_Aggregate(bool isAsync)
         {
@@ -1555,7 +1555,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Country);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_complex_GroupBy_Aggregate(bool isAsync)
         {
@@ -1579,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Self_join_GroupBy_Aggregate(bool isAsync)
         {
@@ -1599,7 +1599,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_multi_navigation_members_Aggregate(bool isAsync)
         {
@@ -1641,7 +1641,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_anonymous_GroupBy_Aggregate(bool isAsync)
         {
@@ -1666,7 +1666,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_principal_key_property_optimization(bool isAsync)
         {
@@ -1684,7 +1684,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByAggregateComposition
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_OrderBy_key(bool isAsync)
         {
@@ -1702,7 +1702,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_OrderBy_count(bool isAsync)
         {
@@ -1721,7 +1721,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_OrderBy_count_Select_sum(bool isAsync)
         {
@@ -1740,7 +1740,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_aggregate_Contains(bool isAsync)
         {
@@ -1754,7 +1754,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 31);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_aggregate_Pushdown(bool isAsync)
         {
@@ -1788,7 +1788,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_filter_key(bool isAsync)
         {
@@ -1805,7 +1805,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_filter_count(bool isAsync)
         {
@@ -1822,7 +1822,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_filter_count_OrderBy_count_Select_sum(bool isAsync)
         {
@@ -1842,7 +1842,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Aggregate_Join(bool isAsync)
         {
@@ -1867,7 +1867,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 126);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_multijoins(bool isAsync)
         {
@@ -1893,7 +1893,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 126);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_single_join(bool isAsync)
         {
@@ -1918,7 +1918,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 63);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_with_another_join(bool isAsync)
         {
@@ -1946,7 +1946,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 63);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_in_subquery(bool isAsync)
         {
@@ -1979,7 +1979,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 133);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_on_key(bool isAsync)
         {
@@ -2005,7 +2005,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 63);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_result_selector(bool isAsync)
         {
@@ -2027,7 +2027,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Sum_constant(bool isAsync)
         {
@@ -2036,7 +2036,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(e => 1)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Sum_constant_cast(bool isAsync)
         {
@@ -2045,7 +2045,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(e => 1L)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distinct_GroupBy_OrderBy_key(bool isAsync)
         {
@@ -2134,7 +2134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public override int GetHashCode() => Order.GetHashCode();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Where_in_aggregate(bool isAsync)
         {
@@ -2149,7 +2149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Where(e => e.OrderID < 10300).Count());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Key_as_part_of_element_selector(bool isAsync)
         {
@@ -2170,7 +2170,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_composite_Key_as_part_of_element_selector(bool isAsync)
         {
@@ -2199,7 +2199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByWithoutAggregate
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous(bool isAsync)
         {
@@ -2215,7 +2215,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.CustomerID));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_with_where(bool isAsync)
         {
@@ -2251,7 +2251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_nested_order_by_enumerable(bool isAsync)
         {
@@ -2270,7 +2270,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_join_default_if_empty_anonymous(bool isAsync)
         {
@@ -2293,7 +2293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<dynamic, dynamic>(d => d.ProductID));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_SelectMany(bool isAsync)
         {
@@ -2303,7 +2303,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_simple(bool isAsync)
         {
@@ -2315,7 +2315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_simple2(bool isAsync)
         {
@@ -2327,7 +2327,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_first(bool isAsync)
         {
@@ -2338,7 +2338,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 6);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector(bool isAsync)
         {
@@ -2351,7 +2351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<int>());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector2(bool isAsync)
         {
@@ -2364,7 +2364,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Order>());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector3(bool isAsync)
         {
@@ -2382,7 +2382,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_DateTimeOffset_Property(bool isAsync)
         {
@@ -2394,7 +2394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_SelectMany(bool isAsync)
         {
@@ -2407,7 +2407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_SelectMany_shadow(bool isAsync)
         {
@@ -2420,7 +2420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => EF.Property<string>(g, "Title")));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby(bool isAsync)
         {
@@ -2432,7 +2432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_and_anonymous_projection(bool isAsync)
         {
@@ -2455,7 +2455,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_take_skip_distinct(bool isAsync)
         {
@@ -2467,7 +2467,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 31);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_join_anonymous(bool isAsync)
         {
@@ -2490,7 +2490,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<dynamic, dynamic>(d => d.ProductID));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Distinct(bool isAsync)
         {
@@ -2501,7 +2501,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_GroupBy(bool isAsync)
         {
@@ -2513,7 +2513,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 30);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Take_GroupBy(bool isAsync)
         {
@@ -2525,7 +2525,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 50);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_Take_GroupBy(bool isAsync)
         {
@@ -2537,7 +2537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 50);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Distinct_GroupBy(bool isAsync)
         {
@@ -2553,7 +2553,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.EmployeeID));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_aggregate_through_navigation_property(bool isAsync)
         {
@@ -2617,7 +2617,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupBySelectFirst
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow(bool isAsync)
         {
@@ -2631,7 +2631,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow2(bool isAsync)
         {
@@ -2645,7 +2645,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.First()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow3(bool isAsync)
         {
@@ -2657,7 +2657,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Select_First_GroupBy(bool isAsync)
         {
@@ -2828,7 +2828,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region ResultOperatorsAfterGroupBy
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Count_after_GroupBy_aggregate(bool isAsync)
         {
@@ -2838,7 +2838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).CountAsync());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task LongCount_after_client_GroupBy(bool isAsync)
         {
@@ -2852,7 +2852,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select g.Where(e => e.OrderID < 10300).Count()).LongCountAsync());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task MinMax_after_GroupBy_aggregate(bool isAsync)
         {
@@ -2865,7 +2865,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task AllAny_after_GroupBy_aggregate(bool isAsync)
         {
