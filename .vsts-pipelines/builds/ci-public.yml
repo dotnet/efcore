@@ -4,15 +4,15 @@ queue:
 steps:
 - checkout: self
   clean: true
-- script: .\build.cmd -ci /bl:artifacts/logs/build.binlog
-  timeoutInMinutes: 55
+- script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:VSTestBlame=true /p:VSTestVerboseOutput=true
+  timeoutInMinutes: 20
 - task: PublishBuildArtifacts@1
   displayName: Upload binlog
   condition: always()
   inputs:
-    artifactName: binlog
+    artifactName: logs
     artifactType: Container
-    pathtoPublish: artifacts/logs/build.binlog
+    pathtoPublish: artifacts/logs/
 - powershell: |
    $all_Processes = gwmi win32_process -ComputerName . | select ProcessID,ParentProcessID,Description,@{l="Username";e={$_.getowner().user}},CommandLine | where{$_.Username -like $env:username}
    write-host -f Magenta "------All------"
