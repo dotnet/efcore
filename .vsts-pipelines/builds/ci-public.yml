@@ -1,15 +1,22 @@
-trigger:
-- master
-- release/*
-
-# See https://github.com/aspnet/BuildTools
-resources:
-  repositories:
-  - repository: buildtools
-    type: github
-    endpoint: DotNet-Bot GitHub Connection
-    name: aspnet/BuildTools
-    ref: refs/heads/release/2.2
-
-phases:
-- template: .vsts-pipelines/templates/project-ci.yml@buildtools
+queue:
+  name: Hosted VS2017
+  timeoutInMinutes: 60
+steps:
+- checkout: self
+  clean: true
+- script: .\build.cmd -ci
+  timeoutInMinutes: 55
+- powershell: |
+   $all_Processes = gwmi win32_process -ComputerName . | select ProcessID,ParentProcessID,Description,@{l="Username";e={$_.getowner().user}},CommandLine | where{$_.Username -like $env:username}
+   $all_processIDs = $all_Processes.Processid
+   $parent_processIDs = $all_Processes.ParentProcessId
+   $gone = New-Object System.Collections.ArrayList
+   $parent_processIDs | Sort-Object -Unique | ForEach-Object {
+       if ($all_processIDs -notcontains $_)
+       {
+           $gone.Add($_) | Out-Null
+       }
+   }
+   $all_Processes | Where-Object {$gone -contains $_.ParentProcessId} | ForEach-Object {$_}
+  displayName: List orphan processes
+  condition: always()
