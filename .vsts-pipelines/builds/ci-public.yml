@@ -7,7 +7,7 @@ steps:
 - script: sqllocaldb start
   displayName: Start LocalDB
 - script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:VSTestBlame=true /p:VSTestVerboseOutput=true
-  timeoutInMinutes: 20
+  timeoutInMinutes: 55
 - task: PublishBuildArtifacts@1
   displayName: Upload binlog
   condition: always()
