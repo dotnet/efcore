@@ -4,12 +4,14 @@ queue:
 steps:
 - checkout: self
   clean: true
-- script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:SkipTests=true
 - powershell: |
     iwr https://download.sysinternals.com/files/Procdump.zip -o procdump.zip;
     iwr https://www.nuget.org/api/v2/package/xunit.runner.console/2.4.0 -o xunit.zip;
     Expand-Archive ./xunit.zip -DestinationPath obj/xunit/;
     Expand-Archive ./procdump.zip -DestinationPath obj/procdump/;
+  displayName: Download tools
+- script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:SkipTests=true
+- powershell: |
     $cwd = Get-Location
     $job = Start-Job -ScriptBlock {
       set-location $using:cwd
@@ -26,6 +28,7 @@ steps:
       Receive-Job $job
     }
   timeoutInMinutes: 15
+  displayName: Run xunit
 - task: PublishBuildArtifacts@1
   displayName: Upload binlog
   condition: always()
