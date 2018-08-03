@@ -38,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
                 _fixture.Initialize(0, 1000, 0, 0);
             }
 
-            [IterationSetup]
             public virtual void InitializeContext()
             {
                 _context = _fixture.CreateContext(disableBatching: Batching);
