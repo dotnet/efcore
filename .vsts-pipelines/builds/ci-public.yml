@@ -7,11 +7,18 @@ steps:
 - script: sqllocaldb start
   displayName: Start LocalDB
 - script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:SkipTests=true
-- task: VSTest@2
-  displayName: VsTest
-  timeoutInMinutes: 10
-  inputs:
-    testAssemblyVer2: 'test\EFCore.SqlServer.FunctionalTests\bin\Release\net461\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.dll'
+- powershell: |
+    Invoke-WebRequest https://www.nuget.org/api/v2/package/xunit.runner.console/2.4.0 -OutFile xunit.zip;
+    Expand-Archive .\xunit.zip -DestinationPath obj/xunit/;
+    .\obj\xunit\tools\net461\xunit.console.exe -verbose test\EFCore.SqlServer.FunctionalTests\bin\Release\net461\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.dll;
+    if ($LASTEXITCODE -ne 0) {
+      throw 'Tests failed'
+    }
+# - task: VSTest@2
+#   displayName: VsTest
+#   timeoutInMinutes: 10
+#   inputs:
+#     testAssemblyVer2: 'test\EFCore.SqlServer.FunctionalTests\bin\Release\net461\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.dll'
 - task: PublishBuildArtifacts@1
   displayName: Upload binlog
   condition: always()
