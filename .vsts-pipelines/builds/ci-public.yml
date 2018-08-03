@@ -6,8 +6,12 @@ steps:
   clean: true
 - script: sqllocaldb start
   displayName: Start LocalDB
-- script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:VSTestBlame=true /p:VSTestVerboseOutput=true
-  timeoutInMinutes: 55
+- script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:SkipTests=true
+- task: VSTest@2
+  displayName: VsTest
+  timeoutInMinutes: 10
+  inputs:
+    runInParallel: true
 - task: PublishBuildArtifacts@1
   displayName: Upload binlog
   condition: always()
@@ -30,5 +34,5 @@ steps:
    }
    write-host -f Magenta "------Orphaned------"
    $all_Processes | Where-Object {$gone -contains $_.ParentProcessId} | ForEach-Object {$_}
-  displayName: List orphan processes
+  displayName: List processes
   condition: always()
