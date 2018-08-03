@@ -1,24 +1,31 @@
 queue:
-  name: DotNetCore-Windows
+  name: Hosted VS2017
   timeoutInMinutes: 60
 steps:
 - checkout: self
   clean: true
-- script: sqllocaldb start
-  displayName: Start LocalDB
 - script: .\build.cmd -ci /bl:artifacts/logs/build.binlog /p:SkipTests=true
 - powershell: |
-    Invoke-WebRequest https://www.nuget.org/api/v2/package/xunit.runner.console/2.4.0 -OutFile xunit.zip;
+    iwr https://download.sysinternals.com/files/Procdump.zip -o procdump.zip;
+    iwr https://www.nuget.org/api/v2/package/xunit.runner.console/2.4.0 -o xunit.zip;
     Expand-Archive ./xunit.zip -DestinationPath obj/xunit/;
-    ./obj/xunit/tools/net461/xunit.console.exe ./test/EFCore.SqlServer.FunctionalTests/bin/Release/net461/Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.dll -verbose;
-    if ($LASTEXITCODE -ne 0) {
-      throw 'Tests failed'
+    Expand-Archive ./procdump.zip -DestinationPath obj/procdump/;
+    $cwd = Get-Location
+    $job = Start-Job -ScriptBlock {
+      set-location $using:cwd
+      sleep -seconds 720
+      & ./obj/procdump/procdump64.exe -accepteula -n 2 -ma xunit.console.exe artifacts/logs/
     }
-# - task: VSTest@2
-#   displayName: VsTest
-#   timeoutInMinutes: 10
-#   inputs:
-#     testAssemblyVer2: 'test\EFCore.SqlServer.FunctionalTests\bin\Release\net461\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.dll'
+    try {
+      & ./obj/xunit/tools/net461/xunit.console.exe ./test/EFCore.SqlServer.FunctionalTests/bin/Release/net461/Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.dll -verbose;
+      if ($LASTEXITCODE -ne 0) {
+        throw 'Tests failed'
+      }
+    }
+    finally {
+      Receive-Job $job
+    }
+  timeoutInMinutes: 15
 - task: PublishBuildArtifacts@1
   displayName: Upload binlog
   condition: always()
