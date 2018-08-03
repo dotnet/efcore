@@ -42,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [IterationSetup]
             public virtual void InitializeContext()
             {
                 _context = _fixture.CreateContext();
