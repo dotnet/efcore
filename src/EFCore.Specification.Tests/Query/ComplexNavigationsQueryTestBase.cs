@@ -5092,6 +5092,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) => {
                     CollectionAsserter<dynamic>(
+                        elementSorter: e1 => e1.Level3.Value,
                         elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Value, a1.Level3.Value))(e.Level2s, a.Level2s);
                 });
         }
