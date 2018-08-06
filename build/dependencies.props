@@ -6,20 +6,20 @@
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
     <InternalAspNetCoreSdkPackageVersion>2.2.0-preview1-20180731.1</InternalAspNetCoreSdkPackageVersion>
-    <InternalWebHostBuilderFactorySourcesPackageVersion>2.2.0-preview1-34882</InternalWebHostBuilderFactorySourcesPackageVersion>
+    <InternalWebHostBuilderFactorySourcesPackageVersion>2.2.0-preview1-34896</InternalWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
-    <MicrosoftDataSqliteCorePackageVersion>2.2.0-preview1-34882</MicrosoftDataSqliteCorePackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0-preview1-34882</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.2.0-preview1-34882</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.2.0-preview1-34882</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>2.2.0-preview1-34882</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>2.2.0-preview1-34882</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>2.2.0-preview1-34882</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftDataSqliteCorePackageVersion>2.2.0-preview1-34896</MicrosoftDataSqliteCorePackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0-preview1-34896</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.2.0-preview1-34896</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.2.0-preview1-34896</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>2.2.0-preview1-34896</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>2.2.0-preview1-34896</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>2.2.0-preview1-34896</MicrosoftExtensionsDependencyInjectionPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>2.1.0</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>2.2.0-preview1-34882</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>2.2.0-preview1-34896</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftNETCoreApp11PackageVersion>1.1.9</MicrosoftNETCoreApp11PackageVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.9</MicrosoftNETCoreApp20PackageVersion>
     <MicrosoftNETCoreApp22PackageVersion>2.2.0-preview1-26618-02</MicrosoftNETCoreApp22PackageVersion>
