@@ -5227,7 +5227,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         o.FullName,
                         OuterCollection = (from r in o.Reports
-                                           orderby r.FullName, r.HasSoulPatch descending, r.FullName descending 
+                                           orderby r.FullName, r.HasSoulPatch descending, r.FullName descending
                                            select new
                                            {
                                                r.FullName,
@@ -6157,9 +6157,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        // corefx issue #30955
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_projecting_single_constant_of_non_mapped_type(bool isAsync)
         {
             return AssertQuery<Squad>(

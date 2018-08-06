@@ -164,12 +164,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             UpdateIsNullableConfigurationSource(configurationSource);
 
-            var isChanging = IsNullable != nullable;
-            _isNullable = nullable;
-            if (isChanging)
+            if (IsNullable == nullable)
             {
-                DeclaringEntityType.Model.ConventionDispatcher.OnPropertyNullableChanged(Builder);
+                return;
             }
+
+            var affectedForeignKeys = GetContainingForeignKeys().Where(fk => fk.IsRequired == nullable).ToList();
+
+            _isNullable = nullable;
+
+            var dispatcher = DeclaringEntityType.Model.ConventionDispatcher;
+            foreach (var affectedForeignKey in affectedForeignKeys)
+            {
+                if (affectedForeignKey.IsRequired == !nullable)
+                {
+                    dispatcher.OnForeignKeyRequirednessChanged(affectedForeignKey.Builder);
+                }
+                else
+                {
+                    affectedForeignKey.SetIsRequired(!nullable, configurationSource);
+                }
+            }
+            dispatcher.OnPropertyNullableChanged(Builder);
         }
 
         private bool DefaultIsNullable => ClrType.IsNullableType();

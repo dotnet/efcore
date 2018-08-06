@@ -774,20 +774,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : ReplaceForeignKey(configurationSource, dependentProperties: Array.Empty<Property>(), isRequired: isRequired);
             }
 
-            foreach (var property in Metadata.Properties.Where(p => p.ClrType.IsNullableType()))
+            using (var batch = ModelBuilder.Metadata.ConventionDispatcher.StartBatch())
             {
-                var requiredSet = property.Builder.IsRequired(isRequired, configurationSource);
-                if (requiredSet
-                    && (isRequired != true))
+                foreach (var property in Metadata.Properties.Where(p => p.ClrType.IsNullableType()))
                 {
-                    break;
+                    var requiredSet = property.Builder.IsRequired(isRequired, configurationSource);
+                    if (requiredSet
+                        && (isRequired != true))
+                    {
+                        break;
+                    }
+
+                    Debug.Assert(requiredSet || (isRequired != true));
                 }
 
-                Debug.Assert(requiredSet || (isRequired != true));
+                Metadata.SetIsRequired(isRequired, configurationSource);
+                return batch.Run(this);
             }
-
-            Metadata.SetIsRequired(isRequired, configurationSource);
-            return this;
         }
 
         /// <summary>
@@ -892,10 +895,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return null;
                         }
 
-                        var otherOwnership = otherOwnerships.Single();
                         Metadata.SetIsOwnership(true, configurationSource);
                         Metadata.DeclaringEntityType.Builder.RemoveForeignKey(Metadata, Metadata.GetConfigurationSource());
 
+                        var otherOwnership = otherOwnerships.Single();
                         if (otherOwnership.Builder.IsWeakTypeDefinition(configurationSource) == null)
                         {
                             return null;
@@ -1817,7 +1820,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     navigationToDependent,
                     dependentProperties != null && dependentProperties.Any() ? dependentProperties : null,
                     principalProperties != null && principalProperties.Any() ? principalProperties : null,
-                    isRequired,
+                    isRequired ?? Metadata.IsRequired,
                     removeCurrent,
                     principalEndConfigurationSource,
                     configurationSource,
@@ -2093,7 +2096,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PropertyIdentity? navigationToDependent,
             IReadOnlyList<Property> dependentProperties,
             IReadOnlyList<Property> principalProperties,
-            bool? isRequired,
+            bool isRequired,
             bool removeCurrent,
             ConfigurationSource? principalEndConfigurationSource,
             ConfigurationSource? configurationSource,
@@ -2762,7 +2765,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     : model.AddEntityType(Metadata.DeclaringEntityType.ClrType, configurationSource);
                             }
 
-                            entityTypeSnapshot.Attach(dependentEntityType.Builder);
+                            entityTypeSnapshot?.Attach(dependentEntityType.Builder);
                         }
                     }
 
@@ -2773,7 +2776,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit)
                 && ((dependentEntityType.HasDefiningNavigation()
                      && (Metadata.PrincipalToDependent?.Name != dependentEntityType.DefiningNavigationName
-                         || Metadata.PrincipalEntityType != dependentEntityType.DefiningEntityType))
+                         || principalEntityType != dependentEntityType.DefiningEntityType))
                     || (dependentEntityType.FindOwnership() != null
                         && Metadata.PrincipalToDependent != null)))
             {
@@ -2786,7 +2789,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return Metadata.Builder;
             }
 
-            IReadOnlyList<Property> dependentProperties = null;
+            IReadOnlyList<Property> dependentProperties;
             IReadOnlyList<Property> principalProperties;
             if (Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) != true)
             {

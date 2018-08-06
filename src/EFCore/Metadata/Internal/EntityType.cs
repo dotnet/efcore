@@ -2302,11 +2302,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public Snapshot(
-                [CanBeNull] EntityType entityType,
+                [NotNull] EntityType entityType,
                 [CanBeNull] PropertiesSnapshot properties,
                 [CanBeNull] List<InternalIndexBuilder> indexes,
                 [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys,
-                [CanBeNull] List<(InternalRelationshipBuilder, Snapshot)> relationships)
+                [CanBeNull] List<RelationshipSnapshot> relationships)
             {
                 EntityType = entityType;
                 Properties = properties ?? new PropertiesSnapshot(null, null, null, null);

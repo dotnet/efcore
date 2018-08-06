@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
+        private bool? _isRequired;
         private bool? _isOwnership;
 
         private ConfigurationSource _configurationSource;
@@ -408,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsRequired
         {
-            get => !Properties.Any(p => p.IsNullable);
+            get => _isRequired ?? !Properties.Any(p => p.IsNullable);
             set => SetIsRequired(value, ConfigurationSource.Explicit);
         }
 
@@ -420,9 +421,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (required == IsRequired)
             {
+                _isRequired = required;
                 UpdateIsRequiredConfigurationSource(configurationSource);
                 return;
             }
+
+            _isRequired = required;
 
             var properties = Properties;
             if (!required)
@@ -441,6 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property.SetIsNullable(!required, configurationSource);
             }
 
+            DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRequirednessChanged(Builder);
             UpdateIsRequiredConfigurationSource(configurationSource);
         }
 

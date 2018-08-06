@@ -726,9 +726,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                    && EmployeeID == other.EmployeeID;
         }
 
-        // corefx issue #30955
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Composite_Select_Dto_Sum_Min_Key_flattened_Max_Avg(bool isAsync)
         {
             return AssertQuery<Order>(
