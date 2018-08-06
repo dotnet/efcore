@@ -907,9 +907,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        ///     <para>
-        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
-        ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
         /// <returns>
@@ -936,9 +933,6 @@ namespace Microsoft.EntityFrameworkCore
         ///         This method is async only to allow special value generators, such as the one used by
         ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
         ///         to access the database asynchronously. For all other cases the non async method should be used.
-        ///     </para>
-        ///     <para>
-        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
