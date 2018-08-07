@@ -350,7 +350,7 @@ WHERE [e].[IsEnabled] = @__ef_filter__Enabled_0");
             AssertSql(
                 @"@__ef_filter__Property_0='False'
 
-SELECT [p].[Id]
+SELECT [p].[Id], [p].[Filler]
 FROM [PrincipalSetFilter] AS [p]
 WHERE EXISTS (
     SELECT 1
