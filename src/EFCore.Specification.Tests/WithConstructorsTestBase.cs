@@ -917,6 +917,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
 
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+            public bool Filler { get; private set; }
+
             public TContext Context { get; private set; }
         }
 
@@ -938,6 +941,9 @@ namespace Microsoft.EntityFrameworkCore
 
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; private set; }
+
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+            public bool Filler { get; private set; }
 
             private TContext Context
             {
