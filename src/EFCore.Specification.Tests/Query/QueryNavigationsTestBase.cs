@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 6);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "issue #12922")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_navigation_multi_part2(bool isAsync)
         {
