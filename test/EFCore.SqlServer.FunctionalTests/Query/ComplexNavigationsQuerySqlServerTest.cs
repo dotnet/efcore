@@ -478,6 +478,14 @@ INNER JOIN [LevelOne] AS [e1] ON [e2].[Name] = (
 )");
         }
 
+        public override async Task Join_with_orderby_on_inner_sequence_navigation_translated_to_subquery_non_key_join(bool isAsync)
+        {
+            await base.Join_with_orderby_on_inner_sequence_navigation_translated_to_subquery_non_key_join(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task Join_navigation_translated_to_subquery_self_ref(bool isAsync)
         {
             await base.Join_navigation_translated_to_subquery_self_ref(isAsync);
@@ -501,6 +509,14 @@ INNER JOIN [LevelOne] AS [e1] ON [e3].[Id] = (
     LEFT JOIN [LevelThree] AS [subQuery.OneToOne_Optional_FK20] ON [subQuery0].[Id] = [subQuery.OneToOne_Optional_FK20].[Level2_Optional_Id]
     WHERE [subQuery0].[Level1_Required_Id] = [e1].[Id]
 )");
+        }
+
+        public override async Task Join_navigation_translated_to_subquery_nested2(bool isAsync)
+        {
+            await base.Join_navigation_translated_to_subquery_nested2(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         public override async Task Join_navigation_translated_to_subquery_deeply_nested_non_key_join(bool isAsync)
@@ -1806,6 +1822,14 @@ INNER JOIN (
 ORDER BY [t].[Id]");
         }
 
+        public override async Task Orderby_SelectMany_with_Include1(bool isAsync)
+        {
+            await base.Orderby_SelectMany_with_Include1(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task SelectMany_with_Include2(bool isAsync)
         {
             await base.SelectMany_with_Include2(isAsync);
@@ -2539,6 +2563,14 @@ FROM (
     ORDER BY [l1].[Id]
 ) AS [t]
 LEFT JOIN [LevelOne] AS [l1_outer] ON [t].[Level1_Optional_Id] = [l1_outer].[Id]");
+        }
+
+        public override async Task GroupJoin_on_a_subquery_containing_another_GroupJoin_with_orderby_on_inner_sequence_projecting_inner(bool isAsync)
+        {
+            await base.GroupJoin_on_a_subquery_containing_another_GroupJoin_with_orderby_on_inner_sequence_projecting_inner(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         public override async Task GroupJoin_on_left_side_being_a_subquery(bool isAsync)

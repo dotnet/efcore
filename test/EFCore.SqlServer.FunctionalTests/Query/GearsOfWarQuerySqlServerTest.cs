@@ -478,6 +478,14 @@ INNER JOIN [Cities] AS [o.CityOfBirth] ON [o].[CityOrBirthName] = [o.CityOfBirth
 WHERE [o].[Discriminator] = N'Officer'");
         }
 
+        public override async Task Include_with_join_and_inheritance_with_orderby_before_and_after_include(bool isAsync)
+        {
+            await base.Include_with_join_and_inheritance_with_orderby_before_and_after_include(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task Include_with_join_and_inheritance2(bool isAsync)
         {
             await base.Include_with_join_and_inheritance2(isAsync);
@@ -2074,6 +2082,14 @@ INNER JOIN [Tags] AS [t] ON [g].[FullName] = (
     WHERE [subQuery0].[Discriminator] IN (N'Officer', N'Gear') AND (([subQuery0].[Nickname] = [t].[GearNickName]) AND ([subQuery0].[SquadId] = [t].[GearSquadId]))
 )
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override async Task Join_with_order_by_on_inner_sequence_navigation_translated_to_subquery_composite_key(bool isAsync)
+        {
+            await base.Join_with_order_by_on_inner_sequence_navigation_translated_to_subquery_composite_key(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         public override async Task Collection_with_inheritance_and_join_include_joined(bool isAsync)
@@ -4681,6 +4697,21 @@ INNER JOIN (
 ORDER BY [t].[Nickname], [t].[SquadId], [t].[FullName]");
         }
 
+        public override async Task Correlated_collections_naked_navigation_with_ToList_followed_by_projecting_count(bool isAsync)
+        {
+            await base.Correlated_collections_naked_navigation_with_ToList_followed_by_projecting_count(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] <> N'Marcus')
+ORDER BY [g].[Nickname]");
+        }
+
         public override async Task Correlated_collections_naked_navigation_with_ToArray(bool isAsync)
         {
             await base.Correlated_collections_naked_navigation_with_ToArray(isAsync);
@@ -6458,6 +6489,14 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
                 @"SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gears] AS [g0]
 WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override async Task Include_collection_with_concat(bool isAsync)
+        {
+            await base.Include_collection_with_concat(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         public override async Task Negated_bool_ternary_inside_anonymous_type_in_projection(bool isAsync)

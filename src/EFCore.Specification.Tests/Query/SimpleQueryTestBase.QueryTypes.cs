@@ -78,6 +78,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
         }
 
+        // #issue 12873
+        //[Theory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_with_defining_query_and_correlated_collection(bool isAsync)
+        {
+            return AssertQuery<OrderQuery>(
+                isAsync,
+                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer).Select(cv => cv.Orders.Where(cc => true).ToList()));
+        }
+
         [Theory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_mixed_tracking(bool isAsync)

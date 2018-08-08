@@ -1172,6 +1172,22 @@ ORDER BY [t].[c]
 OFFSET @__p_1 ROWS");
         }
 
+        public override async Task GroupBy_aggregate_Pushdown_followed_by_projecting_Length(bool isAsync)
+        {
+            await base.GroupBy_aggregate_Pushdown_followed_by_projecting_Length(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task GroupBy_aggregate_Pushdown_followed_by_projecting_constant(bool isAsync)
+        {
+            await base.GroupBy_aggregate_Pushdown_followed_by_projecting_constant(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override void GroupBy_Select_sum_over_unmapped_property()
         {
             base.GroupBy_Select_sum_over_unmapped_property();
@@ -1627,6 +1643,22 @@ FROM [Orders] AS [o]
 ORDER BY [o].[CustomerID]");
         }
 
+        public override async Task GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(bool isAsync)
+        {
+            await base.GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task GroupBy_with_orderby_take_skip_distinct_followed_by_order_by_group_key(bool isAsync)
+        {
+            await base.GroupBy_with_orderby_take_skip_distinct_followed_by_order_by_group_key(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task GroupBy_join_anonymous(bool isAsync)
         {
             await base.GroupBy_join_anonymous(isAsync);
@@ -1780,6 +1812,14 @@ ORDER BY [e].[EmployeeID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[City]");
+        }
+
+        public override async Task GroupBy_Select_First_GroupBy_followed_by_identity_projection(bool isAsync)
+        {
+            await base.GroupBy_Select_First_GroupBy_followed_by_identity_projection(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         public override void Select_GroupBy()

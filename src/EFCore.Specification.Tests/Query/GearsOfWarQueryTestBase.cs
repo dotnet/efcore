@@ -501,6 +501,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
+        // issue #12827
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_with_join_and_inheritance_with_orderby_before_and_after_include(bool isAsync)
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
+            };
+
+            return AssertIncludeQuery<Gear, CogTag>(
+                isAsync,
+                (gs, ts) =>
+                    ts.Join(
+                        gs.OfType<Officer>().OrderBy(ee => ee.SquadId),
+                        t => new
+                        {
+                            SquadId = t.GearSquadId,
+                            Nickname = t.GearNickName
+                        },
+                        o => new
+                        {
+                            SquadId = (int?)o.SquadId,
+                            o.Nickname
+                        },
+                        (t, o) => o).OrderBy(ee => ee.FullName).Include(o => o.Reports).OrderBy(oo => oo.HasSoulPatch),
+                expectedIncludes);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_join_and_inheritance2(bool isAsync)
@@ -1906,6 +1935,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     from g in gs
                     join t in ts on g.FullName equals Maybe(t.Gear, () => t.Gear.FullName)
+                    select new
+                    {
+                        g.FullName,
+                        t.Note
+                    },
+                elementSorter: e => e.FullName);
+        }
+
+        // issue #12786
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_order_by_on_inner_sequence_navigation_translated_to_subquery_composite_key(bool isAsync)
+        {
+            return AssertQuery<Gear, CogTag>(
+                isAsync,
+                (gs, ts) =>
+                    from g in gs
+                    join t in ts.OrderBy(tt => tt.Id) on g.FullName equals t.Gear.FullName
+                    select new
+                    {
+                        g.FullName,
+                        t.Note
+                    },
+                (gs, ts) =>
+                    from g in gs
+                    join t in ts.OrderBy(tt => tt.Id) on g.FullName equals Maybe(t.Gear, () => t.Gear.FullName)
                     select new
                     {
                         g.FullName,
@@ -4259,6 +4314,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
+        // issue #12579
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collections_naked_navigation_with_ToList_followed_by_projecting_count(bool isAsync)
+        {
+            return AssertQueryScalar<Gear>(
+                isAsync,
+                gs => (from g in gs
+                      where g.Nickname != "Marcus"
+                      orderby g.Nickname
+                      select g.Weapons.ToList()).Select(e => e.Count),
+                assertOrder: true);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_naked_navigation_with_ToArray(bool isAsync)
@@ -5633,6 +5702,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery<Gear>(
                 isAsync,
                 gs => gs.Include(g => g.Squad).Concat(gs),
+                expectedIncludes);
+        }
+
+        // issue #12889
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_concat(bool isAsync)
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"),
+                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
+            };
+
+            return AssertIncludeQuery<Gear>(
+                isAsync,
+                gs => gs.Include(g => g.Weapons).Concat(gs),
                 expectedIncludes);
         }
 

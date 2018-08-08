@@ -1767,6 +1767,38 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Skip(4));
         }
 
+        // issue #12577
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_Pushdown_followed_by_projecting_Length(bool isAsync)
+        {
+            return AssertQueryScalar<Order>(
+                isAsync,
+                os => os.GroupBy(e => e.CustomerID)
+                    .Where(g => g.Count() > 10)
+                    .Select(g => g.Key)
+                    .OrderBy(t => t)
+                    .Take(20)
+                    .Skip(4)
+                    .Select(e => e.Length));
+        }
+
+        // issue #12600
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_Pushdown_followed_by_projecting_constant(bool isAsync)
+        {
+            return AssertQueryScalar<Order>(
+                isAsync,
+                os => os.GroupBy(e => e.CustomerID)
+                    .Where(g => g.Count() > 10)
+                    .Select(g => g.Key)
+                    .OrderBy(t => t)
+                    .Take(20)
+                    .Skip(4)
+                    .Select(e => 1));
+        }
+
         [ConditionalFact]
         public virtual void GroupBy_Select_sum_over_unmapped_property()
         {
@@ -2466,6 +2498,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 31);
         }
 
+        // issue #12576
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct().Select(g => g.Key),
+                assertOrder: true,
+                elementAsserter: GroupingAsserter<string, Order>(o => o.OrderID),
+                entryCount: 31);
+        }
+
+        // issue #12641
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_order_by_group_key(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct().OrderBy(g => g.Key),
+                assertOrder: true,
+                elementAsserter: GroupingAsserter<string, Order>(o => o.OrderID),
+                entryCount: 31);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_join_anonymous(bool isAsync)
@@ -2666,6 +2724,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     cs.GroupBy(c => c.City)
                         .Select(g => g.OrderBy(c => c.CustomerID).First())
                         .GroupBy(c => c.ContactName),
+                elementSorter: GroupingSorter<string, object>(),
+                elementAsserter: GroupingAsserter<string, dynamic>(d => d.CustomerID));
+        }
+
+        // issue #12573
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Select_First_GroupBy_followed_by_identity_projection(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs =>
+                    cs.GroupBy(c => c.City)
+                        .Select(g => g.OrderBy(c => c.CustomerID).First())
+                        .GroupBy(c => c.ContactName)
+                        .Select(g => g),
                 elementSorter: GroupingSorter<string, object>(),
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.CustomerID));
         }
