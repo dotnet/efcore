@@ -51,6 +51,8 @@ namespace BulkInsertSample
                     valueParameter.Value = random.Next();
                     insertCommand.ExecuteNonQuery();
                 }
+
+                transaction.Commit();
             }
 
             Console.WriteLine($"Done. (took {stopwatch.ElapsedMilliseconds} ms)");
