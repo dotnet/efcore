@@ -545,6 +545,29 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_collection_navigation_simple_followed_by_ordering_by_scalar(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => (from c in cs
+                      where c.CustomerID.StartsWith("A")
+                      orderby c.CustomerID
+                      select new
+                      {
+                          c.CustomerID,
+                          c.Orders
+                      }).OrderBy(e => e.CustomerID),
+                elementSorter: e => e.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
+                },
+                entryCount: 30);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_navigation_multi_part(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -833,6 +856,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new
                       {
                           Sum = (c.Orders ?? new List<Order>()).Sum(o => o.OrderID)
+                      },
+                elementSorter: e => e.Sum);
+        }
+
+        // issue #12657
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_select_nav_prop_sum_plus_one(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => from c in cs
+                      select new
+                      {
+                          Sum = c.Orders.Sum(o => o.OrderID) + 1
+                      },
+                cs => from c in cs
+                      select new
+                      {
+                          Sum = (c.Orders ?? new List<Order>()).Sum(o => o.OrderID) + 1
                       },
                 elementSorter: e => e.Sum);
         }
@@ -1151,6 +1194,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2155);
         }
 
+        // issue #12816
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_anonymous_type_order_by_field_group_by_same_field(bool isAsync)
+        {
+            return AssertQuery<OrderDetail>(
+                isAsync,
+                ods => ods
+                    .Select(od => new { od, customer = od.Order.CustomerID })
+                    .OrderBy(e => e.customer)
+                    .GroupBy(e => e.customer, elementSelector: e => e.od)
+                    .Select(e => e));
+        }
 
         [Theory(Skip = "issue #6061")]
         [MemberData(nameof(IsAsyncData))]

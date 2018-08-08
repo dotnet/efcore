@@ -825,6 +825,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Id2 + " " + e.Name2 + " " + e.Id1 + " " + e.Name1);
         }
 
+        // issue #12804
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_orderby_on_inner_sequence_navigation_translated_to_subquery_non_key_join(bool isAsync)
+        {
+            return AssertQuery<Level1, Level2>(
+                isAsync,
+                (l1s, l2s) =>
+                    from e2 in l2s
+                    join e1 in l1s.OrderBy(l1 => l1.Id) on e2.Name equals e1.OneToOne_Optional_FK1.Name
+                    select new
+                    {
+                        Id2 = e2.Id,
+                        Name2 = e2.Name,
+                        Id1 = e1.Id,
+                        Name1 = e1.Name
+                    },
+                (l1s, l2s) =>
+                    from e2 in l2s
+                    join e1 in l1s.OrderBy(l1 => l1.Id) on e2.Name equals Maybe(e1.OneToOne_Optional_FK1, () => e1.OneToOne_Optional_FK1.Name)
+                    select new
+                    {
+                        Id2 = e2.Id,
+                        Name2 = e2.Name,
+                        Id1 = e1.Id,
+                        Name1 = e1.Name
+                    },
+                e => e.Id2 + " " + e.Name2 + " " + e.Id1 + " " + e.Name1);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_navigation_translated_to_subquery_self_ref(bool isAsync)
@@ -867,6 +897,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (l1s, l3s) =>
                     from e3 in l3s
                     join e1 in l1s on e3.Id equals MaybeScalar(
+                        e1.OneToOne_Required_FK1,
+                        () => MaybeScalar<int>(
+                            e1.OneToOne_Required_FK1.OneToOne_Optional_FK2,
+                            () => e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id))
+                    select new
+                    {
+                        Id3 = e3.Id,
+                        Id1 = e1.Id
+                    },
+                e => e.Id3 + " " + e.Id1);
+        }
+
+        // issue #12787
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_navigation_translated_to_subquery_nested2(bool isAsync)
+        {
+            return AssertQuery<Level1, Level3>(
+                isAsync,
+                (l1s, l3s) =>
+                    from e3 in l3s
+                    join e1 in l1s.OrderBy(ll => ll.Id) on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id
+                    select new
+                    {
+                        Id3 = e3.Id,
+                        Id1 = e1.Id
+                    },
+                (l1s, l3s) =>
+                    from e3 in l3s
+                    join e1 in l1s.OrderBy(ll => ll.Id) on e3.Id equals MaybeScalar(
                         e1.OneToOne_Required_FK1,
                         () => MaybeScalar<int>(
                             e1.OneToOne_Required_FK1.OneToOne_Optional_FK2,
@@ -2555,6 +2615,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
+        // issue #12794
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Orderby_SelectMany_with_Include1(bool isAsync)
+        {
+            return AssertIncludeQuery<Level1>(
+                isAsync,
+                l1s => l1s.OrderBy(l1 => l1.Id)
+                    .SelectMany(l1 => l1.OneToMany_Optional1)
+                    .Include(l2 => l2.OneToMany_Optional2),
+                expectedIncludes: new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
+                },
+                elementSorter: e => e.Id);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_Include2(bool isAsync)
@@ -3547,6 +3624,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from x in
                         (from l1 in l1s
                          join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
+                         from l2 in grouping.DefaultIfEmpty()
+                         orderby l1.Id
+                         select l2).Take(2)
+                    join l1_outer in l1s on MaybeScalar(x, () => x.Level1_Optional_Id) equals l1_outer.Id into grouping_outer
+                    from l1_outer in grouping_outer.DefaultIfEmpty()
+                    select Maybe(l1_outer, () => l1_outer.Name));
+        }
+
+        // issue #12806
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_with_orderby_on_inner_sequence_projecting_inner(bool isAsync)
+        {
+            return AssertQuery<Level1, Level2>(
+                isAsync,
+                (l1s, l2s) =>
+                    from x in
+                        (from l1 in l1s
+                         join l2 in l2s.OrderBy(ee => ee.Date) on l1.Id equals l2.Level1_Optional_Id into grouping
+                         from l2 in grouping.DefaultIfEmpty()
+                         orderby l1.Id
+                         select l2).Take(2)
+                    join l1_outer in l1s on x.Level1_Optional_Id equals l1_outer.Id into grouping_outer
+                    from l1_outer in grouping_outer.DefaultIfEmpty()
+                    select l1_outer.Name,
+                (l1s, l2s) =>
+                    from x in
+                        (from l1 in l1s
+                         join l2 in l2s.OrderBy(ee => ee.Date) on l1.Id equals l2.Level1_Optional_Id into grouping
                          from l2 in grouping.DefaultIfEmpty()
                          orderby l1.Id
                          select l2).Take(2)

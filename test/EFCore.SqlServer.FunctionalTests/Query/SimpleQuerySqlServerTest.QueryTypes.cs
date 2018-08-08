@@ -86,6 +86,14 @@ FROM (
 WHERE [t].[CustomerID] = N'ALFKI'");
         }
 
+        public override async Task QueryType_with_defining_query_and_correlated_collection(bool isAsync)
+        {
+            await base.QueryType_with_defining_query_and_correlated_collection(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task QueryType_with_included_nav(bool isAsync)
         {
             await base.QueryType_with_included_nav(isAsync);

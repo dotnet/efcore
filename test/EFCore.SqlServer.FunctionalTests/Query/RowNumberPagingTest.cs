@@ -89,6 +89,14 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
+        public override async Task Join_Customers_Orders_Skip_Take_followed_by_constant_projection(bool isAsync)
+        {
+            await base.Join_Customers_Orders_Skip_Take_followed_by_constant_projection(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task Join_Customers_Orders_Projection_With_String_Concat_Skip_Take(bool isAsync)
         {
             await base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take(isAsync);

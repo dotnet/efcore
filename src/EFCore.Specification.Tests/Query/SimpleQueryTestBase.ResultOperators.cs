@@ -1389,6 +1389,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 14);
         }
 
+        // issue #12568
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Except_simple_followed_by_projecting_constant(bool isAsync)
+        {
+            return AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.Except(cs).Select(e => 1));
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Except_nested(bool isAsync)

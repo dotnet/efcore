@@ -499,6 +499,26 @@ INNER JOIN (
 ORDER BY [t].[CustomerID]");
         }
 
+        public override async Task Select_collection_navigation_simple_followed_by_ordering_by_scalar(bool isAsync)
+        {
+            await base.Select_collection_navigation_simple_followed_by_ordering_by_scalar(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY [c].[CustomerID]",
+                //
+                @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate], [t].[CustomerID]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].[CustomerID]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[CustomerID]");
+        }
+
         public override async Task Select_collection_navigation_multi_part(bool isAsync)
         {
             await base.Select_collection_navigation_multi_part(isAsync);
@@ -794,6 +814,14 @@ WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) =
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [Sum]
 FROM [Customers] AS [c]");
+        }
+
+        public override async Task Collection_select_nav_prop_sum_plus_one(bool isAsync)
+        {
+            await base.Collection_select_nav_prop_sum_plus_one(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         public override async Task Collection_where_nav_prop_sum(bool isAsync)
@@ -1115,6 +1143,14 @@ ORDER BY [od].[Quantity]");
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
 ORDER BY [od.Order].[CustomerID]");
+        }
+
+        public override async Task Select_anonymous_type_order_by_field_group_by_same_field(bool isAsync)
+        {
+            await base.Select_anonymous_type_order_by_field_group_by_same_field(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         public override async Task Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default(bool isAsync)

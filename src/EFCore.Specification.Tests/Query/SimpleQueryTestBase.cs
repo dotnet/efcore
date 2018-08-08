@@ -336,6 +336,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select c.CustomerID);
         }
 
+        // issue #12871
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_entity_equality_local_on_both_sources(bool isAsync)
+        {
+            var local = new Customer
+            {
+                CustomerID = "ANATR"
+            };
+
+            return AssertQuery<Customer>(
+                isAsync,
+                cs =>
+                    (from c1 in cs
+                    where c1 == local
+                    select c1).Join(from c2 in cs
+                                    where c2 == local
+                                    select c2, o => o, i => i, (o, i) => o).Select(e => e.CustomerID));
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Entity_equality_local_inline(bool isAsync)
@@ -618,6 +638,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                          c.ContactName,
                          o.OrderID
                      }).Skip(10).Take(5),
+                e => e.ContactName);
+        }
+
+        // issue #12574
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_Customers_Orders_Skip_Take_followed_by_constant_projection(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    (from c in cs
+                     join o in os on c.CustomerID equals o.CustomerID
+                     orderby o.OrderID
+                     select new
+                     {
+                         c.ContactName,
+                         o.OrderID
+                     }).Skip(10).Take(5).Select(e => "Foo"),
                 e => e.ContactName);
         }
 
@@ -2398,6 +2437,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e);
         }
 
+        // issue #12872
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_default_if_empty_on_both_sources(bool isAsync)
+        {
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    (from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
+                    select e).Join(from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
+                                   select e, o => o, i => i, (o, i) => o));
+        }
+
+        // issue #12567
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Default_if_empty_top_level_followed_by_projecting_constant(bool isAsync)
+        {
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
+                    select "Foo");
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Default_if_empty_top_level_arg(bool isAsync)
@@ -2408,6 +2472,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
                     select e,
                 entryCount: 1);
+        }
+
+        // issue #12572
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
+        {
+            return AssertQueryScalar<Employee>(
+                isAsync,
+                es =>
+                    from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
+                    select 42);
         }
 
         [ConditionalTheory]

@@ -168,6 +168,14 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__local_0_CustomerID");
         }
 
+        public override async Task Join_with_entity_equality_local_on_both_sources(bool isAsync)
+        {
+            await base.Join_with_entity_equality_local_on_both_sources(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task Entity_equality_local_inline(bool isAsync)
         {
             await base.Entity_equality_local_inline(isAsync);
@@ -223,6 +231,22 @@ LEFT JOIN (
 ) AS [t] ON 1 = 1");
         }
 
+        public override async Task Join_with_default_if_empty_on_both_sources(bool isAsync)
+        {
+            await base.Join_with_default_if_empty_on_both_sources(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Default_if_empty_top_level_followed_by_projecting_constant(bool isAsync)
+        {
+            await base.Default_if_empty_top_level_followed_by_projecting_constant(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task Default_if_empty_top_level_positive(bool isAsync)
         {
             await base.Default_if_empty_top_level_positive(isAsync);
@@ -247,6 +271,15 @@ LEFT JOIN (
                 @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
 WHERE [c].[EmployeeID] = -1");
+        }
+
+
+        public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
+        {
+            await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         public override async Task Default_if_empty_top_level_projection(bool isAsync)
@@ -865,6 +898,14 @@ FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [o].[OrderID]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
+        }
+
+        public override async Task Join_Customers_Orders_Skip_Take_followed_by_constant_projection(bool isAsync)
+        {
+            await base.Join_Customers_Orders_Skip_Take_followed_by_constant_projection(isAsync);
+
+            AssertSql(
+                @"");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]

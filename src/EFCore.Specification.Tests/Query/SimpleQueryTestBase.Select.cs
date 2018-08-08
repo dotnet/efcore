@@ -843,6 +843,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()));
         }
 
+        // issue #12580
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
+        {
+            return AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.Select(
+                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e.Length));
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool isAsync)
@@ -876,6 +887,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(o => o.CustomerID)
                         .Take(2)
                         .FirstOrDefault()));
+        }
+
+        // issue #12597
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(bool isAsync)
+        {
+            return AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.Select(
+                    c => c.Orders.OrderBy(o => o.OrderID)
+                        .ThenByDescending(o => o.OrderDate)
+                        .Select(o => o.CustomerID)
+                        .Take(2)
+                        .FirstOrDefault().Length));
         }
 
         [ConditionalTheory]
