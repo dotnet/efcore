@@ -134,7 +134,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         /// </param>
         /// <param name="poolSize">
-        ///     ESets the maximum number of instances retained by the pool.
+        ///     Sets the maximum number of instances retained by the pool.
         /// </param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
@@ -164,7 +164,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         /// </param>
         /// <param name="poolSize">
-        ///     ESets the maximum number of instances retained by the pool.
+        ///     Sets the maximum number of instances retained by the pool.
         /// </param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
