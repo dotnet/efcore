@@ -593,6 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class PrincipalSetFilter
     {
         public int Id { get; set; }
+        public bool Filler { get; set; }
         public ICollection<DependentSetFilter> Dependents { get; set; }
     }
 
