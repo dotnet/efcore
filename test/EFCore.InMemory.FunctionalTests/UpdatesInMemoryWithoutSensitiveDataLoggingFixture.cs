@@ -7,6 +7,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class UpdatesInMemoryWithoutSensitiveDataLoggingFixture : UpdatesInMemoryFixtureBase
     {
+        protected override string StoreName { get; } = "UpdateTestInsensitive";
+
         protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
