@@ -1097,4 +1097,7 @@
     <value>{error}</value>
     <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>
   </data>
+  <data name="AmbiguousOwnedNavigation" xml:space="preserve">
+    <value>Unable to determine the owner for the relationship between '{entityType}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
 </root>

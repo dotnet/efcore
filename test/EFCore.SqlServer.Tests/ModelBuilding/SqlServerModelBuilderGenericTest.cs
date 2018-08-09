@@ -182,11 +182,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).OwnsOne(l => l.AnotherBookLabel).OwnsOne(s => s.SpecialBookLabel);
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).OwnsOne(l => l.SpecialBookLabel).OwnsOne(a => a.AnotherBookLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(l => l.AnotherBookLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(s => s.SpecialBookLabel)
+                    .Ignore(l => l.Book)
+                    .Ignore(l => l.BookLabel);
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).OwnsOne(l => l.AnotherBookLabel).OwnsOne(a => a.SpecialBookLabel);
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).OwnsOne(l => l.SpecialBookLabel).OwnsOne(s => s.AnotherBookLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(l => l.SpecialBookLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(a => a.AnotherBookLabel)
+                    .Ignore(l => l.Book);
+
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label)
+                    .OwnsOne(l => l.AnotherBookLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(a => a.SpecialBookLabel)
+                    .Ignore(l => l.Book)
+                    .Ignore(l => l.BookLabel);
+
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel)
+                    .OwnsOne(l => l.SpecialBookLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(s => s.AnotherBookLabel)
+                    .Ignore(l => l.Book);
 
                 modelBuilder.Validate();
 
@@ -258,17 +280,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 tb.OwnsOne(
                                     l => l.AnotherBookLabel, ab =>
                                     {
+                                        ab.Ignore(l => l.Book);
                                         ab.ToTable("AT1", "AS1");
                                         ab.OwnsOne(s => s.SpecialBookLabel)
-                                            .ToTable("ST11", "SS11");
-                                        ((Navigation)ab.OwnedEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel))).AddAnnotation("Foo", "Bar");
+                                            .ToTable("ST11", "SS11")
+                                            .Ignore(l => l.Book)
+                                            .Ignore(l => l.BookLabel);
+
+                                        ((Navigation)ab.OwnedEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel)))
+                                            .AddAnnotation("Foo", "Bar");
                                     });
                                 tb.OwnsOne(
                                     l => l.SpecialBookLabel, sb =>
                                     {
+                                        sb.Ignore(l => l.Book);
                                         sb.ToTable("ST2", "SS2");
                                         sb.OwnsOne(s => s.AnotherBookLabel)
-                                            .ToTable("AT21", "AS21");
+                                            .ToTable("AT21", "AS21")
+                                            .Ignore(l => l.Book);
                                     });
                             });
                         bb.OwnsOne(
@@ -279,16 +308,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 lb.OwnsOne(
                                     l => l.SpecialBookLabel, sb =>
                                     {
+                                        sb.Ignore(l => l.Book);
                                         sb.ToTable("ST1", "SS1");
                                         sb.OwnsOne(a => a.AnotherBookLabel)
-                                            .ToTable("AT11", "AS11");
+                                            .ToTable("AT11", "AS11")
+                                            .Ignore(l => l.Book);
                                     });
                                 lb.OwnsOne(
                                     l => l.AnotherBookLabel, ab =>
                                     {
+                                        ab.Ignore(l => l.Book);
                                         ab.ToTable("AT2", "AS2");
                                         ab.OwnsOne(a => a.SpecialBookLabel)
-                                            .ToTable("ST21", "SS21");
+                                            .ToTable("ST21", "SS21")
+                                            .Ignore(l => l.BookLabel)
+                                            .Ignore(l => l.Book);
                                     });
                             });
                     });

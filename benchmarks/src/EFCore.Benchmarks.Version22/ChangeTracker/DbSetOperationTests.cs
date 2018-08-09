@@ -35,7 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 _customersWithPk = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
             }
 
-            [IterationSetup]
             public virtual void InitializeContext()
             {
                 _context = _fixture.CreateContext();
@@ -51,6 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
 
         public abstract class AddDataVariationsBase : DbSetOperationBase
         {
+            [IterationSetup]
+            public override void InitializeContext()
+            {
+                base.InitializeContext();
+            }
+
             [Benchmark]
             public virtual void Add()
             {

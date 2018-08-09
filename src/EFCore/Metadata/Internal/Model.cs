@@ -30,6 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<string, SortedSet<EntityType>> _entityTypesWithDefiningNavigation
             = new SortedDictionary<string, SortedSet<EntityType>>();
 
+        private readonly SortedDictionary<string, List<(string, string)>> _detachedEntityTypesWithDefiningNavigation
+            = new SortedDictionary<string, List<(string, string)>>();
+
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
             = new Dictionary<string, ConfigurationSource>();
 
@@ -142,6 +145,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ClashingNonWeakEntityType(entityType.DisplayName()));
                 }
 
+                if (_detachedEntityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out var detachedEntityTypes))
+                {
+                    for (var i = 0; i < detachedEntityTypes.Count; i++)
+                    {
+                        var (definingNavigation, definingEntityType) = detachedEntityTypes[i];
+                        if (definingNavigation == entityType.DefiningNavigationName
+                            && definingEntityType == entityType.DefiningEntityType.Name)
+                        {
+                            detachedEntityTypes.RemoveAt(i);
+                            break;
+                        }
+                    }
+                }
+
                 if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out var entityTypesWithSameType))
                 {
                     entityTypesWithSameType = new SortedSet<EntityType>(EntityTypePathComparer.Instance);
@@ -157,6 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(CoreStrings.ClashingWeakEntityType(entityType.DisplayName()));
                 }
+
+                _detachedEntityTypesWithDefiningNavigation.Remove(entityTypeName);
 
                 if (_entityTypes.TryGetValue(entityTypeName, out var clashingEntityType))
                 {
@@ -336,6 +355,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void AddDetachedEntityType(
+            [NotNull] string name,
+            [NotNull] string definingNavigationName,
+            [NotNull] string definingEntityTypeName)
+        {
+            if (!_detachedEntityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType))
+            {
+                entityTypesWithSameType = new List<(string, string)>();
+                _detachedEntityTypesWithDefiningNavigation[name] = entityTypesWithSameType;
+            }
+
+            entityTypesWithSameType.Add((definingNavigationName, definingEntityTypeName));
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [DebuggerStepThrough]
         public virtual string GetDisplayName(Type type)
             => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
@@ -344,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasEntityTypeWithDefiningNavigation([NotNull] Type clrType)
-            => _entityTypesWithDefiningNavigation.ContainsKey(GetDisplayName(clrType));
+            => HasEntityTypeWithDefiningNavigation(GetDisplayName(clrType));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -352,6 +390,56 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool HasEntityTypeWithDefiningNavigation([NotNull] string name)
             => _entityTypesWithDefiningNavigation.ContainsKey(name);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool HasOtherEntityTypesWithDefiningNavigation([NotNull] EntityType entityType)
+        {
+            if (!entityType.HasDefiningNavigation())
+            {
+                return false;
+            }
+
+            if (_entityTypesWithDefiningNavigation.TryGetValue(entityType.Name, out var entityTypesWithSameType))
+            {
+                if (entityTypesWithSameType.Any(e => EntityTypePathComparer.Instance.Compare(e, entityType) != 0))
+                {
+                    return true;
+                }
+            }
+
+            if (_detachedEntityTypesWithDefiningNavigation.TryGetValue(entityType.Name, out var detachedEntityTypesWithSameType))
+            {
+                if (detachedEntityTypesWithSameType.Any(
+                    e => e.Item1 != entityType.DefiningNavigationName || e.Item2 != entityType.DefiningEntityType.Name))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool EntityTypeShouldHaveDefiningNavigation([NotNull] Type clrType)
+            => EntityTypeShouldHaveDefiningNavigation(new TypeIdentity(clrType, this));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool EntityTypeShouldHaveDefiningNavigation([NotNull] string name)
+            => EntityTypeShouldHaveDefiningNavigation(new TypeIdentity(name));
+
+        private bool EntityTypeShouldHaveDefiningNavigation(in TypeIdentity type)
+            => _entityTypesWithDefiningNavigation.ContainsKey(type.Name)
+               || (_detachedEntityTypesWithDefiningNavigation.TryGetValue(type.Name, out var detachedTypes)
+                   && detachedTypes.Count > 1);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -388,12 +476,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
-        {
-            return !_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType)
+            => !_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType)
                 ? null
                 : entityTypesWithSameType
-                .FirstOrDefault(e => e.DefiningNavigationName == definingNavigationName && e.DefiningEntityType == definingEntityType);
-        }
+                    .FirstOrDefault(e => e.DefiningNavigationName == definingNavigationName && e.DefiningEntityType == definingEntityType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType FindActualEntityType([NotNull] EntityType entityType)
+            => entityType.Builder != null
+                ? entityType
+                : (entityType.HasDefiningNavigation()
+                    ? FindActualEntityType(entityType.DefiningEntityType)
+                        ?.FindNavigation(entityType.DefiningNavigationName)?.GetTargetType()
+                    : FindEntityType(entityType.Name));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

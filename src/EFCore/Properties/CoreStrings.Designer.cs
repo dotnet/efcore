@@ -2716,6 +2716,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     CoreEventId.OptimisticConcurrencyException,
                     _resourceManager.GetString("LogOptimisticConcurrencyException")));
 
+        /// <summary>
+        ///     Unable to determine the owner for the relationship between '{entityType}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        /// </summary>
+        public static string AmbiguousOwnedNavigation([CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+            => string.Format(
+                GetString("AmbiguousOwnedNavigation", nameof(entityType), nameof(otherEntityType)),
+                entityType, otherEntityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

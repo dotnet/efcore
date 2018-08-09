@@ -66,6 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
 
+            conventionSet.EntityTypeRemovedConventions.Add(new OwnedTypesConvention());
+
             var foreignKeyIndexConvention = new ForeignKeyIndexConvention(Dependencies.Logger);
             var valueGeneratorConvention = new ValueGeneratorConvention();
 

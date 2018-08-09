@@ -194,11 +194,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConfigurationSource? FindDeclaredIgnoredMemberConfigurationSource([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            return _ignoredMembers.TryGetValue(name, out var ignoredConfigurationSource) ? (ConfigurationSource?)ignoredConfigurationSource : null;
-        }
+            => _ignoredMembers.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
+                ? (ConfigurationSource?)ignoredConfigurationSource
+                : null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
