@@ -76,10 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
+            var memberAccess = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfo);
+            if (memberAccess.Type != typeof(TCollection))
+            {
+                memberAccess = Expression.Convert(memberAccess, typeof(TCollection));
+            }
+
             var getterDelegate = Expression.Lambda<Func<TEntity, TCollection>>(
-                Expression.MakeMemberAccess(
-                    entityParameter,
-                    memberInfo),
+                memberAccess,
                 entityParameter).Compile();
 
             Action<TEntity, TCollection> setterDelegate = null;
