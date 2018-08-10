@@ -3,6 +3,7 @@
 
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
     {
         public static Job ConfigureJob(this Job job, bool singleRun = false)
         {
-            job.WithGcForce(true).WithUnrollFactor(1).WithInvocationCount(1);
+            job.WithGcForce(true).WithUnrollFactor(1).WithInvocationCount(1).With(Platform.AnyCpu);
 
             if (singleRun)
             {
