@@ -687,15 +687,6 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
         }
 
-        public override async Task Select_datetime_TimeOfDay_component(bool isAsync)
-        {
-            await base.Select_datetime_TimeOfDay_component(isAsync);
-
-            AssertSql(
-                @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate""), '0'), '.')
-FROM ""Orders"" AS ""o""");
-        }
-
         public override async Task Select_expression_date_add_year(bool isAsync)
         {
             await base.Select_expression_date_add_year(isAsync);
