@@ -353,18 +353,30 @@ FROM [Customers]"))
         [Fact]
         public virtual async Task Include_does_not_close_user_opened_connection_for_empty_result()
         {
-            using (var ctx = CreateContext())
+            Fixture.TestStore.CloseConnection();
+            using (var context = CreateContext())
             {
-                ctx.Database.OpenConnection();
+                var connection = context.Database.GetDbConnection();
 
-                var query = await ctx.Customers
+                Assert.Equal(ConnectionState.Closed, connection.State);
+
+                context.Database.OpenConnection();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+
+                var query = await context.Customers
                     .Include(v => v.Orders)
                     .Where(v => v.CustomerID == "MAMRFC")
                     .ToListAsync();
 
                 Assert.Empty(query);
-                Assert.Equal(ConnectionState.Open, ctx.Database.GetDbConnection().State);
+                Assert.Equal(ConnectionState.Open, connection.State);
+
+                context.Database.CloseConnection();
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
             }
+            Fixture.TestStore.OpenConnection();
         }
 
         [Fact]
