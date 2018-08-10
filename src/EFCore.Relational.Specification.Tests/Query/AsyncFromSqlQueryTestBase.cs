@@ -357,13 +357,20 @@ FROM [Customers]"))
             {
                 ctx.Database.OpenConnection();
 
-                var query = await ctx.Customers
-                    .Include(v => v.Orders)
-                    .Where(v => v.CustomerID == "MAMRFC")
-                    .ToListAsync();
+                try
+                {
+                    var query = await ctx.Customers
+                        .Include(v => v.Orders)
+                        .Where(v => v.CustomerID == "MAMRFC")
+                        .ToListAsync();
 
-                Assert.Empty(query);
-                Assert.Equal(ConnectionState.Open, ctx.Database.GetDbConnection().State);
+                    Assert.Empty(query);
+                    Assert.Equal(ConnectionState.Open, ctx.Database.GetDbConnection().State);
+                }
+                finally
+                {
+                    ctx.Database.CloseConnection();
+                }
             }
         }
 
