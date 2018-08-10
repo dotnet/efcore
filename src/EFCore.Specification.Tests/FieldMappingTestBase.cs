@@ -21,6 +21,73 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
+        protected interface IUser2
+        {
+        }
+
+        protected class User2 : IUser2
+        {
+            public int Id { get; set; }
+        }
+
+        protected class LoginSession
+        {
+            private object _id = 0;
+            private IUser2 _user;
+            private object _users;
+
+            public int Id
+            {
+                get => (int)_id;
+                set => _id = value;
+            }
+
+            public virtual User2 User
+            {
+                get => (User2)_user;
+                set => _user = value;
+            }
+
+            public virtual ICollection<User2> Users
+            {
+                get => (ICollection<User2>)_users;
+                set => _users = value;
+            }
+        }
+
+        [Fact]
+        public virtual void Field_mapping_with_conversion_does_not_throw()
+        {
+            using (var context = CreateContext())
+            {
+                var session = context.Set<LoginSession>().Include(e => e.User).Include(e => e.Users).Single();
+
+                var entry = context.Entry(session);
+
+                Assert.Same(session.User, entry.Reference(e => e.User).CurrentValue);
+                Assert.Same(session.Users.Single(), entry.Collection(e => e.Users).CurrentValue.Single());
+                Assert.Equal(session.Id, entry.Property(e => e.Id).CurrentValue);
+                Assert.Equal(session.Id, entry.Property(e => e.Id).OriginalValue);
+
+                var newUser = new User2();
+                var newUsers = new List<User2> { new User2() };
+
+                entry.Reference(e => e.User).CurrentValue = newUser;
+                entry.Collection(e => e.Users).CurrentValue = newUsers;
+
+                Assert.Same(newUser, session.User);
+                Assert.Same(newUsers, session.Users);
+
+                var newSession = new LoginSession { Id = 77 };
+                var newEntry = context.Entry(newSession);
+                newEntry.State = EntityState.Added;
+
+                Assert.Equal(77, newEntry.Property(e => e.Id).CurrentValue);
+                newEntry.Property(e => e.Id).CurrentValue = 78;
+                Assert.Equal(78, newSession.Id);
+            }
+        }
+
         [Fact]
         public virtual void Include_collection_auto_props()
         {
@@ -1439,6 +1506,8 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                 modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
+                modelBuilder.Entity<LoginSession>().UsePropertyAccessMode(PropertyAccessMode.Field);
+
                 if (modelBuilder.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                 {
                     modelBuilder.Entity<PostReadOnly>(
@@ -1584,6 +1653,12 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(CreateBlogAndPosts<BlogNavFields, PostNavFields>());
                     context.AddRange(CreatePostsAndBlog<BlogNavFields, PostNavFields>());
                 }
+
+                context.Add(new LoginSession
+                {
+                    User = new User2(),
+                    Users = new List<User2> { new User2() }
+                });
 
                 context.SaveChanges();
             }

@@ -65,6 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 currentValueExpression = Expression.MakeMemberAccess(
                     convertedExpression,
                     propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+
+                if (currentValueExpression.Type != typeof(TProperty))
+                {
+                    currentValueExpression = Expression.Convert(currentValueExpression, typeof(TProperty));
+                }
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();

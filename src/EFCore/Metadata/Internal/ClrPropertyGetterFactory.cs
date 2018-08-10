@@ -33,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
-            var memberType = memberInfo.GetMemberType();
-            var defaultExpression = Expression.Default(memberType);
 
             Expression readExpression;
             if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
@@ -55,23 +53,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.TypeAs(entityParameter, memberInfo.DeclaringType)),
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
-                            defaultExpression,
+                            Expression.Default(memberInfo.GetMemberType()),
                             Expression.MakeMemberAccess(converted, memberInfo))
                     });
             }
 
+            if (readExpression.Type != typeof(TValue))
+            {
+                readExpression = Expression.Convert(readExpression, typeof(TValue));
+            }
+
             var property = propertyBase as IProperty;
-            var comparer = memberType.IsNullableType()
+            var comparer = typeof(TValue).IsNullableType()
                 ? null
                 : property?.GetValueComparer()
                   ?? property?.FindMapping()?.Comparer
                   ?? (ValueComparer)Activator.CreateInstance(
-                      typeof(ValueComparer<>).MakeGenericType(memberType),
+                      typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
                       new object[] { false });
 
             var hasDefaultValueExpression = comparer == null
-                ? Expression.Equal(readExpression, defaultExpression)
-                : comparer.ExtractEqualsBody(readExpression, defaultExpression);
+                ? Expression.Equal(readExpression, Expression.Default(typeof(TValue)))
+                : comparer.ExtractEqualsBody(readExpression, Expression.Default(typeof(TValue)));
 
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),

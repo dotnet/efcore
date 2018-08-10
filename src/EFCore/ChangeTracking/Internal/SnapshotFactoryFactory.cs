@@ -116,9 +116,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else
                 {
-                    var memberAccess = Expression.MakeMemberAccess(
+                    var memberAccess = (Expression)Expression.MakeMemberAccess(
                         entityVariable,
                         propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+
+                    if (memberAccess.Type != propertyBase.ClrType)
+                    {
+                        memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
+                    }
+
                     arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
                         ? Expression.Call(
                             null,
