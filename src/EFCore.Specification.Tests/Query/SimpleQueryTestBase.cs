@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #12037")]
         public virtual void Method_with_constant_queryable_arg()
         {
             using (var context = CreateContext())
