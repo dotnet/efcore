@@ -29,7 +29,9 @@
 
   <ItemGroup>
     <Compile Include="..\EFCore.Benchmarks.Sqlite.Version22\**\*.cs"
-             Exclude="..\EFCore.Benchmarks.Sqlite.Version22\obj\**\*;..\EFCore.Benchmarks.Sqlite.Version22\bin\**\*" />
+             Exclude="..\EFCore.Benchmarks.Sqlite.Version22\obj\**\*;
+                      ..\EFCore.Benchmarks.Sqlite.Version22\bin\**\*;
+                      ..\EFCore.Benchmarks.Sqlite.Version22\Models\AdventureWorks\AdventureWorksContext.cs" />
   </ItemGroup>
 
 </Project>
