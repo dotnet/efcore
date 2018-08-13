@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -31,12 +32,50 @@ namespace Microsoft.EntityFrameworkCore
 
         protected string ActiveProvider { get; private set; }
 
+        // Database deletion can happen as async file operation and SQLClient
+        // doesn't account for this, so give some time for it to happen on slow C.I. machines
+        protected virtual void GiveMeSomeTime(DbContext db)
+        {
+            var stillExists = true;
+            for (var i = 0; stillExists && i < 10; i++)
+            {
+                try
+                {
+                    Thread.Sleep(500);
+
+                    stillExists = db.GetService<IRelationalDatabaseCreator>().Exists();
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        protected async virtual Task GiveMeSomeTimeAsync(DbContext db)
+        {
+            var stillExists = true;
+            for (var i = 0; stillExists && i < 10; i++)
+            {
+                try
+                {
+                    await Task.Delay(500);
+
+                    stillExists = await db.GetService<IRelationalDatabaseCreator>().ExistsAsync();
+                }
+                catch
+                {
+                }
+            }
+        }
+
         [ConditionalFact]
         public virtual void Can_apply_all_migrations()
         {
             using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
+
+                GiveMeSomeTime(db);
 
                 db.Database.Migrate();
 
@@ -56,6 +95,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 db.Database.EnsureDeleted();
 
+                GiveMeSomeTime(db);
+
                 var migrator = db.GetService<IMigrator>();
                 migrator.Migrate("Migration1");
 
@@ -72,6 +113,9 @@ namespace Microsoft.EntityFrameworkCore
             using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
+
+                GiveMeSomeTime(db);
+
                 db.Database.Migrate();
 
                 var migrator = db.GetService<IMigrator>();
@@ -88,6 +132,9 @@ namespace Microsoft.EntityFrameworkCore
             using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
+
+                GiveMeSomeTime(db);
+
                 db.Database.Migrate();
 
                 var migrator = db.GetService<IMigrator>();
@@ -106,6 +153,8 @@ namespace Microsoft.EntityFrameworkCore
             using (var db = Fixture.CreateContext())
             {
                 await db.Database.EnsureDeletedAsync();
+
+                await GiveMeSomeTimeAsync(db);
 
                 await db.Database.MigrateAsync();
 
@@ -265,6 +314,9 @@ namespace Microsoft.EntityFrameworkCore
             using (var db = Fixture.CreateContext())
             {
                 await db.Database.EnsureDeletedAsync();
+
+                await GiveMeSomeTimeAsync(db);
+
                 await db.Database.EnsureCreatedAsync();
 
                 var services = db.GetInfrastructure();
