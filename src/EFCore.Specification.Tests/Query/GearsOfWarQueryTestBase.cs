@@ -6906,6 +6906,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
+        public  TEntity Client<TEntity>(TEntity entity) => entity;
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_same_expression_containing_IsNull_correctly_deduplicates_the_ordering(bool isAsync)
@@ -6915,7 +6917,72 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Select(g => g.LeaderNickname != null ? (bool?)(g.Nickname.Length == 5) : (bool?)null).OrderBy(e => e.HasValue).ThenBy(e => e.HasValue));
         }
 
-        public  TEntity Client<TEntity>(TEntity entity) => entity;
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GetValueOrDefault_in_projection(bool isAsync)
+        {
+            return AssertQueryScalar<Weapon>(
+                isAsync,
+                ws => ws.Select(w => w.SynergyWithId.GetValueOrDefault()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GetValueOrDefault_in_filter(bool isAsync)
+        {
+            return AssertQuery<Weapon>(
+                isAsync,
+                ws => ws.Where(w => w.SynergyWithId.GetValueOrDefault() == 0));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GetValueOrDefault_in_filter_non_nullable_column(bool isAsync)
+        {
+            return AssertQuery<Weapon>(
+                isAsync,
+                ws => ws.Where(w => ((int?)w.Id).GetValueOrDefault() == 0));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GetValueOrDefault_on_DateTimeOffset(bool isAsync)
+        {
+            var defaultValue = default(DateTimeOffset);
+
+            return AssertQuery<Mission>(
+                isAsync,
+                ms => ms.Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GetValueOrDefault_in_order_by(bool isAsync)
+        {
+            return AssertQuery<Weapon>(
+                isAsync,
+                ws => ws.OrderBy(w => w.SynergyWithId.GetValueOrDefault()).ThenBy(w => w.Id),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GetValueOrDefault_with_argument(bool isAsync)
+        {
+            return AssertQuery<Weapon>(
+                isAsync,
+                ws => ws.Where(w => w.SynergyWithId.GetValueOrDefault(w.Id) == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GetValueOrDefault_with_argument_complex(bool isAsync)
+        {
+            return AssertQuery<Weapon>(
+                isAsync,
+                ws => ws.Where(w => w.SynergyWithId.GetValueOrDefault(w.Name.Length + 42) > 10),
+                ws => ws.Where(w => (w.SynergyWithId == null ? w.Name.Length + 42 : w.SynergyWithId) > 10));
+        }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 

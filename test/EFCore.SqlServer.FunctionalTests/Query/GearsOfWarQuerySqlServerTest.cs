@@ -7964,6 +7964,77 @@ ORDER BY CASE
 END");
         }
 
+        public override async Task GetValueOrDefault_in_projection(bool isAsync)
+        {
+            await base.GetValueOrDefault_in_projection(isAsync);
+
+            AssertSql(
+                @"SELECT COALESCE([w].[SynergyWithId], 0)
+FROM [Weapons] AS [w]");
+        }
+
+        public override async Task GetValueOrDefault_in_filter(bool isAsync)
+        {
+            await base.GetValueOrDefault_in_filter(isAsync);
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE COALESCE([w].[SynergyWithId], 0) = 0");
+        }
+
+        public override async Task GetValueOrDefault_in_filter_non_nullable_column(bool isAsync)
+        {
+            await base.GetValueOrDefault_in_filter_non_nullable_column(isAsync);
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE COALESCE([w].[Id], 0) = 0");
+        }
+
+        public override async Task GetValueOrDefault_on_DateTimeOffset(bool isAsync)
+        {
+            await base.GetValueOrDefault_on_DateTimeOffset(isAsync);
+
+            AssertSql(
+                @"@__defaultValue_0='0001-01-01T00:00:00.0000000+00:00'
+
+SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE COALESCE([m].[Timeline], '0001-01-01T00:00:00.000+00:00') = @__defaultValue_0");
+        }
+
+        public override async Task GetValueOrDefault_in_order_by(bool isAsync)
+        {
+            await base.GetValueOrDefault_in_order_by(isAsync);
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+ORDER BY COALESCE([w].[SynergyWithId], 0), [w].[Id]");
+        }
+
+        public override async Task GetValueOrDefault_with_argument(bool isAsync)
+        {
+            await base.GetValueOrDefault_with_argument(isAsync);
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE COALESCE([w].[SynergyWithId], [w].[Id]) = 1");
+        }
+
+        public override async Task GetValueOrDefault_with_argument_complex(bool isAsync)
+        {
+            await base.GetValueOrDefault_with_argument_complex(isAsync);
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE COALESCE([w].[SynergyWithId], CAST(LEN([w].[Name]) AS int) + 42) > 10");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
