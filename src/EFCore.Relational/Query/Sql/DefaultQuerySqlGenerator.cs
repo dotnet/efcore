@@ -1314,6 +1314,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                   && binaryExpression.NodeType != ExpressionType.Equal
                   && binaryExpression.NodeType != ExpressionType.NotEqual;
 
+            var parentTypeMapping = _typeMapping;
+
+            if (binaryExpression.IsComparisonOperation()
+                || binaryExpression.NodeType == ExpressionType.Add
+                || binaryExpression.NodeType == ExpressionType.Coalesce)
+            {
+                _typeMapping
+                    = InferTypeMappingFromColumn(binaryExpression.Left)
+                      ?? InferTypeMappingFromColumn(binaryExpression.Right)
+                      ?? parentTypeMapping;
+            }
+
             switch (binaryExpression.NodeType)
             {
                 case ExpressionType.Coalesce:
@@ -1326,17 +1338,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     break;
 
                 default:
-                    var parentTypeMapping = _typeMapping;
-
-                    if (binaryExpression.IsComparisonOperation()
-                        || binaryExpression.NodeType == ExpressionType.Add)
-                    {
-                        _typeMapping
-                            = InferTypeMappingFromColumn(binaryExpression.Left)
-                              ?? InferTypeMappingFromColumn(binaryExpression.Right)
-                              ?? parentTypeMapping;
-                    }
-
                     var needParens = binaryExpression.Left.RemoveConvert() is BinaryExpression leftBinaryExpression
                                      && leftBinaryExpression.NodeType != ExpressionType.Coalesce;
 
@@ -1369,11 +1370,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         _relationalCommandBuilder.Append(")");
                     }
 
-                    _typeMapping = parentTypeMapping;
-
                     break;
             }
 
+            _typeMapping = parentTypeMapping;
             _valueConverterWarningsEnabled = oldValueConverterWarningsEnabled;
 
             return binaryExpression;
