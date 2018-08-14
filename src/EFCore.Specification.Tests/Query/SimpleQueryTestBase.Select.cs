@@ -706,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
-                    .Select(o => (short)((long)o.OrderID + (long)o.OrderID)),
+                    .Select(o => (short)(o.OrderID + (long)o.OrderID)),
                 assertOrder: true);
         }
 
@@ -1121,7 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Select(o => o.OrderDate.GetValueOrDefault()));
         }
 
-        [ConditionalTheory(Skip = "issue #12797")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_GetValueOrDefault_on_DateTime_with_null_values(bool isAsync)
         {
@@ -1130,7 +1130,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => from c in cs
                             join o in os on c.CustomerID equals o.CustomerID into grouping
                             from o in grouping.DefaultIfEmpty()
-                            select o.OrderDate.GetValueOrDefault());
+                            select o.OrderDate.GetValueOrDefault(new DateTime(1753, 1, 1)),
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into grouping
+                            from o in grouping.DefaultIfEmpty()
+                            select o != null ? o.OrderDate.Value : new DateTime(1753, 1, 1));
         }
     }
 }

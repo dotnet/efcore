@@ -958,7 +958,7 @@ ORDER BY [B]");
             await base.Select_GetValueOrDefault_on_DateTime(isAsync);
 
             AssertSql(
-                @"SELECT COALESCE([o].[OrderDate], '0001-01-01T00:00:00.0000000')
+                @"SELECT COALESCE([o].[OrderDate], '0001-01-01T00:00:00.000')
 FROM [Orders] AS [o]");
         }
 
@@ -967,7 +967,9 @@ FROM [Orders] AS [o]");
             await base.Select_GetValueOrDefault_on_DateTime_with_null_values(isAsync);
 
             AssertSql(
-                @"");
+                @"SELECT COALESCE([o].[OrderDate], '1753-01-01T00:00:00.000')
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
     }
 }
