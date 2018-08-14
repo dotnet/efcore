@@ -40,12 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return dictionary;
             }
             [param: NotNull]
-            set
-            {
-                Annotations.SetAnnotation(
+            set => Annotations.SetAnnotation(
                     ScaffoldingAnnotationNames.EntityTypeErrors,
                     Check.NotNull(value, nameof(value)));
-            }
         }
 
         /// <summary>
@@ -54,14 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string DatabaseName
         {
-            get { return (string)Annotations.Metadata[ScaffoldingAnnotationNames.DatabaseName]; }
+            get => (string)Annotations.Metadata[ScaffoldingAnnotationNames.DatabaseName];
             [param: CanBeNull]
-            set
-            {
-                Annotations.SetAnnotation(
+            set => Annotations.SetAnnotation(
                     ScaffoldingAnnotationNames.DatabaseName,
                     Check.NullButNotEmpty(value, nameof(value)));
-            }
         }
     }
 }

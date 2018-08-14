@@ -7013,7 +7013,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private class Order
         {
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _secretId;
+#pragma warning restore IDE0044 // Add readonly modifier
 
             public Order()
             {

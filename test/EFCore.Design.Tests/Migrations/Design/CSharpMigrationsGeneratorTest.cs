@@ -756,7 +756,7 @@ namespace MyNamespace
                         }
                     }
                 },
-                new MigrationOperation[0]);
+                Array.Empty<MigrationOperation>());
 
             Assert.Contains("using System.Text.RegularExpressions;", migration);
         }
@@ -780,7 +780,7 @@ namespace MyNamespace
                         Values = new object[,] { { RegexOptions.Multiline } }
                     }
                 },
-                new MigrationOperation[0]);
+                Array.Empty<MigrationOperation>());
 
             Assert.Contains("using System.Text.RegularExpressions;", migration);
         }
@@ -804,7 +804,7 @@ namespace MyNamespace
                         Values = new object[,] { { 1 } }
                     }
                 },
-                new MigrationOperation[0]);
+                Array.Empty<MigrationOperation>());
 
             Assert.Contains("using System.Text.RegularExpressions;", migration);
         }
@@ -826,7 +826,7 @@ namespace MyNamespace
                         KeyValues = new object[,] { { RegexOptions.Multiline } }
                     }
                 },
-                new MigrationOperation[0]);
+                Array.Empty<MigrationOperation>());
 
             Assert.Contains("using System.Text.RegularExpressions;", migration);
         }

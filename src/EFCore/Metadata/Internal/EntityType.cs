@@ -2143,7 +2143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEntityType IEntityType.DefiningEntityType
         {
             [DebuggerStepThrough]
-            get { return DefiningEntityType; }
+            get => DefiningEntityType;
         }
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)

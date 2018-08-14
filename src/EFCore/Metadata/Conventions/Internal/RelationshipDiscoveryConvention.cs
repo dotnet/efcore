@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         }
                     }
 
-                    return new RelationshipCandidate[0];
+                    return Array.Empty<RelationshipCandidate>();
                 }
 
                 if (!model.ShouldBeOwnedType(targetClrType))

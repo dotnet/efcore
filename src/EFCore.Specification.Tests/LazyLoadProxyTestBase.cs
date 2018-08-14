@@ -1590,7 +1590,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
                 // ReSharper disable once ConvertToLocalFunction
-                Func<Blog, bool> opaquePredicate = _ => true;
+                bool opaquePredicate(Blog _) => true;
 
                 var blogs = context.Set<Blog>().Where(opaquePredicate);
 
@@ -1694,7 +1694,9 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FirstName
         {
+#pragma warning disable IDE0044 // Add readonly modifier
             private string _value;
+#pragma warning restore IDE0044 // Add readonly modifier
 
             protected FirstName()
             {
@@ -1713,7 +1715,9 @@ namespace Microsoft.EntityFrameworkCore
 
         public class LastName
         {
+#pragma warning disable IDE0044 // Add readonly modifier
             private string _value;
+#pragma warning restore IDE0044 // Add readonly modifier
 
             protected LastName()
             {
