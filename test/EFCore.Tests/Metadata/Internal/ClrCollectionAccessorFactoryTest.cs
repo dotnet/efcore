@@ -387,13 +387,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigation;
         }
 
+#pragma warning disable IDE0044 // Add readonly modifier
         private class MyEntity
         {
             private ICollection<MyOtherEntity> _asICollection;
             private IList<MyOtherEntity> _asIList;
             private List<MyOtherEntity> _asList;
             private MyCollection _myCollection;
-            private ICollection<MyOtherEntity> _withNoBackingFieldFound;
+            private readonly ICollection<MyOtherEntity> _withNoBackingFieldFound;
             private ICollection<MyOtherEntity> _withNoSetter;
             private ICollection<MyOtherEntity> _withNoGetter;
             private IEnumerable<MyOtherEntity> _enumerable;
@@ -406,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             private readonly IEnumerable<MyOtherEntity> _readOnlyFieldProp;
             private IEnumerable<MyOtherEntity> _writeOnlyProp;
             private IEnumerable<MyOtherEntity> _fullPropNoFieldNotFound;
-            private IEnumerable<MyOtherEntity> _readOnlyPropNoFieldNotFound;
+            private readonly IEnumerable<MyOtherEntity> _readOnlyPropNoFieldNotFound;
             private IEnumerable<MyOtherEntity> _writeOnlyPropNoFieldNotFound;
 
             public MyEntity(bool initialize)
@@ -439,26 +440,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             internal ICollection<MyOtherEntity> AsICollection
             {
-                get { return _asICollection; }
-                set { _asICollection = value; }
+                get => _asICollection;
+                set => _asICollection = value;
             }
 
             internal IList<MyOtherEntity> AsIList
             {
-                get { return _asIList; }
-                set { _asIList = value; }
+                get => _asIList;
+                set => _asIList = value;
             }
 
             internal List<MyOtherEntity> AsList
             {
-                get { return _asList; }
-                set { _asList = value; }
+                get => _asList;
+                set => _asList = value;
             }
 
             internal MyCollection AsMyCollection
             {
-                get { return _myCollection; }
-                set { _myCollection = value; }
+                get => _myCollection;
+                set => _myCollection = value;
             }
 
             internal ICollection<MyOtherEntity> WithNoSetter => _withNoSetter;
@@ -467,43 +468,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             internal ICollection<MyOtherEntity> WithNoGetter
             {
-                set { _withNoGetter = value; }
+                set => _withNoGetter = value;
             }
 
             internal IEnumerable<MyOtherEntity> AsIEnumerable
             {
-                get { return _enumerable; }
-                set { _enumerable = value; }
+                get => _enumerable;
+                set => _enumerable = value;
             }
 
             internal IEnumerable<MyOtherEntity> AsIEnumerableNotCollection
             {
-                get { return _enumerableNotCollection; }
-                set { _enumerableNotCollection = value; }
+                get => _enumerableNotCollection;
+                set => _enumerableNotCollection = value;
             }
 
             internal MyOtherEntity[] AsArray
             {
-                get { return _array; }
-                set { _array = value; }
+                get => _array;
+                set => _array = value;
             }
 
             internal MyPrivateCollection AsMyPrivateCollection
             {
-                get { return _privateCollection; }
-                set { _privateCollection = value; }
+                get => _privateCollection;
+                set => _privateCollection = value;
             }
 
             internal MyInternalCollection AsMyInternalCollection
             {
-                get { return _internalCollection; }
-                set { _internalCollection = value; }
+                get => _internalCollection;
+                set => _internalCollection = value;
             }
 
             internal MyUnavailableCollection AsMyUnavailableCollection
             {
-                get { return _unavailableCollection; }
-                set { _unavailableCollection = value; }
+                get => _unavailableCollection;
+                set => _unavailableCollection = value;
             }
 
             internal IEnumerable<MyOtherEntity> AutoProp { get; set; }
@@ -516,22 +517,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             internal IEnumerable<MyOtherEntity> WriteOnlyProp
             {
-                set { _writeOnlyProp = value; }
+                set => _writeOnlyProp = value;
             }
 
             internal IEnumerable<MyOtherEntity> ReadWriteOnlyProp => _writeOnlyProp;
 
             internal IEnumerable<MyOtherEntity> FullPropNoField
             {
-                get { return _fullPropNoFieldNotFound; }
-                set { _fullPropNoFieldNotFound = value; }
+                get => _fullPropNoFieldNotFound;
+                set => _fullPropNoFieldNotFound = value;
             }
 
             internal IEnumerable<MyOtherEntity> ReadOnlyPropNoField => _readOnlyPropNoFieldNotFound;
 
             internal IEnumerable<MyOtherEntity> WriteOnlyPropNoField
             {
-                set { _writeOnlyPropNoFieldNotFound = value; }
+                set => _writeOnlyPropNoFieldNotFound = value;
             }
 
             internal IEnumerable<MyOtherEntity> ReadWriteOnlyPropNoField => _writeOnlyPropNoFieldNotFound;
@@ -580,5 +581,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
+#pragma warning restore IDE0044 // Add readonly modifier
     }
 }

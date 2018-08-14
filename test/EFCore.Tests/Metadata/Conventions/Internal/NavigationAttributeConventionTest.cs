@@ -916,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             [ForeignKey(nameof(AnotherPrincipalField))]
 #pragma warning disable 169
-            private int _principalFieldAnotherFk;
+            private readonly int _principalFieldAnotherFk;
 #pragma warning restore 169
 
             public PrincipalField AnotherPrincipalField { get; set; }
