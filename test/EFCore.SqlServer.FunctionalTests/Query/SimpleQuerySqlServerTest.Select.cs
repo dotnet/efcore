@@ -952,5 +952,22 @@ ORDER BY [B]");
 FROM [Orders] AS [o]
 ORDER BY [B]");
         }
+
+        public override async Task Select_GetValueOrDefault_on_DateTime(bool isAsync)
+        {
+            await base.Select_GetValueOrDefault_on_DateTime(isAsync);
+
+            AssertSql(
+                @"SELECT COALESCE([o].[OrderDate], '0001-01-01T00:00:00.0000000')
+FROM [Orders] AS [o]");
+        }
+
+        public override async Task Select_GetValueOrDefault_on_DateTime_with_null_values(bool isAsync)
+        {
+            await base.Select_GetValueOrDefault_on_DateTime_with_null_values(isAsync);
+
+            AssertSql(
+                @"");
+        }
     }
 }

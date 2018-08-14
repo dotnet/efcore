@@ -1111,5 +1111,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                           B = o.CustomerID
                       });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_GetValueOrDefault_on_DateTime(bool isAsync)
+        {
+            return AssertQueryScalar<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderDate.GetValueOrDefault()));
+        }
+
+        [ConditionalTheory(Skip = "issue #12797")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_GetValueOrDefault_on_DateTime_with_null_values(bool isAsync)
+        {
+            return AssertQueryScalar<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into grouping
+                            from o in grouping.DefaultIfEmpty()
+                            select o.OrderDate.GetValueOrDefault());
+        }
     }
 }
