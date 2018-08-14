@@ -7998,11 +7998,8 @@ WHERE COALESCE([w].[Id], 0) = 0");
             await base.GetValueOrDefault_on_DateTimeOffset(isAsync);
 
             AssertSql(
-                @"@__defaultValue_0='0001-01-01T00:00:00.0000000+00:00'
-
-SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
-FROM [Missions] AS [m]
-WHERE COALESCE([m].[Timeline], '0001-01-01T00:00:00.000+00:00') = @__defaultValue_0");
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]");
         }
 
         public override async Task GetValueOrDefault_in_order_by(bool isAsync)

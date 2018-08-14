@@ -1121,7 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Select(o => o.OrderDate.GetValueOrDefault()));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "issue #13004")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_GetValueOrDefault_on_DateTime_with_null_values(bool isAsync)
         {

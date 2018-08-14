@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
@@ -20,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.Name == nameof(Nullable<int>.GetValueOrDefault))
+            if (methodCallExpression.Method.Name == nameof(Nullable<int>.GetValueOrDefault)
+                && methodCallExpression.Type.IsNumeric())
             {
                 if (methodCallExpression.Arguments.Count == 0)
                 {
