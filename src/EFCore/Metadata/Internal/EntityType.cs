@@ -353,6 +353,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<EntityType> GetDerivedTypesInclusive()
             => new[] { this }.Concat(GetDerivedTypes());
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<ForeignKey> GetForeignKeysInHierarchy()
+            => GetForeignKeys().Concat(GetDerivedForeignKeys());
+
         private bool InheritsFrom(EntityType entityType)
         {
             var et = this;
@@ -2143,7 +2150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEntityType IEntityType.DefiningEntityType
         {
             [DebuggerStepThrough]
-            get { return DefiningEntityType; }
+            get => DefiningEntityType;
         }
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)

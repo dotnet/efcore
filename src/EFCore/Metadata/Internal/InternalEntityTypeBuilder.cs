@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -1098,6 +1098,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     foreach (var ignoreTuple in membersToIgnore)
                     {
                         Ignore(ignoreTuple.Item1, ignoreTuple.Item2);
+                        Metadata.Unignore(ignoreTuple.Item1);
                     }
                 }
 
@@ -2394,8 +2395,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentProperties = GetActualProperties(dependentProperties, ConfigurationSource.Convention);
                     if (principalKey == null)
                     {
-                        var principalKeyProperties = principalBaseEntityTypeBuilder.CreateUniqueProperties(
-                            dependentProperties.Count, null, Enumerable.Repeat("", dependentProperties.Count), dependentProperties.Select(p => p.ClrType), isRequired: true, baseName: "TempId");
+                        var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
+                            dependentProperties.Count, null, Enumerable.Repeat("", dependentProperties.Count), dependentProperties.Select(p => p.ClrType), isRequired: true, baseName: "TempId").Item2;
+
                         var keyBuilder = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention);
 
                         principalKey = keyBuilder.Metadata;
@@ -2409,8 +2411,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (principalKey == null)
                     {
-                        var principalKeyProperties = principalBaseEntityTypeBuilder.CreateUniqueProperties(
-                            1, null, new[] { "TempId" }, new[] { typeof(int) }, isRequired: true, baseName: "");
+                        var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
+                            1, null, new[] { "TempId" }, new[] { typeof(int) }, isRequired: true, baseName: "").Item2;
 
                         principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention).Metadata;
                     }
@@ -2438,26 +2440,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<Property> ReUniquifyTemporaryProperties(
+        public virtual bool ShouldReuniquifyTemporaryProperties(
             [NotNull] IReadOnlyList<Property> currentProperties,
             [NotNull] IReadOnlyList<Property> principalProperties,
             bool isRequired,
-            [NotNull] string baseName) => CreateUniqueProperties(currentProperties, principalProperties, isRequired, baseName);
+            [NotNull] string baseName)
+            => TryCreateUniqueProperties(
+                principalProperties.Count,
+                currentProperties,
+                principalProperties.Select(p => p.Name),
+                principalProperties.Select(p => p.ClrType),
+                isRequired,
+                baseName).Item1;
 
         private IReadOnlyList<Property> CreateUniqueProperties(
             IReadOnlyList<Property> currentProperties,
             IReadOnlyList<Property> principalProperties,
             bool isRequired,
             string baseName)
-            => CreateUniqueProperties(
+            => TryCreateUniqueProperties(
                 principalProperties.Count,
                 currentProperties,
                 principalProperties.Select(p => p.Name),
                 principalProperties.Select(p => p.ClrType),
                 isRequired,
-                baseName);
+                baseName).Item2;
 
-        private IReadOnlyList<Property> CreateUniqueProperties(
+        private (bool, IReadOnlyList<Property>) TryCreateUniqueProperties(
             int propertyCount,
             IReadOnlyList<Property> currentProperties,
             IEnumerable<string> principalPropertyNames,
@@ -2465,10 +2474,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool isRequired,
             string baseName)
         {
-            var newProperties = new Property[propertyCount];
+            var newProperties = currentProperties == null ? new Property[propertyCount] : null;
             var clrProperties = Metadata.GetRuntimeProperties();
             var clrFields = Metadata.GetRuntimeFields();
-            var noNewProperties = true;
+            var canReuniquify = false;
             using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
             {
                 using (var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator())
@@ -2495,42 +2504,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 && clrFields?.ContainsKey(propertyName) != true
                                 && !IsIgnored(propertyName, ConfigurationSource.Convention))
                             {
-                                var propertyBuilder = Property(propertyName, clrType, ConfigurationSource.Convention, typeConfigurationSource: null);
-                                if (propertyBuilder == null)
+                                if (currentProperties == null)
                                 {
-                                    RemoveShadowPropertiesIfUnused(newProperties);
-                                    return null;
-                                }
+                                    var propertyBuilder = Property(
+                                        propertyName, clrType, ConfigurationSource.Convention, typeConfigurationSource: null);
 
-                                if (clrType.IsNullableType())
+                                    if (clrType.IsNullableType())
+                                    {
+                                        propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
+                                    }
+
+                                    newProperties[i] = propertyBuilder.Metadata;
+                                }
+                                else
                                 {
-                                    propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
+                                    canReuniquify = true;
                                 }
-
-                                newProperties[i] = propertyBuilder.Metadata;
-                                noNewProperties = false;
                                 break;
                             }
 
-                            if (currentProperties != null
-                                && newProperties.All(p => p == null || p.Name != propertyName))
+                            var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
+                            if (currentProperty != null)
                             {
-                                var currentProperty = currentProperties.SingleOrDefault(p => p.Name == propertyName);
-                                if (currentProperty != null
-                                    && currentProperty.ClrType == clrType
-                                    && currentProperty.IsNullable == !isRequired)
+                                if (currentProperty.IsShadowProperty
+                                    && currentProperty.ClrType != clrType
+                                    && isRequired)
                                 {
-                                    newProperties[i] = currentProperty;
-                                    noNewProperties = noNewProperties && newProperties[i] == currentProperties[i];
-                                    break;
+                                    canReuniquify = true;
                                 }
+                                break;
                             }
                         }
                     }
                 }
             }
 
-            return noNewProperties ? null : newProperties;
+            return (canReuniquify, newProperties);
         }
 
         /// <summary>

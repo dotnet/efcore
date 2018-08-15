@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public virtual Expression PathFromQuerySource
         {
-            get { return _pathFromQuerySource; }
-            [param: NotNull] set { _pathFromQuerySource = value; }
+            get => _pathFromQuerySource;
+            [param: NotNull] set => _pathFromQuerySource = value;
         }
 
         /// <summary>

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention
+    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, IModelBuiltConvention
     {
         private readonly IMemberClassifier _memberClassifier;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
@@ -117,6 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
                 else
                 {
+                    if (foreignKey.PrincipalToDependent.IsCollection())
+                    {
+                        return null;
+                    }
                     invertConfigurationSource = ConfigurationSource.DataAnnotation;
                     fkPropertiesToSet = new List<string>
                     {
@@ -345,6 +349,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             return null;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            {
+                foreach (var declaredNavigation in entityType.GetDeclaredNavigations())
+                {
+                    if (declaredNavigation.IsCollection())
+                    {
+                        var foreignKey = declaredNavigation.ForeignKey;
+                        var fkPropertyOnPrincipal
+                            = FindForeignKeyAttributeOnProperty(foreignKey.PrincipalEntityType, declaredNavigation.Name);
+                        if (fkPropertyOnPrincipal != null)
+                        {
+                            throw new InvalidOperationException(CoreStrings.FkAttributeOnNonUniquePrincipal(
+                                declaredNavigation.Name,
+                                foreignKey.PrincipalEntityType.DisplayName(),
+                                foreignKey.DeclaringEntityType.DisplayName()));
+                        }
+                    }
+                }
+            }
+
+            return modelBuilder;
         }
     }
 }

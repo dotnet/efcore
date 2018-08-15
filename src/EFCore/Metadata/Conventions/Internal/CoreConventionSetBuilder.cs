@@ -117,10 +117,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.KeyRemovedConventions.Add(keyDiscoveryConvention);
 
             var cascadeDeleteConvention = new CascadeDeleteConvention();
+            var foreignKeyAttributeConvention = new ForeignKeyAttributeConvention(Dependencies.MemberClassifier, Dependencies.Logger);
 
-            conventionSet.ForeignKeyAddedConventions.Add(
-                new ForeignKeyAttributeConvention(Dependencies.MemberClassifier, Dependencies.Logger));
-
+            conventionSet.ForeignKeyAddedConventions.Add(foreignKeyAttributeConvention);
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ForeignKeyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyAddedConventions.Add(valueGeneratorConvention);
@@ -136,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyUniquenessChangedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyRequirednessChangedConventions.Add(cascadeDeleteConvention);
+            conventionSet.ForeignKeyRequirednessChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(new NavigationEagerLoadingConvention());
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(keyDiscoveryConvention);
@@ -143,6 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
+            conventionSet.ModelBuiltConventions.Add(foreignKeyAttributeConvention);
             conventionSet.ModelBuiltConventions.Add(new ChangeTrackingStrategyConvention());
             conventionSet.ModelBuiltConventions.Add(new ConstructorBindingConvention(Dependencies.ConstructorBindingFactory));
             conventionSet.ModelBuiltConventions.Add(new TypeMappingConvention(Dependencies.TypeMappingSource));

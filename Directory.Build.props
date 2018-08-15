@@ -20,7 +20,7 @@
     <PackageSigningCertName>MicrosoftNuGet</PackageSigningCertName>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>7.2</LangVersion>
-    <NoWarn>$(NoWarn);CA1032;CA1034;CA1063;CA1815;CA1819</NoWarn>
+    <NoWarn>$(NoWarn);CA1032;CA1034;CA1052;CA1063;CA1815;CA1819;CA1822;CA2231</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

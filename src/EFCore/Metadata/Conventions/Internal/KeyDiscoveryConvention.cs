@@ -59,8 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     && definingFk.IsUnique
                     && definingFk.DeclaringEntityType == entityType)
                 {
-                    // Make sure that the properties won't be reuniquified
-                    definingFk.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Convention);
                     keyProperties = definingFk.Properties;
                 }
 

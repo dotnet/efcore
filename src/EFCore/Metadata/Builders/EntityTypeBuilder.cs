@@ -291,11 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
-                return this;
-            }
+            buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
+            return this;
         }
 
         /// <summary>
@@ -326,11 +323,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
-                return this;
-            }
+            buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
+            return this;
         }
 
         private ReferenceOwnershipBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
@@ -421,11 +415,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
-                return this;
-            }
+            buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
+            return this;
         }
 
         /// <summary>
@@ -449,11 +440,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
-            {
-                buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
-                return this;
-            }
+            buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
+            return this;
         }
 
         private CollectionOwnershipBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)

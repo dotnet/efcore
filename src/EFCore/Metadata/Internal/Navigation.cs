@@ -201,6 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [DebuggerStepThrough]
         public virtual Navigation FindInverse()
             => (Navigation)((INavigation)this).FindInverse();
 
@@ -208,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [DebuggerStepThrough]
         public virtual EntityType GetTargetType()
             => (EntityType)((INavigation)this).GetTargetType();
 

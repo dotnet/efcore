@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(type, nameof(type));
 
-            return (ConstantExpression)_generateDefaultValueConstantExpressionInternalMethod.MakeGenericMethod(type).Invoke(null, new object[] { });
+            return (ConstantExpression)_generateDefaultValueConstantExpressionInternalMethod.MakeGenericMethod(type).Invoke(null, Array.Empty<object>());
         }
 
         private static readonly MethodInfo _generateDefaultValueConstantExpressionInternalMethod =

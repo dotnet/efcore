@@ -57,7 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                          && !p.IsForeignKey()))
             {
+#pragma warning disable IDE0019 // Use pattern matching
                 var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionalAnnotation;
+#pragma warning restore IDE0019 // Use pattern matching
                 var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionalAnnotation;
                 if ((type == null
                      && (typeMapping == null

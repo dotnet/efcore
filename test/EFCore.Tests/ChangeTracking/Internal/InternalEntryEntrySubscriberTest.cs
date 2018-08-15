@@ -547,26 +547,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public string NotMapped
             {
-                get { return _notMapped; }
-                set { SetWithNotify(value, ref _notMapped); }
+                get => _notMapped;
+                set => SetWithNotify(value, ref _notMapped);
             }
 
             public ICollection<ChangedOnlyNotificationEntity> RelatedCollection
             {
-                get { return _relatedCollection; }
-                set { SetWithNotify(value, ref _relatedCollection); }
+                get => _relatedCollection;
+                set => SetWithNotify(value, ref _relatedCollection);
             }
 
             private void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
@@ -598,26 +598,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public int Fk
             {
-                get { return _fk; }
-                set { SetWithNotify(value, ref _fk); }
+                get => _fk;
+                set => SetWithNotify(value, ref _fk);
             }
 
             public FullNotificationEntity Related
             {
-                get { return _related; }
-                set { SetWithNotify(value, ref _related); }
+                get => _related;
+                set => SetWithNotify(value, ref _related);
             }
 
             private void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")

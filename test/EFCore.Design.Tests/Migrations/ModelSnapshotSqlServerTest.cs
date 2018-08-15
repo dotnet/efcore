@@ -801,11 +801,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
                             eb.HasOne(e => e.EntityWithStringKey).WithOne();
 
-                            eb.HasData(new
+                            eb.HasData(new EntityWithTwoProperties
                             {
                                 AlternateId = 1,
-                                Id = -1,
-                                EntityWithStringKeyId = "1"
+                                Id = -1
                             });
                         });
 
@@ -858,8 +857,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     .ValueGeneratedOnAdd()
                     .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                b1.Property<string>(""EntityWithStringKeyId"")
-                    .IsRequired();
+                b1.Property<string>(""EntityWithStringKeyId"");
 
                 b1.Property<int>(""Id"");
 
@@ -867,10 +865,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     .HasName(""PK_Custom"");
 
                 b1.HasIndex(""EntityWithStringKeyId"")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter(""[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL"");
 
-                b1.HasIndex(""Id"")
-                    .IsUnique();
+                b1.HasIndex(""Id"");
 
                 b1.ToTable(""EntityWithOneProperty"");
 
@@ -882,11 +880,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
                 b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", ""EntityWithStringKey"")
                     .WithOne()
-                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"")
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"");
 
                 b1.HasData(
-                    new { AlternateId = 1, EntityWithStringKeyId = ""1"", Id = -1 }
+                    new { AlternateId = 1, Id = -1 }
                 );
             });
     });
@@ -947,11 +944,12 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     var owned1index1 = ownedType1.GetIndexes().First();
                     Assert.Equal("EntityWithStringKeyId", owned1index1.Properties[0].Name);
                     Assert.True(owned1index1.IsUnique);
+                    Assert.Equal("[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL", owned1index1.Relational().Filter);
                     var owned1index2 = ownedType1.GetIndexes().Last();
                     Assert.Equal("Id", owned1index2.Properties[0].Name);
-                    Assert.True(owned1index2.IsUnique);
+                    Assert.False(owned1index2.IsUnique);
                     Assert.Null(owned1index2.Relational().Filter);
-                    Assert.Equal(new object[] { 1, "1", -1 }, ownedType1.GetData().Single().Values);
+                    Assert.Equal(new object[] { 1, -1 }, ownedType1.GetData().Single().Values);
                     Assert.Equal(nameof(EntityWithOneProperty), ownedType1.Relational().TableName);
 
                     var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey));

@@ -2656,7 +2656,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Parent
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-            private int _id;
+            private readonly int _id;
             private Child _child;
 
             public Parent(int id)
@@ -2676,7 +2676,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Child
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-            private int _id;
+            private readonly int _id;
             private int _parentId;
             private Parent _parent;
 
@@ -2783,7 +2783,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Category
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _id;
+#pragma warning restore IDE0044 // Add readonly modifier
             private ICollection<Product> _products;
 
             // ReSharper disable once UnusedMember.Local
@@ -2809,7 +2811,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Product
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _id;
+#pragma warning restore IDE0044 // Add readonly modifier
             private int _categoryId;
             private Category _category;
             private ICollection<SpecialOffer> _specialOffers;
@@ -2848,7 +2852,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class SpecialOffer
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _id;
+#pragma warning restore IDE0044 // Add readonly modifier
             private int _productId;
             private Product _product;
 

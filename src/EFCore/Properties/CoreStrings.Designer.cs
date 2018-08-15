@@ -2724,6 +2724,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("AmbiguousOwnedNavigation", nameof(entityType), nameof(otherEntityType)),
                 entityType, otherEntityType);
 
+        /// <summary>
+        ///     The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.
+        /// </summary>
+        public static string FkAttributeOnNonUniquePrincipal([CanBeNull] object navigation, [CanBeNull] object principalType, [CanBeNull] object dependentType)
+            => string.Format(
+                GetString("FkAttributeOnNonUniquePrincipal", nameof(navigation), nameof(principalType), nameof(dependentType)),
+                navigation, principalType, dependentType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -185,6 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     affectedForeignKey.SetIsRequired(!nullable, configurationSource);
                 }
             }
+
             dispatcher.OnPropertyNullableChanged(Builder);
         }
 
