@@ -220,7 +220,9 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning disable 169
             [Key]
             [Column("dsdsd", Order = 1, TypeName = "nvarchar(128)")]
+#pragma warning disable IDE0044 // Add readonly modifier
             private string _personFirstName;
+#pragma warning restore IDE0044 // Add readonly modifier
 #pragma warning restore 169
         }
 
