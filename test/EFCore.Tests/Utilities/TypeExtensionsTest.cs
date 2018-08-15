@@ -319,6 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
         }
 
+#pragma warning disable CA1061 // Do not hide base class methods
         private class RoleCollection2014 : List<Role2014>, IRoleCollection2014
         {
             public new IEnumerator<IRole2014> GetEnumerator()
@@ -348,6 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             public bool IsReadOnly { get; private set; }
         }
+#pragma warning restore CA1061 // Do not hide base class methods
 
         private class Role2014 : IRole2014
         {

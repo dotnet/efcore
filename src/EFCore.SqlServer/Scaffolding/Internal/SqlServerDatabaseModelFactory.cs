@@ -157,11 +157,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                 foreach (var table in tableList)
                 {
-                    var (Schema, Table) = Parse(table);
+                    var (parsedSchema, parsedTableName) = Parse(table);
                     if (!databaseModel.Tables.Any(
-                        t => !string.IsNullOrEmpty(Schema)
-                             && t.Schema == Schema
-                             || t.Name == Table))
+                        t => !string.IsNullOrEmpty(parsedSchema)
+                             && t.Schema == parsedSchema
+                             || t.Name == parsedTableName))
                     {
                         _logger.MissingTableWarning(table);
                     }
