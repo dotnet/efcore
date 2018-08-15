@@ -10,10 +10,10 @@
                 ],
                 "Exclusions": {
                     "SERVICING_ATTRIBUTE": {
-                        "tools/netcoreapp2.2/any/Newtonsoft.Json.dll": "External"
+                        "tools/netcoreapp3.0/any/Newtonsoft.Json.dll": "External"
                     },
                     "WRONG_PUBLICKEYTOKEN": {
-                        "tools/netcoreapp2.2/any/Newtonsoft.Json.dll": "External"
+                        "tools/netcoreapp3.0/any/Newtonsoft.Json.dll": "External"
                     }
                 }
             },
