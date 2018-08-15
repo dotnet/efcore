@@ -28,5 +28,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         Func<QueryContext, IAsyncEnumerable<TResult>> GetOrAddAsyncQuery<TResult>(
             [NotNull] object cacheKey,
             [NotNull] Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        void Clear();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        int Count { get; }
     }
 }

@@ -9,14 +9,12 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
@@ -750,7 +748,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                     };
                     var details = new Details
                     {
-                        FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen, 
+                        FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen,
 Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Grass Sea, Breaker of Chains, and Mother of Dragons"
                     };
 
@@ -2265,7 +2263,7 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
             {
                 using (var context = new MyContext8909(_options))
                 {
-                    context.Cache.Compact(1);
+                    context.Cache.Clear();
 
                     var id = 1;
                     context.Entities.Where(c => c.Id == id).ToList();
@@ -2298,7 +2296,7 @@ WHERE [c].[Id] = @__id_0");
             {
                 using (var context = new MyContext8909(_options))
                 {
-                    context.Cache.Compact(1);
+                    context.Cache.Clear();
 
                     var id = 0;
                     // ReSharper disable once AccessToModifiedClosure
@@ -2335,7 +2333,7 @@ WHERE [c].[Id] = @__id_0");
             {
                 using (var context = new MyContext8909(_options))
                 {
-                    context.Cache.Compact(1);
+                    context.Cache.Clear();
 
                     var id = 0;
                     // ReSharper disable once AccessToModifiedClosure
@@ -2390,17 +2388,7 @@ WHERE [c].[Id] IN (
 
             public DbSet<Entity8909> Entities { get; set; }
 
-            public MemoryCache Cache
-            {
-                get
-                {
-                    var compiledQueryCache = this.GetService<ICompiledQueryCache>();
-
-                    return (MemoryCache)typeof(CompiledQueryCache).GetTypeInfo()
-                        .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
-                        ?.GetValue(compiledQueryCache);
-                }
-            }
+            public ICompiledQueryCache Cache => this.GetService<ICompiledQueryCache>();
         }
 
         public class Entity8909
@@ -2634,7 +2622,7 @@ WHERE [w].[Val] = 1");
                         @"CREATE FUNCTION foo.AddOne (@num int)
                                                             RETURNS int
                                                                 AS
-                                                            BEGIN  
+                                                            BEGIN
                                                                 return @num + 1 ;
                                                             END");
 
@@ -2642,7 +2630,7 @@ WHERE [w].[Val] = 1");
                         @"CREATE FUNCTION dbo.AddTwo (@num int)
                                                             RETURNS int
                                                                 AS
-                                                            BEGIN  
+                                                            BEGIN
                                                                 return @num + 2 ;
                                                             END");
 
