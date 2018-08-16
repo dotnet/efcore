@@ -769,11 +769,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             };
         }
 
-        private void ChangeTracker_EnityStateChanging(object arg1, EntityStateChangedEventArgs arg2)
-        {
-            throw new NotImplementedException();
-        }
-
         private class Cat
         {
             public Cat(int id) => Id = id;

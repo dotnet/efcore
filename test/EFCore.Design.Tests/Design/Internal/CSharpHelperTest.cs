@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void Reference_works(Type type, string expected)
             => Assert.Equal(expected, new CSharpHelper().Reference(type));
 
-        private class Nested
+        private static class Nested
         {
             public class DoubleNested
             {

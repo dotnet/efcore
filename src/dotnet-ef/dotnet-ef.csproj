@@ -21,6 +21,7 @@ dotnet ef database update
     <GenerateToolShims>true</GenerateToolShims>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <EnableApiCheck>false</EnableApiCheck>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore
 {
     public class ProxyGraphUpdatesInMemoryTest

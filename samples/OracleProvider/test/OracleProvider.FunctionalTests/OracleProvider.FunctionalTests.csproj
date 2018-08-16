@@ -5,6 +5,7 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Oracle.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CA1822</NoWarn>
+    <CodeAnalysisRuleSet>..\..\..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">

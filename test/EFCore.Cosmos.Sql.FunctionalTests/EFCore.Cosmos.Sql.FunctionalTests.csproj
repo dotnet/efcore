@@ -6,6 +6,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore.Cosmos.Sql</RootNamespace>
     <!-- Put this project into its own test group to avoid running parallel with other test projects. The test assembly is not loaded propertly on net461 otherwise. -->
     <TestGroupName>Cosmos.Sql.FunctionalTests</TestGroupName>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>

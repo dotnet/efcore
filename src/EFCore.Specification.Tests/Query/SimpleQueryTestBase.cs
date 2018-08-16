@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local
-        private class InMemoryCheck
+        private static class InMemoryCheck
         {
             // ReSharper disable once UnusedParameter.Local
             public static bool Check(string input1, string input2)

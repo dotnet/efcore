@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27713.0
 MinimumVisualStudioVersion = 15.0.26730.03
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{712F6813-A5CD-40D4-836F-F9667A3AE762}"
+	ProjectSection(SolutionItems) = preProject
+		src\EFCore.ruleset = src\EFCore.ruleset
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.Sql", "src\EFCore.Cosmos.Sql\EFCore.Cosmos.Sql.csproj", "{6C115EF9-519E-4A4E-BD02-3801777BFEBA}"
 EndProject

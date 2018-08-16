@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
-
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class DbFunctionMetadataTests

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static ExpressionEqualityComparer Instance => InnerExpressionEqualityComparer.Instance;
+        public static ExpressionEqualityComparer Instance => new ExpressionEqualityComparer();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -771,15 +771,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return false;
                 }
             }
-        }
-
-        private sealed class InnerExpressionEqualityComparer
-        {
-            static InnerExpressionEqualityComparer()
-            {
-            }
-
-            internal static readonly ExpressionEqualityComparer Instance = new ExpressionEqualityComparer();
         }
     }
 }

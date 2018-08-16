@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
         }
 
-        private class Outer<T>
+        private static class Outer<T>
         {
             public class D
             {
@@ -208,11 +208,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
         }
 
-        private class OuterGeneric<T1>
+        private static class OuterGeneric<T1>
         {
-            public class InnerNonGeneric
+            public static class InnerNonGeneric
             {
-                public class InnerGeneric<T2, T3>
+                public static class InnerGeneric<T2, T3>
                 {
                     public class InnerGenericLeafNode<T4>
                     {
@@ -225,9 +225,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
         }
 
-        private class Level1<T1>
+        private static class Level1<T1>
         {
-            public class Level2<T2>
+            public static class Level2<T2>
             {
                 public class Level3<T3>
                 {
