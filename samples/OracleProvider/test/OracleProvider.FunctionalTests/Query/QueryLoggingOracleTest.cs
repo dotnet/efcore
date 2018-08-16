@@ -33,16 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"    Compiling query model: " + _eol +
+                    @"Compiling query model: " + _eol +
                     @"'from Customer <generated>_0 in DbSet<Customer>" + _eol +
                     @"select [<generated>_0]'" + _eol +
-                    @"    Optimized query model: " + _eol +
+                    @"Optimized query model: " + _eol +
                     @"'from Customer <generated>_0 in DbSet<Customer>",
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    string.Join(_eol, Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message)));
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #13029")]
         public virtual void Queryable_with_parameter_outputs_parameter_value_logging_warning()
         {
             using (var context = CreateContext())
@@ -88,14 +88,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"    Compiling query model: " + _eol +
+                    @"Compiling query model: " + _eol +
                     @"'(from Customer c in DbSet<Customer>" + _eol +
                     @"select [c]).Include(""Orders"")'" + _eol +
-                    @"    Including navigation: '[c].Orders'" + _eol +
-                    @"    Optimized query model: " + _eol +
+                    @"Including navigation: '[c].Orders'" + _eol +
+                    @"Optimized query model: " + _eol +
                     @"'from Customer c in DbSet<Customer>"
                     ,
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    string.Join(_eol, Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message)));
             }
         }
 
