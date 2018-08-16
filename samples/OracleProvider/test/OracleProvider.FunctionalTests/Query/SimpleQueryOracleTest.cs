@@ -23,6 +23,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        [ConditionalTheory(Skip = "Issue #13029")]
+        public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
+        {
+            return base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #13029")]
+        public override Task Select_bool_closure_with_order_parameter_with_cast_to_nullable(bool isAsync)
+        {
+            return base.Select_bool_closure_with_order_parameter_with_cast_to_nullable(isAsync);
+        }
+
         public override void Query_backed_by_database_view()
         {
             // TODO: #10680
@@ -95,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        [ConditionalFact(Skip = "See issue#10563")]
+        [ConditionalTheory(Skip = "See issue#10563")]
         public override Task Indexof_with_emptystring(bool isAsync)
         {
             return base.Indexof_with_emptystring(isAsync);
@@ -115,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.CustomerID + " " + e.OrderID);
         }
 
-        [ConditionalFact(Skip = "See issue#10520")]
+        [ConditionalTheory(Skip = "See issue#10520")]
         public override Task Where_datetime_today(bool isAsync)
         {
             return base.Where_datetime_today(isAsync);
@@ -2200,13 +2212,13 @@ WHERE ""c"".""CustomerID"" LIKE N'A' || N'%' AND (SUBSTR(""c"".""CustomerID"", 1
 ORDER BY ""c"".""CustomerID"" DESC");
         }
 
-        [ConditionalFact(Skip = "See issue#10513")]
+        [ConditionalTheory(Skip = "See issue#10513")]
         public override Task OrderBy_empty_list_contains(bool isAsync)
         {
             return base.OrderBy_empty_list_contains(isAsync);
         }
 
-        [ConditionalFact(Skip = "See issue#10513")]
+        [ConditionalTheory(Skip = "See issue#10513")]
         public override Task OrderBy_empty_list_does_not_contains(bool isAsync)
         {
             return base.OrderBy_empty_list_does_not_contains(isAsync);

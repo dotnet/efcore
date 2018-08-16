@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #13029")]
         public Task Single_Predicate_Cancellation()
         {
             return Assert.ThrowsAsync<OperationCanceledException>(
@@ -145,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
         public Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection(bool isAsync)
         {
             return AssertQuery<Order>(

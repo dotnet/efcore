@@ -14,6 +14,30 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [Fact(Skip = "Issue #13029")]
+        public override void Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
+        {
+            base.Update_on_bytes_concurrency_token_original_value_matches_does_not_throw();
+        }
+
+        [Fact(Skip = "Issue #13029")]
+        public override void Update_on_bytes_concurrency_token_original_value_mismatch_throws()
+        {
+            base.Update_on_bytes_concurrency_token_original_value_mismatch_throws();
+        }
+
+        [Fact(Skip = "Issue #13029")]
+        public override void Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
+        {
+            base.Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw();
+        }
+
+        [Fact(Skip = "Issue #13029")]
+        public override void Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
+        {
+            base.Remove_on_bytes_concurrency_token_original_value_mismatch_throws();
+        }
+
         public override void Identifiers_are_generated_correctly()
         {
             using (var context = CreateContext())
