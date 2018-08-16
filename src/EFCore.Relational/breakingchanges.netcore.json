@@ -218,5 +218,15 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
       "MemberId": "System.Void GenerateParameterNamePlaceholder(System.Text.StringBuilder builder, System.String name)",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMemberTranslatorDependencies",
+      "MemberId": "public .ctor()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMethodCallTranslatorDependencies",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Query> logger)",
+      "Kind": "Removal"
     }
 ]

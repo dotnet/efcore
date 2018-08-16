@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 return new InMemoryTypeMapping(clrType);
             }
 
-            return null;
+            return base.FindMapping(mappingInfo);
         }
     }
 }
