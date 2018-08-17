@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
                 };
                 using (var context = CreateContext())
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     // ReSharper disable once CoVariantArrayConversion
                     context.AddRange(fastUns);

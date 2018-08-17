@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void Seed(DbContext context)
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 var order11 = new Order
                 {

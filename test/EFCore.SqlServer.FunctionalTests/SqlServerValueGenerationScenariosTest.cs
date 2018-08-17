@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextIdentity(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextHiLo(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextDefaultValue(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextStringDefaultValue(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new BlogWithStringKey
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextNoKeyGeneration(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new NullableKeyBlog
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var blogs = new List<Blog>
                     {
@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
                         new FullNameBlog
@@ -777,7 +777,7 @@ END");
                 Guid afterSave;
                 using (var context = new BlogContextClientGuidKey(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
                         new GuidBlog
@@ -831,7 +831,7 @@ END");
             {
                 using (var context = new BlogContextClientGuidNonKey(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
                         new GuidBlog
@@ -866,7 +866,7 @@ END");
                 Guid afterSave;
                 using (var context = new BlogContextServerGuidKey(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
                         new GuidBlog
@@ -927,7 +927,7 @@ END");
             {
                 using (var context = new BlogContext(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -958,7 +958,7 @@ END");
             {
                 using (var context = new BlogContext(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -995,7 +995,7 @@ END");
             {
                 using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -1045,7 +1045,7 @@ END");
             {
                 using (var context = new BlogContextReadOnlySequenceKeyColumnWithDefaultValue(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -1092,7 +1092,7 @@ END");
             {
                 using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         new Blog
@@ -1121,7 +1121,7 @@ END");
             {
                 using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.Add(
                         new FullNameBlog
@@ -1147,7 +1147,7 @@ END");
             {
                 using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.Add(
                         new FullNameBlog
@@ -1182,7 +1182,7 @@ END");
             {
                 using (var context = new BlogContextConcurrencyWithRowversion(testStore.Name))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
                         new ConcurrentBlog

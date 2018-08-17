@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
                 var options = Fixture.CreateOptions(testDatabase);
                 using (var context = new NumNumContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         nownNum1, nownNum2, numNum1, numNum2, adNum1, adNum2, anNum1, anNum2,
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore
                 var options = Fixture.CreateOptions(testDatabase);
                 using (var context = new ENumContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(sNum1, sNum2, enNum1, enNum2, bNum1, bNum2);
 
@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore
                 var options = Fixture.CreateOptions(testDatabase);
                 using (var context = new GameDbContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.Characters.Add(
                         new PlayerCharacter(
@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new GameDbContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var player = new PlayerCharacter(
                         new Level
@@ -679,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new GameDbContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var player = new PlayerCharacter(
                         new Level
@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new GameDbContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var player = new PlayerCharacter(
                         new Level
@@ -1149,7 +1149,7 @@ namespace Microsoft.EntityFrameworkCore
         private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context)
             where TBlog : class, IBlog, new()
         {
-            context.Database.EnsureCreated();
+            context.Database.EnsureCreatedResiliently();
 
             var blog1 = context.Add(
                 new TBlog

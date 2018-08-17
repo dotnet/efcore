@@ -352,15 +352,15 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     if (async)
                     {
-                        Assert.False(await context.Database.EnsureCreatedAsync());
+                        Assert.False(await context.Database.EnsureCreatedResilientlyAsync());
                     }
                     else
                     {
-                        Assert.False(context.Database.EnsureCreated());
+                        Assert.False(context.Database.EnsureCreatedResiliently());
                     }
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
@@ -673,6 +673,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
+    #pragma warning disable RCS1102 // Make class static.
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorTest
     {

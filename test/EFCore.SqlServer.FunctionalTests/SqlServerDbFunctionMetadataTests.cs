@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDbFunctionMetadataTests
     {
-        public class TestMethods
+        public static class TestMethods
         {
             public static int Foo()
             {
