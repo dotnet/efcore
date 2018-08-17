@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var oracleConnectionStringBuilder = new OracleConnectionStringBuilder
             {
-                DataSource = "//efci:1521/ef.redmond.corp.microsoft.com",
+                DataSource = "//localhost:1521/ef.localdomain",
                 UserID = user,
                 Password = user
             };
