@@ -23,6 +23,7 @@ using Xunit;
 // ReSharper disable ReplaceWithSingleCallToSingle
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable ConvertToExpressionBodyWhenPossible
+#pragma warning disable RCS1155 // Use StringComparison when comparing strings.
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<TFixture>

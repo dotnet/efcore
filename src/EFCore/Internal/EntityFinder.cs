@@ -182,9 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+#pragma warning disable RCS1210 // Return Task.FromResult instead of returning null.
         public virtual Task<object[]> GetDatabaseValuesAsync(
             InternalEntityEntry entry, CancellationToken cancellationToken = default)
             => GetDatabaseValuesQuery(entry)?.FirstOrDefaultAsync(cancellationToken);
+#pragma warning restore RCS1210 // Return Task.FromResult instead of returning null.
 
         private IQueryable<object[]> GetDatabaseValuesQuery(InternalEntityEntry entry)
         {

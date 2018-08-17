@@ -304,10 +304,10 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        /// <remarks>
+        /// <summary>
         ///     Creating databases and executing DDL is slow. This oddly-structured test allows us to get the most ammount of
         ///     coverage using the least ammount of database operations.
-        /// </remarks>
+        /// </summary>
         [ConditionalFact]
         public virtual async Task Can_execute_operations()
         {

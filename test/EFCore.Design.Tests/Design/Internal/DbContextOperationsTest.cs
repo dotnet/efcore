@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             operations.CreateContext(typeof(TestContext).FullName);
         }
 
-        private class TestProgram
+        private static class TestProgram
         {
             private static TestWebHost BuildWebHost(string[] args)
                 => new TestWebHost(

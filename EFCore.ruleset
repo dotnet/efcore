@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Microsoft.Data.Sqlite" ToolsVersion="15.0">
+<RuleSet Name="EFCore" ToolsVersion="15.0">
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA1000" Action="None" />
     <Rule Id="SA1001" Action="None" />
@@ -154,5 +154,10 @@
     <Rule Id="SA1649" Action="None" />
     <Rule Id="SA1651" Action="None" />
     <Rule Id="SA1652" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
+    <Rule Id="RCS1165" Action="None" />
+    <Rule Id="RCS1168" Action="None" />
+    <Rule Id="RCS1194" Action="None" />
   </Rules>
 </RuleSet>

@@ -18,6 +18,8 @@ using Xunit;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 // ReSharper disable SpecifyACultureInStringConversionExplicitly
+#pragma warning disable RCS1215 // Expression is always equal to true/false.
+#pragma warning disable RCS1155 // Use StringComparison when comparing strings.
 namespace Microsoft.EntityFrameworkCore.Query
 {
     // ReSharper disable once UnusedTypeParameter

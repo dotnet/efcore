@@ -6,6 +6,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <!-- Workaround https://github.com/Microsoft/vstest/issues/792. -->
     <HasRuntimeOutput>true</HasRuntimeOutput>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>

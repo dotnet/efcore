@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    public class OracleDatabaseCreatorTest
+    public static class OracleDatabaseCreatorTest
     {
         public static TestDatabaseCreator GetDatabaseCreator(OracleTestStore testStore)
             => GetDatabaseCreator(testStore.ConnectionString);
