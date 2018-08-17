@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return Visit(
                     Expression.MakeBinary(
                         nodeType,
-                        CreateNavigationCaller(qsre, properties),
+                        UnwrapLastNavigation(nonNullExpression),
                         Expression.Constant(null)));
             }
 
@@ -176,8 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var entityType = _model.FindEntityType(nonNullExpression.Type)
                              ?? GetEntityType(properties, qsre);
 
-            if (entityType == null
-                || entityType.IsOwned())
+            if (entityType?.IsOwned() != false)
             {
                 return null;
             }
@@ -200,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 && navigation2.IsDependentToPrincipal())
             {
                 keyAccessExpression = CreateKeyAccessExpression(
-                    CreateNavigationCaller(qsre, properties),
+                    UnwrapLastNavigation(nonNullExpression),
                     navigation2.ForeignKey.Properties,
                     nullComparison: false);
                 nullCount = navigation2.ForeignKey.Properties.Count;
@@ -229,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private bool IsInvalidSubQueryExpression(Expression expression)
             => expression is SubQueryExpression subQuery
-               && _queryCompilationContext.DuplicateQueryModels.Contains(subQuery.QueryModel);
+                && _queryCompilationContext.DuplicateQueryModels.Contains(subQuery.QueryModel);
 
         private Expression RewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right)
         {
@@ -254,8 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return Visit(
                         Expression.MakeBinary(
                             nodeType,
-                            CreateNavigationCaller(leftQsre, leftProperties),
-                            CreateNavigationCaller(rightQsre, rightProperties)));
+                            UnwrapLastNavigation(left),
+                            UnwrapLastNavigation(right)));
                 }
 
                 return Expression.Constant(false);
@@ -272,8 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                              ?? GetEntityType(leftProperties, leftQsre)
                              ?? GetEntityType(rightProperties, rightQsre);
 
-            if (entityType == null
-                || entityType.IsOwned())
+            if (entityType?.IsOwned() != false)
             {
                 return null;
             }
@@ -287,9 +285,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     || right.RemoveConvert() is SubQueryExpression)
                 ? null
                 : Expression.MakeBinary(
-                nodeType,
-                CreateKeyAccessExpression(left, keyProperties, nullComparison: false),
-                CreateKeyAccessExpression(right, keyProperties, nullComparison: false));
+                    nodeType,
+                    CreateKeyAccessExpression(left, keyProperties, nullComparison: false),
+                    CreateKeyAccessExpression(right, keyProperties, nullComparison: false));
         }
 
         private IEntityType GetEntityType(
@@ -310,18 +308,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return null;
         }
 
-        private static Expression CreateNavigationCaller(
-            QuerySourceReferenceExpression qsre,
-            IList<IPropertyBase> properties)
-        {
-            Expression result = qsre;
-            for (var i = 0; i < properties.Count - 1; i++)
-            {
-                result = result.CreateEFPropertyExpression(properties[i], makeNullable: false);
-            }
-
-            return result;
-        }
+        private static Expression UnwrapLastNavigation(Expression expression)
+            => (expression as MemberExpression)?.Expression
+                ?? (expression is MethodCallExpression methodCallExpression
+                    && methodCallExpression.Method.IsEFPropertyMethod()
+                    ? methodCallExpression.Arguments[0]
+                    : null);
 
         private static Expression CreateKeyAccessExpression(
             Expression target,

@@ -350,10 +350,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs =>
                     (from c1 in cs
-                    where c1 == local
-                    select c1).Join(from c2 in cs
-                                    where c2 == local
-                                    select c2, o => o, i => i, (o, i) => o).Select(e => e.CustomerID));
+                     where c1 == local
+                     select c1).Join(from c2 in cs
+                                     where c2 == local
+                                     select c2, o => o, i => i, (o, i) => o).Select(e => e.CustomerID));
         }
 
         [ConditionalTheory]
@@ -2446,8 +2446,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es =>
                     (from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
-                    select e).Join(from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
-                                   select e, o => o, i => i, (o, i) => o));
+                     select e).Join(from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
+                                    select e, o => o, i => i, (o, i) => o));
         }
 
         // issue #12567
@@ -3424,7 +3424,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var orders
                     = (from o in context.Orders.Take(1)
-                       // ReSharper disable once UseMethodAny.0
+                           // ReSharper disable once UseMethodAny.0
                        where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                               where (from c in context.Set<Customer>()
                                      where c.CustomerID == o.CustomerID
@@ -5590,6 +5590,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(o => o.OrderDate));
         }
 
+        private static string ClientOrderBy(Customer c)
+        {
+            return c.CustomerID;
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_where_GroupBy_Group_ordering_works(bool isAsync)
@@ -5641,6 +5646,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Order>(elementAsserter: (e, a) => Assert.Equal(e.OrderID, a.OrderID)));
         }
 
-        private static string ClientOrderBy(Customer c) => c.CustomerID;
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_navigation_equal_to_null_for_subquery(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
+                entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_navigation_equality_rewrite_for_subquery(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => cs.Where(c => c.CustomerID.StartsWith("A")
+                    && os.Where(o => o.OrderID < 10300).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails
+                        == os.Where(o => o.OrderID > 10500).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails));
+        }
     }
 }
