@@ -163,6 +163,160 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA").Select(p => p.PersonAddress.Country.Name);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r == "USA"));
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_collection()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Where(p => p.Orders.Count > 0).Select(p => p.Orders);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Select_many_on_owned_collection()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().SelectMany(p => p.Orders);
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Id);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r == 1));
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Moons);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void SelectMany_on_owned_reference_followed_by_regular_entity_and_collection()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().SelectMany(p => p.PersonAddress.Country.Planet.Moons);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r.Diameter == 3474));
+            }
+        }
+
+        [Fact]
+        public virtual void SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().SelectMany(p => p.PersonAddress.Country.Planet.Star.Composition);
+                var result = query.ToList();
+
+                Assert.Equal(8, result.Count);
+                Assert.True(result.All(r => r.Name.StartsWith("H")));
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Moons.Count);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r == 1));
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Star);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r.Name == "Sol"));
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Star.Name);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r == "Sol"));
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Star.Name == "Sol").Select(p => p.PersonAddress.Country.Planet.Star);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => r.Name == "Sol"));
+            }
+        }
+
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
@@ -198,24 +352,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         OwnedPersonId = 4
                                     });
 
-                                ab.OwnsOne(a => a.Country).HasData(
+                                ab.OwnsOne(a => a.Country, cb =>
+                                {
+                                    cb.HasData(
                                     new
                                     {
                                         OwnedAddressOwnedPersonId = 1,
+                                        PlanetId = 1,
                                         Name = "USA"
                                     }, new
                                     {
                                         OwnedAddressOwnedPersonId = 2,
+                                        PlanetId = 1,
                                         Name = "USA"
                                     }, new
                                     {
                                         OwnedAddressOwnedPersonId = 3,
+                                        PlanetId = 1,
                                         Name = "USA"
                                     }, new
                                     {
                                         OwnedAddressOwnedPersonId = 4,
+                                        PlanetId = 1,
                                         Name = "USA"
                                     });
+
+                                    cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId).OnDelete(DeleteBehavior.Restrict);
+                                });
                             });
 
                         eb.OwnsMany(
@@ -272,16 +435,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         BranchId = 3
                                     });
 
-                                ab.OwnsOne(a => a.Country).HasData(
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 2,
-                                        Name = "Canada"
-                                    }, new
-                                    {
-                                        OwnedAddressBranchId = 3,
-                                        Name = "Canada"
-                                    });
+                                ab.OwnsOne(a => a.Country, cb =>
+                                {
+                                    cb.HasData(
+                                        new
+                                        {
+                                            OwnedAddressBranchId = 2,
+                                            Name = "Canada"
+                                        }, new
+                                        {
+                                            OwnedAddressBranchId = 3,
+                                            Name = "Canada"
+                                        });
+                                });
                             });
                     });
 
@@ -303,12 +469,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         LeafAId = 3
                                     });
 
-                                ab.OwnsOne(a => a.Country).HasData(
+                                ab.OwnsOne(a => a.Country, cb =>
+                                {
+                                    cb.HasData(
                                     new
                                     {
                                         OwnedAddressLeafAId = 3,
                                         Name = "Mexico"
                                     });
+                                });
                             });
                     });
 
@@ -330,14 +499,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         LeafBId = 4
                                     });
 
-                                ab.OwnsOne(a => a.Country).HasData(
+                                ab.OwnsOne(a => a.Country, cb =>
+                                {
+                                    cb.HasData(
                                     new
                                     {
                                         OwnedAddressLeafBId = 4,
                                         Name = "Panama"
                                     });
+                                });
                             });
                     });
+
+                modelBuilder.Entity<Planet>(pb =>
+                {
+                    pb.HasData(new Planet { Id = 1, StarId = 1 });
+                });
+
+                modelBuilder.Entity<Moon>(mb =>
+                {
+                    mb.HasData(new Moon { Id = 1, PlanetId = 1, Diameter = 3474 });
+                });
+
+                modelBuilder.Entity<Star>(sb =>
+                {
+                    sb.HasData(new Star { Id = 1, Name = "Sol" });
+                    sb.OwnsMany(
+                        s => s.Composition, ob =>
+                        ob.HasData(
+                            new { Id = "H", Name = "Hydrogen", StarId = 1 },
+                            new { Id = "He", Name = "Helium", StarId = 1 }));
+                });
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -359,6 +551,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected class OwnedCountry
         {
             public string Name { get; set; }
+
+            public int? PlanetId { get; set; }
+            public Planet Planet { get; set; }
         }
 
         protected class OwnedPerson
@@ -387,6 +582,42 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected class LeafB : OwnedPerson
         {
             public OwnedAddress LeafBAddress { get; set; }
+        }
+
+        protected class Planet
+        {
+            public int Id { get; set; }
+
+            public int StarId { get; set; }
+            public Star Star { get; set; }
+
+            public List<Moon> Moons { get; set; }
+        }
+
+        protected class Moon
+        {
+            public int Id { get; set; }
+            public int Diameter { get; set; }
+
+            public int PlanetId { get; set; }
+        }
+
+        protected class Star
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<Element> Composition { get; set; }
+
+            public List<Planet> Planets { get; set; }
+        }
+
+        protected class Element
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
+
+            public int StarId { get; set; }
         }
     }
 }
