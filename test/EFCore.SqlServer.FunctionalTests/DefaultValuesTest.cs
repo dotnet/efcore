@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new ChipsContext(_serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 context.Chippers.Add(
                     new Chipper

@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     using (var context = createContext())
                     {
-                        context.Database.EnsureCreated();
+                        context.Database.EnsureCreatedResiliently();
                         seed(context);
                     }
                 }

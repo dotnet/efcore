@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntities(serviceProvider, TestStore.Name);
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             await AddEntitiesAsync(serviceProvider, TestStore.Name);
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             const int threadCount = 50;
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntitiesWithIds(serviceProvider, 0, TestStore.Name);
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, true))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntitiesNullable(serviceProvider, TestStore.Name, true);
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, false))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntitiesNullable(serviceProvider, TestStore.Name, false);

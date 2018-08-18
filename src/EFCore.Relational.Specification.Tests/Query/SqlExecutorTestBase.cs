@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 using (var synchronizationEvent = new ManualResetEventSlim(false))
                 {
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 using (var synchronizationEvent = new ManualResetEventSlim(false))
                 {

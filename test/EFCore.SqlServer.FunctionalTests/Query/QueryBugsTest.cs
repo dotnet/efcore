@@ -139,7 +139,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             {
                 using (var context = new DeadlockContext(Fixture.CreateOptions(testStore)))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
                     context.EnsureSeeded();
 
                     var count
@@ -4733,7 +4733,7 @@ FROM [Prices] AS [e]");
 
             using (var context = contextCreator())
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
                 contextInitializer?.Invoke(context);
             }
 

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 for (var i = 0; i < 50; i++)
                 {
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 for (var i = 0; i < 50; i++)
                 {

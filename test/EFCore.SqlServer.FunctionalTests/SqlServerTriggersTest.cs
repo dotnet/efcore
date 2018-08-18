@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(PoolableDbContext context)
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 context.Database.ExecuteSqlCommand(
                     @"
