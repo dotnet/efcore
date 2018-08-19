@@ -526,21 +526,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("CREATE SEQUENCE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
 
-            var typeMapping = Dependencies.TypeMappingSource.GetMapping(operation.ClrType);
-
             if (operation.ClrType != typeof(long))
             {
                 builder
                     .Append(" AS ")
                     .Append(typeMapping.StoreType);
-
-                // set the typeMapping for use with operation.StartValue (i.e. a long) below
-                typeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(long));
             }
 
             builder
                 .Append(" START WITH ")
-                .Append(typeMapping.GenerateSqlLiteral(operation.StartValue));
+                .Append(Dependencies.TypeMappingSource.GetMapping(typeof(long)).GenerateSqlLiteral(operation.StartValue));
 
             SequenceOptions(operation, model, builder);
 
