@@ -3472,6 +3472,90 @@ GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
 
         #endregion
 
+        #region Bug13025
+
+        [Fact]
+        public virtual void Find_underlying_property_after_GroupJoin_DefaultIfEmpty()
+        {
+            using (CreateDatabase13025())
+            {
+                using (var context = new MyContext13025(_options))
+                {
+                    var query = (from e in context.Employees
+                                 join d in context.EmployeeDevices
+                                    on e.Id equals d.EmployeeId into grouping
+                                 from j in grouping.DefaultIfEmpty()
+                                 select new Holder13025
+                                 {
+                                     Name = e.Name,
+                                     DeviceId = j.DeviceId
+                                 }).ToList();
+
+                }
+            }
+        }
+
+        public class Holder13025
+        {
+            public string Name { get; set; }
+            public int? DeviceId { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase13025()
+        {
+            return CreateTestStore(
+                () => new MyContext13025(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Employee13025
+                        {
+                            Name = "Test1",
+                            Devices = new List<EmployeeDevice13025>
+                            {
+                                new EmployeeDevice13025
+                                {
+                                    DeviceId = 1,
+                                    Device = "Battery"
+                                }
+                            }
+                        });
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+        }
+
+        public class MyContext13025 : DbContext
+        {
+            public DbSet<Employee13025> Employees { get; set; }
+            public DbSet<EmployeeDevice13025> EmployeeDevices { get; set; }
+            public MyContext13025(DbContextOptions options)
+               : base(options)
+            {
+            }
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+        public class Employee13025
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public ICollection<EmployeeDevice13025> Devices { get; set; }
+        }
+
+        public class EmployeeDevice13025
+        {
+            public int Id { get; set; }
+            public short DeviceId { get; set; }
+            public int EmployeeId { get; set; }
+            public string Device { get; set; }
+            public Employee13025 Employee { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
@@ -3488,6 +3572,7 @@ GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
                 context.Database.EnsureCreated();
                 contextInitializer?.Invoke(context);
             }
+
             return testStore;
         }
 

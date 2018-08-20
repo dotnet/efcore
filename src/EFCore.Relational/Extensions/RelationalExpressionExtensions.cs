@@ -89,6 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     return columnReferenceExpression.Expression.FindProperty(targetType);
                 case AliasExpression aliasExpression:
                     return aliasExpression.Expression.FindProperty(targetType);
+                case NullableExpression nullableExpression
+                when !AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue13025", out var isEnabled) || !isEnabled:
+                    return nullableExpression.Operand.FindProperty(targetType);
                 case UnaryExpression unaryExpression:
                     return unaryExpression.Operand.FindProperty(targetType);
                 case SqlFunctionExpression functionExpression:
