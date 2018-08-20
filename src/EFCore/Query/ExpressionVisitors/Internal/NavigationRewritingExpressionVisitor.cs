@@ -1208,7 +1208,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     ReferenceReplacingExpressionVisitor
                         .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
-            AdjustIncludeAnnotations(querySourceMapping, additionalFromClauseBeingProcessed, querySourceReferenceExpression.ReferencedQuerySource);
+            AdjustQueryCompilationContextStateAfterSelectMany(
+                querySourceMapping,
+                additionalFromClauseBeingProcessed,
+                querySourceReferenceExpression.ReferencedQuerySource);
 
             return querySourceReferenceExpression;
         }
@@ -1263,7 +1266,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         e => ReferenceReplacingExpressionVisitor
                             .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
-                    AdjustIncludeAnnotations(querySourceMapping, additionalFromClauseBeingProcessed, navigationJoin.QuerySourceReferenceExpression.ReferencedQuerySource);
+                    AdjustQueryCompilationContextStateAfterSelectMany(
+                        querySourceMapping,
+                        additionalFromClauseBeingProcessed,
+                        navigationJoin.QuerySourceReferenceExpression.ReferencedQuerySource);
 
                     return navigationJoin.QuerySourceReferenceExpression;
                 }
@@ -1276,7 +1282,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return outerQuerySourceReferenceExpression;
         }
 
-        private void AdjustIncludeAnnotations(QuerySourceMapping querySourceMapping, IQuerySource querySourceBeingProcessed, IQuerySource resultQuerySource)
+        private void AdjustQueryCompilationContextStateAfterSelectMany(QuerySourceMapping querySourceMapping, IQuerySource querySourceBeingProcessed, IQuerySource resultQuerySource)
         {
             foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
             {
@@ -1289,6 +1295,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (includeResultOperator.QuerySource == querySourceBeingProcessed)
                 {
                     includeResultOperator.QuerySource = resultQuerySource;
+                }
+            }
+
+            if (_queryModelVisitor.QueryCompilationContext.CorrelatedSubqueryMetadataMap != null
+                && (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12575", out var isEnabled) || !isEnabled))
+            {
+                foreach (var mapping in _queryModelVisitor.QueryCompilationContext.CorrelatedSubqueryMetadataMap)
+                {
+                    if (mapping.Value.ParentQuerySource == querySourceBeingProcessed)
+                    {
+                        mapping.Value.ParentQuerySource = resultQuerySource;
+                    }
                 }
             }
         }
