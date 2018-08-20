@@ -4285,5 +4285,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                           A = (o != null ? o.OrderDate : null)
                       });
         }
+
+        [ConditionalFact]
+        public virtual void Collection_navigation_equal_to_null_for_subquery()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Dependent_to_principal_navigation_equal_to_null_for_subquery()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
+                cs => cs.Where(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_navigation_equality_rewrite_for_subquery()
+        {
+            AssertQuery<Customer, Order>(
+                (cs, os) => cs.Where(c => c.CustomerID.StartsWith("A")
+                    && os.Where(o => o.OrderID < 10300).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails
+                        == os.Where(o => o.OrderID > 10500).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails));
+        }
     }
 }

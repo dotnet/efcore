@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -162,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 return Visit(Expression.MakeBinary(
                     nodeType,
-                    CreateNavigationCaller(qsre, properties),
+                    CreateNavigationCaller(nonNullExpression, qsre, properties),
                     Expression.Constant(null)));
             }
 
@@ -198,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 && navigation2.IsDependentToPrincipal())
             {
                 keyAccessExpression = CreateKeyAccessExpression(
-                            CreateNavigationCaller(qsre, properties),
+                            CreateNavigationCaller(nonNullExpression, qsre, properties),
                             navigation2.ForeignKey.Properties,
                             nullComparison: false);
                 nullCount = navigation2.ForeignKey.Properties.Count;
@@ -251,8 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     return Visit(Expression.MakeBinary(
                         nodeType,
-                        CreateNavigationCaller(leftQsre, leftProperties),
-                        CreateNavigationCaller(rightQsre, rightProperties)));
+                        CreateNavigationCaller(left, leftQsre, leftProperties),
+                        CreateNavigationCaller(right, rightQsre, rightProperties)));
                 }
 
                 return Expression.Constant(false);
@@ -322,6 +323,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             return result;
         }
+
+        private static Expression CreateNavigationCaller(
+            Expression expression,
+            QuerySourceReferenceExpression qsre,
+            IList<IPropertyBase> properties)
+            => AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12738", out var isEnabled) && isEnabled
+                ? CreateNavigationCaller(qsre, properties)
+                : (expression as MemberExpression)?.Expression
+                    ?? (expression is MethodCallExpression methodCallExpression
+                        && methodCallExpression.Method.IsEFPropertyMethod()
+                        ? methodCallExpression.Arguments[0]
+                        : null);
 
         private static Expression CreateKeyAccessExpression(
             Expression target,
