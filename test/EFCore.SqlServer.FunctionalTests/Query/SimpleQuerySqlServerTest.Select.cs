@@ -906,5 +906,22 @@ FROM [Orders] AS [o]");
 FROM [Customers] AS [c]
 ORDER BY [B]");
         }
+
+        public override void Select_GetValueOrDefault_on_DateTime()
+        {
+            base.Select_GetValueOrDefault_on_DateTime();
+
+            AssertSql(
+                @"SELECT [o].[OrderDate]
+FROM [Orders] AS [o]");
+        }
+
+        public override void Select_GetValueOrDefault_on_DateTime_with_null_values()
+        {
+            base.Select_GetValueOrDefault_on_DateTime_with_null_values();
+
+            AssertSql(
+               @"");
+        }
     }
 }

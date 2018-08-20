@@ -5068,6 +5068,59 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CollectionAsserter<string>(ee => ee)(e.Weapons, a.Weapons);
                 });
         }
+        
+        [ConditionalFact]
+        public virtual void GetValueOrDefault_in_projection()
+        {
+            AssertQueryScalar<Weapon>(
+                ws => ws.Select(w => w.SynergyWithId.GetValueOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void GetValueOrDefault_in_filter()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Where(w => w.SynergyWithId.GetValueOrDefault() == 0));
+        }
+
+        [ConditionalFact]
+        public virtual void GetValueOrDefault_in_filter_non_nullable_column()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Where(w => ((int?)w.Id).GetValueOrDefault() == 0));
+        }
+
+        [ConditionalFact]
+        public virtual void GetValueOrDefault_on_DateTimeOffset()
+        {
+            var defaultValue = default(DateTimeOffset);
+
+            AssertQuery<Mission>(
+               ms => ms.Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue));
+        }
+
+        [ConditionalFact]
+        public virtual void GetValueOrDefault_in_order_by()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.OrderBy(w => w.SynergyWithId.GetValueOrDefault()).ThenBy(w => w.Id),
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void GetValueOrDefault_with_argument()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Where(w => w.SynergyWithId.GetValueOrDefault(w.Id) == 1));
+        }
+
+        [ConditionalFact]
+        public virtual void GetValueOrDefault_with_argument_complex()
+        {
+            AssertQuery<Weapon>(
+                ws => ws.Where(w => w.SynergyWithId.GetValueOrDefault(w.Name.Length + 42) > 10),
+                ws => ws.Where(w => (w.SynergyWithId == null ? w.Name.Length + 42 : w.SynergyWithId) > 10));
+        }
 
         // Remember to add any new tests to Async version of this test class
 

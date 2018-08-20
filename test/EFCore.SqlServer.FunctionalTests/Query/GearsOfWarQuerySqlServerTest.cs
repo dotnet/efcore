@@ -7437,6 +7437,74 @@ INNER JOIN (
 ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
         }
 
+        public override void GetValueOrDefault_in_projection()
+        {
+            base.GetValueOrDefault_in_projection();
+
+            AssertSql(
+               @"SELECT COALESCE([w].[SynergyWithId], 0)
+FROM [Weapons] AS [w]");
+        }
+
+        public override void GetValueOrDefault_in_filter()
+        {
+            base.GetValueOrDefault_in_filter();
+
+            AssertSql(
+               @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE COALESCE([w].[SynergyWithId], 0) = 0");
+        }
+
+        public override void GetValueOrDefault_in_filter_non_nullable_column()
+        {
+            base.GetValueOrDefault_in_filter_non_nullable_column();
+
+            AssertSql(
+               @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE COALESCE([w].[Id], 0) = 0");
+        }
+
+        public override void GetValueOrDefault_on_DateTimeOffset()
+        {
+            base.GetValueOrDefault_on_DateTimeOffset();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]");
+        }
+
+        public override void GetValueOrDefault_in_order_by()
+        {
+            base.GetValueOrDefault_in_order_by();
+
+            AssertSql(
+               @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+ORDER BY COALESCE([w].[SynergyWithId], 0), [w].[Id]");
+        }
+
+        public override void GetValueOrDefault_with_argument()
+        {
+            base.GetValueOrDefault_with_argument();
+
+            AssertSql(
+               @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE COALESCE([w].[SynergyWithId], [w].[Id]) = 1");
+        }
+
+        public override void GetValueOrDefault_with_argument_complex()
+        {
+            base.GetValueOrDefault_with_argument_complex();
+
+            AssertSql(
+               @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE COALESCE([w].[SynergyWithId], CAST(LEN([w].[Name]) AS int) + 42) > 10");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

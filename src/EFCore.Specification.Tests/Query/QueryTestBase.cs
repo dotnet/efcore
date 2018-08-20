@@ -198,6 +198,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             => AssertQueryScalar<TItem1, bool>(actualQuery, expectedQuery, assertOrder);
 
         public void AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<DateTime>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar(query, query, assertOrder);
+
+        public void AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<DateTimeOffset>> query,
             bool assertOrder = false)
             where TItem1 : class
@@ -253,6 +259,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             => AssertQueryScalar<TItem1, TItem2, bool>(actualQuery, expectedQuery, assertOrder);
+
+        public void AssertQueryScalar<TItem1, TItem2>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<DateTime>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            where TItem2 : class
+            => AssertQueryScalar<TItem1, TItem2, DateTime>(query, query, assertOrder);
+
+        public void AssertQueryScalar<TItem1, TItem2>(
+           Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<DateTime>> actualQuery,
+           Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<DateTime>> expectedQuery,
+           bool assertOrder = false)
+           where TItem1 : class
+           where TItem2 : class
+           => AssertQueryScalar<TItem1, TItem2, DateTime>(actualQuery, expectedQuery, assertOrder);
 
         public void AssertQueryScalar<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> actualQuery,

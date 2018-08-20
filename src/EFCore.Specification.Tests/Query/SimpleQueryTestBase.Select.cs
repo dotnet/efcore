@@ -793,5 +793,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                           B = c.CustomerID
                       });
         }
+
+        [ConditionalFact]
+        public virtual void Select_GetValueOrDefault_on_DateTime()
+        {
+            AssertQueryScalar<Order>(
+                os => os.Select(o => o.OrderDate.GetValueOrDefault()));
+        }
+
+        [ConditionalFact(Skip = "issue #12797")]
+        public virtual void Select_GetValueOrDefault_on_DateTime_with_null_values()
+        {
+            AssertQueryScalar<Customer, Order>(
+                (cs, os) => from c in cs
+                            join o in os on c.CustomerID equals o.CustomerID into grouping
+                            from o in grouping.DefaultIfEmpty()
+                            select o.OrderDate.GetValueOrDefault());
+        }
     }
 }

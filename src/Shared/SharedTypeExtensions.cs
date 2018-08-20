@@ -33,6 +33,16 @@ namespace System
                     ? typeof(Nullable<>).MakeGenericType(type)
                     : type.UnwrapNullableType();
 
+        public static bool IsNumeric(this Type type)
+        {
+            type = type.UnwrapNullableType();
+
+            return type.IsInteger()
+               || type == typeof(decimal)
+               || type == typeof(float)
+               || type == typeof(double);
+        }
+
         public static bool IsInteger(this Type type)
         {
             type = type.UnwrapNullableType();
