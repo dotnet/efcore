@@ -958,7 +958,7 @@ ORDER BY [B]");
             await base.Select_GetValueOrDefault_on_DateTime(isAsync);
 
             AssertSql(
-                @"SELECT COALESCE([o].[OrderDate], '0001-01-01T00:00:00.000')
+                @"SELECT [o].[OrderDate]
 FROM [Orders] AS [o]");
         }
 
