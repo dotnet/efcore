@@ -3627,25 +3627,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Select(o => o.Customer.City + " " + o.Customer.City));
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_bitwise_or(bool isAsync)
-        {
-            return AssertQuery<Customer>(
-                isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"),
-                entryCount: 2);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_bitwise_and(bool isAsync)
-        {
-            return AssertQuery<Customer>(
-                isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
-        }
-
         [ConditionalFact]
         public virtual void Select_bitwise_or()
         {

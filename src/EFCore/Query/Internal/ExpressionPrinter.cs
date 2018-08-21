@@ -694,11 +694,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return methodCallExpression;
         }
 
-        private static bool IsAnonymousType(Type type)
-            => type.Name.StartsWith("<>")
-               && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
-               && type.Name.Contains("AnonymousType");
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -710,7 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var isComplex = newExpression.Arguments.Count > 1;
             var appendAction = isComplex ? (Action<string>)AppendLine : Append;
 
-            var isAnonymousType = IsAnonymousType(newExpression.Type);
+            var isAnonymousType = newExpression.Type.IsAnonymousType();
             if (!isAnonymousType)
             {
                 _stringBuilder.Append(newExpression.Type.ShortDisplayName());

@@ -46,17 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             { ExpressionType.LessThanOrEqual, " <= " },
 
             // Unary
-            { ExpressionType.UnaryPlus, "+" }, // TODO: Regression test pending
+            { ExpressionType.UnaryPlus, "+" },
             { ExpressionType.Negate, "-" },
             { ExpressionType.Not, "~" },
 
             // Others
             { ExpressionType.Coalesce, " ?? " },
         };
-
-        public CosmosSqlGenerator()
-        {
-        }
 
         public SqlQuerySpec GenerateSqlQuerySpec(
             SelectExpression selectExpression,
@@ -119,7 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             }
             else if (value.GetType().IsInteger() || value.GetType() == typeof(decimal))
             {
-                _sqlBuilder.Append($"{value}");
+                _sqlBuilder.Append(value.ToString());
+            }
+            else if (value.GetType() == typeof(bool))
+            {
+                _sqlBuilder.Append(((bool)value) ? "true" : "false");
             }
             else
             {
@@ -163,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
 
             return base.VisitExtension(extensionExpression);
         }
+
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {

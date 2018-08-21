@@ -517,6 +517,35 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_bitwise_or(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"),
+                entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_bitwise_and(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        public virtual Task Where_bitwise_xor(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => (c.CustomerID == "ALFKI") ^ true),
+                entryCount: 90);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_simple_shadow(bool isAsync)
         {
             return AssertQuery<Employee>(

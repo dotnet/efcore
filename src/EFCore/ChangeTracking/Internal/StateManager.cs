@@ -291,14 +291,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var clrType = entity.GetType();
-
-            var newEntry = _internalEntityEntryFactory.Create(
-                this,
-                baseEntityType.ClrType == clrType
+            var entityType = baseEntityType.ClrType == clrType
                 || baseEntityType.HasDefiningNavigation()
                     ? baseEntityType
-                    : _model.FindRuntimeEntityType(clrType),
-                entity, valueBuffer);
+                    : _model.FindRuntimeEntityType(clrType);
+
+            var newEntry = valueBuffer.IsEmpty
+                ? _internalEntityEntryFactory.Create(this, entityType, entity)
+                : _internalEntityEntryFactory.Create(this, entityType, entity, valueBuffer);
 
             foreach (var key in baseEntityType.GetKeys())
             {

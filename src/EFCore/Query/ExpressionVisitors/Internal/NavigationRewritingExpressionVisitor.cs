@@ -729,12 +729,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (_insideInnerKeySelector && !_insideMaterializeCollectionNavigation)
                 {
-                    var translated = CreateSubqueryForNavigations(
+                    return CreateSubqueryForNavigations(
                         outerQuerySourceReferenceExpression,
                         properties,
                         propertyCreator);
-
-                    return translated;
                 }
 
                 var navigationResultExpression = RewriteNavigationsIntoJoins(
@@ -1359,7 +1357,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var itemName = sourceExpression is QuerySourceReferenceExpression qsre && !qsre.ReferencedQuerySource.HasGeneratedItemName()
                 ? qsre.ReferencedQuerySource.ItemName
-                : navigation.DeclaringEntityType.DisplayName()[0].ToString().ToLowerInvariant();
+                : navigation.DeclaringEntityType.ShortName()[0].ToString().ToLowerInvariant();
 
             var joinClause
                 = new JoinClause(

@@ -37,9 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
             Expression jObjectExpression,
             IPropertyBase property)
         {
-            // TODO : Converters
-            // TODO : TryCatch for invalid values
-
             var expression = Expression.Convert(
                 Expression.Call(
                     jObjectExpression,
