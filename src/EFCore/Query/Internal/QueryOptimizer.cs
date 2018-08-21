@@ -219,6 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var querySourceMapping = new QuerySourceMapping();
                 var clonedSubQueryModel = subQueryModel.Clone(querySourceMapping);
                 UpdateQueryAnnotations(subQueryModel, querySourceMapping);
+                _queryCompilationContext.UpdateMapping(querySourceMapping);
 
                 var innerMainFromClause = clonedSubQueryModel.MainFromClause;
                 var isGeneratedNameOuter = fromClause.HasGeneratedItemName();
