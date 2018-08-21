@@ -47,7 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
                     entityType.CosmosSql().CollectionName,
                     new SelectExpression(entityType, _querySource),
                     _cosmosClient),
-                new EntityShaper(entityType, _entityMaterializerSource));
+                new EntityShaper(entityType,
+                    trackingQuery: QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
+                        && !entityType.IsQueryType,
+                    useQueryBuffer: QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
+                        && !entityType.IsQueryType,
+                    _entityMaterializerSource));
         }
     }
 }

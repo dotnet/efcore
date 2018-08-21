@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
         }
 
         [ConditionalFact]
-        // TODO: Remove ToList when Single/Count works
         public async Task Can_add_update_delete_end_to_end()
         {
             using (var testDatabase = CosmosSqlTestStore.CreateInitialized(DatabaseName))
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
 
                 using (var context = new CustomerContext(options))
                 {
-                    var customerFromStore = context.Set<Customer>().ToList().Single();
+                    var customerFromStore = context.Set<Customer>().Single();
 
                     Assert.Equal(42, customerFromStore.Id);
                     Assert.Equal("Theon", customerFromStore.Name);
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
 
                 using (var context = new CustomerContext(options))
                 {
-                    var customerFromStore = context.Set<Customer>().ToList().Single();
+                    var customerFromStore = context.Set<Customer>().Single();
 
                     Assert.Equal(42, customerFromStore.Id);
                     Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
 
                 using (var context = new CustomerContext(options))
                 {
-                    Assert.Equal(0, context.Set<Customer>().ToList().Count());
+                    Assert.Equal(0, context.Set<Customer>().Count());
                 }
             }
         }

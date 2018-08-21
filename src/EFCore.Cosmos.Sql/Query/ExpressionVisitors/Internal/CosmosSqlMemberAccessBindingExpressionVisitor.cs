@@ -1,10 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -57,6 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
 
                         return newExpression;
                     }
+                    else
+                    {
+                        var modelVisitor = (CosmosSqlQueryModelVisitor)_queryModelVisitor;
+                        modelVisitor.AllMembersBoundToJObject = false;
+
+                        return memberExpression;
+                    }
                 }
 
                 return Expression.MakeMemberAccess(newExpression, memberExpression.Member);
@@ -93,7 +101,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            var newExpression = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
+
+            var firstArgument = newExpression.Arguments.FirstOrDefault();
+            var isJobject = newExpression != methodCallExpression
+                && firstArgument?.Type == typeof(JObject);
+
+            return newExpression;
         }
 
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression querySourceReferenceExpression)

@@ -22,11 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
         {
         }
 
-        protected override void TrackEntitiesInResults<TResult>([NotNull] QueryModel queryModel)
-        {
-            // Disable tracking from here and enable that from EntityShaperExpression directly
-            //base.TrackEntitiesInResults<TResult>(queryModel);
-        }
+        public bool AllMembersBoundToJObject { get; set; }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
@@ -52,19 +48,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
             var fromClause = queryModel.MainFromClause;
 
             // Change current parameter to JObject
+            var previousParameterType = CurrentParameter.Type;
             UpdateCurrentParameter(fromClause, typeof(JObject));
+            var parentBindingState = AllMembersBoundToJObject;
+            AllMembersBoundToJObject = true;
 
             var predicate = ReplaceClauseReferences(whereClause.Predicate);
 
-            Expression = new QueryShaperExpression(
-                Expression.Call(LinqOperatorProvider.Where.MakeGenericMethod(CurrentParameter.Type),
-                queryShaperExpression.QueryExpression,
-                Expression.Lambda(predicate, CurrentParameter)),
-                queryShaperExpression.Shaper);
+            if (AllMembersBoundToJObject)
+            {
+                Expression = new QueryShaperExpression(
+                    Expression.Call(LinqOperatorProvider.Where.MakeGenericMethod(CurrentParameter.Type),
+                    queryShaperExpression.QueryExpression,
+                    Expression.Lambda(predicate, CurrentParameter)),
+                    queryShaperExpression.Shaper);
+                AllMembersBoundToJObject = parentBindingState;
 
-            UpdateCurrentParameter(fromClause, Expression.Type.TryGetSequenceType());
+                UpdateCurrentParameter(fromClause, previousParameterType);
+            }
+            else
+            {
+                UpdateCurrentParameter(fromClause, previousParameterType);
 
-            //base.VisitWhereClause(whereClause, queryModel, index);
+                base.VisitWhereClause(whereClause, queryModel, index);
+                AllMembersBoundToJObject = false;
+            }
         }
 
         private void UpdateCurrentParameter(IQuerySource querySource, Type type)
