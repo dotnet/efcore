@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Sets the timeout to use for commands executed with this <see cref="DbContext" />.
+        ///         Sets the timeout (in seconds) to use for commands executed with this <see cref="DbContext" />.
         ///     </para>
         ///     <para>
         ///         Note that the command timeout is distinct from the connection timeout, which is commonly
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Returns the timeout set for commands executed with this <see cref="DbContext" />.
+        ///         Returns the timeout (in seconds) set for commands executed with this <see cref="DbContext" />.
         ///     </para>
         ///     <para>
         ///         Note that the command timeout is distinct from the connection timeout, which is commonly
