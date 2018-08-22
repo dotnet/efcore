@@ -4702,6 +4702,7 @@ FROM [Prices] AS [e]");
             {
             }
         }
+
         public class Employee13025
         {
             public int Id { get; set; }
@@ -4716,6 +4717,83 @@ FROM [Prices] AS [e]");
             public int EmployeeId { get; set; }
             public string Device { get; set; }
             public Employee13025 Employee { get; set; }
+        }
+
+        #endregion
+
+        #region Bug12170
+
+        [Fact]
+        public virtual void Weak_entities_with_query_filter_subquery_flattening()
+        {
+            using (CreateDatabase12170())
+            {
+                using (var context = new MyContext12170(_options))
+                {
+                    var result = context.Definitions.Any();
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase12170()
+        {
+            return CreateTestStore(
+                () => new MyContext12170(_options),
+                context =>
+                {
+                    context.SaveChanges();
+                    ClearLog();
+                });
+        }
+
+        public class MyContext12170 : DbContext
+        {
+            public virtual DbSet<Definition12170> Definitions { get; set; }
+            public virtual DbSet<DefinitionHistory12170> DefinitionHistories { get; set; }
+
+            public MyContext12170(DbContextOptions options)
+               : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Definition12170>().HasQueryFilter(md => md.ChangeInfo.RemovedPoint.Timestamp == null);
+                modelBuilder.Entity<Definition12170>().HasOne(h => h.LatestHistoryEntry).WithMany();
+                modelBuilder.Entity<Definition12170>().HasMany(h => h.HistoryEntries).WithOne(h => h.Definition);
+
+                modelBuilder.Entity<DefinitionHistory12170>().OwnsOne(h => h.EndedPoint);
+            }
+        }
+
+        [Owned]
+        public class OptionalChangePoint12170
+        {
+            public DateTime? Timestamp { get; set; }
+        }
+
+        [Owned]
+        public class MasterChangeInfo12170
+        {
+            public virtual OptionalChangePoint12170 RemovedPoint { get; set; }
+        }
+
+        public partial class DefinitionHistory12170
+        {
+            public int Id { get; set; }
+            public int MacGuffinDefinitionID { get; set; }
+            public virtual Definition12170 Definition { get; set; }
+            public OptionalChangePoint12170 EndedPoint { get; set; }
+        }
+
+        public partial class Definition12170
+        {
+            public int Id { get; set; }
+            public virtual MasterChangeInfo12170 ChangeInfo { get; set; }
+
+            public virtual ICollection<DefinitionHistory12170> HistoryEntries { get; set; }
+            public virtual DefinitionHistory12170 LatestHistoryEntry { get; set; }
+            public int? LatestHistoryEntryID { get; set; }
         }
 
         #endregion
