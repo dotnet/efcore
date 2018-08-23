@@ -392,9 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             newExpression = _predicateNegationExpressionOptimizer.Visit(newExpression);
             newExpression = _reducingExpressionVisitor.Visit(newExpression);
 
-            newExpression = _booleanExpressionTranslatingVisitor.Translate(newExpression, searchCondition);
-
-            return newExpression;
+            return _booleanExpressionTranslatingVisitor.Translate(newExpression, searchCondition);
         }
 
         private class InExpressionValuesExpandingVisitor : RelinqExpressionVisitor
@@ -566,12 +564,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var leftBooleanConstant = GetBooleanConstantValue(binaryExpression.Left);
                 var rightBooleanConstant = GetBooleanConstantValue(binaryExpression.Right);
 
-                if (binaryExpression.NodeType == ExpressionType.Equal
+                if ((binaryExpression.NodeType == ExpressionType.Equal
                     && leftBooleanConstant == true
-                    && rightBooleanConstant == true
-                    || binaryExpression.NodeType == ExpressionType.NotEqual
+                    && rightBooleanConstant == true)
+                    || (binaryExpression.NodeType == ExpressionType.NotEqual
                     && leftBooleanConstant == false
-                    && rightBooleanConstant == false)
+                    && rightBooleanConstant == false))
                 {
                     return;
                 }
@@ -729,11 +727,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             string[] substitutions = null;
 
             // ReSharper disable once SwitchStatementMissingSomeCases
-            switch (arguments.NodeType)
+            switch (arguments)
             {
-                case ExpressionType.Parameter:
-                    var parameterExpression = (ParameterExpression)arguments;
-
+                case ParameterExpression parameterExpression:
                     if (parameters.TryGetValue(parameterExpression.Name, out var parameterValue))
                     {
                         var argumentValuesFromParameter = (object[])parameterValue;
@@ -748,7 +744,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                                 {
                                     var parameterName = _parameterNameGenerator.GenerateNext();
 
-                                    substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+                                    if (argumentValuesFromParameter[i] is DbParameter dbParameter)
+                                    {
+                                        if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                                        {
+                                            dbParameter.ParameterName
+                                                = SqlGenerator.GenerateParameterName(parameterName);
+                                        }
+                                        else
+                                        {
+                                            parameterName = dbParameter.ParameterName;
+                                        }
+
+                                        substitutions[i] = dbParameter.ParameterName;
+                                    }
+                                    else
+                                    {
+                                        substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+                                    }
 
                                     builder.AddParameter(
                                         parameterName,
@@ -759,15 +772,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     break;
 
-                case ExpressionType.Constant:
-                    var constantExpression = (ConstantExpression)arguments;
-                    var argumentValuesFromConstant = (object[])constantExpression.Value;
+                case ConstantExpression constantExpression:
+                    var argumentValues = (object[])constantExpression.Value;
 
-                    substitutions = new string[argumentValuesFromConstant.Length];
+                    substitutions = new string[argumentValues.Length];
 
-                    for (var i = 0; i < argumentValuesFromConstant.Length; i++)
+                    for (var i = 0; i < argumentValues.Length; i++)
                     {
-                        var value = argumentValuesFromConstant[i];
+                        var value = argumentValues[i];
 
                         if (value is DbParameter dbParameter)
                         {
@@ -791,28 +803,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     break;
 
-                case ExpressionType.NewArrayInit:
-                    var newArrayExpression = (NewArrayExpression)arguments;
-
+                case NewArrayExpression newArrayExpression
+                when newArrayExpression.NodeType == ExpressionType.NewArrayInit:
                     substitutions = new string[newArrayExpression.Expressions.Count];
 
                     for (var i = 0; i < newArrayExpression.Expressions.Count; i++)
                     {
-                        var expression = newArrayExpression.Expressions[i].RemoveConvert();
-
                         // ReSharper disable once SwitchStatementMissingSomeCases
-                        switch (expression.NodeType)
+                        switch (newArrayExpression.Expressions[i].RemoveConvert())
                         {
-                            case ExpressionType.Constant:
-                                var value = ((ConstantExpression)expression).Value;
-                                substitutions[i]
-                                    = GenerateSqlLiteral(value);
+                            case ConstantExpression constant:
+                                var value = constant.Value;
+                                substitutions[i] = GenerateSqlLiteral(value);
 
                                 break;
 
-                            case ExpressionType.Parameter:
-                                var parameter = (ParameterExpression)expression;
-
+                            case ParameterExpression parameter:
                                 if (_parametersValues.ContainsKey(parameter.Name))
                                 {
                                     substitutions[i] = SqlGenerator.GenerateParameterName(parameter.Name);
@@ -1892,8 +1898,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                                         : Expression.Constant(false);
                             }
 
-                            if (parameterValue == null && constantExpression.Value != null
-                                || parameterValue != null && constantExpression.Value == null)
+                            if ((parameterValue == null && constantExpression.Value != null)
+                                || (parameterValue != null && constantExpression.Value == null))
                             {
                                 return
                                     expression.NodeType == ExpressionType.Equal
