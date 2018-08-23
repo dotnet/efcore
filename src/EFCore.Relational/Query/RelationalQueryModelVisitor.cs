@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -1614,11 +1614,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? innerSelectExpression.Projection
                     : Enumerable.Empty<Expression>();
 
-            var joinExpression
-                = outerSelectExpression.AddInnerJoin(
-                    innerSelectExpression.Tables.Single(),
+            var joinExpression = outerSelectExpression.AddInnerJoin(
+                    innerSelectExpression.Tables.First(),
                     projection,
                     innerSelectExpression.Predicate);
+
+            if (innerSelectExpression.Tables.Count > 1)
+            {
+                foreach (var otherTableExpression in innerSelectExpression.Tables.Skip(1))
+                {
+                    outerSelectExpression.AddTable(otherTableExpression);
+                }
+            }
 
             joinExpression.Predicate = predicate;
             joinExpression.QuerySource = joinClause;
