@@ -515,6 +515,16 @@ INNER JOIN (
 ORDER BY [t].[OrderID]");
         }
 
+        public override void From_sql_with_inlined_db_parameter()
+        {
+            base.From_sql_with_inlined_db_parameter();
+
+            AssertSql(
+                @"@somename='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
+        }
+
         [Fact]
         public virtual void From_sql_in_subquery_with_dbParameter()
         {
