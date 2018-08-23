@@ -243,7 +243,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
         public override object Snapshot(object instance)
-            => Snapshot((T)instance);
+            => instance != null || typeof(T).IsNullableType()
+                ? Snapshot((T)instance)
+                : instance;
 
         /// <summary>
         ///     <para>
