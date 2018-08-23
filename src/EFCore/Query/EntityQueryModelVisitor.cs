@@ -1619,17 +1619,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var elementType = expression.Type.TryGetElementType(typeof(IEnumerable<>));
 
-                if (elementType != null)
+                if (elementType != null
+                    && LinqOperatorProvider is AsyncLinqOperatorProvider asyncLinqOperatorProvider)
                 {
-                    if (LinqOperatorProvider is AsyncLinqOperatorProvider asyncLinqOperatorProvider)
-                    {
-                        return
-                            Expression.Call(
-                                asyncLinqOperatorProvider
-                                    .ToAsyncEnumerable
-                                    .MakeGenericMethod(elementType),
-                                expression);
-                    }
+                    return Expression.Call(
+                            asyncLinqOperatorProvider
+                                .ToAsyncEnumerable
+                                .MakeGenericMethod(elementType),
+                            expression);
                 }
             }
 

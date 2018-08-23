@@ -1,10 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Newtonsoft.Json.Linq;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
@@ -18,16 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
         {
         }
 
-        protected override void TrackEntitiesInResults<TResult>([NotNull] QueryModel queryModel)
-        {
-            // Disable tracking from here and enable that from EntityShaperExpression directly
-            //base.TrackEntitiesInResults<TResult>(queryModel);
-        }
+        public bool AllMembersBoundToJObject { get; set; }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            if (Expression is QueryShaperExpression queryShaperExpression
-                && queryShaperExpression.QueryExpression is DocumentQueryExpression documentQueryExpression)
+            Debug.Assert(Expression is QueryShaperExpression, "Invalid Expression encountered");
+
+            var queryShaperExpression = (QueryShaperExpression)Expression;
+
+            if (queryShaperExpression.QueryExpression is DocumentQueryExpression documentQueryExpression)
             {
                 var selectExpression = documentQueryExpression.SelectExpression;
                 var sqlTranslatingExpressionVisitor = new SqlTranslatingExpressionVisitor(
@@ -42,7 +45,41 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
                 }
             }
 
-            base.VisitWhereClause(whereClause, queryModel, index);
+            var fromClause = queryModel.MainFromClause;
+
+            // Change current parameter to JObject
+            var previousParameterType = CurrentParameter.Type;
+            UpdateCurrentParameter(fromClause, typeof(JObject));
+            var parentBindingState = AllMembersBoundToJObject;
+            AllMembersBoundToJObject = true;
+
+            var predicate = ReplaceClauseReferences(whereClause.Predicate);
+
+            if (AllMembersBoundToJObject)
+            {
+                Expression = new QueryShaperExpression(
+                    Expression.Call(LinqOperatorProvider.Where.MakeGenericMethod(CurrentParameter.Type),
+                    queryShaperExpression.QueryExpression,
+                    Expression.Lambda(predicate, CurrentParameter)),
+                    queryShaperExpression.Shaper);
+                AllMembersBoundToJObject = parentBindingState;
+
+                UpdateCurrentParameter(fromClause, previousParameterType);
+            }
+            else
+            {
+                UpdateCurrentParameter(fromClause, previousParameterType);
+
+                base.VisitWhereClause(whereClause, queryModel, index);
+                AllMembersBoundToJObject = false;
+            }
+        }
+
+        private void UpdateCurrentParameter(IQuerySource querySource, Type type)
+        {
+            CurrentParameter = Expression.Parameter(type, querySource.ItemName);
+
+            QueryCompilationContext.AddOrUpdateMapping(querySource, CurrentParameter);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -24,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 
         [ConditionalTheory]
         [InlineData(false)]
-        public virtual void Simple_IQuaryable(bool isAsync)
+        public async virtual Task Simple_IQuaryable(bool isAsync)
         {
-            AssertQuery<Customer>(isAsync, cs => cs, entryCount: 91);
+            await AssertQuery<Customer>(isAsync, cs => cs, entryCount: 91);
 
             AssertSql(
                 @"SELECT c AS query
