@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Castle.DynamicProxy;
 using Castle.DynamicProxy.Generators;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -200,6 +201,29 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Proxy_Should_use_PropertyAccessMode()
+        {
+            using (var context = new NeweyContextTestNoField())
+            {
+                var blog = new Blog() { Id = 1, BlogName = "Main Blog" };
+
+                var post1 = new Post() { Id = 1, BlogName = "Post 1", OwnerBlog = blog };
+                var post2 = new Post() { Id = 2, BlogName = "Post 2", OwnerBlog = blog };
+                var post3 = new Post() { Id = 3, BlogName = "Post 3", OwnerBlog = blog };
+                context.AddRange(post1, post2, post3, blog);
+                Assert.Equal(blog.Posts.Count, 3);
+                context.SaveChanges();
+            }
+            using (var con = new NeweyContextTestNoField())
+            {
+                var bquery = con.Set<Blog>();
+                var blog = bquery.Single();
+                Assert.Equal(blog.Posts.Count, 3);
+            }
+
+        }
+
+        [Fact]
         public void Throws_if_type_not_available_to_Castle()
         {
             using (var context = new NeweyContextN4())
@@ -311,7 +335,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Phone>();
+            {
+                modelBuilder.Entity<Phone>();
+            }
         }
 
         public class Phone
@@ -418,15 +444,19 @@ namespace Microsoft.EntityFrameworkCore
         private class NeweyContextN : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseLazyLoadingProxies()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+            {
+                optionsBuilder
+                                   .UseLazyLoadingProxies()
+                                   .UseInMemoryDatabase(Guid.NewGuid().ToString());
+            }
         }
 
         private class NeweyContextN1 : NeweyContextN
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<McLarenMp418>();
+            {
+                modelBuilder.Entity<McLarenMp418>();
+            }
         }
 
         public class McLarenMp419
@@ -439,7 +469,9 @@ namespace Microsoft.EntityFrameworkCore
         private class NeweyContextN2 : NeweyContextN
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<McLarenMp419>();
+            {
+                modelBuilder.Entity<McLarenMp419>();
+            }
         }
 
         public class MarchCg901
@@ -459,8 +491,12 @@ namespace Microsoft.EntityFrameworkCore
         private class NeweyContextN3 : NeweyContextN
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<MarchCg901>();
+            {
+                modelBuilder.Entity<MarchCg901>();
+            }
         }
+
+
 
         internal class McLarenMp421
         {
@@ -470,8 +506,13 @@ namespace Microsoft.EntityFrameworkCore
         private class NeweyContextN4 : NeweyContextN
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<McLarenMp421>();
+            {
+                modelBuilder.Entity<McLarenMp421>();
+            }
         }
+
+
+
 
         public class RedBullRb3
         {
@@ -485,28 +526,117 @@ namespace Microsoft.EntityFrameworkCore
         private class NeweyContextN5 : NeweyContextN
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<RedBullRb3>();
+            {
+                modelBuilder.Entity<RedBullRb3>();
+            }
         }
 
         private class NeweyContextN6 : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+            {
+                optionsBuilder
+                                   .UseInMemoryDatabase(Guid.NewGuid().ToString());
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<March82GGtp>();
+            {
+                modelBuilder.Entity<March82GGtp>();
+            }
         }
 
         private class NeweyContextN7 : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseLazyLoadingProxies(false)
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+            {
+                optionsBuilder
+                                   .UseLazyLoadingProxies(false)
+                                   .UseInMemoryDatabase(Guid.NewGuid().ToString());
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<March82GGtp>();
+            {
+                modelBuilder.Entity<March82GGtp>();
+            }
+        }
+
+        public class Blog
+        {
+            public Blog()
+            {
+                Posts = new HashSet<Post>();
+                Id = default;
+                BlogName = default;
+            }
+
+            public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
+
+
+            public int Id
+            {
+                get => (int)Values[nameof(Id)];
+                set => Values[nameof(Id)] = value;
+            }
+
+            public string BlogName
+            {
+                get => (string)Values[nameof(BlogName)];
+                set => Values[nameof(BlogName)] = value;
+            }
+
+            public virtual ICollection<Post> Posts
+            {
+                get => (ICollection<Post>)Values[nameof(Posts)];
+                set => Values[nameof(Posts)] = value;
+            }
+
+        }
+        public class Post
+        {
+            public Post()
+            {
+                Id = default;
+                BlogName = default;
+                OwnerBlog = default;
+            }
+            public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
+
+
+            public int Id
+            {
+                get => (int)Values[nameof(Id)];
+                set => Values[nameof(Id)] = value;
+            }
+
+            public string BlogName
+            {
+                get => (string)Values[nameof(BlogName)];
+                set => Values[nameof(BlogName)] = value;
+            }
+
+            public virtual Blog OwnerBlog
+            {
+                get => (Blog)Values[nameof(OwnerBlog)];
+                set => Values[nameof(OwnerBlog)] = value;
+            }
+
+
+        }
+        private class NeweyContextTestNoField : NeweyContext
+        {
+            public NeweyContextTestNoField(string dbName = null) : base(dbName, true)
+            {
+
+            }
+            
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>();
+                modelBuilder.Entity<Post>();
+                modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Property);
+            }
         }
     }
+
 }
+

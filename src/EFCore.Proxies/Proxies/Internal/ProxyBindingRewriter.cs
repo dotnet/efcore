@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     ProxiesStrings.NonVirtualNavigation(navigation.Name, entityType.DisplayName()));
                             }
 
-                            navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
+                            navigation.SetPropertyAccessMode(entityType.GetPropertyAccessMode());
                         }
                     }
                 }
