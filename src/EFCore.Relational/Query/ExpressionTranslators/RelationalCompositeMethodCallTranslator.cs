@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
     /// </summary>
     public abstract class RelationalCompositeMethodCallTranslator : ICompositeMethodCallTranslator
     {
+        private readonly List<IMethodCallTranslator> _plugins = new List<IMethodCallTranslator>();
         private readonly List<IMethodCallTranslator> _methodCallTranslators;
 
         /// <summary>
@@ -29,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
+
+            _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
 
             _methodCallTranslators
                 = new List<IMethodCallTranslator>
@@ -56,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression, IModel model)
             => ((IMethodCallTranslator)model.Relational().FindDbFunction(methodCallExpression.Method))?.Translate(methodCallExpression)
-               ?? _methodCallTranslators
+               ?? Enumerable.Concat(_plugins, _methodCallTranslators)
                    .Select(translator => translator.Translate(methodCallExpression))
                    .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
 

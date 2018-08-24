@@ -693,10 +693,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     || (newExpression != null
                         && newExpression.Type == memberExpression.Expression.Type))
                 {
-                    var newMemberExpression
-                        = newExpression != memberExpression.Expression
-                            ? Expression.Property(newExpression, memberExpression.Member.Name)
-                            : memberExpression;
+                    MemberExpression newMemberExpression;
+                    if (newExpression != memberExpression.Expression)
+                    {
+                        if (memberExpression.Member.DeclaringType.IsInterface
+                            && newExpression.Type != memberExpression.Member.DeclaringType)
+                        {
+                            newExpression = Expression.Convert(newExpression, memberExpression.Member.DeclaringType);
+                        }
+
+                        newMemberExpression = Expression.Property(newExpression, memberExpression.Member.Name);
+                    }
+                    else
+                    {
+                        newMemberExpression = memberExpression;
+                    }
 
                     var translatedExpression = _memberTranslator.Translate(newMemberExpression);
 

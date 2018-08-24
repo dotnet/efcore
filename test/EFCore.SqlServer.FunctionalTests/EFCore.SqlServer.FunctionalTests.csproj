@@ -33,7 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' == '0.0.0'">
-    <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.SqlServer.NTS\EFCore.SqlServer.NTS.csproj" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' != '0.0.0'">
