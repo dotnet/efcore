@@ -7757,6 +7757,14 @@ LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].
 ORDER BY [w.SynergyWith].[Name] + N'Marcus'' Lancer'");
         }
 
+        public override async Task String_concat_on_various_types(bool isAsync)
+        {
+            await base.String_concat_on_various_types(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task Time_of_day_datetimeoffset(bool isAsync)
         {
             await base.Time_of_day_datetimeoffset(isAsync);
@@ -8030,6 +8038,36 @@ WHERE COALESCE([w].[SynergyWithId], [w].[Id]) = 1");
                 @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 WHERE COALESCE([w].[SynergyWithId], CAST(LEN([w].[Name]) AS int) + 42) > 10");
+        }
+
+        public override async Task Filter_with_compex_predicate_containig_subquery(bool isAsync)
+        {
+            await base.Filter_with_compex_predicate_containig_subquery(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[FullName] <> N'Dom') AND (
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE ([w].[IsAutomatic] = 1) AND ([g].[FullName] = [w].[OwnerFullName])
+    ORDER BY [w].[Id]
+) IS NOT NULL)");
+        }
+
+        public override async Task Query_with_complex_let_containing_ordering_and_filter_projecting_firstOrDefefault_element_of_let(bool isAsync)
+        {
+            await base.Query_with_complex_let_containing_ordering_and_filter_projecting_firstOrDefefault_element_of_let(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], (
+    SELECT TOP(1) [w].[Name]
+    FROM [Weapons] AS [w]
+    WHERE ([w].[IsAutomatic] = 1) AND ([g].[FullName] = [w].[OwnerFullName])
+    ORDER BY [w].[AmmunitionType] DESC
+) AS [WeaponName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] <> N'Dom')");
         }
 
         private void AssertSql(params string[] expected)

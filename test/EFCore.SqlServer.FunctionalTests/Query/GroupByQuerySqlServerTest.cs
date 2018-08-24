@@ -172,6 +172,16 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override async Task GroupBy_Property_Select_key_multiple_times_and_aggregate(bool isAsync)
+        {
+            await base.GroupBy_Property_Select_key_multiple_times_and_aggregate(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key1], SUM([o].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
         public override async Task GroupBy_anonymous_Select_Average(bool isAsync)
         {
             await base.GroupBy_anonymous_Select_Average(isAsync);
