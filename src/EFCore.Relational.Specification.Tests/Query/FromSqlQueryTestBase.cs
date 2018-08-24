@@ -874,6 +874,19 @@ AND ((]UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
+        [Fact]
+        public virtual void From_sql_with_inlined_db_parameter()
+        {
+            using (var context = CreateContext())
+            {
+                var parameter = CreateDbParameter("@somename", "ALFKI");
+
+                var query = context.Customers
+                    .FromSql(NormalizeDelimeters($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
+                    .ToList();
+            }
+        }
+
         private RawSqlString NormalizeDelimeters(RawSqlString sql)
             => Fixture.TestStore.NormalizeDelimeters(sql);
 
