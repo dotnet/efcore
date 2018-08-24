@@ -63,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 new FallbackTypeMappingSource(
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies())),
+                            new ValueConverterSelectorDependencies()),
+                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
                     typeMapper),
                 null,
                 null,
@@ -175,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 new FallbackTypeMappingSource(
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies())),
+                            new ValueConverterSelectorDependencies()),
+                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
                     typeMapper),
                 ConstructorBindingFactory,
                 ParameterBindingFactories,

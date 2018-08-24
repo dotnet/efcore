@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 return new InMemoryTypeMapping(clrType, new GeometryValueComparer(clrType));
             }
 
-            return null;
+            return base.FindMapping(mappingInfo);
         }
     }
 }

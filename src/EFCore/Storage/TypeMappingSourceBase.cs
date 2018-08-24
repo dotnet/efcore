@@ -51,7 +51,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected abstract CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo);
+        protected virtual CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
+        {
+            foreach (var plugin in Dependencies.Plugins)
+            {
+                var typeMapping = plugin.FindMapping(mappingInfo);
+                if (typeMapping != null)
+                {
+                    return typeMapping;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Called after a mapping has been found so that it can be validated for the given property.

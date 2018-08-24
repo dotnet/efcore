@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 mapping = mapping.Clone(newStoreName, mapping.Size);
             }
 
-            return mapping;
+            return mapping ?? base.FindMapping(mappingInfo);
         }
 
         private RelationalTypeMapping FindMappingForProperty(in RelationalTypeMappingInfo mappingInfo)

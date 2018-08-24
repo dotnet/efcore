@@ -58,7 +58,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected abstract RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo);
+        protected virtual RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        {
+            foreach (var plugin in RelationalDependencies.Plugins)
+            {
+                var typeMapping = plugin.FindMapping(mappingInfo);
+                if (typeMapping != null)
+                {
+                    return typeMapping;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Dependencies used to create this <see cref="RelationalTypeMappingSource" />
