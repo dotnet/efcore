@@ -989,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             .MakeGenericMethod(sumExpression.Type.UnwrapNullableType())
                             .Invoke(null, new object[] { handlerContext, /*throwOnNullResult:*/ false });
 
-                    if (handlerContext.QueryModelVisitor.QueryCompilationContext.IsAsyncQuery && typeof(Task).IsAssignableFrom(clientExpression.Type))
+                    if (typeof(Task).IsAssignableFrom(clientExpression.Type))
                     {
                         return sumExpression.Type.IsNullableType()
                             ? Expression.Call(
