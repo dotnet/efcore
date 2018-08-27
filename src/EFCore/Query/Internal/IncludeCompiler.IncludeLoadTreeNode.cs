@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     = new MainFromClause(
                         targetType.Name.Substring(0, 1).ToLowerInvariant(),
                         targetType,
-                        targetExpression.CreateEFPropertyExpression(Navigation.GetIdentifyingMemberInfo()));
+                        targetExpression.CreateEFPropertyExpression(Navigation));
 
                 queryCompilationContext.AddQuerySourceRequiringMaterialization(mainFromClause);
 
