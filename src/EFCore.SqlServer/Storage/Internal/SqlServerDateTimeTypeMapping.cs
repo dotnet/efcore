@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         protected override string SqlLiteralFormatString
             => StoreType == "date"
                 ? "'" + DateFormatConst + "'"
-                : (StoreType == "datetime"
+                : (StoreType == "datetime" || StoreType == "smalldatetime"
                     ? "'" + DateTimeFormatConst + "'"
                     : "'" + DateTime2FormatConst + "'");
     }
