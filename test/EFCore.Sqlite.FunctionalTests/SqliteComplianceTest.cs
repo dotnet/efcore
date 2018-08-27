@@ -15,7 +15,9 @@ namespace Microsoft.EntityFrameworkCore
             typeof(AsyncFromSqlSprocQueryTestBase<>),
             typeof(FromSqlSprocQueryTestBase<>),
             typeof(SqlExecutorTestBase<>),
-            typeof(UdfDbFunctionTestBase<>)
+            typeof(UdfDbFunctionTestBase<>),
+            typeof(SpatialQueryTestBase<>),
+            typeof(SpatialTestBase<>)
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;

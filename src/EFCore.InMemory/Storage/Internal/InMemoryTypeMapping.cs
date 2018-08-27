@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -18,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public InMemoryTypeMapping([NotNull] Type clrType)
-            : base(new CoreTypeMappingParameters(clrType))
+        public InMemoryTypeMapping([NotNull] Type clrType, [CanBeNull] ValueComparer comparer = null)
+            : base(new CoreTypeMappingParameters(clrType, comparer: comparer))
         {
         }
 
