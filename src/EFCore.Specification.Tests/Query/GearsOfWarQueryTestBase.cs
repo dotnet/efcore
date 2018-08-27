@@ -6704,6 +6704,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? string.Concat(w.Name, "Marcus' Lancer") : null));
         }
 
+        [ConditionalTheory(Skip = "issue #13104")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_concat_on_various_types(bool isAsync)
+        {
+            return AssertQuery<Gear, Mission>(
+                isAsync,
+                (gs, ms) => from g in gs
+                            from m in ms
+                            orderby g.Nickname, m.Id
+                            select new
+                            {
+                                HasSoulPatch = string.Concat("HasSoulPatch " + g.HasSoulPatch, " HasSoulPatch"),
+                                Rank = string.Concat("Rank " + g.Rank, " Rank"),
+                                SquadId = string.Concat("SquadId " + g.SquadId, " SquadId"),
+                                Rating = string.Concat("Rating " + m.Rating, " Rating"),
+                                Timeline = string.Concat("Timeline " + m.Timeline, " Timeline")
+                            },
+                assertOrder: true);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Time_of_day_datetimeoffset(bool isAsync)
@@ -6982,6 +7002,56 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ws => ws.Where(w => w.SynergyWithId.GetValueOrDefault(w.Name.Length + 42) > 10),
                 ws => ws.Where(w => (w.SynergyWithId == null ? w.Name.Length + 42 : w.SynergyWithId) > 10));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filter_with_compex_predicate_containig_subquery(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs
+                      where g.FullName != "Dom" && g.Weapons.OrderBy(w => w.Id).FirstOrDefault(w => w.IsAutomatic) != null
+                      select g);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Query_with_complex_let_containing_ordering_and_filter_projecting_firstOrDefefault_element_of_let(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs
+                      where g.Nickname != "Dom"
+                      let automaticWeapons
+                          = g.Weapons
+                              .OrderByDescending(w => w.AmmunitionType)
+                              .Where(w => w.IsAutomatic)
+                      select new
+                      {
+                          g.Nickname,
+                          WeaponName = automaticWeapons.FirstOrDefault().Name
+                      },
+
+
+                gs => from g in gs
+                      where g.Nickname != "Dom"
+                      let automaticWeapons
+                          = g.Weapons
+                              .OrderByDescending(w => w.AmmunitionType)
+                              .Where(w => w.IsAutomatic)
+                      select new
+                      {
+                          g.Nickname,
+                          WeaponName = Maybe(automaticWeapons.FirstOrDefault(), () => automaticWeapons.FirstOrDefault().Name)
+                      },
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Nickname, a.Nickname);
+                    Assert.Equal(e.WeaponName, a.WeaponName);
+
+                });
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
