@@ -2,10 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Castle.DynamicProxy;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
@@ -37,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             _loader = loader;
         }
 
+        private readonly ConcurrentDictionary<string, bool> _invocationLocks = new ConcurrentDictionary<string, bool>();
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -55,18 +61,21 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             }
             else
             {
-                if (_loader != null
-                    && methodName.StartsWith("get_", StringComparison.Ordinal))
+
+                if (!_invocationLocks.ContainsKey(methodName) &&
+                    _loader != null &&
+                    methodName.StartsWith("get_", StringComparison.Ordinal))
                 {
                     var navigationName = methodName.Substring(4);
                     var navigation = _entityType.FindNavigation(navigationName);
 
                     if (navigation != null)
                     {
+                        _invocationLocks[methodName] = true;
                         _loader.Load(invocation.Proxy, navigationName);
+                        _invocationLocks.TryRemove(methodName, out _);
                     }
                 }
-
                 invocation.Proceed();
             }
         }

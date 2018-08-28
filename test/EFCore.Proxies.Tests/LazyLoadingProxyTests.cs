@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Castle.DynamicProxy;
@@ -303,6 +304,28 @@ namespace Microsoft.EntityFrameworkCore
                     () => phone.Texts).Message);
         }
 
+        [Fact]
+        public void Proxy_Should_use_PropertyAccessMode()
+        {
+            using (var context = new NeweyContextTestNoField())
+            {
+                var blog = new Blog() { Id = 1, BlogName = "Main Blog" };
+
+                var post1 = new Post() { Id = 1, BlogName = "Post 1", OwnerBlog = blog };
+                var post2 = new Post() { Id = 2, BlogName = "Post 2", OwnerBlog = blog };
+                
+                context.AddRange(post1, post2, blog);
+                Assert.Equal(blog.Posts.Count, 2);
+                context.SaveChanges();
+            }
+            using (var con = new NeweyContextTestNoField())
+            {
+                var bquery = con.Set<Blog>();
+                var blog = bquery.Single();
+                Assert.Equal(blog.Posts.Count, 2);
+            }
+        }
+
         private class JammieDodgerContext : DbContext
         {
             public JammieDodgerContext(DbContextOptions options)
@@ -507,6 +530,83 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<March82GGtp>();
+        }
+
+        public class Blog
+        {
+            public Blog()
+            {
+                Posts = new HashSet<Post>();
+                Id = default;
+                BlogName = default;
+            }
+
+            public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
+
+
+            public int Id
+            {
+                get => (int)Values[nameof(Id)];
+                set => Values[nameof(Id)] = value;
+            }
+
+            public string BlogName
+            {
+                get => (string)Values[nameof(BlogName)];
+                set => Values[nameof(BlogName)] = value;
+            }
+
+            public virtual ICollection<Post> Posts
+            {
+                get => (ICollection<Post>)Values[nameof(Posts)];
+                set => Values[nameof(Posts)] = value;
+            }
+
+        }
+        public class Post
+        {
+            public Post()
+            {
+                Id = default;
+                BlogName = default;
+                OwnerBlog = default;
+            }
+            public ConcurrentDictionary<string, object> Values { get; } = new ConcurrentDictionary<string, object>();
+
+
+            public int Id
+            {
+                get => (int)Values[nameof(Id)];
+                set => Values[nameof(Id)] = value;
+            }
+
+            public string BlogName
+            {
+                get => (string)Values[nameof(BlogName)];
+                set => Values[nameof(BlogName)] = value;
+            }
+
+            public virtual Blog OwnerBlog
+            {
+                get => (Blog)Values[nameof(OwnerBlog)];
+                set => Values[nameof(OwnerBlog)] = value;
+            }
+
+
+        }
+        private class NeweyContextTestNoField : NeweyContext
+        {
+            public NeweyContextTestNoField(string dbName = null) : base(dbName, true)
+            {
+
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>();
+                modelBuilder.Entity<Post>();
+                modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Property);
+            }
         }
     }
 }
