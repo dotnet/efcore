@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -30,6 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IDatabaseCreator, CosmosSqlDatabaseCreator>()
                 .TryAdd<IEntityQueryModelVisitorFactory, CosmosSqlEntityQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosSqlEntityQueryableExpressionVisitorFactory>()
+                .TryAdd<IMemberAccessBindingExpressionVisitorFactory, CosmosSqlMemberAccessBindingExpressionVisitorFactory>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddScoped<CosmosClient, CosmosClient>()

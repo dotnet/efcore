@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
@@ -36,6 +37,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 || clrType == typeof(byte[]))
             {
                 return new InMemoryTypeMapping(clrType);
+            }
+            if (clrType.Name == "GeoAPI.Geometries.IGeometry"
+                || clrType.GetInterface("GeoAPI.Geometries.IGeometry") != null)
+            {
+                return new InMemoryTypeMapping(clrType, new GeometryValueComparer(clrType));
             }
 
             return null;

@@ -4393,7 +4393,8 @@ FROM [Prices] AS [e]");
                 context =>
                 {
                     context.AddRange(
-                        new Price11885 {
+                        new Price11885
+                        {
                             IntColumn = 1,
                             NullableIntColumn = 1,
                             LongColumn = 1000,
@@ -4794,6 +4795,167 @@ FROM [Prices] AS [e]");
             public virtual ICollection<DefinitionHistory12170> HistoryEntries { get; set; }
             public virtual DefinitionHistory12170 LatestHistoryEntry { get; set; }
             public int? LatestHistoryEntryID { get; set; }
+        }
+
+        #endregion
+
+        #region Bug11944
+
+        [Fact]
+        public virtual void Include_collection_works_when_defined_on_intermediate_type()
+        {
+            using (CreateDatabase11944())
+            {
+                using (var context = new MyContext11944(_options))
+                {
+                    var query = context.Schools.Include(s => ((ElementarySchool11944)s).Students);
+                    var result = query.ToList();
+
+                    Assert.Equal(2, result.Count);
+                    Assert.Equal(2, result.OfType<ElementarySchool11944>().Single().Students.Count);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Correlated_collection_works_when_defined_on_intermediate_type()
+        {
+            using (CreateDatabase11944())
+            {
+                using (var context = new MyContext11944(_options))
+                {
+                    var query = context.Schools.Select(s => ((ElementarySchool11944)s).Students.Where(ss => true).ToList());
+                    var result = query.ToList();
+
+                    Assert.Equal(2, result.Count);
+                    Assert.True(result.Any(r => r.Count() == 2));
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11944()
+        {
+            return CreateTestStore(
+                () => new MyContext11944(_options),
+                context =>
+                {
+                    var student1 = new Student11944();
+                    var student2 = new Student11944();
+                    var school = new School11944();
+                    var elementarySchool = new ElementarySchool11944 { Students = new List<Student11944> { student1, student2 } };
+
+                    context.Students.AddRange(student1, student2);
+                    context.Schools.AddRange(school);
+                    context.ElementarySchools.Add(elementarySchool);
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+        }
+
+        public class MyContext11944 : DbContext
+        {
+            public DbSet<Student11944> Students { get; set; }
+            public DbSet<School11944> Schools { get; set; }
+            public DbSet<ElementarySchool11944> ElementarySchools { get; set; }
+
+            public MyContext11944(DbContextOptions options)
+               : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ElementarySchool11944>().HasMany(s => s.Students).WithOne(s => s.School);
+            }
+        }
+
+        public class Student11944
+        {
+            public int Id { get; set; }
+            public ElementarySchool11944 School { get; set; }
+        }
+
+        public class School11944
+        {
+            public int Id { get; set; }
+        }
+
+        public abstract class PrimarySchool11944 : School11944
+        {
+            public List<Student11944> Students { get; set; } 
+        }
+
+        public class ElementarySchool11944 : PrimarySchool11944
+        {
+        }
+
+        #endregion
+
+        #region Bug13118
+
+        [Fact]
+        public virtual void DateTime_Contains_with_smalldatetime_generates_correct_literal()
+        {
+            using (CreateDatabase13118())
+            {
+                using (var context = new MyContext13118(_options))
+                {
+                    var testDateList = new List<DateTime>() { new DateTime(2018, 10, 07) };
+                    var findRecordsWithDateInList = context.ReproEntity
+                        .Where(a => testDateList.Contains(a.MyTime))
+                        .ToList();
+
+                    Assert.Single(findRecordsWithDateInList);
+
+                    AssertSql(
+                        @"SELECT [a].[Id], [a].[MyTime]
+FROM [ReproEntity] AS [a]
+WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase13118()
+        {
+            return CreateTestStore(
+                () => new MyContext13118(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new ReproEntity13118
+                        {
+                            MyTime = new DateTime(2018, 10, 07)
+                        },
+                        new ReproEntity13118
+                        {
+                            MyTime = new DateTime(2018, 10, 08)
+                        });
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+        }
+
+        public class MyContext13118 : DbContext
+        {
+            public virtual DbSet<ReproEntity13118> ReproEntity { get; set; }
+
+            public MyContext13118(DbContextOptions options)
+               : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ReproEntity13118>(e => e.Property("MyTime").HasColumnType("smalldatetime"));
+            }
+        }
+
+        public class ReproEntity13118
+        {
+            public Guid Id { get; set; }
+            public DateTime MyTime { get; set; }
         }
 
         #endregion

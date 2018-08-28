@@ -236,6 +236,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Min + " " + e.Max);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Property_Select_key_multiple_times_and_aggregate(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).Select(
+                    g =>
+                        new
+                        {
+                            Key1 = g.Key,
+                            Key2 = g.Key,
+                            Sum = g.Sum(o => o.OrderID)
+                        }),
+                e => e.Key1);
+        }
+
+        [ConditionalTheory(Skip = "issue #12826")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.OrderDate).Select(
+                    g =>
+                        new
+                        {
+                            Key = g.Key == null ? "is null" : "is not null",
+                            Sum = g.Sum(o => o.OrderID)
+                        }),
+                e => e.Key);
+        }
+
         #endregion
 
         #region GroupByAnonymousAggregate

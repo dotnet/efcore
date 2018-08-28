@@ -17,18 +17,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
     {
         private readonly bool _async;
         private readonly string _collectionId;
-        private readonly SelectExpression _selectExpression;
         private readonly CosmosClient _cosmosClient;
 
         public DocumentQueryExpression(bool async, string collectionId, SelectExpression selectExpression, CosmosClient cosmosClient)
         {
             _async = async;
             _collectionId = collectionId;
-            _selectExpression = selectExpression;
+            SelectExpression = selectExpression;
             _cosmosClient = cosmosClient;
         }
 
-        public SelectExpression SelectExpression => _selectExpression;
+        public SelectExpression SelectExpression { get; }
 
         public override bool CanReduce => true;
 
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
                 Constant(_cosmosClient),
                 EntityQueryModelVisitor.QueryContextParameter,
                 Constant(_collectionId),
-                Constant(_selectExpression));
+                Constant(SelectExpression));
 
         private static IEnumerable<JObject> _Query(
             CosmosClient cosmosClient,

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(memberExpression,
                 _queryCompilationContext, out var qsre);
 
-            return _selectExpression.BindPropertyPath(qsre, properties) ?? base.VisitMember(memberExpression);
+            return _selectExpression.BindPropertyPath(qsre, properties);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(methodCallExpression,
                 _queryCompilationContext, out var qsre);
 
-            return _selectExpression.BindPropertyPath(qsre, properties) ?? base.VisitMethodCall(methodCallExpression);
+            return _selectExpression.BindPropertyPath(qsre, properties);
         }
     }
 }
