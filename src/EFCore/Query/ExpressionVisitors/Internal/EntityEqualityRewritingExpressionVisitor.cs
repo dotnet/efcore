@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var entityType = _model.FindEntityType(nonNullExpression.Type)
                              ?? GetEntityType(properties, qsre);
 
-            if (entityType?.IsOwned() != false)
+            if (entityType == null)
             {
                 return null;
             }
