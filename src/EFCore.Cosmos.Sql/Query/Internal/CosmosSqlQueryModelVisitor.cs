@@ -22,49 +22,57 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
         {
         }
 
-        protected override void TrackEntitiesInResults<TResult>([NotNull] QueryModel queryModel)
-        {
-            // Disable tracking from here and enable that from EntityShaperExpression directly
-            //base.TrackEntitiesInResults<TResult>(queryModel);
-        }
+        public bool AllMembersBoundToJObject { get; set; } = true;
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            Debug.Assert(Expression is QueryShaperExpression, "Invalid Expression encountered");
-
-            var queryShaperExpression = (QueryShaperExpression)Expression;
-
-            if (queryShaperExpression.QueryExpression is DocumentQueryExpression documentQueryExpression)
+            if (Expression is QueryShaperExpression queryShaperExpression)
             {
-                var selectExpression = documentQueryExpression.SelectExpression;
-                var sqlTranslatingExpressionVisitor = new SqlTranslatingExpressionVisitor(
-                    selectExpression, QueryCompilationContext);
-                var sqlPredicate = sqlTranslatingExpressionVisitor.Visit(whereClause.Predicate);
-
-                if (sqlPredicate != null)
+                if (queryShaperExpression.QueryExpression is DocumentQueryExpression documentQueryExpression)
                 {
-                    selectExpression.AddToPredicate(sqlPredicate);
+                    var selectExpression = documentQueryExpression.SelectExpression;
+                    var sqlTranslatingExpressionVisitor = new SqlTranslatingExpressionVisitor(
+                        selectExpression, QueryCompilationContext);
+                    var sqlPredicate = sqlTranslatingExpressionVisitor.Visit(whereClause.Predicate);
 
-                    return;
+                    if (sqlTranslatingExpressionVisitor.Translated)
+                    {
+                        selectExpression.AddToPredicate(sqlPredicate);
+
+                        return;
+                    }
+                }
+
+                if (AllMembersBoundToJObject)
+                {
+                    var fromClause = queryModel.MainFromClause;
+                    var previousParameterType = CurrentParameter.Type;
+
+                    // Temporarily change current parameter to JObject to try binding to it without materializing the entity
+                    UpdateCurrentParameter(fromClause, typeof(JObject));
+
+                    var predicate = ReplaceClauseReferences(whereClause.Predicate);
+
+                    if (AllMembersBoundToJObject)
+                    {
+                        Expression = new QueryShaperExpression(
+                            Expression.Call(LinqOperatorProvider.Where.MakeGenericMethod(CurrentParameter.Type),
+                            queryShaperExpression.QueryExpression,
+                            Expression.Lambda(predicate, CurrentParameter)),
+                            queryShaperExpression.Shaper);
+
+                        if (CurrentParameter.Type == typeof(JObject))
+                        {
+                            UpdateCurrentParameter(fromClause, previousParameterType);
+                        }
+                        return;
+                    }
+
+                    UpdateCurrentParameter(fromClause, previousParameterType);
                 }
             }
 
-            var fromClause = queryModel.MainFromClause;
-
-            // Change current parameter to JObject
-            UpdateCurrentParameter(fromClause, typeof(JObject));
-
-            var predicate = ReplaceClauseReferences(whereClause.Predicate);
-
-            Expression = new QueryShaperExpression(
-                Expression.Call(LinqOperatorProvider.Where.MakeGenericMethod(CurrentParameter.Type),
-                queryShaperExpression.QueryExpression,
-                Expression.Lambda(predicate, CurrentParameter)),
-                queryShaperExpression.Shaper);
-
-            UpdateCurrentParameter(fromClause, Expression.Type.TryGetSequenceType());
-
-            //base.VisitWhereClause(whereClause, queryModel, index);
+            base.VisitWhereClause(whereClause, queryModel, index);
         }
 
         private void UpdateCurrentParameter(IQuerySource querySource, Type type)

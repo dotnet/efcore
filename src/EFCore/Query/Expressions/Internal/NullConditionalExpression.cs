@@ -90,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                 operation = Convert(operation, _type);
             }
 
-            var resultExpression
-                = Block(
+            return Block(
                     new[] { nullableCaller, result },
                     Assign(nullableCaller, Caller),
                     Assign(result, Default(_type)),
@@ -99,8 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                         NotEqual(nullableCaller, Default(nullableCallerType)),
                         Assign(result, operation)),
                     result);
-
-            return resultExpression;
         }
 
         /// <summary>

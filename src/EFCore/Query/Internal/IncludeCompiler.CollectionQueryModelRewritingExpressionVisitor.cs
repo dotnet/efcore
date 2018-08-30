@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var parentItemName
                     = parentQuerySource.HasGeneratedItemName()
-                        ? navigation.DeclaringEntityType.DisplayName()[0].ToString().ToLowerInvariant()
+                        ? navigation.DeclaringEntityType.ShortName()[0].ToString().ToLowerInvariant()
                         : parentQuerySource.ItemName;
 
                 collectionQueryModel.MainFromClause.ItemName = $"{parentItemName}.{navigation.Name}";

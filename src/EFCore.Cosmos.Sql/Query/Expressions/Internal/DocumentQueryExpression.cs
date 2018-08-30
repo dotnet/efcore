@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
 
                 public void Dispose()
                 {
-                    _underlyingEnumerator.Dispose();
+                    _underlyingEnumerator?.Dispose();
                 }
 
                 public bool MoveNext()

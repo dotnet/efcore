@@ -195,13 +195,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 var requiresClientEval = !useQueryComposition;
 
-                if (!useQueryComposition)
+                if (!useQueryComposition
+                    && relationalQueryCompilationContext.IsIncludeQuery)
                 {
-                    if (relationalQueryCompilationContext.IsIncludeQuery)
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.StoredProcedureIncludeNotSupported);
-                    }
+                    throw new InvalidOperationException(
+                        RelationalStrings.StoredProcedureIncludeNotSupported);
                 }
 
                 if (useQueryComposition

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -18,13 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
 {
     public class CosmosSqlMemberAccessBindingExpressionVisitor : RelinqExpressionVisitor
     {
-        private readonly QuerySourceMapping _querySourceMapping;
-        private readonly EntityQueryModelVisitor _queryModelVisitor;
-        private readonly bool _inProjection;
         private static readonly MethodInfo _getItemMethodInfo
             = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
                 .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                 .GetMethod;
+
+        private readonly QuerySourceMapping _querySourceMapping;
+        private readonly CosmosSqlQueryModelVisitor _queryModelVisitor;
+        private readonly bool _inProjection;
 
         public CosmosSqlMemberAccessBindingExpressionVisitor(
             QuerySourceMapping querySourceMapping,
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             bool inProjection)
         {
             _querySourceMapping = querySourceMapping;
-            _queryModelVisitor = queryModelVisitor;
+            _queryModelVisitor = (CosmosSqlQueryModelVisitor)queryModelVisitor;
             _inProjection = inProjection;
         }
 
@@ -42,21 +43,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
 
             if (newExpression != memberExpression.Expression)
             {
-                if (newExpression.Type == typeof(JObject))
+                if (_queryModelVisitor.CurrentParameter?.Type == typeof(JObject)
+                    || newExpression.Type == typeof(JObject))
                 {
-                    var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                        memberExpression, _queryModelVisitor.QueryCompilationContext, out var qsre);
-
-                    if (qsre != null)
+                    if (_queryModelVisitor.AllMembersBoundToJObject)
                     {
-                        foreach (var property in properties)
-                        {
-                            newExpression = CreateGetValueExpression(
-                                newExpression, property);
-                        }
+                        var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                            memberExpression, _queryModelVisitor.QueryCompilationContext, out var qsre);
 
-                        return newExpression;
+                        if (qsre != null)
+                        {
+                            foreach (var property in properties)
+                            {
+                                newExpression = CreateGetValueExpression(
+                                    newExpression, property);
+                            }
+
+                            return newExpression;
+                        }
                     }
+
+                    _queryModelVisitor.AllMembersBoundToJObject = false;
+
+                    return memberExpression;
                 }
 
                 return Expression.MakeMemberAccess(newExpression, memberExpression.Member);
@@ -67,49 +76,64 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsEFPropertyMethod())
+            if (_queryModelVisitor.CurrentParameter?.Type == typeof(JObject))
             {
-                var source = methodCallExpression.Arguments[0];
-                var newSource = Visit(source);
-
-                if (source != newSource)
+                if (methodCallExpression.Method.IsEFPropertyMethod())
                 {
-                    if (newSource.Type == typeof(JObject))
+                    var source = methodCallExpression.Arguments[0];
+                    var newSource = Visit(source);
+
+                    if (source != newSource
+                        && _queryModelVisitor.AllMembersBoundToJObject
+                        && newSource.Type == typeof(JObject))
                     {
                         var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                        methodCallExpression, _queryModelVisitor.QueryCompilationContext, out var qsre);
+                            methodCallExpression, _queryModelVisitor.QueryCompilationContext, out var qsre);
 
                         if (qsre != null)
                         {
                             foreach (var property in properties)
                             {
-                                newSource = CreateGetValueExpression(
-                                    newSource, property);
+                                newSource = CreateGetValueExpression(newSource, property);
                             }
 
                             return newSource;
                         }
                     }
                 }
+
+                _queryModelVisitor.AllMembersBoundToJObject = false;
+                return methodCallExpression;
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            var newExpression = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
+
+            return _queryModelVisitor.BindMethodCallToEntity(methodCallExpression, newExpression) ?? newExpression;
         }
 
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression querySourceReferenceExpression)
         {
-            return _querySourceMapping.ContainsMapping(querySourceReferenceExpression.ReferencedQuerySource)
-                ? _querySourceMapping.GetExpression(querySourceReferenceExpression.ReferencedQuerySource)
-                : querySourceReferenceExpression;
+            if (_querySourceMapping.ContainsMapping(querySourceReferenceExpression.ReferencedQuerySource))
+            {
+                var mappedExpression = _querySourceMapping.GetExpression(querySourceReferenceExpression.ReferencedQuerySource);
+                if(!(mappedExpression is ParameterExpression mappedParameter)
+                    || mappedParameter.Name != _queryModelVisitor.CurrentParameter?.Name)
+                {
+                    _queryModelVisitor.AllMembersBoundToJObject = false;
+                }
+
+                return mappedExpression;
+            }
+            else
+            {
+                return querySourceReferenceExpression;
+            }
         }
 
         private static Expression CreateGetValueExpression(
             Expression jObjectExpression,
             IPropertyBase property)
         {
-            // TODO : Converters
-            // TODO : TryCatch for invalid values
-
             return Expression.Convert(
                 Expression.Call(
                     jObjectExpression,

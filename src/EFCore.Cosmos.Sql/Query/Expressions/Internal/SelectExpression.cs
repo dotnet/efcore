@@ -25,19 +25,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
         public SelectExpression(IEntityType entityType, IQuerySource querySource)
         {
             Projection = new EntityProjectionExpression(entityType, _rootAlias);
-
             FromExpression = new RootReferenceExpression(entityType, _rootAlias);
+            EntityType = entityType;
+            FilterExpression = GetDiscriminatorPredicate(entityType);
+            _querySource = querySource;
+        }
 
-            // Add discriminator predicate
+        public BinaryExpression GetDiscriminatorPredicate(IEntityType entityType)
+        {
+            if (!EntityType.IsAssignableFrom(entityType))
+            {
+                return null;
+            }
+
             var discriminatorProperty = entityType.CosmosSql().DiscriminatorProperty;
 
-            FilterExpression = MakeBinary(
-                ExpressionType.Equal,
-                new KeyAccessExpression(discriminatorProperty, FromExpression),
-                Constant(entityType.CosmosSql().DiscriminatorValue, discriminatorProperty.ClrType));
-
-            EntityType = entityType;
-            _querySource = querySource;
+            return MakeBinary(
+                           ExpressionType.Equal,
+                           new KeyAccessExpression(discriminatorProperty, FromExpression),
+                           Constant(entityType.CosmosSql().DiscriminatorValue, discriminatorProperty.ClrType));
         }
 
         public Expression BindPropertyPath(

@@ -24,12 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
         }
 
         public override Expression Reduce()
-        {
-            return Call(
+            => Call(
                 typeof(QueryShaperExpression).GetTypeInfo().GetDeclaredMethod(nameof(_Shape)).MakeGenericMethod(Shaper.Type),
                 QueryExpression,
                 Shaper.CreateShaperLambda());
-        }
 
         public Expression QueryExpression { get; }
 
@@ -50,7 +48,5 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
         public override Type Type => typeof(IEnumerable<>).MakeGenericType(Shaper.Type);
         public override ExpressionType NodeType => ExpressionType.Extension;
-
-
     }
 }

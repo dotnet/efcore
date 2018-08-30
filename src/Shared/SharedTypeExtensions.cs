@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable once CheckNamespace
 namespace System
@@ -59,11 +60,41 @@ namespace System
         }
 
         public static bool IsSignedInteger(this Type type)
-        {
-            return type == typeof(int)
+            => type == typeof(int)
                    || type == typeof(long)
                    || type == typeof(short)
                    || type == typeof(sbyte);
+
+        public static bool IsAnonymousType(this Type type)
+            => type.Name.StartsWith("<>")
+               && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
+               && type.Name.Contains("AnonymousType");
+
+        public static bool IsTupleType(this Type type)
+        {
+            if (type == typeof(Tuple))
+            {
+                return true;
+            }
+
+            if (type.IsGenericType)
+            {
+                var genericDefinition = type.GetGenericTypeDefinition();
+                if (genericDefinition == typeof(Tuple<>)
+                    || genericDefinition == typeof(Tuple<,>)
+                    || genericDefinition == typeof(Tuple<,,>)
+                    || genericDefinition == typeof(Tuple<,,,>)
+                    || genericDefinition == typeof(Tuple<,,,,>)
+                    || genericDefinition == typeof(Tuple<,,,,,>)
+                    || genericDefinition == typeof(Tuple<,,,,,,>)
+                    || genericDefinition == typeof(Tuple<,,,,,,,>)
+                    || genericDefinition == typeof(Tuple<,,,,,,,>))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static PropertyInfo GetAnyProperty(this Type type, string name)

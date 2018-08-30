@@ -1619,17 +1619,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var elementType = expression.Type.TryGetElementType(typeof(IEnumerable<>));
 
-                if (elementType != null)
+                if (elementType != null
+                    && LinqOperatorProvider is AsyncLinqOperatorProvider asyncLinqOperatorProvider)
                 {
-                    if (LinqOperatorProvider is AsyncLinqOperatorProvider asyncLinqOperatorProvider)
-                    {
-                        return
-                            Expression.Call(
-                                asyncLinqOperatorProvider
-                                    .ToAsyncEnumerable
-                                    .MakeGenericMethod(elementType),
-                                expression);
-                    }
+                    return Expression.Call(
+                            asyncLinqOperatorProvider
+                                .ToAsyncEnumerable
+                                .MakeGenericMethod(elementType),
+                            expression);
                 }
             }
 
@@ -1655,7 +1652,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return BindMethodCallExpression(
                 methodCallExpression,
-                (property, querySource)
+                (property, _)
                     => BindReadValueMethod(methodCallExpression.Type, expression, property.GetIndex(), property));
         }
 
@@ -1677,7 +1674,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindMemberExpression(
                 memberExpression,
                 null,
-                (property, querySource)
+                (property, _)
                     => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex(), property));
         }
 
@@ -1703,6 +1700,72 @@ namespace Microsoft.EntityFrameworkCore.Query
             return _entityMaterializerSource
                 .CreateReadValueExpression(expression, memberType, index, property);
         }
+
+        /// <summary>
+        ///     Binds a method call to a CLR or shadow property access.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="targetMethodCallExpression"> The target method call expression. </param>
+        /// <returns>
+        ///     A value buffer access expression.
+        /// </returns>
+        public virtual Expression BindMethodCallToEntity(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] MethodCallExpression targetMethodCallExpression)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            return BindMethodCallExpression<Expression>(
+                methodCallExpression,
+                (property, _) =>
+                {
+                    var propertyType = targetMethodCallExpression.Method.GetGenericArguments()[0];
+
+                    if (targetMethodCallExpression.Arguments[0] is ConstantExpression maybeConstantExpression)
+                    {
+                        return Expression.Constant(
+                            property.GetGetter().GetClrValue(maybeConstantExpression.Value),
+                            propertyType);
+                    }
+
+                    if (targetMethodCallExpression.Arguments[0] is MethodCallExpression maybeMethodCallExpression
+                        && maybeMethodCallExpression.Method.IsGenericMethod
+                        && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
+                            .Equals(DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
+                        || targetMethodCallExpression.Arguments[0].NodeType == ExpressionType.Parameter
+                        && !property.IsShadowProperty)
+                    {
+                        // The target is a parameter, try and get the value from it directly.
+                        return Expression.Call(
+                            _getValueFromEntityMethodInfo
+                                .MakeGenericMethod(propertyType),
+                            Expression.Constant(property.GetGetter()),
+                            targetMethodCallExpression.Arguments[0]);
+                    }
+
+                    return Expression.Call(
+                        _getValueMethodInfo.MakeGenericMethod(propertyType),
+                        QueryContextParameter,
+                        targetMethodCallExpression.Arguments[0],
+                        Expression.Constant(property));
+                });
+        }
+
+        private static readonly MethodInfo _getValueMethodInfo
+            = typeof(EntityQueryModelVisitor)
+                .GetTypeInfo().GetDeclaredMethod(nameof(GetValue));
+
+        [UsedImplicitly]
+        private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
+            => entity == null ? (default) : (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
+
+        private static readonly MethodInfo _getValueFromEntityMethodInfo
+            = typeof(EntityQueryModelVisitor)
+                .GetTypeInfo().GetDeclaredMethod(nameof(GetValueFromEntity));
+
+        [UsedImplicitly]
+        private static T GetValueFromEntity<T>(IClrPropertyGetter clrPropertyGetter, object entity)
+            => entity == null ? (default) : (T)clrPropertyGetter.GetClrValue(entity);
 
         /// <summary>
         ///     Binds a navigation path property expression.

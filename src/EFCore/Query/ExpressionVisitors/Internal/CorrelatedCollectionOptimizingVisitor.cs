@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var parentItemName
                 = parentQuerySource.HasGeneratedItemName()
-                    ? navigation.DeclaringEntityType.DisplayName()[0].ToString().ToLowerInvariant()
+                    ? navigation.DeclaringEntityType.ShortName()[0].ToString().ToLowerInvariant()
                     : parentQuerySource.ItemName;
 
             collectionQueryModel.MainFromClause.ItemName = $"{parentItemName}.{navigation.Name}";

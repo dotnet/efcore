@@ -35,7 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
         {
             var key = _principalKeyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
 
-            // TODO: Escape | Bar|string.Empty
             return key is object[] array ? string.Join("|", array) : key.ToString();
         }
 

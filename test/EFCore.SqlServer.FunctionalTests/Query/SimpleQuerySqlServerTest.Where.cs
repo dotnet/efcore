@@ -1,11 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -384,6 +382,47 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))");
+        }
+
+        public override async Task Where_bitwise_or(bool isAsync)
+        {
+            await base.Where_bitwise_or(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END | CASE
+    WHEN [c].[CustomerID] = N'ANATR'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1");
+        }
+
+        public override async Task Where_bitwise_and(bool isAsync)
+        {
+            await base.Where_bitwise_and(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CASE
+    WHEN [c].[CustomerID] = N'ALFKI'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END & CASE
+    WHEN [c].[CustomerID] = N'ANATR'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END) = 1");
+        }
+
+        public override async Task Where_bitwise_xor(bool isAsync)
+        {
+            await base.Where_bitwise_xor(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
         }
 
         public override async Task Where_simple_shadow(bool isAsync)
