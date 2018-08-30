@@ -35,10 +35,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public override Type Type { get; }
 
-        /// <inheritdoc/>
-        public override LambdaExpression EqualsExpression
-            => base.EqualsExpression;
-
         /// <summary>
         ///     Compares the two instances to determine if they are equal.
         /// </summary>
