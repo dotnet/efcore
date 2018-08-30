@@ -1371,7 +1371,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new
                                 {
                                     One = 1,
@@ -1396,7 +1396,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new
                                 {
                                     One = eRootJoined,
@@ -1422,7 +1422,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once MergeConditionalExpression
+                                    // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -4883,7 +4883,7 @@ FROM [Prices] AS [e]");
 
         public abstract class PrimarySchool11944 : School11944
         {
-            public List<Student11944> Students { get; set; } 
+            public List<Student11944> Students { get; set; }
         }
 
         public class ElementarySchool11944 : PrimarySchool11944
@@ -4956,6 +4956,113 @@ WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
         {
             public Guid Id { get; set; }
             public DateTime MyTime { get; set; }
+        }
+
+        #endregion
+
+        #region Bug13157
+
+        [Fact]
+        public virtual void Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
+        {
+            using (CreateDatabase13157())
+            {
+                using (var context = new MyContext13157(_options))
+                {
+                    var partners = context.Partners
+                        .Select(x => new
+                        {
+                            Addresses = x.Addresses.Select(y => new
+                            {
+                                Turnovers = y.Turnovers == null ? null : new
+                                {
+                                    y.Turnovers.AmountIn
+                                },
+                            }).ToList()
+                        }).ToList();
+
+                    Assert.Single(partners);
+                    Assert.Single(partners[0].Addresses);
+                    Assert.NotNull(partners[0].Addresses[0].Turnovers);
+                    Assert.Equal(10, partners[0].Addresses[0].Turnovers.AmountIn);
+
+                    AssertSql(
+                        @"SELECT [x].[Id]
+FROM [Partners] AS [x]
+ORDER BY [x].[Id]",
+                        //
+                        @"SELECT [t].[Id], CASE
+    WHEN [x.Addresses].[Id] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, [x.Addresses].[Turnovers_AmountIn] AS [AmountIn], [x.Addresses].[Partner13157Id]
+FROM [Address13157] AS [x.Addresses]
+INNER JOIN (
+    SELECT [x0].[Id]
+    FROM [Partners] AS [x0]
+) AS [t] ON [x.Addresses].[Partner13157Id] = [t].[Id]
+ORDER BY [t].[Id]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase13157()
+        {
+            return CreateTestStore(
+                () => new MyContext13157(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Partner13157
+                        {
+                            Addresses = new List<Address13157>
+                            {
+                                new Address13157
+                                {
+                                    Turnovers = new AddressTurnovers13157
+                                    {
+                                        AmountIn = 10
+                                    }
+                                }
+                            }
+                        }
+                        );
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+        }
+
+        public class MyContext13157 : DbContext
+        {
+            public virtual DbSet<Partner13157> Partners { get; set; }
+
+            public MyContext13157(DbContextOptions options)
+               : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Address13157>().OwnsOne(x => x.Turnovers);
+            }
+        }
+
+        public class Partner13157
+        {
+            public int Id { get; set; }
+            public ICollection<Address13157> Addresses { get; set; }
+        }
+
+        public class Address13157
+        {
+            public int Id { get; set; }
+            public AddressTurnovers13157 Turnovers { get; set; }
+        }
+
+        public class AddressTurnovers13157
+        {
+            public int AmountIn { get; set; }
+
         }
 
         #endregion
