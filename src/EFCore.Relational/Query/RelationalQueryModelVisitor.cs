@@ -2152,17 +2152,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         if (!subQueryModelVisitor.RequiresClientProjection)
                         {
-                            selectExpression
+                            SelectExpression candidateSelectExpression
                                 = subQueryModelVisitor.Queries.Count == 1
                                     ? subQueryModelVisitor.Queries.First()
                                     : subQueryModelVisitor.TryGetQuery(
                                         subQueryModelVisitor._queryModel.SelectClause.Selector
                                             .TryGetReferencedQuerySource());
 
-                            selectExpression?
-                                .AddToProjection(
-                                    property,
-                                    querySource);
+                            if (candidateSelectExpression != null)
+                            {
+                                for (int i = 0; i < candidateSelectExpression.Tables.Count && selectExpression == null; i++)
+                                {
+                                    if (candidateSelectExpression.Tables[i].QuerySource.ItemType == property.DeclaringType.ClrType)
+                                    {
+                                        candidateSelectExpression
+                                            .AddToProjection(
+                                                property,
+                                                querySource);
+                                        selectExpression = candidateSelectExpression;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
