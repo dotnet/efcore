@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (var master = connection.CreateMasterConnection())
                 {
                     Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
-                    Assert.Equal(SqlServerConnection.DefaultMasterConnectionCommandTimeout, master.CommandTimeout);
+                    Assert.Equal(60, master.CommandTimeout);
                 }
             }
         }

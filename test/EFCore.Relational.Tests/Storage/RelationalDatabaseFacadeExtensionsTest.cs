@@ -337,7 +337,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [UsedImplicitly]
         private class TestRawSqlCommandBuilder : IRawSqlCommandBuilder
         {
             private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
