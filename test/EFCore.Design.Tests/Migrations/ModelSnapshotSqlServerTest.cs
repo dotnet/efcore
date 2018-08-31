@@ -835,8 +835,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         b.ToTable(""EntityWithOneProperty"");
 
         b.HasData(
-            new { Id = 1 }
-        );
+            new
+            {
+                Id = 1
+            });
     });
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
@@ -883,8 +885,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"");
 
                 b1.HasData(
-                    new { AlternateId = 1, Id = -1 }
-                );
+                    new
+                    {
+                        AlternateId = 1,
+                        Id = -1
+                    });
             });
     });
 
@@ -1604,8 +1609,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         b.ToTable(""EntityWithEnumType"");
 
         b.HasData(
-            new { Id = 1, Day = ""Fri"" }
-        );
+            new
+            {
+                Id = 1,
+                Day = ""Fri""
+            });
     });
 ",
                 o =>
@@ -2652,9 +2660,15 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         b.ToTable(""EntityWithOneProperty"");
 
         b.HasData(
-            new { Id = 42 },
-            new { Id = 43, OptionalProperty = 4.3m }
-        );
+            new
+            {
+                Id = 42
+            },
+            new
+            {
+                Id = 43,
+                OptionalProperty = 4.3m
+            });
     });
 ",
                 o => Assert.Collection(
@@ -2701,8 +2715,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         b.ToTable(""EntityWithOneProperty"");
 
         b.HasData(
-            new { Id = 27 }
-        );
+            new
+            {
+                Id = 27
+            });
     });
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
@@ -2718,8 +2734,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         b.ToTable(""EntityWithTwoProperties"");
 
         b.HasData(
-            new { Id = 42, AlternateId = 43 }
-        );
+            new
+            {
+                Id = 42,
+                AlternateId = 43
+            });
     });
 ",
                 o => Assert.Collection(

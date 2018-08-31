@@ -1113,36 +1113,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         firstDatum = false;
                     }
 
-                    stringBuilder.Append("new { ");
+                    stringBuilder
+                        .AppendLine("new")
+                        .AppendLine("{");
 
-                    var firstProperty = true;
-                    foreach (var property in propertiesToOutput)
+                    using (stringBuilder.Indent())
                     {
-                        if (o.TryGetValue(property.Name, out var value)
-                            && value != null)
+                        var firstProperty = true;
+                        foreach (var property in propertiesToOutput)
                         {
-                            if (!firstProperty)
+                            if (o.TryGetValue(property.Name, out var value)
+                                && value != null)
                             {
-                                stringBuilder.Append(", ");
-                            }
-                            else
-                            {
-                                firstProperty = false;
-                            }
+                                if (!firstProperty)
+                                {
+                                    stringBuilder.AppendLine(",");
+                                }
+                                else
+                                {
+                                    firstProperty = false;
+                                }
 
-                            stringBuilder
-                                .Append(Code.Identifier(property.Name))
-                                .Append(" = ")
-                                .Append(Code.UnknownLiteral(value));
+                                stringBuilder
+                                    .Append(Code.Identifier(property.Name))
+                                    .Append(" = ")
+                                    .Append(Code.UnknownLiteral(value));
+                            }
                         }
+
+                        stringBuilder.AppendLine();
                     }
 
-                    stringBuilder.Append(" }");
+                    stringBuilder.Append("}");
                 }
             }
 
             stringBuilder
-                .AppendLine()
                 .AppendLine(");");
         }
     }
