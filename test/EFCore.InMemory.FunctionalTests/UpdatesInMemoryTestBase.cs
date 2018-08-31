@@ -25,13 +25,25 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Update_on_bytes_concurrency_token_original_value_matches_throws_with_quirk()
         {
-            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+            var productId = Guid.NewGuid();
 
             try
             {
                 AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12214", true);
 
                 ExecuteWithStrategyInTransaction(
+                    context =>
+                    {
+                        context.Add(
+                            new ProductWithBytes
+                            {
+                                Id = productId,
+                                Name = "MegaChips",
+                                Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                            });
+
+                            context.SaveChanges();
+                    },
                     context =>
                     {
                         var entry = context.ProductWithBytes.Attach(
@@ -62,13 +74,25 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_matches_throws_with_quirk()
         {
-            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+            var productId = Guid.NewGuid();
 
             try
             {
                 AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12214", true);
 
                 ExecuteWithStrategyInTransaction(
+                    context =>
+                    {
+                        context.Add(
+                            new ProductWithBytes
+                            {
+                                Id = productId,
+                                Name = "MegaChips",
+                                Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                            });
+
+                        context.SaveChanges();
+                    },
                     context =>
                     {
                         var entry = context.ProductWithBytes.Attach(
@@ -101,16 +125,20 @@ namespace Microsoft.EntityFrameworkCore
             => InMemoryStrings.UpdateConcurrencyException;
 
         protected override void ExecuteWithStrategyInTransaction(
-            Action<UpdatesContext> testOperation, Action<UpdatesContext> nestedTestOperation1 = null)
+            Action<UpdatesContext> testOperation,
+            Action<UpdatesContext> nestedTestOperation1 = null,
+            Action<UpdatesContext> nestedTestOperation2 = null)
         {
-            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1);
+            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2);
             Fixture.Reseed();
         }
 
         protected override async Task ExecuteWithStrategyInTransactionAsync(
-            Func<UpdatesContext, Task> testOperation, Func<UpdatesContext, Task> nestedTestOperation1 = null)
+            Func<UpdatesContext, Task> testOperation,
+            Func<UpdatesContext, Task> nestedTestOperation1 = null,
+            Func<UpdatesContext, Task> nestedTestOperation2 = null)
         {
-            await base.ExecuteWithStrategyInTransactionAsync(testOperation, nestedTestOperation1);
+            await base.ExecuteWithStrategyInTransactionAsync(testOperation, nestedTestOperation1, nestedTestOperation2);
             Fixture.Reseed();
         }
     }

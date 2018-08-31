@@ -103,9 +103,21 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Update_on_bytes_concurrency_token_original_value_mismatch_throws()
         {
-            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+            var productId = Guid.NewGuid();
 
             ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    context.Add(
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
+
+                    context.SaveChanges();
+                },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
@@ -130,9 +142,21 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
-            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+            var productId = Guid.NewGuid();
 
             ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    context.Add(
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
+
+                    context.SaveChanges();
+                },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
@@ -156,9 +180,21 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
         {
-            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+            var productId = Guid.NewGuid();
 
             ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    context.Add(
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
+
+                    context.SaveChanges();
+                },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
@@ -183,9 +219,21 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
-            var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+            var productId = Guid.NewGuid();
 
             ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    context.Add(
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
+
+                    context.SaveChanges();
+                },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
@@ -454,17 +502,19 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual void ExecuteWithStrategyInTransaction(
             Action<UpdatesContext> testOperation,
-            Action<UpdatesContext> nestedTestOperation1 = null)
+            Action<UpdatesContext> nestedTestOperation1 = null,
+            Action<UpdatesContext> nestedTestOperation2 = null)
             => TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext, UseTransaction,
-                testOperation, nestedTestOperation1);
+                testOperation, nestedTestOperation1, nestedTestOperation2);
 
         protected virtual Task ExecuteWithStrategyInTransactionAsync(
             Func<UpdatesContext, Task> testOperation,
-            Func<UpdatesContext, Task> nestedTestOperation1 = null)
+            Func<UpdatesContext, Task> nestedTestOperation1 = null,
+            Func<UpdatesContext, Task> nestedTestOperation2 = null)
             => TestHelpers.ExecuteWithStrategyInTransactionAsync(
                 CreateContext, UseTransaction,
-                testOperation, nestedTestOperation1);
+                testOperation, nestedTestOperation1, nestedTestOperation2);
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {
