@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
@@ -99,12 +100,15 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] < 40))");
 
         public override async Task Sum_over_subquery_is_client_eval(bool isAsync)
         {
-            await base.Sum_over_subquery_is_client_eval(isAsync);
+            await AssertSum<Customer, Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI"),
+                selector: c => c.Orders.Sum(o => o.OrderID));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Sum_on_float_column(bool isAsync)
@@ -119,12 +123,20 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""ProductID""] = 1))");
 
         public override async Task Sum_on_float_column_in_subquery(bool isAsync)
         {
-            await base.Sum_on_float_column_in_subquery(isAsync);
+            await AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10250).Select(
+                    o => new
+                    {
+                        o.OrderID,
+                        Sum = o.OrderDetails.Sum(od => od.Discount)
+                    }),
+                e => e.OrderID);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         }
 
         public override async Task Average_with_no_arg(bool isAsync)
@@ -199,7 +211,10 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] < 40))");
 
         public override async Task Average_over_subquery_is_client_eval(bool isAsync)
         {
-            await base.Average_over_subquery_is_client_eval(isAsync);
+            await AssertAverage<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Where(o => o.OrderID < 10250).Sum(o => o.OrderID));
 
             AssertSql(
                 @"SELECT c AS query
@@ -219,22 +234,39 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""ProductID""] = 1))");
 
         public override async Task Average_on_float_column_in_subquery(bool isAsync)
         {
-            await base.Average_on_float_column_in_subquery(isAsync);
+            await AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10250).Select(
+                    o => new
+                    {
+                        o.OrderID,
+                        Sum = o.OrderDetails.Average(od => od.Discount)
+                    }),
+                e => e.OrderID);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         }
 
         public override async Task Average_on_float_column_in_subquery_with_cast(bool isAsync)
         {
-            await base.Average_on_float_column_in_subquery_with_cast(isAsync);
+            await AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10250)
+                    .Select(
+                        o => new
+                        {
+                            o.OrderID,
+                            Sum = o.OrderDetails.Average(od => (float?)od.Discount)
+                        }),
+                e => e.OrderID);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         }
 
         public override async Task Min_with_no_arg(bool isAsync)
@@ -269,12 +301,15 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] < 40))");
 
         public override async Task Min_over_subquery_is_client_eval(bool isAsync)
         {
-            await base.Min_over_subquery_is_client_eval(isAsync);
+            await AssertMin<Customer, Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI"),
+                selector: c => c.Orders.Sum(o => o.OrderID));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Max_with_no_arg(bool isAsync)
@@ -309,12 +344,15 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] < 40))");
 
         public override async Task Max_over_subquery_is_client_eval(bool isAsync)
         {
-            await base.Max_over_subquery_is_client_eval(isAsync);
+            await AssertMax<Customer, Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI"),
+                selector: c => c.Orders.Sum(o => o.OrderID));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Count_with_predicate(bool isAsync)

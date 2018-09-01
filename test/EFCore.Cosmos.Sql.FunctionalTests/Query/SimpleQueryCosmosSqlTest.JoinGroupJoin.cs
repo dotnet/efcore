@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
@@ -26,12 +28,53 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task Join_select_many(bool isAsync)
         {
-            await base.Join_select_many(isAsync);
+            await AssertQuery<Customer, Order, Employee>(
+                isAsync,
+                (cs, os, es) =>
+                    from c in cs.Where(c => c.CustomerID == "ALFKI")
+                    join o in os on c.CustomerID equals o.CustomerID
+                    from e in es
+                    select new
+                    {
+                        c,
+                        o,
+                        e
+                    },
+                e => e.c.CustomerID + " " + e.o.OrderID + " " + e.e.EmployeeID,
+                entryCount: 16);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override async Task Client_Join_select_many(bool isAsync)
@@ -422,6 +465,103 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 @"SELECT c AS query
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        public override async Task GroupJoin_outer_projection(bool isAsync)
+        {
+            await base.GroupJoin_outer_projection(isAsync);
+
+            AssertSql(
+    @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        public override async Task GroupJoin_outer_projection2(bool isAsync)
+        {
+            await base.GroupJoin_outer_projection2(isAsync);
+
+            AssertSql(
+    @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        public override async Task GroupJoin_outer_projection3(bool isAsync)
+        {
+            await base.GroupJoin_outer_projection3(isAsync);
+            AssertSql(
+    @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        public override async Task GroupJoin_outer_projection4(bool isAsync)
+        {
+            await base.GroupJoin_outer_projection4(isAsync);
+
+            AssertSql(
+    @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        public override async Task GroupJoin_outer_projection_reverse(bool isAsync)
+        {
+            await base.GroupJoin_outer_projection_reverse(isAsync);
+            AssertSql(
+    @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")",
+    //
+    @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        public override async Task GroupJoin_outer_projection_reverse2(bool isAsync)
+        {
+            await base.GroupJoin_outer_projection_reverse2(isAsync);
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        public override async Task GroupJoin_subquery_projection_outer_mixed(bool isAsync)
+        {
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(c => c.CustomerID == "ALFKI")
+                    from o0 in os.OrderBy(o => o.OrderID).Take(1)
+                    join o1 in os on c.CustomerID equals o1.CustomerID into orders
+                    from o2 in orders
+                    select new
+                    {
+                        A = c.CustomerID,
+                        B = o0.CustomerID,
+                        C = o2.CustomerID
+                    },
+                e => e.A + " " + e.B + " " + e.C);
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
         }
     }
 }

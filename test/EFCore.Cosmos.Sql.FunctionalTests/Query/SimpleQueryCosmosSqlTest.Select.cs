@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
@@ -286,12 +289,32 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override void Select_nested_collection_multi_level5()
         {
-            base.Select_nested_collection_multi_level5();
+            using (var context = CreateContext())
+            {
+                var customers = context.Customers
+                    .Where(c => c.CustomerID == "ALFKI")
+                    .Select(
+                        c => new
+                        {
+                            Order = (int?)c.Orders
+                                .Where(o => o.OrderID < 10500)
+                                .Select(
+                                    o => o.OrderDetails
+                                        .Where(od => od.OrderID != c.Orders.Count)
+                                        .Select(od => od.ProductID)
+                                        .FirstOrDefault())
+                                .FirstOrDefault()
+                        })
+                    .ToList();
+
+                Assert.Equal(1, customers.Count);
+                Assert.Equal(0, customers.Count(c => c.Order != null && c.Order != 0));
+            }
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override void Select_nested_collection_multi_level6()
@@ -466,42 +489,41 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(
+                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(1).FirstOrDefault()));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(
+                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Skip(1).FirstOrDefault()));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(
+                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
-        {
-            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(isAsync);
-
-            AssertSql(
-                @"SELECT c AS query
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool isAsync)
@@ -516,22 +538,32 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(
+                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(1).FirstOrDefault()));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(
+                    c => c.Orders.OrderBy(o => o.OrderID)
+                        .ThenByDescending(o => o.OrderDate)
+                        .Select(o => o.CustomerID)
+                        .Take(2)
+                        .FirstOrDefault()));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(bool isAsync)
@@ -546,22 +578,33 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(
+                    c => c.Orders.OrderBy(o => o.CustomerID)
+                        .ThenByDescending(o => o.OrderDate)
+                        .Select(o => o.CustomerID)
+                        .Take(2)
+                        .FirstOrDefault()));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(isAsync);
+            await AssertQueryScalar<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10250)
+                    .Select(
+                        o => o.OrderDetails.OrderBy(od => od.Product.ProductName).Select(od => od.OrderID).Take(1).FirstOrDefault()));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)

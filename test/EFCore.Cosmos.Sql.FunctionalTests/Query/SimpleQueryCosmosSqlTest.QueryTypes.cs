@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
@@ -46,12 +48,22 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task QueryType_with_mixed_tracking(bool isAsync)
         {
-            await base.QueryType_with_mixed_tracking(isAsync);
+            await AssertQuery<Customer, OrderQuery>(
+                isAsync,
+                (cs, ovs)
+                    => from c in cs.Where(ct => ct.City == "London")
+                       from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
+                       select new
+                       {
+                           c,
+                           o
+                       },
+                e => e.c.CustomerID);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
         public override async Task QueryType_with_defining_query(bool isAsync)
@@ -106,7 +118,11 @@ WHERE (c[""Discriminator""] = ""Order"")");
 
         public override async Task QueryType_select_where_navigation_multi_level(bool isAsync)
         {
-            await base.QueryType_select_where_navigation_multi_level(isAsync);
+            await AssertQuery<OrderQuery>(
+                isAsync,
+                ovs => from ov in ovs.Where(o => o.CustomerID == "ALFKI")
+                       where ov.Customer.Orders.Any()
+                       select ov);
 
             AssertSql(
                 @"SELECT c AS query

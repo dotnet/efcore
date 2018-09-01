@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             {
                 var mappedExpression = _querySourceMapping.GetExpression(querySourceReferenceExpression.ReferencedQuerySource);
                 if(!(mappedExpression is ParameterExpression mappedParameter)
-                    || mappedParameter.Name != _queryModelVisitor.CurrentParameter?.Name)
+                    || mappedParameter != _queryModelVisitor.CurrentParameter)
                 {
                     _queryModelVisitor.AllMembersBoundToJObject = false;
                 }

@@ -293,7 +293,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (@__Abs_0 < c[""ProductID""]
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""OrderDetail"")");
         }
 
         public override async Task Where_math_ceiling2(bool isAsync)
@@ -393,7 +393,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0)))");
         }
 
         public override async Task Where_math_log(bool isAsync)
@@ -403,7 +403,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0)))");
         }
 
         public override async Task Where_math_log_new_base(bool isAsync)
@@ -413,7 +413,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0)))");
         }
 
         public override async Task Where_math_sqrt(bool isAsync)

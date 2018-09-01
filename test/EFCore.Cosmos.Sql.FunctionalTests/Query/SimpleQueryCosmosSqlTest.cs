@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -41,11 +43,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
     @"SELECT c AS query
 FROM root c
-WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND ""True"")",
+WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND true)",
     //
     @"SELECT c AS query
 FROM root c
-WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND ""True"")");
+WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND true)");
         }
 
         public override void Lifting_when_subquery_nested_order_by_anonymous()
@@ -150,6 +152,47 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
         }
 
+        public override void Query_when_evaluatable_queryable_method_call_with_repository()
+        {
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+                var customerRepository = new Repository<Customer>(context);
+                var orderRepository = new Repository<Order>(context);
+
+                var results
+                    = customerRepository.Find().Where(c => c.CustomerID == "ALFKI")
+                        .Where(c => orderRepository.Find().Any(o => o.CustomerID == c.CustomerID))
+                        .ToList();
+
+                Assert.Equal(1, results.Count);
+
+                results
+                    = (from c in customerRepository.Find().Where(c => c.CustomerID == "ALFKI")
+                       where orderRepository.Find().Any(o => o.CustomerID == c.CustomerID)
+                       select c)
+                    .ToList();
+
+                Assert.Equal(1, results.Count);
+
+                var orderQuery = orderRepository.Find();
+
+                results = customerRepository.Find().Where(c => c.CustomerID == "ALFKI")
+                    .Where(c => orderQuery.Any(o => o.CustomerID == c.CustomerID))
+                    .ToList();
+
+                Assert.Equal(1, results.Count);
+
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+            }
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
         public override async Task Queryable_reprojection(bool isAsync)
         {
             await base.Queryable_reprojection(isAsync);
@@ -238,7 +281,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 4294967295
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override async Task Where_query_composition_is_null(bool isAsync)
@@ -248,7 +291,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override async Task Where_query_composition_is_not_null(bool isAsync)
@@ -258,7 +301,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override async Task Where_query_composition_entity_equality_one_element_SingleOrDefault(bool isAsync)
@@ -278,7 +321,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override async Task Where_query_composition_entity_equality_no_elements_SingleOrDefault(bool isAsync)
@@ -298,7 +341,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override async Task Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(bool isAsync)
@@ -328,7 +371,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override async Task Where_query_composition2_FirstOrDefault_with_anonymous(bool isAsync)
@@ -338,7 +381,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override void Select_Subquery_Single()
@@ -403,12 +446,38 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task OrderBy_SelectMany(bool isAsync)
         {
-            await base.OrderBy_SelectMany(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(c => c.CustomerID == "VINET")
+                    from o in os.OrderBy(o => o.OrderID).Take(3)
+                    where c.CustomerID == o.CustomerID
+                    select new
+                    {
+                        c.ContactName,
+                        o.OrderID
+                    },
+                (cs, os) =>
+                    cs.Where(c => c.CustomerID == "VINET")
+                        .SelectMany(
+                            _ => os.OrderBy(o => o.OrderID).Take(3),
+                            (c, o) => new
+                            {
+                                c,
+                                o
+                            }).Where(t => t.c.CustomerID == t.o.CustomerID)
+                        .Select(
+                            t => new
+                            {
+                                t.c.ContactName,
+                                t.o.OrderID
+                            }),
+                assertOrder: true);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""VINET""))");
         }
 
         public override async Task Let_any_subquery_anonymous(bool isAsync)
@@ -933,22 +1002,50 @@ WHERE (c[""Discriminator""] = ""Employee"")");
 
         public override async Task SelectMany_simple2(bool isAsync)
         {
-            await base.SelectMany_simple2(isAsync);
+            await AssertQuery<Employee, Customer>(
+                isAsync,
+                (es, cs) =>
+                    from e1 in es.Where(ct => ct.City == "London")
+                    from c in cs.Where(ct => ct.City == "London")
+                    from e2 in es.Where(ct => ct.City == "London")
+                    select new
+                    {
+                        e1,
+                        c,
+                        e2.FirstName
+                    },
+                e => e.e1.EmployeeID + " " + e.c.CustomerID + " " + e.FirstName,
+                entryCount: 10);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Employee"")");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""City""] = ""London""))");
         }
 
         public override async Task SelectMany_entity_deep(bool isAsync)
         {
-            await base.SelectMany_entity_deep(isAsync);
+            await AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e1 in es.Where(e => e.EmployeeID == 1)
+                    from e2 in es
+                    from e3 in es
+                    from e4 in es
+                    select new
+                    {
+                        e2,
+                        e3,
+                        e1,
+                        e4
+                    },
+                e => e.e2.EmployeeID + " " + e.e3.EmployeeID + " " + e.e1.EmployeeID + e.e4.EmployeeID,
+                entryCount: 9);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Employee"")");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 1))");
         }
 
         public override async Task SelectMany_projection1(bool isAsync)
@@ -971,24 +1068,55 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
-        public override async Task SelectMany_Count(bool isAsync)
+        public override async Task SelectMany_customer_orders(bool isAsync)
         {
-            await base.SelectMany_Count(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(ct => ct.City == "London")
+                    from o in os
+                    where c.CustomerID == o.CustomerID
+                    select new
+                    {
+                        c.ContactName,
+                        o.OrderID
+                    },
+                e => e.OrderID);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
+        }
+
+        public override async Task SelectMany_Count(bool isAsync)
+        {
+            await AssertCount<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(ct => ct.City == "London")
+                    from o in os
+                    select c.CustomerID);
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
         public override async Task SelectMany_LongCount(bool isAsync)
         {
-            await base.SelectMany_LongCount(isAsync);
+            await AssertLongCount<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(ct => ct.City == "London")
+                    from o in os
+                    select c.CustomerID);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
         public override async Task SelectMany_OrderBy_ThenBy_Any(bool isAsync)
@@ -1098,7 +1226,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != ""ALFKI""))");
         }
 
         public override async Task Where_join_orderby_join_select(bool isAsync)
@@ -1118,7 +1246,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != ""ALFKI""
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Where_orderby_select_many(bool isAsync)
@@ -1128,7 +1256,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task SelectMany_cartesian_product_with_ordering(bool isAsync)
@@ -1143,32 +1271,81 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task SelectMany_Joined_DefaultIfEmpty(bool isAsync)
         {
-            await base.SelectMany_Joined_DefaultIfEmpty(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(cst => cst.CustomerID == "ALFKI")
+                    from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                    select new
+                    {
+                        c.ContactName,
+                        o
+                    },
+                e => e.ContactName + " " + e.o?.OrderID,
+                entryCount: 6);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task SelectMany_Joined_DefaultIfEmpty2(bool isAsync)
         {
-            await base.SelectMany_Joined_DefaultIfEmpty2(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(cst => cst.CustomerID == "ALFKI")
+                    from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                    select o,
+                e => e?.OrderID,
+                entryCount: 6);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
+        public override async Task SelectMany_Joined(bool isAsync)
+        {
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(cst => cst.CustomerID == "ALFKI")
+                    from o in os.Where(o => o.CustomerID == c.CustomerID)
+                    select new
+                    {
+                        c.ContactName,
+                        o.OrderDate
+                    },
+                e => e.ContactName + " " + e.OrderDate);
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task SelectMany_Joined_Take(bool isAsync)
         {
-            await base.SelectMany_Joined_Take(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs.Where(cst => cst.CustomerID == "ALFKI")
+                    from o in os.Where(o => o.CustomerID == c.CustomerID).Take(1000)
+                    select new
+                    {
+                        c.ContactName,
+                        o
+                    },
+                e => e.o.OrderID,
+                entryCount: 6);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Take_with_single(bool isAsync)
@@ -1461,6 +1638,24 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        public override async Task Where_subquery_expression_same_parametername(bool isAsync)
+        {
+            await AssertQuery<Order, Order>(
+                isAsync,
+                (o1, o2) =>
+                {
+                    var firstOrder = o1.OrderBy(o => o.OrderID).First();
+                    Expression<Func<Order, bool>> expr = x => x.OrderID == firstOrder.OrderID;
+                    return o1.Where(o => o.OrderID < 10250).Where(x => o2.Where(expr).Where(o => o.CustomerID == x.CustomerID).Any());
+                },
+                entryCount: 1);
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
         public override void Select_DTO_distinct_translated_to_server()
         {
             base.Select_DTO_distinct_translated_to_server();
@@ -1566,17 +1761,17 @@ WHERE (c[""Discriminator""] = ""Product"")");
             await AssertQuery<Product, OrderDetail>(
                 isAsync,
                 (pr, od) =>
-                    pr.Where(p => p.ProductID < 10250)
+                    pr.Where(p => p.ProductID == 72)
                       .Where(
                         p => od
                             .Where(o => o.ProductID == p.ProductID)
                             .Select(odd => odd.Quantity).Contains<short>(5)),
-                entryCount: 43);
+                entryCount: 1);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Product"")");
+WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] = 72))");
         }
 
         public override async Task Select_many_cross_join_same_collection(bool isAsync)
@@ -2115,17 +2310,42 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
 
         public override async Task DefaultIfEmpty_in_subquery(bool isAsync)
         {
-            await base.DefaultIfEmpty_in_subquery(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    (from c in cs.Where(c => c.City == "London")
+                     from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                     where o != null
+                     select new
+                     {
+                         c.CustomerID,
+                         o.OrderID
+                     }),
+                e => e.CustomerID + " " + e.OrderID);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
         public override async Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
         {
-            await base.DefaultIfEmpty_in_subquery_nested(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    (from c in cs.Where(c => c.City == "Seattle")
+                     from o1 in os.Where(o => o.OrderID > 11000).DefaultIfEmpty()
+                     from o2 in os.Where(o => o.OrderID < 10250).Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                     where o1 != null && o2 != null
+                     orderby o1.OrderID, o2.OrderDate
+                     select new
+                     {
+                         c.CustomerID,
+                         o1.OrderID,
+                         o2.OrderDate
+                     }),
+                e => e.CustomerID + " " + e.OrderID);
 
             AssertSql(
                 @"SELECT c AS query
@@ -2395,12 +2615,19 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task Anonymous_subquery_orderby(bool isAsync)
         {
-            await base.Anonymous_subquery_orderby(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.City == "London").Where(c => c.Orders.Count > 1).Select(
+                    c => new
+                    {
+                        A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
+                    }).OrderBy(n => n.A),
+                e => e.A);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
         public override async Task DTO_member_distinct_where(bool isAsync)
@@ -2475,12 +2702,20 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task DTO_subquery_orderby(bool isAsync)
         {
-            await base.DTO_subquery_orderby(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Where(c => c.Orders.Count > 1).Select(
+                    c => new DTO<DateTime?>
+                    {
+                        Property = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
+                    }).OrderBy(n => n.Property),
+                assertOrder: true,
+                elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Include_with_orderby_skip_preserves_ordering(bool isAsync)
@@ -2505,22 +2740,40 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10300))");
 
         public override async Task Subquery_is_null_translated_correctly(bool isAsync)
         {
-            await base.Subquery_is_null_translated_correctly(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs =>
+                    from c in cs.Where(c => c.CustomerID == "ALFKI")
+                    let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
+                        .Select(o => o.CustomerID)
+                        .FirstOrDefault()
+                    where lastOrder == null
+                    select c,
+                entryCount: 0);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Subquery_is_not_null_translated_correctly(bool isAsync)
         {
-            await base.Subquery_is_not_null_translated_correctly(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs =>
+                    from c in cs.Where(c => c.CustomerID == "ALFKI")
+                    let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
+                        .Select(o => o.CustomerID)
+                        .FirstOrDefault()
+                    where lastOrder != null
+                    select c,
+                entryCount: 1);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Select_take_average(bool isAsync)
@@ -2765,12 +3018,19 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task Comparing_different_entity_types_using_Equals(bool isAsync)
         {
-            await base.Comparing_different_entity_types_using_Equals(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            where c.CustomerID == "ALFKI"
+                            from o in os
+                            where o.CustomerID == "ALFKI"
+                            where c.Equals(o)
+                            select c.CustomerID);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Comparing_entity_to_null_using_Equals(bool isAsync)
@@ -2785,7 +3045,20 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task Comparing_navigations_using_Equals(bool isAsync)
         {
-            await base.Comparing_navigations_using_Equals(isAsync);
+            await AssertQuery<Order, Order>(
+                isAsync,
+                (os1, os2) =>
+                    from o1 in os1
+                    where o1.CustomerID.StartsWith("A")
+                    from o2 in os2
+                    where o1.Customer.Equals(o2.Customer)
+                    orderby o1.OrderID, o2.OrderID
+                    select new
+                    {
+                        Id1 = o1.OrderID,
+                        Id2 = o2.OrderID
+                    },
+                e => e.Id1 + " " + e.Id2);
 
             AssertSql(
                 @"SELECT c AS query
@@ -2795,7 +3068,20 @@ WHERE (c[""Discriminator""] = ""Order"")");
 
         public override async Task Comparing_navigations_using_static_Equals(bool isAsync)
         {
-            await base.Comparing_navigations_using_static_Equals(isAsync);
+            await AssertQuery<Order, Order>(
+                isAsync,
+                (os1, os2) =>
+                    from o1 in os1
+                    where o1.CustomerID.StartsWith("A")
+                    from o2 in os2
+                    where Equals(o1.Customer, o2.Customer)
+                    orderby o1.OrderID, o2.OrderID
+                    select new
+                    {
+                        Id1 = o1.OrderID,
+                        Id2 = o2.OrderID
+                    },
+                e => e.Id1 + " " + e.Id2);
 
             AssertSql(
                 @"SELECT c AS query
@@ -2805,22 +3091,46 @@ WHERE (c[""Discriminator""] = ""Order"")");
 
         public override async Task Comparing_non_matching_entities_using_Equals(bool isAsync)
         {
-            await base.Comparing_non_matching_entities_using_Equals(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs
+                    where c.CustomerID == "ALFKI"
+                    from o in os
+                    where Equals(c, o)
+                    select new
+                    {
+                        Id1 = c.CustomerID,
+                        Id2 = o.OrderID
+                    },
+                e => e.Id1 + " " + e.Id2);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Comparing_non_matching_collection_navigations_using_Equals(bool isAsync)
         {
-            await base.Comparing_non_matching_collection_navigations_using_Equals(isAsync);
+            await AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs
+                    where c.CustomerID == "ALFKI"
+                    from o in os
+                    where c.Orders.Equals(o.OrderDetails)
+                    select new
+                    {
+                        Id1 = c.CustomerID,
+                        Id2 = o.OrderID
+                    },
+                e => e.Id1 + " " + e.Id2);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Comparing_collection_navigation_to_null(bool isAsync)
@@ -2880,7 +3190,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task OrderBy_ThenBy_same_column_different_direction(bool isAsync)
@@ -2915,12 +3225,33 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
 
         public override async Task Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result(bool isAsync)
         {
-            await base.Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI")
+                        .Select(
+                            c => new
+                            {
+                                c.CustomerID,
+                                OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0)
+                            }));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
         }
 
         public override async Task OrderBy_Dto_projection_skip_take(bool isAsync)
@@ -2935,12 +3266,35 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override void Streaming_chained_sync_query()
         {
-            base.Streaming_chained_sync_query();
+            using (var context = CreateContext())
+            {
+                var results
+                    = (context.Customers.Where(c => c.CustomerID == "ALFKI")
+                        .Select(
+                            c => new
+                            {
+                                c.CustomerID,
+                                Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
+                            }).ToList())
+                    .Select(
+                        x => new
+                        {
+                            Orders = x.Orders
+                                .GroupJoin(
+                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
+                                    {
+                                        h.Customer
+                                    })
+                        })
+                    .ToList();
+
+                Assert.Equal(6, results.SelectMany(r => r.Orders).ToList().Count);
+            }
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Join_take_count_works(bool isAsync)
@@ -2985,12 +3339,39 @@ WHERE (c[""Discriminator""] = ""Order"")");
 
         public override async Task Let_subquery_with_multiple_occurences(bool isAsync)
         {
-            await base.Let_subquery_with_multiple_occurences(isAsync);
+            await AssertQuery<Order>(
+                isAsync,
+                os => from o in os.Where(or => or.OrderID < 10250)
+                      let details =
+                          from od in o.OrderDetails
+                          where od.Quantity < 10
+                          select od.Quantity
+                      where details.Any()
+                      select new
+                      {
+                          Count = details.Count()
+                      });
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))",
+                //
+                @"SELECT c AS query
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))");
         }
 
         public override async Task Let_entity_equality_to_null(bool isAsync)
@@ -3025,7 +3406,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task Collection_navigation_equal_to_null_for_subquery(bool isAsync)
         {
-            await base.Collection_navigation_equal_to_null_for_subquery(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
+                cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                entryCount: 89);
 
             AssertSql(
                 @"SELECT c AS query
@@ -3035,7 +3420,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool isAsync)
         {
-            await base.Dependent_to_principal_navigation_equal_to_null_for_subquery(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
+                cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
+                entryCount: 89);
 
             AssertSql(
                 @"SELECT c AS query
