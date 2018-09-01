@@ -2163,7 +2163,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 for (int i = 0; i < candidateSelectExpression.Tables.Count && selectExpression == null; i++)
                                 {
-                                    if (candidateSelectExpression.Tables[i].QuerySource.ItemType == property.DeclaringType.ClrType)
+                                    IQuerySource tableQuerySource = candidateSelectExpression.Tables[i].QuerySource;
+                                    if (tableQuerySource == null || tableQuerySource.ItemType == property.DeclaringType.ClrType)
                                     {
                                         candidateSelectExpression
                                             .AddToProjection(
