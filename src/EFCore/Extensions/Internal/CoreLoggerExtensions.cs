@@ -608,6 +608,89 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void ServiceProviderDebugInfo(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] IDictionary<string, string> newDebugInfo,
+            [NotNull] IList<IDictionary<string, string>> cachedDebugInfos)
+        {
+            var definition = CoreStrings.LogServiceProviderDebugInfo;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    GenerateDebugInfoString(newDebugInfo, cachedDebugInfos));
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new ServiceProviderDebugInfoEventData(
+                        definition,
+                        (d, p) => ServiceProviderDebugInfo(d, p),
+                        newDebugInfo,
+                        cachedDebugInfos));
+            }
+        }
+
+        private static string ServiceProviderDebugInfo(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (ServiceProviderDebugInfoEventData)payload;
+            return d.GenerateMessage(
+                GenerateDebugInfoString(p.NewDebugInfo, p.CachedDebugInfos));
+        }
+
+        private static string GenerateDebugInfoString(
+            IDictionary<string, string> newDebugInfo,
+            IList<IDictionary<string, string>> cachedDebugInfos)
+        {
+            List<string> leastConflicts = null;
+
+            foreach (var cachedDebugInfo in cachedDebugInfos)
+            {
+                var newKeys = new HashSet<string>(newDebugInfo.Keys);
+
+                var conflicts = new List<string>();
+                foreach (var key in cachedDebugInfo.Keys)
+                {
+                    if (newDebugInfo.TryGetValue(key, out var value))
+                    {
+                        if (!value.Equals(cachedDebugInfo[key]))
+                        {
+                            conflicts.Add(CoreStrings.ServiceProviderConfigChanged(key));
+                        }
+                    }
+                    else
+                    {
+                        conflicts.Add(CoreStrings.ServiceProviderConfigRemoved(key));
+                    }
+
+                    newKeys.Remove(key);
+                }
+
+                foreach (var addedKey in newKeys)
+                {
+                    conflicts.Add(CoreStrings.ServiceProviderConfigAdded(addedKey));
+                }
+
+                if (leastConflicts == null
+                    || leastConflicts.Count > conflicts.Count)
+                {
+                    leastConflicts = conflicts;
+                }
+            }
+
+            return string.Join(", ", leastConflicts);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void ContextInitialized(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             [NotNull] DbContext context,

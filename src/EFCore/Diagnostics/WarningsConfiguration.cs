@@ -132,7 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (_explicitBehaviors != null)
                 {
-                    hashCode = _explicitBehaviors.Aggregate(hashCode, (t, e) => (t * 397) ^ e.Value.GetHashCode());
+                    hashCode = _explicitBehaviors.Aggregate(
+                        hashCode,
+                        (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() << 32) | (long)e.Key.GetHashCode()));
                 }
 
                 _serviceProviderHash = hashCode;

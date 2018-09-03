@@ -76,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             NavigationLazyLoading,
             ContextDisposed,
             DetachedLazyLoadingWarning,
+            ServiceProviderDebugInfo,
 
             // Model events
             ShadowPropertyCreated = CoreBaseId + 600,
@@ -316,6 +317,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ContextInitialized = MakeInfraId(Id.ContextInitialized);
+
+        /// <summary>
+        ///     <para>
+        ///         Provides debug information for why a new internal service provider was created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ServiceProviderDebugInfoEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ServiceProviderDebugInfo = MakeInfraId(Id.ServiceProviderDebugInfo);
 
         /// <summary>
         ///     <para>

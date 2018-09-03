@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -18,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public class ServiceProviderCache
     {
-        private readonly ConcurrentDictionary<long, IServiceProvider> _configurations
-            = new ConcurrentDictionary<long, IServiceProvider>();
+        private readonly ConcurrentDictionary<long, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)> _configurations
+            = new ConcurrentDictionary<long, (IServiceProvider, IDictionary<string, string>)>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -33,18 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options, bool providerRequired)
         {
-            foreach (var extension in options.Extensions)
-            {
-                extension.Validate(options);
-            }
-
-            var key = options.Extensions
-                .OrderBy(e => e.GetType().Name)
-                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.GetServiceProviderHashCode());
-
             var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
             if (internalServiceProvider != null)
             {
+                ValidateOptions(options);
+
                 var optionsInitialzer = internalServiceProvider.GetService<ISingletonOptionsInitializer>();
                 if (optionsInitialzer == null)
                 {
@@ -59,10 +53,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return internalServiceProvider;
             }
 
+            var key = options.Extensions
+                .OrderBy(e => e.GetType().Name)
+                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.GetServiceProviderHashCode());
+
             return _configurations.GetOrAdd(
                 key,
                 k =>
                 {
+                    ValidateOptions(options);
+
+                    var debugInfo = new Dictionary<string, string>();
+                    foreach (var optionsExtension in options.Extensions)
+                    {
+                        if (optionsExtension is IDbContextOptionsExtensionWithDebugInfo extended)
+                        {
+                            extended.PopulateDebugInfo(debugInfo);
+                        }
+                        else
+                        {
+                            debugInfo[optionsExtension.GetType().DisplayName()]
+                                = optionsExtension.GetServiceProviderHashCode().ToString(CultureInfo.InvariantCulture);
+                        }
+                    }
+
+                    debugInfo = debugInfo.OrderBy(v => debugInfo.Keys).ToDictionary(d => d.Key, v => v.Value);
+
                     var services = new ServiceCollection();
                     var hasProvider = ApplyServices(options, services);
 
@@ -98,15 +114,33 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                     var logger = serviceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
 
-                    logger.ServiceProviderCreated(serviceProvider);
-
-                    if (_configurations.Count >= 20)
+                    if (_configurations.Count == 0)
                     {
-                        logger.ManyServiceProvidersCreatedWarning(_configurations.Values);
+                        logger.ServiceProviderCreated(serviceProvider);
+                    }
+                    else
+                    {
+                        logger.ServiceProviderDebugInfo(
+                            debugInfo,
+                            _configurations.Values.Select(v => v.DebugInfo).ToList());
+
+                        if (_configurations.Count >= 20)
+                        {
+                            logger.ManyServiceProvidersCreatedWarning(
+                                _configurations.Values.Select(e => e.ServiceProvider).ToList());
+                        }
                     }
 
-                    return serviceProvider;
-                });
+                    return (serviceProvider, debugInfo);
+                }).ServiceProvider;
+        }
+
+        private static void ValidateOptions(IDbContextOptions options)
+        {
+            foreach (var extension in options.Extensions)
+            {
+                extension.Validate(options);
+            }
         }
 
         private static bool ApplyServices(IDbContextOptions options, ServiceCollection services)

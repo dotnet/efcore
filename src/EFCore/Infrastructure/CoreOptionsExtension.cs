@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         methods to obtain a new instance with the option changed.
     ///     </para>
     /// </summary>
-    public class CoreOptionsExtension : IDbContextOptionsExtension
+    public class CoreOptionsExtension : IDbContextOptionsExtensionWithDebugInfo
     {
         private IServiceProvider _internalServiceProvider;
         private IServiceProvider _applicationServiceProvider;
@@ -365,6 +367,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             return _serviceProviderHash.Value;
+        }
+
+        /// <summary>
+        ///     Populates a dictionary of information that may change between uses of the
+        ///     extension such that it can be comapred to a previous configuration for
+        ///     this option and differencesd can be logged. The dictionary key prefix
+        ///     <c>"Core:"</c> is used.
+        /// </summary>
+        /// <param name="debugInfo"> The dictionary to populate. </param>
+        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        {
+            Check.NotNull(debugInfo, nameof(debugInfo));
+
+            debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseLoggerFactory)] = (GetLoggerFactory()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+            debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseMemoryCache)] = (GetMemoryCache()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+            debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableSensitiveDataLogging)] = _sensitiveDataLoggingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
+            debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableRichDataErrorHandling)] = _richDataErrorHandingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
+            debugInfo["Core:" + nameof(DbContextOptionsBuilder.ConfigureWarnings)] = _warningsConfiguration.GetServiceProviderHashCode().ToString(CultureInfo.InvariantCulture);
+
+            if (_replacedServices != null)
+            {
+                foreach (var replacedService in _replacedServices)
+                {
+                    debugInfo["Core:" + nameof(DbContextOptionsBuilder.ReplaceService) + ":" + replacedService.Key.DisplayName()]
+                        = replacedService.Value.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                }
+            }
         }
 
         /// <summary>
