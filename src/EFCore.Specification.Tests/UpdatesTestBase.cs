@@ -21,6 +21,58 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         [Fact]
+        public virtual void Mutation_of_tracked_byte_array_values_does_not_mutate_values_in_store()
+        {
+            var id1 = Guid.NewGuid();
+            var id2 = Guid.NewGuid();
+            var bytes = new byte[] { 1, 2, 3, 4 };
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    context.AFewBytes.AddRange(
+                        new AFewBytes()
+                        {
+                            Id = id1,
+                            Bytes = bytes
+                        },
+                        new AFewBytes()
+                        {
+                            Id = id2,
+                            Bytes = bytes
+                        });
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    bytes[1] = 22;
+
+                    var fromStore1 = context.AFewBytes.First(p => p.Id == id1);
+                    var fromStore2 = context.AFewBytes.First(p => p.Id == id2);
+
+                    Assert.Equal(2, fromStore1.Bytes[1]);
+                    Assert.Equal(2, fromStore2.Bytes[1]);
+
+                    fromStore1.Bytes[1] = 222;
+                    fromStore2.Bytes[1] = 222;
+
+                    context.Entry(fromStore1).State = EntityState.Modified;
+
+                    context.SaveChanges();
+
+                },
+                context =>
+                {
+                    var fromStore1 = context.AFewBytes.First(p => p.Id == id1);
+                    var fromStore2 = context.AFewBytes.First(p => p.Id == id2);
+
+                    Assert.Equal(222, fromStore1.Bytes[1]);
+                    Assert.Equal(2, fromStore2.Bytes[1]);
+                });
+        }
+
+        [Fact]
         public virtual void Save_partial_update()
         {
             var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");

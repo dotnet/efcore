@@ -53,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
+                CoreAnnotationNames.DeepValueComparer,
                 CoreAnnotationNames.ProviderClrType,
                 RelationalAnnotationNames.ColumnName,
                 RelationalAnnotationNames.ColumnType,

@@ -6,13 +6,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
 {
-    public class Product
+    public class ProductWithBytes
     {
         public Guid Id { get; set; }
-        public int? DependentId { get; set; }
         public string Name { get; set; }
 
         [ConcurrencyCheck]
-        public decimal Price { get; set; }
+        public byte[] Bytes { get; set; }
     }
 }

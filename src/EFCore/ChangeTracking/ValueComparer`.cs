@@ -84,7 +84,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
         }
 
-        private static Expression<Func<T, T, bool>> CreateDefaultEqualsExpression(bool favorStructuralComparisons)
+        /// <summary>
+        ///     Creates an expression for equality.
+        /// </summary>
+        /// <param name="favorStructuralComparisons">
+        ///     If <c>true</c>, then <see cref="IStructuralEquatable" /> is used if the type implements it.
+        /// </param>
+        /// <returns> The equality expression. </returns>
+        protected static Expression<Func<T, T, bool>> CreateDefaultEqualsExpression(bool favorStructuralComparisons)
         {
             var type = typeof(T);
             var param1 = Expression.Parameter(type, "v1");
@@ -153,7 +160,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 param1, param2);
         }
 
-        private static Expression<Func<T, int>> CreateDefaultHashCodeExpression(bool favorStructuralComparisons)
+        /// <summary>
+        ///     Creates an expression for generated a hash code.
+        /// </summary>
+        /// <param name="favorStructuralComparisons">
+        ///     If <c>true</c>, then <see cref="IStructuralEquatable" /> is used if the type implements it.
+        /// </param>
+        /// <returns> The hash code expression. </returns>
+        protected static Expression<Func<T, int>> CreateDefaultHashCodeExpression(bool favorStructuralComparisons)
         {
             var type = typeof(T);
             var unwrappedType = type.UnwrapNullableType();
@@ -243,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
         public override object Snapshot(object instance)
-            => Snapshot((T)instance);
+            => instance == null ? null : (object)Snapshot((T)instance);
 
         /// <summary>
         ///     <para>

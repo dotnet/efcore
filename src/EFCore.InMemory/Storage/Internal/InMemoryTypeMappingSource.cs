@@ -33,11 +33,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             Debug.Assert(clrType != null);
 
             if (clrType.IsValueType
-                || clrType == typeof(string)
-                || clrType == typeof(byte[]))
+                || clrType == typeof(string))
             {
                 return new InMemoryTypeMapping(clrType);
             }
+
+            if (clrType == typeof(byte[]))
+            {
+                return new InMemoryTypeMapping(clrType, deepComparer: new ArrayDeepComparer<byte>());
+            }
+
             if (clrType.Name == "GeoAPI.Geometries.IGeometry"
                 || clrType.GetInterface("GeoAPI.Geometries.IGeometry") != null)
             {
