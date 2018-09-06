@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -113,21 +114,43 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
 
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression querySourceReferenceExpression)
         {
+            Expression newExpression = querySourceReferenceExpression;
             if (_querySourceMapping.ContainsMapping(querySourceReferenceExpression.ReferencedQuerySource))
             {
                 var mappedExpression = _querySourceMapping.GetExpression(querySourceReferenceExpression.ReferencedQuerySource);
-                if(!(mappedExpression is ParameterExpression mappedParameter)
+                if (!(mappedExpression is ParameterExpression mappedParameter)
                     || mappedParameter != _queryModelVisitor.CurrentParameter)
                 {
                     _queryModelVisitor.AllMembersBoundToJObject = false;
                 }
 
-                return mappedExpression;
+                newExpression = mappedExpression;
             }
-            else
+
+            if (_inProjection
+                && newExpression.Type.IsConstructedGenericType)
             {
-                return querySourceReferenceExpression;
+                var genericTypeDefinition = newExpression.Type.GetGenericTypeDefinition();
+
+                if (genericTypeDefinition == typeof(IOrderedAsyncEnumerable<>))
+                {
+                    newExpression
+                        = Expression.Call(
+                            _queryModelVisitor.LinqOperatorProvider.ToOrdered
+                                .MakeGenericMethod(newExpression.Type.GenericTypeArguments[0]),
+                            newExpression);
+                }
+                else if (genericTypeDefinition == typeof(IAsyncEnumerable<>))
+                {
+                    newExpression
+                        = Expression.Call(
+                            _queryModelVisitor.LinqOperatorProvider.ToEnumerable
+                                .MakeGenericMethod(newExpression.Type.GenericTypeArguments[0]),
+                            newExpression);
+                }
             }
+
+            return newExpression;
         }
 
         private static Expression CreateGetValueExpression(

@@ -877,15 +877,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     AddQuery(querySource, subSelectExpression);
 
-                    var newExpression
-                        = new QuerySourceUpdater(
+                    return new QuerySourceUpdater(
                                 querySource,
                                 QueryCompilationContext,
                                 LinqOperatorProvider,
                                 subSelectExpression)
                             .Visit(subQueryModelVisitor.Expression);
-
-                    return newExpression;
                 }
             }
 
@@ -1178,7 +1175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (Expression is MethodCallExpression methodCallExpression
                 && (methodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Select)
-                    || methodCallExpression.Method.MethodIsClosedFormOf(SelectAsyncMethod)
+                    || methodCallExpression.Method.MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)
                     && selectClause.Selector.Type == typeof(AnonymousObject)))
             {
                 var shapedQuery = methodCallExpression.Arguments[0] as MethodCallExpression;

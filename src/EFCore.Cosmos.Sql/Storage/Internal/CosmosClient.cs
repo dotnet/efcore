@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Documents.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -41,6 +42,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
                     UriFactory.CreateDocumentCollectionUri(DatabaseId, collectionId),
                     sqlQuerySpec)
                 .GetEnumerator();
+        }
+
+        public IDocumentQuery<Document> ExecuteAsyncSqlQuery(
+            string collectionId,
+            SqlQuerySpec sqlQuerySpec)
+        {
+            _commandLogger.ExecutingSqlQuery(sqlQuerySpec);
+
+            return DocumentClient
+                .CreateDocumentQuery<Document>(
+                    UriFactory.CreateDocumentCollectionUri(DatabaseId, collectionId),
+                    sqlQuerySpec)
+                .AsDocumentQuery();
         }
     }
 }

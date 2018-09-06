@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
                     if (AllMembersBoundToJObject)
                     {
                         Expression = new QueryShaperExpression(
+                            QueryCompilationContext.IsAsyncQuery,
                             Expression.Call(LinqOperatorProvider.Where.MakeGenericMethod(CurrentParameter.Type),
                             queryShaperExpression.QueryExpression,
                             Expression.Lambda(predicate, CurrentParameter)),

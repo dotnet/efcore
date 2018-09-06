@@ -8,9 +8,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal
     {
         public InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            var idProperty = entityTypeBuilder.Property("id", typeof(string), ConfigurationSource.Convention);
-            idProperty.HasValueGenerator((_, __) => new StringValueGenerator(generateTemporaryValues: false), ConfigurationSource.Convention);
-            entityTypeBuilder.HasKey(new[] { idProperty.Metadata }, ConfigurationSource.Convention);
+            if (entityTypeBuilder.Metadata.BaseType == null)
+            {
+                var idProperty = entityTypeBuilder.Property("id", typeof(string), ConfigurationSource.Convention);
+                idProperty.HasValueGenerator((_, __) => new StringValueGenerator(generateTemporaryValues: false), ConfigurationSource.Convention);
+                entityTypeBuilder.HasKey(new[] { idProperty.Metadata }, ConfigurationSource.Convention);
+            }
 
             return entityTypeBuilder;
         }

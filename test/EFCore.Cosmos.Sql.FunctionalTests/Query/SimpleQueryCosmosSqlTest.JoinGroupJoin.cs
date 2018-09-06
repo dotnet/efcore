@@ -207,6 +207,16 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        public override async Task GroupJoin_customers_orders(bool isAsync)
+        {
+            await base.GroupJoin_customers_orders(isAsync);
+
+            AssertSql(
+                @"SELECT c AS query
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
         public override async Task GroupJoin_customers_orders_count(bool isAsync)
         {
             await base.GroupJoin_customers_orders_count(isAsync);

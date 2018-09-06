@@ -370,8 +370,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             ChoiceResultOperatorBase choiceResultOperator)
         {
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+                && (methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                    || methodCallExpression.Method
+                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Last down below Select
 
@@ -440,8 +442,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Visit(skipResultOperator.Count);
 
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+                && (methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                    || methodCallExpression.Method
+                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Skip down below Select
 
@@ -477,8 +481,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Visit(takeResultOperator.Count);
 
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+                && (methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                    || methodCallExpression.Method
+                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Take down below Select
 
@@ -516,8 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression secondSource,
             MethodInfo setMethodInfo)
         {
-            var source2 = entityQueryModelVisitor
-                .ReplaceClauseReferences(secondSource);
+            var source2 = entityQueryModelVisitor.ReplaceClauseReferences(secondSource);
 
             var resultType = entityQueryModelVisitor.Expression.Type.GetSequenceType();
             var sourceType = source2.Type.GetSequenceType();
