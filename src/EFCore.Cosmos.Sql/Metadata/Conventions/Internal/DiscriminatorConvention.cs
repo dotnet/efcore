@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal
             propertyBuilder.IsRequired(true, ConfigurationSource.Convention);
             propertyBuilder.AfterSave(PropertySaveBehavior.Throw, ConfigurationSource.Convention);
             propertyBuilder.HasValueGenerator(
-                (p, et) => new DiscriminatorValueGenerator(et.CosmosSql().DiscriminatorValue),
+                (_, et) => new DiscriminatorValueGenerator(et.CosmosSql().DiscriminatorValue),
                 ConfigurationSource.Convention);
 
             var entityType = entityTypeBuilder.Metadata;

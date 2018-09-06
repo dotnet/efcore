@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal
         {
             var discriminatorConvention = new DiscriminatorConvention();
 
+            conventionSet.EntityTypeAddedConventions.Add(new StoreKeyConvention());
             conventionSet.EntityTypeAddedConventions.Add(discriminatorConvention);
 
             conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);

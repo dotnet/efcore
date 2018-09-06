@@ -5,37 +5,27 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal
 {
-    public class DocumentCollection<TKey> : IDocumentCollection
+    public class DocumentCollectionUpdater
     {
         private DocumentClient _documentClient;
         private string _databaseId;
         private string _collectionName;
         private readonly IEntityType _entityType;
-        private IPrincipalKeyValueFactory<TKey> _principalKeyValueFactory;
 
-        public DocumentCollection(
+        public DocumentCollectionUpdater(
             CosmosClient cosmosClient,
-            IEntityType entityType,
-            IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
+            IEntityType entityType)
         {
             _documentClient = cosmosClient.DocumentClient;
             _databaseId = cosmosClient.DatabaseId;
             _collectionName = entityType.CosmosSql().CollectionName;
             _entityType = entityType;
-            _principalKeyValueFactory = principalKeyValueFactory;
-        }
-
-        private string GetId(IUpdateEntry entry)
-        {
-            var key = _principalKeyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
-
-            return key is object[] array ? string.Join("|", array) : key.ToString();
         }
 
         private Document CreateDocument(string id, IUpdateEntry entry)
@@ -55,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
 
         public Task SaveAsync(IUpdateEntry entry, CancellationToken cancellationToken = default)
         {
-            var id = GetId(entry);
+            var id = entry.GetCurrentValue<string>(_entityType.FindProperty("id"));
 
             switch (entry.EntityState)
             {

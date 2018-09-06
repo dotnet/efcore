@@ -20,18 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
                 .GetMethod;
 
         public static Expression<Func<JObject, object[]>> Create(IEntityType entityType)
-        {
-            return Expression.Lambda<Func<JObject, object[]>>(
+            => Expression.Lambda<Func<JObject, object[]>>(
                 Expression.NewArrayInit(
                     typeof(object),
                     entityType.GetProperties()
-                        .Select(
-                            p =>
+                        .Select(p =>
                                 CreateGetValueExpression(
                                     _jObjectParameter,
                                     p))),
                                 _jObjectParameter);
-        }
 
         private static Expression CreateGetValueExpression(
             Expression jObjectExpression,
