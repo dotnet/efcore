@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerNTSOptionsExtension : IDbContextOptionsExtension
+    public class SqlServerNTSOptionsExtension : IDbContextOptionsExtensionWithDebugInfo
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -40,6 +41,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual long GetServiceProviderHashCode() => 0;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        {
+            debugInfo["SqlServer:" + nameof(SqlServerNTSDbContextOptionsBuilderExtensions.UseNetTopologySuite)] = "1";
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
