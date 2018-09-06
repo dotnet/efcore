@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private class Repository<T>
+        protected class Repository<T>
             where T : class
         {
             private readonly NorthwindContext _context;
@@ -2891,7 +2891,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     cs.OrderBy(c => c.CustomerID, StringComparer.Ordinal)
                         .SelectMany(
-                            c => os.OrderBy(o => o.OrderID).Take(3),
+                            _ => os.OrderBy(o => o.OrderID).Take(3),
                             (c, o) => new
                             {
                                 c,
@@ -4644,7 +4644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.A);
         }
 
-        private class DTO<T>
+        protected class DTO<T>
         {
             public T Property { get; set; }
 
@@ -5128,7 +5128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => from c in cs
                             from o in os
-                            where c.CustomerID == " ALFKI" && o.CustomerID == "ALFKI"
+                            where c.CustomerID == "ALFKI" && o.CustomerID == "ALFKI"
                             where c.Equals(o)
                             select c.CustomerID);
         }
@@ -5313,8 +5313,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) =>
                     from c in cs
-                    from o in os
                     where c.CustomerID == "ALFKI"
+                    from o in os
                     where c.Orders == o.Customer.Orders
                     orderby c.CustomerID, o.OrderID
                     select new

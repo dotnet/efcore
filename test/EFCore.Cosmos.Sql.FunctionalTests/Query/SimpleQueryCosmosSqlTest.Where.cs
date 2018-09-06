@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -361,17 +363,22 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""Region""] ?? ""SP"") = ""
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
+
+        private static readonly Expression<Func<Order, bool>> _filter = o => o.CustomerID == "ALFKI";
 
         public override async Task Where_as_queryable_expression(bool isAsync)
         {
-            await base.Where_as_queryable_expression(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Where(c => c.Orders.AsQueryable().Any(_filter)),
+                entryCount: 1);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Where_simple_closure(bool isAsync)
@@ -379,9 +386,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_simple_closure(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__city_0='London'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))");
         }
 
         public override async Task Where_indexer_closure(bool isAsync)
@@ -413,9 +422,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__get_Item_0))"
             await base.Where_tuple_item_closure(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__predicateTuple_Item2_0='London'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__predicateTuple_Item2_0))");
         }
 
         public override async Task Where_named_tuple_item_closure(bool isAsync)
@@ -435,9 +446,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__predicateTupl
             await base.Where_simple_closure_constant(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__predicate_0='True'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND @__predicate_0)");
         }
 
         public override async Task Where_simple_closure_via_query_cache(bool isAsync)
@@ -445,9 +458,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_simple_closure_via_query_cache(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__city_0='London'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))");
         }
 
         public override async Task Where_method_call_nullable_type_closure_via_query_cache(bool isAsync)
@@ -491,9 +506,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__GetCity_0))")
             await base.Where_field_access_closure_via_query_cache(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__city_InstanceFieldValue_0='London'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_InstanceFieldValue_0))");
         }
 
         public override async Task Where_property_access_closure_via_query_cache(bool isAsync)
@@ -525,9 +542,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__StaticFieldVa
             await base.Where_static_property_access_closure_via_query_cache(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__StaticPropertyValue_0='London'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__StaticPropertyValue_0))");
         }
 
         public override async Task Where_nested_field_access_closure_via_query_cache(bool isAsync)
@@ -559,9 +578,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Nested_I
             await base.Where_new_instance_field_access_closure_via_query_cache(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__InstanceFieldValue_0='London'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__InstanceFieldValue_0))");
         }
 
         public override async Task Where_simple_closure_via_query_cache_nullable_type(bool isAsync)
@@ -569,9 +590,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_simple_closure_via_query_cache_nullable_type(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__reportsTo_0='2'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__reportsTo_0))");
         }
 
         public override async Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool isAsync)
@@ -579,9 +602,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_simple_closure_via_query_cache_nullable_type_reverse(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__reportsTo_0=null
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__reportsTo_0))");
         }
 
         public override void Where_subquery_closure_via_query_cache()
@@ -591,7 +616,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""Discriminator""] = ""Employee""))");
+WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         public override async Task Where_simple_shadow(bool isAsync)
@@ -611,7 +636,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""Title""] = ""Sales Represe
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Employee"")");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""Title""] = ""Sales Representative""))");
         }
 
         public override async Task Where_shadow_subquery_FirstOrDefault(bool isAsync)
@@ -721,7 +746,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
         public override async Task Where_equals_using_int_overload_on_mismatched_types(bool isAsync)
@@ -989,7 +1014,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Order"")");
         }
 
         public override async Task Where_simple_reversed(bool isAsync)
@@ -1069,7 +1094,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND true)");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = c[""City""]))");
         }
 
         public override async Task Where_in_optimization_multiple(bool isAsync)
@@ -1189,7 +1214,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND NOT(NOT((c[""Discontinued""] = t
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Product"") AND c[""Discontinued""])");
         }
 
         public override async Task Where_bool_member_false_shadow(bool isAsync)
@@ -1239,7 +1264,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""Discontinued""] = (c[""Prod
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Product"") AND (NOT(c[""Discontinued""]) = NOT(c[""Discontinued""])))");
         }
 
         public override async Task Where_negated_boolean_expression_compared_to_another_negated_boolean_expression(bool isAsync)
@@ -1325,7 +1350,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND NOT((c[""Discontinued""] AND (c[
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Product"") AND NOT((NOT((NOT(c[""Discontinued""]) AND (c[""ProductID""] < 60))) OR NOT((c[""ProductID""] > 30)))))");
         }
 
         public override async Task Where_short_member_comparison(bool isAsync)
@@ -1395,7 +1420,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Fax""] = null))");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Where_concat_string_int_comparison1(bool isAsync)
@@ -1452,9 +1477,11 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""
             await base.Where_ternary_boolean_condition_false(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"@__flag_0='False'
+
+SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : (c[""UnitsInStock""] < 20)))");
         }
 
         public override async Task Where_ternary_boolean_condition_with_another_condition(bool isAsync)
@@ -1591,7 +1618,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""City""] = null) AND (c[""Country""] = ""UK"")))");
         }
 
         public override async Task Where_Is_on_same_type(bool isAsync)
@@ -1604,14 +1631,16 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Discriminator""] = ""Customer""))");
         }
 
-        public override async Task Where_chain(bool isAsync)
+        public override Task Where_chain(bool isAsync)
         {
-            await base.Where_chain(isAsync);
+            // #13190
+            //await base.Where_chain(isAsync);
 
-            AssertSql(
-                @"SELECT c AS query
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+            //            AssertSql(
+            //                @"SELECT c AS query
+            //FROM root c
+            //WHERE (c[""Discriminator""] = ""Customer""))");
+            return Task.CompletedTask;
         }
 
         public override void Where_navigation_contains()
@@ -1621,7 +1650,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Where_array_index(bool isAsync)
@@ -1687,22 +1716,31 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] > 10354) AND (c["
 
         public override async Task Where_subquery_FirstOrDefault_is_null(bool isAsync)
         {
-            await base.Where_subquery_FirstOrDefault_is_null(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "PARIS").Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                entryCount: 1);
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""PARIS""))");
         }
 
         public override async Task Where_subquery_FirstOrDefault_compared_to_entity(bool isAsync)
         {
-            await base.Where_subquery_FirstOrDefault_compared_to_entity(isAsync);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Where(
+                    c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order
+                    {
+                        OrderID = 10243
+                    }));
 
             AssertSql(
                 @"SELECT c AS query
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Time_of_day_datetime(bool isAsync)

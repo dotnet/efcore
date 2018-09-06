@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             {
                 _sqlBuilder.Append("null");
             }
-            else if (value.GetType().IsInteger() || value.GetType() == typeof(decimal))
+            else if (value.GetType().IsNumeric())
             {
                 _sqlBuilder.Append(value.ToString());
             }
