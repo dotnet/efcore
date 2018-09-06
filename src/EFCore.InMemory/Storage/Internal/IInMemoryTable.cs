@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IReadOnlyList<object[]> SnapshotRows();
+        IReadOnlyList<object[]> SnapshotRows(IEntityType entityType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

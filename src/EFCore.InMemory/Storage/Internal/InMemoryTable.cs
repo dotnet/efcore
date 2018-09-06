@@ -42,8 +42,24 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<object[]> SnapshotRows()
-            => _rows.Values.ToList();
+        public virtual IReadOnlyList<object[]> SnapshotRows(IEntityType entityType)
+        {
+            var properties = entityType.GetProperties().ToList();
+
+            var snapshotRows = new List<object[]>(_rows.Count);
+            foreach (var row in _rows.Values)
+            {
+                var values = new object[row.Length];
+                for (var index = 0; index < row.Length; index++)
+                {
+                    values[index] = Copy(row[index], properties[index]);
+                }
+
+                snapshotRows.Add(values);
+            }
+
+            return snapshotRows;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -124,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     }
 
                     valueBuffer[index] = entry.IsModified(properties[index])
-                        ? entry.GetCurrentValue(properties[index])
+                        ? CopyCurrentValue(entry, properties[index])
                         : _rows[key][index];
                 }
 
@@ -145,7 +161,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             => _keyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
 
         private static object[] CreateValueBuffer(IUpdateEntry entry)
-            => entry.EntityType.GetProperties().Select(entry.GetCurrentValue).ToArray();
+            => entry.EntityType.GetProperties().Select(p => CopyCurrentValue(entry, p)).ToArray();
+
+        private static object CopyCurrentValue(IUpdateEntry entry, IProperty property)
+            => Copy(entry.GetCurrentValue(property), property);
+
+        private static object Copy(object value, IProperty property)
+        {
+            var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+
+            return comparer != null
+                ? comparer.Snapshot(value)
+                : value;
+        }
 
         /// <summary>
         ///     Throws an exception indicating that concurrency conflicts were detected.

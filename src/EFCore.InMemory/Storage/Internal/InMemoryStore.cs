@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                         var key = _useNameMatching ? (object)et.Name : et;
                         if (_tables.Value.TryGetValue(key, out var table))
                         {
-                            data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
+                            data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows(et)));
                         }
                     }
                 }
