@@ -167,8 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 methodCallExpression.Method.ReturnType),
                             methodCallExpression.Arguments[0])));
 
-                return
-                    Expression.Convert(
+                return Expression.Convert(
                         Expression.ArrayAccess(
                             _resultsParameter,
                             Expression.Constant(_taskExpressions.Count - 1)),

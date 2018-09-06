@@ -549,6 +549,63 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => source.Select(selector);
 
         /// <summary>
+        ///     The _SelectAsync method info.
+        /// </summary>
+        public static MethodInfo SelectAsyncMethod { get; }
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_SelectAsync));
+
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<TResult> _SelectAsync<TSource, TResult>(
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, CancellationToken, Task<TResult>> selector)
+            => new AsyncSelectEnumerable<TSource, TResult>(source, selector);
+
+        private class AsyncSelectEnumerable<TSource, TResult> : IAsyncEnumerable<TResult>
+        {
+            private readonly IAsyncEnumerable<TSource> _source;
+            private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
+
+            public AsyncSelectEnumerable(
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, CancellationToken, Task<TResult>> selector)
+            {
+                _source = source;
+                _selector = selector;
+            }
+
+            public IAsyncEnumerator<TResult> GetEnumerator() => new AsyncSelectEnumerator(this);
+
+            private class AsyncSelectEnumerator : IAsyncEnumerator<TResult>
+            {
+                private readonly IAsyncEnumerator<TSource> _enumerator;
+                private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
+
+                public AsyncSelectEnumerator(AsyncSelectEnumerable<TSource, TResult> enumerable)
+                {
+                    _enumerator = enumerable._source.GetEnumerator();
+                    _selector = enumerable._selector;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (!await _enumerator.MoveNext(cancellationToken))
+                    {
+                        return false;
+                    }
+
+                    Current = await _selector(_enumerator.Current, cancellationToken);
+
+                    return true;
+                }
+
+                public TResult Current { get; private set; }
+
+                public void Dispose() => _enumerator.Dispose();
+            }
+        }
+
+        /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>

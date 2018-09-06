@@ -88,8 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         // Transforms a sync method inside a MaterializeCollectionNavigation call into a corresponding async version.
                         // We call .Result here so that the types still line up (we remove the .Result in TaskLiftingExpressionVisitor).
 
-                        return
-                            toQueryableMethodCallExpression.Arguments[0].Type.IsGenericType
+                        return toQueryableMethodCallExpression.Arguments[0].Type.IsGenericType
                             && toQueryableMethodCallExpression.Arguments[0].Type.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>)
                                 ? (Expression)Expression.Property(
                                     ResultOperatorHandler.CallWithPossibleCancellationToken(
@@ -198,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var subQueryExpressionTypeInfo = expression.Type.GetTypeInfo();
 
-                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo()))
+                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(subQueryExpressionTypeInfo))
                 {
                     subExpression
                         = Expression.Call(
@@ -231,6 +230,42 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             return subExpression;
+        }
+
+        /// <summary>Visits the children of the <see cref="UnaryExpression"/>.</summary>
+        /// <param name="unaryExpression">The expression to visit.</param>
+        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            if (unaryExpression.NodeType == ExpressionType.Convert
+                || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+            {
+                var newOperand = Visit(unaryExpression.Operand);
+                if (newOperand.Type == unaryExpression.Type)
+                {
+                    return newOperand;
+                }
+
+                // Remove the added sync-to-async method call when converting to async
+                var lambdaType = unaryExpression.Type.TryGetElementType(typeof(Func<>));
+                if (lambdaType != null
+                    && lambdaType.IsGenericType
+                    && lambdaType.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>)
+                    && newOperand.Type.IsGenericType
+                    && newOperand.Type.GetGenericTypeDefinition() == typeof(Func<>)
+                    && newOperand is LambdaExpression lambdaExpression
+                    && lambdaExpression.Body is MethodCallExpression methodCallExpression
+                    && (methodCallExpression.Method.MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToQueryable)
+                        || methodCallExpression.Method.MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToEnumerable)))
+                {
+
+                    return Expression.Lambda(methodCallExpression.Arguments[0], lambdaExpression.Parameters);
+                }
+
+                return unaryExpression.Update(newOperand);
+            }
+
+            return base.VisitUnary(unaryExpression);
         }
     }
 }
