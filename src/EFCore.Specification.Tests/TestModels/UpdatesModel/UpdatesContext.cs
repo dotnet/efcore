@@ -45,14 +45,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
                     DependentId = 778
                 });
 
-            context.Add(
-                new ProductWithBytes 
-                { 
-                    Id = productId1, 
-                    Name = "MegaChips", 
-                    Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } 
-                });
-
             context.SaveChanges();
         }
     }
