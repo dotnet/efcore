@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -35,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddScoped<CosmosClient, CosmosClient>()
-                        .TryAddScoped<IDocumentCollectionFactory, DocumentCollectionFactory>()
+                        .TryAddScoped<DocumentCollectionUpdaterFactory, DocumentCollectionUpdaterFactory>()
 
                 );
 

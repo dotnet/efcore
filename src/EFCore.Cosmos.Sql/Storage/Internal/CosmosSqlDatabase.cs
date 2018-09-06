@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -17,14 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
     public class CosmosSqlDatabase : Database
     {
         private readonly CosmosClient _cosmosClient;
-        private readonly IDocumentCollectionFactory _documentCollectionFactory;
-        private Dictionary<IEntityType, IDocumentCollection> _documentCollections
-            = new Dictionary<IEntityType, IDocumentCollection>();
+        private readonly DocumentCollectionUpdaterFactory _documentCollectionFactory;
+        private Dictionary<IEntityType, DocumentCollectionUpdater> _documentCollections
+            = new Dictionary<IEntityType, DocumentCollectionUpdater>();
 
         public CosmosSqlDatabase(
             [NotNull] DatabaseDependencies dependencies,
             CosmosClient cosmosClient,
-            IDocumentCollectionFactory documentCollectionFactory)
+            DocumentCollectionUpdaterFactory documentCollectionFactory)
             : base(dependencies)
         {
             _cosmosClient = cosmosClient;

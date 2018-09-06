@@ -47,12 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
         public string AuthToken { get; private set; }
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-        {
-            return builder.UseCosmosSql(
+            => builder.UseCosmosSql(
                 ConnectionUri,
                 AuthToken,
                 Name);
-        }
 
         protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed)
         {
