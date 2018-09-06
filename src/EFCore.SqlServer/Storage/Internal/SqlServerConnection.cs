@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private bool? _multipleActiveResultSetsEnabled;
 
         // Compensate for slow SQL Server database creation
-        internal const int DefaultMasterConnectionCommandTimeout = 60;
+        private const int DefaultMasterConnectionCommandTimeout = 60;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
