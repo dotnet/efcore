@@ -5,7 +5,7 @@
   <PropertyGroup Label="Package Versions">
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
-    <InternalAspNetCoreSdkPackageVersion>3.0.0-alpha1-20180821.3</InternalAspNetCoreSdkPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>3.0.0-alpha1-20180907.5</InternalAspNetCoreSdkPackageVersion>
     <InternalWebHostBuilderFactorySourcesPackageVersion>3.0.0-alpha1-10400</InternalWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>

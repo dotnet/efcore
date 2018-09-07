@@ -1,7 +1,4 @@
-﻿<Project>
-
-  <Sdk Name="Microsoft.NET.Sdk" />
-  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Entity Framework Core Tools for the .NET Command-Line Interface.
@@ -18,7 +15,7 @@ dotnet ef database update
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
-    <GenerateToolShims>true</GenerateToolShims>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
@@ -111,7 +108,7 @@ dotnet ef database update
 
         SettingsFile=$(_ToolsSettingsFilePath);
         Output=$(PublishDir)**\*;
-        OutputShims=$(IntermediateOutputPath)shims\**\*;
+        OutputShims=$(IntermediateOutputPath)shims\$(TargetFramework)\**\*;
         OutputBinary=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll;
         OutputRuntimeConfig=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json;
         OutputSymbol=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.pdb;
