@@ -8,6 +8,7 @@ using GeoParseException = GeoAPI.IO.ParseException;
 
 namespace NetTopologySuite.IO
 {
+#if !Test21
     public class SqlServerSpatialReaderTest
     {
         [Theory]
@@ -200,4 +201,5 @@ namespace NetTopologySuite.IO
             return reader.Read(byteArray);
         }
     }
+#endif
 }

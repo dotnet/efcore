@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+#if !Test21
     public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialContext>, IQueryFixtureBase
     {
         public SpatialQueryFixtureBase()
@@ -41,4 +42,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(SpatialContext context)
             => SpatialContext.Seed(context);
     }
+#endif
 }

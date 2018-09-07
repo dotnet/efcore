@@ -10,11 +10,13 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class OracleComplianceTest : RelationalComplianceTestBase
     {
+#if !Test21
         protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
         {
             typeof(SpatialQueryTestBase<>),
             typeof(SpatialTestBase<>)
         };
+#endif
 
         protected override Assembly TargetAssembly { get; } = typeof(OracleComplianceTest).Assembly;
     }

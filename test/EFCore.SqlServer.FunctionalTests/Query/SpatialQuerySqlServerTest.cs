@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+#if !Test21
     public class SpatialQuerySqlServerTest : SpatialQueryTestBase<SpatialQuerySqlServerFixture>
     {
         public SpatialQuerySqlServerTest(SpatialQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -478,4 +479,5 @@ FROM [PointEntity] AS [e]");
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
+#endif
 }

@@ -8,6 +8,7 @@ using GeoParseException = GeoAPI.IO.ParseException;
 
 namespace NetTopologySuite.IO
 {
+#if !Test21
     public class SqlServerSpatialWriterTest
     {
         [Theory]
@@ -184,4 +185,5 @@ namespace NetTopologySuite.IO
             return string.Concat(writer.Write(geometry).Select(b => b.ToString("X2")));
         }
     }
+#endif
 }

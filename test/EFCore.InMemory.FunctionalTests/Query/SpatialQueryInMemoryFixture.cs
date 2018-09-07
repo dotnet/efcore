@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+#if !Test21
     public class SpatialQueryInMemoryFixture : SpatialQueryFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => InMemoryTestStoreFactory.Instance;
     }
+#endif
 }

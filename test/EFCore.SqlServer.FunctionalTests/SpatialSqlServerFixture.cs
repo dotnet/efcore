@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
+#if !Test21
     public class SpatialSqlServerFixture : SpatialFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
@@ -16,4 +17,5 @@ namespace Microsoft.EntityFrameworkCore
             => base.AddServices(serviceCollection)
                 .AddEntityFrameworkSqlServerNetTopologySuite();
     }
+#endif
 }

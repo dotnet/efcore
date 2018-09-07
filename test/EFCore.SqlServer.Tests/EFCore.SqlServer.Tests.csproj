@@ -13,6 +13,10 @@
     </None>
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
+    <DefineConstants>$(DefineConstants);Test21</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
     <ProjectReference Include="..\EFCore.Relational.Tests\EFCore.Relational.Tests.csproj" />
