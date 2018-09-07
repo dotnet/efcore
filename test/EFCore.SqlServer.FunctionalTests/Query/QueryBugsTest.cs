@@ -4894,6 +4894,7 @@ FROM [Prices] AS [e]");
 
         #region Bug13118
 
+#if !Test21
         [Fact]
         public virtual void DateTime_Contains_with_smalldatetime_generates_correct_literal()
         {
@@ -4915,6 +4916,7 @@ WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
                 }
             }
         }
+#endif
 
         private SqlServerTestStore CreateDatabase13118()
         {
