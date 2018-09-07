@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+#if !Test21
         [Fact(Skip = "Issue #13029")]
         public override void Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
@@ -21,15 +22,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact(Skip = "Issue #13029")]
-        public override void Update_on_bytes_concurrency_token_original_value_mismatch_throws()
-        {
-            base.Update_on_bytes_concurrency_token_original_value_mismatch_throws();
-        }
-
-        [Fact(Skip = "Issue #13029")]
         public override void Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
             base.Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw();
+        }
+#endif
+
+        [Fact(Skip = "Issue #13029")]
+        public override void Update_on_bytes_concurrency_token_original_value_mismatch_throws()
+        {
+            base.Update_on_bytes_concurrency_token_original_value_mismatch_throws();
         }
 
         [Fact(Skip = "Issue #13029")]

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
+#if !Test21
     public class NTSApiConsistencyTest : ApiConsistencyTestBase
     {
         protected override void AddServices(ServiceCollection serviceCollection)
@@ -16,4 +17,5 @@ namespace Microsoft.EntityFrameworkCore
         protected override Assembly TargetAssembly
             => typeof(SqlServerNTSServiceCollectionExtensions).GetTypeInfo().Assembly;
     }
+#endif
 }

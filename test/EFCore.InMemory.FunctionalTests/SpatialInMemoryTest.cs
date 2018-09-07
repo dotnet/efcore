@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore
 {
+#if !Test21
     public class SpatialInMemoryTest : SpatialTestBase<SpatialInMemoryFixture>
     {
         public SpatialInMemoryTest(SpatialInMemoryFixture fixture)
@@ -10,4 +11,5 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
     }
+#endif
 }
