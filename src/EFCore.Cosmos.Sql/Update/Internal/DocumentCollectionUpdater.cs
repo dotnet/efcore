@@ -3,75 +3,88 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal
 {
     public class DocumentCollectionUpdater
     {
-        private DocumentClient _documentClient;
-        private string _databaseId;
-        private string _collectionName;
+        private readonly CosmosClient _cosmosClient;
+        private readonly string _collectionId;
         private readonly IEntityType _entityType;
 
         public DocumentCollectionUpdater(
             CosmosClient cosmosClient,
             IEntityType entityType)
         {
-            _documentClient = cosmosClient.DocumentClient;
-            _databaseId = cosmosClient.DatabaseId;
-            _collectionName = entityType.CosmosSql().CollectionName;
+            _cosmosClient = cosmosClient;
+            _collectionId = entityType.CosmosSql().CollectionName;
             _entityType = entityType;
         }
 
-        private Document CreateDocument(string id, IUpdateEntry entry)
+        private JObject CreateDocument(IUpdateEntry entry)
         {
-            var document = new Document
-            {
-                Id = id
-            };
-
+            var document = new JObject();
             foreach (var property in _entityType.GetProperties())
             {
-                document.SetPropertyValue(property.Name, entry.GetCurrentValue(property));
+                var value = entry.GetCurrentValue(property);
+                document[property.Name] = value != null ? JToken.FromObject(value) : null;
             }
 
             return document;
         }
 
-        public Task SaveAsync(IUpdateEntry entry, CancellationToken cancellationToken = default)
+        public bool Save(IUpdateEntry entry)
         {
             var id = entry.GetCurrentValue<string>(_entityType.FindProperty("id"));
 
             switch (entry.EntityState)
             {
                 case EntityState.Added:
-                    return _documentClient.CreateDocumentAsync(
-                        UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionName),
-                        CreateDocument(id, entry));
+                    return _cosmosClient.CreateDocument(_collectionId, CreateDocument(entry));
 
                 case EntityState.Modified:
-                    var document = CreateDocument(id, entry);
+                    var document = CreateDocument(entry);
 
                     // Set Discriminator Property for updates
-                    document.SetPropertyValue(
-                        _entityType.CosmosSql().DiscriminatorProperty.Name,
-                        _entityType.CosmosSql().DiscriminatorValue);
+                    document[_entityType.CosmosSql().DiscriminatorProperty.Name] =
+                        JToken.FromObject(_entityType.CosmosSql().DiscriminatorValue);
 
-                    return _documentClient.ReplaceDocumentAsync(
-                        UriFactory.CreateDocumentUri(_databaseId, _collectionName, id),
-                        document);
+                    return _cosmosClient.ReplaceDocument(_collectionId, id, document);
 
                 case EntityState.Deleted:
-                    return _documentClient.DeleteDocumentAsync(
-                        UriFactory.CreateDocumentUri(_databaseId, _collectionName, id));
+                    return _cosmosClient.DeleteDocument(_collectionId, id);
             }
 
-            return Task.CompletedTask;
+            return false;
+        }
+
+        public Task<bool> SaveAsync(IUpdateEntry entry, CancellationToken cancellationToken = default)
+        {
+            var id = entry.GetCurrentValue<string>(_entityType.FindProperty("id"));
+
+            switch (entry.EntityState)
+            {
+                case EntityState.Added:
+                    return _cosmosClient.CreateDocumentAsync(_collectionId, CreateDocument(entry), cancellationToken);
+
+                case EntityState.Modified:
+                    var document = CreateDocument(entry);
+
+                    // Set Discriminator Property for updates
+                    document[_entityType.CosmosSql().DiscriminatorProperty.Name] =
+                        JToken.FromObject(_entityType.CosmosSql().DiscriminatorValue);
+
+                    return _cosmosClient.ReplaceDocumentAsync(_collectionId, id, document, cancellationToken);
+
+                case EntityState.Deleted:
+                    return _cosmosClient.DeleteDocumentAsync(_collectionId, id, cancellationToken);
+            }
+
+            return Task.FromResult(false);
         }
     }
 }

@@ -5,8 +5,9 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Infrastructure;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Newtonsoft.Json.Linq;
 
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
 {
     public class CosmosSqlTestStore : TestStore
     {
-        private readonly DocumentClient _documentClient;
+        private readonly TestStoreContext _storeContext;
         private readonly string _dataFilePath;
 
         public static CosmosSqlTestStore Create(string name) => new CosmosSqlTestStore(name, shared: false);
@@ -33,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
             ConnectionUri = new Uri(TestEnvironment.DefaultConnection);
             AuthToken = TestEnvironment.AuthToken;
 
-            _documentClient = new DocumentClient(ConnectionUri, AuthToken);
+            _storeContext = new TestStoreContext(this);
 
             if (dataFilePath != null)
             {
@@ -56,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
         {
             if (_dataFilePath == null)
             {
-                base.Initialize(createContext, seed);
+                base.Initialize(createContext ?? (() => _storeContext), seed);
             }
             else
             {
@@ -71,19 +72,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
         {
             if (await context.Database.EnsureCreatedAsync())
             {
+                var cosmosClient = context.GetService<CosmosClient>();
                 var seedData = JArray.Parse(File.ReadAllText(_dataFilePath));
 
                 foreach (var entityData in seedData)
                 {
                     var entityName = (string)entityData["Name"];
-                    // TODO: Update the collection name here once there is model builder config
-                    var collectionUri = UriFactory.CreateDocumentCollectionUri(Name, "Unicorn");
 
                     foreach (var document in entityData["Data"])
                     {
                         document["id"] = $"{entityName}|{document["id"]}";
                         document["Discriminator"] = entityName;
-                        await _documentClient.CreateDocumentAsync(collectionUri, document);
+                        // TODO: Update the collection name here once there is model builder config
+                        // TODO: Stream the document
+                        await cosmosClient.CreateDocumentAsync("Unicorn", document);
                     }
                 }
             }
@@ -91,31 +93,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
 
         public override void Clean(DbContext context)
         {
-            context.Database.EnsureDeletedAsync().GetAwaiter().GetResult();
-            context.Database.EnsureCreatedAsync().GetAwaiter().GetResult();
-        }
-
-        private void DeleteDatabase()
-        {
-            try
-            {
-                _documentClient.DeleteDatabaseAsync(UriFactory.CreateDatabaseUri(Name)).GetAwaiter().GetResult();
-            }
-            catch (DocumentClientException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                // Ignore as database may not have existed.
-            }
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
         }
 
         public override void Dispose()
         {
             if (_dataFilePath == null)
             {
-                DeleteDatabase();
+                _storeContext.Database.EnsureDeleted();
             }
 
-            _documentClient.Dispose();
+            _storeContext.Dispose();
             base.Dispose();
+        }
+
+        private class TestStoreContext : DbContext
+        {
+            private readonly CosmosSqlTestStore _testStore;
+
+            public TestStoreContext(CosmosSqlTestStore testStore)
+            {
+                _testStore = testStore;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder.UseCosmosSql(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name);
+            }
         }
     }
 }

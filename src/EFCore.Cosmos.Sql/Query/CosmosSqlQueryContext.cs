@@ -1,25 +1,25 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
-    public class CosmosSqlQueryContextFactory : QueryContextFactory
+    public class CosmosSqlQueryContext : QueryContext
     {
-        private readonly CosmosClient _cosmosClient;
-
-        public CosmosSqlQueryContextFactory(
+        public CosmosSqlQueryContext(
             [NotNull] QueryContextDependencies dependencies,
+            [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] CosmosClient cosmosClient)
-               : base(dependencies)
+            : base(dependencies, queryBufferFactory)
         {
-            _cosmosClient = cosmosClient;
+            CosmosClient = cosmosClient;
         }
 
-        public override QueryContext Create()
-            => new CosmosSqlQueryContext(Dependencies, CreateQueryBuffer, _cosmosClient);
+        public CosmosClient CosmosClient { get; }
     }
 }

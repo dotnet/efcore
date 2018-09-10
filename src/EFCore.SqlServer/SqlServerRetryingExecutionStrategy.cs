@@ -108,16 +108,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         protected override bool ShouldRetryOn(Exception exception)
         {
-            if (_additionalErrorNumbers != null)
+            if (_additionalErrorNumbers != null
+                && exception is SqlException sqlException)
             {
-                if (exception is SqlException sqlException)
+                foreach (SqlError err in sqlException.Errors)
                 {
-                    foreach (SqlError err in sqlException.Errors)
+                    if (_additionalErrorNumbers.Contains(err.Number))
                     {
-                        if (_additionalErrorNumbers.Contains(err.Number))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
@@ -142,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return CallOnWrappedException(lastException, IsMemoryOptimizedError)
-                ? (TimeSpan?)TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
+                ? TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
                 : baseDelay;
         }
 

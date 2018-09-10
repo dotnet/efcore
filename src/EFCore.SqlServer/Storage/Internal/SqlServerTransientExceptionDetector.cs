@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 return false;
             }
 
-            return ex is TimeoutException ? true : false;
+            return ex is TimeoutException;
         }
     }
 }

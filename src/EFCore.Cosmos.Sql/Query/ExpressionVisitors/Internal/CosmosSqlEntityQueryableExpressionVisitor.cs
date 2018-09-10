@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
@@ -17,20 +16,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
     public class CosmosSqlEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private readonly IModel _model;
-        private readonly CosmosClient _cosmosClient;
         private readonly IQuerySource _querySource;
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
         public CosmosSqlEntityQueryableExpressionVisitor(
             IModel model,
-            CosmosClient cosmosClient,
             IEntityMaterializerSource entityMaterializerSource,
             CosmosSqlQueryModelVisitor cosmosSqlQueryModelVisitor,
             IQuerySource querySource)
             : base(cosmosSqlQueryModelVisitor)
         {
             _model = model;
-            _cosmosClient = cosmosClient;
             _querySource = querySource;
             _entityMaterializerSource = entityMaterializerSource;
         }
@@ -46,8 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
                 new DocumentQueryExpression(
                     QueryModelVisitor.QueryCompilationContext.IsAsyncQuery,
                     entityType.CosmosSql().CollectionName,
-                    new SelectExpression(entityType, _querySource),
-                    _cosmosClient),
+                    new SelectExpression(entityType, _querySource)),
                 new EntityShaper(entityType,
                     trackingQuery: QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
                         && !entityType.IsQueryType,

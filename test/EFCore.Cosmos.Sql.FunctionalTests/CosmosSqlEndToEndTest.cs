@@ -23,7 +23,56 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
         }
 
         [ConditionalFact]
-        public async Task Can_add_update_delete_end_to_end()
+        public void Can_add_update_delete_end_to_end()
+        {
+            using (var testDatabase = CosmosSqlTestStore.CreateInitialized(DatabaseName))
+            {
+                var options = Fixture.CreateOptions(testDatabase);
+
+                var customer = new Customer { Id = 42, Name = "Theon" };
+
+                using (var context = new CustomerContext(options))
+                {
+                    context.Database.EnsureCreated();
+
+                    context.Add(customer);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new CustomerContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Equal("Theon", customerFromStore.Name);
+
+                    customerFromStore.Name = "Theon Greyjoy";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new CustomerContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+
+                    context.Remove(customerFromStore);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new CustomerContext(options))
+                {
+                    Assert.Equal(0, context.Set<Customer>().Count());
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Can_add_update_delete_end_to_end_async()
         {
             using (var testDatabase = CosmosSqlTestStore.CreateInitialized(DatabaseName))
             {
@@ -66,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
 
                 using (var context = new CustomerContext(options))
                 {
-                    Assert.Equal(0, context.Set<Customer>().Count());
+                    Assert.Equal(0, await context.Set<Customer>().CountAsync());
                 }
             }
         }
@@ -113,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
 
         private class ConflictingIncompatibleId
         {
+            // ReSharper disable once InconsistentNaming
             public int id { get; set; }
             public string Name { get; set; }
         }
