@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     {
         private const string DateFormatConst = "{0:yyyy-MM-dd}";
-        private const string DateTimeFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffK}";
+        private const string DateTimeFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fff}";
         private const string DateTime2FormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffffffK}";
 
         /// <summary>
