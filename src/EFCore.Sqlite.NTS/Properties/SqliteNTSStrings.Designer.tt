@@ -1,0 +1,4 @@
+<#
+    Session["ResourceFile"] = "SqliteNTSStrings.resx";
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

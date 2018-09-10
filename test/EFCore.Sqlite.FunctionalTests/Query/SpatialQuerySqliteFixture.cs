@@ -8,19 +8,19 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Query
 {
 #if !Test21
-    public class SpatialQuerySqlServerFixture : SpatialQueryRelationalFixture
+    public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory
-            => SqlServerTestStoreFactory.Instance;
+            => SqliteTestStoreFactory.Instance;
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
             => base.AddServices(serviceCollection)
-                .AddEntityFrameworkSqlServerNetTopologySuite();
+                .AddEntityFrameworkSqliteNetTopologySuite();
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         {
             var optionsBuilder = base.AddOptions(builder);
-            new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
+            new SqliteDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
 
             return optionsBuilder;
         }

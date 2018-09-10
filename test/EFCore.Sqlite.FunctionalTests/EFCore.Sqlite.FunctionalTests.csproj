@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' == '0.0.0'">
-    <ProjectReference Include="..\..\src\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Sqlite.NTS\EFCore.Sqlite.NTS.csproj" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' != '0.0.0'">

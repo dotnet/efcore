@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using NetTopologySuite.Geometries;
 using Xunit;
 
@@ -20,14 +21,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Area(bool isAsync)
         {
             return AssertQuery<PolygonEntity>(isAsync, es => es.Select(e => new { e.Id, e.Polygon.Area }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task AsBinary(bool isAsync)
         {
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task AsText(bool isAsync)
         {
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Boundary(bool isAsync)
         {
@@ -69,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Buffer(bool isAsync)
         {
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Buffer_quadrantSegments(bool isAsync)
         {
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Centroid(bool isAsync)
         {
@@ -111,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains(bool isAsync)
         {
@@ -120,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, Contains = e.Polygon.Contains(new Point(0.5, 0.25)) }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ConvexHull(bool isAsync)
         {
@@ -134,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IGeometryCollection_Count(bool isAsync)
         {
@@ -143,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, e.MultiLineString.Count }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task LineString_Count(bool isAsync)
         {
@@ -152,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, ((LineString)e.LineString).Count }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task CoveredBy(bool isAsync)
         {
@@ -176,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Covers(bool isAsync)
         {
@@ -185,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, Covers = e.Polygon.Covers(new Point(0.5, 0.25)) }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Crosses(bool isAsync)
         {
@@ -205,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Difference(bool isAsync)
         {
@@ -233,14 +234,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Dimension(bool isAsync)
         {
             return AssertQuery<PointEntity>(isAsync, es => es.Select(e => new { e.Id, e.Point.Dimension }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Disjoint(bool isAsync)
         {
@@ -249,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, Disjoint = e.Polygon.Disjoint(new Point(1, 0)) }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distance(bool isAsync)
         {
@@ -258,14 +259,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, Distance = e.Point.Distance(new Point(0, 1)) }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task EndPoint(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.EndPoint }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Envelope(bool isAsync)
         {
@@ -279,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task EqualsTopologically(bool isAsync)
         {
@@ -288,21 +289,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, EqualsTopologically = e.Point.EqualsTopologically(new Point(0, 0)) }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ExteriorRing(bool isAsync)
         {
             return AssertQuery<PolygonEntity>(isAsync, es => es.Select(e => new { e.Id, e.Polygon.ExteriorRing }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GeometryType(bool isAsync)
         {
             return AssertQuery<PointEntity>(isAsync, es => es.Select(e => new { e.Id, e.Point.GeometryType }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GetGeometryN(bool isAsync)
         {
@@ -311,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, Geometry0 = e.MultiLineString.GetGeometryN(0) }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GetInteriorRingN(bool isAsync)
         {
@@ -323,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select new { e.Id, InteriorRing0 = e.Polygon.GetInteriorRingN(0) });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GetPointN(bool isAsync)
         {
@@ -332,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, Point0 = e.LineString.GetPointN(0) }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Intersection(bool isAsync)
         {
@@ -360,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Intersects(bool isAsync)
         {
@@ -380,14 +381,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ICurve_IsClosed(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.IsClosed }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IMultiCurve_IsClosed(bool isAsync)
         {
@@ -396,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, e.MultiLineString.IsClosed }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsEmpty(bool isAsync)
         {
@@ -405,28 +406,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, e.MultiLineString.IsEmpty }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsRing(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.IsRing }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsSimple(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.IsSimple }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsValid(bool isAsync)
         {
             return AssertQuery<PointEntity>(isAsync, es => es.Select(e => new { e.Id, e.Point.IsValid }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Item(bool isAsync)
         {
@@ -435,14 +436,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, Item0 = e.MultiLineString[0] }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Length(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.Length }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task M(bool isAsync)
         {
@@ -456,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task NumGeometries(bool isAsync)
         {
@@ -465,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, e.MultiLineString.NumGeometries }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task NumInteriorRings(bool isAsync)
         {
@@ -474,14 +475,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, e.Polygon.NumInteriorRings }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task NumPoints(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.NumPoints }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Overlaps(bool isAsync)
         {
@@ -504,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task PointOnSurface(bool isAsync)
         {
@@ -518,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Relate(bool isAsync)
         {
@@ -542,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Reverse(bool isAsync)
         {
@@ -551,21 +552,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => es.Select(e => new { e.Id, Reverse = e.LineString.Reverse() }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SRID(bool isAsync)
         {
             return AssertQuery<PointEntity>(isAsync, es => es.Select(e => new { e.Id, e.Point.SRID }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task StartPoint(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.StartPoint }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SymmetricDifference(bool isAsync)
         {
@@ -596,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ToBinary(bool isAsync)
         {
@@ -610,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ToText(bool isAsync)
         {
@@ -624,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Touches(bool isAsync)
         {
@@ -647,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union(bool isAsync)
         {
@@ -675,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Within(bool isAsync)
         {
@@ -699,21 +700,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task X(bool isAsync)
         {
             return AssertQuery<PointEntity>(isAsync, es => es.Select(e => new { e.Id, e.Point.X }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Y(bool isAsync)
         {
             return AssertQuery<PointEntity>(isAsync, es => es.Select(e => new { e.Id, e.Point.Y }));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Z(bool isAsync)
         {

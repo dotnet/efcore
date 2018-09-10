@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using NetTopologySuite.Geometries;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Values_are_copied_into_change_tracker()
         {
             using (var db = Fixture.CreateContext())
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Values_arent_compared_by_reference()
         {
             using (var db = Fixture.CreateContext())
