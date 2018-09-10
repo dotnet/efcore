@@ -150,64 +150,71 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Reports_debug_info_for_most_similar_existing_service_provider()
         {
-            var loggerFactory = new ListLoggerFactory();
+            // Do this a bunch of times since in the past this exposed issues with cache collisions
+            for (var i = 0; i < 1000; i++)
+            {
+                var loggerFactory = new ListLoggerFactory();
 
-            var config1 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
-                .EnableRichDataErrorHandling()
-                .EnableSensitiveDataLogging()
-                .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDelete))
-                .Options;
+                var config1 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
+                    .EnableRichDataErrorHandling()
+                    .EnableSensitiveDataLogging()
+                    .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDelete))
+                    .Options;
 
-            var config2 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
-                .EnableRichDataErrorHandling()
-                .EnableSensitiveDataLogging()
-                .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDeleteOrphan))
-                .Options;
+                var config2 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
+                    .EnableRichDataErrorHandling()
+                    .EnableSensitiveDataLogging()
+                    .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDeleteOrphan))
+                    .Options;
 
-            var config3 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
-                .EnableRichDataErrorHandling()
-                .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDelete))
-                .Options;
+                var config3 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
+                    .EnableRichDataErrorHandling()
+                    .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDelete))
+                    .Options;
 
-            var config4 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
-                .EnableSensitiveDataLogging()
-                .ConfigureWarnings(w => w.Throw(CoreEventId.ContextDisposed))
-                .Options;
+                var config4 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
+                    .EnableSensitiveDataLogging()
+                    .ConfigureWarnings(w => w.Throw(CoreEventId.ContextDisposed))
+                    .Options;
 
-            var cache = new ServiceProviderCache();
+                var cache = new ServiceProviderCache();
 
-            var first = cache.GetOrAdd(config1, true);
-            var second = cache.GetOrAdd(config2, true);
-            var third = cache.GetOrAdd(config3, true);
-            var forth = cache.GetOrAdd(config4, true);
+                var first = cache.GetOrAdd(config1, true);
+                var second = cache.GetOrAdd(config2, true);
+                var third = cache.GetOrAdd(config3, true);
+                var forth = cache.GetOrAdd(config4, true);
 
-            Assert.NotSame(first, second);
-            Assert.NotSame(second, third);
-            Assert.NotSame(third, forth);
+                Assert.NotSame(first, second);
+                Assert.NotSame(first, third);
+                Assert.NotSame(first, forth);
+                Assert.NotSame(second, third);
+                Assert.NotSame(second, forth);
+                Assert.NotSame(third, forth);
 
-            Assert.Equal(4, loggerFactory.Log.Count);
+                Assert.Equal(4, loggerFactory.Log.Count);
 
-            Assert.Equal(
-                CoreStrings.LogServiceProviderCreated.GenerateMessage(),
-                loggerFactory.Log[0].Message);
+                Assert.Equal(
+                    CoreStrings.LogServiceProviderCreated.GenerateMessage(),
+                    loggerFactory.Log[0].Message);
 
-            Assert.Equal(
-                CoreStrings.LogServiceProviderDebugInfo.GenerateMessage(
-                    CoreStrings.ServiceProviderConfigChanged("Core:ConfigureWarnings")),
-                loggerFactory.Log[1].Message);
+                Assert.Equal(
+                    CoreStrings.LogServiceProviderDebugInfo.GenerateMessage(
+                        CoreStrings.ServiceProviderConfigChanged("Core:ConfigureWarnings")),
+                    loggerFactory.Log[1].Message);
 
-            Assert.Equal(
-                CoreStrings.LogServiceProviderDebugInfo.GenerateMessage(
-                    CoreStrings.ServiceProviderConfigChanged("Core:EnableSensitiveDataLogging")),
-                loggerFactory.Log[2].Message);
+                Assert.Equal(
+                    CoreStrings.LogServiceProviderDebugInfo.GenerateMessage(
+                        CoreStrings.ServiceProviderConfigChanged("Core:EnableSensitiveDataLogging")),
+                    loggerFactory.Log[2].Message);
 
-            Assert.Equal(
-                CoreStrings.LogServiceProviderDebugInfo.GenerateMessage(
-                    string.Join(
-                        ", ",
-                        CoreStrings.ServiceProviderConfigChanged("Core:EnableRichDataErrorHandling"),
-                        CoreStrings.ServiceProviderConfigChanged("Core:ConfigureWarnings"))),
-                loggerFactory.Log[3].Message);
+                Assert.Equal(
+                    CoreStrings.LogServiceProviderDebugInfo.GenerateMessage(
+                        string.Join(
+                            ", ",
+                            CoreStrings.ServiceProviderConfigChanged("Core:EnableRichDataErrorHandling"),
+                            CoreStrings.ServiceProviderConfigChanged("Core:ConfigureWarnings"))),
+                    loggerFactory.Log[3].Message);
+            }
         }
 
         private static DbContextOptions CreateOptions<TExtension>(ILoggerFactory loggerFactory)
