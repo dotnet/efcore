@@ -3,8 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore
 {
