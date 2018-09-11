@@ -77,8 +77,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             Connection.Open();
 
+#if !Test21
             ((SqliteConnection)Connection).EnableExtensions();
             SpatialiteLoader.TryLoad(Connection);
+#endif
 
             using (var command = Connection.CreateCommand())
             {

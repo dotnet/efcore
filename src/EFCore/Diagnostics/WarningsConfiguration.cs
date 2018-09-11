@@ -67,7 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var clone = Clone();
 
             clone._defaultBehavior = warningBehavior;
-            _serviceProviderHash = null;
 
             return clone;
         }
@@ -91,8 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 clone._explicitBehaviors[eventId.Id] = warningBehavior;
             }
-
-            _serviceProviderHash = null;
 
             return clone;
         }
@@ -134,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 {
                     hashCode = _explicitBehaviors.Aggregate(
                         hashCode,
-                        (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() << 32) | (long)e.Key.GetHashCode()));
+                        (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() * 3163) ^ (long)e.Key.GetHashCode()));
                 }
 
                 _serviceProviderHash = hashCode;

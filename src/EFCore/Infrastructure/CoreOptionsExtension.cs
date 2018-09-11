@@ -354,9 +354,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var hashCode = GetLoggerFactory()?.GetHashCode() ?? 0L;
                 hashCode = (hashCode * 397) ^ (GetMemoryCache()?.GetHashCode() ?? 0L);
-                hashCode = (hashCode * 397) ^ _sensitiveDataLoggingEnabled.GetHashCode();
-                hashCode = (hashCode * 397) ^ _richDataErrorHandingEnabled.GetHashCode();
-                hashCode = (hashCode * 397) ^ _warningsConfiguration.GetServiceProviderHashCode();
+                hashCode = (hashCode * 3) ^ _sensitiveDataLoggingEnabled.GetHashCode();
+                hashCode = (hashCode * 3) ^ _richDataErrorHandingEnabled.GetHashCode();
+                hashCode = (hashCode * 1073742113) ^ _warningsConfiguration.GetServiceProviderHashCode();
 
                 if (_replacedServices != null)
                 {
