@@ -323,7 +323,9 @@ namespace Microsoft.EntityFrameworkCore
                 StoreType = StoreType
             };
 
+#pragma warning disable CS0618 // Type or member is obsolete
             column.SetUnderlyingStoreType(underlyingType);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var info = new DatabaseModel
             {
@@ -1693,7 +1695,9 @@ namespace Microsoft.EntityFrameworkCore
                 StoreType = "unknown_type_alias"
             };
 
+#pragma warning disable CS0618 // Type or member is obsolete
             columnWithUnknownType.SetUnderlyingStoreType("unknown_type");
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var dbModel = new DatabaseModel
             {

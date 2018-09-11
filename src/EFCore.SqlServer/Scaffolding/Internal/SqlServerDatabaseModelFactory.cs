@@ -595,18 +595,17 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                                 computedValue);
 
                             string storeType;
-                            string underlyingStoreType;
                             string systemTypeName;
+
+                            // Swap store type if type alias is used
                             if (typeAliases.TryGetValue($"[{dataTypeSchemaName}].[{dataTypeName}]", out var value))
                             {
-                                storeType = dataTypeName;
-                                underlyingStoreType = value.storeType;
+                                storeType = value.storeType;
                                 systemTypeName = value.typeName;
                             }
                             else
                             {
                                 storeType = GetStoreType(dataTypeName, maxLength, precision, scale);
-                                underlyingStoreType = null;
                                 systemTypeName = dataTypeName;
                             }
 
@@ -622,19 +621,17 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                                 ComputedColumnSql = computedValue,
                                 ValueGenerated = isIdentity
                                     ? ValueGenerated.OnAdd
-                                    : (underlyingStoreType ?? storeType) == "rowversion"
+                                    : storeType == "rowversion"
                                         ? ValueGenerated.OnAddOrUpdate
 #pragma warning disable IDE0034 // Simplify 'default' expression - Ternary expression causes default(ValueGenerated) which is non-nullable
                                         : default(ValueGenerated?)
 #pragma warning restore IDE0034 // Simplify 'default' expression
                             };
 
-                            if ((underlyingStoreType ?? storeType) == "rowversion")
+                            if (storeType == "rowversion")
                             {
                                 column[ScaffoldingAnnotationNames.ConcurrencyToken] = true;
                             }
-
-                            column.SetUnderlyingStoreType(underlyingStoreType);
 
                             table.Columns.Add(column);
                         }
