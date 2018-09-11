@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class InMemoryDatabaseCreator : IDatabaseCreator
+    public class InMemoryDatabaseCreator : IDatabaseCreatorWithCanConnect
     {
         private readonly StateManagerDependencies _stateManagerDependencies;
         private readonly IInMemoryDatabase _database;
@@ -58,5 +58,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
             => Task.FromResult(_database.EnsureDatabaseCreated(_stateManagerDependencies));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool CanConnect()
+            => true;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult(true);
     }
 }

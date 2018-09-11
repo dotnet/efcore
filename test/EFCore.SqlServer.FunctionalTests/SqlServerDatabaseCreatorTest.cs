@@ -26,23 +26,27 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
-        [InlineData(true, true)]
-        [InlineData(false, false)]
-        public Task Returns_false_when_database_does_not_exist(bool async, bool ambientTransaction)
+        [InlineData(true, true, false)]
+        [InlineData(false, false, false)]
+        [InlineData(true, true, true)]
+        [InlineData(false, false, true)]
+        public Task Returns_false_when_database_does_not_exist(bool async, bool ambientTransaction, bool useCanConnect)
         {
-            return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, file: false);
+            return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: false);
         }
 
         [ConditionalTheory]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Returns_false_when_database_with_filename_does_not_exist(bool async, bool ambientTransaction)
+        public Task Returns_false_when_database_with_filename_does_not_exist(bool async, bool ambientTransaction, bool useCanConnect)
         {
-            return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, file: true);
+            return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: true);
         }
 
-        private static async Task Returns_false_when_database_does_not_exist_test(bool async, bool ambientTransaction, bool file)
+        private static async Task Returns_false_when_database_does_not_exist_test(bool async, bool ambientTransaction, bool useCanConnect, bool file)
         {
             using (var testDatabase = SqlServerTestStore.Create("NonExisting", file))
             {
@@ -52,7 +56,14 @@ namespace Microsoft.EntityFrameworkCore
 
                     using (CreateTransactionScope(ambientTransaction))
                     {
-                        Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
+                        if (useCanConnect)
+                        {
+                            Assert.False(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                        }
+                        else
+                        {
+                            Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
+                        }
                     }
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
@@ -61,23 +72,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        public Task Returns_true_when_database_exists(bool async, bool ambientTransaction)
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        public Task Returns_true_when_database_exists(bool async, bool ambientTransaction, bool useCanConnect)
         {
-            return Returns_true_when_database_exists_test(async, ambientTransaction, file: false);
+            return Returns_true_when_database_exists_test(async, ambientTransaction, useCanConnect, file: false);
         }
 
         [ConditionalTheory]
-        [InlineData(true, true)]
-        [InlineData(false, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, false)]
+        [InlineData(true, true, true)]
+        [InlineData(false, false, true)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Returns_true_when_database_with_filename_exists(bool async, bool ambientTransaction)
+        public Task Returns_true_when_database_with_filename_exists(bool async, bool ambientTransaction, bool useCanConnect)
         {
-            return Returns_true_when_database_exists_test(async, ambientTransaction, file: true);
+            return Returns_true_when_database_exists_test(async, ambientTransaction, useCanConnect, file: true);
         }
 
-        private static async Task Returns_true_when_database_exists_test(bool async, bool ambientTransaction, bool file)
+        private static async Task Returns_true_when_database_exists_test(bool async, bool ambientTransaction, bool useCanConnect, bool file)
         {
             using (var testDatabase = file
                 ? SqlServerTestStore.CreateInitialized("ExistingBloggingFile", useFileName: true)
@@ -88,7 +103,14 @@ namespace Microsoft.EntityFrameworkCore
                     var creator = GetDatabaseCreator(context);
                     using (CreateTransactionScope(ambientTransaction))
                     {
-                        Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
+                        if (useCanConnect)
+                        {
+                            Assert.True(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                        }
+                        else
+                        {
+                            Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
+                        }
                     }
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);

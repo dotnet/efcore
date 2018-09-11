@@ -377,6 +377,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoEfServices");
 
         /// <summary>
+        ///     The current database provider has not implemented the 'CanConnect' method.
+        /// </summary>
+        public static string CanConnectNotImplemented
+            => GetString("CanConnectNotImplemented");
+
+        /// <summary>
         ///     A call was made to '{replaceService}', but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or build replacement services into the service provider before passing it to '{useInternalServiceProvider}'.
         /// </summary>
         public static string InvalidReplaceService([CanBeNull] object replaceService, [CanBeNull] object useInternalServiceProvider)

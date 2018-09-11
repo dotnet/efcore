@@ -294,6 +294,9 @@
   <data name="NotAnEFService" xml:space="preserve">
     <value>The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.</value>
   </data>
+  <data name="CanConnectNotImplemented" xml:space="preserve">
+    <value>The current database provider has not implemented the 'CanConnect' method.</value>
+  </data>
   <data name="ImplementationTypeRequired" xml:space="preserve">
     <value>The implementation type for the registration of the '{service}' service could not be determined. Specific implementation types must be used for services that expect multiple registrations so as to avoid duplicates.</value>
   </data>
