@@ -93,61 +93,75 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return _extension;
             }
 
-            var candidateAssets = new Dictionary<string, int>();
-            var rid = RuntimeEnvironment.GetRuntimeIdentifier();
-            var rids = DependencyContext.Default.RuntimeGraph.First(g => g.Runtime == rid).Fallbacks.ToList();
-            rids.Insert(0, rid);
-
-            foreach (var library in DependencyContext.Default.RuntimeLibraries)
+            bool hasDependencyContext;
+            try
             {
-                foreach (var group in library.NativeLibraryGroups)
+                hasDependencyContext = DependencyContext.Default != null;
+            }
+            catch (Exception ex) // Work around dotnet/core-setup#4556
+            {
+                Debug.Fail(ex.ToString());
+                hasDependencyContext = false;
+            }
+
+            if (hasDependencyContext)
+            {
+                var candidateAssets = new Dictionary<string, int>();
+                var rid = RuntimeEnvironment.GetRuntimeIdentifier();
+                var rids = DependencyContext.Default.RuntimeGraph.First(g => g.Runtime == rid).Fallbacks.ToList();
+                rids.Insert(0, rid);
+
+                foreach (var library in DependencyContext.Default.RuntimeLibraries)
                 {
-                    foreach (var file in group.RuntimeFiles)
+                    foreach (var group in library.NativeLibraryGroups)
                     {
-                        if (string.Equals(
-                            Path.GetFileName(file.Path),
-                            "mod_spatialite" + _sharedLibraryExtension,
-                            StringComparison.OrdinalIgnoreCase))
+                        foreach (var file in group.RuntimeFiles)
                         {
-                            var fallbacks = rids.IndexOf(group.Runtime);
-                            if (fallbacks != -1)
+                            if (string.Equals(
+                                Path.GetFileName(file.Path),
+                                "mod_spatialite" + _sharedLibraryExtension,
+                                StringComparison.OrdinalIgnoreCase))
                             {
-                                candidateAssets.Add(library.Path + "/" + file.Path, fallbacks);
+                                var fallbacks = rids.IndexOf(group.Runtime);
+                                if (fallbacks != -1)
+                                {
+                                    candidateAssets.Add(library.Path + "/" + file.Path, fallbacks);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            var assetPath = candidateAssets.OrderBy(p => p.Value)
-                .Select(p => p.Key.Replace('/', Path.DirectorySeparatorChar)).FirstOrDefault();
-            if (assetPath != null)
-            {
-                string assetFullPath = null;
-                var probingDirectories = ((string)AppDomain.CurrentDomain.GetData("PROBING_DIRECTORIES"))
-                    .Split(Path.PathSeparator);
-                foreach (var directory in probingDirectories)
+                var assetPath = candidateAssets.OrderBy(p => p.Value)
+                    .Select(p => p.Key.Replace('/', Path.DirectorySeparatorChar)).FirstOrDefault();
+                if (assetPath != null)
                 {
-                    var candidateFullPath = Path.Combine(directory, assetPath);
-                    if (File.Exists(candidateFullPath))
+                    string assetFullPath = null;
+                    var probingDirectories = ((string)AppDomain.CurrentDomain.GetData("PROBING_DIRECTORIES"))
+                        .Split(Path.PathSeparator);
+                    foreach (var directory in probingDirectories)
                     {
-                        assetFullPath = candidateFullPath;
+                        var candidateFullPath = Path.Combine(directory, assetPath);
+                        if (File.Exists(candidateFullPath))
+                        {
+                            assetFullPath = candidateFullPath;
+                        }
                     }
-                }
-                Debug.Assert(assetFullPath != null);
+                    Debug.Assert(assetFullPath != null);
 
-                var assetDirectory = Path.GetDirectoryName(assetFullPath);
+                    var assetDirectory = Path.GetDirectoryName(assetFullPath);
 
-                var currentPath = Environment.GetEnvironmentVariable(_pathVariableName);
-                if (!currentPath.Split(Path.PathSeparator).Any(
-                    p => string.Equals(
-                        p.TrimEnd(Path.DirectorySeparatorChar),
-                        assetDirectory,
-                        StringComparison.OrdinalIgnoreCase)))
-                {
-                    Environment.SetEnvironmentVariable(
-                        _pathVariableName,
-                        assetDirectory + Path.PathSeparator + currentPath);
+                    var currentPath = Environment.GetEnvironmentVariable(_pathVariableName);
+                    if (!currentPath.Split(Path.PathSeparator).Any(
+                        p => string.Equals(
+                            p.TrimEnd(Path.DirectorySeparatorChar),
+                            assetDirectory,
+                            StringComparison.OrdinalIgnoreCase)))
+                    {
+                        Environment.SetEnvironmentVariable(
+                            _pathVariableName,
+                            assetDirectory + Path.PathSeparator + currentPath);
+                    }
                 }
             }
 
