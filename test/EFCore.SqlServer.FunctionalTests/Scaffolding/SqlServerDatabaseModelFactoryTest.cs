@@ -10,13 +10,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 
 // ReSharper disable InconsistentNaming
 
@@ -837,8 +837,7 @@ CREATE TABLE TypeAlias (
                     var column = Assert.Single(dbModel.Tables.Single().Columns.Where(c => c.Name == "typeAliasColumn"));
 
                     // ReSharper disable once PossibleNullReferenceException
-                    Assert.Equal("TestTypeAlias", column.StoreType);
-                    Assert.Equal("nvarchar(max)", column.GetUnderlyingStoreType());
+                    Assert.Equal("nvarchar(max)", column.StoreType);
                 },
                 @"
 DROP TABLE TypeAlias;
@@ -863,8 +862,7 @@ CREATE TABLE TypeAlias (
                     var column = Assert.Single(dbModel.Tables.Single().Columns.Where(c => c.Name == "typeAliasColumn"));
 
                     // ReSharper disable once PossibleNullReferenceException
-                    Assert.Equal("sysname", column.StoreType);
-                    Assert.Equal("nvarchar(128)", column.GetUnderlyingStoreType());
+                    Assert.Equal("nvarchar(128)", column.StoreType);
                     Assert.False(column.IsNullable);
                 },
                 @"
@@ -1499,9 +1497,9 @@ DROP TABLE dbo.HiddenColumnsTable;
 ");
         }
 
-#endregion
+        #endregion
 
-#region PrimaryKeyFacets
+        #region PrimaryKeyFacets
 
         [Fact]
         public void Create_composite_primary_key()
@@ -1648,9 +1646,9 @@ CREATE TABLE PrimaryKeyName (
                 "DROP TABLE PrimaryKeyName;");
         }
 
-#endregion
+        #endregion
 
-#region UniqueConstraintFacets
+        #region UniqueConstraintFacets
 
         [Fact]
         public void Create_composite_unique_constraint()
@@ -1740,9 +1738,9 @@ CREATE TABLE UniqueConstraintName (
                 "DROP TABLE UniqueConstraintName;");
         }
 
-#endregion
+        #endregion
 
-#region IndexFacets
+        #region IndexFacets
 
         [Fact]
         public void Create_composite_index()
@@ -1869,9 +1867,9 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                 "DROP TABLE FilteredIndexTable;");
         }
 
-#endregion
+        #endregion
 
-#region ForeignKeyFacets
+        #region ForeignKeyFacets
 
         [Fact]
         public void Create_composite_foreign_key()
@@ -2120,9 +2118,9 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-#endregion
+        #endregion
 
-#region Warnings
+        #region Warnings
 
         [Fact]
         public void Warn_missing_schema()
@@ -2196,7 +2194,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-#endregion
+        #endregion
 
         private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
         {
