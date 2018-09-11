@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
+#if !Test21
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public sealed class SpatialiteRequiredAttribute : Attribute, ITestCondition
     {
@@ -27,4 +28,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public string SkipReason
             => "mod_spatialite not found. Install it to run this test.";
     }
+#endif
 }
