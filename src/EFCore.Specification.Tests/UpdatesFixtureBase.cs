@@ -27,7 +27,11 @@ namespace Microsoft.EntityFrameworkCore
                 .Property(e => e.Id)
                 .ValueGeneratedNever();
 
-                modelBuilder.Entity<LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly>(
+            modelBuilder.Entity<AFewBytes>()
+                .Property(e => e.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly>(
                 eb =>
                 {
                     eb.HasKey(

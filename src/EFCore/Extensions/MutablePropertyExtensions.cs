@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Sets the custom <see cref="ValueComparer" /> for this property when performing key comparisons..
+        ///     Sets the custom <see cref="ValueComparer" /> for this property when performing key comparisons.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
@@ -160,6 +160,18 @@ namespace Microsoft.EntityFrameworkCore
             CheckComparerType(property, comparer);
 
             property[CoreAnnotationNames.KeyValueComparer] = comparer;
+        }
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueComparer" /> for deep copies for this property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        public static void SetDeepValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
+        {
+            CheckComparerType(property, comparer);
+
+            property[CoreAnnotationNames.DeepValueComparer] = comparer;
         }
 
         private static void CheckComparerType(IMutableProperty property, ValueComparer comparer)
