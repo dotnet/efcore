@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
 {
@@ -17,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         private readonly IReadOnlyList<PolygonEntity> _polygonEntities;
         private readonly IReadOnlyList<MultiLineStringEntity> _multiLineStringEntities;
 
-        public SpatialData()
+        public SpatialData(IGeometryFactory factory)
         {
-            _pointEntities = CreatePointEntities();
-            _lineStringEntities = CreateLineStringEntities();
-            _polygonEntities = CreatePolygonEntities();
-            _multiLineStringEntities = CreateMultiLineStringEntities();
+            _pointEntities = CreatePointEntities(factory);
+            _lineStringEntities = CreateLineStringEntities(factory);
+            _polygonEntities = CreatePolygonEntities(factory);
+            _multiLineStringEntities = CreateMultiLineStringEntities(factory);
         }
 
         public virtual IQueryable<TEntity> Set<TEntity>()
@@ -48,23 +47,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             throw new InvalidOperationException("Unknown entity type: " + typeof(TEntity));
         }
 
-        public static IReadOnlyList<PointEntity> CreatePointEntities()
+        public static IReadOnlyList<PointEntity> CreatePointEntities(IGeometryFactory factory)
             => new[]
             {
                 new PointEntity
                 {
                     Id = 1,
-                    Point = new Point(0, 0)
+                    Point = factory.CreatePoint(
+                        new Coordinate(0, 0))
                 }
             };
 
-        public static IReadOnlyList<LineStringEntity> CreateLineStringEntities()
+        public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(IGeometryFactory factory)
             => new[]
             {
                 new LineStringEntity
                 {
                     Id = 1,
-                    LineString = new LineString(
+                    LineString = factory.CreateLineString(
                         new[]
                         {
                             new Coordinate(0, 0),
@@ -73,40 +73,39 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                 }
             };
 
-        public static IReadOnlyList<PolygonEntity> CreatePolygonEntities()
+        public static IReadOnlyList<PolygonEntity> CreatePolygonEntities(IGeometryFactory factory)
             => new[]
             {
                 new PolygonEntity
                 {
                     Id = 1,
-                    Polygon = new Polygon(
-                        new LinearRing(
-                            new[]
-                            {
-                                new Coordinate(0, 0),
-                                new Coordinate(0, 1),
-                                new Coordinate(1, 0),
-                                new Coordinate(0, 0)
-                            }))
+                    Polygon = factory.CreatePolygon(
+                        new[]
+                        {
+                            new Coordinate(0, 0),
+                            new Coordinate(0, 1),
+                            new Coordinate(1, 0),
+                            new Coordinate(0, 0)
+                        })
                 }
             };
 
-        public static IReadOnlyList<MultiLineStringEntity> CreateMultiLineStringEntities()
+        public static IReadOnlyList<MultiLineStringEntity> CreateMultiLineStringEntities(IGeometryFactory factory)
             => new[]
             {
                 new MultiLineStringEntity
                 {
                     Id = 1,
-                    MultiLineString = new MultiLineString(
+                    MultiLineString = factory.CreateMultiLineString(
                         new[]
                         {
-                            new LineString(
+                            factory.CreateLineString(
                                 new[]
                                 {
                                     new Coordinate(0, 0),
                                     new Coordinate(0, 1)
                                 }),
-                            new LineString(
+                            factory.CreateLineString(
                                 new[]
                                 {
                                     new Coordinate(1, 0),

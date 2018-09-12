@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using GeoAPI.Geometries;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using NetTopologySuite.Geometries;
@@ -25,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Buffer), new[] { typeof(double) }), "STBuffer" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Contains), new[] { typeof(IGeometry) }), "STContains" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.ConvexHull), Type.EmptyTypes), "STConvexHull" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Crosses), new[] { typeof(IGeometry) }), "STCrosses" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Difference), new[] { typeof(IGeometry) }), "STDifference" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Disjoint), new[] { typeof(IGeometry) }), "STDisjoint" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Distance), new[] { typeof(IGeometry) }), "STDistance" },
@@ -33,13 +33,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Intersection), new[] { typeof(IGeometry) }), "STIntersection" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Intersects), new[] { typeof(IGeometry) }), "STIntersects" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Overlaps), new[] { typeof(IGeometry) }), "STOverlaps" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Relate), new[] { typeof(IGeometry), typeof(string) }), "STRelate" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.SymmetricDifference), new[] { typeof(IGeometry) }), "STSymDifference" },
             { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ToBinary), Type.EmptyTypes), "STAsBinary" },
             { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ToText), Type.EmptyTypes), "AsTextZM" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Touches), new[] { typeof(IGeometry) }), "STTouches" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Union), new[] { typeof(IGeometry) }), "STUnion" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Within), new[] { typeof(IGeometry) }), "STWithin" }
+        };
+
+        private static readonly IDictionary<MethodInfo, string> _geometryMethodToFunctionName = new Dictionary<MethodInfo, string>
+        {
+            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Crosses), new[] { typeof(IGeometry) }), "STCrosses" },
+            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Relate), new[] { typeof(IGeometry), typeof(string) }), "STRelate" },
+            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Touches), new[] { typeof(IGeometry) }), "STTouches" }
         };
 
         private static readonly MethodInfo _getGeometryN = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.GetGeometryN), new[] { typeof(int) });
@@ -50,11 +55,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
+            var instance = methodCallExpression.Object;
+            var isGeography = string.Equals(
+                instance.FindProperty(instance.Type)?.Relational().ColumnType,
+                "geography",
+                StringComparison.OrdinalIgnoreCase);
+
             var method = methodCallExpression.Method.OnInterface(typeof(IGeometry));
-            if (_methodToFunctionName.TryGetValue(method, out var functionName))
+            if (_methodToFunctionName.TryGetValue(method, out var functionName)
+                || (!isGeography && _geometryMethodToFunctionName.TryGetValue(method, out functionName)))
             {
                 return new SqlFunctionExpression(
-                    methodCallExpression.Object,
+                    instance,
                     functionName,
                     methodCallExpression.Type,
                     methodCallExpression.Arguments);
@@ -62,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             if (Equals(method, _getGeometryN))
             {
                 return new SqlFunctionExpression(
-                    methodCallExpression.Object,
+                    instance,
                     "STGeometryN",
                     methodCallExpression.Type,
                     new[] { Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1)) });

@@ -21,19 +21,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 return y == null;
             }
-            if (x.EqualsTopologically(y))
+            if (x.Normalized().EqualsExact(y.Normalized(), tolerance: 0.1))
             {
                 return true;
-            }
-
-            switch (x.OgcGeometryType)
-            {
-                case OgcGeometryType.Point:
-                    return Math.Round(x.Distance(y), 1) == 0;
-
-                case OgcGeometryType.Polygon:
-                case OgcGeometryType.MultiPolygon:
-                    return Math.Round(x.SymmetricDifference(y).Area, 1) == 0;
             }
 
             return false;

@@ -16,9 +16,8 @@ namespace NetTopologySuite.IO
     /// </summary>
     public class SqlServerSpatialWriter : IBinaryGeometryWriter
     {
-        // TODO: Default these to true?
-        private bool _emitZ;
-        private bool _emitM;
+        private bool _emitZ = true;
+        private bool _emitM = true;
 
         /// <summary>
         ///     Gets or sets the desired <see cref="ByteOrder"/>. Returns <see cref="ByteOrder.LittleEndian"/> since
@@ -77,6 +76,11 @@ namespace NetTopologySuite.IO
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether to write geography data. If not, geometry data will be written.
+        /// </summary>
+        public virtual bool IsGeography { get; set; }
+
+        /// <summary>
         ///     Writes a binary representation of a given geometry.
         /// </summary>
         /// <param name="geometry"> The geometry </param>
@@ -116,7 +120,7 @@ namespace NetTopologySuite.IO
             var geometries = new Queue<(IGeometry, int)>();
             geometries.Enqueue((geometry, -1));
 
-            // TODO: For geography (ellipsoidal) data, set IsLargerThanAHemisphere.
+            // TODO: For geography (ellipsoidal) data, set IsLargerThanAHemisphere
             var geography = new Geography
             {
                 SRID = Math.Max(0, geometry.SRID),
@@ -138,11 +142,11 @@ namespace NetTopologySuite.IO
                         break;
 
                     case IPolygon polygon:
-                        // TODO: For geography (ellipsoidal) data, the shell must be oriented counter-clockwise
+                        // NB: For geography (ellipsoidal) data, the actual shell is the ring oriented counter-clockwise
                         figureAdded = addFigure(polygon.Shell, FigureAttribute.Line);
                         foreach (var hole in polygon.Holes)
                         {
-                            // TODO: For geography (ellipsoidal) data, the holes must be oriented clockwise
+                            // NB: For geography (ellipsoidal) data, the actual holes are the rings oriented clockwise
                             figureAdded |= addFigure(hole, FigureAttribute.Line);
                         }
                         break;
@@ -175,13 +179,11 @@ namespace NetTopologySuite.IO
 
                     foreach (var coordinate in g.Coordinates)
                     {
-                        // TODO: For geography (ellipsoidal) data, the point's X value must be Latitude, and the Y
-                        //       value Longitude.
                         geography.Points.Add(
                             new Point
                             {
-                                X = coordinate.X,
-                                Y = coordinate.Y
+                                X = IsGeography ? coordinate.Y : coordinate.X,
+                                Y = IsGeography ? coordinate.X : coordinate.Y
                             });
                         pointsAdded = true;
 

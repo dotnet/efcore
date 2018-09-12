@@ -1,11 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using GeoAPI.Geometries;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
@@ -20,17 +22,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
         {
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Area)), "STArea" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Boundary)), "STBoundary" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Centroid)), "STCentroid" },
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Dimension)), "STDimension" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Envelope)), "STEnvelope" },
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.GeometryType)), "STGeometryType" },
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsEmpty)), "STIsEmpty" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsSimple)), "STIsSimple" },
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsValid)), "STIsValid" },
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Length)), "STLength" },
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.NumGeometries)), "STNumGeometries" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.NumPoints)), "STNumPoints" },
+            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.NumPoints)), "STNumPoints" }
+        };
+
+        private static readonly IDictionary<MemberInfo, string> _geometryMemberToFunctionName = new Dictionary<MemberInfo, string>
+        {
+            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Boundary)), "STBoundary" },
+            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Centroid)), "STCentroid" },
+            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Envelope)), "STEnvelope" },
+            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsSimple)), "STIsSimple" },
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.PointOnSurface)), "STPointOnSurface" }
         };
 
@@ -42,11 +48,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         /// </summary>
         public virtual Expression Translate(MemberExpression memberExpression)
         {
+            var instance = memberExpression.Expression;
+            var isGeography = string.Equals(
+                instance.FindProperty(instance.Type)?.Relational().ColumnType,
+                "geography",
+                StringComparison.OrdinalIgnoreCase);
+
             var member = memberExpression.Member.OnInterface(typeof(IGeometry));
-            if (_memberToFunctionName.TryGetValue(member, out var functionName))
+            if (_memberToFunctionName.TryGetValue(member, out var functionName)
+                || (!isGeography && _geometryMemberToFunctionName.TryGetValue(member, out functionName)))
             {
                 return new SqlFunctionExpression(
-                    memberExpression.Expression,
+                    instance,
                     functionName,
                     memberExpression.Type,
                     Enumerable.Empty<Expression>());
@@ -54,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             if (Equals(member, _srid))
             {
                 return new SqlFunctionExpression(
-                    memberExpression.Expression,
+                    instance,
                     "STSrid",
                     memberExpression.Type,
                     niladic: true);

@@ -86,7 +86,9 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.Contains(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Contains(""e"".""Polygon"", GeomFromText('POINT (0.5 0.25)')) AS ""Contains""
+                @"@__point_0='0x000100000000000000000000E03F000000000000D03F000000000000E03F0000...' (Size = 60) (DbType = String)
+
+SELECT ""e"".""Id"", Contains(""e"".""Polygon"", @__point_0) AS ""Contains""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -122,7 +124,9 @@ FROM ""LineStringEntity"" AS ""e""");
             await base.CoveredBy(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", CoveredBy(""e"".""Point"", GeomFromText('POLYGON ((-1 -1, -1 2, 2 2, 2 -1, -1 -1))')) AS ""CoveredBy""
+                @"@__polygon_0='0x000100000000000000000000F0BF000000000000F0BF00000000000000400000...' (Size = 132) (DbType = String)
+
+SELECT ""e"".""Id"", CoveredBy(""e"".""Point"", @__polygon_0) AS ""CoveredBy""
 FROM ""PointEntity"" AS ""e""");
         }
 
@@ -131,7 +135,9 @@ FROM ""PointEntity"" AS ""e""");
             await base.Covers(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Covers(""e"".""Polygon"", GeomFromText('POINT (0.5 0.25)')) AS ""Covers""
+                @"@__point_0='0x000100000000000000000000E03F000000000000D03F000000000000E03F0000...' (Size = 60) (DbType = String)
+
+SELECT ""e"".""Id"", Covers(""e"".""Polygon"", @__point_0) AS ""Covers""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -140,7 +146,9 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.Crosses(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Crosses(""e"".""LineString"", GeomFromText('LINESTRING (0.5 -0.5, 0.5 0.5)')) AS ""Crosses""
+                @"@__lineString_0='0x000100000000000000000000E03F000000000000E0BF000000000000E03F0000...' (Size = 80) (DbType = String)
+
+SELECT ""e"".""Id"", Crosses(""e"".""LineString"", @__lineString_0) AS ""Crosses""
 FROM ""LineStringEntity"" AS ""e""");
         }
 
@@ -149,7 +157,9 @@ FROM ""LineStringEntity"" AS ""e""");
             await base.Difference(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Difference(""e"".""Polygon"", GeomFromText('POLYGON ((0 0, 1 0, 1 1, 0 0))')) AS ""Difference""
+                @"@__polygon_0='0x00010000000000000000000000000000000000000000000000000000F03F0000...' (Size = 116) (DbType = String)
+
+SELECT ""e"".""Id"", Difference(""e"".""Polygon"", @__polygon_0) AS ""Difference""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -167,7 +177,9 @@ FROM ""PointEntity"" AS ""e""");
             await base.Disjoint(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Disjoint(""e"".""Polygon"", GeomFromText('POINT (1 0)')) AS ""Disjoint""
+                @"@__point_0='0x000100000000000000000000F03F0000000000000000000000000000F03F0000...' (Size = 60) (DbType = String)
+
+SELECT ""e"".""Id"", Disjoint(""e"".""Polygon"", @__point_0) AS ""Disjoint""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -176,7 +188,9 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.Distance(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Distance(""e"".""Point"", GeomFromText('POINT (0 1)')) AS ""Distance""
+                @"@__point_0='0x0001000000000000000000000000000000000000F03F00000000000000000000...' (Size = 60) (DbType = String)
+
+SELECT ""e"".""Id"", Distance(""e"".""Point"", @__point_0) AS ""Distance""
 FROM ""PointEntity"" AS ""e""");
         }
 
@@ -203,7 +217,9 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.EqualsTopologically(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Equals(""e"".""Point"", GeomFromText('POINT (0 0)')) AS ""EqualsTopologically""
+                @"@__point_0='0x0001000000000000000000000000000000000000000000000000000000000000...' (Size = 60) (DbType = String)
+
+SELECT ""e"".""Id"", Equals(""e"".""Point"", @__point_0) AS ""EqualsTopologically""
 FROM ""PointEntity"" AS ""e""");
         }
 
@@ -249,7 +265,9 @@ FROM ""LineStringEntity"" AS ""e""");
             await base.Intersection(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Intersection(""e"".""Polygon"", GeomFromText('POLYGON ((0 0, 1 0, 1 1, 0 0))')) AS ""Intersection""
+                @"@__polygon_0='0x00010000000000000000000000000000000000000000000000000000F03F0000...' (Size = 116) (DbType = String)
+
+SELECT ""e"".""Id"", Intersection(""e"".""Polygon"", @__polygon_0) AS ""Intersection""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -258,7 +276,9 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.Intersects(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Intersects(""e"".""LineString"", GeomFromText('LINESTRING (0.5 -0.5, 0.5 0.5)')) AS ""Intersects""
+                @"@__lineString_0='0x000100000000000000000000E03F000000000000E0BF000000000000E03F0000...' (Size = 80) (DbType = String)
+
+SELECT ""e"".""Id"", Intersects(""e"".""LineString"", @__lineString_0) AS ""Intersects""
 FROM ""LineStringEntity"" AS ""e""");
         }
 
@@ -375,7 +395,9 @@ FROM ""LineStringEntity"" AS ""e""");
             await base.Overlaps(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Overlaps(""e"".""Polygon"", GeomFromText('POLYGON ((0 0, 1 0, 1 1, 0 0))')) AS ""Overlaps""
+                @"@__polygon_0='0x00010000000000000000000000000000000000000000000000000000F03F0000...' (Size = 116) (DbType = String)
+
+SELECT ""e"".""Id"", Overlaps(""e"".""Polygon"", @__polygon_0) AS ""Overlaps""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -393,7 +415,9 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.Relate(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Relate(""e"".""Polygon"", GeomFromText('POLYGON ((0 0, 1 0, 1 1, 0 0))'), '212111212') AS ""Relate""
+                @"@__polygon_0='0x00010000000000000000000000000000000000000000000000000000F03F0000...' (Size = 116) (DbType = String)
+
+SELECT ""e"".""Id"", Relate(""e"".""Polygon"", @__polygon_0, '212111212') AS ""Relate""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -429,7 +453,9 @@ FROM ""LineStringEntity"" AS ""e""");
             await base.SymmetricDifference(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", SymDifference(""e"".""Polygon"", GeomFromText('POLYGON ((0 0, 1 0, 1 1, 0 0))')) AS ""SymmetricDifference""
+                @"@__polygon_0='0x00010000000000000000000000000000000000000000000000000000F03F0000...' (Size = 116) (DbType = String)
+
+SELECT ""e"".""Id"", SymDifference(""e"".""Polygon"", @__polygon_0) AS ""SymmetricDifference""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -456,7 +482,9 @@ FROM ""PointEntity"" AS ""e""");
             await base.Touches(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Touches(""e"".""Polygon"", GeomFromText('POLYGON ((0 1, 1 1, 1 0, 0 1))')) AS ""Touches""
+                @"@__polygon_0='0x00010000000000000000000000000000000000000000000000000000F03F0000...' (Size = 116) (DbType = String)
+
+SELECT ""e"".""Id"", Touches(""e"".""Polygon"", @__polygon_0) AS ""Touches""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -465,7 +493,9 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.Union(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", GUnion(""e"".""Polygon"", GeomFromText('POLYGON ((0 0, 1 0, 1 1, 0 0))')) AS ""Union""
+                @"@__polygon_0='0x00010000000000000000000000000000000000000000000000000000F03F0000...' (Size = 116) (DbType = String)
+
+SELECT ""e"".""Id"", GUnion(""e"".""Polygon"", @__polygon_0) AS ""Union""
 FROM ""PolygonEntity"" AS ""e""");
         }
 
@@ -474,7 +504,9 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.Within(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Within(""e"".""Point"", GeomFromText('POLYGON ((-1 -1, -1 2, 2 2, 2 -1, -1 -1))')) AS ""Within""
+                @"@__polygon_0='0x000100000000000000000000F0BF000000000000F0BF00000000000000400000...' (Size = 132) (DbType = String)
+
+SELECT ""e"".""Id"", Within(""e"".""Point"", @__polygon_0) AS ""Within""
 FROM ""PointEntity"" AS ""e""");
         }
 

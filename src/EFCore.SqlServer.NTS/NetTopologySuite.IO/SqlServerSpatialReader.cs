@@ -85,6 +85,11 @@ namespace NetTopologySuite.IO
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether to read geography data. If not, geometry data will be read.
+        /// </summary>
+        public virtual bool IsGeography { get; set; }
+
+        /// <summary>
         ///     Reads a geometry representation from a <see cref="T:byte[]"/> to a Geometry.
         /// </summary>
         /// <param name="source"> The source to read the geometry from </param>
@@ -150,10 +155,8 @@ namespace NetTopologySuite.IO
                                 var point = geography.Points[pointIndex];
                                 var coordinateIndex = pointIndex - figure.PointOffset;
 
-                                // TODO: For geography (ellipsoidal) data, the point's X value is Latitude, and the Y
-                                //       value is Longitude.
-                                coordinates.SetOrdinate(coordinateIndex, Ordinate.X, point.X);
-                                coordinates.SetOrdinate(coordinateIndex, Ordinate.Y, point.Y);
+                                coordinates.SetOrdinate(coordinateIndex, Ordinate.X, IsGeography ? point.Y : point.X);
+                                coordinates.SetOrdinate(coordinateIndex, Ordinate.Y, IsGeography ? point.X : point.Y);
 
                                 if (handleZ)
                                 {
@@ -189,7 +192,7 @@ namespace NetTopologySuite.IO
                         break;
 
                     case OpenGisType.Polygon:
-                        // TODO: For geography (ellipsoidal) data, the shell is the figure oriented counter-clockwise
+                        // NB: For geography (ellipsoidal) data, the actual shell is the figure oriented counter-clockwise
                         geometry = factory.CreatePolygon(
                             factory.CreateLinearRing(figures.FirstOrDefault()),
                             figures.Skip(1).Select(f => factory.CreateLinearRing(f)).ToArray());

@@ -1,12 +1,16 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
+using NetTopologySuite;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class SpatialFixtureBase : SharedStoreFixtureBase<SpatialContext>
     {
+        private IGeometryFactory _geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0);
+
         protected override string StoreName
             => "SpatialTest";
 
@@ -19,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override void Seed(SpatialContext context)
-            => SpatialContext.Seed(context);
+            => SpatialContext.Seed(context, _geometryFactory);
     }
 }

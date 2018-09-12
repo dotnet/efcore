@@ -115,8 +115,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var geometryText = AsText(value);
 
-            // TODO: Handle SRID
-            // TODO: Consider constructing C# objects directly
             // TODO: Allow additional namespaces needed to be put in using directives
             return geometryText != null
                    && languageCode.Equals(".cs", StringComparison.OrdinalIgnoreCase)
