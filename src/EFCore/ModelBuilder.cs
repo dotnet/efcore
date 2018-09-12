@@ -3,6 +3,8 @@
 
 using System;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -328,6 +330,58 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(configuration, nameof(configuration));
 
             configuration.Configure(Query<TQuery>());
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> and <see cref="IQueryTypeConfiguration{TEntity}" /> instances that are defined in provided assembly.
+        /// </summary>
+        /// <param name="assembly"> The assembly to scan. </param>
+        /// <param name="predicate"> Optional predicate to filter types within the assembly. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder ApplyConfigurationsFromAssembly(Assembly assembly, Func<Type, bool> predicate = null)
+        {
+            var applyEntityConfigurationMethod = typeof(ModelBuilder)
+                .GetMethods()
+                .Single(
+                    e => e.Name == nameof(ApplyConfiguration)
+                         && e.ContainsGenericParameters
+                         && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
+            var applyQueryConfigurationMethod = typeof(ModelBuilder).GetMethods().Single(
+                e => e.Name == nameof(ApplyConfiguration)
+                     && e.ContainsGenericParameters
+                     && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>));
+            foreach (var type in assembly.GetConstructibleTypes())
+            {
+                // Only accept types that contain a parameterless constructor, are not abstract and satisfy a predicate if it was used.
+                if (type.GetConstructor(Type.EmptyTypes) == null
+                    || (!predicate?.Invoke(type) ?? false))
+                {
+                    continue;
+                }
+
+                foreach (var @interface in type.GetInterfaces())
+                {
+                    if (!@interface.IsGenericType)
+                    {
+                        continue;
+                    }
+
+                    if (@interface.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
+                    {
+                        var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
+                        target.Invoke(this, new[] { Activator.CreateInstance(type) });
+                    }
+                    else if (@interface.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>))
+                    {
+                        var target = applyQueryConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
+                        target.Invoke(this, new[] { Activator.CreateInstance(type) });
+                    }
+                }
+            }
 
             return this;
         }
