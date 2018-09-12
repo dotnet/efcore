@@ -52,6 +52,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             {
                 ((SqlParameter)parameter).SqlDbType = SqlDbType.Date;
             }
+
+            if (Size.HasValue
+                && Size.Value != -1)
+            {
+                parameter.Size = Size.Value;
+            }
         }
 
         /// <summary>

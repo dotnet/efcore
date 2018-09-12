@@ -516,12 +516,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 parameter.DbType = DbType.Value;
             }
 
-            if (Size.HasValue
-                && Size.Value != -1)
-            {
-                parameter.Size = Size.Value;
-            }
-
             ConfigureParameter(parameter);
 
             return parameter;
