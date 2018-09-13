@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Assert.Equal("Value", parameter.Value);
                 Assert.Equal(DbType.String, parameter.DbType);
                 Assert.False(parameter.IsNullable);
-                Assert.Equal(23, parameter.Size);
+                Assert.Equal(5, parameter.Size);
             }
         }
 
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Assert.Equal("Value", parameter.Value);
                 Assert.Equal(DbType.String, parameter.DbType);
                 Assert.True(parameter.IsNullable);
-                Assert.Equal(23, parameter.Size);
+                Assert.Equal(5, parameter.Size);
             }
         }
 
