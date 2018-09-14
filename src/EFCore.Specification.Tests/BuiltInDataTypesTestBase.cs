@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -23,6 +24,60 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         protected DbContext CreateContext() => Fixture.CreateContext();
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Can_filter_projection_with_captured_enum_variable(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var templateType = EmailTemplateTypeDto.PasswordResetRequest;
+
+                var query = context
+                    .Set<EmailTemplate>()
+                    .Select(
+                        t => new EmailTemplateDto
+                        {
+                            Id = t.Id,
+                            TemplateType = (EmailTemplateTypeDto)t.TemplateType
+                        })
+                    .Where(t => t.TemplateType == templateType);
+
+                var results = async
+                    ? await query.ToListAsync()
+                    : query.ToList();
+
+                Assert.Equal(1, results.Count);
+                Assert.Equal(EmailTemplateTypeDto.PasswordResetRequest, results.Single().TemplateType);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Can_filter_projection_with_inline_enum_variable(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context
+                    .Set<EmailTemplate>()
+                    .Select(
+                        t => new EmailTemplateDto
+                        {
+                            Id = t.Id,
+                            TemplateType = (EmailTemplateTypeDto)t.TemplateType
+                        })
+                    .Where(t => t.TemplateType == EmailTemplateTypeDto.PasswordResetRequest);
+
+                var results = async
+                    ? await query.ToListAsync()
+                    : query.ToList();
+
+                Assert.Equal(1, results.Count);
+                Assert.Equal(EmailTemplateTypeDto.PasswordResetRequest, results.Single().TemplateType);
+            }
+        }
 
         [Fact]
         public virtual void Can_perform_query_with_max_length()
@@ -1414,6 +1469,17 @@ namespace Microsoft.EntityFrameworkCore
                             b.Property(property.ClrType, property.Name);
                         }
                     });
+
+                modelBuilder.Entity<EmailTemplate>(
+                    b =>
+                    {
+                        b.HasData(
+                            new EmailTemplate
+                            {
+                                Id = Guid.Parse("3C56082A-005A-4FFB-A9CF-F5EBD641E07D"),
+                                TemplateType = EmailTemplateType.PasswordResetRequest
+                            });
+                    });
             }
 
             protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder)
@@ -1609,6 +1675,30 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class BuiltInNullableDataTypesShadow : BuiltInNullableDataTypesBase
         {
+        }
+
+        protected class EmailTemplate
+        {
+            public Guid Id { get; set; }
+            public EmailTemplateType TemplateType { get; set; }
+        }
+
+        protected enum EmailTemplateType
+        {
+            PasswordResetRequest = 0,
+            EmailConfirmation = 1
+        }
+
+        protected class EmailTemplateDto
+        {
+            public Guid Id { get; set; }
+            public EmailTemplateTypeDto TemplateType { get; set; }
+        }
+
+        protected enum EmailTemplateTypeDto
+        {
+            PasswordResetRequest = 0,
+            EmailConfirmation = 1
         }
     }
 }

@@ -1738,9 +1738,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (_relationalCommandBuilder.ParameterBuilder.Parameters
                 .All(p => p.InvariantName != parameterExpression.Name))
             {
-                var typeMapping
-                    = _typeMapping
-                      ?? Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type);
+                var parameterType = parameterExpression.Type.UnwrapNullableType();
+
+                var typeMapping = _typeMapping;
+
+                if (typeMapping == null
+                    || (typeMapping.ClrType.UnwrapNullableType() != parameterType
+                        && parameterType.IsEnum))
+                {
+                    typeMapping = Dependencies.TypeMappingSource.GetMapping(parameterType);
+                }
 
                 LogValueConversionWarning(typeMapping);
 
