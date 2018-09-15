@@ -599,6 +599,14 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
+            foreach (var set in _sets.Values)
+            {
+                if (set is IResettableService resettable)
+                {
+                    resettable.ResetState();
+                }
+            }
+
             _disposed = true;
         }
 
