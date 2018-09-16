@@ -750,7 +750,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                     };
                     var details = new Details
                     {
-                        FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen, 
+                        FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen,
 Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Grass Sea, Breaker of Chains, and Mother of Dragons"
                     };
 
@@ -2634,7 +2634,7 @@ WHERE [w].[Val] = 1");
                         @"CREATE FUNCTION foo.AddOne (@num int)
                                                             RETURNS int
                                                                 AS
-                                                            BEGIN  
+                                                            BEGIN
                                                                 return @num + 1 ;
                                                             END");
 
@@ -2642,7 +2642,7 @@ WHERE [w].[Val] = 1");
                         @"CREATE FUNCTION dbo.AddTwo (@num int)
                                                             RETURNS int
                                                                 AS
-                                                            BEGIN  
+                                                            BEGIN
                                                                 return @num + 2 ;
                                                             END");
 
@@ -4958,6 +4958,68 @@ WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
         {
             public Guid Id { get; set; }
             public DateTime MyTime { get; set; }
+        }
+
+        #endregion
+
+        #region Bug12732
+
+        [Fact]
+        public virtual void Nested_contains_with_enum()
+        {
+            using (CreateDatabase12732())
+            {
+                using (var context = new MyContext12732(_options))
+                {
+                    var key = Guid.NewGuid();
+                    var keys = new List<Guid> { Guid.NewGuid() };
+                    var todoTypes = new List<TodoType> { TodoType.foo0 };
+
+                    var query = context.Todos
+                        .Where(x => keys.Contains(todoTypes.Contains(x.Type) ? key : key));
+
+                    Assert.Equal(
+                        RelationalStrings.UnsupportedType(typeof(List<TodoType>).ShortDisplayName()),
+                        Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase12732()
+        {
+            return CreateTestStore(
+                () => new MyContext12732(_options),
+                context =>
+                {
+                    context.Add(
+                        new Todo
+                        {
+                            Type = TodoType.foo0
+                        });
+                    context.SaveChanges();
+                    ClearLog();
+                });
+        }
+
+        private class MyContext12732 : DbContext
+        {
+            public DbSet<Todo> Todos { get; set; }
+
+            public MyContext12732(DbContextOptions options)
+               : base(options)
+            {
+            }
+        }
+
+        private class Todo
+        {
+            public Guid Id { get; set; }
+            public TodoType Type { get; set; }
+        }
+
+        private enum TodoType
+        {
+            foo0 = 0
         }
 
         #endregion

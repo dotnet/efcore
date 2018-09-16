@@ -1744,7 +1744,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 if (typeMapping == null
                     || (typeMapping.ClrType.UnwrapNullableType() != parameterType
-                        && parameterType.IsEnum))
+                        && (parameterType.IsEnum
+                        || !typeof(IConvertible).IsAssignableFrom(parameterType))))
                 {
                     typeMapping = Dependencies.TypeMappingSource.GetMapping(parameterType);
                 }
