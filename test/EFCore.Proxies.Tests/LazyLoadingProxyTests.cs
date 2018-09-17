@@ -10,12 +10,27 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class LazyLoadingProxyTests
     {
+        [Fact]
+        public void Serialization_is_disabled_for_ILazyLoader_property()
+        {
+            using (var context = new NeweyContext(nameof(Serialization_is_disabled_for_ILazyLoader_property)))
+            {
+                var proxy = context.Set<March82GGtp>().CreateProxy();
+
+                var output = JsonConvert.SerializeObject(proxy);
+                Assert.Equal(
+                    "{\"Id\":0}",
+                    output);
+            }
+        }
+
         [Fact]
         public void Materialization_uses_parameterless_constructor()
         {
