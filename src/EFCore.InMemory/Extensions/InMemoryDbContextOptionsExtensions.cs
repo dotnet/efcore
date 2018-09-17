@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to the legacy shared in-memory database.
         ///     This method is obsolete. Use
-        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},Action{InMemoryDbContextOptionsBuilder})" /> instead.
+        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,Action{InMemoryDbContextOptionsBuilder})" /> instead.
         /// </summary>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the context to connect to the legacy shared in-memory database.
-        ///     This method is obsolete. Use <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,Action{InMemoryDbContextOptionsBuilder})" />
+        ///     This method is obsolete. Use <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,string,Action{InMemoryDbContextOptionsBuilder})" />
         ///     instead.
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>

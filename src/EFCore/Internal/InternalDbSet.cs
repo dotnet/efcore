@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class InternalDbSet<TEntity> :
-        DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>
+        DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
         where TEntity : class
     {
         private readonly DbContext _context;
@@ -263,5 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         IServiceProvider IInfrastructure<IServiceProvider>.Instance
             => _context.GetInfrastructure();
+
+        void IResettableService.ResetState() => _localView = null;
     }
 }
