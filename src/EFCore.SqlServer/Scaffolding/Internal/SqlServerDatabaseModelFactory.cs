@@ -1000,7 +1000,16 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
 
                             if (!invalid)
                             {
-                                table.ForeignKeys.Add(foreignKey);
+                                if (foreignKey.Columns.SequenceEqual(foreignKey.PrincipalColumns))
+                                {
+                                    _logger.ReflexiveConstraintIgnored(
+                                        foreignKey.Name,
+                                        DisplayName(table.Schema, table.Name));
+                                }
+                                else
+                                {
+                                    table.ForeignKeys.Add(foreignKey);
+                                }
                             }
                         }
                     }
