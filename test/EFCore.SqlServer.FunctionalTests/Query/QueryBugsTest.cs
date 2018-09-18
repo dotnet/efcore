@@ -4971,16 +4971,25 @@ WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
             {
                 using (var context = new MyContext12732(_options))
                 {
-                    var key = Guid.NewGuid();
-                    var keys = new List<Guid> { Guid.NewGuid() };
+                    var key = Guid.Parse("5f221fb9-66f4-442a-92c9-d97ed5989cc7");
+                    var keys = new List<Guid> { Guid.Parse("0a47bcb7-a1cb-4345-8944-c58f82d6aac7"), key };
                     var todoTypes = new List<TodoType> { TodoType.foo0 };
 
                     var query = context.Todos
-                        .Where(x => keys.Contains(todoTypes.Contains(x.Type) ? key : key));
+                        .Where(x => keys.Contains(todoTypes.Contains(x.Type) ? key : key))
+                        .ToList();
 
-                    Assert.Equal(
-                        RelationalStrings.UnsupportedType(typeof(List<TodoType>).ShortDisplayName()),
-                        Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
+                    Assert.Single(query);
+
+                    AssertSql(
+                        @"@__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
+
+SELECT [x].[Id], [x].[Type]
+FROM [Todos] AS [x]
+WHERE CASE
+    WHEN [x].[Type] IN (0)
+    THEN @__key_2 ELSE @__key_2
+END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed5989cc7')");
                 }
             }
         }
