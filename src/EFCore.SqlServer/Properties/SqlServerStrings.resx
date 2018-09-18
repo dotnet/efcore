@@ -237,4 +237,8 @@
   <data name="ContainsFunctionOnClient" xml:space="preserve">
     <value>The 'Contains' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
   </data>
+  <data name="LogReflexiveConstraintIgnored" xml:space="preserve">
+    <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.</value>
+    <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
+  </data>
 </root>

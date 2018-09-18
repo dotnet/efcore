@@ -351,6 +351,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string ContainsFunctionOnClient
             => GetString("ContainsFunctionOnClient");
 
+        /// <summary>
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogReflexiveConstraintIgnored
+            = new EventDefinition<string, string>(
+                SqlServerEventId.ReflexiveConstraintIgnored,
+                LogLevel.Debug,
+                "SqlServerEventId.ReflexiveConstraintIgnored",
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    SqlServerEventId.ReflexiveConstraintIgnored,
+                    _resourceManager.GetString("LogReflexiveConstraintIgnored")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
