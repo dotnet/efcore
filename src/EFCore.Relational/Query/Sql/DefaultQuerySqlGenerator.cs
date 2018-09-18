@@ -406,7 +406,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             protected override Expression VisitExtension(Expression node)
             {
-                if (node is InExpression inExpression)
+                var updatedExpression = base.VisitExtension(node);
+
+                if (updatedExpression is InExpression inExpression)
                 {
                     if (inExpression.Values != null)
                     {
@@ -425,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     }
                 }
 
-                return base.VisitExtension(node);
+                return updatedExpression;
             }
 
             private IReadOnlyList<Expression> ProcessInExpressionValues(
