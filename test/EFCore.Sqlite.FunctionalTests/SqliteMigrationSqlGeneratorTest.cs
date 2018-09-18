@@ -327,6 +327,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void RenameColumnOperation()
+        {
+            Generate(
+                new RenameColumnOperation
+                {
+                    Table = "People",
+                    Name = "Name",
+                    NewName = "FullName"
+                });
+
+            Assert.Equal(
+                @"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void RenameIndexOperation()
         {
             Generate(
