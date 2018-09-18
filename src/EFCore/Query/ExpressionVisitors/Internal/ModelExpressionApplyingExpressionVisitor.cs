@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                         parameterize: false,
                                         generateContextAccessors: true);
 
-                            var subQueryModel = _queryModelGenerator.ParseQuery(Visit(parameterizedQuery));
+                            var subQueryModel = _queryModelGenerator.ParseQuery(parameterizedQuery);
 
                             newExpression = new SubQueryExpression(subQueryModel);
                         }
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 .Replace(
                                     oldParameterExpression,
                                     newParameterExpression,
-                                    Visit(parameterizedFilter.Body));
+                                    parameterizedFilter.Body);
 
                         var whereExpression
                             = Expression.Call(
