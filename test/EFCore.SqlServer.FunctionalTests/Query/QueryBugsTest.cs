@@ -3954,12 +3954,12 @@ FROM [Factions] AS [f]
 WHERE EXISTS (
     SELECT 1
     FROM [Leaders] AS [l]
-    WHERE ([l].[Name] LIKE N'Bran' + N'%' AND (LEFT([l].[Name], LEN(N'Bran')) = N'Bran')) AND ([l].[Name] = N'Crach an Craite'))");
+    WHERE [l].[Name] = N'Crach an Craite')");
                 }
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue#13361")]
         public virtual void Query_type_used_inside_defining_query()
         {
             using (CreateDatabase11803())
@@ -5135,7 +5135,73 @@ ORDER BY [t].[Id]");
         public class AddressTurnovers13157
         {
             public int AmountIn { get; set; }
+        }
 
+        #endregion
+
+        #region Bug13346
+
+        [Fact]
+        public virtual void ToQuery_can_define_in_own_terms_using_FromSql()
+        {
+            using (CreateDatabase13346())
+            {
+                using (var context = new MyContext13346(_options))
+                {
+                    var query = context.Query<OrderSummary13346>().ToList();
+
+                    Assert.Equal(4, query.Count);
+
+                    AssertSql(
+                        @"SELECT o.Amount From Orders AS o");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase13346()
+        {
+            return CreateTestStore(
+                () => new MyContext13346(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Order13346 { Amount = 1},
+                        new Order13346 { Amount = 2},
+                        new Order13346 { Amount = 3},
+                        new Order13346 { Amount = 4}
+                        );
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+        }
+
+        public class MyContext13346 : DbContext
+        {
+            public virtual DbSet<Order13346> Orders { get; set; }
+
+            public MyContext13346(DbContextOptions options)
+               : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Query<OrderSummary13346>().ToQuery(
+                    () => Query<OrderSummary13346>()
+                            .FromSql("SELECT o.Amount From Orders AS o"));
+            }
+        }
+
+        public class Order13346
+        {
+            public int Id { get; set; }
+            public int Amount { get; set; }
+        }
+
+        public class OrderSummary13346
+        {
+            public int Amount { get; set; }
         }
 
         #endregion
