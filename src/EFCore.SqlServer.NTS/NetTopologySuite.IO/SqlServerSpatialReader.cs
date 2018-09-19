@@ -65,20 +65,7 @@ namespace NetTopologySuite.IO
         ///     Gets and <see cref="Ordinates"/> flag that indicate which ordinates can be handled.
         /// </summary>
         public virtual Ordinates AllowedOrdinates
-        {
-            get
-            {
-                var ordinates = _sequenceFactory.Ordinates;
-
-                // TODO: Remove when fixed in NTS
-                if (_sequenceFactory is PackedCoordinateSequenceFactory packedFactory)
-                {
-                    ordinates = OrdinatesUtility.DimensionToOrdinates(packedFactory.Dimension);
-                }
-
-                return Ordinates.XYZM & ordinates;
-            }
-        }
+            => Ordinates.XYZM & _sequenceFactory.Ordinates;
 
         /// <summary>
         ///     Gets and sets <see cref="Ordinates"/> flag that indicate which ordinates shall be handled.
