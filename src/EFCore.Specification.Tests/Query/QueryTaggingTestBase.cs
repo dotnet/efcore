@@ -95,6 +95,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Tag_on_scalar_query()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = context.Set<Order>()
+                        .OrderBy(o => o.OrderID)
+                        .Select(o => o.OrderDate)
+                        .WithTag("Yanni")
+                        .First();
+
+                Assert.NotNull(customer);
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }

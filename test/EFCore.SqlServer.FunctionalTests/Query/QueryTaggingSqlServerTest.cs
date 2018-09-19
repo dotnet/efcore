@@ -86,6 +86,17 @@ INNER JOIN (
 ORDER BY [t].[CustomerID]");
         }
 
+        public override void Tag_on_scalar_query()
+        {
+            base.Tag_on_scalar_query();
+
+            AssertSql(
+                @"-- EFCore: (#Yanni)
+SELECT TOP(1) [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
