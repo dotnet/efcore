@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder
                         .AppendLine(",")
                         .Append("computedColumnSql: ")
-                        .Append(Code.UnknownLiteral(operation.ComputedColumnSql));
+                        .Append(Code.Literal(operation.ComputedColumnSql));
                 }
                 else if (operation.DefaultValue != null)
                 {
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder
                         .AppendLine(",")
                         .Append("computedColumnSql: ")
-                        .Append(Code.UnknownLiteral(operation.ComputedColumnSql));
+                        .Append(Code.Literal(operation.ComputedColumnSql));
                 }
                 else if (operation.DefaultValue != null)
                 {
@@ -540,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder
                         .AppendLine(",")
                         .Append("oldComputedColumnSql: ")
-                        .Append(Code.UnknownLiteral(operation.OldColumn.ComputedColumnSql));
+                        .Append(Code.Literal(operation.OldColumn.ComputedColumnSql));
                 }
                 else if (operation.OldColumn.DefaultValue != null)
                 {

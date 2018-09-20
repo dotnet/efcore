@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -598,5 +599,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ? method
                 : _getFieldValueMethod.MakeGenericMethod(type);
         }
+
+        /// <summary>
+        ///     Gets a custom expression tree for the code to convert from the database value
+        ///     to the model value.
+        /// </summary>
+        /// <param name="expression"> The input expression, containing the database value. </param>
+        /// <returns> The expression with conversion added. </returns>
+        public virtual Expression AddCustomConversion([NotNull] Expression expression)
+            => expression;
     }
 }

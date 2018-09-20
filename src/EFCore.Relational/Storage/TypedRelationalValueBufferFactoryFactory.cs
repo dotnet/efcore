@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var indexExpression = Expression.Constant(index);
 
-            Expression expression
+            Expression valueExpression
                 = Expression.Call(
                     getMethod.DeclaringType != typeof(DbDataReader)
                         ? Expression.Convert(dataReaderExpression, getMethod.DeclaringType)
@@ -222,24 +222,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     getMethod,
                     indexExpression);
 
-            var converter = materializationInfo.Mapping?.Converter;
+            var convertedExpression = materializationInfo.Mapping.AddCustomConversion(valueExpression);
 
-            if (converter != null)
+            if (valueExpression == convertedExpression)
             {
-                if (expression.Type != converter.ProviderClrType)
-                {
-                    expression = Expression.Convert(expression, converter.ProviderClrType);
-                }
+                var converter = materializationInfo.Mapping.Converter;
 
-                expression = ReplacingExpressionVisitor.Replace(
-                    converter.ConvertFromProviderExpression.Parameters.Single(),
-                    expression,
-                    converter.ConvertFromProviderExpression.Body);
+                if (converter != null)
+                {
+                    if (valueExpression.Type != converter.ProviderClrType)
+                    {
+                        valueExpression = Expression.Convert(valueExpression, converter.ProviderClrType);
+                    }
+
+                    convertedExpression = ReplacingExpressionVisitor.Replace(
+                        converter.ConvertFromProviderExpression.Parameters.Single(),
+                        valueExpression,
+                        converter.ConvertFromProviderExpression.Body);
+                }
             }
 
-            if (expression.Type != materializationInfo.ModelClrType)
+            if (convertedExpression.Type != materializationInfo.ModelClrType)
             {
-                expression = Expression.Convert(expression, materializationInfo.ModelClrType);
+                convertedExpression = Expression.Convert(convertedExpression, materializationInfo.ModelClrType);
             }
 
             var exceptionParameter
@@ -255,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             exceptionParameter,
                             Expression.Call(
                                 _throwReadValueExceptionMethod
-                                    .MakeGenericMethod(expression.Type),
+                                    .MakeGenericMethod(convertedExpression.Type),
                                 exceptionParameter,
                                 Expression.Call(
                                     dataReaderExpression,
@@ -263,12 +268,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                     indexExpression),
                                 Expression.Constant(property, typeof(IPropertyBase))));
 
-                expression = Expression.TryCatch(expression, catchBlock);
+                convertedExpression = Expression.TryCatch(convertedExpression, catchBlock);
             }
 
-            if (box && expression.Type.GetTypeInfo().IsValueType)
+            if (box && convertedExpression.Type.GetTypeInfo().IsValueType)
             {
-                expression = Expression.Convert(expression, typeof(object));
+                convertedExpression = Expression.Convert(convertedExpression, typeof(object));
             }
 
             if (property == null
@@ -276,14 +281,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 || property.DeclaringEntityType.BaseType != null
                 || materializationInfo.IsFromLeftOuterJoin != false)
             {
-                expression
+                convertedExpression
                     = Expression.Condition(
                         Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
-                        Expression.Default(expression.Type),
-                        expression);
+                        Expression.Default(convertedExpression.Type),
+                        convertedExpression);
             }
 
-            return expression;
+            return convertedExpression;
         }
     }
 }
