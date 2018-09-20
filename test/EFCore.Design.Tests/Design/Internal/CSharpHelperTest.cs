@@ -35,6 +35,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             4.2,
             "4.2000000000000002")]
         [InlineData(
+            double.NegativeInfinity,
+            "-Infinity")]
+        [InlineData(
+            double.PositiveInfinity,
+            "Infinity")]
+        [InlineData(
+            double.NaN,
+            "NaN")]
+        [InlineData(
             0.84551240822557006,
             "0.84551240822557006")]
         [InlineData(
