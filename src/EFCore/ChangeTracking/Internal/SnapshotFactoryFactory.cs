@@ -159,11 +159,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : constructorExpression;
         }
 
-        private static Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)
+        private Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)
         {
             if (propertyBase is IProperty property)
             {
-                var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+                var comparer = GetValueComparer(property);
 
                 if (comparer != null)
                 {
@@ -176,6 +176,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             return expression;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected abstract ValueComparer GetValueComparer([NotNull] IProperty property);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

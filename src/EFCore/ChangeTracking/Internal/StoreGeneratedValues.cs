@@ -87,7 +87,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         CoreStrings.DatabaseGeneratedNull(propertyBase.Name, propertyBase.DeclaringType.DisplayName()));
                 }
 
-                _values[index] = value ?? _nullSentinel;
+                _values[index] = SnapshotValue(propertyBase, value) ?? _nullSentinel;
+            }
+
+            private static object SnapshotValue(IPropertyBase propertyBase, object value)
+            {
+                if (propertyBase is IProperty property)
+                {
+                    var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+
+                    if (comparer != null)
+                    {
+                        return comparer.Snapshot(value);
+                    }
+                }
+
+                return value;
             }
         }
     }

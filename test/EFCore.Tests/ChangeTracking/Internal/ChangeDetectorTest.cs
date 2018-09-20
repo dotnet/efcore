@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var baxter = new Baxter
                 {
-                    Id = 1,
+                    Id = Guid.NewGuid(),
                     Demands = value
                 };
 
@@ -223,6 +223,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 Assert.Equal(EntityState.Added, entityEntry.State);
                 Assert.Equal(value, entityEntry.Property(e => e.Demands).CurrentValue);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Unchanged, entityEntry.State);
+
+                if (nullValue)
+                {
+                    baxter.Demands = new[] { 1, 767, 3, 4 };
+                }
+                else
+                {
+                    baxter.Demands[1] = 767;
+                }
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Equal(EntityState.Modified, entityEntry.State);
+                Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
             }
         }
 
@@ -236,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var baxter = context.Attach(
                     new Baxter
                     {
-                        Id = 1,
+                        Id = Guid.NewGuid(),
                         Demands = new[] { 1, 2, 3, 4 }
                     }).Entity;
 
@@ -244,6 +262,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var entityEntry = context.Entry(baxter);
                 AssertDetected(entityEntry, entityEntry.Property(e => e.Demands));
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Unchanged, entityEntry.State);
+
+                baxter.Demands[1] = 767;
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Equal(EntityState.Modified, entityEntry.State);
+                Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
             }
         }
 
@@ -257,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var entityEntry = context.Entry(
                     new Baxter
                     {
-                        Id = 1
+                        Id = Guid.NewGuid()
                     });
                 entityEntry.Property("ShadyDemands").CurrentValue = new[] { 1, 2, 3, 4 };
                 entityEntry.State = EntityState.Unchanged;
@@ -269,7 +298,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.ChangeTracker.DetectChanges(); // Needed because array is being mutated
 
                 AssertDetected(entityEntry, propertyEntry);
-            }
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Unchanged, entityEntry.State);
+
+                propertyEntry.CurrentValue[1] = 767;
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Equal(EntityState.Modified, entityEntry.State);
+                Assert.Equal(new[] { 1, 767, 3, 4 }, propertyEntry.CurrentValue);            }
         }
 
         private static void AssertDetected(EntityEntry<Baxter> entityEntry, PropertyEntry<Baxter, int[]> propertyEntry)
@@ -289,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class Baxter
         {
-            public int Id { get; set; }
+            public Guid Id { get; set; }
             public int[] Demands { get; set; }
         }
 
