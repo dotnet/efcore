@@ -23,6 +23,82 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual DbUpdateException New_FK_is_not_cleared_on_old_dependent_delete(bool loadNewParent)
+        {
+            DbUpdateException updateException = null;
+
+            var removedId = 0;
+            var childId = 0;
+            int? newFk = 0;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var removed = context.Set<Optional1>().OrderBy(e => e.Id).First();
+                    var child = context.Set<Optional2>().OrderBy(e => e.Id).First(e => e.ParentId == removed.Id);
+
+                    removedId = removed.Id;
+                    childId = child.Id;
+
+                    newFk = context.Set<Optional1>().AsNoTracking().Single(e => e.Id != removed.Id).Id;
+
+                    var newParent = loadNewParent ? context.Set<Optional1>().Find(newFk) : null;
+
+                    child.ParentId = newFk;
+
+                    context.Remove(removed);
+
+                    if (Fixture.ForceRestrict)
+                    {
+                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(newFk, child.ParentId);
+
+                        if (loadNewParent)
+                        {
+                            Assert.Same(newParent, child.Parent);
+                            Assert.Contains(child, newParent.Children);
+                        }
+                        else
+                        {
+                            Assert.Null((child.Parent));
+                        }
+                    }
+                },
+                context =>
+                {
+                    if (!Fixture.ForceRestrict)
+                    {
+                        Assert.Null(context.Set<Optional1>().Find(removedId));
+
+                        var child = context.Set<Optional2>().Find(childId);
+                        var newParent = loadNewParent ? context.Set<Optional1>().Find(newFk) : null;
+
+                        Assert.Equal(newFk, child.ParentId);
+
+                        if (loadNewParent)
+                        {
+                            Assert.Same(newParent, child.Parent);
+                            Assert.Contains(child, newParent.Children);
+                        }
+                        else
+                        {
+                            Assert.Null((child.Parent));
+                        }
+                    }
+                });
+
+            return updateException;
+        }
+
         [ConditionalFact]
         public virtual DbUpdateException Optional_One_to_one_relationships_are_one_to_one()
         {
