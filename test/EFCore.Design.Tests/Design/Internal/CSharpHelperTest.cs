@@ -41,9 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             6E-14,
             "5.9999999999999997E-14")]
         [InlineData(
-            6E-14,
-            "6E-14")]
-        [InlineData(
             -1.7976931348623157E+308, // Double MinValue
             "-1.7976931348623157E+308")]
         [InlineData(
