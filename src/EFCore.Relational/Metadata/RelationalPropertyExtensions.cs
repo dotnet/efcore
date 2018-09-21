@@ -34,8 +34,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             return property.IsPrimaryKey()
                 ? false
-                : property.DeclaringEntityType.FindPrimaryKey()?.Properties.First()
-                       ?.FindSharedTableLink()?.PrincipalEntityType.BaseType != null;
+                : IsOwnedByDerivedType(property.DeclaringEntityType);
+        }
+
+        private static bool IsOwnedByDerivedType(IEntityType entityType)
+        {
+            var ownerEntityType = entityType.FindPrimaryKey()?.Properties.First()
+                ?.FindSharedTableLink()?.PrincipalEntityType;
+
+            if (ownerEntityType?.BaseType != null)
+            {
+                return true;
+            }
+
+            return ownerEntityType != null && IsOwnedByDerivedType(ownerEntityType);
         }
     }
 }
