@@ -37,6 +37,16 @@ namespace Microsoft.EntityFrameworkCore
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
+        public void Maps_decimal_column(bool isKeyOrIndex)
+        {
+            var mapping = CreateMapper().FindMapping("decimal(18, 2)", isKeyOrIndex, rowVersion: false);
+
+            AssertMapping<decimal>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void Maps_bit_column(bool isKeyOrIndex)
         {
             var mapping = CreateMapper().FindMapping("bit", isKeyOrIndex, rowVersion: false);

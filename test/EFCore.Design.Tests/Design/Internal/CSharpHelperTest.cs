@@ -33,7 +33,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             @"'\''")]
         [InlineData(
             4.2,
-            "4.2")]
+            "4.2000000000000002")]
+        [InlineData(
+            double.NegativeInfinity,
+            "double.NegativeInfinity")]
+        [InlineData(
+            double.PositiveInfinity,
+            "double.PositiveInfinity")]
+        [InlineData(
+            double.NaN,
+            "double.NaN")]
+        [InlineData(
+            0.84551240822557006,
+            "0.84551240822557006")]
+        [InlineData(
+            6E-14,
+            "5.9999999999999997E-14")]
         [InlineData(
             -1.7976931348623157E+308, // Double MinValue
             "-1.7976931348623157E+308")]

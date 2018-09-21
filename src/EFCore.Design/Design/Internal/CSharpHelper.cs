@@ -376,9 +376,33 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Literal(double value) => EnsureDecimalPlaces(value.ToString("R", CultureInfo.InvariantCulture));
+        public virtual string Literal(double value) => EnsureDecimalPlaces(value);
 
-        private static string EnsureDecimalPlaces(string number) => number.IndexOf('.') >= 0 ? number : number + ".0";
+        private static string EnsureDecimalPlaces(double number)
+        {
+            var literal = number.ToString("G17", CultureInfo.InvariantCulture);
+
+            if (double.IsNaN(number))
+            {
+                return $"double.{nameof(double.NaN)}";
+            }
+            else if (double.IsNegativeInfinity(number))
+            {
+                return $"double.{nameof(double.NegativeInfinity)}";
+            }
+            else if (double.IsPositiveInfinity(number))
+            {
+                return $"double.{nameof(double.PositiveInfinity)}";
+            }
+            else
+            {
+                return !literal.Contains("E")
+                    && !literal.Contains("e")
+                    && !literal.Contains(".")
+                    ? literal + ".0"
+                    : literal;
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
