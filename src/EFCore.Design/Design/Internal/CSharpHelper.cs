@@ -382,13 +382,26 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var literal = number.ToString("G17", CultureInfo.InvariantCulture);
 
-            return !literal.Contains("E")
-                && !literal.Contains("e")
-                && !literal.Contains(".")
-                && !double.IsNaN(number)
-                && !double.IsInfinity(number)
-                ? literal + ".0"
-                : literal;
+            if (double.IsNaN(number))
+            {
+                return $"double.{nameof(double.NaN)}";
+            }
+            else if (double.IsNegativeInfinity(number))
+            {
+                return $"double.{nameof(double.NegativeInfinity)}";
+            }
+            else if (double.IsPositiveInfinity(number))
+            {
+                return $"double.{nameof(double.PositiveInfinity)}";
+            }
+            else
+            {
+                return !literal.Contains("E")
+                    && !literal.Contains("e")
+                    && !literal.Contains(".")
+                    ? literal + ".0"
+                    : literal;
+            }
         }
 
         /// <summary>
