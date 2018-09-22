@@ -717,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("<")
                         .Append(Code.Reference(propertyClrType))
                         .Append(">(")
-                        .Append(Code.UnknownLiteral(discriminatorPropertyAnnotation.Value))
+                        .Append(Code.Literal((string)discriminatorPropertyAnnotation.Value))
                         .Append(")");
                 }
                 else
