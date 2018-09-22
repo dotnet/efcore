@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
@@ -84,7 +85,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                     code,
                                     new CSharpMigrationOperationGenerator(
                                         new CSharpMigrationOperationGeneratorDependencies(code)),
-                                    new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(code))))
+                                    new CSharpSnapshotGenerator(
+                                        new CSharpSnapshotGeneratorDependencies(
+                                            code,
+                                            new SqlServerTypeMappingSource(
+                                                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())))))
                         }),
                     historyRepository,
                     reporter,

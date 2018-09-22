@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using NetTopologySuite.IO;
@@ -21,13 +22,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerGeometryTypeMapping : RelationalTypeMapping
+    public class SqlServerGeometryTypeMapping<TGeometry> : RelationalTypeMapping
+        where TGeometry : IGeometry
     {
         private static readonly MethodInfo _getSqlBytes
             = typeof(SqlDataReader).GetTypeInfo().GetDeclaredMethod(nameof(SqlDataReader.GetSqlBytes));
 
-        private readonly SqlServerSpatialReader _reader;
-        private readonly GeometryValueConverter _converter;
+        private readonly GeometryValueConverter<TGeometry> _converter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -42,8 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         new GeometryValueComparer(clrType)),
                     storeType))
         {
-            _reader = reader;
-            _converter = new GeometryValueConverter(clrType, reader);
+            _converter = new GeometryValueConverter<TGeometry>(reader);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-            => new SqlServerGeometryTypeMapping(parameters);
+            => new SqlServerGeometryTypeMapping<TGeometry>(parameters);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -126,5 +126,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 expression,
                 _converter.ConvertFromProviderExpression.Body);
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override string FindCodeLiteral(object value, string languageCode)
+            // TODO: Handle SRID
+            // TODO: Consider constructing C# objects directly
+            // TODO: Allow additional namespaces needed to be put in using directives
+            => languageCode.Equals(".cs", StringComparison.OrdinalIgnoreCase)
+               && value is IGeometry geometry
+                ? $"({value.GetType().ShortDisplayName()})new NetTopologySuite.IO.WKTReader().Read(\"{geometry.AsText()}\")"
+                : null;
     }
 }
