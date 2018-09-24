@@ -218,5 +218,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
         public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter converter);
+
+        /// <summary>
+        ///     Attempts generation of a code (e.g. C#) literal for the given value.
+        /// </summary>
+        /// <param name="value"> The value for which a literal is needed. </param>
+        /// <param name="languageCode"> The language code, which is typically the common file extension (e.g. ".cs") for the language. </param>
+        /// <returns> The generated literal, or <c>null</c> if a literal could not be generated. </returns>
+        public virtual string FindCodeLiteral([CanBeNull] object value, [NotNull] string languageCode)
+            => null;
     }
 }

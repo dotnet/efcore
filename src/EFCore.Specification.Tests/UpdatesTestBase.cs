@@ -4,10 +4,12 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using NetTopologySuite.Geometries;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -21,11 +23,21 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         [Fact]
-        public virtual void Mutation_of_tracked_byte_array_values_does_not_mutate_values_in_store()
+        public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
         {
+            Point CreatePoint(double y = 2.2)
+                => new Point(1.1, y, 3.3);
+
+            Polygon CreatePolygon(double y = 2.2)
+                => new Polygon(
+                    new LinearRing(
+                        new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, y), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }));
+
             var id1 = Guid.NewGuid();
             var id2 = Guid.NewGuid();
             var bytes = new byte[] { 1, 2, 3, 4 };
+            var point = CreatePoint();
+            var polygon = CreatePolygon();
 
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -34,12 +46,16 @@ namespace Microsoft.EntityFrameworkCore
                         new AFewBytes()
                         {
                             Id = id1,
-                            Bytes = bytes
+                            Bytes = bytes,
+                            Point = point,
+                            PolygonAsGeometry = polygon
                         },
                         new AFewBytes()
                         {
                             Id = id2,
-                            Bytes = bytes
+                            Bytes = bytes,
+                            Point = point,
+                            PolygonAsGeometry = polygon
                         });
 
                     context.SaveChanges();
@@ -47,15 +63,25 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     bytes[1] = 22;
+                    point.X = 11.1;
+                    polygon.Coordinates[1].X = 11.1;
 
                     var fromStore1 = context.AFewBytes.First(p => p.Id == id1);
                     var fromStore2 = context.AFewBytes.First(p => p.Id == id2);
 
                     Assert.Equal(2, fromStore1.Bytes[1]);
                     Assert.Equal(2, fromStore2.Bytes[1]);
+                    Assert.Equal(CreatePoint(), fromStore1.Point);
+                    Assert.Equal(CreatePolygon(), fromStore1.PolygonAsGeometry);
+                    Assert.Equal(CreatePoint(), fromStore2.Point);
+                    Assert.Equal(CreatePolygon(), fromStore2.PolygonAsGeometry);
 
                     fromStore1.Bytes[1] = 222;
                     fromStore2.Bytes[1] = 222;
+                    fromStore1.Point.Y = 22.2;
+                    fromStore1.PolygonAsGeometry.Coordinates[1].Y = 22.2;
+                    fromStore2.Point.Y = 22.2;
+                    fromStore2.PolygonAsGeometry.Coordinates[1].Y = 22.2;
 
                     context.Entry(fromStore1).State = EntityState.Modified;
 
@@ -69,6 +95,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(222, fromStore1.Bytes[1]);
                     Assert.Equal(2, fromStore2.Bytes[1]);
+
+                    Assert.Equal(CreatePoint(22.2), fromStore1.Point);
+                    Assert.Equal(CreatePolygon(22.2), fromStore1.PolygonAsGeometry);
+                    Assert.Equal(CreatePoint(), fromStore2.Point);
+                    Assert.Equal(CreatePolygon(), fromStore2.PolygonAsGeometry);
                 });
         }
 

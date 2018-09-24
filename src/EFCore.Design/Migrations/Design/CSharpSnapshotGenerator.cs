@@ -1135,10 +1135,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                     firstProperty = false;
                                 }
 
+                                var mapping = property.FindRelationalMapping()
+                                              ?? Dependencies.TypeMappingSource.FindMapping(property);
+
+                                var literal = mapping?.FindCodeLiteral(value, ".cs")
+                                              ?? Code.UnknownLiteral(value);
+
                                 stringBuilder
                                     .Append(Code.Identifier(property.Name))
                                     .Append(" = ")
-                                    .Append(Code.UnknownLiteral(value));
+                                    .Append(literal);
                             }
                         }
 
