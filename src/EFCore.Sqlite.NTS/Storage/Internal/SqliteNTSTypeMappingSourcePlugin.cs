@@ -57,10 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             string defaultStoreType = null;
             Type defaultClrType = null;
 
-            return (clrType != null && TryGetDefaultStoreType(clrType, out defaultStoreType)
-                    || storeTypeName != null && _storeTypeMappings.TryGetValue(storeTypeName, out defaultClrType))
-                ? new SqliteGeometryTypeMapping(
-                    clrType ?? defaultClrType ?? typeof(IGeometry),
+            return (clrType != null
+                    && TryGetDefaultStoreType(clrType, out defaultStoreType))
+                   || (storeTypeName != null
+                       && _storeTypeMappings.TryGetValue(storeTypeName, out defaultClrType))
+                ? (RelationalTypeMapping)Activator.CreateInstance(
+                    typeof(SqliteGeometryTypeMapping<>).MakeGenericType(clrType ?? defaultClrType ?? typeof(IGeometry)),
                     _reader,
                     storeTypeName ?? defaultStoreType ?? "GEOMETRY")
                 : null;

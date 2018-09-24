@@ -51,7 +51,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                        && _spatialStoreTypes.Contains(storeTypeName))
                 ? (RelationalTypeMapping)Activator.CreateInstance(
                     typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(clrType),
-                    clrType,
                     _reader,
                     storeTypeName ?? "geometry")
                 : null;
