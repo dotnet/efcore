@@ -5206,6 +5206,79 @@ ORDER BY [t].[Id]");
 
         #endregion
 
+        #region Bug13079
+
+        [Fact]
+        public virtual void Test()
+        {
+            using (CreateDatabase13079())
+            {
+                using (var context = new MyContext13079(_options))
+                {
+                    context.Add(new BaseEntity13079());
+                    context.SaveChanges();
+
+                    AssertSql(
+                        @"@p0='BaseEntity13079' (Nullable = false) (Size = 4000)
+
+SET NOCOUNT ON;
+INSERT INTO [BaseEntities] ([Discriminator])
+VALUES (@p0);
+SELECT [Id]
+FROM [BaseEntities]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase13079()
+        {
+            return CreateTestStore(
+                () => new MyContext13079(_options),
+                context =>
+                {
+                    ClearLog();
+                });
+        }
+
+        public class MyContext13079 : DbContext
+        {
+            public virtual DbSet<BaseEntity13079> BaseEntities { get; set; }
+
+            public MyContext13079(DbContextOptions options)
+               : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<DerivedEntity13079>().OwnsOne(e => e.Data, b => b.OwnsOne(e => e.SubData));
+            }
+        }
+
+        public class BaseEntity13079
+        {
+            public int Id { get; set; }
+        }
+
+        public class DerivedEntity13079 : BaseEntity13079
+        {
+            public int Property { get; set; }
+            public OwnedData13079 Data { get; set; }
+        }
+
+        public class OwnedData13079
+        {
+            public int Property { get; set; }
+            public OwnedSubData13079 SubData { get; set; }
+        }
+        public class OwnedSubData13079
+        {
+            public int Property { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
