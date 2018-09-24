@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
@@ -28,23 +27,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
 
         private static bool TryConnect()
         {
-            var documentClient = new DocumentClient(
-                    new Uri(TestEnvironment.DefaultConnection),
-                    TestEnvironment.AuthToken);
-
             try
             {
-                documentClient.OpenAsync().GetAwaiter().GetResult();
+                using (CosmosSqlTestStore.CreateInitialized("NonExistent"))
+                {
+                }
 
                 return true;
             }
             catch (Exception)
             {
                 return false;
-            }
-            finally
-            {
-                documentClient.Dispose();
             }
         }
     }

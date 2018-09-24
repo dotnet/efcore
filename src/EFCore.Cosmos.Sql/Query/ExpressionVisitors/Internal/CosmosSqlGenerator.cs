@@ -6,18 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using Microsoft.Azure.Documents;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Internal
 {
     public class CosmosSqlGenerator : ExpressionVisitor
     {
-        private StringBuilder _sqlBuilder = new StringBuilder();
+        private readonly StringBuilder _sqlBuilder = new StringBuilder();
         private IReadOnlyDictionary<string, object> _parameterValues;
-        private SqlParameterCollection _sqlParameters;
+        private List<SqlParameter> _sqlParameters;
 
-        private IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
+        private readonly IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
         {
             // Arithmetic
             { ExpressionType.Add, " + " },
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
         {
             _sqlBuilder.Clear();
             _parameterValues = parameterValues;
-            _sqlParameters = new SqlParameterCollection();
+            _sqlParameters = new List<SqlParameter>();
 
             Visit(selectExpression);
 
@@ -115,15 +115,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             }
             else if (value.GetType().IsNumeric())
             {
-                _sqlBuilder.Append(value.ToString());
+                _sqlBuilder.Append(value);
             }
-            else if (value.GetType() == typeof(bool))
+            else if (value is bool boolValue)
             {
-                _sqlBuilder.Append(((bool)value) ? "true" : "false");
+                _sqlBuilder.Append(boolValue ? "true" : "false");
             }
             else
             {
-                _sqlBuilder.Append($"\"{value}\"");
+                _sqlBuilder.Append("\"").Append(value).Append("\"");
             }
 
             return constantExpression;
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
 
                     _sqlBuilder.Append("SELECT ");
                     Visit(selectExpression.Projection);
-                    _sqlBuilder.AppendLine(" AS query");
+                    _sqlBuilder.AppendLine();
 
                     _sqlBuilder.Append("FROM root ");
                     Visit(selectExpression.FromExpression);
@@ -149,21 +149,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
                     return extensionExpression;
 
                 case RootReferenceExpression rootReferenceExpression:
-                    _sqlBuilder.Append(rootReferenceExpression.ToString());
+                    _sqlBuilder.Append(rootReferenceExpression);
                     return extensionExpression;
 
                 case KeyAccessExpression keyAccessExpression:
-                    _sqlBuilder.Append(keyAccessExpression.ToString());
+                    _sqlBuilder.Append(keyAccessExpression);
                     return extensionExpression;
 
                 case EntityProjectionExpression entityProjectionExpression:
-                    _sqlBuilder.Append(entityProjectionExpression.ToString());
+                    _sqlBuilder.Append(entityProjectionExpression);
                     return extensionExpression;
             }
 
             return base.VisitExtension(extensionExpression);
         }
-
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Azure.Documents;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
@@ -34,20 +34,19 @@ namespace Microsoft.EntityFrameworkCore
                 warningBehavior,
                 FormatParameters(sqlQuerySpec.Parameters),
                 Environment.NewLine,
-                sqlQuerySpec.QueryText);
+                sqlQuerySpec.Query);
         }
 
-        private static string FormatParameters(SqlParameterCollection parameters)
+        private static string FormatParameters(IReadOnlyList<SqlParameter> parameters)
         {
             return parameters.Count == 0
                 ? ""
-                : string.Join(", ", parameters.Select(p => FormatParameter(p)));
+                : string.Join(", ", parameters.Select(FormatParameter));
         }
 
         private static string FormatParameter(SqlParameter parameter)
         {
             var builder = new StringBuilder();
-            var clrType = parameter.Value?.GetType();
             builder
                 .Append(parameter.Name)
                 .Append("=");
@@ -67,20 +66,19 @@ namespace Microsoft.EntityFrameworkCore
 
             builder.Append('\'');
 
-            if (parameterValue.GetType() == typeof(DateTime))
+            if (parameterValue is DateTime dateTimeValue)
             {
-                builder.Append(((DateTime)parameterValue).ToString("s"));
+                builder.Append(dateTimeValue.ToString("s"));
             }
-            else if (parameterValue.GetType() == typeof(DateTimeOffset))
+            else if (parameterValue is DateTimeOffset dateTimeOffsetValue)
             {
-                builder.Append(((DateTimeOffset)parameterValue).ToString("o"));
+                builder.Append(dateTimeOffsetValue.ToString("o"));
             }
-            else if (parameterValue.GetType() == typeof(byte[]))
+            else if (parameterValue is byte[] binaryValue)
             {
-                var buffer = (byte[])parameterValue;
                 builder.Append("0x");
 
-                for (var i = 0; i < buffer.Length; i++)
+                for (var i = 0; i < binaryValue.Length; i++)
                 {
                     if (i > 31)
                     {
@@ -88,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
                         break;
                     }
 
-                    builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
+                    builder.Append(binaryValue[i].ToString("X2", CultureInfo.InvariantCulture));
                 }
             }
             else

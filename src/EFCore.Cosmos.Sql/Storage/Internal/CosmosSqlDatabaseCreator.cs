@@ -5,8 +5,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -25,49 +23,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
 
         public bool EnsureCreated()
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
-        {
-            var created = false;
-
-            var dbResponse = await _cosmosClient.DocumentClient.CreateDatabaseIfNotExistsAsync(
-                new Azure.Documents.Database { Id = _cosmosClient.DatabaseId });
-
-            created |= dbResponse.StatusCode == System.Net.HttpStatusCode.Created;
-
-            var _databaseUri = UriFactory.CreateDatabaseUri(_cosmosClient.DatabaseId);
+            var created = _cosmosClient.CreateDatabaseIfNotExists();
             foreach (var collection in _model.GetEntityTypes().Select(et => et.CosmosSql().CollectionName).Distinct())
             {
-                var collectionResponse = await _cosmosClient.DocumentClient.CreateDocumentCollectionIfNotExistsAsync(
-                    _databaseUri,
-                    new DocumentCollection { Id = collection });
-
-                created |= collectionResponse.StatusCode == System.Net.HttpStatusCode.Created;
+                created |= _cosmosClient.CreateDocumentCollectionIfNotExists(collection);
             }
 
             return created;
         }
 
-        public bool EnsureDeleted()
+        public async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
-        {
-            try
+            var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken);
+            foreach (var collection in _model.GetEntityTypes().Select(et => et.CosmosSql().CollectionName).Distinct())
             {
-                await _cosmosClient.DocumentClient.DeleteDatabaseAsync(
-                    UriFactory.CreateDatabaseUri(_cosmosClient.DatabaseId));
-            }
-            catch (DocumentClientException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                return false;
+                created |= await _cosmosClient.CreateDocumentCollectionIfNotExistsAsync(collection, cancellationToken);
             }
 
-            return true;
+            return created;
         }
+
+        public bool EnsureDeleted() => _cosmosClient.DeleteDatabase();
+
+        public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
+            => _cosmosClient.DeleteDatabaseAsync(cancellationToken);
     }
 }

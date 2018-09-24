@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
             await AssertQuery<Customer>(isAsync, cs => cs, entryCount: 91);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -41,11 +41,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Shaper_command_caching_when_parameter_names_different();
 
             AssertSql(
-    @"SELECT c AS query
+    @"SELECT c
 FROM root c
 WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND true)",
     //
-    @"SELECT c AS query
+    @"SELECT c
 FROM root c
 WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND true)");
         }
@@ -55,7 +55,7 @@ WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""
             base.Lifting_when_subquery_nested_order_by_anonymous();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -65,7 +65,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             base.Lifting_when_subquery_nested_order_by_simple();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -77,7 +77,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             AssertSql(
                 @"@__get_Item_0='ALFKI'
 
-SELECT c AS query
+SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__get_Item_0))");
         }
@@ -87,7 +87,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__get_Ite
             base.Method_with_constant_queryable_arg();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -97,7 +97,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Entity_equality_self(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = c[""CustomerID""]))");
         }
@@ -107,7 +107,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = c[""Custom
             await base.Entity_equality_local(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -117,7 +117,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Join_with_entity_equality_local_on_both_sources(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -127,7 +127,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Entity_equality_local_inline(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -137,7 +137,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Entity_equality_null(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = null))");
         }
@@ -147,7 +147,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = null))");
             await base.Entity_equality_not_null(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
         }
@@ -188,7 +188,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
             }
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -198,7 +198,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Queryable_reprojection(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -208,7 +208,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Default_if_empty_top_level(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 4294967295))");
         }
@@ -218,7 +218,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 4294967295
             await base.Join_with_default_if_empty_on_both_sources(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -228,7 +228,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Default_if_empty_top_level_followed_by_projecting_constant(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -238,28 +238,23 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Default_if_empty_top_level_positive(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > 0))");
         }
 
-        public override async Task Default_if_empty_top_level_arg(bool isAsync)
+        public override Task Default_if_empty_top_level_arg(bool isAsync)
         {
-            await base.Default_if_empty_top_level_arg(isAsync);
-
-            AssertSql(
-                @"SELECT c AS query
-FROM root c
-WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 4294967295))");
+            // Issue #13409
+            return Task.CompletedTask;
         }
-
 
         public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
         {
             await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -269,7 +264,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Default_if_empty_top_level_projection(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 4294967295))");
         }
@@ -279,7 +274,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 4294967295
             await base.Where_query_composition(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -289,7 +284,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition_is_null(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -299,7 +294,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition_is_null(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -309,7 +304,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition_entity_equality_one_element_SingleOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -319,7 +314,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition_entity_equality_one_element_FirstOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -329,7 +324,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition_entity_equality_no_elements_SingleOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -339,7 +334,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition_entity_equality_no_elements_FirstOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -349,7 +344,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -359,7 +354,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -369,7 +364,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition2_FirstOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -379,7 +374,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition2_FirstOrDefault_with_anonymous(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -389,7 +384,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             base.Select_Subquery_Single();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""OrderDetail"")");
         }
@@ -399,7 +394,7 @@ WHERE (c[""Discriminator""] = ""OrderDetail"")");
             base.Select_Where_Subquery_Deep_Single();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 10344))");
         }
@@ -409,7 +404,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 10344))");
             base.Select_Where_Subquery_Deep_First();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""OrderDetail"")");
         }
@@ -419,7 +414,7 @@ WHERE (c[""Discriminator""] = ""OrderDetail"")");
             base.Select_Where_Subquery_Equality();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -429,7 +424,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Where_subquery_anon(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -439,7 +434,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_subquery_anon_nested(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -475,7 +470,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 assertOrder: true);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""VINET""))");
         }
@@ -485,7 +480,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""VINET"")
             await base.Let_any_subquery_anonymous(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -495,7 +490,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_arithmetic(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -505,7 +500,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.OrderBy_condition_comparison(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
@@ -515,7 +510,7 @@ WHERE (c[""Discriminator""] = ""Product"")");
             await base.OrderBy_ternary_conditions(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
@@ -525,7 +520,7 @@ WHERE (c[""Discriminator""] = ""Product"")");
             base.OrderBy_any();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -535,7 +530,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Skip(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -545,7 +540,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Skip_no_orderby(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -555,7 +550,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Skip_Take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -565,7 +560,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Join_Customers_Orders_Skip_Take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -575,7 +570,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Join_Customers_Orders_Skip_Take_followed_by_constant_projection(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -585,7 +580,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -595,7 +590,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -605,7 +600,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Take_Skip(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -615,7 +610,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_Skip_Distinct(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -625,7 +620,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_Skip_Distinct_Caching(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -635,7 +630,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_Distinct_Count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -645,7 +640,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Take_Where_Distinct_Count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""FRANK""))");
         }
@@ -655,7 +650,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""FRANK""))")
             await base.Null_conditional_simple(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -665,7 +660,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Null_conditional_deep(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -675,7 +670,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Queryable_simple(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -685,7 +680,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Queryable_simple_anonymous(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -695,7 +690,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Queryable_nested_simple(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -705,7 +700,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Queryable_simple_anonymous_projection_subquery(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -715,7 +710,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Queryable_simple_anonymous_subquery(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -725,7 +720,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_simple(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -735,7 +730,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_simple_parameterized(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -745,7 +740,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_simple_projection(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -755,7 +750,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_subquery_projection(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -765,7 +760,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_Take_Count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -775,7 +770,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Take_OrderBy_Count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -785,7 +780,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Any_simple(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -795,7 +790,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Any_predicate(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -805,7 +800,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Any_nested_negated(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -815,7 +810,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Any_nested_negated2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -825,7 +820,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Any_nested_negated3(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -835,7 +830,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Any_nested(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -845,7 +840,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Any_nested2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -855,7 +850,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Any_nested3(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -865,7 +860,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Any_with_multiple_conditions_still_uses_exists();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -875,7 +870,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.All_top_level(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -885,7 +880,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.All_top_level_column(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -895,7 +890,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.All_top_level_subquery(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -905,7 +900,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.All_top_level_subquery_ef_property(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -915,7 +910,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.First_client_predicate(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -925,7 +920,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_select_many_or(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -935,7 +930,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_select_many_or2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -945,7 +940,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_select_many_or3(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -955,7 +950,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_select_many_or4(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -965,7 +960,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_select_many_or_with_parameter(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -975,7 +970,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.SelectMany_mixed(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -985,7 +980,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.SelectMany_simple_subquery(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -995,7 +990,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.SelectMany_simple1(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -1018,7 +1013,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
                 entryCount: 10);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""City""] = ""London""))");
         }
@@ -1043,7 +1038,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""City""] = ""London""))");
                 entryCount: 9);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 1))");
         }
@@ -1053,7 +1048,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 1))");
             await base.SelectMany_projection1(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -1063,7 +1058,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.SelectMany_projection2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -1084,7 +1079,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
                 e => e.OrderID);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
@@ -1099,7 +1094,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                     select c.CustomerID);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
@@ -1114,7 +1109,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                     select c.CustomerID);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
@@ -1124,7 +1119,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
             await base.SelectMany_OrderBy_ThenBy_Any(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1134,7 +1129,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Join_Where_Count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1144,7 +1139,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_Join_Any(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1154,7 +1149,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_Join_Exists(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1164,7 +1159,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_Join_Exists_Inequality(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1174,7 +1169,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_Join_Exists_Constant(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1184,7 +1179,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_Join_Not_Exists(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1194,7 +1189,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Join_OrderBy_Count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1204,7 +1199,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Multiple_joins_Where_Order_Any(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1214,7 +1209,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_join_select(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1224,7 +1219,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Where_orderby_join_select(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != ""ALFKI""))");
         }
@@ -1234,7 +1229,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != ""ALFKI""
             await base.Where_join_orderby_join_select(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != ""ALFKI""))");
         }
@@ -1244,7 +1239,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != ""ALFKI""
             await base.Where_select_many(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1254,7 +1249,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Where_orderby_select_many(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1264,7 +1259,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.SelectMany_cartesian_product_with_ordering(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1285,7 +1280,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 entryCount: 6);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1302,7 +1297,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 entryCount: 6);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1322,7 +1317,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 e => e.ContactName + " " + e.OrderDate);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1343,7 +1338,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 entryCount: 6);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1353,7 +1348,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Take_with_single(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1363,7 +1358,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_with_single_select_many(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1373,7 +1368,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Distinct_Skip(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1383,7 +1378,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Distinct_Skip_Take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1393,7 +1388,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Skip_Distinct(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1403,7 +1398,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Skip_Take_Distinct(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1413,7 +1408,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Skip_Take_Any(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1423,7 +1418,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Skip_Take_All(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1433,7 +1428,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_All(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1443,7 +1438,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Skip_Take_Any_with_predicate(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1453,7 +1448,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_Any_with_predicate(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1463,7 +1458,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1473,7 +1468,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_true(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1483,7 +1478,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_integer(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1493,7 +1488,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_parameter(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1503,7 +1498,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_anon(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1513,7 +1508,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_anon2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1523,7 +1518,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_client_mixed(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1533,7 +1528,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_multiple_queries(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1543,7 +1538,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Take_Distinct(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1553,7 +1548,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Distinct_Take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1563,7 +1558,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Distinct_Take_Count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1573,7 +1568,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.OrderBy_shadow(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -1583,7 +1578,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.OrderBy_multiple(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1593,7 +1588,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_ThenBy_Any(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1603,7 +1598,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_correlated_subquery1(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1613,7 +1608,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_correlated_subquery2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1623,7 +1618,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Where_subquery_recursive_trivial(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -1633,7 +1628,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_query_composition4(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1651,7 +1646,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 entryCount: 1);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1661,7 +1656,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             base.Select_DTO_distinct_translated_to_server();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
@@ -1671,7 +1666,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
             base.Select_DTO_constructor_distinct_translated_to_server();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
@@ -1681,7 +1676,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
             base.Select_DTO_with_member_init_distinct_translated_to_server();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
@@ -1691,7 +1686,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
             base.Select_nested_collection_count_using_DTO();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1701,7 +1696,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
@@ -1711,7 +1706,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
             base.Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1721,7 +1716,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_correlated_subquery_projection(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1731,7 +1726,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_correlated_subquery_filtered(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1741,7 +1736,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_correlated_subquery_ordered(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1751,7 +1746,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_subquery_on_bool(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
@@ -1769,7 +1764,7 @@ WHERE (c[""Discriminator""] = ""Product"")");
                 entryCount: 1);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] = 72))");
         }
@@ -1779,7 +1774,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] = 72))");
             await base.Select_many_cross_join_same_collection(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1789,7 +1784,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_null_coalesce_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1799,7 +1794,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_null_coalesce_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1809,7 +1804,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_conditional_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1819,7 +1814,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_conditional_operator_where_condition_null(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1829,7 +1824,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_comparison_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1839,7 +1834,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Projection_null_coalesce_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1849,7 +1844,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Filter_coalesce_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CompanyName""] ?? c[""ContactName""]) = ""The Big Cheese""))");
         }
@@ -1859,7 +1854,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CompanyName""] ?? c[""Con
             await base.Take_skip_null_coalesce_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1869,7 +1864,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_take_null_coalesce_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1879,7 +1874,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_take_skip_null_coalesce_operator(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1889,7 +1884,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_take_skip_null_coalesce_operator2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1899,7 +1894,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_take_skip_null_coalesce_operator3(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1909,7 +1904,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Selected_column_can_coalesce();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1921,7 +1916,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"@__Parse_0='1998-01-01T12:00:00'
 
-SELECT c AS query
+SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__Parse_0))");
         }
@@ -1931,7 +1926,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__Parse_0))")
             base.Random_next_is_not_funcletized_1();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1941,7 +1936,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             base.Random_next_is_not_funcletized_2();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1951,7 +1946,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             base.Random_next_is_not_funcletized_3();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1961,7 +1956,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             base.Random_next_is_not_funcletized_4();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1971,7 +1966,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             base.Random_next_is_not_funcletized_5();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1981,7 +1976,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             base.Random_next_is_not_funcletized_6();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1991,7 +1986,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Environment_newline_is_funcletized(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2001,7 +1996,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.String_concat_with_navigation1(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2011,7 +2006,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.String_concat_with_navigation2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2021,7 +2016,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             base.Select_bitwise_or();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2031,7 +2026,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Select_bitwise_or_multiple();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2041,7 +2036,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Select_bitwise_and();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2051,7 +2046,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Select_bitwise_and_or();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2069,7 +2064,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Where_bitwise_and_with_logical_and(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"") & (c[""CustomerID""] = ""ANATR"")) AND (c[""CustomerID""] = ""ANTON"")))");
         }
@@ -2087,7 +2082,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"
             await base.Where_bitwise_and_with_logical_or(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"") & (c[""CustomerID""] = ""ANATR"")) OR (c[""CustomerID""] = ""ANTON"")))");
         }
@@ -2097,7 +2092,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"
             base.Select_bitwise_or_with_logical_or();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2107,7 +2102,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Select_bitwise_and_with_logical_and();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2117,7 +2112,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Handle_materialization_properly_when_more_than_two_query_sources_are_involved(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2135,7 +2130,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Parameter_extraction_short_circuits_2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2153,7 +2148,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Subquery_member_pushdown_does_not_change_original_subquery_model(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2163,7 +2158,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Query_expression_with_to_string_and_contains(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2173,7 +2168,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_expression_long_to_string(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2183,7 +2178,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_int_to_string(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2193,7 +2188,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.ToString_with_formatter_is_evaluated_on_the_client(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2203,7 +2198,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_other_to_string(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2213,7 +2208,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_date_add_year(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2223,7 +2218,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_datetime_add_month(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2233,7 +2228,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_datetime_add_hour(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2243,7 +2238,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_datetime_add_minute(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2253,7 +2248,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_datetime_add_second(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2263,7 +2258,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_date_add_milliseconds_above_the_range(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2273,7 +2268,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_date_add_milliseconds_below_the_range(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2283,7 +2278,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_date_add_milliseconds_large_number_divided(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2293,7 +2288,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_references_are_updated_correctly_with_subquery(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2303,7 +2298,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             base.DefaultIfEmpty_without_group_join();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
@@ -2324,7 +2319,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                 e => e.CustomerID + " " + e.OrderID);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
@@ -2348,7 +2343,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                 e => e.CustomerID + " " + e.OrderID);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""Seattle""))");
         }
@@ -2358,7 +2353,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""Seattle""))");
             await base.OrderBy_skip_take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2368,7 +2363,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_skip_skip_take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2378,7 +2373,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_skip_take_take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2388,7 +2383,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_skip_take_take_take_take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2398,7 +2393,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_skip_take_skip_take_skip(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2408,7 +2403,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_skip_take_distinct(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2418,7 +2413,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_coalesce_take_distinct(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
@@ -2428,7 +2423,7 @@ WHERE (c[""Discriminator""] = ""Product"")");
             await base.OrderBy_coalesce_skip_take_distinct(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
@@ -2438,7 +2433,7 @@ WHERE (c[""Discriminator""] = ""Product"")");
             await base.OrderBy_coalesce_skip_take_distinct_take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
@@ -2448,7 +2443,7 @@ WHERE (c[""Discriminator""] = ""Product"")");
             await base.OrderBy_skip_take_distinct_orderby_take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2458,7 +2453,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.No_orderby_added_for_fully_translated_manually_constructed_LOJ(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -2468,7 +2463,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2478,7 +2473,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2488,7 +2483,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2498,7 +2493,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
@@ -2508,7 +2503,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Contains_with_DateTime_Date(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2518,7 +2513,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Contains_with_subquery_involving_join_binds_to_correct_table(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2528,7 +2523,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Complex_query_with_repeated_query_model_compiles_correctly(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -2538,7 +2533,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Complex_query_with_repeated_nested_query_model_compiles_correctly(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -2548,7 +2543,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Anonymous_member_distinct_where(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2558,7 +2553,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Anonymous_member_distinct_orderby(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2568,7 +2563,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Anonymous_member_distinct_result(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2578,7 +2573,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Anonymous_complex_distinct_where(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2588,7 +2583,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Anonymous_complex_distinct_orderby(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2598,7 +2593,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Anonymous_complex_distinct_result(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2608,7 +2603,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Anonymous_complex_orderby(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2625,7 +2620,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 e => e.A);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
@@ -2635,7 +2630,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
             await base.DTO_member_distinct_where(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2645,7 +2640,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.DTO_member_distinct_orderby(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2655,7 +2650,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.DTO_member_distinct_result(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2665,7 +2660,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.DTO_complex_distinct_where(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2675,7 +2670,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.DTO_complex_distinct_orderby(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2685,7 +2680,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.DTO_complex_distinct_result(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2695,7 +2690,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.DTO_complex_orderby(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2713,7 +2708,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -2723,7 +2718,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Include_with_orderby_skip_preserves_ordering(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != ""VAFFE"") AND (c[""CustomerID""] != ""DRACD"")))");
         }
@@ -2733,7 +2728,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != ""VAFFE"
             await base.Int16_parameter_can_be_used_for_int_column(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10300))");
         }
@@ -2752,7 +2747,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10300))");
                 entryCount: 0);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -2771,7 +2766,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 entryCount: 1);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -2781,7 +2776,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Select_take_average(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2791,7 +2786,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_take_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2801,7 +2796,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_orderBy_take_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2811,7 +2806,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_take_long_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2821,7 +2816,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_orderBy_take_long_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2831,7 +2826,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_take_max(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2841,7 +2836,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_take_min(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2851,7 +2846,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_take_sum(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2861,7 +2856,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_skip_average(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2871,7 +2866,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_skip_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2881,7 +2876,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_orderBy_skip_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2891,7 +2886,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_skip_long_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2901,7 +2896,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_orderBy_skip_long_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2911,7 +2906,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_skip_max(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2921,7 +2916,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_skip_min(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2931,7 +2926,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_skip_sum(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2941,7 +2936,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_distinct_average(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2951,7 +2946,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_distinct_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2961,7 +2956,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_distinct_long_count(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2971,7 +2966,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_distinct_max(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2981,7 +2976,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_distinct_min(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -2991,7 +2986,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_distinct_sum(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -3001,7 +2996,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Comparing_to_fixed_string_parameter(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3011,7 +3006,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Comparing_entities_using_Equals(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3028,7 +3023,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                             select c.CustomerID);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -3038,7 +3033,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Comparing_entity_to_null_using_Equals(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3061,7 +3056,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 e => e.Id1 + " " + e.Id2);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -3084,7 +3079,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 e => e.Id1 + " " + e.Id2);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -3106,7 +3101,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 e => e.Id1 + " " + e.Id2);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -3128,7 +3123,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 e => e.Id1 + " " + e.Id2);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -3138,7 +3133,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Comparing_collection_navigation_to_null(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = null))");
         }
@@ -3148,7 +3143,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = null))");
             await base.Comparing_collection_navigation_to_null_complex(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""OrderDetail"")");
         }
@@ -3158,7 +3153,7 @@ WHERE (c[""Discriminator""] = ""OrderDetail"")");
             await base.Compare_collection_navigation_with_itself(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3168,7 +3163,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Compare_two_collection_navigations_with_different_query_sources(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3178,7 +3173,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Compare_two_collection_navigations_using_equals(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3188,7 +3183,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Compare_two_collection_navigations_with_different_property_chains(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -3198,7 +3193,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.OrderBy_ThenBy_same_column_different_direction(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3208,7 +3203,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_OrderBy_same_column_different_direction(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3218,7 +3213,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -3237,19 +3232,19 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                             }));
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))",
                 //
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))",
                 //
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")",
                 //
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -3259,7 +3254,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.OrderBy_Dto_projection_skip_take(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3292,7 +3287,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             }
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -3302,7 +3297,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Join_take_count_works(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] > 690) AND (c[""OrderID""] < 710)))");
         }
@@ -3312,7 +3307,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] > 690) AND (c[""O
             await base.OrderBy_empty_list_contains(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3322,7 +3317,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.OrderBy_empty_list_does_not_contains(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3332,7 +3327,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Manual_expression_tree_typed_null_equality();
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -3353,23 +3348,23 @@ WHERE (c[""Discriminator""] = ""Order"")");
                       });
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))",
                 //
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))",
                 //
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))",
                 //
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))",
                 //
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))");
         }
@@ -3379,7 +3374,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 10))");
             await base.Let_entity_equality_to_null(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3389,7 +3384,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Let_entity_equality_to_other_entity(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3399,7 +3394,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.SelectMany_after_client_method(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3413,7 +3408,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 entryCount: 89);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3427,7 +3422,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 entryCount: 89);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3437,7 +3432,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Collection_navigation_equality_rewrite_for_subquery(isAsync);
 
             AssertSql(
-                @"SELECT c AS query
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }

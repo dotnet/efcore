@@ -17,24 +17,42 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
 {
     public class CosmosSqlDatabase : Database
     {
-        private readonly CosmosClient _cosmosClient;
         private readonly DocumentCollectionUpdaterFactory _documentCollectionFactory;
-        private Dictionary<IEntityType, DocumentCollectionUpdater> _documentCollections
+        private readonly Dictionary<IEntityType, DocumentCollectionUpdater> _documentCollections
             = new Dictionary<IEntityType, DocumentCollectionUpdater>();
 
         public CosmosSqlDatabase(
             [NotNull] DatabaseDependencies dependencies,
-            CosmosClient cosmosClient,
             DocumentCollectionUpdaterFactory documentCollectionFactory)
             : base(dependencies)
         {
-            _cosmosClient = cosmosClient;
             _documentCollectionFactory = documentCollectionFactory;
         }
 
         public override int SaveChanges(IReadOnlyList<IUpdateEntry> entries)
         {
-            throw new NotImplementedException();
+            var rowsAffected = 0;
+
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                var entityType = entry.EntityType;
+
+                Debug.Assert(!entityType.IsAbstract());
+
+                if (!_documentCollections.TryGetValue(entityType, out var documentCollection))
+                {
+                    _documentCollections.Add(
+                        entityType, documentCollection = _documentCollectionFactory.Create(entityType));
+                }
+
+                documentCollection.Save(entry);
+
+                rowsAffected++;
+            }
+
+            return rowsAffected;
         }
 
         public override async Task<int> SaveChangesAsync(

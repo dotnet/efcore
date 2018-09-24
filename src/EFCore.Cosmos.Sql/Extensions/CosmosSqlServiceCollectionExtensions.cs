@@ -26,10 +26,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosSqlDbOptionsExtension>>()
-                .TryAdd<IQueryContextFactory, CosmosSqlQueryContextFactory>()
                 .TryAdd<IDatabase, CosmosSqlDatabase>()
+                .TryAdd<IExecutionStrategyFactory, CosmosSqlExecutionStrategyFactory>()
+                .TryAdd<IDbContextTransactionManager, CosmosSqlTransactionManager>()
                 .TryAdd<IConventionSetBuilder, CosmosSqlConventionSetBuilder>()
                 .TryAdd<IDatabaseCreator, CosmosSqlDatabaseCreator>()
+                .TryAdd<IQueryContextFactory, CosmosSqlQueryContextFactory>()
                 .TryAdd<IEntityQueryModelVisitorFactory, CosmosSqlEntityQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosSqlEntityQueryableExpressionVisitorFactory>()
                 .TryAdd<IMemberAccessBindingExpressionVisitorFactory, CosmosSqlMemberAccessBindingExpressionVisitorFactory>()

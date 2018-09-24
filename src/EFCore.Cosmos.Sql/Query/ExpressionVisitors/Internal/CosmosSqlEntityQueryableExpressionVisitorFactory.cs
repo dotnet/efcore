@@ -15,16 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
     public class CosmosSqlEntityQueryableExpressionVisitorFactory : IEntityQueryableExpressionVisitorFactory
     {
         private readonly IModel _model;
-        private readonly CosmosClient _cosmosClient;
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
         public CosmosSqlEntityQueryableExpressionVisitorFactory(
             IModel model,
-            CosmosClient cosmosClient,
             IEntityMaterializerSource entityMaterializerSource)
         {
             _model = model;
-            _cosmosClient = cosmosClient;
             _entityMaterializerSource = entityMaterializerSource;
         }
 
@@ -32,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
         {
             return new CosmosSqlEntityQueryableExpressionVisitor(
                 _model,
-                _cosmosClient,
                 _entityMaterializerSource,
                 (CosmosSqlQueryModelVisitor)entityQueryModelVisitor,
                 querySource);
