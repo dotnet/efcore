@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             {
                 new PointEntity
                 {
-                    Id = 1,
+                    Id = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B1"),
                     Point = new Point(0, 0)
                 }
             };
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             {
                 new PolygonEntity
                 {
-                    Id = 1,
+                    Id = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B1"),
                     Polygon = new Polygon(
                         new LinearRing(
                             new[]
