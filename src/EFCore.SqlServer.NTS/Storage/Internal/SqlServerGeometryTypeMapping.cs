@@ -3,6 +3,7 @@
 
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Globalization;
 using System.Reflection;
 using GeoAPI.Geometries;
 using JetBrains.Annotations;
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var text = "'" + geometry.AsText() + "'";
 
             return srid > 0
-                ? $"geometry::STGeomFromText({text}, {srid})"
+                ? $"geometry::STGeomFromText({text}, {srid.ToString(CultureInfo.InvariantCulture)})"
                 : text;
         }
 
@@ -77,6 +78,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string AsText(object value)
-            => (value is IGeometry geometry) ? geometry.AsText() : null;
+            => (value is IGeometry geometry) ? $"SRID={geometry.SRID.ToString(CultureInfo.InvariantCulture)}; {geometry.AsText()}" : null;
     }
 }

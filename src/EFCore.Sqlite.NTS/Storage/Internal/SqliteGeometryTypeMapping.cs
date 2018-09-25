@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
+using System.Globalization;
 using System.Reflection;
 using GeoAPI.Geometries;
 using JetBrains.Annotations;
@@ -62,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             var text = "'" + geometry.AsText() + "'";
 
             return srid > 0
-                ? $"GeomFromText({text}, {srid})"
+                ? $"GeomFromText({text}, {srid.ToString(CultureInfo.InvariantCulture)})"
                 : $"GeomFromText({text})";
         }
 
@@ -78,6 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string AsText(object value)
-            => (value is IGeometry geometry) ? geometry.AsText() : null;
+            => (value is IGeometry geometry) ? $"SRID={geometry.SRID.ToString(CultureInfo.InvariantCulture)}; {geometry.AsText()}" : null;
     }
 }
