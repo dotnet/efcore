@@ -4,6 +4,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Globalization;
 using System.Reflection;
 using GeoAPI;
 using GeoAPI.Geometries;
@@ -70,7 +71,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 text = $"{(_isGeography ? "geography" : "geometry")}::STGeomFromText({text}, {srid})";
             }
 
-            return text;
+            return srid > 0
+                ? $"geometry::STGeomFromText({text}, {srid.ToString(CultureInfo.InvariantCulture)})"
+                : text;
         }
 
         /// <summary>

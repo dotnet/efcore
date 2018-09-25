@@ -2664,32 +2664,59 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual void SeedData_annotations_are_stored_in_snapshot()
         {
             var lineString1 = new LineString(
-                new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2) });
+                new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2) })
+            {
+                SRID = 4326
+            };
 
             var lineString2 = new LineString(
-                new[] { new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2) });
+                new[] { new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2) })
+            {
+                SRID = 4326
+            };
 
             var multiPoint = new MultiPoint(
-                new IPoint[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) });
+                new IPoint[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
+            {
+                SRID = 4326
+            };
 
             var polygon1 = new Polygon(
                 new LinearRing(
-                    new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }));
+                    new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }))
+            {
+                SRID = 4326
+            };
 
             var polygon2 = new Polygon(
                 new LinearRing(
-                    new[] { new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2) }));
+                    new[] { new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2) }))
+            {
+                SRID = 4326
+            };
 
-            var point1 = new Point(1.1, 2.2, 3.3);
+            var point1 = new Point(1.1, 2.2, 3.3)
+            {
+                SRID = 4326
+            };
 
             var multiLineString = new MultiLineString(
-                new ILineString[] { lineString1, lineString2, });
+                new ILineString[] { lineString1, lineString2, })
+            {
+                SRID = 4326
+            };
 
             var multiPolygon = new MultiPolygon(
-                new IPolygon[] { polygon2, polygon1, });
+                new IPolygon[] { polygon2, polygon1, })
+            {
+                SRID = 4326
+            };
 
             var geometryCollection = new GeometryCollection(
-                new IGeometry[] { lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon });
+                new IGeometry[] { lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon })
+            {
+                SRID = 4326
+            };
 
             Test(
                 builder =>
@@ -2940,27 +2967,27 @@ namespace RootNamespace
                             Int64 = 48L,
                             SignedByte = (short)60,
                             Single = 54f,
-                            SpatialBGeometryCollection = (GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))""),
-                            SpatialBLineString = (LineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)""),
-                            SpatialBMultiLineString = (MultiLineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))""),
-                            SpatialBMultiPoint = (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))""),
-                            SpatialBMultiPolygon = (MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))""),
-                            SpatialBPoint = (Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POINT (1.1 2.2 3.3)""),
-                            SpatialBPolygon = (Polygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))""),
-                            SpatialCGeometryCollection = (GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))""),
-                            SpatialCLineString = (LineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)""),
-                            SpatialCMultiLineString = (MultiLineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))""),
-                            SpatialCMultiPoint = (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))""),
-                            SpatialCMultiPolygon = (MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))""),
-                            SpatialCPoint = (Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POINT (1.1 2.2 3.3)""),
-                            SpatialCPolygon = (Polygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))""),
-                            SpatialIGeometryCollection = (GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))""),
-                            SpatialILineString = (LineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)""),
-                            SpatialIMultiLineString = (MultiLineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))""),
-                            SpatialIMultiPoint = (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))""),
-                            SpatialIMultiPolygon = (MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))""),
-                            SpatialIPoint = (Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POINT (1.1 2.2 3.3)""),
-                            SpatialIPolygon = (Polygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))""),
+                            SpatialBGeometryCollection = (GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))""),
+                            SpatialBLineString = (LineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)""),
+                            SpatialBMultiLineString = (MultiLineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))""),
+                            SpatialBMultiPoint = (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))""),
+                            SpatialBMultiPolygon = (MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))""),
+                            SpatialBPoint = (Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;POINT (1.1 2.2 3.3)""),
+                            SpatialBPolygon = (Polygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))""),
+                            SpatialCGeometryCollection = (GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))""),
+                            SpatialCLineString = (LineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)""),
+                            SpatialCMultiLineString = (MultiLineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))""),
+                            SpatialCMultiPoint = (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))""),
+                            SpatialCMultiPolygon = (MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))""),
+                            SpatialCPoint = (Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;POINT (1.1 2.2 3.3)""),
+                            SpatialCPolygon = (Polygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))""),
+                            SpatialIGeometryCollection = (GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))""),
+                            SpatialILineString = (LineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)""),
+                            SpatialIMultiLineString = (MultiLineString)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))""),
+                            SpatialIMultiPoint = (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))""),
+                            SpatialIMultiPolygon = (MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))""),
+                            SpatialIPoint = (Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;POINT (1.1 2.2 3.3)""),
+                            SpatialIPolygon = (Polygon)new NetTopologySuite.IO.WKTReader().Read(""SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))""),
                             String = ""FortyThree"",
                             TimeSpan = new TimeSpan(2, 3, 52, 53, 0),
                             UnsignedInt16 = 56,
@@ -3055,6 +3082,28 @@ namespace RootNamespace
                         Assert.Equal(multiPolygon, seed["SpatialIMultiPolygon"]);
                         Assert.Equal(point1, seed["SpatialIPoint"]);
                         Assert.Equal(polygon1, seed["SpatialIPolygon"]);
+
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialBGeometryCollection"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialBLineString"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialBMultiLineString"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialBMultiPoint"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialBMultiPolygon"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialBPoint"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialBPolygon"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialCGeometryCollection"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialCLineString"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialCMultiLineString"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialCMultiPoint"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialCMultiPolygon"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialCPoint"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialCPolygon"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialIGeometryCollection"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialILineString"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialIMultiLineString"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialIMultiPoint"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialIMultiPolygon"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialIPoint"]).SRID);
+                        Assert.Equal(4326, ((IGeometry)seed["SpatialIPolygon"]).SRID);
                     },
                     seed =>
                     {
