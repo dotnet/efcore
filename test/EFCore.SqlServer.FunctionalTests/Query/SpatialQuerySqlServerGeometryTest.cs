@@ -242,6 +242,15 @@ WHERE [e].[Polygon].STNumInteriorRing() > 0");
 FROM [LineStringEntity] AS [e]");
         }
 
+        public override async Task InteriorPoint(bool isAsync)
+        {
+            await base.InteriorPoint(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[Polygon].STPointOnSurface() AS [InteriorPoint], [e].[Polygon]
+FROM [PolygonEntity] AS [e]");
+        }
+
         public override async Task Intersection(bool isAsync)
         {
             await base.Intersection(isAsync);
@@ -316,6 +325,21 @@ FROM [LineStringEntity] AS [e]");
 
             AssertSql(
                 @"SELECT [e].[Id], [e].[Point].STIsValid() AS [IsValid]
+FROM [PointEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "Needs better argument type inference")]
+        public override async Task IsWithinDistance(bool isAsync)
+        {
+            await base.IsWithinDistance(isAsync);
+
+            AssertSql(
+                @"@__point_0='0x00000000010C0000000000000000000000000000F03F' (Size = 22) (DbType = Binary)
+
+SELECT [e].[Id], CASE
+    WHEN [e].[Point].STDistance(@__point_0) <= 1.0E0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END AS [IsWithinDistance]
 FROM [PointEntity] AS [e]");
         }
 

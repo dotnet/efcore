@@ -260,6 +260,15 @@ WHERE NumInteriorRing(""e"".""Polygon"") > 0");
 FROM ""LineStringEntity"" AS ""e""");
         }
 
+        public override async Task InteriorPoint(bool isAsync)
+        {
+            await base.InteriorPoint(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", PointOnSurface(""e"".""Polygon"") AS ""InteriorPoint"", ""e"".""Polygon""
+FROM ""PolygonEntity"" AS ""e""");
+        }
+
         public override async Task Intersection(bool isAsync)
         {
             await base.Intersection(isAsync);
@@ -333,6 +342,20 @@ FROM ""LineStringEntity"" AS ""e""");
 
             AssertSql(
                 @"SELECT ""e"".""Id"", IsValid(""e"".""Point"") AS ""IsValid""
+FROM ""PointEntity"" AS ""e""");
+        }
+
+        public override async Task IsWithinDistance(bool isAsync)
+        {
+            await base.IsWithinDistance(isAsync);
+
+            AssertSql(
+                @"@__point_0='0x0001000000000000000000000000000000000000F03F00000000000000000000...' (Size = 60) (DbType = String)
+
+SELECT ""e"".""Id"", CASE
+    WHEN Distance(""e"".""Point"", @__point_0) <= 1.0
+    THEN 1 ELSE 0
+END AS ""IsWithinDistance""
 FROM ""PointEntity"" AS ""e""");
         }
 
@@ -497,6 +520,15 @@ FROM ""PolygonEntity"" AS ""e""");
 
 SELECT ""e"".""Id"", GUnion(""e"".""Polygon"", @__polygon_0) AS ""Union""
 FROM ""PolygonEntity"" AS ""e""");
+        }
+
+        public override async Task Union_void(bool isAsync)
+        {
+            await base.Union_void(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", UnaryUnion(""e"".""MultiLineString"") AS ""Union""
+FROM ""MultiLineStringEntity"" AS ""e""");
         }
 
         public override async Task Within(bool isAsync)
