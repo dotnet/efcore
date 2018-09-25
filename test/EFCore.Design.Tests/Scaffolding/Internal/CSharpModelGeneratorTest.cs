@@ -48,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static IModelCodeGenerator CreateGenerator()
             => new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddEntityFrameworkDesignTimeServices()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
