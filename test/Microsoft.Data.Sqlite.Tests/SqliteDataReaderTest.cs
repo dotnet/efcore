@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
@@ -67,15 +68,26 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
-                {
-                    var hasData = reader.Read();
-                    Assert.True(hasData);
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+                connection.ExecuteNonQuery("INSERT INTO Test VALUES(x'427E5743');");
+                connection.ExecuteNonQuery("INSERT INTO Test VALUES(x'538F6854');");
+                connection.ExecuteNonQuery("INSERT INTO Test VALUES(x'649A7965');");
 
-                    var buffer = new byte[2];
-                    long bytesRead = reader.GetBytes(0, 1, buffer, 0, buffer.Length);
-                    Assert.Equal(2, bytesRead);
-                    Assert.Equal(new byte[2] { 0x7E, 0x57 }, buffer);
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    var list = new List<byte[]>();
+                    while (reader.Read())
+                    {
+                        var buffer = new byte[6];
+                        var bytesRead = reader.GetBytes(0, 0, buffer, 0, buffer.Length);
+                        Assert.Equal(4, bytesRead);
+                        list.Add(buffer);
+                    }
+
+                    Assert.Equal(3, list.Count);
+                    Assert.Equal(new byte[6] { 0x42, 0x7E, 0x57, 0x43, 0, 0 }, list[0]);
+                    Assert.Equal(new byte[6] { 0x53, 0x8F, 0x68, 0x54, 0, 0 }, list[1]);
+                    Assert.Equal(new byte[6] { 0x64, 0x9A, 0x79, 0x65, 0, 0 }, list[2]);
                 }
             }
         }

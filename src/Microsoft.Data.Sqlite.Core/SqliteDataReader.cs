@@ -133,6 +133,7 @@ namespace Microsoft.Data.Sqlite
 
             var rc = raw.sqlite3_step(_stmt);
             SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
+            _record.Clear();
 
             _done = rc == raw.SQLITE_DONE;
 

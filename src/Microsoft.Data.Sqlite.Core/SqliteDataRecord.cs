@@ -198,6 +198,14 @@ namespace Microsoft.Data.Sqlite
         public virtual Stream GetStream(int ordinal)
             => new MemoryStream(GetCachedBlob(ordinal), false);
 
+        internal void Clear()
+        {
+            for (var i = 0; i < _blobCache.Length; i++)
+            {
+                _blobCache[i] = null;
+            }
+        }
+
         private byte[] GetCachedBlob(int ordinal)
         {
             if (ordinal < 0 || ordinal >= FieldCount)
