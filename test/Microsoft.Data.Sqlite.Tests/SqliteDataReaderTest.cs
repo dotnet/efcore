@@ -81,6 +81,27 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetBytes_NullBuffer()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    byte[] buffer = null;
+                    long bytesRead = reader.GetBytes(0, 1, buffer, 0, 3);
+
+                    // Expecting to return the length of the field in bytes,
+                    // which can be simply be blob length minus the offset. 
+                    Assert.Equal(3, bytesRead);
+                }
+            }
+        }
+        [Fact]
         public void GetBytes_works_with_overflow()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
