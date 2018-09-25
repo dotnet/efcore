@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("NTSServicesMissing");
 
         /// <summary>
-        ///     The GEOGRAPHY structure recieved is incomplete and cannot be read.
+        ///     The GEOGRAPHY structure received is incomplete and cannot be read.
         /// </summary>
         public static string UnexpectedEndOfStream
             => GetString("UnexpectedEndOfStream");

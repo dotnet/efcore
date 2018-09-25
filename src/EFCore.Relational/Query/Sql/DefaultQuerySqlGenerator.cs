@@ -1540,6 +1540,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var parentTypeMapping = _typeMapping;
                 _typeMapping = null;
 
+                // TODO: Infer type mappings of arguments
                 GenerateList(sqlFunctionExpression.Arguments);
 
                 _typeMapping = parentTypeMapping;
@@ -1745,7 +1746,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var typeMapping = _typeMapping;
 
                 if (typeMapping == null
-                    || (typeMapping.ClrType.UnwrapNullableType() != parameterType
+                    || (!typeMapping.ClrType.UnwrapNullableType().IsAssignableFrom(parameterType)
                         && (parameterType.IsEnum
                         || !typeof(IConvertible).IsAssignableFrom(parameterType))))
                 {

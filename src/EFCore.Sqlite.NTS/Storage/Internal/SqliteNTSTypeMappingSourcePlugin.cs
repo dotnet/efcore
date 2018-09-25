@@ -8,7 +8,6 @@ using GeoAPI.Geometries;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 { "POLYGON", typeof(IPolygon) }
             };
 
-        private readonly GaiaGeoReader _reader;
+        private readonly IGeometryServices _geometryServices;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -41,9 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         {
             Check.NotNull(geometryServices, nameof(geometryServices));
 
-            _reader = new GaiaGeoReader(
-                geometryServices.DefaultCoordinateSequenceFactory,
-                geometryServices.DefaultPrecisionModel);
+            _geometryServices = geometryServices;
         }
 
         /// <summary>
@@ -63,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                        && _storeTypeMappings.TryGetValue(storeTypeName, out defaultClrType))
                 ? (RelationalTypeMapping)Activator.CreateInstance(
                     typeof(SqliteGeometryTypeMapping<>).MakeGenericType(clrType ?? defaultClrType ?? typeof(IGeometry)),
-                    _reader,
+                    _geometryServices,
                     storeTypeName ?? defaultStoreType ?? "GEOMETRY")
                 : null;
         }

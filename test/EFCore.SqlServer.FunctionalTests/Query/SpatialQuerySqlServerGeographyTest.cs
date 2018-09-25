@@ -2,19 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
 #if !Test21
-    public class SpatialQuerySqlServerTest : SpatialQueryTestBase<SpatialQuerySqlServerFixture>
+    public class SpatialQuerySqlServerGeographyTest : SpatialQueryTestBase<SpatialQuerySqlServerGeographyFixture>
     {
-        public SpatialQuerySqlServerTest(SpatialQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public SpatialQuerySqlServerGeographyTest(SpatialQuerySqlServerGeographyFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected override bool AssertDistances
+            => false;
 
         public override async Task Area(bool isAsync)
         {
@@ -43,15 +47,6 @@ FROM [PointEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
-        public override async Task Boundary(bool isAsync)
-        {
-            await base.Boundary(isAsync);
-
-            AssertSql(
-                @"SELECT [e].[Id], [e].[Polygon].STBoundary() AS [Boundary]
-FROM [PolygonEntity] AS [e]");
-        }
-
         public override async Task Buffer(bool isAsync)
         {
             await base.Buffer(isAsync);
@@ -61,21 +56,13 @@ FROM [PolygonEntity] AS [e]");
 FROM [PolygonEntity] AS [e]");
         }
 
-        public override async Task Centroid(bool isAsync)
-        {
-            await base.Centroid(isAsync);
-
-            AssertSql(
-                @"SELECT [e].[Id], [e].[Polygon].STCentroid() AS [Centroid]
-FROM [PolygonEntity] AS [e]");
-        }
-
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Contains(bool isAsync)
         {
             await base.Contains(isAsync);
 
             AssertSql(
-                @"@__point_0='0x00000000010C000000000000E03F000000000000D03F' (Size = 22) (DbType = Binary)
+                @"@__point_0='0xE6100000010C000000000000D03F000000000000E03F' (Size = 22) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STContains(@__point_0) AS [Contains]
 FROM [PolygonEntity] AS [e]");
@@ -108,23 +95,13 @@ FROM [MultiLineStringEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
-        public override async Task Crosses(bool isAsync)
-        {
-            await base.Crosses(isAsync);
-
-            AssertSql(
-                @"@__lineString_0='0x000000000114000000000000E03F000000000000E0BF000000000000E03F0000...' (Size = 38) (DbType = Binary)
-
-SELECT [e].[Id], [e].[LineString].STCrosses(@__lineString_0) AS [Crosses]
-FROM [LineStringEntity] AS [e]");
-        }
-
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Difference(bool isAsync)
         {
             await base.Difference(isAsync);
 
             AssertSql(
-                @"@__polygon_0='0x0000000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STDifference(@__polygon_0) AS [Difference]
 FROM [PolygonEntity] AS [e]");
@@ -139,28 +116,31 @@ FROM [PolygonEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Disjoint(bool isAsync)
         {
             await base.Disjoint(isAsync);
 
             AssertSql(
-                @"@__point_0='0x00000000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+                @"@__point_0='0xE6100000010C0000000000000000000000000000F03F' (Size = 22) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STDisjoint(@__point_0) AS [Disjoint]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Distance(bool isAsync)
         {
             await base.Distance(isAsync);
 
             AssertSql(
-                @"@__point_0='0x00000000010C0000000000000000000000000000F03F' (Size = 22) (DbType = Binary)
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Point].STDistance(@__point_0) AS [Distance]
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task EndPoint(bool isAsync)
         {
             await base.EndPoint(isAsync);
@@ -170,32 +150,24 @@ FROM [PointEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
-        public override async Task Envelope(bool isAsync)
-        {
-            await base.Envelope(isAsync);
-
-            AssertSql(
-                @"SELECT [e].[Id], [e].[Polygon].STEnvelope() AS [Envelope]
-FROM [PolygonEntity] AS [e]");
-        }
-
         public override async Task EqualsTopologically(bool isAsync)
         {
             await base.EqualsTopologically(isAsync);
 
             AssertSql(
-                @"@__point_0='0x00000000010C00000000000000000000000000000000' (Size = 22) (DbType = Binary)
+                @"@__point_0='0xE6100000010C00000000000000000000000000000000' (Size = 22) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Point].STEquals(@__point_0) AS [EqualsTopologically]
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task ExteriorRing(bool isAsync)
         {
             await base.ExteriorRing(isAsync);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Polygon].STExteriorRing() AS [ExteriorRing]
+                @"SELECT [e].[Id], [e].[Polygon].RingN(1) AS [ExteriorRing]
 FROM [PolygonEntity] AS [e]");
         }
 
@@ -208,6 +180,7 @@ FROM [PolygonEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task GetGeometryN(bool isAsync)
         {
             await base.GetGeometryN(isAsync);
@@ -222,9 +195,9 @@ FROM [MultiLineStringEntity] AS [e]");
             await base.GetInteriorRingN(isAsync);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Polygon].STInteriorRingN(0 + 1) AS [InteriorRing0]
+                @"SELECT [e].[Id], [e].[Polygon].RingN(0 + 2) AS [InteriorRing0]
 FROM [PolygonEntity] AS [e]
-WHERE [e].[Polygon].STNumInteriorRing() > 0");
+WHERE ([e].[Polygon].NumRings() - 1) > 0");
         }
 
         public override async Task GetPointN(bool isAsync)
@@ -236,23 +209,25 @@ WHERE [e].[Polygon].STNumInteriorRing() > 0");
 FROM [LineStringEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Intersection(bool isAsync)
         {
             await base.Intersection(isAsync);
 
             AssertSql(
-                @"@__polygon_0='0x0000000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STIntersection(@__polygon_0) AS [Intersection]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Intersects(bool isAsync)
         {
             await base.Intersects(isAsync);
 
             AssertSql(
-                @"@__lineString_0='0x000000000114000000000000E03F000000000000E0BF000000000000E03F0000...' (Size = 38) (DbType = Binary)
+                @"@__lineString_0='0xE61000000114000000000000E0BF000000000000E03F000000000000E03F0000...' (Size = 38) (DbType = Binary)
 
 SELECT [e].[Id], [e].[LineString].STIntersects(@__lineString_0) AS [Intersects]
 FROM [LineStringEntity] AS [e]");
@@ -285,24 +260,6 @@ FROM [MultiLineStringEntity] AS [e]");
 FROM [MultiLineStringEntity] AS [e]");
         }
 
-        public override async Task IsRing(bool isAsync)
-        {
-            await base.IsRing(isAsync);
-
-            AssertSql(
-                @"SELECT [e].[Id], [e].[LineString].STIsRing() AS [IsRing]
-FROM [LineStringEntity] AS [e]");
-        }
-
-        public override async Task IsSimple(bool isAsync)
-        {
-            await base.IsSimple(isAsync);
-
-            AssertSql(
-                @"SELECT [e].[Id], [e].[LineString].STIsSimple() AS [IsSimple]
-FROM [LineStringEntity] AS [e]");
-        }
-
         public override async Task IsValid(bool isAsync)
         {
             await base.IsValid(isAsync);
@@ -312,6 +269,7 @@ FROM [LineStringEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Item(bool isAsync)
         {
             await base.Item(isAsync);
@@ -353,7 +311,7 @@ FROM [MultiLineStringEntity] AS [e]");
             await base.NumInteriorRings(isAsync);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Polygon].STNumInteriorRing() AS [NumInteriorRings]
+                @"SELECT [e].[Id], [e].[Polygon].NumRings() - 1 AS [NumInteriorRings]
 FROM [PolygonEntity] AS [e]");
         }
 
@@ -371,29 +329,9 @@ FROM [LineStringEntity] AS [e]");
             await base.Overlaps(isAsync);
 
             AssertSql(
-                @"@__polygon_0='0x0000000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STOverlaps(@__polygon_0) AS [Overlaps]
-FROM [PolygonEntity] AS [e]");
-        }
-
-        public override async Task PointOnSurface(bool isAsync)
-        {
-            await base.PointOnSurface(isAsync);
-
-            AssertSql(
-                @"SELECT [e].[Id], [e].[Polygon].STPointOnSurface() AS [PointOnSurface], [e].[Polygon]
-FROM [PolygonEntity] AS [e]");
-        }
-
-        public override async Task Relate(bool isAsync)
-        {
-            await base.Relate(isAsync);
-
-            AssertSql(
-                @"@__polygon_0='0x0000000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
-
-SELECT [e].[Id], [e].[Polygon].STRelate(@__polygon_0, N'212111212') AS [Relate]
 FROM [PolygonEntity] AS [e]");
         }
 
@@ -420,7 +358,7 @@ FROM [LineStringEntity] AS [e]");
             await base.SymmetricDifference(isAsync);
 
             AssertSql(
-                @"@__polygon_0='0x0000000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STSymDifference(@__polygon_0) AS [SymmetricDifference]
 FROM [PolygonEntity] AS [e]");
@@ -444,34 +382,25 @@ FROM [PointEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
-        public override async Task Touches(bool isAsync)
-        {
-            await base.Touches(isAsync);
-
-            AssertSql(
-                @"@__polygon_0='0x000000000104040000000000000000000000000000000000F03F000000000000...' (Size = 96) (DbType = Binary)
-
-SELECT [e].[Id], [e].[Polygon].STTouches(@__polygon_0) AS [Touches]
-FROM [PolygonEntity] AS [e]");
-        }
-
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Union(bool isAsync)
         {
             await base.Union(isAsync);
 
             AssertSql(
-                @"@__polygon_0='0x0000000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STUnion(@__polygon_0) AS [Union]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better type inference")]
         public override async Task Within(bool isAsync)
         {
             await base.Within(isAsync);
 
             AssertSql(
-                @"@__polygon_0='0x00000000010405000000000000000000F0BF000000000000F0BF000000000000...' (Size = 112) (DbType = Binary)
+                @"@__polygon_0='0xE6100000010405000000000000000000F0BF000000000000F0BF000000000000...' (Size = 112) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Point].STWithin(@__polygon_0) AS [Within]
 FROM [PointEntity] AS [e]");
@@ -482,7 +411,7 @@ FROM [PointEntity] AS [e]");
             await base.X(isAsync);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Point].STX AS [X]
+                @"SELECT [e].[Id], [e].[Point].Long AS [X]
 FROM [PointEntity] AS [e]");
         }
 
@@ -491,7 +420,7 @@ FROM [PointEntity] AS [e]");
             await base.Y(isAsync);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Point].STY AS [Y]
+                @"SELECT [e].[Id], [e].[Point].Lat AS [Y]
 FROM [PointEntity] AS [e]");
         }
 

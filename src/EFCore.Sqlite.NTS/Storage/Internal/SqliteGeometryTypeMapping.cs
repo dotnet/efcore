@@ -3,6 +3,7 @@
 
 using System.Data.Common;
 using System.Reflection;
+using GeoAPI;
 using GeoAPI.Geometries;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.ValueConversion.Internal;
@@ -28,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [UsedImplicitly]
-        public SqliteGeometryTypeMapping(GaiaGeoReader reader, string storeType)
-            : base(new GeometryValueConverter<TGeometry>(reader), storeType)
+        public SqliteGeometryTypeMapping(IGeometryServices geometryServices, string storeType)
+            : base(new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter()), storeType)
         {
         }
 
@@ -58,10 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             var geometry = (IGeometry)value;
             var srid = geometry.SRID;
 
-            // TODO: This won't emit M (see NetTopologySuite/NetTopologySuite#156)
             var text = "'" + geometry.AsText() + "'";
 
-            return srid > 0
+            return srid != 0
                 ? $"GeomFromText({text}, {srid})"
                 : $"GeomFromText({text})";
         }
@@ -78,6 +78,30 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string AsText(object value)
-            => (value is IGeometry geometry) ? geometry.AsText() : null;
+        {
+            var geometry = (IGeometry)value;
+            if (geometry == null)
+            {
+                return null;
+            }
+
+            var srid = geometry.SRID;
+
+            var text = geometry.AsText();
+            if (srid != -1)
+            {
+                text = $"SRID={srid};" + text;
+            }
+
+            return text;
+        }
+
+        private static GaiaGeoReader CreateReader(IGeometryServices geometryServices)
+            => new GaiaGeoReader(
+                geometryServices.DefaultCoordinateSequenceFactory,
+                geometryServices.DefaultPrecisionModel);
+
+        private static GaiaGeoWriter CreateWriter()
+            => new GaiaGeoWriter();
     }
 }

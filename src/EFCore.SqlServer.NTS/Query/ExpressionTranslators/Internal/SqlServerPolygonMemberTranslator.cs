@@ -1,11 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using GeoAPI.Geometries;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
@@ -17,10 +19,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
     /// </summary>
     public class SqlServerPolygonMemberTranslator : IMemberTranslator
     {
-        private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
+        private static readonly MemberInfo _exteriorRing = typeof(IPolygon).GetRuntimeProperty(nameof(IPolygon.ExteriorRing));
+        private static readonly MemberInfo _numInteriorRings = typeof(IPolygon).GetRuntimeProperty(nameof(IPolygon.NumInteriorRings));
+
+        private static readonly IDictionary<MemberInfo, string> _geometryMemberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(IPolygon).GetRuntimeProperty(nameof(IPolygon.ExteriorRing)), "STExteriorRing" },
-            { typeof(IPolygon).GetRuntimeProperty(nameof(IPolygon.NumInteriorRings)), "STNumInteriorRing" }
+            { _exteriorRing, "STExteriorRing" },
+            { _numInteriorRings, "STNumInteriorRing" }
         };
 
         /// <summary>
@@ -29,11 +34,39 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         /// </summary>
         public virtual Expression Translate(MemberExpression memberExpression)
         {
+            var instance = memberExpression.Expression;
+            var isGeography = string.Equals(
+                instance.FindProperty(instance.Type)?.Relational().ColumnType,
+                "geography",
+                StringComparison.OrdinalIgnoreCase);
+
             var member = memberExpression.Member.OnInterface(typeof(IPolygon));
-            if (_memberToFunctionName.TryGetValue(member, out var functionName))
+            if (isGeography)
+            {
+                if (Equals(_exteriorRing, member))
+                {
+                    return new SqlFunctionExpression(
+                        instance,
+                        "RingN",
+                        memberExpression.Type,
+                        new[] { Expression.Constant(1) });
+                }
+                else if (Equals(_numInteriorRings, member))
+                {
+                    return Expression.Subtract(
+                        new SqlFunctionExpression(
+                            instance,
+                            "NumRings",
+                            memberExpression.Type,
+                            Enumerable.Empty<Expression>()),
+                        Expression.Constant(1));
+
+                }
+            }
+            else if (_geometryMemberToFunctionName.TryGetValue(member, out var functionName))
             {
                 return new SqlFunctionExpression(
-                    memberExpression.Expression,
+                    instance,
                     functionName,
                     memberExpression.Type,
                     Enumerable.Empty<Expression>());

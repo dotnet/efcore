@@ -8,7 +8,6 @@ using GeoAPI.Geometries;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             "geography"
         };
 
-        private readonly SqlServerSpatialReader _reader;
+        private readonly IGeometryServices _geometryServices;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             Check.NotNull(geometryServices, nameof(geometryServices));
 
-            _reader = new SqlServerSpatialReader(geometryServices);
+            _geometryServices = geometryServices;
         }
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                        && _spatialStoreTypes.Contains(storeTypeName))
                 ? (RelationalTypeMapping)Activator.CreateInstance(
                     typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(clrType),
-                    _reader,
+                    _geometryServices,
                     storeTypeName ?? "geometry")
                 : null;
         }

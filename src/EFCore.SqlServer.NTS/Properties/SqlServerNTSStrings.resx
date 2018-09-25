@@ -121,7 +121,7 @@
     <value>UseNetTopologySuite requires AddEntityFrameworkSqlServerNetTopologySuite to be called on the internal service provider used.</value>
   </data>
   <data name="UnexpectedEndOfStream" xml:space="preserve">
-    <value>The GEOGRAPHY structure recieved is incomplete and cannot be read.</value>
+    <value>The GEOGRAPHY structure received is incomplete and cannot be read.</value>
   </data>
   <data name="UnexpectedGeographyType" xml:space="preserve">
     <value>Unsupported type: {type}</value>

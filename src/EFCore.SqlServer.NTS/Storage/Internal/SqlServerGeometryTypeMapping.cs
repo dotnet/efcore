@@ -1,9 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Reflection;
+using GeoAPI;
 using GeoAPI.Geometries;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
@@ -22,15 +24,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private static readonly MethodInfo _getSqlBytes
             = typeof(SqlDataReader).GetTypeInfo().GetDeclaredMethod(nameof(SqlDataReader.GetSqlBytes));
 
+        private readonly bool _isGeography;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [UsedImplicitly]
-        public SqlServerGeometryTypeMapping(SqlServerSpatialReader reader, string storeType)
-            : base(new GeometryValueConverter<TGeometry>(reader), storeType)
-        {
-        }
+        public SqlServerGeometryTypeMapping(IGeometryServices geometryServices, string storeType)
+            : base(
+                  new GeometryValueConverter<TGeometry>(
+                      CreateReader(geometryServices, IsGeography(storeType)),
+                      CreateWriter(IsGeography(storeType))),
+                  storeType)
+            => _isGeography = IsGeography(storeType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -57,12 +64,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var geometry = (IGeometry)value;
             var srid = geometry.SRID;
 
-            // TODO: This won't emit M (see NetTopologySuite/NetTopologySuite#156)
             var text = "'" + geometry.AsText() + "'";
+            if (srid != (_isGeography ? 4326 : 0))
+            {
+                text = $"{(_isGeography ? "geography" : "geometry")}::STGeomFromText({text}, {srid})";
+            }
 
-            return srid > 0
-                ? $"geometry::STGeomFromText({text}, {srid})"
-                : text;
+            return text;
         }
 
         /// <summary>
@@ -77,6 +85,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string AsText(object value)
-            => (value is IGeometry geometry) ? geometry.AsText() : null;
+        {
+            var geometry = (IGeometry)value;
+            if (geometry == null)
+            {
+                return null;
+            }
+
+            var srid = geometry.SRID;
+
+            var text = geometry.AsText();
+            if (srid != -1)
+            {
+                text = $"SRID={srid};" + text;
+            }
+
+            return text;
+        }
+
+        private static SqlServerSpatialReader CreateReader(IGeometryServices services, bool isGeography)
+            => new SqlServerSpatialReader(services) { IsGeography = isGeography };
+
+        private static SqlServerSpatialWriter CreateWriter(bool isGeography)
+            => new SqlServerSpatialWriter { IsGeography = isGeography };
+
+        private static bool IsGeography(string storeType)
+            => string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
     }
 }

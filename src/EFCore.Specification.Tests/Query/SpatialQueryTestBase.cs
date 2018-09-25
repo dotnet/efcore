@@ -21,11 +21,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        protected virtual bool AssertDistances
+            => true;
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Area(bool isAsync)
         {
-            return AssertQuery<PolygonEntity>(isAsync, es => es.Select(e => new { e.Id, e.Polygon.Area }));
+            return AssertQuery<PolygonEntity>(
+                isAsync,
+                es => es.Select(e => new { e.Id, e.Polygon.Area }),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.Area, a.Area);
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -80,21 +94,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal(e.Buffer, a.Buffer, GeometryComparer.Instance);
+                    Assert.Equal(e.Buffer.Centroid, a.Buffer.Centroid, GeometryComparer.Instance);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.Buffer.Area, a.Buffer.Area, precision: 0);
+                    }
                 });
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Buffer_quadrantSegments(bool isAsync)
+        public virtual Task Buffer_quadrantSegments(bool isAsync)
         {
-            await AssertQuery<PolygonEntity>(
+            return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(e => new { e.Id, Buffer = e.Polygon.Buffer(1.0, 8) }),
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal(0, e.Buffer.SymmetricDifference(a.Buffer).Area);
+                    Assert.Equal(e.Buffer.Centroid, a.Buffer.Centroid, GeometryComparer.Instance);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.Buffer.Area, a.Buffer.Area, precision: 0);
+                    }
                 });
         }
 
@@ -116,9 +140,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains(bool isAsync)
         {
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.5, 0.25));
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, Contains = e.Polygon.Contains(new Point(0.5, 0.25)) }));
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        Contains = e.Polygon.Contains(point)
+                    }));
         }
 
         [ConditionalTheory]
@@ -155,54 +186,57 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task CoveredBy(bool isAsync)
+        public virtual Task CoveredBy(bool isAsync)
         {
-            await AssertQuery<PointEntity>(
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(-1, -1),
+                    new Coordinate(2, -1),
+                    new Coordinate(2, 2),
+                    new Coordinate(-1, 2),
+                    new Coordinate(-1, -1)
+                });
+
+            return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        CoveredBy = e.Point.CoveredBy(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(-1, -1),
-                                        new Coordinate(-1, 2),
-                                        new Coordinate(2, 2),
-                                        new Coordinate(2, -1),
-                                        new Coordinate(-1, -1)
-                                    })))
+                        CoveredBy = e.Point.CoveredBy(polygon)
                     }));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Covers(bool isAsync)
+        public virtual Task Covers(bool isAsync)
         {
-            await AssertQuery<PolygonEntity>(
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.5, 0.25));
+
+            return AssertQuery<PolygonEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, Covers = e.Polygon.Covers(new Point(0.5, 0.25)) }));
+                es => es.Select(e => new { e.Id, Covers = e.Polygon.Covers(point) }));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Crosses(bool isAsync)
         {
+            var lineString = Fixture.GeometryFactory.CreateLineString(
+                new[]
+                {
+                    new Coordinate(0.5, -0.5),
+                    new Coordinate(0.5, 0.5)
+                });
+
             return AssertQuery<LineStringEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Crosses = e.LineString.Crosses(
-                            new LineString(
-                                new[]
-                                {
-                                    new Coordinate(0.5, -0.5),
-                                    new Coordinate(0.5, 0.5)
-                                }))
+                        Crosses = e.LineString.Crosses(lineString)
                     }));
         }
 
@@ -210,22 +244,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Difference(bool isAsync)
         {
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 0),
+                    new Coordinate(1, 1),
+                    new Coordinate(0, 0)
+                });
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Difference = e.Polygon.Difference(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(0, 0),
-                                        new Coordinate(1, 0),
-                                        new Coordinate(1, 1),
-                                        new Coordinate(0, 0)
-                                    })))
+                        Difference = e.Polygon.Difference(polygon)
                     }),
                 elementAsserter: (e, a) =>
                 {
@@ -245,18 +279,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Disjoint(bool isAsync)
         {
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(1, 0));
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, Disjoint = e.Polygon.Disjoint(new Point(1, 0)) }));
+                es => es.Select(e => new { e.Id, Disjoint = e.Polygon.Disjoint(point) }));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distance(bool isAsync)
         {
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
+
             return AssertQuery<PointEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, Distance = e.Point.Distance(new Point(0, 1)) }));
+                es => es.Select(e => new { e.Id, Distance = e.Point.Distance(point) }),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.Distance, a.Distance);
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -284,9 +331,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task EqualsTopologically(bool isAsync)
         {
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 0));
+
             return AssertQuery<PointEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, EqualsTopologically = e.Point.EqualsTopologically(new Point(0, 0)) }));
+                es => es.Select(e => new { e.Id, EqualsTopologically = e.Point.EqualsTopologically(point) }));
         }
 
         [ConditionalTheory]
@@ -337,22 +386,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Intersection(bool isAsync)
         {
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 0),
+                    new Coordinate(1, 1),
+                    new Coordinate(0, 0)
+                });
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Intersection = e.Polygon.Intersection(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(0, 0),
-                                        new Coordinate(1, 0),
-                                        new Coordinate(1, 1),
-                                        new Coordinate(0, 0)
-                                    })))
+                        Intersection = e.Polygon.Intersection(polygon)
                     }),
                 elementAsserter: (e, a) =>
                 {
@@ -365,19 +414,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Intersects(bool isAsync)
         {
+            var lineString = Fixture.GeometryFactory.CreateLineString(
+                new[]
+                {
+                    new Coordinate(0.5, -0.5),
+                    new Coordinate(0.5, 0.5)
+                });
+
             return AssertQuery<LineStringEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Intersects = e.LineString.Intersects(
-                            new LineString(
-                                new[]
-                                {
-                                    new Coordinate(0.5, -0.5),
-                                    new Coordinate(0.5, 0.5)
-                                }))
+                        Intersects = e.LineString.Intersects(lineString)
                     }));
         }
 
@@ -440,7 +490,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Length(bool isAsync)
         {
-            return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.Length }));
+            return AssertQuery<LineStringEntity>(
+                isAsync,
+                es => es.Select(e => new { e.Id, e.LineString.Length }),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.Length, a.Length);
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -486,22 +547,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Overlaps(bool isAsync)
         {
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 0),
+                    new Coordinate(1, 1),
+                    new Coordinate(0, 0)
+                });
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Overlaps = e.Polygon.Overlaps(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(0, 0),
-                                        new Coordinate(1, 0),
-                                        new Coordinate(1, 1),
-                                        new Coordinate(0, 0)
-                                    })))
+                        Overlaps = e.Polygon.Overlaps(polygon)
                     }));
         }
 
@@ -523,31 +584,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Relate(bool isAsync)
         {
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 0),
+                    new Coordinate(1, 1),
+                    new Coordinate(0, 0)
+                });
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Relate = e.Polygon.Relate(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(0, 0),
-                                        new Coordinate(1, 0),
-                                        new Coordinate(1, 1),
-                                        new Coordinate(0, 0)
-                                    })),
-                            "212111212")
+                        Relate = e.Polygon.Relate(polygon, "212111212")
                     }));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Reverse(bool isAsync)
+        public virtual Task Reverse(bool isAsync)
         {
-            await AssertQuery<LineStringEntity>(
+            return AssertQuery<LineStringEntity>(
                 isAsync,
                 es => es.Select(e => new { e.Id, Reverse = e.LineString.Reverse() }));
         }
@@ -570,22 +630,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SymmetricDifference(bool isAsync)
         {
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 0),
+                    new Coordinate(1, 1),
+                    new Coordinate(0, 0)
+                });
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        SymmetricDifference = e.Polygon.SymmetricDifference(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(0, 0),
-                                        new Coordinate(1, 0),
-                                        new Coordinate(1, 1),
-                                        new Coordinate(0, 0)
-                                    })))
+                        SymmetricDifference = e.Polygon.SymmetricDifference(polygon)
                     }),
                 elementAsserter: (e, a) =>
                 {
@@ -629,22 +689,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Touches(bool isAsync)
         {
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(0, 1),
+                    new Coordinate(1, 0),
+                    new Coordinate(1, 1),
+                    new Coordinate(0, 1)
+                });
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Touches = e.Polygon.Touches(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(0, 1),
-                                        new Coordinate(1, 1),
-                                        new Coordinate(1, 0),
-                                        new Coordinate(0, 1)
-                                    })))
+                        Touches = e.Polygon.Touches(polygon)
                     }));
         }
 
@@ -652,22 +712,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union(bool isAsync)
         {
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 0),
+                    new Coordinate(1, 1),
+                    new Coordinate(0, 0)
+                });
+
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Union = e.Polygon.Union(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(0, 0),
-                                        new Coordinate(1, 0),
-                                        new Coordinate(1, 1),
-                                        new Coordinate(0, 0)
-                                    })))
+                        Union = e.Polygon.Union(polygon)
                     }),
                 elementAsserter: (e, a) =>
                 {
@@ -680,23 +740,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Within(bool isAsync)
         {
+            var polygon = Fixture.GeometryFactory.CreatePolygon(
+                new[]
+                {
+                    new Coordinate(-1, -1),
+                    new Coordinate(2, -1),
+                    new Coordinate(2, 2),
+                    new Coordinate(-1, 2),
+                    new Coordinate(-1, -1)
+                });
+
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
                     e => new
                     {
                         e.Id,
-                        Within = e.Point.Within(
-                            new Polygon(
-                                new LinearRing(
-                                    new[]
-                                    {
-                                        new Coordinate(-1, -1),
-                                        new Coordinate(-1, 2),
-                                        new Coordinate(2, 2),
-                                        new Coordinate(2, -1),
-                                        new Coordinate(-1, -1)
-                                    })))
+                        Within = e.Point.Within(polygon)
                     }));
         }
 
