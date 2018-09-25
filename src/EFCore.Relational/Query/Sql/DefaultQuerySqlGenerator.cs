@@ -1810,6 +1810,51 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
+        ///     Visits a case expression.
+        /// </summary>
+        /// <param name="caseExpression"> The case expression. </param>
+        /// <returns> An expression. </returns>
+        public virtual Expression VisitCase(CaseExpression caseExpression)
+        {
+            Check.NotNull(caseExpression, nameof(caseExpression));
+
+            _relationalCommandBuilder.Append("CASE");
+
+            if (caseExpression.Operand != null)
+            {
+                _relationalCommandBuilder.Append(" ");
+                Visit(caseExpression.Operand);
+            }
+
+            using (_relationalCommandBuilder.Indent())
+            {
+                foreach (var whenClause in caseExpression.WhenClauses)
+                {
+                    _relationalCommandBuilder
+                        .AppendLine()
+                        .Append("WHEN ");
+                    Visit(whenClause.Test);
+                    _relationalCommandBuilder.Append(" THEN ");
+                    Visit(whenClause.Result);
+                }
+
+                if (caseExpression.ElseResult != null)
+                {
+                    _relationalCommandBuilder
+                        .AppendLine()
+                        .Append("ELSE ");
+                    Visit(caseExpression.ElseResult);
+                }
+            }
+
+            _relationalCommandBuilder
+                .AppendLine()
+                .Append("END");
+
+            return caseExpression;
+        }
+
+        /// <summary>
         ///     Infers a type mapping from a column expression.
         /// </summary>
         /// <param name="expression"> The expression to infer a type mapping for. </param>

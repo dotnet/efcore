@@ -579,6 +579,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task OgcGeometryType(bool isAsync)
+        {
+            return AssertQuery<PointEntity>(isAsync, es => es.Select(e => new { e.Id, e.Point.OgcGeometryType }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Overlaps(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(

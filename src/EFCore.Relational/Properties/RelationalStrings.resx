@@ -483,4 +483,13 @@
   <data name="RelationalCloneNotImplemented" xml:space="preserve">
     <value>The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.</value>
   </data>
+  <data name="CaseElseResultTypeUnexpected" xml:space="preserve">
+    <value>The result type of '{elseResultType}' in the else clause is invalid. The expected type is '{resultType}'.</value>
+  </data>
+  <data name="CaseWhenClauseResultTypeUnexpected" xml:space="preserve">
+    <value>The result type of '{whenResultType}' in a when clause is invalid. The expected type is '{resultType}'.</value>
+  </data>
+  <data name="CaseWhenClauseTestTypeUnexpected" xml:space="preserve">
+    <value>The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.</value>
+  </data>
 </root>
