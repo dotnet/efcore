@@ -3,6 +3,9 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
@@ -99,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             "CSharpHelperTest.SomeEnum.Default")]
         public void Literal_works(object value, string expected)
         {
-            var literal = new CSharpHelper().UnknownLiteral(value);
+            var literal = new CSharpHelper(TypeMappingSource).UnknownLiteral(value);
             Assert.Equal(expected, literal);
         }
 
@@ -180,14 +183,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [Fact]
         public void Literal_works_when_StringArray()
         {
-            var literal = new CSharpHelper().Literal(new[] { "A", "B" });
+            var literal = new CSharpHelper(TypeMappingSource).Literal(new[] { "A", "B" });
             Assert.Equal("new[] { \"A\", \"B\" }", literal);
         }
 
         [Fact]
         public void Literal_works_when_ObjectArray()
         {
-            var literal = new CSharpHelper().Literal(new object[] { 'A', 1 });
+            var literal = new CSharpHelper(TypeMappingSource).Literal(new object[] { 'A', 1 });
             Assert.Equal("new object[] { 'A', 1 }", literal);
         }
 
@@ -200,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 { 'B', 2 }
             };
 
-            var result = new CSharpHelper().Literal(value);
+            var result = new CSharpHelper(TypeMappingSource).Literal(value);
 
             Assert.Equal(
                 "new object[,]" + EOL +
@@ -215,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void UnknownLiteral_throws_when_unknown()
         {
             var ex = Assert.Throws<InvalidOperationException>(
-                () => new CSharpHelper().UnknownLiteral(new object()));
+                () => new CSharpHelper(TypeMappingSource).UnknownLiteral(new object()));
             Assert.Equal(DesignStrings.UnknownLiteral(typeof(object)), ex.Message);
         }
 
@@ -232,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [InlineData(typeof(NestedGeneric<int>), "CSharpHelperTest.NestedGeneric<int>")]
         [InlineData(typeof(Nested.DoubleNested), "CSharpHelperTest.Nested.DoubleNested")]
         public void Reference_works(Type type, string expected)
-            => Assert.Equal(expected, new CSharpHelper().Reference(type));
+            => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).Reference(type));
 
         private static class Nested
         {
@@ -261,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [InlineData("$", "_")]
         public void Identifier_works(string input, string expected)
         {
-            Assert.Equal(expected, new CSharpHelper().Identifier(input));
+            Assert.Equal(expected, new CSharpHelper(TypeMappingSource).Identifier(input));
         }
 
         [Theory]
@@ -274,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [InlineData(new string[] { null }, "_")]
         public void Namespace_works(string[] input, string excepted)
         {
-            Assert.Equal(excepted, new CSharpHelper().Namespace(input));
+            Assert.Equal(excepted, new CSharpHelper(TypeMappingSource).Namespace(input));
         }
 
         [Fact]
@@ -282,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var method = new MethodCallCodeFragment("Test", true, 42);
 
-            var result = new CSharpHelper().Fragment(method);
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
             Assert.Equal(".Test(true, 42)", result);
         }
@@ -292,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var method = new MethodCallCodeFragment("Test", new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { "foo", "bar" });
 
-            var result = new CSharpHelper().Fragment(method);
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
             Assert.Equal(".Test(new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { \"foo\", \"bar\" })", result);
         }
@@ -302,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var method = new MethodCallCodeFragment("Test");
 
-            var result = new CSharpHelper().Fragment(method);
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
             Assert.Equal(".Test()", result);
         }
@@ -313,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var method = new MethodCallCodeFragment("Test")
                 .Chain("Test");
 
-            var result = new CSharpHelper().Fragment(method);
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
             Assert.Equal(".Test().Test()", result);
         }
@@ -325,10 +328,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 "Test",
                 new NestedClosureCodeFragment("x", new MethodCallCodeFragment("Test")));
 
-            var result = new CSharpHelper().Fragment(method);
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
             Assert.Equal(".Test(x => x.Test())", result);
         }
+
+        private IRelationalTypeMappingSource TypeMappingSource { get; }
+            = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
     }
 
     internal class Generic<T>

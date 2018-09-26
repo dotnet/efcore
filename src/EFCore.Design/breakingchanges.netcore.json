@@ -17,10 +17,5 @@
     "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder",
     "MemberId": "public virtual Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration ScaffoldMigration(System.String migrationName, System.String rootNamespace, System.String subNamespace = null)",
     "Kind": "Removal"
-  },
-  {
-    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies",
-    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Design.ICSharpHelper csharpHelper)",
-    "Kind": "Removal"
   }
 ]

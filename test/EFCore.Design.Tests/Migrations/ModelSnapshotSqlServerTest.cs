@@ -23,6 +23,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
+using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Xunit;
 
@@ -3191,19 +3192,23 @@ namespace RootNamespace
             CreateModelValidator().Validate(modelBuilder.Model);
             var model = modelBuilder.Model;
 
-            var codeHelper = new CSharpHelper();
+            var codeHelper = new CSharpHelper(
+                new SqlServerTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    new RelationalTypeMappingSourceDependencies(
+                        new IRelationalTypeMappingSourcePlugin[] { new SqlServerNTSTypeMappingSourcePlugin(NtsGeometryServices.Instance), })));
+
+
             var generator = new CSharpMigrationsGenerator(
                 new MigrationsCodeGeneratorDependencies(),
                 new CSharpMigrationsGeneratorDependencies(
                     codeHelper,
                     new CSharpMigrationOperationGenerator(
-                        new CSharpMigrationOperationGeneratorDependencies(codeHelper)),
+                        new CSharpMigrationOperationGeneratorDependencies(
+                            codeHelper)),
                     new CSharpSnapshotGenerator(
                         new CSharpSnapshotGeneratorDependencies(
-                            codeHelper,
-                            new SqlServerTypeMappingSource(
-                                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())))));
+                            codeHelper))));
 
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
 

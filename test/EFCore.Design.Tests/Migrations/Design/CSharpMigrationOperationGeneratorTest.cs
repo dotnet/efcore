@@ -4,10 +4,15 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -21,7 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void Generate_separates_operations_by_a_blank_line()
         {
             var generator = new CSharpMigrationOperationGenerator(
-                new CSharpMigrationOperationGeneratorDependencies(new CSharpHelper()));
+                new CSharpMigrationOperationGeneratorDependencies(
+                    new CSharpHelper(new SqlServerTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
+
             var builder = new IndentedStringBuilder();
 
             generator.Generate(
@@ -2035,6 +2044,61 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 o => Assert.Equal("-- I <3 DDL", o.Sql));
         }
 
+        private static readonly LineString _lineString1 = new LineString(
+            new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2) })
+        {
+            SRID = 4326
+        };
+
+        private static readonly LineString _lineString2 = new LineString(
+            new[] { new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2) })
+        {
+            SRID = 4326
+        };
+
+        private static readonly MultiPoint _multiPoint = new MultiPoint(
+            new IPoint[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
+        {
+            SRID = 4326
+        };
+
+        private static readonly Polygon _polygon1 = new Polygon(
+            new LinearRing(
+                new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }))
+        {
+            SRID = 4326
+        };
+
+        private static readonly Polygon _polygon2 = new Polygon(
+            new LinearRing(
+                new[] { new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2) }))
+        {
+            SRID = 4326
+        };
+
+        private static readonly Point _point1 = new Point(1.1, 2.2, 3.3)
+        {
+            SRID = 4326
+        };
+
+        private static readonly MultiLineString _multiLineString = new MultiLineString(
+            new ILineString[] { _lineString1, _lineString2, })
+        {
+            SRID = 4326
+        };
+
+        private static readonly MultiPolygon _multiPolygon = new MultiPolygon(
+            new IPolygon[] { _polygon2, _polygon1, })
+        {
+            SRID = 4326
+        };
+
+        private static readonly GeometryCollection _geometryCollection = new GeometryCollection(
+            new IGeometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })
+        {
+            SRID = 4326
+        };
+
         [Fact]
         public void InsertDataOperation_all_args()
         {
@@ -2043,36 +2107,49 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Schema = "dbo",
                     Table = "People",
-                    Columns = new[] { "Id", "Full Name" },
+                    Columns = new[] { "Id", "Full Name", "Geometry" },
                     Values = new object[,]
                     {
-                        { 0, null },
-                        { 1, "Daenerys Targaryen" },
-                        { 2, "John Snow" },
-                        { 3, "Arya Stark" },
-                        { 4, "Harry Strickland" }
+                        { 0, null, null },
+                        { 1, "Daenerys Targaryen", _point1 },
+                        { 2, "John Snow", _polygon1 },
+                        { 3, "Arya Stark", _lineString1 },
+                        { 4, "Harry Strickland", _multiPoint },
+                        { 5, "The Imp", _multiPolygon },
+                        { 6, "The Kingslayer", _multiLineString },
+                        { 7, "Aemon Targaryen", _geometryCollection },
                     }
                 },
                 "mb.InsertData(" + _eol +
                 "    schema: \"dbo\"," + _eol +
                 "    table: \"People\"," + _eol +
-                "    columns: new[] { \"Id\", \"Full Name\" }," + _eol +
+                "    columns: new[] { \"Id\", \"Full Name\", \"Geometry\" }," + _eol +
                 "    values: new object[,]" + _eol +
                 "    {" + _eol +
-                "        { 0, null }," + _eol +
-                "        { 1, \"Daenerys Targaryen\" }," + _eol +
-                "        { 2, \"John Snow\" }," + _eol +
-                "        { 3, \"Arya Stark\" }," + _eol +
-                "        { 4, \"Harry Strickland\" }" + _eol +
+                "        { 0, null, null }," + _eol +
+                "        { 1, \"Daenerys Targaryen\", (Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\") }," + _eol +
+                "        { 2, \"John Snow\", (Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") }," + _eol +
+                "        { 3, \"Arya Stark\", (LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\") }," + _eol +
+                "        { 4, \"Harry Strickland\", (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\") }," + _eol +
+                "        { 5, \"The Imp\", (MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))\") }," + _eol +
+                "        { 6, \"The Kingslayer\", (MultiLineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))\") }," + _eol +
+                "        { 7, \"Aemon Targaryen\", (GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))\") }" + _eol +
                 "    });",
                 o =>
                 {
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.Columns.Length);
-                    Assert.Equal(5, o.Values.GetLength(0));
-                    Assert.Equal(2, o.Values.GetLength(1));
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(8, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("John Snow", o.Values[2, 1]);
+                    Assert.Equal(_point1, o.Values[1, 2]);
+                    Assert.Equal(_polygon1, o.Values[2, 2]);
+                    Assert.Equal(_lineString1, o.Values[3, 2]);
+                    Assert.Equal(_multiPoint, o.Values[4, 2]);
+                    Assert.Equal(_multiPolygon, o.Values[5, 2]);
+                    Assert.Equal(_multiLineString, o.Values[6, 2]);
+                    Assert.Equal(_geometryCollection, o.Values[7, 2]);
                 });
         }
 
@@ -2083,21 +2160,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new InsertDataOperation
                 {
                     Table = "People",
-                    Columns = new[] { "Full Name" },
+                    Columns = new[] { "Geometry" },
                     Values = new object[,]
-                        { { "John Snow" } }
+                        { { _point1 } }
                 },
                 "mb.InsertData(" + _eol +
                 "    table: \"People\"," + _eol +
-                "    column: \"Full Name\"," + _eol +
-                "    value: \"John Snow\");",
+                "    column: \"Geometry\"," + _eol +
+                "    value: (Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\"));",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
                     Assert.Equal(1, o.Columns.Length);
                     Assert.Equal(1, o.Values.GetLength(0));
                     Assert.Equal(1, o.Values.GetLength(1));
-                    Assert.Equal("John Snow", o.Values[0, 0]);
+                    Assert.Equal(_point1, o.Values[0, 0]);
                 });
         }
 
@@ -2108,21 +2185,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new InsertDataOperation
                 {
                     Table = "People",
-                    Columns = new[] { "First Name", "Last Name" },
+                    Columns = new[] { "First Name", "Last Name", "Geometry" },
                     Values = new object[,]
-                        { { "John", "Snow" } }
+                        { { "John", "Snow", _polygon1 } }
                 },
                 "mb.InsertData(" + _eol +
                 "    table: \"People\"," + _eol +
-                "    columns: new[] { \"First Name\", \"Last Name\" }," + _eol +
-                "    values: new object[] { \"John\", \"Snow\" });",
+                "    columns: new[] { \"First Name\", \"Last Name\", \"Geometry\" }," + _eol +
+                "    values: new object[] { \"John\", \"Snow\", (Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.Columns.Length);
+                    Assert.Equal(3, o.Columns.Length);
                     Assert.Equal(1, o.Values.GetLength(0));
-                    Assert.Equal(2, o.Values.GetLength(1));
+                    Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Snow", o.Values[0, 1]);
+                    Assert.Equal(_polygon1, o.Values[0, 2]);
                 });
         }
 
@@ -2133,20 +2211,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new InsertDataOperation
                 {
                     Table = "People",
-                    Columns = new[] { "Full Name" },
+                    Columns = new[] { "Geometries" },
                     Values = new object[,]
                     {
-                        { "John Snow" },
-                        { "Daenerys Targaryen" }
+                        { _lineString1 },
+                        { _multiPoint }
                     }
                 },
                 "mb.InsertData(" + _eol +
                 "    table: \"People\"," + _eol +
-                "    column: \"Full Name\"," + _eol +
+                "    column: \"Geometries\"," + _eol +
                 "    values: new object[]" + _eol +
                 "    {" + _eol +
-                "        \"John Snow\"," + _eol +
-                "        \"Daenerys Targaryen\"" + _eol +
+                "        (LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\")," + _eol +
+                "        (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\")" + _eol +
                 "    });",
                 o =>
                 {
@@ -2154,7 +2232,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Columns.Length);
                     Assert.Equal(2, o.Values.GetLength(0));
                     Assert.Equal(1, o.Values.GetLength(1));
-                    Assert.Equal("John Snow", o.Values[0, 0]);
+                    Assert.Equal(_lineString1, o.Values[0, 0]);
+                    Assert.Equal(_multiPoint, o.Values[1, 0]);
                 });
         }
 
@@ -2659,7 +2738,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             where T : MigrationOperation
         {
             var generator = new CSharpMigrationOperationGenerator(
-                new CSharpMigrationOperationGeneratorDependencies(new CSharpHelper()));
+                new CSharpMigrationOperationGeneratorDependencies(
+                    new CSharpHelper(
+                        new SqlServerTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            new RelationalTypeMappingSourceDependencies(
+                                new IRelationalTypeMappingSourcePlugin[] { new SqlServerNTSTypeMappingSourcePlugin(NtsGeometryServices.Instance), })))));
 
             var builder = new IndentedStringBuilder();
             generator.Generate("mb", new[] { operation }, builder);
@@ -2671,12 +2755,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 References =
                 {
-                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+                    BuildReference.ByName("GeoAPI"),
+                    BuildReference.ByName("NetTopologySuite"),
+                    BuildReference.ByName("System.Runtime.Extensions"),
                 },
                 Sources =
                 {
                     @"
                     using Microsoft.EntityFrameworkCore.Migrations;
+                    using NetTopologySuite.Geometries;
 
                     public static class OperationsFactory
                     {

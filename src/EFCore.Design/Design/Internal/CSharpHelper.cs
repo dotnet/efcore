@@ -8,7 +8,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -19,6 +21,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class CSharpHelper : ICSharpHelper
     {
+        private readonly IRelationalTypeMappingSource _relationalTypeMappingSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public CSharpHelper([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
+        {
+            _relationalTypeMappingSource = relationalTypeMappingSource;
+        }
+
         private static readonly IReadOnlyDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
         {
             { typeof(bool), "bool" },
@@ -584,7 +597,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             return builder.ToString();
         }
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -662,9 +674,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return "null";
             }
 
-            var type = value.GetType().UnwrapNullableType();
+            var literalType = value.GetType();
 
-            if (_literalFuncs.TryGetValue(type, out var literalFunc))
+            if (_literalFuncs.TryGetValue(literalType.UnwrapNullableType(), out var literalFunc))
             {
                 return literalFunc(this, value);
             }
@@ -679,7 +691,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return Array(array);
             }
 
-            throw new InvalidOperationException(DesignStrings.UnknownLiteral(value.GetType()));
+            var literal = _relationalTypeMappingSource.FindMapping(literalType)?.FindCodeLiteral(value, "C#");
+            if (literal != null)
+            {
+                return literal;
+            }
+
+            throw new InvalidOperationException(DesignStrings.UnknownLiteral(literalType));
         }
 
         /// <summary>

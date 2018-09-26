@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -45,16 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     </para>
         /// </summary>
         /// <param name="csharpHelper"> The C# helper. </param>
-        /// <param name="typeMappingSource"> The type mapper. </param>
         public CSharpSnapshotGeneratorDependencies(
-            [NotNull] ICSharpHelper csharpHelper,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            [NotNull] ICSharpHelper csharpHelper)
         {
             Check.NotNull(csharpHelper, nameof(csharpHelper));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             CSharpHelper = csharpHelper;
-            TypeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -63,26 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public ICSharpHelper CSharpHelper { get; }
 
         /// <summary>
-        ///     The type mapper.
-        /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
-
-        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="csharpHelper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CSharpSnapshotGeneratorDependencies With(
             [NotNull] ICSharpHelper csharpHelper)
-            => new CSharpSnapshotGeneratorDependencies(csharpHelper, TypeMappingSource);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpSnapshotGeneratorDependencies With(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new CSharpSnapshotGeneratorDependencies(CSharpHelper, typeMappingSource);
+            => new CSharpSnapshotGeneratorDependencies(csharpHelper);
     }
 }
