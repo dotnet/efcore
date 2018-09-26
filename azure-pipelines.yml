@@ -4,11 +4,6 @@ variables:
   - name: _TeamName
     value: AspNetCore
 
-resources:
-  containers:
-    - container: LinuxContainer
-      image: microsoft/dotnet-buildtools-prereqs:ubuntu-14.04-cross-0cd4667-20170319080304
-
 trigger:
   - master
   - release/*
@@ -62,12 +57,15 @@ jobs:
             ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
               name: Hosted macOS
           steps:
+            - bash: brew install libspatialite
+              displayName: Install SpatiaLite
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
               name: Build
 
         - job: Linux
           pool: Hosted Ubuntu 1604
-          container: LinuxContainer
           steps:
+            - bash: sudo apt-get install -y libsqlite3-mod-spatialite
+              displayName: Install SpatiaLite
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
               name: Build
