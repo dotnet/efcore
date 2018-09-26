@@ -13,3 +13,16 @@ resources:
 
 phases:
 - template: .vsts-pipelines/templates/project-ci.yml@buildtools
+  parameters:
+    agentOs: macOS
+    beforeBuild:
+    - bash: brew install libspatialite
+      displayName: Install SpatiaLite
+
+phases:
+- template: .vsts-pipelines/templates/project-ci.yml@buildtools
+  parameters:
+    agentOs: Linux
+    beforeBuild:
+    - bash: sudo apt-get install -y libsqlite3-mod-spatialite
+      displayName: Install SpatiaLite
