@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
 #if !Test21
-    public class SpatialQuerySqlServerTest : SpatialQueryTestBase<SpatialQuerySqlServerFixture>
+    public class SpatialQuerySqlServerGeometryTest : SpatialQueryTestBase<SpatialQuerySqlServerGeometryFixture>
     {
-        public SpatialQuerySqlServerTest(SpatialQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public SpatialQuerySqlServerGeometryTest(SpatialQuerySqlServerGeometryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -75,7 +76,7 @@ FROM [PolygonEntity] AS [e]");
             await base.Contains(isAsync);
 
             AssertSql(
-                @"@__point_0='0x00000000010C000000000000E03F000000000000D03F' (Size = 22) (DbType = Binary)
+                @"@__point_0='0x00000000010C000000000000D03F000000000000D03F' (Size = 22) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STContains(@__point_0) AS [Contains]
 FROM [PolygonEntity] AS [e]");
@@ -108,6 +109,7 @@ FROM [MultiLineStringEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task Crosses(bool isAsync)
         {
             await base.Crosses(isAsync);
@@ -144,12 +146,13 @@ FROM [PointEntity] AS [e]");
             await base.Disjoint(isAsync);
 
             AssertSql(
-                @"@__point_0='0x00000000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+                @"@__point_0='0x00000000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Polygon].STDisjoint(@__point_0) AS [Disjoint]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task Distance(bool isAsync)
         {
             await base.Distance(isAsync);
@@ -161,6 +164,7 @@ SELECT [e].[Id], [e].[Point].STDistance(@__point_0) AS [Distance]
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task EndPoint(bool isAsync)
         {
             await base.EndPoint(isAsync);
@@ -190,6 +194,7 @@ SELECT [e].[Id], [e].[Point].STEquals(@__point_0) AS [EqualsTopologically]
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task ExteriorRing(bool isAsync)
         {
             await base.ExteriorRing(isAsync);
@@ -208,6 +213,7 @@ FROM [PolygonEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task GetGeometryN(bool isAsync)
         {
             await base.GetGeometryN(isAsync);
@@ -247,6 +253,7 @@ SELECT [e].[Id], [e].[Polygon].STIntersection(@__polygon_0) AS [Intersection]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task Intersects(bool isAsync)
         {
             await base.Intersects(isAsync);
@@ -312,6 +319,7 @@ FROM [LineStringEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Item(bool isAsync)
         {
             await base.Item(isAsync);
@@ -444,6 +452,7 @@ FROM [PointEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task Touches(bool isAsync)
         {
             await base.Touches(isAsync);
