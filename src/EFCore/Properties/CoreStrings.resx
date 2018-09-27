@@ -319,7 +319,7 @@
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
-    <value>An exception occurred in the database while iterating the results of a query for context type '{contextType}'.{newline}{error}</value>
+    <value>An exception occurred while iterating over the results of a query for context type '{contextType}'.{newline}{error}</value>
     <comment>Error CoreEventId.QueryIterationFailed Type string Exception</comment>
   </data>
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
