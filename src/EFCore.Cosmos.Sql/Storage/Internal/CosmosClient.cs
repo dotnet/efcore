@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
                     var hasNext = _underlyingEnumerator.MoveNext();
                     if (hasNext)
                     {
-                        Current = _underlyingEnumerator.Current.First.First.ToObject<JObject>();
+                        Current = (JObject)_underlyingEnumerator.Current.First.First;
                         return true;
                     }
 
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
                     var hasNext = _underlyingEnumerator.MoveNext();
                     if (hasNext)
                     {
-                        Current = _underlyingEnumerator.Current.First.First.ToObject<JObject>();
+                        Current = (JObject)_underlyingEnumerator.Current.First.First;
                         return true;
                     }
 

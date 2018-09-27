@@ -7,7 +7,6 @@
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
     <InternalAspNetCoreSdkPackageVersion>2.2.0-preview1-20180918.1</InternalAspNetCoreSdkPackageVersion>
     <InternalWebHostBuilderFactorySourcesPackageVersion>2.2.0-preview3-35301</InternalWebHostBuilderFactorySourcesPackageVersion>
-    <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>

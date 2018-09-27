@@ -3,6 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
@@ -30,8 +31,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal
             var document = new JObject();
             foreach (var property in _entityType.GetProperties())
             {
-                var value = entry.GetCurrentValue(property);
-                document[property.Name] = value != null ? JToken.FromObject(value) : null;
+                if (property.Name != StoreKeyConvention.JObjectPropertyName)
+                {
+                    var value = entry.GetCurrentValue(property);
+                    document[property.Name] = value != null ? JToken.FromObject(value) : null;
+                }
+            }
+
+            return document;
+        }
+
+        private JObject UpdateDocument(JObject document, IUpdateEntry entry)
+        {
+            foreach (var property in _entityType.GetProperties())
+            {
+                if (property.Name != StoreKeyConvention.JObjectPropertyName
+                    && entry.IsModified(property))
+                {
+                    var value = entry.GetCurrentValue(property);
+                    document[property.Name] = value != null ? JToken.FromObject(value) : null;
+                }
             }
 
             return document;
@@ -39,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal
 
         public bool Save(IUpdateEntry entry)
         {
-            var id = entry.GetCurrentValue<string>(_entityType.FindProperty("id"));
+            var id = entry.GetCurrentValue<string>(_entityType.FindProperty(StoreKeyConvention.IdPropertyName));
 
             switch (entry.EntityState)
             {
@@ -47,11 +66,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal
                     return _cosmosClient.CreateDocument(_collectionId, CreateDocument(entry));
 
                 case EntityState.Modified:
-                    var document = CreateDocument(entry);
+                    var jObjectProperty = _entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+                    var document = jObjectProperty != null ? (JObject)entry.GetCurrentValue(jObjectProperty) : null;
+                    if (document != null)
+                    {
+                        UpdateDocument(document, entry);
+                    }
+                    else
+                    {
+                        document = CreateDocument(entry);
 
-                    // Set Discriminator Property for updates
-                    document[_entityType.CosmosSql().DiscriminatorProperty.Name] =
-                        JToken.FromObject(_entityType.CosmosSql().DiscriminatorValue);
+                        // Set Discriminator Property for updates
+                        document[_entityType.CosmosSql().DiscriminatorProperty.Name] =
+                            JToken.FromObject(_entityType.CosmosSql().DiscriminatorValue);
+                    }
 
                     return _cosmosClient.ReplaceDocument(_collectionId, id, document);
 
@@ -64,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal
 
         public Task<bool> SaveAsync(IUpdateEntry entry, CancellationToken cancellationToken = default)
         {
-            var id = entry.GetCurrentValue<string>(_entityType.FindProperty("id"));
+            var id = entry.GetCurrentValue<string>(_entityType.FindProperty(StoreKeyConvention.IdPropertyName));
 
             switch (entry.EntityState)
             {
@@ -72,11 +100,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal
                     return _cosmosClient.CreateDocumentAsync(_collectionId, CreateDocument(entry), cancellationToken);
 
                 case EntityState.Modified:
-                    var document = CreateDocument(entry);
+                    var jObjectProperty = _entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+                    var document = jObjectProperty != null ? (JObject)entry.GetCurrentValue(jObjectProperty) : null;
+                    if (document != null)
+                    {
+                        UpdateDocument(document, entry);
+                    }
+                    else
+                    {
+                        document = CreateDocument(entry);
 
-                    // Set Discriminator Property for updates
-                    document[_entityType.CosmosSql().DiscriminatorProperty.Name] =
-                        JToken.FromObject(_entityType.CosmosSql().DiscriminatorValue);
+                        // Set Discriminator Property for updates
+                        document[_entityType.CosmosSql().DiscriminatorProperty.Name] =
+                            JToken.FromObject(_entityType.CosmosSql().DiscriminatorValue);
+                    }
 
                     return _cosmosClient.ReplaceDocumentAsync(_collectionId, id, document, cancellationToken);
 
