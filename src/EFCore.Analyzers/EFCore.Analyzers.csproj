@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <!-- Code sign the analyzer assembly -->
-    <SignedPackageFile Include="analyzers/dotnet/cs/$(TargetFileName)" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="$(TargetPath)" PackagePath="analyzers/dotnet/cs/$(TargetFileName)" Certificate="$(AssemblySigningCertName)" />
   </ItemGroup>
 
   <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">

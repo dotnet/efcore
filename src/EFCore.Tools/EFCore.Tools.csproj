@@ -30,17 +30,17 @@ Update-Database
 
   <ItemGroup>
     <!-- PowerShell files should be code signed -->
-    <SignedPackageFile Include="tools/EntityFrameworkCore.PowerShell2.psd1" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/EntityFrameworkCore.PowerShell2.psm1" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/EntityFrameworkCore.psd1" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/EntityFrameworkCore.psm1" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/init.ps1" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/install.ps1" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="$(TargetDir)EntityFrameworkCore.PowerShell2.psd1" PackagePath="tools/EntityFrameworkCore.PowerShell2.psd1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="$(TargetDir)EntityFrameworkCore.psd1" PackagePath="tools/EntityFrameworkCore.psd1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="tools/EntityFrameworkCore.PowerShell2.psm1" PackagePath="tools/EntityFrameworkCore.PowerShell2.psm1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="tools/EntityFrameworkCore.psm1" PackagePath="tools/EntityFrameworkCore.psm1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="tools/init.ps1" PackagePath="tools/init.ps1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="tools/install.ps1" PackagePath="tools/install.ps1" Certificate="$(PowerShellSigningCertName)" />
 
     <!-- Additional assemblies to be code signed -->
-    <SignedPackageFile Include="tools/net461/any/ef.exe" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/net461/win-x86/ef.exe" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="tools/netcoreapp2.0/any/ef.dll" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="../ef/bin/$(Configuration)/net461/ef.exe" PackagePath="tools/net461/any/ef.exe" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="../ef/bin/x86/$(Configuration)/net461/ef.exe" PackagePath="tools/net461/win-x86/ef.exe" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="../ef/bin/$(Configuration)/netcoreapp2.0/ef.dll" PackagePath="tools/netcoreapp2.0/any/ef.dll" Certificate="$(AssemblySigningCertName)" />
   </ItemGroup>
 
   <ItemGroup>
