@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -38,12 +40,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
                 return null;
             }
 
+            var concreteEntityTypes
+                = entityType.GetConcreteTypesInHierarchy().ToList();
+
             var discriminatorProperty = entityType.CosmosSql().DiscriminatorProperty;
 
-            return MakeBinary(
-                           ExpressionType.Equal,
+            var discriminatorPredicate = Equal(
                            new KeyAccessExpression(discriminatorProperty, FromExpression),
-                           Constant(entityType.CosmosSql().DiscriminatorValue, discriminatorProperty.ClrType));
+                           Constant(concreteEntityTypes[0].CosmosSql().DiscriminatorValue, discriminatorProperty.ClrType));
+
+            if (concreteEntityTypes.Count > 1)
+            {
+                discriminatorPredicate
+                    = concreteEntityTypes
+                        .Skip(1)
+                        .Select(concreteEntityType
+                            => Constant(concreteEntityType.CosmosSql().DiscriminatorValue, discriminatorProperty.ClrType))
+                        .Aggregate(
+                            discriminatorPredicate, (current, discriminatorValue) =>
+                                OrElse(
+                                    Equal(new KeyAccessExpression(discriminatorProperty, FromExpression), discriminatorValue),
+                                    current));
+            }
+
+            return discriminatorPredicate;
         }
 
         public Expression BindPropertyPath(

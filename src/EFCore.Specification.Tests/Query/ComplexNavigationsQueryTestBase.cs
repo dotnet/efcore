@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Simple_owned_level1(bool isAsync)
+        public virtual Task Simple_level1_include(bool isAsync)
         {
             return AssertQuery<Level1>(
                 isAsync,
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Simple_owned_level1_convention(bool isAsync)
+        public virtual Task Simple_level1(bool isAsync)
         {
             return AssertQuery<Level1>(
                 isAsync,
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Simple_owned_level1_level2(bool isAsync)
+        public virtual Task Simple_level1_level2_include(bool isAsync)
         {
             return AssertQuery<Level1>(
                 isAsync,
@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Simple_owned_level1_level2_GroupBy_Count(bool isAsync)
+        public virtual Task Simple_level1_level2_GroupBy_Count(bool isAsync)
         {
             return AssertQueryScalar<Level1>(
                 isAsync,
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Simple_owned_level1_level2_GroupBy_Having_Count(bool isAsync)
+        public virtual Task Simple_level1_level2_GroupBy_Having_Count(bool isAsync)
         {
             return AssertQueryScalar<Level1>(
                 isAsync,
@@ -484,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Simple_owned_level1_level2_level3(bool isAsync)
+        public virtual Task Simple_level1_level2_level3_include(bool isAsync)
         {
             return AssertQuery<Level1>(
                 isAsync,

@@ -457,10 +457,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         new
                                         {
                                             OwnedAddressBranchId = 2,
+                                            PlanetId = 1,
                                             Name = "Canada"
                                         }, new
                                         {
                                             OwnedAddressBranchId = 3,
+                                            PlanetId = 1,
                                             Name = "Canada"
                                         });
                                 });
@@ -487,10 +489,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 ab.OwnsOne(a => a.Country, cb =>
                                 {
+                                    cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId).OnDelete(DeleteBehavior.Restrict);
+
                                     cb.HasData(
                                     new
                                     {
                                         OwnedAddressLeafAId = 3,
+                                        PlanetId = 1,
                                         Name = "Mexico"
                                     });
                                 });
@@ -517,10 +522,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 ab.OwnsOne(a => a.Country, cb =>
                                 {
+                                    cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId).OnDelete(DeleteBehavior.Restrict);
+
                                     cb.HasData(
                                     new
                                     {
                                         OwnedAddressLeafBId = 4,
+                                        PlanetId = 1,
                                         Name = "Panama"
                                     });
                                 });
@@ -562,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public string Name { get; set; }
 
-            public int? PlanetId { get; set; }
+            public int PlanetId { get; set; }
             public Planet Planet { get; set; }
         }
 

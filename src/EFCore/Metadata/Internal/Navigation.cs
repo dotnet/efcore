@@ -223,10 +223,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         ? null
                         : new ClrCollectionAccessorFactory().Create(n));
 
-        IForeignKey INavigation.ForeignKey => ForeignKey;
-        IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;
-        IEntityType INavigation.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableNavigation.DeclaringEntityType => DeclaringEntityType;
+        IForeignKey INavigation.ForeignKey
+        {
+            [DebuggerStepThrough]
+            get => ForeignKey;
+        }
+
+        IMutableForeignKey IMutableNavigation.ForeignKey
+        {
+            [DebuggerStepThrough]
+            get => ForeignKey;
+        }
+
+        IEntityType INavigation.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
+
+        IMutableEntityType IMutableNavigation.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

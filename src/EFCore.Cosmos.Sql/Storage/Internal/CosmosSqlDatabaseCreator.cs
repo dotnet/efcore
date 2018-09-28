@@ -2,31 +2,52 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Update.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
 {
     public class CosmosSqlDatabaseCreator : IDatabaseCreator
     {
         private readonly CosmosClient _cosmosClient;
-        private readonly IModel _model;
+        private readonly StateManagerDependencies _stateManagerDependencies;
 
-        public CosmosSqlDatabaseCreator(CosmosClient cosmosClient, IModel model)
+        public CosmosSqlDatabaseCreator(
+            CosmosClient cosmosClient,
+            StateManagerDependencies stateManagerDependencies)
         {
             _cosmosClient = cosmosClient;
-            _model = model;
+            _stateManagerDependencies = stateManagerDependencies;
         }
 
         public bool EnsureCreated()
         {
             var created = _cosmosClient.CreateDatabaseIfNotExists();
-            foreach (var collection in _model.GetEntityTypes().Select(et => et.CosmosSql().CollectionName).Distinct())
+            foreach (var collection in _stateManagerDependencies.Model.GetEntityTypes().Select(et => et.CosmosSql().CollectionName).Distinct())
             {
                 created |= _cosmosClient.CreateDocumentCollectionIfNotExists(collection);
+            }
+
+            if (created)
+            {
+                var stateManager = new StateManager(_stateManagerDependencies);
+                foreach (var entityType in _stateManagerDependencies.Model.GetEntityTypes())
+                {
+                    foreach (var targetSeed in entityType.GetData())
+                    {
+                        var entry = stateManager.CreateEntry(targetSeed, entityType);
+                        entry.SetEntityState(EntityState.Added);
+                    }
+                }
+
+                stateManager.SaveChanges(acceptAllChangesOnSuccess: false);
             }
 
             return created;
@@ -35,9 +56,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal
         public async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
             var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken);
-            foreach (var collection in _model.GetEntityTypes().Select(et => et.CosmosSql().CollectionName).Distinct())
+            foreach (var collection in _stateManagerDependencies.Model.GetEntityTypes().Select(et => et.CosmosSql().CollectionName).Distinct())
             {
                 created |= await _cosmosClient.CreateDocumentCollectionIfNotExistsAsync(collection, cancellationToken);
+            }
+
+            if (created)
+            {
+                var stateManager = new StateManager(_stateManagerDependencies);
+                foreach (var entityType in _stateManagerDependencies.Model.GetEntityTypes())
+                {
+                    foreach (var targetSeed in entityType.GetData())
+                    {
+                        var entry = stateManager.CreateEntry(targetSeed, entityType);
+                        entry.SetEntityState(EntityState.Added);
+                    }
+                }
+
+                await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess: false);
             }
 
             return created;
