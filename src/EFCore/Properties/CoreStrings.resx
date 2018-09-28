@@ -130,6 +130,9 @@
   <data name="StillUsingTypeMapper" xml:space="preserve">
     <value>The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.</value>
   </data>
+  <data name="LiteralGenerationNotSupported" xml:space="preserve">
+    <value>The type mapping for '{type}' has not implemented code literal generation.</value>
+  </data>
   <data name="InvalidPropertiesExpression" xml:space="preserve">
     <value>The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
   </data>

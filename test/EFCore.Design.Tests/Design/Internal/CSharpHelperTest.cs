@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -333,10 +335,297 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(".Test(x => x.Test())", result);
         }
 
-        private IRelationalTypeMappingSource TypeMappingSource { get; }
-            = new SqlServerTypeMappingSource(
+        [Fact]
+        public void Really_unknown_literal_with_no_mapping_support()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(null);
+
+            Assert.Equal(
+                CoreStrings.LiteralGenerationNotSupported(nameof(SimpleTestType)),
+                Assert.Throws<NotSupportedException>(
+                    () => new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType())).Message);
+        }
+
+        [Fact]
+        public void Literal_with_parameterless_constructor()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.New(typeof(SimpleTestType)));
+
+            Assert.Equal(
+                "new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType()",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
+        }
+
+        [Fact]
+        public void Literal_with_one_parameter_constructor()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.New(
+                    typeof(SimpleTestType).GetConstructor(new[] { typeof(string) }),
+                    Expression.Constant(v.Arg1, typeof(string))));
+
+            Assert.Equal(
+                "new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType(\"Jerry\")",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry")));
+        }
+
+        [Fact]
+        public void Literal_with_two_parameter_constructor()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.New(
+                    typeof(SimpleTestType).GetConstructor(new[] { typeof(string), typeof(int?) }),
+                    Expression.Constant(v.Arg1, typeof(string)),
+                    Expression.Constant(v.Arg2, typeof(int?))));
+
+            Assert.Equal(
+                "new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType(\"Jerry\", 77)",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
+        }
+
+        [Fact]
+        public void Literal_with_parameterless_static_factory()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Call(
+                    typeof(SimpleTestType).GetMethod(
+                        nameof(SimpleTestType.Create),
+                        new Type[0])));
+
+            Assert.Equal(
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.Create()",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
+        }
+
+        [Fact]
+        public void Literal_with_one_parameter_static_factory()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Call(
+                    typeof(SimpleTestType).GetMethod(
+                        nameof(SimpleTestType.Create),
+                        new[] { typeof(string) }),
+                    Expression.Constant(v.Arg1, typeof(string))));
+
+            Assert.Equal(
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.Create(\"Jerry\")",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry")));
+        }
+
+        [Fact]
+        public void Literal_with_two_parameter_static_factory()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Call(
+                    typeof(SimpleTestType).GetMethod(
+                        nameof(SimpleTestType.Create),
+                        new[] { typeof(string), typeof(int?) }),
+                    Expression.Constant(v.Arg1, typeof(string)),
+                    Expression.Constant(v.Arg2, typeof(int?))));
+
+            Assert.Equal(
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.Create(\"Jerry\", 77)",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
+        }
+
+        [Fact]
+        public void Literal_with_parameterless_instance_factory()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Call(
+                    Expression.New(typeof(SimpleTestTypeFactory)),
+                    typeof(SimpleTestTypeFactory).GetMethod(
+                        nameof(SimpleTestType.Create),
+                        new Type[0])));
+
+            Assert.Equal(
+                "new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory().Create()",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
+        }
+
+        [Fact]
+        public void Literal_with_one_parameter_instance_factory()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Convert(
+                    Expression.Call(
+                        Expression.New(typeof(SimpleTestTypeFactory)),
+                        typeof(SimpleTestTypeFactory).GetMethod(
+                            nameof(SimpleTestType.Create),
+                            new[] { typeof(string) }),
+                        Expression.Constant(v.Arg1, typeof(string))),
+                    typeof(SimpleTestType)));
+
+            Assert.Equal(
+                "(SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory().Create(\"Jerry\")",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
+        }
+
+        [Fact]
+        public void Literal_with_two_parameter_instance_factory()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Convert(
+                    Expression.Call(
+                        Expression.New(
+                            typeof(SimpleTestTypeFactory).GetConstructor(new[] { typeof(string) }),
+                            Expression.Constant("4096", typeof(string))),
+                        typeof(SimpleTestTypeFactory).GetMethod(
+                            nameof(SimpleTestType.Create),
+                            new[] { typeof(string), typeof(int?) }),
+                        Expression.Constant(v.Arg1, typeof(string)),
+                        Expression.Constant(v.Arg2, typeof(int?))),
+                    typeof(SimpleTestType)));
+
+            Assert.Equal(
+                "(SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory(\"4096\").Create(\"Jerry\", 77)",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
+        }
+
+        [Fact]
+        public void Literal_with_two_parameter_instance_factory_and_internal_cast()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Convert(
+                    Expression.Call(
+                        Expression.New(
+                            typeof(SimpleTestTypeFactory).GetConstructor(new[] { typeof(string) }),
+                            Expression.Constant("4096", typeof(string))),
+                        typeof(SimpleTestTypeFactory).GetMethod(
+                            nameof(SimpleTestType.Create),
+                            new[] { typeof(string), typeof(int?) }),
+                        Expression.Constant(v.Arg1, typeof(string)),
+                        Expression.Convert(
+                            Expression.Constant(v.Arg2, typeof(int)),
+                            typeof(int?))),
+                    typeof(SimpleTestType)));
+
+            Assert.Equal(
+                "(SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory(\"4096\").Create(\"Jerry\", (int?)77)",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
+        }
+
+        [Fact]
+        public void Literal_with_unsupported_node_throws()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Add(
+                    Expression.Constant(10),
+                    Expression.Constant(10)));
+
+
+            Assert.Equal(
+                DesignStrings.LiteralExpressionNotSupported(
+                    "(10 + 10)",
+                    nameof(SimpleTestType)),
+                Assert.Throws<NotSupportedException>(
+                    () => new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType())).Message);
+        }
+
+        private IRelationalTypeMappingSource TypeMappingSource { get; } = CreateTypeMappingSource();
+
+        private static SqlServerTypeMappingSource CreateTypeMappingSource<T>(
+            Func<T, Expression> literalExpressionFunc)
+            => CreateTypeMappingSource(new TestTypeMappingPlugin<T>(literalExpressionFunc));
+
+        private static SqlServerTypeMappingSource CreateTypeMappingSource(
+            params IRelationalTypeMappingSourcePlugin[] plugins)
+            => new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+                new RelationalTypeMappingSourceDependencies(
+                    plugins));
+
+        private class TestTypeMappingPlugin<T> : IRelationalTypeMappingSourcePlugin
+        {
+            private readonly Func<T, Expression> _literalExpressionFunc;
+
+            public TestTypeMappingPlugin(Func<T, Expression> literalExpressionFunc)
+            {
+                _literalExpressionFunc = literalExpressionFunc;
+            }
+
+            public RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+                => _literalExpressionFunc == null
+                    ? (RelationalTypeMapping)new SimpleTestNonImplementedTypeMapping()
+                    : new SimpleTestTypeMapping<T>(_literalExpressionFunc);
+        }
+
+        private class SimpleTestTypeMapping<T> : RelationalTypeMapping
+        {
+            private readonly Func<T, Expression> _literalExpressionFunc;
+
+            public SimpleTestTypeMapping(
+                Func<T, Expression> literalExpressionFunc)
+                : base("storeType", typeof(SimpleTestType))
+            {
+                _literalExpressionFunc = literalExpressionFunc;
+            }
+
+            public override Expression GenerateLiteralExpression(object value)
+                => _literalExpressionFunc((T)value);
+        }
+
+        private class SimpleTestNonImplementedTypeMapping : RelationalTypeMapping
+        {
+            public SimpleTestNonImplementedTypeMapping()
+                : base("storeType", typeof(SimpleTestType))
+            {
+            }
+        }
+    }
+
+    internal class SimpleTestType
+    {
+        public SimpleTestType()
+        {
+        }
+
+        public SimpleTestType(string arg1)
+        : this(arg1, null)
+        {
+        }
+
+        public SimpleTestType(string arg1, int? arg2)
+        {
+            Arg1 = arg1;
+            Arg2 = arg2;
+        }
+
+        public string Arg1 { get; }
+        public int? Arg2 { get; }
+
+        public static SimpleTestType Create()
+            => new SimpleTestType();
+
+        public static SimpleTestType Create(string arg1)
+            => new SimpleTestType(arg1);
+
+        public static SimpleTestType Create(string arg1, int? arg2)
+            => new SimpleTestType(arg1, arg2);
+    }
+
+    internal class SimpleTestTypeFactory
+    {
+        public SimpleTestTypeFactory()
+        {
+        }
+
+        public SimpleTestTypeFactory(string factoryArg)
+        {
+            FactoryArg = factoryArg;
+        }
+
+        public string FactoryArg { get; }
+
+        public SimpleTestType Create()
+            => new SimpleTestType();
+
+        public object Create(string arg1)
+            => new SimpleTestType(arg1);
+
+        public object Create(string arg1, int? arg2)
+            => new SimpleTestType(arg1, arg2);
     }
 
     internal class Generic<T>
