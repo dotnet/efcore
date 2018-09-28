@@ -839,7 +839,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                            ?? GetDependents(entry, fk)).ToList())
                 {
                     if (dependent.EntityState != EntityState.Deleted
-                        && dependent.EntityState != EntityState.Detached)
+                        && dependent.EntityState != EntityState.Detached
+                        && fk.DeleteBehavior != DeleteBehavior.Restrict
+                        && (dependent.EntityState == EntityState.Added
+                            || KeysEqual(entry, fk, dependent)))
                     {
                         if (fk.DeleteBehavior == DeleteBehavior.Cascade)
                         {
@@ -860,7 +863,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             CascadeDelete(dependent);
                         }
-                        else if (fk.DeleteBehavior != DeleteBehavior.Restrict)
+                        else
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {
@@ -876,6 +879,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
         }
+
+        private static bool KeysEqual(InternalEntityEntry entry, IForeignKey fk, InternalEntityEntry dependent)
+        {
+            for (var i = 0; i < fk.Properties.Count; i++)
+            {
+                var principalProperty = fk.PrincipalKey.Properties[i];
+                var dependentProperty = fk.Properties[i];
+
+                if (!KeyValuesEqual(
+                    principalProperty,
+                    entry[principalProperty],
+                    dependent[dependentProperty]))
+                {
+                    //dependent[dependentProperty] = null;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool KeyValuesEqual(IProperty property, object value, object currentValue)
+            => (property.GetKeyValueComparer()
+                ?? property.FindMapping()?.KeyComparer)
+               ?.Equals(currentValue, value)
+               ?? Equals(currentValue, value);
+
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
