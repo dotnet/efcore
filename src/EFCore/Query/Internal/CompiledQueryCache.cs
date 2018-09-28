@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -15,25 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class CompiledQueryCache : ICompiledQueryCache
     {
+        private const int EvictionThreshold = 500;
+        private const int EvictionCount = 25;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public const string CompiledQueryParameterPrefix = "__";
 
-        private static readonly ConcurrentDictionary<object, object> _querySyncObjects
-            = new ConcurrentDictionary<object, object>();
+        private readonly ConcurrentDictionary<object, CacheEntry> _cache
+            = new ConcurrentDictionary<object, CacheEntry>();
 
-        private readonly IMemoryCache _memoryCache;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public CompiledQueryCache([NotNull] IMemoryCache memoryCache)
-        {
-            _memoryCache = memoryCache;
-        }
+        private long _recencyCounter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -51,30 +47,51 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             object cacheKey, Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler)
             => GetOrAddQueryCore(cacheKey, compiler);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Clear() => _cache.Clear();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual int Count => _cache.Count;
+
         private Func<QueryContext, TFunc> GetOrAddQueryCore<TFunc>(
             object cacheKey, Func<Func<QueryContext, TFunc>> compiler)
         {
-            retry:
-            if (!_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TFunc> compiledQuery))
+            Interlocked.Increment(ref _recencyCounter);
+
+            var entry = _cache.GetOrAdd(
+                cacheKey,
+                k => new CacheEntry(compiler()));
+
+            entry._recency = _recencyCounter;
+
+            if (_cache.Count > EvictionThreshold)
             {
-                if (!_querySyncObjects.TryAdd(cacheKey, value: null))
-                {
-                    goto retry;
-                }
+                var entries = _cache.ToArray();
 
-                try
+                foreach (var toRemove in entries.OrderBy(e => e.Value._recency).Take(EvictionCount))
                 {
-                    compiledQuery = compiler();
-
-                    _memoryCache.Set(cacheKey, compiledQuery);
-                }
-                finally
-                {
-                    _querySyncObjects.TryRemove(cacheKey, out _);
+                    _cache.TryRemove(toRemove.Key, out _);
                 }
             }
 
-            return compiledQuery;
+            return (Func<QueryContext, TFunc>)entry._compiledQuery;
+        }
+
+        private class CacheEntry
+        {
+            public CacheEntry(object compiledQuery)
+            {
+                _compiledQuery = compiledQuery;
+            }
+
+            public long _recency;
+            public readonly object _compiledQuery;
         }
     }
 }
