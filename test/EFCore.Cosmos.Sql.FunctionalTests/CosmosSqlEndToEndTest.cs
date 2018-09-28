@@ -140,6 +140,135 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql
         }
 
         [ConditionalFact]
+        public async Task Can_add_update_delete_detached_entity_end_to_end_async()
+        {
+            using (var testDatabase = CosmosSqlTestStore.CreateInitialized(DatabaseName))
+            {
+                var options = Fixture.CreateOptions(testDatabase);
+
+                var customer = new Customer { Id = 42, Name = "Theon" };
+
+                string storeId = null;
+                using (var context = new CustomerContext(options))
+                {
+                    await context.Database.EnsureCreatedAsync();
+
+                    var entry = context.Add(customer);
+
+                    await context.SaveChangesAsync();
+
+                    context.Add(customer);
+
+                    storeId = entry.Property<string>("id").CurrentValue;
+                }
+
+                Assert.NotNull(storeId);
+
+                using (var context = new CustomerContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Equal("Theon", customerFromStore.Name);
+                }
+
+                using (var context = new CustomerContext(options))
+                {
+                    customer.Name = "Theon Greyjoy";
+
+                    var entry = context.Entry(customer);
+                    entry.Property<string>("id").CurrentValue = storeId;
+                    entry.State = EntityState.Modified;
+
+                    await context.SaveChangesAsync();
+                }
+
+                using (var context = new CustomerContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+                }
+
+                using (var context = new CustomerContext(options))
+                {
+                    var entry = context.Entry(customer);
+                    entry.Property<string>("id").CurrentValue = storeId;
+                    entry.State = EntityState.Deleted;
+
+                    await context.SaveChangesAsync();
+                }
+
+                using (var context = new CustomerContext(options))
+                {
+                    Assert.Equal(0, context.Set<Customer>().Count());
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public void Can_update_unmapped_properties()
+        {
+            using (var testDatabase = CosmosSqlTestStore.CreateInitialized(DatabaseName))
+            {
+                var options = Fixture.CreateOptions(testDatabase);
+
+                var customer = new Customer { Id = 42, Name = "Theon" };
+
+                using (var context = new ExtraCustomerContext(options))
+                {
+                    context.Database.EnsureCreated();
+
+                    var entry = context.Add(customer);
+                    entry.Property<string>("EMail").CurrentValue = "theon.g@winterfell.com";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new CustomerContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Equal("Theon", customerFromStore.Name);
+
+                    customerFromStore.Name = "Theon Greyjoy";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new ExtraCustomerContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+
+                    var entry = context.Entry(customerFromStore);
+                    Assert.Equal("theon.g@winterfell.com", entry.Property<string>("EMail").CurrentValue);
+
+                    context.Remove(customerFromStore);
+
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public class ExtraCustomerContext : CustomerContext
+        {
+            public ExtraCustomerContext(DbContextOptions dbContextOptions)
+                : base(dbContextOptions)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Customer>().Property<string>("EMail");
+            }
+        }
+
+        [ConditionalFact]
         public async Task Using_a_conflicting_incompatible_id_throws()
         {
             using (var testDatabase = CosmosSqlTestStore.CreateInitialized(DatabaseName))

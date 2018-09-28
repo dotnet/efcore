@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Cosmos.Sql.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json.Linq;
 
@@ -34,6 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Internal
             Expression jObjectExpression,
             IPropertyBase property)
         {
+            if (property.Name == StoreKeyConvention.JObjectPropertyName)
+            {
+                return jObjectExpression;
+            }
+
             var expression = Expression.Convert(
                 Expression.Call(
                     jObjectExpression,
