@@ -14,9 +14,6 @@
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\Key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
-    <AssemblySigningCertName>Microsoft</AssemblySigningCertName>
-    <PackageSigningCertName>MicrosoftNuGet</PackageSigningCertName>
-    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
     <PackageTags>SQLite;Data;ADO.NET</PackageTags>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- Suppress bugs in analyzers, such as https://github.com/xunit/xunit/issues/1409 -->
