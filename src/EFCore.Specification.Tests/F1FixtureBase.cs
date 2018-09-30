@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore
@@ -13,13 +14,30 @@ namespace Microsoft.EntityFrameworkCore
         protected override bool UsePooling => true;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(w =>
-                w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
+            => base.AddOptions(builder)
+                .UseModel(CreateModelExternal())
+                .ConfigureWarnings(
+                    w => w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
 
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Update.Name;
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        private IModel CreateModelExternal()
+        {
+            // Doing this differently here from other tests to have regression coverage for
+            // building models externally from the context instance.
+            var builder = CreateModelBuilder();
+
+            BuildModelExternal(builder);
+
+            builder.FinalizeModel();
+
+            return builder.Model;
+        }
+
+        public abstract ModelBuilder CreateModelBuilder();
+
+        protected virtual void BuildModelExternal(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
 

@@ -8,23 +8,46 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+
     public abstract class ModelCodeGeneratorTestBase
     {
+        public static ConventionSet BuildNonValidatingConventionSet()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddDbContext<DbContext>(o => o.UseSqlServer("Server=."))
+                .BuildServiceProvider();
+
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
+                {
+                    return new CompositeConventionSetBuilder(
+                            context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
+                        .AddConventions(
+                            context.GetService<ICoreConventionSetBuilder>().CreateConventionSet());
+                }
+            }
+        }
+
         protected void Test(
             Action<ModelBuilder> buildModel,
             ModelCodeGenerationOptions options,
             Action<ScaffoldedModel> assertScaffold,
             Action<IModel> assertModel)
         {
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(BuildNonValidatingConventionSet());
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
             buildModel(modelBuilder);
-            modelBuilder.GetInfrastructure().Metadata.Validate();
+            modelBuilder.FinalizeModel();
 
             var model = modelBuilder.Model;
 

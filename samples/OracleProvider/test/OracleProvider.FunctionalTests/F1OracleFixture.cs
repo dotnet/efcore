@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -10,9 +11,12 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        public override ModelBuilder CreateModelBuilder()
+            => new ModelBuilder(OracleConventionSetBuilder.Build());
+
+        protected override void BuildModelExternal(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder, context);
+            base.BuildModelExternal(modelBuilder);
 
             modelBuilder.Entity<Chassis>().Property<byte[]>("Version").IsRowVersion();
             modelBuilder.Entity<Driver>().Property<byte[]>("Version").IsRowVersion();

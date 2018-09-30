@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -27,6 +28,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected TFixture Fixture { get; }
+
+        [Fact]
+        public virtual void External_model_builder_uses_validation()
+        {
+            var modelBuilder = Fixture.CreateModelBuilder();
+            modelBuilder.Entity("Dummy");
+
+            Assert.Equal(
+                CoreStrings.ShadowEntity("Dummy"),
+                Assert.Throws<InvalidOperationException>
+                    (() => modelBuilder.FinalizeModel()).Message);
+        }
 
         [Fact]
         public virtual void Nullable_client_side_concurrency_token_can_be_used()
