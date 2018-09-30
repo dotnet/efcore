@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -38,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(conventions, nameof(conventions));
 
             _builder = new InternalModelBuilder(new Model(conventions));
+
+            _builder.Metadata.SetProductVersion(ProductInfo.GetVersion());
         }
 
         /// <summary>
@@ -389,6 +392,21 @@ namespace Microsoft.EntityFrameworkCore
         public virtual ModelBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
         {
             Builder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
+        ///     processing happens automatically when using OnModelCreating; this method allows it to be run
+        ///     explicitly in cases where the automatic execution is not possible.
+        /// </summary>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder FinalizeModel()
+        {
+            Builder.Metadata.Validate();
 
             return this;
         }

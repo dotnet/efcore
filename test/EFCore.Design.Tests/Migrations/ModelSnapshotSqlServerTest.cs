@@ -3186,10 +3186,10 @@ namespace RootNamespace
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
             buildModel(modelBuilder);
 
-            modelBuilder.GetInfrastructure().Metadata.Validate();
-            CreateModelValidator().Validate(modelBuilder.Model);
+            modelBuilder.FinalizeModel();
             var model = modelBuilder.Model;
 
             var codeHelper = new CSharpHelper(
@@ -3238,6 +3238,7 @@ namespace RootNamespace
                 null);
 
             var builder = new ModelBuilder(new ConventionSet());
+            builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
 
             buildModelMethod.Invoke(
                 Activator.CreateInstance(factoryType),
@@ -3266,24 +3267,5 @@ namespace RootNamespace
                 }
             }
         }
-
-        protected ModelValidator CreateModelValidator()
-            => new SqlServerModelValidator(
-                new ModelValidatorDependencies(
-                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(l => false),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<DbLoggerCategory.Model>(
-                        new ListLoggerFactory(l => false),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake"))),
-                new RelationalModelValidatorDependencies(
-#pragma warning disable 618
-                    TestServiceFactory.Instance.Create<ObsoleteRelationalTypeMapper>(),
-#pragma warning restore 618
-                    new SqlServerTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
     }
 }

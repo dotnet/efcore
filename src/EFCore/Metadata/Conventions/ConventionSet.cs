@@ -162,7 +162,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static ConventionSet CreateConventionSet([NotNull] DbContext context)
-            => new CompositeConventionSetBuilder(context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
-                .AddConventions(context.GetService<ICoreConventionSetBuilder>().CreateConventionSet());
+        {
+            var conventionSet = new CompositeConventionSetBuilder(
+                    context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
+                .AddConventions(
+                    context.GetService<ICoreConventionSetBuilder>().CreateConventionSet());
+
+            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(context.GetService<IModelValidator>()));
+
+            return conventionSet;
+        }
     }
 }
