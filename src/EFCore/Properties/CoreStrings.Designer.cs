@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 genericParameter);
 
         /// <summary>
-        ///     The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.
+        ///     The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IAsyncQueryProvider can be used for Entity Framework asynchronous operations.
         /// </summary>
         public static string IQueryableProviderNotAsync
             => GetString("IQueryableProviderNotAsync");
