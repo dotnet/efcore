@@ -5,7 +5,6 @@ using System.Threading;
 using GeoAPI;
 using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite;
@@ -48,16 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
 
             return optionsBuilder;
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.Entity<LineStringEntity>().Property(e => e.LineString).HasColumnType("geography");
-            modelBuilder.Entity<MultiLineStringEntity>().Property(e => e.MultiLineString).HasColumnType("geography");
-            modelBuilder.Entity<PointEntity>().Property(e => e.Point).HasColumnType("geography");
-            modelBuilder.Entity<PolygonEntity>().Property(e => e.Polygon).HasColumnType("geography");
         }
     }
 #endif

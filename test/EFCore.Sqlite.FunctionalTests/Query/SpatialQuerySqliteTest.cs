@@ -86,7 +86,7 @@ FROM ""PolygonEntity"" AS ""e""");
             await base.Contains(isAsync);
 
             AssertSql(
-                @"@__point_0='0x000100000000000000000000E03F000000000000D03F000000000000E03F0000...' (Size = 60) (DbType = String)
+                @"@__point_0='0x000100000000000000000000D03F000000000000D03F000000000000D03F0000...' (Size = 60) (DbType = String)
 
 SELECT ""e"".""Id"", Contains(""e"".""Polygon"", @__point_0) AS ""Contains""
 FROM ""PolygonEntity"" AS ""e""");
@@ -135,7 +135,7 @@ FROM ""PointEntity"" AS ""e""");
             await base.Covers(isAsync);
 
             AssertSql(
-                @"@__point_0='0x000100000000000000000000E03F000000000000D03F000000000000E03F0000...' (Size = 60) (DbType = String)
+                @"@__point_0='0x000100000000000000000000D03F000000000000D03F000000000000D03F0000...' (Size = 60) (DbType = String)
 
 SELECT ""e"".""Id"", Covers(""e"".""Polygon"", @__point_0) AS ""Covers""
 FROM ""PolygonEntity"" AS ""e""");
@@ -177,7 +177,7 @@ FROM ""PointEntity"" AS ""e""");
             await base.Disjoint(isAsync);
 
             AssertSql(
-                @"@__point_0='0x000100000000000000000000F03F0000000000000000000000000000F03F0000...' (Size = 60) (DbType = String)
+                @"@__point_0='0x000100000000000000000000F03F000000000000F03F000000000000F03F0000...' (Size = 60) (DbType = String)
 
 SELECT ""e"".""Id"", Disjoint(""e"".""Polygon"", @__point_0) AS ""Disjoint""
 FROM ""PolygonEntity"" AS ""e""");

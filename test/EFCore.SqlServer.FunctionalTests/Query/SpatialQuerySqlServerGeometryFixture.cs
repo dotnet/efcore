@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
 #if !Test21
-    public class SpatialQuerySqlServerFixture : SpatialQueryRelationalFixture
+    public class SpatialQuerySqlServerGeometryFixture : SpatialQueryRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
@@ -23,6 +24,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
 
             return optionsBuilder;
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.Entity<LineStringEntity>().Property(e => e.LineString).HasColumnType("geometry");
+            modelBuilder.Entity<MultiLineStringEntity>().Property(e => e.MultiLineString).HasColumnType("geometry");
+            modelBuilder.Entity<PointEntity>().Property(e => e.Point).HasColumnType("geometry");
+            modelBuilder.Entity<PolygonEntity>().Property(e => e.Polygon).HasColumnType("geometry");
         }
     }
 #endif

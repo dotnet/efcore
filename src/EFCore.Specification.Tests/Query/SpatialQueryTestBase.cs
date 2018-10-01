@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains(bool isAsync)
         {
-            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.5, 0.25));
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.25, 0.25));
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Covers(bool isAsync)
         {
-            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.5, 0.25));
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.25, 0.25));
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Disjoint(bool isAsync)
         {
-            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(1, 0));
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(1, 1));
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
