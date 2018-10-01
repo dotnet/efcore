@@ -309,13 +309,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ExtractQueryAnnotations(queryModel);
 
-            new EagerLoadingExpressionVisitor(_queryCompilationContext, _querySourceTracingExpressionVisitorFactory)
-                .VisitQueryModel(queryModel);
-
             // First pass of optimizations
 
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
 
+            new EagerLoadingExpressionVisitor(_queryCompilationContext, _querySourceTracingExpressionVisitorFactory).VisitQueryModel(queryModel);
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger, this).VisitQueryModel(queryModel);
 
             OnBeforeNavigationRewrite(queryModel);
