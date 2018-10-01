@@ -478,7 +478,7 @@
     <comment>Warning RelationalEventId.ValueConversionSqlLiteralWarning object object</comment>
   </data>
   <data name="DerivedQueryTypeView" xml:space="preserve">
-    <value>The query type '{queryType}' cannot be mapped to a view bacause it is derived from '{baseType}'. Only base query types can be mapped to a view.</value>
+    <value>The query type '{queryType}' cannot be mapped to a view because it is derived from '{baseType}'. Only base query types can be mapped to a view.</value>
   </data>
   <data name="RelationalCloneNotImplemented" xml:space="preserve">
     <value>The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.</value>
