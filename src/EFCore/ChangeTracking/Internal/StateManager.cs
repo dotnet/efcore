@@ -592,6 +592,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _queryIsTracked = false;
             _trackingQueryMode = TrackingQueryMode.Simple;
             _singleQueryModeEntityType = null;
+
+            Tracked = null;
+            StateChanged = null;
         }
 
         /// <summary>
