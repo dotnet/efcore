@@ -126,7 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Builder
         {
-            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            get;
             [DebuggerStepThrough]
             [param: CanBeNull]
             set;
@@ -897,33 +898,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (!IsQueryType)
+            if (principalKey.ReferencingForeignKeys == null)
             {
-                if (principalKey.ReferencingForeignKeys == null)
-                {
-                    principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
+                principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
                     {
                         foreignKey
                     };
-                }
-                else
-                {
-                    var added = principalKey.ReferencingForeignKeys.Add(foreignKey);
-                    Debug.Assert(added);
-                }
+            }
+            else
+            {
+                var added = principalKey.ReferencingForeignKeys.Add(foreignKey);
+                Debug.Assert(added);
+            }
 
-                if (principalEntityType.DeclaredReferencingForeignKeys == null)
-                {
-                    principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
+            if (principalEntityType.DeclaredReferencingForeignKeys == null)
+            {
+                principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
                     {
                         foreignKey
                     };
-                }
-                else
-                {
-                    var added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
-                    Debug.Assert(added);
-                }
+            }
+            else
+            {
+                var added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
+                Debug.Assert(added);
             }
 
             PropertyMetadataChanged();
@@ -1140,11 +1138,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (!IsQueryType)
-            {
-                foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
-                foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
-            }
+            foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
+            foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
 
             PropertyMetadataChanged();
 
