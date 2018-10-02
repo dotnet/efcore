@@ -113,5 +113,10 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
     "MemberId": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IServiceProperty> GetServiceProperties()",
     "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddIndexedProperty(System.String name, System.Type propertyType)",
+    "Kind": "Addition"
   }
 ]

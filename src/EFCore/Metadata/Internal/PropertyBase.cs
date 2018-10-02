@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IClrPropertySetter _setter;
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
+        private bool _isIndexProperty;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -32,13 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected PropertyBase(
             [NotNull] string name,
             [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo)
+            [CanBeNull] FieldInfo fieldInfo,
+            bool isIndexProperty = false)
         {
             Check.NotEmpty(name, nameof(name));
 
             Name = name;
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;
+            _isIndexProperty = isIndexProperty;
         }
 
         /// <summary>
@@ -258,8 +261,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertyGetter Getter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
+        public virtual IClrPropertyGetter Getter => _isIndexProperty
+            ? NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new IndexedPropertyGetterFactory().Create(p))
+            : NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
