@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -456,10 +457,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var tracked = new List<EntityTrackedEventArgs>();
             var changed = new List<EntityStateChangedEventArgs>();
 
-            Seed();
+            Seed(usePool: true);
 
-            using (var context = new LikeAZooContext())
+            using (var scope = _poolProvider.CreateScope())
             {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                 RegisterEvents(context, tracked, changed);
 
                 Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
@@ -470,6 +473,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: true);
                 AssertTrackedEvent(context, 2, EntityState.Unchanged, tracked[1], fromQuery: true);
             }
+
+            using (var scope = _poolProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
+                Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(0, changed.Count);
+            }
         }
 
         [Fact]
@@ -478,8 +491,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var tracked = new List<EntityTrackedEventArgs>();
             var changed = new List<EntityStateChangedEventArgs>();
 
-            using (var context = new LikeAZooContext())
+            using (var scope = _poolProvider.CreateScope())
             {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                 RegisterEvents(context, tracked, changed);
 
                 context.Attach(new Cat(1));
@@ -504,8 +519,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var tracked = new List<EntityTrackedEventArgs>();
             var changed = new List<EntityStateChangedEventArgs>();
 
-            using (var context = new LikeAZooContext())
+            using (var scope = _poolProvider.CreateScope())
             {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                 RegisterEvents(context, tracked, changed);
 
                 context.Add(new Cat(1));
@@ -530,8 +547,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var tracked = new List<EntityTrackedEventArgs>();
             var changed = new List<EntityStateChangedEventArgs>();
 
-            using (var context = new LikeAZooContext())
+            using (var scope = _poolProvider.CreateScope())
             {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                 RegisterEvents(context, tracked, changed);
 
                 context.Update(new Cat(1));
@@ -556,8 +575,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var tracked = new List<EntityTrackedEventArgs>();
             var changed = new List<EntityStateChangedEventArgs>();
 
-            using (var context = new LikeAZooContext())
+            using (var scope = _poolProvider.CreateScope())
             {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                 RegisterEvents(context, tracked, changed);
 
                 context.AddRange(new Cat(1), new Cat(2));
@@ -595,6 +616,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 AssertChangedEvent(context, null, EntityState.Added, EntityState.Detached, changed[4]);
                 AssertChangedEvent(context, null, EntityState.Deleted, EntityState.Detached, changed[5]);
             }
+
+            using (var scope = _poolProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
+                context.AddRange(new Cat(1), new Cat(2));
+
+                context.Entry(context.Cats.Find(1)).State = EntityState.Unchanged;
+                context.Entry(context.Cats.Find(2)).State = EntityState.Modified;
+
+                context.Entry(context.Cats.Find(1)).State = EntityState.Added;
+                context.Entry(context.Cats.Find(2)).State = EntityState.Deleted;
+
+                context.Remove(context.Cats.Find(1));
+                context.Entry(context.Cats.Find(2)).State = EntityState.Detached;
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(6, changed.Count);
+            }
         }
 
         [Fact]
@@ -603,10 +643,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var tracked = new List<EntityTrackedEventArgs>();
             var changed = new List<EntityStateChangedEventArgs>();
 
-            Seed();
+            Seed(usePool: true);
 
-            using (var context = new LikeAZooContext())
+            using (var scope = _poolProvider.CreateScope())
             {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                 RegisterEvents(context, tracked, changed);
 
                 var cat1 = context.Cats.Find(1);
@@ -634,6 +676,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 AssertChangedEvent(context, 1, EntityState.Modified, EntityState.Unchanged, changed[1]);
                 AssertChangedEvent(context, 3, EntityState.Added, EntityState.Unchanged, changed[2]);
+
+                context.Database.EnsureDeleted();
             }
         }
 
@@ -643,8 +687,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var tracked = new List<EntityTrackedEventArgs>();
             var changed = new List<EntityStateChangedEventArgs>();
 
-            using (var context = new LikeAZooContext())
+            using (var scope = _poolProvider.CreateScope())
             {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                 RegisterEvents(context, tracked, changed);
 
                 var cat = context.Attach(
@@ -682,14 +728,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var tracked2 = new List<EntityTrackedEventArgs>();
             var changed2 = new List<EntityStateChangedEventArgs>();
 
-            Seed();
+            Seed(usePool: true);
 
-            using (var context = new LikeAZooContext())
+            using (var scope = _poolProvider.CreateScope())
             {
+                var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                 RegisterEvents(context, tracked1, changed1);
 
-                using (var context2 = new LikeAZooContext())
+                using (var scope2 = _poolProvider.CreateScope())
                 {
+                    var context2 = scope2.ServiceProvider.GetService<LikeAZooContextPooled>();
+
                     RegisterEvents(context2, tracked2, changed2);
 
                     Assert.Equal(2, context2.Cats.OrderBy(e => e.Id).ToList().Count);
@@ -718,6 +768,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Equal(2, tracked2.Count);
                 Assert.Equal(1, changed2.Count);
+
+                context.Database.EnsureDeleted();
             }
         }
 
@@ -797,8 +849,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private static readonly ListLoggerFactory _loggerFactory
             = new ListLoggerFactory();
 
+        private static readonly IServiceProvider _poolProvider
+            = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContextPool<LikeAZooContextPooled>(
+                    p => p.UseInMemoryDatabase(nameof(LikeAZooContextPooled))
+                        .UseLoggerFactory(_loggerFactory))
+                .BuildServiceProvider();
+
+        private class LikeAZooContextPooled : LikeAZooContext
+        {
+            public LikeAZooContextPooled(DbContextOptions<LikeAZooContextPooled> options)
+                : base(options)
+            {
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+            }
+        }
+
         private class LikeAZooContext : DbContext
         {
+            public LikeAZooContext()
+            {
+            }
+
+            protected LikeAZooContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
             public DbSet<Cat> Cats { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -816,30 +897,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     .UseInMemoryDatabase(nameof(LikeAZooContextSensitive));
         }
 
-        private void Seed(bool sensitive = false)
+        private void Seed(bool sensitive = false, bool usePool = false)
         {
-            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            void Seed(LikeAZooContext context)
             {
                 context.Database.EnsureDeleted();
 
-                var cat1 = new Cat(1)
-                {
-                    Name = "Smokey"
-                };
-                var cat2 = new Cat(2)
-                {
-                    Name = "Sid"
-                };
+                var cat1 = new Cat(1) { Name = "Smokey" };
+                var cat2 = new Cat(2) { Name = "Sid" };
 
                 cat1.Hats.Add(
-                    new Hat(77)
-                    {
-                        Color = "Pine Green"
-                    });
+                    new Hat(77) { Color = "Pine Green" });
 
                 context.AddRange(cat1, cat2);
 
                 context.SaveChanges();
+            }
+
+            if (usePool)
+            {
+                using (var scope = _poolProvider.CreateScope())
+                {
+                    Seed(scope.ServiceProvider.GetService<LikeAZooContextPooled>());
+                }
+            }
+            else
+            {
+                using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+                {
+                    Seed(context);
+                }
             }
         }
 

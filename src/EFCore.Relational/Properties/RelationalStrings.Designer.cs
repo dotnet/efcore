@@ -998,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogValueConversionSqlLiteralWarning")));
 
         /// <summary>
-        ///     The query type '{queryType}' cannot be mapped to a view bacause it is derived from '{baseType}'. Only base query types can be mapped to a view.
+        ///     The query type '{queryType}' cannot be mapped to a view because it is derived from '{baseType}'. Only base query types can be mapped to a view.
         /// </summary>
         public static string DerivedQueryTypeView([CanBeNull] object queryType, [CanBeNull] object baseType)
             => string.Format(

@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         for all properties of this query type as described in the <see cref="PropertyAccessMode" /> enum.
         ///     </para>
         ///     <para>
-        ///         Calling this method overrrides for all properties of this query type any access mode that was
+        ///         Calling this method overrides for all properties of this query type any access mode that was
         ///         set on the model.
         ///     </para>
         /// </summary>

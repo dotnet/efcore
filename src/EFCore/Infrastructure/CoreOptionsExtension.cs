@@ -371,8 +371,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Populates a dictionary of information that may change between uses of the
-        ///     extension such that it can be comapred to a previous configuration for
-        ///     this option and differencesd can be logged. The dictionary key prefix
+        ///     extension such that it can be compared to a previous configuration for
+        ///     this option and differences can be logged. The dictionary key prefix
         ///     <c>"Core:"</c> is used.
         /// </summary>
         /// <param name="debugInfo"> The dictionary to populate. </param>

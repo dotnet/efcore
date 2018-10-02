@@ -125,14 +125,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalEntityTypeBuilder Query([NotNull] string name, ConfigurationSource configurationSource)
+            => Query(new TypeIdentity(name), configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityTypeBuilder Query([NotNull] Type clrType, ConfigurationSource configurationSource)
+            => Query(new TypeIdentity(clrType, Metadata), configurationSource);
+
+        private InternalEntityTypeBuilder Query(in TypeIdentity type, ConfigurationSource configurationSource)
         {
-            if (IsIgnored(clrType, configurationSource))
+            if (IsIgnored(type, configurationSource))
             {
                 return null;
             }
 
-            var entityType = Metadata.FindEntityType(clrType);
+            var clrType = type.Type;
+            var entityType = clrType == null
+                ? Metadata.FindEntityType(type.Name)
+                : Metadata.FindEntityType(clrType);
 
             using (Metadata.ConventionDispatcher.StartBatch())
             {
@@ -156,7 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 Metadata.Unignore(clrType);
 
-                entityType = Metadata.AddQueryType(clrType, configurationSource);
+                Metadata.Unignore(type.Name);
+                entityType = clrType == null
+                    ? Metadata.AddQueryType(type.Name, configurationSource)
+                    : Metadata.AddQueryType(clrType, configurationSource);
 
                 return entityType.Builder;
             }
