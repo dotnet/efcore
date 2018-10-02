@@ -97,5 +97,34 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(extension.RowNumberPaging.HasValue);
             Assert.True(extension.RowNumberPaging.Value);
         }
+
+
+        [Fact]
+        public void Can_add_extension_with_connection_stringbuilder_action_generic()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+            optionsBuilder.UseSqlServer(csb =>
+            {
+                csb.DataSource = "Kilimanjaro";
+            });
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+            Assert.Equal("Data Source=Kilimanjaro", extension.ConnectionString);
+            Assert.Null(extension.Connection);
+        }
+
+        [Fact]
+        public void Can_add_extension_with_connection_stringbuilder_action()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(csb =>
+            {
+                csb.DataSource = "Kilimanjaro";
+            });
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+            Assert.Equal("Data Source=Kilimanjaro", extension.ConnectionString);
+            Assert.Null(extension.Connection);
+        }
     }
 }

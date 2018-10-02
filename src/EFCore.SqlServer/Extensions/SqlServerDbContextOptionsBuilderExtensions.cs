@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.Common;
+using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -87,6 +88,42 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseSqlServer(
                 (DbContextOptionsBuilder)optionsBuilder, connectionString, sqlServerOptionsAction);
+
+        /// <summary>
+        ///  Configures the context to connect to a Microsoft SQL Server database.
+        /// </summary>
+        /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="connectionStringBuilderAction">An action to configure the database connection string by using <see cref="SqlConnectionStringBuilder"/>.</param>
+        /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
+        public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
+            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
+            [NotNull] Action<SqlConnectionStringBuilder> connectionStringBuilderAction,
+            [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
+            where TContext : DbContext
+            => (DbContextOptionsBuilder<TContext>)UseSqlServer(
+                (DbContextOptionsBuilder)optionsBuilder, connectionStringBuilderAction, sqlServerOptionsAction);
+
+        /// <summary>
+        ///  Configures the context to connect to a Microsoft SQL Server database.
+        /// </summary>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="connectionStringBuilderAction">An action to configure the database connection string by using <see cref="SqlConnectionStringBuilder"/>.</param>
+        /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
+        public static DbContextOptionsBuilder UseSqlServer(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            [NotNull] Action<SqlConnectionStringBuilder> connectionStringBuilderAction,
+            [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
+        {
+            Check.NotNull(connectionStringBuilderAction, nameof(connectionStringBuilderAction));
+
+            var connectionStringBuilder = new SqlConnectionStringBuilder();
+            connectionStringBuilderAction(connectionStringBuilder);
+
+            return UseSqlServer(optionsBuilder, connectionStringBuilder.ConnectionString, sqlServerOptionsAction);
+        }
 
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
         /// <summary>
