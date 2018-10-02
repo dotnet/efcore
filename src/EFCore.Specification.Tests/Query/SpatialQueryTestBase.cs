@@ -384,6 +384,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task InteriorPoint(bool isAsync)
+        {
+            return AssertQuery<PolygonEntity>(
+                isAsync,
+                es => es.Select(e => new { e.Id, e.Polygon.InteriorPoint, e.Polygon }),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.True(a.Polygon.Contains(e.InteriorPoint));
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Intersection(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(
@@ -475,6 +489,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task IsValid(bool isAsync)
         {
             return AssertQuery<PointEntity>(isAsync, es => es.Select(e => new { e.Id, e.Point.IsValid }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task IsWithinDistance(bool isAsync)
+        {
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
+
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es.Select(e => new { e.Id, IsWithinDistance = e.Point.IsWithinDistance(point, 1) }),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.IsWithinDistance, a.IsWithinDistance);
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -734,6 +768,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Union, a.Union, GeometryComparer.Instance);
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_void(bool isAsync)
+        {
+            return AssertQuery<MultiLineStringEntity>(
+                isAsync,
+                es => es.Select(e => new { e.Id, Union = e.MultiLineString.Union() }));
         }
 
         [ConditionalTheory]

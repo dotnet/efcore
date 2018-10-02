@@ -259,6 +259,20 @@ FROM [MultiLineStringEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        public override async Task IsWithinDistance(bool isAsync)
+        {
+            await base.IsWithinDistance(isAsync);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+
+SELECT [e].[Id], CASE
+    WHEN [e].[Point].STDistance(@__point_0) <= 1.0E0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END AS [IsWithinDistance]
+FROM [PointEntity] AS [e]");
+        }
+
         public override async Task Item(bool isAsync)
         {
             await base.Item(isAsync);
