@@ -8,7 +8,7 @@ using Oracle.ManagedDataAccess.Client;
 namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     /// <summary>
-    ///     Detects the exceptions caused by SQL Server transient failures.
+    ///     Detects the exceptions caused by Oracle transient failures.
     /// </summary>
     public static class OracleTransientExceptionDetector
     {
