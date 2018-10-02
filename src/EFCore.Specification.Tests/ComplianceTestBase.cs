@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
                 .ToList();
 
             Assert.False(
-                nonImplementedBases.Any(),
+                nonImplementedBases.Count > 0,
                 "\r\n-- Missing derived classes for --\r\n" + string.Join(Environment.NewLine, nonImplementedBases));
         }
 

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal
 
         public override string ToString()
         {
-            return $"{_alias}";
+            return _alias;
         }
     }
 }

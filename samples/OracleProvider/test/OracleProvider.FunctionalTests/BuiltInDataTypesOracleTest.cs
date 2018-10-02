@@ -2232,9 +2232,9 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
 
                 MapPreciseColumnTypes<MappedPrecisionAndScaledDataTypes>(modelBuilder);
 
-                modelBuilder.Entity<MappedDataTypesWithIdentity>(b => { b.HasKey(e => e.Id); });
+                modelBuilder.Entity<MappedDataTypesWithIdentity>(b => b.HasKey(e => e.Id));
 
-                modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(b => { b.HasKey(e => e.Id); });
+                modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(b => b.HasKey(e => e.Id));
 
                 modelBuilder.Entity<MappedSizedDataTypesWithIdentity>()
                     .Property(e => e.Id);

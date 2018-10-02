@@ -292,7 +292,6 @@ ALTER TABLE ""People"" ADD ""FullName"" AS (""FirstName"" + ' ' + ""LastName"");
                     }
                 });
 
-
             Assert.Equal(
 @"DECLARE
    v_Count INTEGER;

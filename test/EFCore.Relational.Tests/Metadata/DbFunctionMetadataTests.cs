@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            modelBuilder.HasDbFunction(MethodAmi, funcBuilder => { funcBuilder.HasName("foo").HasSchema("bar"); });
+            modelBuilder.HasDbFunction(MethodAmi, funcBuilder => funcBuilder.HasName("foo").HasSchema("bar"));
 
             var dbFunc = modelBuilder.HasDbFunction(MethodAmi).Metadata;
 
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            modelBuilder.HasDbFunction(MethodBmi, funcBuilder => { funcBuilder.HasName("foo").HasSchema("bar"); });
+            modelBuilder.HasDbFunction(MethodBmi, funcBuilder => funcBuilder.HasName("foo").HasSchema("bar"));
 
             var dbFunc = modelBuilder.HasDbFunction(MethodBmi).Metadata;
 

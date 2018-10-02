@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = model.GetAnnotations().ToList();
 
-            if (annotations.Any())
+            if (annotations.Count > 0)
             {
                 stringBuilder.Append(builderName);
 
@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.PropertyAccessModeAnnotation,
                 CoreAnnotationNames.ConstructorBinding);
 
-            if (annotations.Any())
+            if (annotations.Count > 0)
             {
                 foreach (var annotation in annotations)
                 {

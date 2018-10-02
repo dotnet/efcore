@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     IsConcurrencyConflict(entry, properties[index], _rows[key][index], concurrencyConflicts);
                 }
 
-                if (concurrencyConflicts.Any())
+                if (concurrencyConflicts.Count > 0)
                 {
                     ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
                 }
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                         : _rows[key][index];
                 }
 
-                if (concurrencyConflicts.Any())
+                if (concurrencyConflicts.Count > 0)
                 {
                     ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
                 }

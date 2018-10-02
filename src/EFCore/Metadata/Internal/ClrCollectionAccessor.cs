@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var collection = GetCollection((TEntity)instance);
 
-            return (collection != null) && collection.Contains((TElement)value);
+            return (collection?.Contains((TElement)value) == true);
         }
 
         /// <summary>

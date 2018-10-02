@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendValuesHeader(commandStringBuilder, writeOperations);
             AppendValues(commandStringBuilder, writeOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendWhereClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             AppendDeleteCommandHeader(commandStringBuilder, name, schema);
             AppendWhereClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             AppendFromClause(commandStringBuilder, name, schema);
             // TODO: there is no notion of operator - currently all the where conditions check equality
             AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;

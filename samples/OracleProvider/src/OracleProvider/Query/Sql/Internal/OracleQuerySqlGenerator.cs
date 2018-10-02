@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
             Sql.Append(" FROM DUAL");
         }
 
-        private static readonly HashSet<string> _builtInFunctions 
+        private static readonly HashSet<string> _builtInFunctions
             = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "MAX",
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                 "LENGTH",
                 "COUNT"
             };
-        
+
         protected override void GenerateSqlFunctionName(SqlFunctionExpression sqlFunctionExpression)
         {
             if (sqlFunctionExpression.Instance != null)
@@ -189,13 +189,13 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
 
                 Sql.Append(".");
             }
-            
+
             Sql.Append(
                 _builtInFunctions.Contains(sqlFunctionExpression.FunctionName)
                     ? sqlFunctionExpression.FunctionName
                     : SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName));
         }
-        
+
         public override Expression VisitCrossJoinLateral(CrossJoinLateralExpression crossJoinLateralExpression)
         {
             Check.NotNull(crossJoinLateralExpression, nameof(crossJoinLateralExpression));

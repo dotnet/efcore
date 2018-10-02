@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
             var cancellationToken = CancellationToken.None;
             await Test_commit_failure_async(
                 realFailure, (e, db) => e.ExecuteInTransactionAsync(
-                    async ct => { await db.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                    async ct => await db.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                     ct => db.Products.AsNoTracking().AnyAsync(),
                     cancellationToken));
 
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
             await Test_commit_failure_async(
                 realFailure, (e, db) => e.ExecuteInTransactionAsync(
                     db,
-                    async (c, ct) => { await c.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                    async (c, ct) => await c.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                     (c, ct) => c.Products.AsNoTracking().AnyAsync(),
                     cancellationToken));
 
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
 
             await Test_commit_failure_async(
                 realFailure, (e, db) => e.ExecuteInTransactionAsync(
-                    async ct => { await db.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                    async ct => await db.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                     ct => db.Products.AsNoTracking().AnyAsync(),
                     IsolationLevel.Serializable,
                     cancellationToken));
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
             await Test_commit_failure_async(
                 realFailure, (e, db) => e.ExecuteInTransactionAsync(
                     db,
-                    async (c, ct) => { await c.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                    async (c, ct) => await c.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                     (c, ct) => c.Products.AsNoTracking().AnyAsync(),
                     IsolationLevel.Serializable,
                     cancellationToken));

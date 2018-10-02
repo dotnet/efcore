@@ -22,6 +22,9 @@ using Xunit;
 // ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable ReplaceWithSingleCallToSingle
 // ReSharper disable once CheckNamespace
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture>
@@ -4972,7 +4975,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Skip(1)),
                 assertOrder: true,
-                elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
+                elementAsserter: (e, a) => CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a));
         }
 
         [ConditionalTheory]
@@ -4983,7 +4986,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Take(2)),
                 assertOrder: true,
-                elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
+                elementAsserter: (e, a) => CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a));
         }
 
         [ConditionalTheory]
@@ -4994,7 +4997,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Distinct()),
                 assertOrder: true,
-                elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a); });
+                elementAsserter: (e, a) => CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a));
         }
 
         [ConditionalTheory]
@@ -5005,7 +5008,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Select(m => m.FullName).FirstOrDefault()),
                 assertOrder: true,
-                elementAsserter: (e, a) => { CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname)); });
+                elementAsserter: (e, a) => CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname)));
         }
 
         [ConditionalTheory]
@@ -7033,7 +7036,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                           WeaponName = automaticWeapons.FirstOrDefault().Name
                       },
 
-
                 gs => from g in gs
                       where g.Nickname != "Dom"
                       let automaticWeapons
@@ -7050,7 +7052,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
                     Assert.Equal(e.WeaponName, a.WeaponName);
-
                 });
         }
 

@@ -6,6 +6,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 {
     public class TransportationContext : PoolableDbContext
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Vehicle>(eb => { eb.HasKey(e => e.Name); });
+            modelBuilder.Entity<Vehicle>(eb => eb.HasKey(e => e.Name));
             modelBuilder.Entity<Engine>(
                 eb =>
                 {

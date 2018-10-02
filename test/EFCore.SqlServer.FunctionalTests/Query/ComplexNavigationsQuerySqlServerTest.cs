@@ -483,7 +483,7 @@ INNER JOIN [LevelOne] AS [e1] ON [e2].[Name] = (
             await base.Join_with_orderby_on_inner_sequence_navigation_translated_to_subquery_non_key_join(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Join_navigation_translated_to_subquery_self_ref(bool isAsync)
@@ -516,7 +516,7 @@ INNER JOIN [LevelOne] AS [e1] ON [e3].[Id] = (
             await base.Join_navigation_translated_to_subquery_nested2(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Join_navigation_translated_to_subquery_deeply_nested_non_key_join(bool isAsync)
@@ -1827,7 +1827,7 @@ ORDER BY [t].[Id]");
             await base.Orderby_SelectMany_with_Include1(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task SelectMany_with_Include2(bool isAsync)
@@ -2570,7 +2570,7 @@ LEFT JOIN [LevelOne] AS [l1_outer] ON [t].[Level1_Optional_Id] = [l1_outer].[Id]
             await base.GroupJoin_on_a_subquery_containing_another_GroupJoin_with_orderby_on_inner_sequence_projecting_inner(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task GroupJoin_on_left_side_being_a_subquery(bool isAsync)
@@ -3068,7 +3068,7 @@ ORDER BY [l1].[Id]");
             await base.Select_subquery_with_client_eval_and_multi_level_navigation(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Member_doesnt_get_pushed_down_into_subquery_with_result_operator(bool isAsync)
@@ -3094,7 +3094,7 @@ WHERE [l1].[Id] < 3");
             base.Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy();
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Project_collection_navigation(bool isAsync)
@@ -3279,7 +3279,7 @@ ORDER BY [t].[Id], [t].[Id0]");
             base.Include_inside_subquery();
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Select_optional_navigation_property_string_concat(bool isAsync)

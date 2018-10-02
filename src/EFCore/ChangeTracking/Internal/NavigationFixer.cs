@@ -532,8 +532,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
-                if (handledForeignKeys == null
-                    || !handledForeignKeys.Contains(foreignKey))
+                if (handledForeignKeys?.Contains(foreignKey) != true)
                 {
                     var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
                     if (principalEntry != null)
@@ -583,8 +582,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
             {
                 if (!foreignKey.DeclaringEntityType.IsQueryType
-                    && (handledForeignKeys == null
-                        || !handledForeignKeys.Contains(foreignKey)))
+                    && handledForeignKeys?.Contains(foreignKey) != true)
                 {
                     var dependents = stateManager.GetDependents(entry, foreignKey);
                     if (foreignKey.IsUnique)

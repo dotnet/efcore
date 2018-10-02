@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider
                 = new ServiceCollection()
-                    .AddScoped(p => new OracleConnection(OracleNorthwindTestStoreFactory.NorthwindConnectionString))
+                    .AddScoped(_ => new OracleConnection(OracleNorthwindTestStoreFactory.NorthwindConnectionString))
                     .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider();
 
             using (OracleTestStore.GetNorthwindStore())
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider
                 = new ServiceCollection()
-                    .AddScoped(p => new OracleConnection(OracleNorthwindTestStoreFactory.NorthwindConnectionString))
+                    .AddScoped(_ => new OracleConnection(OracleNorthwindTestStoreFactory.NorthwindConnectionString))
                     .AddDbContext<OptionsContext>()
                     .BuildServiceProvider();
 

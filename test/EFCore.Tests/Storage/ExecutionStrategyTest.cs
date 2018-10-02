@@ -63,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             for (var i = 0; i < expectedDelays.Count; i++)
             {
                 Assert.True(
-                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds) <=
-                    expectedDelays[i].TotalMilliseconds * 0.1 + 1,
+                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds)
+                    <= expectedDelays[i].TotalMilliseconds * 0.1 + 1,
                     string.Format("Expected: {0}; Actual: {1}", expectedDelays[i], delays[i]));
             }
         }
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Execute_Action_does_not_throw_when_invoked_twice()
         {
-            Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(() => { f(); }));
+            Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(() => f()));
         }
 
         [Fact]
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Execute_Action_doesnt_retry_if_succesful()
         {
-            Execute_doesnt_retry_if_succesful((e, f) => e.Execute(() => { f(); }));
+            Execute_doesnt_retry_if_succesful((e, f) => e.Execute(() => f()));
         }
 
         [Fact]
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Execute_Action_doesnt_retry_if_suspended()
         {
-            Execute_doesnt_retry_if_suspended((e, f) => e.Execute(() => { f(); }));
+            Execute_doesnt_retry_if_suspended((e, f) => e.Execute(() => f()));
         }
 
         [Fact]
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Execute_Action_retries_until_succesful()
         {
-            Execute_retries_until_succesful((e, f) => e.Execute(() => { f(); }));
+            Execute_retries_until_succesful((e, f) => e.Execute(() => f()));
         }
 
         [Fact]
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Execute_Action_retries_until_not_retrieable_exception_is_thrown()
         {
-            Execute_retries_until_not_retrieable_exception_is_thrown((e, f) => e.Execute(() => { f(); }));
+            Execute_retries_until_not_retrieable_exception_is_thrown((e, f) => e.Execute(() => f()));
         }
 
         [Fact]
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Execute_Action_retries_until_limit_is_reached()
         {
-            Execute_retries_until_limit_is_reached((e, f) => e.Execute(() => { f(); }));
+            Execute_retries_until_limit_is_reached((e, f) => e.Execute(() => f()));
         }
 
         [Fact]

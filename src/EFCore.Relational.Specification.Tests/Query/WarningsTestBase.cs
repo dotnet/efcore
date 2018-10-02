@@ -12,6 +12,9 @@ using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>

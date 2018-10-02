@@ -162,18 +162,18 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         if (
                             // Test for various string methods
-                            sn is InvocationExpressionSyntax invocationExpressionSyntax
+                            (sn is InvocationExpressionSyntax invocationExpressionSyntax
                             && invocationExpressionSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax
                             && memberAccessExpressionSyntax.Name.Identifier.ValueText is string identifier
                             && (identifier == "Format"
                                 || identifier == "Concat"
                                 || identifier == "Insert"
                                 || identifier == "Replace"
-                                || identifier == "Join")
+                                || identifier == "Join"))
 
                             // Test for string '+' operator
-                            || sn is BinaryExpressionSyntax binaryExpressionSyntax
-                            && binaryExpressionSyntax.OperatorToken.Kind() == SyntaxKind.PlusToken)
+                            || (sn is BinaryExpressionSyntax binaryExpressionSyntax
+                                && binaryExpressionSyntax.OperatorToken.Kind() == SyntaxKind.PlusToken))
                         {
                             var memberSymbol = analysisContext.GetSymbol(sn);
 

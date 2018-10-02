@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new ReferenceOwnershipBuilder(
                 Builder,
                 this,
-                foreignKeySet: foreignKeyPropertyNames.Any());
+                foreignKeySet: foreignKeyPropertyNames.Length > 0);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new ReferenceOwnershipBuilder(
                 Builder,
                 this,
-                principalKeySet: keyPropertyNames.Any());
+                principalKeySet: keyPropertyNames.Length > 0);
         }
 
         /// <summary>

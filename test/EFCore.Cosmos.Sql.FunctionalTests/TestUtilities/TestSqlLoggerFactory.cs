@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
                                   currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
                               + "QueryBaseline.cs";
 
-                var testInfo = $"{testName + " : " + lineNumber}" + FileNewLine;
+                var testInfo = testName + " : " + lineNumber + FileNewLine;
 
                 var newBaseLine = $@"            AssertSql(
                 {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});";

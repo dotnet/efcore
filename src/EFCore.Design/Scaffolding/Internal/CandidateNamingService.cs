@@ -65,8 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .GetReferencingForeignKeys()
                     .Where(fk => foreignKey.DeclaringEntityType == fk.DeclaringEntityType);
 
-            return allForeignKeysBetweenDependentAndPrincipal != null
-                && allForeignKeysBetweenDependentAndPrincipal.Count() > 1
+            return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1
                 ? foreignKey.DeclaringEntityType.ShortName()
                        + dependentEndNavigationPropertyName
                 : foreignKey.DeclaringEntityType.ShortName();

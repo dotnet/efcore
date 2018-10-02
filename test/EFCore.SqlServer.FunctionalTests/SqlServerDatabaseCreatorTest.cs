@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void GenerateCreateScript_works()
         {
-            using (var context = new BloggingContext(@"Data Source=foo"))
+            using (var context = new BloggingContext("Data Source=foo"))
             {
                 var script = context.Database.GenerateCreateScript();
                 Assert.Equal(

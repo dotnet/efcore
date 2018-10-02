@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Ignore(c => c.Details);
                         b.Ignore(c => c.Orders);
                     });
-                modelBuilder.Entity<CustomerDetails>(b => { b.Ignore(c => c.Customer); });
+                modelBuilder.Entity<CustomerDetails>(b => b.Ignore(c => c.Customer));
 
                 modelBuilder.Validate();
 
@@ -805,10 +805,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
 
                 modelBuilder.Entity<JsonProperty>(
-                    b =>
-                    {
-                        b.Property(e => e.JObject).HasConversion(v => v.ToString(), v => new JObject(v));
-                    });
+                    b => b.Property(e => e.JObject).HasConversion(v => v.ToString(), v => new JObject(v)));
 
                 modelBuilder.Validate();
 

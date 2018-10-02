@@ -374,8 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (source == null)
             {
-                if (targetMigrationsAnnotations != null
-                    && targetMigrationsAnnotations.Count > 0)
+                if (targetMigrationsAnnotations?.Count > 0)
                 {
                     var alterDatabaseOperation = new AlterDatabaseOperation();
                     alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
@@ -1627,8 +1626,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             var modelValuesChanged
                                 = sourceProperty.ClrType.UnwrapNullableType() == targetProperty.ClrType.UnwrapNullableType()
-                                  && comparer != null
-                                  && !comparer.Equals(sourceValue, targetValue);
+                                  && comparer?.Equals(sourceValue, targetValue) == false;
 
                             if (!modelValuesChanged)
                             {

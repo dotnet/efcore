@@ -41,7 +41,7 @@ namespace EFCore.Analyzers.Test.TestUtilities
         {
             const string fileName = "Test.cs";
 
-            source = $@"using Microsoft.EntityFrameworkCore;using System.Data.SqlClient;class C {{ void M() {{ {source} }} }}";
+            source = $"using Microsoft.EntityFrameworkCore;using System.Data.SqlClient;class C {{ void M() {{ {source} }} }}";
 
             //Debugger.Launch();
 

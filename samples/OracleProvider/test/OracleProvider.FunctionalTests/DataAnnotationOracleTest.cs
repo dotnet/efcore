@@ -282,11 +282,11 @@ END;",
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @":p0='' (DbType = Int32)" + _eol,
+                ":p0='' (DbType = Int32)" + _eol,
                 Sql);
 
             Assert.Contains(
-                @":p1='' (Nullable = false) (DbType = Int32)" + _eol,
+                ":p1='' (Nullable = false) (DbType = Int32)" + _eol,
                 Sql);
         }
 

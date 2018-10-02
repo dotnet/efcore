@@ -435,10 +435,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().OwnsMany(
                     c => c.Orders,
-                    r =>
-                    {
-                        r.ToTable("blah");
-                    });
+                    r => r.ToTable("blah"));
 
                 Assert.Equal("blah", owned.SqlServer().TableName);
                 Assert.Equal("foo", owned.SqlServer().Schema);

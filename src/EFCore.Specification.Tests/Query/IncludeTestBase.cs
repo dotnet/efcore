@@ -15,6 +15,9 @@ using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable StringStartsWithIsCultureSpecific
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class IncludeTestBase<TFixture> : IClassFixture<TFixture>
@@ -2278,9 +2281,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CheckIsLoaded(
                         context,
                         order,
-                        customerLoaded: true,
                         orderDetailsLoaded: false,
                         productLoaded: false,
+                        customerLoaded: true,
                         ordersLoaded: false);
                 }
             }
@@ -2302,7 +2305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Include(o => o.Order)
                             .ToList();
 
-                Assert.True(orderDetails.Any());
+                Assert.True(orderDetails.Count > 0);
 
                 foreach (var orderDetail in orderDetails)
                 {
@@ -2342,9 +2345,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CheckIsLoaded(
                         context,
                         order,
-                        customerLoaded: true,
                         orderDetailsLoaded: true,
                         productLoaded: false,
+                        customerLoaded: true,
                         ordersLoaded: false);
                 }
             }
@@ -2376,9 +2379,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CheckIsLoaded(
                         context,
                         order,
-                        customerLoaded: false,
                         orderDetailsLoaded: true,
                         productLoaded: false,
+                        customerLoaded: false,
                         ordersLoaded: false);
                 }
             }
@@ -2411,9 +2414,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CheckIsLoaded(
                         context,
                         order,
-                        customerLoaded: false,
                         orderDetailsLoaded: false,
                         productLoaded: false,
+                        customerLoaded: false,
                         ordersLoaded: false);
                 }
             }
@@ -2451,9 +2454,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CheckIsLoaded(
                         context,
                         order,
-                        customerLoaded: true,
                         orderDetailsLoaded: false,
                         productLoaded: false,
+                        customerLoaded: true,
                         ordersLoaded: false);
                 }
             }
@@ -2538,9 +2541,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CheckIsLoaded(
                         context,
                         order,
-                        customerLoaded: true,
                         orderDetailsLoaded: false,
                         productLoaded: false,
+                        customerLoaded: true,
                         ordersLoaded: false);
                 }
             }
@@ -2574,9 +2577,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CheckIsLoaded(
                         context,
                         order,
-                        customerLoaded: true,
                         orderDetailsLoaded: false,
                         productLoaded: false,
+                        customerLoaded: true,
                         ordersLoaded: false);
                 }
             }
@@ -2610,9 +2613,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CheckIsLoaded(
                         context,
                         order,
-                        customerLoaded: true,
                         orderDetailsLoaded: false,
                         productLoaded: false,
+                        customerLoaded: true,
                         ordersLoaded: false);
                 }
             }
@@ -2833,9 +2836,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CheckIsLoaded(
                     context,
                     order,
-                    customerLoaded: true,
                     orderDetailsLoaded: false,
                     productLoaded: false,
+                    customerLoaded: true,
                     ordersLoaded: true);
             }
         }
@@ -4118,7 +4121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [InlineData(false, false)]
         [InlineData(true, false)]
         // async blocked by issue #11917
-        //[InlineData(false, true)] 
+        //[InlineData(false, true)]
         //[InlineData(true, true)]
         public virtual async Task Include_with_double_group_by(bool useString, bool async)
         {
@@ -4145,7 +4148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [InlineData(false, false)]
         [InlineData(true, false)]
         // async blocked by issue #11917
-        //[InlineData(false, true)] 
+        //[InlineData(false, true)]
         //[InlineData(true, true)]
         public virtual async Task Include_with_double_group_by_no_tracking(bool useString, bool async)
         {
@@ -4172,7 +4175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [InlineData(false, false)]
         [InlineData(true, false)]
         // async blocked by issue #11917
-        //[InlineData(false, true)] 
+        //[InlineData(false, true)]
         //[InlineData(true, true)]
         public virtual async Task Include_with_double_group_by_and_aggregate(bool useString, bool async)
         {

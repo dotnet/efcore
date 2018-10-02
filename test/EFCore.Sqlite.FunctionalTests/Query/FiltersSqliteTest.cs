@@ -27,8 +27,5 @@ WHERE (""c"".""CompanyName"" LIKE @__ef_filter__TenantPrefix_0 || '%' AND (subst
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
     }
 }

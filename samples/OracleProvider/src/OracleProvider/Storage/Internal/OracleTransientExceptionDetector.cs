@@ -21,12 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
                 return false;
             }
 
-            if (ex is TimeoutException)
-            {
-                return true;
-            }
-
-            return false;
+            return ex is TimeoutException;
         }
     }
 }

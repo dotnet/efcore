@@ -1463,8 +1463,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             foreach (var property in properties.ToList())
             {
-                if (property != null
-                    && property.IsShadowProperty)
+                if (property?.IsShadowProperty == true)
                 {
                     RemovePropertyIfUnused(property);
                 }
@@ -1804,9 +1803,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var navigationProperty = navigationToTarget?.Property;
             if (inverseNavigation == null
-                && navigationProperty != null
-                && !navigationProperty.GetMemberType().GetTypeInfo().IsAssignableFrom(
-                    targetEntityTypeBuilder.Metadata.ClrType.GetTypeInfo()))
+                && navigationProperty?.GetMemberType().GetTypeInfo().IsAssignableFrom(
+                    targetEntityTypeBuilder.Metadata.ClrType.GetTypeInfo()) == false)
             {
                 // Only one nav specified and it can't be the nav to principal
                 return targetEntityTypeBuilder.Relationship(
