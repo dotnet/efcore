@@ -628,5 +628,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int ValueId { get; set; }
             public Value Value { get; set; }
         }
+
+        protected class QueryType
+        {
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
+        }
     }
 }
