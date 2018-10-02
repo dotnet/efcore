@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             for (var i = 0; i < expectedDelays.Count; i++)
             {
                 Assert.True(
-                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds) <=
-                    expectedDelays[i].TotalMilliseconds * 0.1 + 1,
+                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds)
+                    <= expectedDelays[i].TotalMilliseconds * 0.1 + 1,
                     string.Format("Expected: {0}; Actual: {1}", expectedDelays[i], delays[i]));
             }
         }

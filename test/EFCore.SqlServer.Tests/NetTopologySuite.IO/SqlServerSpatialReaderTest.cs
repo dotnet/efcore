@@ -145,7 +145,6 @@ namespace NetTopologySuite.IO
             Assert.Equal("POINT (1 2)", point.AsText());
         }
 
-
         [Fact]
         public void Read_throws_when_circular_string()
         {

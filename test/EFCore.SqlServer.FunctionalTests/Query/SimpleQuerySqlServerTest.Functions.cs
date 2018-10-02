@@ -1279,7 +1279,7 @@ ORDER BY CAST(LEN([c].[CustomerID]) AS int), [c].[CustomerID]");
             await base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Static_string_equals_in_predicate(bool isAsync)

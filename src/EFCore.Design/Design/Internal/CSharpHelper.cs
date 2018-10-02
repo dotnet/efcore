@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     if (partStart != i)
                     {
-                        builder.Append(name.Substring(partStart, i - partStart));
+                        builder.Append(name, partStart, i - partStart);
                     }
 
                     partStart = i + 1;
@@ -604,6 +604,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             return builder.ToString();
         }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.

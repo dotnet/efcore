@@ -1191,14 +1191,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             {
                                 cb.Property<int?>("ParentId");
                                 cb.HasForeignKey("ParentId");
-                                cb.OwnsOne(c => c.SubChild, scb => { scb.HasForeignKey("ChildId"); });
+                                cb.OwnsOne(c => c.SubChild, scb => scb.HasForeignKey("ChildId"));
                             });
                         pb.OwnsOne(
                             p => p.Child2, cb =>
                             {
                                 cb.Property<int?>("ParentId");
                                 cb.HasForeignKey("ParentId");
-                                cb.OwnsOne(c => c.SubChild, scb => { scb.HasForeignKey("ChildId"); });
+                                cb.OwnsOne(c => c.SubChild, scb => scb.HasForeignKey("ChildId"));
                             });
                     });
             }

@@ -140,10 +140,10 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 modelBuilder.Entity<BinaryKeyDataType>(
-                    b => { b.Property(e => e.Id).HasConversion<string>(); });
+                    b => b.Property(e => e.Id).HasConversion<string>());
 
                 modelBuilder.Entity<StringKeyDataType>(
-                    b => { b.Property(e => e.Id).HasConversion<byte[]>(); });
+                    b => b.Property(e => e.Id).HasConversion<byte[]>());
 
                 modelBuilder.Entity<MaxLengthDataTypes>(
                     b =>

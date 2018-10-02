@@ -514,7 +514,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     Expression.Constant(10),
                     Expression.Constant(10)));
 
-
             Assert.Equal(
                 DesignStrings.LiteralExpressionNotSupported(
                     "(10 + 10)",

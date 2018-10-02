@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                builder.Append(name.Substring(0, maxNameLength - 1));
+                builder.Append(name, 0, maxNameLength - 1);
                 builder.Append("~");
             }
 

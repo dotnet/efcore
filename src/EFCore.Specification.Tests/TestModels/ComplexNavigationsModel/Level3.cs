@@ -61,9 +61,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 var hashCode = Id;
                 hashCode = (hashCode * 397) ^ (Name?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ Level2_Required_Id;
-                hashCode = (hashCode * 397) ^ (Level2_Optional_Id?.GetHashCode() ?? 0);
-
-                return hashCode;
+                return (hashCode * 397) ^ (Level2_Optional_Id?.GetHashCode() ?? 0);
             }
         }
     }

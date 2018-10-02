@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore
     public class DbContextPoolingTest
     {
         private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize = 32)
-            where TContext : DbContext, TContextService
             where TContextService : class
+            where TContext : DbContext, TContextService
             => new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddDbContextPool<TContextService, TContext>(

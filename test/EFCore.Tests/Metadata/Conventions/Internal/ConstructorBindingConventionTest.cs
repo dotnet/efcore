@@ -438,11 +438,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 string fooBaar5,
                 string fooBaar6,
                 // ReSharper disable once InconsistentNaming
+#pragma warning disable IDE1006 // Naming Styles
                 string FooBaar1,
                 // ReSharper disable once InconsistentNaming
                 string FooBaar5,
                 // ReSharper disable once InconsistentNaming
                 string FooBaar6)
+#pragma warning restore IDE1006 // Naming Styles
             {
             }
         }
@@ -747,13 +749,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private abstract class Blog
         {
-#pragma warning disable 649
-#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable 649, IDE1006 // Naming Styles
             public string _content;
 
             public int m_follows;
-#pragma warning restore IDE1006 // Naming Styles
-#pragma warning restore 649
+#pragma warning restore 649, IDE1006 // Naming Styles
 
             public int Id { get; set; }
             public string Title { get; set; }

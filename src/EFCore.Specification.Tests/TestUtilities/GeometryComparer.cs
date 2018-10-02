@@ -16,18 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public bool Equals(IGeometry x, IGeometry y)
-        {
-            if (x == null)
-            {
-                return y == null;
-            }
-            if (x.Normalized().EqualsExact(y.Normalized(), tolerance: 0.1))
-            {
-                return true;
-            }
-
-            return false;
-        }
+            => x == null ? y == null : x.Normalized().EqualsExact(y.Normalized(), tolerance: 0.1);
 
         public int GetHashCode(IGeometry obj)
             => throw new NotImplementedException();

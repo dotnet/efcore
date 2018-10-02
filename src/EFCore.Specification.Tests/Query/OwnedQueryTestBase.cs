@@ -527,15 +527,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             });
                     });
 
-                modelBuilder.Entity<Planet>(pb =>
-                {
-                    pb.HasData(new Planet { Id = 1, StarId = 1 });
-                });
+                modelBuilder.Entity<Planet>(pb => pb.HasData(new Planet { Id = 1, StarId = 1 }));
 
-                modelBuilder.Entity<Moon>(mb =>
-                {
-                    mb.HasData(new Moon { Id = 1, PlanetId = 1, Diameter = 3474 });
-                });
+                modelBuilder.Entity<Moon>(mb => mb.HasData(new Moon { Id = 1, PlanetId = 1, Diameter = 3474 }));
 
                 modelBuilder.Entity<Star>(sb =>
                 {

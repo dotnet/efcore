@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false)))
             {
-                if (ExecuteScalar<int>(master, $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
+                if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
                 {
                     if (_scriptPath != null)
                     {

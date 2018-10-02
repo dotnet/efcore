@@ -936,8 +936,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             foreach (var (_, _, message, _, _) in logFactory.Log)
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol +
-                    @"Logged Command",
+                    "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol +
+                    "Logged Command",
                     message);
             }
         }
@@ -990,8 +990,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             foreach (var (_, _, message, _, _) in logFactory.Log.Skip(1))
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol +
-                    @"Logged Command",
+                    "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol +
+                    "Logged Command",
                     message);
             }
         }

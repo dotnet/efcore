@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     else
                     {
-                        var ex = Assert.Throws<DbUpdateException>(() => { context.SaveChanges(); });
+                        var ex = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                         // ReSharper disable once PossibleNullReferenceException
                         Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message, StringComparison.OrdinalIgnoreCase);
                     }
@@ -144,7 +144,7 @@ CREATE TABLE Comment (
                             .HasForeignKey(d => d.UserAltId);
                     });
 
-                modelBuilder.Entity<User>(entity => { entity.HasAlternateKey(e => e.AltId); });
+                modelBuilder.Entity<User>(entity => entity.HasAlternateKey(e => e.AltId));
             }
 
             public virtual DbSet<Comment> Comments { get; set; }

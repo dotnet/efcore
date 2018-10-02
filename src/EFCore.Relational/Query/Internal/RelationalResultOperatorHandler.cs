@@ -799,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static Expression HandleLast(HandlerContext handlerContext)
         {
             var requiresClientResultOperator = true;
-            if (handlerContext.SelectExpression.OrderBy.Any())
+            if (handlerContext.SelectExpression.OrderBy.Count > 0)
             {
                 if (handlerContext.SelectExpression.Limit != null
                     || handlerContext.SelectExpression.Offset != null)
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (selectExpression.IsDistinct
                 || selectExpression.Limit != null
                 || selectExpression.Offset != null
-                || (selectExpression.GroupBy.Any()
+                || (selectExpression.GroupBy.Count > 0
                     && !IsGroupByAggregate(queryModel)))
             {
                 selectExpression.PushDownSubquery();

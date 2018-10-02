@@ -157,11 +157,11 @@ namespace NetTopologySuite.IO.Serialization
             writer.Write(Version);
 
             var properties = SerializationProperties.None;
-            if (ZValues.Any())
+            if (ZValues.Count > 0)
             {
                 properties |= SerializationProperties.HasZValues;
             }
-            if (MValues.Any())
+            if (MValues.Count > 0)
             {
                 properties |= SerializationProperties.HasMValues;
             }
@@ -169,7 +169,7 @@ namespace NetTopologySuite.IO.Serialization
             {
                 properties |= SerializationProperties.IsValid;
             }
-            if (Shapes.First().Type == OpenGisType.Point && Points.Any())
+            if (Shapes.First().Type == OpenGisType.Point && Points.Count > 0)
             {
                 properties |= SerializationProperties.IsSinglePoint;
             }
@@ -269,7 +269,7 @@ namespace NetTopologySuite.IO.Serialization
                 shape.WriteTo(writer);
             }
 
-            if (Segments.Any())
+            if (Segments.Count > 0)
             {
                 writer.Write(Segments.Count);
 

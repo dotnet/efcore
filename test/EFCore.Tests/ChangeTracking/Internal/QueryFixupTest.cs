@@ -958,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 AssertFixup(
                     context,
-                    () => { Assert.Equal(principal.Id, foreignKeyValue); });
+                    () => Assert.Equal(principal.Id, foreignKeyValue));
             }
         }
 
@@ -975,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 AssertFixup(
                     context,
-                    () => { Assert.Equal(principal.Id, foreignKeyValue); });
+                    () => Assert.Equal(principal.Id, foreignKeyValue));
             }
         }
 

@@ -127,7 +127,7 @@ namespace NetTopologySuite.IO
                 IsValid = geometry.IsValid
             };
 
-            while (geometries.Any())
+            while (geometries.Count > 0)
             {
                 var (currentGeometry, parentOffset) = geometries.Dequeue();
 

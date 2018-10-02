@@ -34,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                if (entityType.ClrType != null
-                    && !entityType.ClrType.IsAbstract)
+                if (entityType.ClrType?.IsAbstract == false)
                 {
                     var maxServiceParams = 0;
                     var minPropertyParams = int.MaxValue;

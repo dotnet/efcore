@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 return ExecuteScalar<int>(
                            connection,
-                           $@"SELECT COUNT(*) FROM all_users WHERE username = '{name.ToUpperInvariant()}'") > 0;
+                           $"SELECT COUNT(*) FROM all_users WHERE username = '{name.ToUpperInvariant()}'") > 0;
             }
         }
 

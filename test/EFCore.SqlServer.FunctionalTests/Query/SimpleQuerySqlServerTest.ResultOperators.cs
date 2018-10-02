@@ -1061,7 +1061,7 @@ WHERE [o].[ProductID] = 42");
 
             Assert.DoesNotContain(
                 CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
-                    @"(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    "(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Project_constant_Sum(bool isAsync)

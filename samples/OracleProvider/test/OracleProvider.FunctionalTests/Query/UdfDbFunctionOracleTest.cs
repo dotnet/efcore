@@ -35,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 RETURN INTEGER IS
   result INTEGER;
 BEGIN
-  SELECT COUNT(""Id"") 
+  SELECT COUNT(""Id"")
   INTO result
-  FROM ""Orders"" 
+  FROM ""Orders""
   WHERE ""CustomerId"" = customerId;
   RETURN result;
 END;");
@@ -60,7 +60,7 @@ END;");
                     @"CREATE OR REPLACE FUNCTION ""GetReportingPeriodStartDate"" (period INTEGER)
 RETURN TIMESTAMP IS
 BEGIN
-	RETURN TO_TIMESTAMP('01/01/1998', 'MM/DD/YYYY');
+    RETURN TO_TIMESTAMP('01/01/1998', 'MM/DD/YYYY');
 END;");
 
                 context.Database.ExecuteSqlCommand(
@@ -84,7 +84,7 @@ RETURN INTEGER IS
 BEGIN
   IF (customerId = 1) THEN
     RETURN 1;
-  ELSE	
+  ELSE
     RETURN 0;
   END IF;
 END;");
@@ -108,8 +108,8 @@ END;");
 RETURN NVARCHAR2 IS
 BEGIN
     RETURN customerName;
-END;");                
-                
+END;");
+
                 context.SaveChanges();
             }
         }

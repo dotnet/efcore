@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
+            modelBuilder.Entity<Chassis>(b => b.HasKey(c => c.TeamId));
 
             modelBuilder.Entity<Engine>(
                 b =>

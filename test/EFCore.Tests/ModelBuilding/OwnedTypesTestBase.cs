@@ -922,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Ignore<Book>();
                 modelBuilder.Ignore<SpecialBookLabel>();
-                modelBuilder.Entity<BookLabel>().OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.AnotherBookLabel); });
+                modelBuilder.Entity<BookLabel>().OwnsOne(l => l.AnotherBookLabel, ab => ab.OwnsOne(l => l.AnotherBookLabel));
 
                 var model = modelBuilder.Model;
 

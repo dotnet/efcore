@@ -248,7 +248,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             return builder;
         }
 
-
         public static ModelBuilderTest.TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(
             this ModelBuilderTest.TestReferenceReferenceBuilder<TEntity, TRelatedEntity> builder,
             string name)

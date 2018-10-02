@@ -166,9 +166,9 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Id2).ValueGeneratedOnAdd();
                     });
 
-                modelBuilder.Entity<Item>(b => { b.Property(e => e.Id).ValueGeneratedOnAdd(); });
+                modelBuilder.Entity<Item>(b => b.Property(e => e.Id).ValueGeneratedOnAdd());
 
-                modelBuilder.Entity<Game>(b => { b.Property(e => e.Id).ValueGeneratedOnAdd(); });
+                modelBuilder.Entity<Game>(b => b.Property(e => e.Id).ValueGeneratedOnAdd());
             }
         }
     }

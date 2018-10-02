@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 _ => { },
-                modelBuilder => { modelBuilder.Query<TestQueryType>(); },
-                result => { Assert.Equal(0, result.Count); });
+                modelBuilder => modelBuilder.Query<TestQueryType>(),
+                result => Assert.Equal(0, result.Count));
         }
 
         [Fact]
@@ -44,13 +44,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id"); });
+                        x => x.Property<short>("Id"));
                 },
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id").HasConversion<int>(); });
+                        x => x.Property<short>("Id").HasConversion<int>());
                 },
                 upOps => Assert.Collection(
                     upOps,
@@ -81,13 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id"); });
+                        x => x.Property<short>("Id"));
                 },
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v); });
+                        x => x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v));
                 },
                 upOps => Assert.Collection(
                     upOps,
@@ -118,13 +118,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id").HasConversion<int>(); });
+                        x => x.Property<short>("Id").HasConversion<int>());
                 },
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v); });
+                        x => x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v));
                 },
                 upOps => Assert.Collection(
                     upOps,
@@ -955,7 +955,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 });
                         });
                 },
-                operations => { Assert.Equal(0, operations.Count); });
+                operations => Assert.Equal(0, operations.Count));
         }
 
         [Fact]
@@ -1634,7 +1634,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasValueGenerator<CustomValueGenerator>();
                     }),
-                operations => { Assert.Equal(0, operations.Count); });
+                operations => Assert.Equal(0, operations.Count));
         }
 
         [Fact]
@@ -1656,7 +1656,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<string>("Name");
                     }),
-                operations => { Assert.Equal(0, operations.Count); });
+                operations => Assert.Equal(0, operations.Count));
         }
 
         private class CustomValueGenerator : ValueGenerator<string>
@@ -2370,10 +2370,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 source => source.Entity(
                     "Raven",
-                    x => { x.HasKey("Id", "RavenId"); }),
+                    x => x.HasKey("Id", "RavenId")),
                 target => target.Entity(
                     "Raven",
-                    x => { x.HasKey("RavenId", "Id"); }),
+                    x => x.HasKey("RavenId", "Id")),
                 operations =>
                 {
                     Assert.Equal(2, operations.Count);
@@ -4811,7 +4811,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
                         });
                 },
-                operations => { Assert.Equal(0, operations.Count); });
+                operations => Assert.Equal(0, operations.Count));
         }
 
         [Fact]
@@ -6316,7 +6316,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
-                    x => { x.Property<int>("Id"); }),
+                    x => x.Property<int>("Id")),
                 source => source.Entity(
                     "EntityWithOneProperty",
                     x =>
@@ -6352,7 +6352,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
-                    x => { x.Property<int>("Id"); }),
+                    x => x.Property<int>("Id")),
                 source => source.Entity(
                     "EntityWithOneProperty",
                     x =>
@@ -6391,7 +6391,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
-                    x => { x.Property<int>("Value1"); }),
+                    x => x.Property<int>("Value1")),
                 source => source.Entity(
                     "EntityWithOneProperty",
                     x =>
@@ -6457,7 +6457,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("EntityWithEnumProperty", operation.Table);
                         Assert.Equal("schema", operation.Schema);
                         Assert.Equal(typeof(string), operation.ClrType);
-                        Assert.Equal(SomeEnum.Default.ToString(), operation.DefaultValue);
+                        Assert.Equal(nameof(SomeEnum.Default), operation.DefaultValue);
                     },
                     o =>
                     {
@@ -6469,7 +6469,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(1, v));
                         AssertMultidimensionalArray(
                             m.Values,
-                            v => Assert.Equal(SomeEnum.NonDefault.ToString(), v));
+                            v => Assert.Equal(nameof(SomeEnum.NonDefault), v));
                     }),
                 downOps => Assert.Collection(
                     downOps,
@@ -7345,7 +7345,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 common => common
-                    .Entity<OldOrder>(x => { x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id"); })
+                    .Entity<OldOrder>(x => x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id"))
                     .Entity<Address>().ToTable("OldOrder"),
                 source => source
                     .Entity<OldOrder>(x => { })

@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Create(QueryCompilationContext)
                     .FindEntitiesInResult(outputExpression);
 
-            if (entityTrackingInfos.Any())
+            if (entityTrackingInfos.Count > 0)
             {
                 MethodInfo trackingMethod;
 
@@ -784,8 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return !_modelExpressionApplyingExpressionVisitor.IsViewTypeQuery
                    && !(queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
                    && (QueryCompilationContext.TrackQueryResults || lastTrackingModifier != null)
-                   && (lastTrackingModifier == null
-                       || lastTrackingModifier.IsTracking);
+                   && (lastTrackingModifier?.IsTracking != false);
         }
 
         private static readonly MethodInfo _getEntityAccessors

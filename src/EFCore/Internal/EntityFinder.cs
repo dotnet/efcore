@@ -52,8 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual TEntity Find(object[] keyValues)
         {
-            return keyValues == null
-                || keyValues.Any(v => v == null)
+            return keyValues?.Any(v => v == null) != false
                 ? null
                 : FindTracked(keyValues, out var keyProperties)
                    ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
@@ -72,8 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
-            if (keyValues == null
-                || keyValues.Any(v => v == null))
+            if (keyValues?.Any(v => v == null) != false)
             {
                 return Task.FromResult<TEntity>(null);
             }
@@ -90,8 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         Task<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
         {
-            if (keyValues == null
-                || keyValues.Any(v => v == null))
+            if (keyValues?.Any(v => v == null) != false)
             {
                 return Task.FromResult<object>(null);
             }

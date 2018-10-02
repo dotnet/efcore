@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.TestUtilities
             }
         }
 
-        public Uri ConnectionUri { get; private set; }
-        public string AuthToken { get; private set; }
+        public Uri ConnectionUri { get; }
+        public string AuthToken { get; }
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
             => builder.UseCosmosSql(

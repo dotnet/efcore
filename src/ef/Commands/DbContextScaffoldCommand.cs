@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class DbContextScaffoldCommand
+    internal partial class DbContextScaffoldCommand
     {
         protected override void Validate()
         {

@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
             {
                 var includeProperties = index.SqlServer().IncludeProperties;
-                if (includeProperties != null && includeProperties.Count > 0)
+                if (includeProperties?.Count > 0)
                 {
                     var notFound = includeProperties
                         .Where(i => index.DeclaringEntityType.FindProperty(i) == null)

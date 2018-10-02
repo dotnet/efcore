@@ -897,7 +897,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into orders
                     from o in orders.DefaultIfEmpty()
+#pragma warning disable RCS1146 // Use conditional access.
                     where o != null && o.CustomerID == "ALFKI"
+#pragma warning restore RCS1146 // Use conditional access.
                     select o,
                 entryCount: 6);
         }
@@ -913,7 +915,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o in os on c.CustomerID equals o.CustomerID
                     join o2 in os on c.CustomerID equals o2.CustomerID into orders
                     from o3 in orders.DefaultIfEmpty()
+#pragma warning disable RCS1146 // Use conditional access.
                     where o3 != null && o3.CustomerID == "ALFKI"
+#pragma warning restore RCS1146 // Use conditional access.
                     select o3,
                 entryCount: 6);
         }

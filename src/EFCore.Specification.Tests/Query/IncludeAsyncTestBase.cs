@@ -854,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(o => o.Order)
                         .ToListAsync();
 
-                Assert.True(orders.Any());
+                Assert.True(orders.Count > 0);
             }
         }
 

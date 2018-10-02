@@ -36,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.StartsWith(
-                    @"Compiling query model: " + _eol +
-                    @"'from Customer <generated>_0 in DbSet<Customer>",
+                    "Compiling query model: " + _eol +
+                    "'from Customer <generated>_0 in DbSet<Customer>",
                     Fixture.TestSqlLoggerFactory.Log[0].Message);
                 Assert.StartsWith(
-                    @"Optimized query model: " + _eol +
-                    @"'from Customer <generated>_0 in DbSet<Customer>",
+                    "Optimized query model: " + _eol +
+                    "'from Customer <generated>_0 in DbSet<Customer>",
                     Fixture.TestSqlLoggerFactory.Log[1].Message);
             }
         }
@@ -95,20 +95,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(customers);
 
                 Assert.Equal(
-                    @"Compiling query model: " + _eol +
-                    @"'(from Customer c in DbSet<Customer>" + _eol +
+                    "Compiling query model: " + _eol +
+                    "'(from Customer c in DbSet<Customer>" + _eol +
                     @"select [c]).Include(""Orders"")'"
                     ,
                     Fixture.TestSqlLoggerFactory.Log[0].Message);
                 Assert.Equal(
-                    @"Including navigation: '[c].Orders'"
+                    "Including navigation: '[c].Orders'"
                     ,
                     Fixture.TestSqlLoggerFactory.Log[1].Message);
                 Assert.StartsWith(
-                    @"Optimized query model: " + _eol +
-                    @"'from Customer c in DbSet<Customer>" + _eol +
+                    "Optimized query model: " + _eol +
+                    "'from Customer c in DbSet<Customer>" + _eol +
                     @"order by EF.Property(?[c]?, ""CustomerID"") asc" + _eol +
-                    @"select Customer _Include("
+                    "select Customer _Include("
                     ,
                     Fixture.TestSqlLoggerFactory.Log[2].Message);
             }
