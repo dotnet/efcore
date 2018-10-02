@@ -16,6 +16,8 @@ dotnet ef database update
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
+    <!-- Because this project uses a custom nuspec, this is necessary to ensure the generated shims are in the publish directory. -->
+    <PackagedShimOutputRootDirectory>$(OutDir)</PackagedShimOutputRootDirectory>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
@@ -108,7 +110,6 @@ dotnet ef database update
 
         SettingsFile=$(_ToolsSettingsFilePath);
         Output=$(PublishDir)**\*;
-        OutputShims=$(IntermediateOutputPath)shims\$(TargetFramework)\**\*;
         OutputBinary=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll;
         OutputRuntimeConfig=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json;
         OutputSymbol=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.pdb;
