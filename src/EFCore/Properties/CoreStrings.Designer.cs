@@ -49,6 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("StillUsingTypeMapper");
 
         /// <summary>
+        ///     The type mapping for '{type}' has not implemented code literal generation.
+        /// </summary>
+        public static string LiteralGenerationNotSupported([CanBeNull] object type)
+            => string.Format(
+                GetString("LiteralGenerationNotSupported", nameof(type)),
+                type);
+
+        /// <summary>
         ///     The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
         public static string InvalidPropertiesExpression([CanBeNull] object expression)

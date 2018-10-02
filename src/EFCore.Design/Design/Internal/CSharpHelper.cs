@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -195,6 +196,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Reference(Type type)
+            => Reference(type, useFullName: false);
+
+        private string Reference(Type type, bool useFullName)
         {
             Check.NotNull(type, nameof(type));
 
@@ -236,7 +240,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     .Append(".");
             }
 
-            builder.Append(type.ShortDisplayName());
+            builder.Append(
+                useFullName
+                    ? type.DisplayName()
+                    : type.ShortDisplayName());
 
             return builder.ToString();
         }
@@ -691,13 +698,97 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return Array(array);
             }
 
-            var literal = _relationalTypeMappingSource.FindMapping(literalType)?.FindCodeLiteral(value, "C#");
-            if (literal != null)
+            var mapping = _relationalTypeMappingSource.FindMapping(literalType);
+            if (mapping != null)
             {
-                return literal;
+                var builder = new StringBuilder();
+                var expression = mapping.GenerateLiteralExpression(value);
+                var handled = HandleExpression(expression, builder);
+
+                if (!handled)
+                {
+                    throw new NotSupportedException(
+                        DesignStrings.LiteralExpressionNotSupported(
+                            expression.ToString(),
+                            literalType.ShortDisplayName()));
+                }
+
+                return builder.ToString();
             }
 
             throw new InvalidOperationException(DesignStrings.UnknownLiteral(literalType));
+        }
+
+        private bool HandleExpression(Expression expression, StringBuilder builder)
+        {
+            // Only handle trivially simple cases for `new` and factory methods
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Convert:
+                    builder
+                        .Append('(')
+                        .Append(Reference(expression.Type))
+                        .Append(')');
+
+                    return HandleExpression(((UnaryExpression)expression).Operand, builder);
+                case ExpressionType.New:
+                    builder
+                        .Append("new ")
+                        .Append(Reference(expression.Type, useFullName: true));
+
+                    return HandleArguments(((NewExpression)expression).Arguments, builder);
+                case ExpressionType.Call:
+                {
+                    var callExpression = (MethodCallExpression)expression;
+                    if (callExpression.Method.IsStatic)
+                    {
+                        builder
+                            .Append(Reference(expression.Type, useFullName: true));
+                    }
+                    else
+                    {
+                        if (!HandleExpression(callExpression.Object, builder))
+                        {
+                            return false;
+                        }
+                    }
+
+                    builder
+                        .Append('.')
+                        .Append(callExpression.Method.Name);
+
+                    return HandleArguments(callExpression.Arguments, builder);
+                }
+                case ExpressionType.Constant:
+                    builder
+                        .Append(UnknownLiteral(((ConstantExpression)expression).Value));
+
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool HandleArguments(IEnumerable<Expression> argumentExpressions, StringBuilder builder)
+        {
+            builder.Append('(');
+
+            var separator = string.Empty;
+            foreach (var expression in argumentExpressions)
+            {
+                builder.Append(separator);
+
+                if (!HandleExpression(expression, builder))
+                {
+                    return false;
+                }
+
+                separator = ", ";
+            }
+
+            builder.Append(')');
+
+            return true;
         }
 
         /// <summary>

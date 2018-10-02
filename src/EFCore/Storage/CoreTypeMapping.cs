@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -220,12 +221,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter converter);
 
         /// <summary>
-        ///     Attempts generation of a code (e.g. C#) literal for the given value.
+        ///     Creates a an expression tree that can be used to generate code for the literal value.
+        ///     Currently, only very basic expressions such as constructor calls and factory methods taking
+        ///     simple constants are supported.
         /// </summary>
         /// <param name="value"> The value for which a literal is needed. </param>
-        /// <param name="language"> The language, for example "C#". </param>
-        /// <returns> The generated literal, or <c>null</c> if a literal could not be generated. </returns>
-        public virtual string FindCodeLiteral([CanBeNull] object value, [NotNull] string language)
-            => null;
+        /// <returns> An expression tree that can be used to generate code for the literal value. </returns>
+        public virtual Expression GenerateLiteralExpression([NotNull] object value)
+            => throw new NotSupportedException(CoreStrings.LiteralGenerationNotSupported(ClrType.ShortDisplayName()));
     }
 }
