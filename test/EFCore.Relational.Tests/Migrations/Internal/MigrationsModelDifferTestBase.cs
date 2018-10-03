@@ -41,12 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sourceModelBuilder = CreateModelBuilder();
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
-            sourceModelBuilder.GetInfrastructure().Metadata.Validate();
+            sourceModelBuilder.FinalizeModel();
 
             var targetModelBuilder = CreateModelBuilder();
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
-            targetModelBuilder.GetInfrastructure().Metadata.Validate();
+            targetModelBuilder.FinalizeModel();
 
             var modelDiffer = CreateModelDiffer(targetModelBuilder.Model);
 

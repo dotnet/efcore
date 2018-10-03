@@ -1595,8 +1595,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var targetModelBuilder = CreateModelBuilder();
             targetModelBuilder.Entity<Crab>();
 
-            // NB: Call Validate() so ModelBuilt conventions are applied.
-            targetModelBuilder.GetInfrastructure().Metadata.Validate();
+            targetModelBuilder.FinalizeModel();
 
             var modelDiffer = RelationalTestHelpers.Instance.CreateContextServices()
                 .GetRequiredService<IMigrationsModelDiffer>();

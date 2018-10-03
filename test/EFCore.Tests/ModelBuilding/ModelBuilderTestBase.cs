@@ -142,19 +142,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var contextServices = testHelpers.CreateContextServices();
 
-                ModelBuilder = new ModelBuilder(
-                    new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
-                        .AddConventions(
-                            new CoreConventionSetBuilder(
-                                    contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
-                                .CreateConventionSet()));
+                var conventionSet = new CompositeConventionSetBuilder(
+                        contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
+                    .AddConventions(
+                        new CoreConventionSetBuilder(
+                                contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
+                            .CreateConventionSet());
 
-                ModelValidator = new ModelValidator(new ModelValidatorDependencies(validationLogger, modelLogger));
+                conventionSet.ModelBuiltConventions.Add(
+                    new ValidatingConvention(
+                        new ModelValidator(new ModelValidatorDependencies(validationLogger, modelLogger))));
+
+                ModelBuilder = new ModelBuilder(conventionSet);
             }
 
             public virtual IMutableModel Model => ModelBuilder.Model;
             protected ModelBuilder ModelBuilder { get; }
-            protected IModelValidator ModelValidator { get; }
             public ListLoggerFactory ValidationLoggerFactory { get; }
             public ListLoggerFactory ModelLoggerFactory { get; }
 
@@ -181,8 +184,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public virtual TestModelBuilder Validate()
             {
-                var modelBuilder = ModelBuilder.GetInfrastructure().Metadata.Validate();
-                ModelValidator.Validate(modelBuilder.Metadata);
+                ModelBuilder.FinalizeModel();
 
                 return this;
             }

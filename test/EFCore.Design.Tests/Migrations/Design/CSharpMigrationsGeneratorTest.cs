@@ -273,6 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             codeHelper))));
 
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
             modelBuilder.Entity<WithAnnotations>(
                 eb =>
                 {
@@ -282,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     eb.Property<RawEnum>("EnumDiscriminator").HasConversion<int>();
                 });
 
-            modelBuilder.GetInfrastructure().Metadata.Validate();
+            modelBuilder.FinalizeModel();
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -336,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var property = modelBuilder.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
             property.SetMaxLength(1000);
 
-            modelBuilder.GetInfrastructure().Metadata.Validate();
+            modelBuilder.FinalizeModel();
 
             var codeHelper = new CSharpHelper(new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
@@ -520,6 +521,7 @@ namespace MyNamespace
             var generator = CreateMigrationsCodeGenerator();
 
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
             modelBuilder.Entity<EntityWithConstructorBinding>(
                 x =>
                 {
@@ -539,7 +541,7 @@ namespace MyNamespace
             var property2 = entityType.AddProperty("Ham", typeof(RawEnum));
             property2.SetValueConverter(new ValueConverter<RawEnum, string>(v => v.ToString(), v => (RawEnum)Enum.Parse(typeof(RawEnum), v), new ConverterMappingHints(size: 10)));
 
-            modelBuilder.GetInfrastructure().Metadata.Validate();
+            modelBuilder.FinalizeModel();
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
