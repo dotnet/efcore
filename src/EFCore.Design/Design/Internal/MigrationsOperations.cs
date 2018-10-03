@@ -102,8 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         // => "namespace $(rootnamespace).A.B.C"
         private string SubnamespaceFromOutputPath(string outputDir)
         {
-            if (outputDir == null
-                || !outputDir.StartsWith(_projectDir, StringComparison.Ordinal))
+            if (outputDir?.StartsWith(_projectDir, StringComparison.Ordinal) != true)
             {
                 return null;
             }

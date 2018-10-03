@@ -160,8 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
             if (shouldBeCollection == false
-                || navigationTargetClrType == null
-                || !navigationTargetClrType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+                || navigationTargetClrType?.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()) != true)
             {
                 if (shouldBeCollection == true)
                 {

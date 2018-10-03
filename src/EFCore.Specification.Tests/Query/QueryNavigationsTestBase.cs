@@ -21,6 +21,9 @@ using Xunit;
 // ReSharper disable UseCollectionCountProperty
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable PossibleUnintendedReferenceComparison
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class QueryNavigationsTestBase<TFixture> : QueryTestBase<TFixture>
@@ -948,7 +951,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby c.CustomerID
                       select new
                       {
+#pragma warning disable RCS1146 // Use conditional access.
                           Customer = c.Orders != null && c.Orders.Where(e => orderIds.Contains(e.OrderID)).Any()
+#pragma warning restore RCS1146 // Use conditional access.
                               ? c.Orders.Where(e => orderIds.Contains(e.OrderID)).First().Customer
                               : null
                       },
@@ -1447,7 +1452,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(1, result.Count);
                 foreach (var order in result[0])
                 {
-                    Assert.True(order.OrderDetails.Any());
+                    Assert.True(order.OrderDetails.Count > 0);
                 }
             }
         }
@@ -1466,7 +1471,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(1, result.Count);
                 foreach (var order in result[0])
                 {
-                    Assert.True(order.OrderDetails.Any());
+                    Assert.True(order.OrderDetails.Count > 0);
                     foreach (var detail in order.OrderDetails)
                     {
                         Assert.NotNull(detail.Product);

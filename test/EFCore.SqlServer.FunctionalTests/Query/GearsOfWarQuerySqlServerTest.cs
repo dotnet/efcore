@@ -401,10 +401,10 @@ ORDER BY [t1].[FullName]");
 FROM [Tags] AS [t]");
 
             Assert.Contains(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]" + _eol +
-                @"FROM [Gears] AS [g]" + _eol +
-                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
-                @"WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Id] IS NOT NULL AND [g.Tag].[Id] IN (",
+                "SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]" + _eol +
+                "FROM [Gears] AS [g]" + _eol +
+                "LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
+                "WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Id] IS NOT NULL AND [g.Tag].[Id] IN (",
                 Fixture.TestSqlLoggerFactory.SqlStatements[1]);
         }
 
@@ -417,11 +417,11 @@ FROM [Tags] AS [t]");
 FROM [Tags] AS [t]");
 
             Assert.Contains(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]" + _eol +
-                @"FROM [Gears] AS [g]" + _eol +
-                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
-                @"INNER JOIN [Cities] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]" + _eol +
-                @"WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.CityOfBirth].[Location] IS NOT NULL AND [g.Tag].[Id] IN (",
+                "SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]" + _eol +
+                "FROM [Gears] AS [g]" + _eol +
+                "LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
+                "INNER JOIN [Cities] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]" + _eol +
+                "WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.CityOfBirth].[Location] IS NOT NULL AND [g.Tag].[Id] IN (",
                 Fixture.TestSqlLoggerFactory.SqlStatements[1]);
         }
 
@@ -434,10 +434,10 @@ FROM [Tags] AS [t]");
 FROM [Tags] AS [t]");
 
             Assert.Contains(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]" + _eol +
-                @"FROM [Gears] AS [g]" + _eol +
-                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
-                @"WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Id] IS NOT NULL AND [g.Tag].[Id] IN (",
+                "SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]" + _eol +
+                "FROM [Gears] AS [g]" + _eol +
+                "LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
+                "WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Id] IS NOT NULL AND [g.Tag].[Id] IN (",
                 Fixture.TestSqlLoggerFactory.SqlStatements[1]);
         }
 
@@ -483,7 +483,7 @@ WHERE [o].[Discriminator] = N'Officer'");
             await base.Include_with_join_and_inheritance_with_orderby_before_and_after_include(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Include_with_join_and_inheritance2(bool isAsync)
@@ -1726,7 +1726,7 @@ FROM (
             base.Where_subquery_distinct_lastordefault_boolean();
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override void Where_subquery_distinct_last_boolean()
@@ -1734,7 +1734,7 @@ FROM (
             base.Where_subquery_distinct_last_boolean();
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Where_subquery_distinct_orderby_firstordefault_boolean(bool isAsync)
@@ -1888,7 +1888,7 @@ WHERE [g2].[Discriminator] IN (N'Officer', N'Gear')");
             base.Concat_with_scalar_projection();
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Select_navigation_with_concat_and_count(bool isAsync)
@@ -2089,7 +2089,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
             await base.Join_with_order_by_on_inner_sequence_navigation_translated_to_subquery_composite_key(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Collection_with_inheritance_and_join_include_joined(bool isAsync)
@@ -2565,7 +2565,7 @@ WHERE ([t0].[HasSoulPatch] <> 1) AND [t0].[HasSoulPatch] IS NOT NULL");
             await base.Optional_navigation_type_compensation_works_with_predicate_negated_complex1(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Optional_navigation_type_compensation_works_with_predicate_negated_complex2(bool isAsync)
@@ -2573,7 +2573,7 @@ WHERE ([t0].[HasSoulPatch] <> 1) AND [t0].[HasSoulPatch] IS NOT NULL");
             await base.Optional_navigation_type_compensation_works_with_predicate_negated_complex2(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Optional_navigation_type_compensation_works_with_conditional_expression(bool isAsync)
@@ -6496,7 +6496,7 @@ WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')");
             await base.Include_collection_with_concat(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Negated_bool_ternary_inside_anonymous_type_in_projection(bool isAsync)
@@ -7065,7 +7065,7 @@ WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)
             await base.Include_with_order_by_constant_null_of_non_mapped_type(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override void Include_groupby_constant_null_of_non_mapped_type()
@@ -7073,7 +7073,7 @@ WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)
             base.Include_groupby_constant_null_of_non_mapped_type();
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Correlated_collection_order_by_constant_null_of_non_mapped_type(bool isAsync)
@@ -7762,7 +7762,7 @@ ORDER BY [w.SynergyWith].[Name] + N'Marcus'' Lancer'");
             await base.String_concat_on_various_types(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Time_of_day_datetimeoffset(bool isAsync)
@@ -7845,7 +7845,7 @@ ORDER BY [Key]");
             await base.Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property(bool isAsync)
@@ -7853,7 +7853,7 @@ ORDER BY [Key]");
             await base.Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Group_by_with_include_with_entity_in_result_selector(bool isAsync)

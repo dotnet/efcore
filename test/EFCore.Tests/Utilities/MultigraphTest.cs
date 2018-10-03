@@ -434,9 +434,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new[] { vertexOne },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        (from == vertexOne) &&
-                        (to == vertexOne) &&
-                        (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
+                        (from == vertexOne)
+                        && (to == vertexOne)
+                        && (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
         }
 
         [Fact]
@@ -482,9 +482,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new[] { vertexOne, vertexTwo, vertexThree },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        (from == vertexThree) &&
-                        (to == vertexOne) &&
-                        (edges.Single() == edgeThree)).ToArray());
+                        (from == vertexThree)
+                        && (to == vertexOne)
+                        && (edges.Single() == edgeThree)).ToArray());
         }
 
         [Fact]

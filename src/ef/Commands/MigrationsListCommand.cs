@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class MigrationsListCommand
+    internal partial class MigrationsListCommand
     {
         protected override int Execute()
         {

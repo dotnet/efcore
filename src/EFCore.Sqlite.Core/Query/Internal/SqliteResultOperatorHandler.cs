@@ -80,8 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             var selectExpression = relationalQueryModelVisitor.TryGetQuery(queryModel.MainFromClause);
 
             if (!relationalQueryModelVisitor.RequiresClientResultOperator
-                && selectExpression != null
-                && selectExpression.Projection.Count == 1
+                && selectExpression?.Projection.Count == 1
                 && _restrictedOperators.TryGetValue(resultOperator.GetType(), out var restrictedTypes))
             {
                 PrepareSelectExpressionForAggregate(selectExpression, queryModel);

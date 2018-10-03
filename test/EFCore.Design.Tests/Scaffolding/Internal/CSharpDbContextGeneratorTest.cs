@@ -53,7 +53,7 @@ namespace TestNamespace
 
                     Assert.Empty(code.AdditionalFiles);
                 },
-                model => { Assert.Empty(model.GetEntityTypes()); });
+                model => Assert.Empty(model.GetEntityTypes()));
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace TestNamespace
 
                     Assert.Empty(code.AdditionalFiles);
                 },
-                model => { Assert.Empty(model.GetEntityTypes()); });
+                model => Assert.Empty(model.GetEntityTypes()));
         }
     }
 }

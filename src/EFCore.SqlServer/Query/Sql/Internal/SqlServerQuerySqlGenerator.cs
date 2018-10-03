@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
             if (selectExpression.Offset != null
-                && !selectExpression.OrderBy.Any())
+                && selectExpression.OrderBy.Count == 0)
             {
                 Sql.AppendLine().Append("ORDER BY (SELECT 1)");
             }

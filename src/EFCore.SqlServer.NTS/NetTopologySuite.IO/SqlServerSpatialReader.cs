@@ -125,8 +125,8 @@ namespace NetTopologySuite.IO
                 return null;
             }
 
-            var handleZ = _handleOrdinates.HasFlag(Ordinates.Z) && geography.ZValues.Any();
-            var handleM = _handleOrdinates.HasFlag(Ordinates.M) && geography.MValues.Any();
+            var handleZ = _handleOrdinates.HasFlag(Ordinates.Z) && geography.ZValues.Count > 0;
+            var handleM = _handleOrdinates.HasFlag(Ordinates.M) && geography.MValues.Count > 0;
 
             var factory = _services.CreateGeometryFactory(geography.SRID);
             var geometries = new Dictionary<int, Stack<IGeometry>>();

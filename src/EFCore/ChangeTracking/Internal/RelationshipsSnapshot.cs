@@ -45,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _values[propertyBase.GetRelationshipIndex()] = SnapshotValue(propertyBase, value);
             }
 
-
             private static object SnapshotValue(IPropertyBase propertyBase, object value)
             {
                 if (propertyBase is IProperty property)

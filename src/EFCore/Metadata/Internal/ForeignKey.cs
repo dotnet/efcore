@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!required)
             {
                 var nullableTypeProperties = Properties.Where(p => p.ClrType.IsNullableType()).ToList();
-                if (nullableTypeProperties.Any())
+                if (nullableTypeProperties.Count > 0)
                 {
                     properties = nullableTypeProperties;
                 }
@@ -746,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var nullableProperties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
-            if (!nullableProperties.Any())
+            if (nullableProperties.Count == 0)
             {
                 if (shouldThrow)
                 {

@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
-                foreignKeySet: foreignKeyPropertyNames.Any());
+                foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
         ///     <para>
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
-                foreignKeySet: foreignKeyPropertyNames.Any());
+                foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
         ///     <para>
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
-                principalKeySet: keyPropertyNames.Any());
+                principalKeySet: keyPropertyNames.Length > 0);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
-                principalKeySet: keyPropertyNames.Any());
+                principalKeySet: keyPropertyNames.Length > 0);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this

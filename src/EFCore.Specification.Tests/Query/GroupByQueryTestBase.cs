@@ -1654,7 +1654,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.CompositeKey.CustomerID + " " + e.CompositeKey.ProductName);
         }
 
-
         [Theory(Skip = "Unable to bind group by. See Issue#6658")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_simple_groupby(bool isAsync)

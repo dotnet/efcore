@@ -1063,7 +1063,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 SetEntityState(cascadeState);
             }
-            else if (fks.Any())
+            else if (fks.Count > 0)
             {
                 if (sensitiveLoggingEnabled)
                 {
@@ -1138,8 +1138,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsStoreGenerated(IProperty property)
-            => (property.ValueGenerated.ForAdd() &&
-                EntityState == EntityState.Added
+            => (property.ValueGenerated.ForAdd()
+                && EntityState == EntityState.Added
                 && (property.BeforeSaveBehavior == PropertySaveBehavior.Ignore
                     || HasTemporaryValue(property)
                     || HasDefaultValue(property)))

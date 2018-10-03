@@ -144,8 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             if (Property.ValueGenerated != ValueGenerated.OnAdd)
             {
                 var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTableRootPrimaryKeyProperty();
-                return sharedTablePrincipalPrimaryKeyProperty != null
-                    && sharedTablePrincipalPrimaryKeyProperty.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                return sharedTablePrincipalPrimaryKeyProperty?.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn
                     ? (SqlServerValueGenerationStrategy?)SqlServerValueGenerationStrategy.IdentityColumn
                     : null;
             }

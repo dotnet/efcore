@@ -219,8 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var factoryInterface = typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
             var factory = contextType.GetTypeInfo().Assembly.GetConstructibleTypes()
-                .Where(t => factoryInterface.IsAssignableFrom(t))
-                .FirstOrDefault();
+                .FirstOrDefault(t => factoryInterface.IsAssignableFrom(t));
             return factory == null ? (Func<DbContext>)null : (() => CreateContextFromFactory(factory.AsType()));
         }
 

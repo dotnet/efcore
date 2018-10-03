@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
-            return propertyInfos != null && propertyInfos.Count == 1 ? propertyInfos[0] : null;
+            return propertyInfos?.Count == 1 ? propertyInfos[0] : null;
         }
 
         /// <summary>
@@ -185,9 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 memberExpression = RemoveTypeAs(RemoveConvert(propertyAccessExpression)) as MemberExpression;
 
-                var propertyInfo = memberExpression?.Member as PropertyInfo;
-
-                if (propertyInfo == null)
+                if (!(memberExpression?.Member is PropertyInfo propertyInfo))
                 {
                     return null;
                 }
@@ -224,8 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static Expression RemoveTypeAs([CanBeNull] this Expression expression)
         {
-            while (expression != null
-                   && (expression.NodeType == ExpressionType.TypeAs))
+            while ((expression?.NodeType == ExpressionType.TypeAs))
             {
                 expression = RemoveConvert(((UnaryExpression)expression).Operand);
             }

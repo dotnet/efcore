@@ -123,8 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             correlatedSubqueryMetadata = null;
 
-            return _correlatedSubqueryMetadataMap != null
-                   && _correlatedSubqueryMetadataMap.TryGetValue(mainFromClause, out correlatedSubqueryMetadata);
+            return _correlatedSubqueryMetadataMap?.TryGetValue(mainFromClause, out correlatedSubqueryMetadata) == true;
         }
 
         /// <summary>
@@ -385,8 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var entityQueryable = (IQueryable)constantExpression.Value;
                     var entityType = _model.FindEntityType(entityQueryable.ElementType);
 
-                    if (entityType != null
-                        && !entityType.IsQueryType
+                    if (entityType?.IsQueryType == false
                         && (_referencedEntityTypes > 0
                             || entityType.GetDerivedTypesInclusive().Any(et => et.ShadowPropertyCount() > 0)))
                     {

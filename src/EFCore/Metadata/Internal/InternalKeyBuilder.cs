@@ -49,8 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && newKeyBuilder != null)
             {
                 var currentPrimaryKeyConfigurationSource = entityTypeBuilder.Metadata.GetPrimaryKeyConfigurationSource();
-                if (currentPrimaryKeyConfigurationSource == null
-                    || !currentPrimaryKeyConfigurationSource.Value.Overrides(primaryKeyConfigurationSource.Value))
+                if (currentPrimaryKeyConfigurationSource?.Overrides(primaryKeyConfigurationSource.Value) != true)
                 {
                     entityTypeBuilder.PrimaryKey(newKeyBuilder.Metadata.Properties, primaryKeyConfigurationSource.Value);
                 }

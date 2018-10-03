@@ -674,7 +674,7 @@ FROM [Customers] AS [c]");
             await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool isAsync)
@@ -741,7 +741,7 @@ FROM [Customers] AS [c]");
             await base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool isAsync)

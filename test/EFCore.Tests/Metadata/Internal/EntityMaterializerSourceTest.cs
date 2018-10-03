@@ -373,15 +373,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly PropertyInfo EnumProperty = typeof(SomeEntityWithFields).GetProperty("Enum");
             public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntityWithFields).GetProperty("MaybeEnum");
 
-#pragma warning disable 649
-#pragma warning disable IDE0044 // Add readonly modifier
+#pragma warning disable 649, IDE0044 // Add readonly modifier
             private int _id;
             private string _foo;
             private Guid? _goo;
             private SomeEnum _enum;
             private SomeEnum? _maybeEnum;
-#pragma warning restore IDE0044 // Add readonly modifier
-#pragma warning restore 649
+#pragma warning restore 649, IDE0044 // Add readonly modifier
 
             public int Id => _id;
             public string Foo => _foo;

@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
         private static Func<string, string> GenerateSchemaFilter(IReadOnlyList<string> schemas)
         {
-            return schemas.Any()
+            return schemas.Count > 0
                 ? (s =>
                 {
                     var schemaFilterBuilder = new StringBuilder();
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             Func<string, string> schemaFilter)
         {
             return schemaFilter != null
-                || tables.Any()
+                || tables.Count > 0
                 ? ((s, t) =>
                 {
                     var tableFilterBuilder = new StringBuilder();
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                         openBracket = true;
                     }
 
-                    if (tables.Any())
+                    if (tables.Count > 0)
                     {
                         if (openBracket)
                         {
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                         }
 
                         var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                        if (tablesWithoutSchema.Any())
+                        if (tablesWithoutSchema.Count > 0)
                         {
                             tableFilterBuilder.Append(t);
                             tableFilterBuilder.Append(" IN (");
@@ -268,9 +268,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                         }
 
                         var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                        if (tablesWithSchema.Any())
+                        if (tablesWithSchema.Count > 0)
                         {
-                            if (tablesWithoutSchema.Any())
+                            if (tablesWithoutSchema.Count > 0)
                             {
                                 tableFilterBuilder.Append(" OR ");
                             }

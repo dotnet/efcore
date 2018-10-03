@@ -539,8 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         var property = FindProperty(model, operation.Schema, operation.Table, c);
 
-                        return property == null // Couldn't bind column to property
-                               || property.IsColumnNullable();
+                        return property?.IsColumnNullable() != false;
                     })
                 .ToList();
 

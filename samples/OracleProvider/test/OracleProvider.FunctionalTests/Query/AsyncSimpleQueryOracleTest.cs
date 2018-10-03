@@ -18,8 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class AsyncSimpleQueryOracleTest : AsyncSimpleQueryTestBase<NorthwindQueryOracleFixture<NoopModelCustomizer>>
     {
-        private static readonly string _eol = Environment.NewLine;
-
         // ReSharper disable once UnusedParameter.Local
         public AsyncSimpleQueryOracleTest(NorthwindQueryOracleFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -99,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 await context.Customers.ForEachAsync(
-                    c => { context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList(); });
+                    c => context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList());
             }
         }
 

@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query
 {
     public partial class SimpleQueryCosmosSqlTest : SimpleQueryTestBase<NorthwindQueryCosmosSqlFixture<NoopModelCustomizer>>

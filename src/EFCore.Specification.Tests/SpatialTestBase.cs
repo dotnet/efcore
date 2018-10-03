@@ -109,7 +109,6 @@ namespace Microsoft.EntityFrameworkCore
                     context.Entry(fromStore2).State = EntityState.Unchanged;
 
                     context.SaveChanges();
-
                 },
                 context =>
                 {

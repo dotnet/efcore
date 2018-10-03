@@ -403,8 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
                 var inverseTargetEntityType = model.FindActualEntityType(referencingTuple.Item2);
-                if ((inverseTargetEntityType == null
-                     || inverseTargetEntityType.Builder.IsIgnored(referencingTuple.Item1.Name, ConfigurationSource.DataAnnotation)))
+                if ((inverseTargetEntityType?.Builder.IsIgnored(referencingTuple.Item1.Name, ConfigurationSource.DataAnnotation) != false))
                 {
                     if (tuplesToRemove == null)
                     {
@@ -490,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         && entityType.Model.FindActualEntityType(referencingTuple.Item2) == entityType)
                     {
                         referencingNavigationsWithAttribute.RemoveAt(index);
-                        if (!referencingNavigationsWithAttribute.Any())
+                        if (referencingNavigationsWithAttribute.Count == 0)
                         {
                             inverseNavigations.Remove(inverseNavigation);
                         }

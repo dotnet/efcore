@@ -128,11 +128,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             AppendValues(commandStringBuilder, writeOperations);
             for (var i = 1; i < modificationCommands.Count; i++)
             {
-                commandStringBuilder.Append(",").AppendLine();
+                commandStringBuilder.AppendLine(",");
                 AppendValues(commandStringBuilder, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
             }
 
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
 
             return ResultSetMapping.NoResultSet;
         }
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             AppendValues(commandStringBuilder, nonIdentityOperations);
             for (var i = 1; i < modificationCommands.Count; i++)
             {
-                commandStringBuilder.Append(",").AppendLine();
+                commandStringBuilder.AppendLine(",");
                 AppendValues(commandStringBuilder, nonIdentityOperations);
             }
 
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             AppendValues(commandStringBuilder, writeOperations, "0");
             for (var i = 1; i < modificationCommands.Count; i++)
             {
-                commandStringBuilder.Append(",").AppendLine();
+                commandStringBuilder.AppendLine(",");
                 AppendValues(
                     commandStringBuilder,
                     modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList(),
@@ -339,8 +339,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
             commandStringBuilder
                 .Append(")")
-                .Append(SqlGenerationHelper.StatementTerminator)
-                .AppendLine();
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         private string GetTypeNameForCopy(IProperty property)
@@ -436,8 +435,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 .Append(" FROM ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, tableName, schema);
             commandStringBuilder
-                .Append(" t")
-                .AppendLine()
+                .AppendLine(" t")
                 .Append("INNER JOIN ")
                 .Append(insertedTableName).Append(insertedTableIndex)
                 .Append(" i")
@@ -461,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
 
             commandStringBuilder
-                .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
@@ -475,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         {
             commandStringBuilder
                 .Append("SELECT @@ROWCOUNT")
-                .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
@@ -488,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
             => commandStringBuilder
                 .Append("SET NOCOUNT ON")
-                .Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

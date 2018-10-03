@@ -821,7 +821,7 @@ FROM [Customers] AS [c]");
             await base.Collection_select_nav_prop_sum_plus_one(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Collection_where_nav_prop_sum(bool isAsync)
@@ -1150,7 +1150,7 @@ ORDER BY [od.Order].[CustomerID]");
             await base.Select_anonymous_type_order_by_field_group_by_same_field(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default(bool isAsync)

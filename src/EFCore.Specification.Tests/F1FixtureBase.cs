@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual void BuildModelExternal(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
+            modelBuilder.Entity<Chassis>(b => b.HasKey(c => c.TeamId));
 
             modelBuilder.Entity<Engine>(
                 b =>

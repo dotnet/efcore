@@ -39,8 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!collectionType.GetTypeInfo().IsAbstract)
             {
                 var constructor = collectionType.GetDeclaredConstructor(null);
-                if (constructor != null
-                    && constructor.IsPublic)
+                if (constructor?.IsPublic == true)
                 {
                     return collectionType;
                 }

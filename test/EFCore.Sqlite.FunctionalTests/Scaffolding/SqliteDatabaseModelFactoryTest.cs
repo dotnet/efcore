@@ -154,19 +154,19 @@ CREATE TABLE MountainsColumns (
 
                     Assert.Equal(2, table.Columns.Count);
                     Assert.All(
-                        table.Columns, c => { Assert.Equal("MountainsColumns", c.Table.Name); });
+                        table.Columns, c => Assert.Equal("MountainsColumns", c.Table.Name));
 
                     Assert.Single(table.Columns.Where(c => c.Name == "Id"));
                     Assert.Single(table.Columns.Where(c => c.Name == "Name"));
                 },
-                @"DROP TABLE MountainsColumns;");
+                "DROP TABLE MountainsColumns;");
         }
 
         [Fact]
         public void Create_primary_key()
         {
             Test(
-                @"CREATE TABLE Place ( Id int PRIMARY KEY );",
+                "CREATE TABLE Place ( Id int PRIMARY KEY );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
@@ -180,7 +180,7 @@ CREATE TABLE MountainsColumns (
                             "Id"
                         }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE Place;");
+                "DROP TABLE Place;");
         }
 
         [Fact]
@@ -209,7 +209,7 @@ CREATE INDEX IX_Location_Name ON Place (Location, Name);",
                             "Name"
                         }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE Place;");
+                "DROP TABLE Place;");
         }
 
         [Fact]
@@ -233,12 +233,12 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
 
                     Assert.Equal(2, table.Indexes.Count);
                     Assert.All(
-                        table.Indexes, c => { Assert.Equal("IndexTable", c.Table.Name); });
+                        table.Indexes, c => Assert.Equal("IndexTable", c.Table.Name));
 
                     Assert.Single(table.Indexes.Where(c => c.Name == "IX_NAME"));
                     Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
                 },
-                @"DROP TABLE IndexTable;");
+                "DROP TABLE IndexTable;");
         }
 
         [Fact]
@@ -332,7 +332,7 @@ CREATE TABLE StoreType (
                     Assert.Equal("blob", columns.Single(c => c.Name == "BlobProperty").StoreType);
                     Assert.Equal("randomType", columns.Single(c => c.Name == "RandomProperty").StoreType);
                 },
-                @"DROP TABLE StoreType;");
+                "DROP TABLE StoreType;");
         }
 
         [Fact]
@@ -354,7 +354,7 @@ CREATE TABLE Nullable (
                     Assert.True(columns.Single(c => c.Name == "NullableInt").IsNullable);
                     Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
                 },
-                @"DROP TABLE Nullable;");
+                "DROP TABLE Nullable;");
         }
 
         [Fact]
@@ -378,7 +378,7 @@ CREATE TABLE DefaultValue (
                     Assert.Equal("3.14", columns.Single(c => c.Name == "RealColumn").DefaultValueSql);
                     Assert.Equal("'October 20, 2015 11am'", columns.Single(c => c.Name == "Created").DefaultValueSql);
                 },
-                @"DROP TABLE DefaultValue;");
+                "DROP TABLE DefaultValue;");
         }
 
         [Theory]
@@ -431,7 +431,7 @@ CREATE TABLE CompositePrimaryKey (
                             "Id1"
                         }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE CompositePrimaryKey;");
+                "DROP TABLE CompositePrimaryKey;");
         }
 
         [Fact]
@@ -455,7 +455,7 @@ CREATE TABLE RowidPrimaryKey (
                             "Id"
                         }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE RowidPrimaryKey;");
+                "DROP TABLE RowidPrimaryKey;");
         }
 
         [Fact(Skip = "See issue#8802")]
@@ -481,7 +481,7 @@ CREATE TABLE PrimaryKeyName (
                             "Id"
                         }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE PrimaryKeyName;");
+                "DROP TABLE PrimaryKeyName;");
         }
 
         #endregion
@@ -513,7 +513,7 @@ CREATE TABLE CompositeUniqueConstraint (
                             "Id1"
                         }, constraint.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE CompositeUniqueConstraint;");
+                "DROP TABLE CompositeUniqueConstraint;");
         }
 
         [Fact(Skip = "See issue#8802")]
@@ -540,7 +540,7 @@ CREATE TABLE UniqueConstraintName (
                             "Id"
                         }, constraint.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE UniqueConstraintName;");
+                "DROP TABLE UniqueConstraintName;");
         }
 
         #endregion
@@ -574,7 +574,7 @@ CREATE INDEX IX_COMPOSITE on CompositeIndex (Id2, Id1);",
                             "Id1"
                         }, index.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE CompositeIndex;");
+                "DROP TABLE CompositeIndex;");
         }
 
         [Fact]
@@ -604,7 +604,7 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
                             "Id2"
                         }, index.Columns.Select(ic => ic.Name).ToList());
                 },
-                @"DROP TABLE UniqueIndex;");
+                "DROP TABLE UniqueIndex;");
         }
 
         #endregion
@@ -854,7 +854,7 @@ DROP TABLE PrincipalTable;");
         public void Warn_for_schema_filtering()
         {
             Test(
-                @"CREATE TABLE Everest ( id int );",
+                "CREATE TABLE Everest ( id int );",
                 Enumerable.Empty<string>(),
                 new[] { "dbo" },
                 dbModel =>
@@ -864,14 +864,14 @@ DROP TABLE PrincipalTable;");
                     Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, Id);
                     Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), Message);
                 },
-                @"DROP TABLE Everest;");
+                "DROP TABLE Everest;");
         }
 
         [Fact]
         public void Warn_missing_table()
         {
             Test(
-                @"CREATE TABLE Blank ( Id int );",
+                "CREATE TABLE Blank ( Id int );",
                 new[] { "MyTable" },
                 Enumerable.Empty<string>(),
                 dbModel =>
@@ -883,7 +883,7 @@ DROP TABLE PrincipalTable;");
                     Assert.Equal(SqliteStrings.LogMissingTable.EventId, Id);
                     Assert.Equal(SqliteStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
                 },
-                @"DROP TABLE Blank;");
+                "DROP TABLE Blank;");
         }
 
         [Fact]

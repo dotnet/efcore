@@ -42,10 +42,10 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<HasContextPc<OtherContext>>().ToTable("HasContextPc_OtherContext");
 
                 modelBuilder.Entity<Blog>(
-                    b => { b.Property("_blogId").HasColumnName("BlogId"); });
+                    b => b.Property("_blogId").HasColumnName("BlogId"));
 
                 modelBuilder.Entity<Post>(
-                    b => { b.Property("_id").HasColumnName("Id"); });
+                    b => b.Property("_id").HasColumnName("Id"));
             }
         }
     }

@@ -238,11 +238,11 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @"@p1='1'" + _eol,
+                "@p1='1'" + _eol,
                 Sql);
 
             Assert.Contains(
-                @"@p1='' (Nullable = false) (DbType = Int32)" + _eol,
+                "@p1='' (Nullable = false) (DbType = Int32)" + _eol,
                 Sql);
         }
 

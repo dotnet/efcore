@@ -305,8 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 _dispatcher = dispatcher;
                 var currentScope = _dispatcher._scope;
 
-                if (currentScope.Children != null
-                    && currentScope.Children[currentScope.Children.Count - 1] is ConventionScope lastScope
+                if (currentScope.Children?[currentScope.Children.Count - 1] is ConventionScope lastScope
                     && lastScope.Children == null)
                 {
                     dispatcher._scope = lastScope;

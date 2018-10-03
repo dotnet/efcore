@@ -295,8 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             using (Metadata.ConventionDispatcher.StartBatch())
             {
-                if (entityType != null
-                    && !entityType.GetForeignKeys().Any(fk => fk.IsOwnership))
+                if (entityType?.GetForeignKeys().Any(fk => fk.IsOwnership) == false)
                 {
                     if (!configurationSource.Overrides(entityType.GetConfigurationSource()))
                     {

@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             property.Name, property.DeclaringEntityType.DisplayName(), property.ClrType.DisplayName()));
                 }
 
-                _values[index] = SnapshotValue(property, value);;
+                _values[index] = SnapshotValue(property, value);
             }
 
             public void RejectChanges(InternalEntityEntry entry)
