@@ -20,31 +20,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     public class InMemoryStore : IInMemoryStore
     {
         private readonly IInMemoryTableFactory _tableFactory;
-        private readonly bool _useNameMatching;
 
         private readonly object _lock = new object();
 
-        private LazyRef<Dictionary<object, IInMemoryTable>> _tables = CreateTables();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public InMemoryStore([NotNull] IInMemoryTableFactory tableFactory)
-            : this(tableFactory, useNameMatching: false)
-        {
-        }
-
+        private LazyRef<Dictionary<string, IInMemoryTable>> _tables = CreateTables();
+        
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryStore(
-            [NotNull] IInMemoryTableFactory tableFactory,
-            bool useNameMatching)
+            [NotNull] IInMemoryTableFactory tableFactory)
         {
             _tableFactory = tableFactory;
-            _useNameMatching = useNameMatching;
         }
 
         /// <summary>
@@ -101,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             }
         }
 
-        private static LazyRef<Dictionary<object, IInMemoryTable>> CreateTables()
-            => new LazyRef<Dictionary<object, IInMemoryTable>>(() => new Dictionary<object, IInMemoryTable>());
+        private static LazyRef<Dictionary<string, IInMemoryTable>> CreateTables()
+            => new LazyRef<Dictionary<string, IInMemoryTable>>(() => new Dictionary<string, IInMemoryTable>());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -117,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 {
                     foreach (var et in entityType.GetConcreteTypesInHierarchy())
                     {
-                        var key = _useNameMatching ? (object)et.Name : et;
+                        var key = GetTableKey(et);
                         if (_tables.Value.TryGetValue(key, out var table))
                         {
                             data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
@@ -149,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                     Debug.Assert(!entityType.IsAbstract());
 
-                    var key = _useNameMatching ? (object)entityType.Name : entityType;
+                    var key = GetTableKey(entityType);
                     if (!_tables.Value.TryGetValue(key, out var table))
                     {
                         _tables.Value.Add(key, table = _tableFactory.Create(entityType));
@@ -185,6 +173,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             updateLogger.ChangesSaved(entries, rowsAffected);
 
             return rowsAffected;
+        }
+
+        private string GetTableKey(IEntityType entityType)
+        {
+            return entityType.ToString();
         }
     }
 }

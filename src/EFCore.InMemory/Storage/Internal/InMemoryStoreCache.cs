@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     public class InMemoryStoreCache : IInMemoryStoreCache
     {
         private readonly IInMemoryTableFactory _tableFactory;
-        private readonly bool _useNameMatching;
         private readonly ConcurrentDictionary<string, IInMemoryStore> _namedStores;
 
         /// <summary>
@@ -41,8 +40,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
             if (options?.DatabaseRoot != null)
             {
-                _useNameMatching = true;
-
                 LazyInitializer.EnsureInitialized(
                     ref options.DatabaseRoot.Instance,
                     () => new ConcurrentDictionary<string, IInMemoryStore>());
@@ -60,6 +57,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IInMemoryStore GetStore(string name)
-            => _namedStores.GetOrAdd(name, _ => new InMemoryStore(_tableFactory, _useNameMatching));
+            => _namedStores.GetOrAdd(name, _ => new InMemoryStore(_tableFactory));
     }
 }
