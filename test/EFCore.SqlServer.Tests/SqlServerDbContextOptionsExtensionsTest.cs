@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
             });
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
-            Assert.Equal("Data Source=Kilimanjaro", extension.ConnectionString);
+            Assert.Equal("Data Source=Kilimanjaro;MultipleActiveResultSets=True", extension.ConnectionString);
             Assert.Null(extension.Connection);
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             });
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
-            Assert.Equal("Data Source=Kilimanjaro", extension.ConnectionString);
+            Assert.Equal("Data Source=Kilimanjaro;MultipleActiveResultSets=True", extension.ConnectionString);
             Assert.Null(extension.Connection);
         }
     }

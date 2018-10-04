@@ -119,7 +119,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(connectionStringBuilderAction, nameof(connectionStringBuilderAction));
 
-            var connectionStringBuilder = new SqlConnectionStringBuilder();
+            var connectionStringBuilder = new SqlConnectionStringBuilder()
+            {
+                MultipleActiveResultSets = true
+            };
             connectionStringBuilderAction(connectionStringBuilder);
 
             return UseSqlServer(optionsBuilder, connectionStringBuilder.ConnectionString, sqlServerOptionsAction);
