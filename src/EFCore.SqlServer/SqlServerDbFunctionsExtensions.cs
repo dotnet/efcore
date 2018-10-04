@@ -88,7 +88,45 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">DbFunctions instance</param>
         /// <param name="propertyReference">The property on which the search will be performed.</param>
         /// <param name="searchCondition">The text that will be searched for in the property and the condition for a match.</param>
+        /// <param name="languageTerm">A Language ID from the sys.syslanguages table.</param>
+        public static bool ContainsAny(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] string propertyReference,
+            [NotNull] string searchCondition,
+            int languageTerm)
+            => ContainsCore(propertyReference, searchCondition, languageTerm);
+
+        /// <summary>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server CONTAINS store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
+        /// <param name="propertyReference">The property on which the search will be performed.</param>
+        /// <param name="searchCondition">The text that will be searched for in the property and the condition for a match.</param>
         public static bool Contains(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] string propertyReference,
+            [NotNull] string searchCondition)
+            => ContainsCore(propertyReference, searchCondition, null);
+
+        /// <summary>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server CONTAINS store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
+        /// <param name="propertyReference">The property on which the search will be performed.</param>
+        /// <param name="searchCondition">The text that will be searched for in the property and the condition for a match.</param>
+        public static bool ContainsAny(
             [CanBeNull] this DbFunctions _,
             [NotNull] string propertyReference,
             [NotNull] string searchCondition)

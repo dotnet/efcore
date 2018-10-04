@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.Internal
@@ -40,6 +41,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.Contains),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
+
+        private static readonly MethodInfo _containsAnyMethodInfoWithLanguage
+            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.ContainsAny),
+                new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
+
+         private static readonly MethodInfo _containsAnyMethodInfo
+            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.ContainsAny),
+                new[] { typeof(DbFunctions), typeof(string), typeof(string) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -108,6 +119,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                             $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
                     });
             }
+
+            if (Equals(methodCallExpression.Method, _containsAnyMethodInfo))
+            {
+                return new SqlFunctionExpression(
+                    ContainsFunctionName,
+                    typeof(bool),
+                    new[]
+                    {
+                        new SqlFragmentExpression("*"),
+                        methodCallExpression.Arguments[2]
+                    });
+            }
+
+            if (Equals(methodCallExpression.Method, _containsAnyMethodInfoWithLanguage))
+            {
+                return new SqlFunctionExpression(
+                    ContainsFunctionName,
+                    typeof(bool),
+                    new[]
+                    {
+                        new SqlFragmentExpression("*"),
+                        methodCallExpression.Arguments[2],
+                        new SqlFragmentExpression(
+                            $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
+                    });
+            }
+
 
             return null;
         }

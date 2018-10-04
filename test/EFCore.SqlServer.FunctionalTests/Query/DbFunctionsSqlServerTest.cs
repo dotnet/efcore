@@ -317,6 +317,25 @@ WHERE CONTAINS([c].[Title], N'Representative')");
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async void Contains_literal_all_fields()
+        {
+            using (var context = CreateContext())
+            {
+                var result = await context.Employees
+                    .Where(c => EF.Functions.ContainsAny(c.Title, "Representative"))
+                    .ToListAsync();
+
+                Assert.Equal(result.First().EmployeeID, 1u);
+
+                AssertSql(
+                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE CONTAINS(*, N'Representative')");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void Contains_with_language_term()
         {
             using (var context = CreateContext())
@@ -329,6 +348,23 @@ WHERE CONTAINS([c].[Title], N'Representative')");
                     @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
 WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public void Contains_with_language_term_all_fields()
+        {
+            using (var context = CreateContext())
+            {
+                var result = context.Employees.SingleOrDefault(c => EF.Functions.ContainsAny(c.Title, "President", 1033));
+
+                Assert.Equal(result.EmployeeID, 2u);
+
+                AssertSql(
+                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE CONTAINS(*, N'President', LANGUAGE 1033)");
             }
         }
 
