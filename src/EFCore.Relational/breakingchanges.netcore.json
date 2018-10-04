@@ -228,5 +228,10 @@
       "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMethodCallTranslatorDependencies",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Query> logger)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+      "MemberId": "System.Linq.Expressions.Expression VisitCase(Microsoft.EntityFrameworkCore.Query.Expressions.CaseExpression caseExpression)",
+      "Kind": "Addition"
     }
 ]

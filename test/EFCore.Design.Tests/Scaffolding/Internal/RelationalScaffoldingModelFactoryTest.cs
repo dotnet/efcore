@@ -699,6 +699,90 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Foreign_key_to_unique_constraint()
+        {
+            var keyColumn = new DatabaseColumn
+            {
+                Name = "Key",
+                StoreType = "int",
+                IsNullable = false
+            };
+
+            var parentTable = new DatabaseTable
+            {
+                Name = "Parent",
+                Columns =
+                {
+                    IdColumn,
+                    keyColumn
+                },
+                PrimaryKey = IdPrimaryKey,
+            };
+
+            parentTable.UniqueConstraints.Add(
+                new DatabaseUniqueConstraint
+                {
+                    Table = parentTable,
+                    Columns =
+                    {
+                        keyColumn
+                    }
+                });
+
+
+            var childrenTable = new DatabaseTable
+            {
+                Name = "Children",
+                Columns =
+                {
+                    IdColumn
+                },
+                PrimaryKey = IdPrimaryKey
+            };
+
+            childrenTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childrenTable,
+                    PrincipalTable = parentTable,
+                    OnDelete = ReferentialAction.Cascade,
+                    Columns =
+                    {
+                        childrenTable.Columns.ElementAt(0)
+                    },
+                    PrincipalColumns =
+                    {
+                        parentTable.Columns.ElementAt(1)
+                    }
+                });
+
+            var model = _factory.Create(
+                new DatabaseModel
+                {
+                    Tables =
+                    {
+                        parentTable,
+                        childrenTable
+                    }
+                },
+                false);
+
+            var parent = (EntityType)model.FindEntityType("Parent");
+
+            var children = (EntityType)model.FindEntityType("Children");
+
+            Assert.NotEmpty(parent.GetReferencingForeignKeys());
+            var fk = Assert.Single(children.GetForeignKeys());
+            Assert.True(fk.IsUnique);
+            Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
+
+            var principalKey = fk.PrincipalKey;
+
+            Assert.Same(parent, principalKey.DeclaringEntityType);
+            Assert.Same(parent.GetProperties().First(p => p.Name == "Key"), principalKey.Properties[0]);
+        }
+
+        [Fact]
         public void Unique_foreign_key()
         {
             var parentTable = new DatabaseTable

@@ -1013,6 +1013,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("RelationalCloneNotImplemented", nameof(mapping)),
                 mapping);
 
+        /// <summary>
+        ///     The result type of '{elseResultType}' in the else clause is invalid. The expected type is '{resultType}'.
+        /// </summary>
+        public static string CaseElseResultTypeUnexpected([CanBeNull] object elseResultType, [CanBeNull] object resultType)
+            => string.Format(
+                GetString("CaseElseResultTypeUnexpected", nameof(elseResultType), nameof(resultType)),
+                elseResultType, resultType);
+
+        /// <summary>
+        ///     The result type of '{whenResultType}' in a when clause is invalid. The expected type is '{resultType}'.
+        /// </summary>
+        public static string CaseWhenClauseResultTypeUnexpected([CanBeNull] object whenResultType, [CanBeNull] object resultType)
+            => string.Format(
+                GetString("CaseWhenClauseResultTypeUnexpected", nameof(whenResultType), nameof(resultType)),
+                whenResultType, resultType);
+
+        /// <summary>
+        ///     The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.
+        /// </summary>
+        public static string CaseWhenClauseTestTypeUnexpected([CanBeNull] object whenOperandType, [CanBeNull] object expectedWhenOperandType)
+            => string.Format(
+                GetString("CaseWhenClauseTestTypeUnexpected", nameof(whenOperandType), nameof(expectedWhenOperandType)),
+                whenOperandType, expectedWhenOperandType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

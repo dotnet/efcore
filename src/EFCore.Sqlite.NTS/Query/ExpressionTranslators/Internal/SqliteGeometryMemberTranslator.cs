@@ -34,6 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.SRID)), "SRID" }
         };
 
+        private static readonly MemberInfo _geometryType = typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.GeometryType));
+        private static readonly MemberInfo _ogcGeometryType = typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.OgcGeometryType));
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -47,6 +50,50 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                     functionName,
                     memberExpression.Type,
                     new[] { memberExpression.Expression });
+            }
+            if (Equals(member, _geometryType))
+            {
+                return new CaseExpression(
+                    new SqlFunctionExpression(
+                        "rtrim",
+                        memberExpression.Type,
+                        new Expression[]
+                        {
+                            new SqlFunctionExpression(
+                                "GeometryType",
+                                memberExpression.Type,
+                                new[] { memberExpression.Expression }),
+                            Expression.Constant(" ZM")
+                        }),
+                    new CaseWhenClause(Expression.Constant("POINT"), Expression.Constant("Point")),
+                    new CaseWhenClause(Expression.Constant("LINESTRING"), Expression.Constant("LineString")),
+                    new CaseWhenClause(Expression.Constant("POLYGON"), Expression.Constant("Polygon")),
+                    new CaseWhenClause(Expression.Constant("MULTIPOINT"), Expression.Constant("MultiPoint")),
+                    new CaseWhenClause(Expression.Constant("MULTILINESTRING"), Expression.Constant("MultiLineString")),
+                    new CaseWhenClause(Expression.Constant("MULTIPOLYGON"), Expression.Constant("MultiPolygon")),
+                    new CaseWhenClause(Expression.Constant("GEOMETRYCOLLECTION"), Expression.Constant("GeometryCollection")));
+            }
+            if (Equals(member, _ogcGeometryType))
+            {
+                return new CaseExpression(
+                    new SqlFunctionExpression(
+                        "rtrim",
+                        typeof(string),
+                        new Expression[]
+                        {
+                            new SqlFunctionExpression(
+                                "GeometryType",
+                                typeof(string),
+                                new[] { memberExpression.Expression }),
+                            Expression.Constant(" ZM")
+                        }),
+                    new CaseWhenClause(Expression.Constant("POINT"), Expression.Constant(OgcGeometryType.Point)),
+                    new CaseWhenClause(Expression.Constant("LINESTRING"), Expression.Constant(OgcGeometryType.LineString)),
+                    new CaseWhenClause(Expression.Constant("POLYGON"), Expression.Constant(OgcGeometryType.Polygon)),
+                    new CaseWhenClause(Expression.Constant("MULTIPOINT"), Expression.Constant(OgcGeometryType.MultiPoint)),
+                    new CaseWhenClause(Expression.Constant("MULTILINESTRING"), Expression.Constant(OgcGeometryType.MultiLineString)),
+                    new CaseWhenClause(Expression.Constant("MULTIPOLYGON"), Expression.Constant(OgcGeometryType.MultiPolygon)),
+                    new CaseWhenClause(Expression.Constant("GEOMETRYCOLLECTION"), Expression.Constant(OgcGeometryType.GeometryCollection)));
             }
 
             return null;

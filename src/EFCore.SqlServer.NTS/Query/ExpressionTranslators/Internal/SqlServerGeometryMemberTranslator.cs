@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.PointOnSurface)), "STPointOnSurface" }
         };
 
+        private static readonly MemberInfo _ogcGeometryType = typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.OgcGeometryType));
         private static readonly MemberInfo _srid = typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.SRID));
 
         /// <summary>
@@ -64,6 +65,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     functionName,
                     memberExpression.Type,
                     Enumerable.Empty<Expression>());
+            }
+            if (Equals(member, _ogcGeometryType))
+            {
+                var whenThenList = new List<CaseWhenClause>()
+                {
+                    new CaseWhenClause(Expression.Constant("Point"), Expression.Constant(OgcGeometryType.Point)),
+                    new CaseWhenClause(Expression.Constant("LineString"), Expression.Constant(OgcGeometryType.LineString)),
+                    new CaseWhenClause(Expression.Constant("Polygon"), Expression.Constant(OgcGeometryType.Polygon)),
+                    new CaseWhenClause(Expression.Constant("MultiPoint"), Expression.Constant(OgcGeometryType.MultiPoint)),
+                    new CaseWhenClause(Expression.Constant("MultiLineString"), Expression.Constant(OgcGeometryType.MultiLineString)),
+                    new CaseWhenClause(Expression.Constant("MultiPolygon"), Expression.Constant(OgcGeometryType.MultiPolygon)),
+                    new CaseWhenClause(Expression.Constant("GeometryCollection"), Expression.Constant(OgcGeometryType.GeometryCollection)),
+                    new CaseWhenClause(Expression.Constant("CircularString"), Expression.Constant(OgcGeometryType.CircularString)),
+                    new CaseWhenClause(Expression.Constant("CompoundCurve"), Expression.Constant(OgcGeometryType.CompoundCurve)),
+                    new CaseWhenClause(Expression.Constant("CurvePolygon"), Expression.Constant(OgcGeometryType.CurvePolygon))
+                };
+                if (isGeography)
+                {
+                    whenThenList.Add(new CaseWhenClause(Expression.Constant("FullGlobe"), Expression.Constant((OgcGeometryType)126)));
+                }
+
+                return new CaseExpression(
+                    new SqlFunctionExpression(
+                        instance,
+                        "STGeometryType",
+                        typeof(string),
+                        Enumerable.Empty<Expression>()),
+                    whenThenList.ToArray());
             }
             if (Equals(member, _srid))
             {

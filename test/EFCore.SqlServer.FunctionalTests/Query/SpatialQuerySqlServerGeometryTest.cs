@@ -398,6 +398,26 @@ FROM [PolygonEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
+        public override async Task OgcGeometryType(bool isAsync)
+        {
+            await base.OgcGeometryType(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], CASE [e].[Point].STGeometryType()
+    WHEN N'Point' THEN 1
+    WHEN N'LineString' THEN 2
+    WHEN N'Polygon' THEN 3
+    WHEN N'MultiPoint' THEN 4
+    WHEN N'MultiLineString' THEN 5
+    WHEN N'MultiPolygon' THEN 6
+    WHEN N'GeometryCollection' THEN 7
+    WHEN N'CircularString' THEN 8
+    WHEN N'CompoundCurve' THEN 9
+    WHEN N'CurvePolygon' THEN 10
+END AS [OgcGeometryType]
+FROM [PointEntity] AS [e]");
+        }
+
         public override async Task Overlaps(bool isAsync)
         {
             await base.Overlaps(isAsync);

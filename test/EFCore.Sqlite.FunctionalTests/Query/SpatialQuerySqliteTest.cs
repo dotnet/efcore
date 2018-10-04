@@ -232,6 +232,23 @@ FROM ""PointEntity"" AS ""e""");
 FROM ""PolygonEntity"" AS ""e""");
         }
 
+        public override async Task GeometryType(bool isAsync)
+        {
+            await base.GeometryType(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", CASE rtrim(GeometryType(""e"".""Point""), ' ZM')
+    WHEN 'POINT' THEN 'Point'
+    WHEN 'LINESTRING' THEN 'LineString'
+    WHEN 'POLYGON' THEN 'Polygon'
+    WHEN 'MULTIPOINT' THEN 'MultiPoint'
+    WHEN 'MULTILINESTRING' THEN 'MultiLineString'
+    WHEN 'MULTIPOLYGON' THEN 'MultiPolygon'
+    WHEN 'GEOMETRYCOLLECTION' THEN 'GeometryCollection'
+END AS ""GeometryType""
+FROM ""PointEntity"" AS ""e""");
+        }
+
         public override async Task GetGeometryN(bool isAsync)
         {
             await base.GetGeometryN(isAsync);
@@ -411,6 +428,23 @@ FROM ""PolygonEntity"" AS ""e""");
             AssertSql(
                 @"SELECT ""e"".""Id"", NumPoints(""e"".""LineString"") AS ""NumPoints""
 FROM ""LineStringEntity"" AS ""e""");
+        }
+
+        public override async Task OgcGeometryType(bool isAsync)
+        {
+            await base.OgcGeometryType(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", CASE rtrim(GeometryType(""e"".""Point""), ' ZM')
+    WHEN 'POINT' THEN 1
+    WHEN 'LINESTRING' THEN 2
+    WHEN 'POLYGON' THEN 3
+    WHEN 'MULTIPOINT' THEN 4
+    WHEN 'MULTILINESTRING' THEN 5
+    WHEN 'MULTIPOLYGON' THEN 6
+    WHEN 'GEOMETRYCOLLECTION' THEN 7
+END AS ""OgcGeometryType""
+FROM ""PointEntity"" AS ""e""");
         }
 
         public override async Task Overlaps(bool isAsync)
