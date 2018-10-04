@@ -4200,7 +4200,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var contextOptions = new DbContextOptionsBuilder()
                     .UseModel(modelBuilder.Model)
-                    .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK_one_to_one")
+                    .UseInMemoryDatabase(GetType().FullName + "Can_use_self_referencing_overlapping_FK_PK")
                     .Options;
 
                 using (var context = new DbContext(contextOptions))
