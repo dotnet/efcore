@@ -1700,7 +1700,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private static InternalEntityEntry GetEntry(IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IStateManager stateManager)
+        private static InternalEntityEntry GetEntry(
+            IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IStateManager stateManager)
         {
             var key = sourceEntityType.FindPrimaryKey();
             var keyValues = new object[key.Properties.Count];
@@ -1772,8 +1773,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 Schema = c.Schema,
                                 Table = c.TableName,
-                                Columns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
-                                Values = ToMultidimensionalArray(c.ColumnModifications.Select(GetValue).ToList())
+                                Columns = c.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.ColumnName).ToArray(),
+                                Values = ToMultidimensionalArray(
+                                    c.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(GetValue).ToList())
                             };
                         }
                         else if (c.EntityState == EntityState.Modified)
@@ -1789,9 +1791,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 Schema = c.Schema,
                                 Table = c.TableName,
                                 KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
-                                KeyValues = ToMultidimensionalArray(c.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToList()),
-                                Columns = c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.ColumnName).ToArray(),
-                                Values = ToMultidimensionalArray(c.ColumnModifications.Where(col => !col.IsKey).Select(GetValue).ToList())
+                                KeyValues = ToMultidimensionalArray(
+                                    c.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToList()),
+                                Columns = c.ColumnModifications.Where(col => col.IsWrite).Select(col => col.ColumnName).ToArray(),
+                                Values = ToMultidimensionalArray(
+                                    c.ColumnModifications.Where(col => col.IsWrite).Select(GetValue).ToList())
                             };
                         }
                         else
@@ -1806,8 +1810,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 Schema = c.Schema,
                                 Table = c.TableName,
-                                KeyColumns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
-                                KeyValues = ToMultidimensionalArray(c.ColumnModifications.Select(GetValue).ToArray())
+                                KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
+                                KeyValues = ToMultidimensionalArray(
+                                    c.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToArray())
                             };
                         }
                     }

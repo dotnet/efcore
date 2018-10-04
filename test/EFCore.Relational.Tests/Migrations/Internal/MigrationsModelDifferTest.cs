@@ -6706,6 +6706,182 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void SeedData_with_timestamp_column()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTimeStamp",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Value");
+                        x.Property<int>("DefaultValue").HasDefaultValue(42);
+                        x.Property<int>("DefaultValueSql").HasDefaultValueSql("1");
+                        x.Property<int>("ComputedValueSql").HasComputedColumnSql("5");
+                        x.Property<byte[]>("TimeStamp").IsRowVersion();
+                        x.HasData(
+                            new
+                            {
+                                Id = 11,
+                                Value = "Value"
+                            }, //Modified
+                            new
+                            {
+                                Id = 12,
+                                Value = "Value",
+                                DefaultValue = 5,
+                                DefaultValueSql = 5,
+                                ComputedValueSql = 5
+                            }, //Modified
+                            new
+                            {
+                                Id = 21,
+                                Value = "Deleted"
+                            }); //Deleted
+                    }),
+                target => target.Entity(
+                    "EntityWithTimeStamp",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Value");
+                        x.Property<int>("DefaultValue").HasDefaultValue(42);
+                        x.Property<int>("DefaultValueSql").HasDefaultValueSql("1");
+                        x.Property<int>("ComputedValueSql").HasComputedColumnSql("5");
+                        x.Property<byte[]>("TimeStamp").IsRowVersion();
+                        x.HasData(
+                            new
+                            {
+                                Id = 11,
+                                Value = "Modified"
+                            }, //Modified
+                            new
+                            {
+                                Id = 12,
+                                Value = "Modified",
+                                DefaultValue = 6,
+                                DefaultValueSql = 6,
+                                ComputedValueSql = 5
+                            }, //Modified
+                            new
+                            {
+                                Id = 31,
+                                Value = "Added"
+                            }, //Added
+                            new
+                            {
+                                Id = 32,
+                                Value = "DefaultValuesProvided",
+                                DefaultValue = 42,
+                                DefaultValueSql = 42,
+                                ComputedValueSql = 42
+                            }); //Added
+                    }),
+                upOps =>
+                {
+                    Assert.Collection(
+                        upOps,
+                        o =>
+                        {
+                            var m = Assert.IsType<DeleteDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(21, v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(11, v));
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal("Modified", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(12, v));
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(6, v),
+                                v => Assert.Equal(6, v),
+                                v => Assert.Equal("Modified", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<InsertDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(31, v),
+                                v => Assert.Equal("Added", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<InsertDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(32, v),
+                                v => Assert.Equal(42, v),
+                                v => Assert.Equal(42, v),
+                                v => Assert.Equal("DefaultValuesProvided", v));
+                        });
+                },
+                downOps =>
+                {
+                    Assert.Collection(
+                        downOps,
+                        o =>
+                        {
+                            var m = Assert.IsType<DeleteDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(31, v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<DeleteDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(32, v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(11, v));
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal("Value", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(12, v));
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(5, v),
+                                v => Assert.Equal(5, v),
+                                v => Assert.Equal("Value", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<InsertDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(21, v),
+                                v => Assert.Equal("Deleted", v));
+                        });
+                });
+        }
+
+        [Fact]
         public void SeedData_with_shadow_navigation_properties()
         {
             SeedData_with_navigation_properties(
