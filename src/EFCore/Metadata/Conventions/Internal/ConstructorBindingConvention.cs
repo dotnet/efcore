@@ -82,10 +82,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                     if (foundBindings.Count == 0)
                     {
+                        var info = bindingFailures.SelectMany(f => f).Select(f => f.Name);
+                        var constructorErrors = bindingFailures.SelectMany(f => f)
+                            .GroupBy(f => f.Member as ConstructorInfo)
+                            .Select(x => 
+                                "Constructor (" + 
+                                string.Join(", ", x.Key.GetParameters().Select(y => y.Name)) + 
+                                ") can't bind '" +
+                                string.Join("', '", x.Select(f => f.Name)) + 
+                                "'"
+                            );
+
                         throw new InvalidOperationException(
                             CoreStrings.ConstructorNotFound(
                                 entityType.DisplayName(),
-                                string.Join("', '", bindingFailures.SelectMany(f => f).Select(f => f.Name))));
+                                string.Join(", ", constructorErrors)));
                     }
 
                     if (foundBindings.Count > 1)
