@@ -111,6 +111,63 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Single_query_multiline_tag()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = context.Set<Customer>()
+                        .OrderBy(c => c.CustomerID)
+                        .WithTag(@"Yanni
+AND
+Laurel")
+                        .First();
+
+                Assert.NotNull(customer);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Single_query_multiple_multiline_tag()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = context.Set<Customer>()
+                        .OrderBy(c => c.CustomerID)
+                        .WithTag(@"Yanni
+AND
+Laurel")
+                        .WithTag(@"Yet
+Another
+Multiline
+Tag")
+                        .First();
+
+                Assert.NotNull(customer);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Single_query_multiline_tag_with_empty_lines()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = context.Set<Customer>()
+                        .OrderBy(c => c.CustomerID)
+                        .WithTag(@"Yanni
+
+AND
+
+Laurel")
+                        .First();
+
+                Assert.NotNull(customer);
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }
