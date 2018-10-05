@@ -50,12 +50,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [CanBeNull] IProperty property,
             [CanBeNull] IRelationalTypeMappingSource typeMappingSource,
             bool? fromLeftOuterJoin,
-            int index = -1)
+            int index)
+            : this(modelClrType, property, typeMappingSource, fromLeftOuterJoin, index, mapping: null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new <see cref="TypeMaterializationInfo" /> instance.
+        /// </summary>
+        /// <param name="modelClrType"> The type that is needed in the model after conversion. </param>
+        /// <param name="property"> The property associated with the type, or <c>null</c> if none. </param>
+        /// <param name="typeMappingSource"> The type mapping source to use to find a mapping if the property does not have one already bound. </param>
+        /// <param name="fromLeftOuterJoin"> Whether or not the value is coming from a LEFT OUTER JOIN operation. </param>
+        /// <param name="index">
+        ///     The index of the underlying result set that should be used for this type,
+        ///     or -1 if no index mapping is needed.
+        /// </param>
+        /// <param name="mapping"> The type mapping to use or <c>null</c> to infer one. </param>
+        public TypeMaterializationInfo(
+            [NotNull] Type modelClrType,
+            [CanBeNull] IProperty property,
+            [CanBeNull] IRelationalTypeMappingSource typeMappingSource,
+            bool? fromLeftOuterJoin,
+            int index = -1,
+            [CanBeNull] RelationalTypeMapping mapping = null)
         {
             Check.NotNull(modelClrType, nameof(modelClrType));
 
-            var mapping = property?.FindRelationalMapping()
+            if (mapping == null)
+            {
+                mapping = property?.FindRelationalMapping()
                           ?? typeMappingSource?.GetMapping(modelClrType);
+            }
 
             ProviderClrType = mapping?.Converter?.ProviderClrType
                               ?? modelClrType;

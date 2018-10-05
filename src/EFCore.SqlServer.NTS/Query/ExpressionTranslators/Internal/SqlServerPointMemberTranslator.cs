@@ -42,11 +42,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         /// </summary>
         public virtual Expression Translate(MemberExpression memberExpression)
         {
-            var instance = memberExpression.Expression;
-            var isGeography = string.Equals(
-                instance.FindProperty(instance.Type)?.Relational().ColumnType,
-                "geography",
-                StringComparison.OrdinalIgnoreCase);
+            if (!typeof(IPoint).IsAssignableFrom(memberExpression.Member.DeclaringType))
+            {
+                return null;
+            }
+
+            var storeType = memberExpression.FindSpatialStoreType();
+            var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
             var member = memberExpression.Member.OnInterface(typeof(IPoint));
             if (_memberToPropertyName.TryGetValue(member, out var propertyName)
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     : _geometryMemberToPropertyName.TryGetValue(member, out propertyName)))
             {
                 return new SqlFunctionExpression(
-                    instance,
+                    memberExpression.Expression,
                     propertyName,
                     memberExpression.Type,
                     niladic: true);

@@ -98,9 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     IEnumerable<Expression> arguments = functionExpression.Arguments;
                     if (functionExpression.Instance != null)
                     {
-                        arguments = Enumerable.Concat(
-                            new[] { functionExpression.Instance },
-                            arguments);
+                        arguments = arguments.Concat(
+                            new[] { functionExpression.Instance });
                     }
 
                     var properties = arguments
@@ -151,5 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return null;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static Expression UnwrapAliasExpression(this Expression expression)
+            => (expression as AliasExpression)?.Expression ?? expression;
     }
 }
