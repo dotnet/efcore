@@ -1692,7 +1692,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     yield return index;
                 }
-                else if (index.GetAnnotation(SqlServerAnnotationNames.Include)?.Value is string[] includeProperties)
+                else if (index.SqlServer().IncludeProperties is IReadOnlyList<string> includeProperties)
                 {
                     if (includeProperties.Contains(property.Name))
                     {
