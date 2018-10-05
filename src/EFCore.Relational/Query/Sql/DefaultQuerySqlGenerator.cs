@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -151,11 +152,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             if (SelectExpression.Tags.Count > 0)
             {
-                _relationalCommandBuilder
-                    .Append(SingleLineComment)
-                    .Append(" EFCore: (#")
-                    .Append(SelectExpression.Tags.Join(", #"))
-                    .AppendLine(")");
+                foreach (var tag in SelectExpression.Tags)
+                {
+                    using (var reader = new StringReader(tag))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+
+                            _relationalCommandBuilder.Append(SingleLineCommentPrefix).Append(" ").AppendLine(line);
+                        }
+                    }
+
+                    _relationalCommandBuilder.AppendLine();
+                }
             }
         }
 
@@ -205,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     The default single line comment prefix.
         /// </summary>
-        protected virtual string SingleLineComment { get; } = "--";
+        protected virtual string SingleLineCommentPrefix { get; } = "--";
 
         /// <summary>
         ///     Visit a top-level SelectExpression.

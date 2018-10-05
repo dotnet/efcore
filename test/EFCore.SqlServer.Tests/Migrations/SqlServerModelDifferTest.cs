@@ -359,8 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         var m = Assert.IsType<InsertDataOperation>(o);
                         AssertMultidimensionalArray(
                             m.Values,
-                            v => Assert.Equal(43, v),
-                            v => Assert.Equal(0, v));
+                            v => Assert.Equal(43, v));
                     }),
                 downOps => Assert.Collection(
                     downOps,

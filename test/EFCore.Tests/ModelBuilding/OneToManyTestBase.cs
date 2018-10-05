@@ -2592,6 +2592,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 }
             }
 
+            [Fact]
+            public virtual void Do_not_match_non_unique_FK_when_overlap_with_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CompositeChild>().HasKey(e => new { e.Id, e.Value });
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(CompositeChild)).GetForeignKeys().Single();
+                Assert.Equal("ParentId", fk.Properties[0].Name);
+            }
+
             private static void AssertGraph(
                 ModifierGroupHeader parent,
                 ModifierGroupHeader child1,
