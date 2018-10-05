@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.Data.Common", true),
+            BuildReference.ByName("System.Data.SqlClient", true),
             BuildReference.ByName("System.Globalization", true),
             BuildReference.ByName("System.Linq", true),
             BuildReference.ByName("System.Reflection", true),
@@ -41,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.ComponentModel.Annotations"),
             BuildReference.ByName("System.Data.Common"),
+            BuildReference.ByName("System.Data.SqlClient"),
             BuildReference.ByName("System.Linq.Expressions"),
             BuildReference.ByName("System.Runtime"),
             BuildReference.ByName("System.Text.RegularExpressions")
