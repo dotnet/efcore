@@ -634,5 +634,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int CustomerId { get; set; }
             public Customer Customer { get; set; }
         }
+
+        protected class Parent
+        {
+            public int Id { get; set; }
+            public List<CompositeChild> Children { get; set; }
+        }
+
+        protected class CompositeChild
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public Parent Parent { get; set; }
+        }
     }
 }
