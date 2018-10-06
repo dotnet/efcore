@@ -30,9 +30,7 @@ namespace Microsoft.EntityFrameworkCore
 
             BuildModelExternal(builder);
 
-            builder.FinalizeModel();
-
-            return builder.Model;
+            return builder.FinalizeModel();
         }
 
         public abstract ModelBuilder CreateModelBuilder();

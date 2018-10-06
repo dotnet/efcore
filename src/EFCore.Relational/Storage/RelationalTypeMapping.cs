@@ -601,12 +601,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Gets a custom expression tree for the code to convert from the database value
-        ///     to the model value.
+        ///     Gets a custom expression tree for reading the value from the input data reader
+        ///     expression that contains the database value.
         /// </summary>
         /// <param name="expression"> The input expression, containing the database value. </param>
-        /// <returns> The expression with conversion added. </returns>
-        public virtual Expression AddCustomConversion([NotNull] Expression expression)
+        /// <returns> The expression with customization added. </returns>
+        public virtual Expression CustomizeDataReaderExpression([NotNull] Expression expression)
             => expression;
     }
 }

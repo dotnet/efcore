@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning)
                         .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperator)
                         .Log(RelationalEventId.ValueConversionSqlLiteralWarning))
-                .EnableRichDataErrorHandling();
+                .EnableDetailedErrors();
 
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Query.Name;

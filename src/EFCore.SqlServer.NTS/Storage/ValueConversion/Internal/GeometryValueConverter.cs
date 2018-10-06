@@ -3,8 +3,8 @@
 
 using System.Data.SqlTypes;
 using GeoAPI.Geometries;
+using GeoAPI.IO;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal
 {
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Intern
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public GeometryValueConverter(SqlServerSpatialReader reader, SqlServerSpatialWriter writer)
+        public GeometryValueConverter(IBinaryGeometryReader reader, IBinaryGeometryWriter writer)
             : base(
                 g => new SqlBytes(writer.Write(g)),
                 b => (TGeometry)reader.Read(b.Value))

@@ -456,13 +456,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
         /// <returns>
-        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        ///     The finalized <see cref="IModel"/>.
         /// </returns>
-        public virtual ModelBuilder FinalizeModel()
+        public virtual IModel FinalizeModel()
         {
             Builder.Metadata.Validate();
 
-            return this;
+            return Model;
         }
 
         private InternalModelBuilder Builder => this.GetInfrastructure();

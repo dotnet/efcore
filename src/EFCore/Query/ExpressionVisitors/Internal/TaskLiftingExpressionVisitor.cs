@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (CancellationTokenParameter == null)
                 {
-                    CancellationTokenParameter = QueryCompilationContext.CancellationTokenParameter;
+                    CancellationTokenParameter = IncludeCompiler.CancellationTokenParameter;
                 }
             }
 

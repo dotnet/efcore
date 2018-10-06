@@ -193,9 +193,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void EnableRichDataErrorHandling_on_generic_builder_returns_generic_builder()
+        public void EnableDetailedErrors_on_generic_builder_returns_generic_builder()
         {
-            GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableRichDataErrorHandling());
+            GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableDetailedErrors());
         }
 
         [Fact]

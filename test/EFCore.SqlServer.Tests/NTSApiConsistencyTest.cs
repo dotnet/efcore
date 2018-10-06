@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override Assembly TargetAssembly
-            => typeof(SqlServerNTSServiceCollectionExtensions).GetTypeInfo().Assembly;
+            => typeof(SqlServerNetTopologySuiteServiceCollectionExtensions).GetTypeInfo().Assembly;
     }
 #endif
 }

@@ -14,7 +14,7 @@ namespace NetTopologySuite.IO
     ///     Writes <see cref="IGeometry"/> instances into geography or geometry data in the SQL Server serialization
     ///     format (described in MS-SSCLRT).
     /// </summary>
-    public class SqlServerSpatialWriter : IBinaryGeometryWriter
+    internal class SqlServerSpatialWriter : IBinaryGeometryWriter
     {
         private bool _emitZ = true;
         private bool _emitM = true;

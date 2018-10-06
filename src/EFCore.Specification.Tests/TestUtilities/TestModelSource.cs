@@ -31,9 +31,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             _onModelCreating(modelBuilder, context);
 
-            modelBuilder.FinalizeModel();
-
-            return modelBuilder.GetInfrastructure().Metadata;
+            return modelBuilder.FinalizeModel();
         }
 
         public static Func<IServiceProvider, IModelSource> GetFactory(Action<ModelBuilder> onModelCreating)

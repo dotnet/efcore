@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
-                CoreAnnotationNames.DeepValueComparer,
+                CoreAnnotationNames.StructuralValueComparer,
                 CoreAnnotationNames.ConstructorBinding,
                 CoreAnnotationNames.NavigationAccessModeAnnotation,
                 CoreAnnotationNames.OwnedTypesAnnotation,

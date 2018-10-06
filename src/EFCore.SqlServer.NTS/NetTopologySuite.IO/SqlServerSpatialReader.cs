@@ -16,7 +16,7 @@ namespace NetTopologySuite.IO
     ///     Reads geography or geometry data in the SQL Server serialization format (described in MS-SSCLRT) into
     ///     <see cref="IGeometry"/> instances.
     /// </summary>
-    public class SqlServerSpatialReader : IBinaryGeometryReader
+    internal class SqlServerSpatialReader : IBinaryGeometryReader
     {
         private readonly IGeometryServices _services;
         private readonly ICoordinateSequenceFactory _sequenceFactory;
