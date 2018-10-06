@@ -647,5 +647,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Value { get; set; }
             public Parent Parent { get; set; }
         }
+
+        protected class BillingOwner
+        {
+            public int Id { get; set; }
+            public BillingDetail Bill1 { get; set; }
+            public BillingDetail Bill2 { get; set; }
+        }
+
+        protected class BillingDetail
+        {
+            public string Country { get; set; }
+        }
+
+        protected class Country
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+        }
     }
 }

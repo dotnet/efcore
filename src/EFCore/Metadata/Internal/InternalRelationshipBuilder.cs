@@ -1526,7 +1526,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 resetIsRequired = true;
             }
 
-            if (dependentEntityType != Metadata.DeclaringEntityType
+            if ((dependentEntityType != Metadata.DeclaringEntityType
+                 && dependentEntityType == Metadata.PrincipalEntityType) // Check if inverted
                 || (properties.Count != 0
                     && !ForeignKey.AreCompatible(
                         principalKeyProperties,
