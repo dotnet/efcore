@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (mapping != null)
             {
                 var builder = new StringBuilder();
-                var expression = mapping.GenerateLiteralExpression(value);
+                var expression = mapping.GenerateCodeLiteral(value);
                 var handled = HandleExpression(expression, builder);
 
                 if (!handled)

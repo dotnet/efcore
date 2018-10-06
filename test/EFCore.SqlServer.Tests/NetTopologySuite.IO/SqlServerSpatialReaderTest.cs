@@ -1,6 +1,9 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using GeoAPI;
 using GeoAPI.Geometries;
+using GeoAPI.IO;
+using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Xunit;
@@ -192,10 +195,13 @@ namespace NetTopologySuite.IO
                 byteArray[i / 2] = byte.Parse(bytes.Substring(i, 2), NumberStyles.HexNumber);
             }
 
-            var reader = new SqlServerSpatialReader(geometryServices ?? NtsGeometryServices.Instance)
-            {
-                HandleOrdinates = handleOrdinates
-            };
+            var reader = (IBinaryGeometryReader)Activator.CreateInstance(
+                typeof(SqlServerNetTopologySuiteServiceCollectionExtensions)
+                    .Assembly
+                    .GetType("NetTopologySuite.IO.SqlServerSpatialReader"),
+                geometryServices ?? NtsGeometryServices.Instance);
+
+            reader.HandleOrdinates = handleOrdinates;
 
             return reader.Read(byteArray);
         }

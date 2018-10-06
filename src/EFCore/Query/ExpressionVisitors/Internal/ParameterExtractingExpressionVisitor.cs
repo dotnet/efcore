@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         || !methodInfo.GetGenericMethodDefinition()
                             .Equals(EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
                     && !methodInfo.GetGenericMethodDefinition()
-                        .Equals(EntityFrameworkQueryableExtensions.WithTagMethodInfo)))
+                        .Equals(EntityFrameworkQueryableExtensions.TagWithMethodInfo)))
             {
                 return base.VisitMethodCall(methodCallExpression);
             }

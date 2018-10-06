@@ -178,11 +178,11 @@ namespace Microsoft.EntityFrameworkCore
             => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
 
         /// <summary>
-        ///     Gets the <see cref="ValueComparer" /> to use for deep copies for this property, or null if none is set.
+        ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or null if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        public static ValueComparer GetDeepValueComparer([NotNull] this IProperty property)
+        public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property)
             => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
     }
 }

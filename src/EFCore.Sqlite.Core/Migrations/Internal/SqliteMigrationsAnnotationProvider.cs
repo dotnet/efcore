@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
 {
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         public override IEnumerable<IAnnotation> For(IModel model)
         {
             if (model.GetEntityTypes().SelectMany(t => t.GetProperties()).Any(
-                p => SqliteMigrationsSqlGenerator.IsSpatialiteType(p.Relational().ColumnType)))
+                p => SqliteTypeMappingSource.IsSpatialiteType(p.Relational().ColumnType)))
             {
                 yield return new Annotation(SqliteAnnotationNames.InitSpatialMetaData, true);
             }

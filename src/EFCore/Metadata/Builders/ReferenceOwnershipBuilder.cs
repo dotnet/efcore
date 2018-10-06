@@ -111,10 +111,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
+        ///     Configures the unique property(s) that this relationship targets--that is, on the owner entity type.
+        ///     Typically you would only call this method if you want to use a property(s) other than the primary key
+        ///     as the principal property(s). If the specified property(s) is not already a unique constraint (or the
+        ///     primary key) then a new unique constraint will be introduced.
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>

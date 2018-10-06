@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public DbContextOptions CreateOptions(TestStore testStore)
             => AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
-                .EnableRichDataErrorHandling()
+                .EnableDetailedErrors()
                 .UseInternalServiceProvider(ServiceProvider)
                 .Options;
 

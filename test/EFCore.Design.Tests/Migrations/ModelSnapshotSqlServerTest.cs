@@ -3177,14 +3177,13 @@ namespace RootNamespace
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
             buildModel(modelBuilder);
 
-            modelBuilder.FinalizeModel();
-            var model = modelBuilder.Model;
+            var model = modelBuilder.FinalizeModel();
 
             var codeHelper = new CSharpHelper(
                 new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     new RelationalTypeMappingSourceDependencies(
-                        new IRelationalTypeMappingSourcePlugin[] { new SqlServerNTSTypeMappingSourcePlugin(NtsGeometryServices.Instance), })));
+                        new IRelationalTypeMappingSourcePlugin[] { new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance), })));
 
             var generator = new CSharpMigrationsGenerator(
                 new MigrationsCodeGeneratorDependencies(),

@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using GeoAPI;
 using GeoAPI.Geometries;
+using GeoAPI.IO;
+using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Xunit;
@@ -177,10 +180,12 @@ namespace NetTopologySuite.IO
 
         private string Write(IGeometry geometry, Ordinates handleOrdinates = Ordinates.XYZM)
         {
-            var writer = new SqlServerSpatialWriter
-            {
-                HandleOrdinates = handleOrdinates
-            };
+            var writer = (IBinaryGeometryWriter)Activator.CreateInstance(
+                typeof(SqlServerNetTopologySuiteServiceCollectionExtensions)
+                    .Assembly
+                    .GetType("NetTopologySuite.IO.SqlServerSpatialWriter"));
+
+            writer.HandleOrdinates = handleOrdinates;
 
             return string.Concat(writer.Write(geometry).Select(b => b.ToString("X2")));
         }
