@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -20,7 +21,25 @@ namespace Microsoft.EntityFrameworkCore
     public class RelationalModelValidatorTest : ModelValidatorTest
     {
         [Fact]
-        public virtual void Detects_bool_with_default_value()
+        public virtual void Ignores_bool_with_default_value_false()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(E));
+            SetPrimaryKey(entityType);
+            entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValue = false;
+            entityType.AddProperty("ImNotUsed", typeof(bool)).Relational().DefaultValue = false;
+
+            var property = entityType.AddProperty("ImBool", typeof(bool));
+            property.Relational().DefaultValue = false;
+            property.ValueGenerated = ValueGenerated.OnAdd;
+
+            Validate(model);
+
+            Assert.False(LoggerFactory.Log.Any(l => l.Level == LogLevel.Warning));
+        }
+
+        [Fact]
+        public virtual void Detects_bool_with_default_value_not_false()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(E));

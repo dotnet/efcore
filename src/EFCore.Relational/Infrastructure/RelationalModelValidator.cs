@@ -115,13 +115,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 if (property.ClrType == typeof(bool)
                     && property.ValueGenerated != ValueGenerated.Never
-                    && (property.Relational().DefaultValue != null
+                    && (IsNotNullAndFalse(property.Relational().DefaultValue)
                         || property.Relational().DefaultValueSql != null))
                 {
                     Dependencies.Logger.BoolWithDefaultWarning(property);
                 }
             }
         }
+
+        private static bool IsNotNullAndFalse(object value)
+            => value != null
+               && (!(value is bool asBool) || asBool);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
