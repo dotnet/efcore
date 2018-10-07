@@ -168,7 +168,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var index = (int)((ConstantExpression)node.Arguments[1]).Value;
 
-                    return _valueBufferAssignmentExpressions[index];
+                    var newExpression = _valueBufferAssignmentExpressions[index];
+
+                    if (newExpression.Type != node.Type)
+                    {
+                        newExpression = Expression.Convert(newExpression, node.Type);
+                    }
+
+                    return newExpression;
                 }
 
                 return base.VisitMethodCall(node);
