@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
         ///     </para>
         /// </summary>
-        public virtual bool IsConfigured => _options.Extensions.Any();
+        public virtual bool IsConfigured => _options.Extensions.Any(e => e.ApplyServices(new ServiceCollection()));
 
         /// <summary>
         ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
