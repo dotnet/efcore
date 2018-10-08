@@ -35,10 +35,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IEntityQueryModelVisitorFactory, CosmosSqlEntityQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosSqlEntityQueryableExpressionVisitorFactory>()
                 .TryAdd<IMemberAccessBindingExpressionVisitorFactory, CosmosSqlMemberAccessBindingExpressionVisitorFactory>()
+                .TryAdd<INavigationRewritingExpressionVisitorFactory, CosmosSqlNavigationRewritingExpressionVisitorFactory>()
+                .TryAdd<IEagerLoadingExpressionVisitorFactory, CosmosSqlEagerLoadingExpressionVisitorFactory>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddScoped<CosmosClient, CosmosClient>()
-                        .TryAddScoped<DocumentCollectionUpdaterFactory, DocumentCollectionUpdaterFactory>()
 
                 );
 

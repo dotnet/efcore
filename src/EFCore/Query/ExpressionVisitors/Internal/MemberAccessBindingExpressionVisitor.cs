@@ -342,6 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] QueryCompilationContext queryCompilationContext,
             out QuerySourceReferenceExpression querySourceReferenceExpression)
         {
+            expression = expression.RemoveNullConditional();
             var memberExpression = expression as MemberExpression;
             var methodCallExpression = expression as MethodCallExpression;
 

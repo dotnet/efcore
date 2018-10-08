@@ -2185,7 +2185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly Dictionary<string, Expression> _injectedParameters = new Dictionary<string, Expression>();
 
-        private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IProperty property, bool isMemberExpression)
+        private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IPropertyBase property, bool isMemberExpression)
         {
             if (querySource != null
                 && _canBindPropertyToOuterParameter

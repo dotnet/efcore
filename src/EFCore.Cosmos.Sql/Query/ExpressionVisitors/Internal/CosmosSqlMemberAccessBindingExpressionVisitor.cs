@@ -56,8 +56,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
                         {
                             foreach (var property in properties)
                             {
-                                newExpression = CreateGetValueExpression(
-                                    newExpression, property);
+                                if (property is INavigation)
+                                {
+                                    _queryModelVisitor.AllMembersBoundToJObject = false;
+
+                                    return memberExpression;
+                                }
+
+                                newExpression = CreateGetValueExpression(newExpression, property);
                             }
 
                             return newExpression;

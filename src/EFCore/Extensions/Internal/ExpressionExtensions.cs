@@ -10,6 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
@@ -215,6 +216,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return expression;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static Expression RemoveNullConditional([CanBeNull] this Expression expression)
+            => expression is NullConditionalExpression conditional ? conditional.AccessOperation : expression;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
