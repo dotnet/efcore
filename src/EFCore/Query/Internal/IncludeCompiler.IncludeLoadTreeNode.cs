@@ -252,10 +252,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                         targetEntityParameter,
                                         pk.GetMemberInfo(forConstruction: false, forSet: false));
 
+                                if (pkMemberAccess.Type != pk.ClrType)
+                                {
+                                    pkMemberAccess = Expression.Convert(pkMemberAccess, pk.ClrType);
+                                }
+
                                 Expression fkMemberAccess
                                     = Expression.MakeMemberAccess(
                                         relatedEntityParameter,
                                         fk.GetMemberInfo(forConstruction: false, forSet: false));
+
+                                if (fkMemberAccess.Type != fk.ClrType)
+                                {
+                                    fkMemberAccess = Expression.Convert(fkMemberAccess, fk.ClrType);
+                                }
 
                                 if (pkMemberAccess.Type != fkMemberAccess.Type)
                                 {
