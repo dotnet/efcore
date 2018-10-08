@@ -88,25 +88,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string AsText(object value)
-        {
-            var geometry = (IGeometry)value;
-
-            var srid = geometry.SRID;
-
-            var text = geometry.AsText();
-            if (srid != -1)
-            {
-                text = $"SRID={srid};" + text;
-            }
-
-            return text;
-        }
+            => ((IGeometry)value).AsText();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Type WKTReaderType => typeof(WKTReader);
+        protected override int GetSrid(object value)
+            => ((IGeometry)value).SRID;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Type WKTReaderType
+            => typeof(WKTReader);
 
         private static SqlServerSpatialReader CreateReader(IGeometryServices services, bool isGeography)
             => new SqlServerSpatialReader(services) { IsGeography = isGeography };

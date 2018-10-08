@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -23,19 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     {
-        private static readonly HashSet<string> _spatialiteTypes
-            = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "GEOMETRY",
-                "GEOMETRYCOLLECTION",
-                "LINESTRING",
-                "MULTILINESTRING",
-                "MULTIPOINT",
-                "MULTIPOLYGON",
-                "POINT",
-                "POLYGON"
-            };
-
         private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
 
         /// <summary>
@@ -59,16 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
             => base.Generate(RewriteOperations(operations, model), model);
 
-        /// <summary>
-        ///     Checks whether a column type is one of the SpatiaLite column types.
-        /// </summary>
-        /// <param name="columnType"> The column type to check. </param>
-        /// <returns> true if it's a SpatiaLite type; otherwise, false.  </returns>
-        public static bool IsSpatialiteType(string columnType)
-            => _spatialiteTypes.Contains(columnType);
-
         private bool IsSpatialiteColumn(AddColumnOperation operation, IModel model)
-            => IsSpatialiteType(
+            => SqliteTypeMappingSource.IsSpatialiteType(
                 operation.ColumnType
                     ?? GetColumnType(
                         operation.Schema,

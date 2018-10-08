@@ -69,13 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         internal ISet<QueryModel> DuplicateQueryModels = new HashSet<QueryModel>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static readonly ParameterExpression CancellationTokenParameter
-            = Expression.Parameter(typeof(CancellationToken), name: "ct");
-
-        /// <summary>
         ///     Registers a mapping between correlated collection query models and metadata needed to process them.
         /// </summary>
         /// <param name="mainFromClause"> The main from clause.</param>

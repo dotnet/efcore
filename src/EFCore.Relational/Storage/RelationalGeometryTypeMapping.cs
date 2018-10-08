@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="expression"> The input expression, containing the database value. </param>
         /// <returns> The expression with conversion added. </returns>
-        public override Expression AddCustomConversion(Expression expression)
+        public override Expression CustomizeDataReaderExpression(Expression expression)
         {
             if (expression.Type != _converter.ProviderClrType)
             {
@@ -111,13 +111,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value"> The value for which a literal is needed. </param>
         /// <returns> An expression tree that can be used to generate code for the literal value. </returns>
-        public override Expression GenerateLiteralExpression(object value)
+        public override Expression GenerateCodeLiteral(object value)
             => Expression.Convert(
                 Expression.Call(
                     Expression.New(WKTReaderType),
                     WKTReaderType.GetMethod("Read", new[] { typeof(string) }),
-                    Expression.Constant(AsText(value), typeof(string))),
+                    Expression.Constant(CreateWktWithSrid(value), typeof(string))),
                 value.GetType());
+
+        private string CreateWktWithSrid(object value)
+        {
+            var srid = GetSrid(value);
+            var text = AsText(value);
+            if (srid != -1)
+            {
+                text = $"SRID={srid};" + text;
+            }
+
+            return text;
+        }
 
         /// <summary>
         ///     The type of the NTS 'WKTReader'.
@@ -125,11 +137,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected abstract Type WKTReaderType { get; }
 
         /// <summary>
-        ///     Returns the Well-Known-Text (WKT) representation of the given object, or <c>null</c>
-        ///     if the object is not an 'IGeometry'.
+        ///     Returns the Well-Known-Text (WKT) representation of the given object.
         /// </summary>
-        /// <param name="value"> The value. </param>
+        /// <param name="value"> The 'IGeometry' value. </param>
         /// <returns> The WKT. </returns>
         protected abstract string AsText([NotNull] object value);
+
+        /// <summary>
+        ///     Returns the SRID representation of the given object.
+        /// </summary>
+        /// <param name="value"> The 'IGeometry' value. </param>
+        /// <returns> The SRID. </returns>
+        protected abstract int GetSrid([NotNull] object value);
     }
 }

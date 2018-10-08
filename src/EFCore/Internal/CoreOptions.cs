@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var coreOptions = options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
 
-            IsRichDataErrorHandingEnabled = coreOptions.IsRichDataErrorHandingEnabled;
+            AreDetailedErrorsEnabled = coreOptions.DetailedErrorsEnabled;
         }
 
         /// <summary>
@@ -32,13 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var coreOptions = options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
 
-            if (IsRichDataErrorHandingEnabled != coreOptions.IsRichDataErrorHandingEnabled)
+            if (AreDetailedErrorsEnabled != coreOptions.DetailedErrorsEnabled)
             {
                 Debug.Assert(coreOptions.InternalServiceProvider != null);
 
                 throw new InvalidOperationException(
                     CoreStrings.SingletonOptionChanged(
-                        nameof(DbContextOptionsBuilder.EnableRichDataErrorHandling),
+                        nameof(DbContextOptionsBuilder.EnableDetailedErrors),
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
             }
         }
@@ -47,6 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsRichDataErrorHandingEnabled { get; private set; }
+        public virtual bool AreDetailedErrorsEnabled { get; private set; }
     }
 }

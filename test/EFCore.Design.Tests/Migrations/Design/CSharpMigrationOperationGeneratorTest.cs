@@ -2743,7 +2743,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new SqlServerTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             new RelationalTypeMappingSourceDependencies(
-                                new IRelationalTypeMappingSourcePlugin[] { new SqlServerNTSTypeMappingSourcePlugin(NtsGeometryServices.Instance), })))));
+                                new IRelationalTypeMappingSourcePlugin[] { new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance), })))));
 
             var builder = new IndentedStringBuilder();
             generator.Generate("mb", new[] { operation }, builder);

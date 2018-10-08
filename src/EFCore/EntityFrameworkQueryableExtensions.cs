@@ -2587,9 +2587,9 @@ namespace Microsoft.EntityFrameworkCore
 
         #region Tagging
 
-        internal static readonly MethodInfo WithTagMethodInfo
+        internal static readonly MethodInfo TagWithMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(WithTag));
+                .GetTypeInfo().GetDeclaredMethod(nameof(TagWith));
 
         /// <summary>
         ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations
@@ -2601,7 +2601,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A new query annotated with the given tag.
         /// </returns>
-        public static IQueryable<T> WithTag<T>(
+        public static IQueryable<T> TagWith<T>(
             [NotNull] this IQueryable<T> source, [NotNull] [NotParameterized] string tag)
         {
             Check.NotNull(source, nameof(source));
@@ -2612,7 +2612,7 @@ namespace Microsoft.EntityFrameworkCore
                     ? source.Provider.CreateQuery<T>(
                         Expression.Call(
                             instance: null,
-                            method: WithTagMethodInfo.MakeGenericMethod(typeof(T)),
+                            method: TagWithMethodInfo.MakeGenericMethod(typeof(T)),
                             arg0: source.Expression,
                             arg1: Expression.Constant(tag)))
                     : source;

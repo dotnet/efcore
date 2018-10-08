@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         while ((line = reader.ReadLine()) != null)
                         {
 
-                            _relationalCommandBuilder.Append(SingleLineCommentPrefix).Append(" ").AppendLine(line);
+                            _relationalCommandBuilder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
                         }
                     }
 
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     The default single line comment prefix.
         /// </summary>
-        protected virtual string SingleLineCommentPrefix { get; } = "--";
+        protected virtual string SingleLineCommentToken { get; } = "--";
 
         /// <summary>
         ///     Visit a top-level SelectExpression.

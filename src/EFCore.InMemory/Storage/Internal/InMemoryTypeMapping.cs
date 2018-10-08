@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             [NotNull] Type clrType,
             [CanBeNull] ValueComparer comparer = null,
             [CanBeNull] ValueComparer keyComparer = null,
-            [CanBeNull] ValueComparer deepComparer = null)
+            [CanBeNull] ValueComparer structuralComparer = null)
             : base(new CoreTypeMappingParameters(
                 clrType,
                 converter: null,
                 comparer,
                 keyComparer,
-                deepComparer,
+                structuralComparer,
                 valueGeneratorFactory: null))
         {
         }

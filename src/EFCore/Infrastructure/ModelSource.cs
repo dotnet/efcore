@@ -81,9 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
-            modelBuilder.FinalizeModel();
-
-            return modelBuilder.GetInfrastructure().Metadata;
+            return modelBuilder.FinalizeModel();
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private ILoggerFactory _loggerFactory;
         private IMemoryCache _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
-        private bool _richDataErrorHandingEnabled;
+        private bool _detailedErrorsEnabled;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private IDictionary<Type, Type> _replacedServices;
         private int? _maxPoolSize;
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _loggerFactory = copyFrom.LoggerFactory;
             _memoryCache = copyFrom.MemoryCache;
             _sensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
-            _richDataErrorHandingEnabled = copyFrom.IsRichDataErrorHandingEnabled;
+            _detailedErrorsEnabled = copyFrom.DetailedErrorsEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
@@ -177,13 +177,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="richDataErrorHandingEnabled"> The option to change. </param>
+        /// <param name="detailedErrorsEnabled"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithRichDataErrorHandling(bool richDataErrorHandingEnabled)
+        public virtual CoreOptionsExtension WithDetailedErrorsEnabled(bool detailedErrorsEnabled)
         {
             var clone = Clone();
 
-            clone._richDataErrorHandingEnabled = richDataErrorHandingEnabled;
+            clone._detailedErrorsEnabled = detailedErrorsEnabled;
 
             return clone;
         }
@@ -260,9 +260,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual bool IsSensitiveDataLoggingEnabled => _sensitiveDataLoggingEnabled;
 
         /// <summary>
-        ///     The option set from the <see cref="DbContextOptionsBuilder.EnableRichDataErrorHandling" /> method.
+        ///     The option set from the <see cref="DbContextOptionsBuilder.EnableDetailedErrors" /> method.
         /// </summary>
-        public virtual bool IsRichDataErrorHandingEnabled => _richDataErrorHandingEnabled;
+        public virtual bool DetailedErrorsEnabled => _detailedErrorsEnabled;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseModel" /> method.
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var hashCode = GetLoggerFactory()?.GetHashCode() ?? 0L;
                 hashCode = (hashCode * 397) ^ (GetMemoryCache()?.GetHashCode() ?? 0L);
                 hashCode = (hashCode * 3) ^ _sensitiveDataLoggingEnabled.GetHashCode();
-                hashCode = (hashCode * 3) ^ _richDataErrorHandingEnabled.GetHashCode();
+                hashCode = (hashCode * 3) ^ _detailedErrorsEnabled.GetHashCode();
                 hashCode = (hashCode * 1073742113) ^ _warningsConfiguration.GetServiceProviderHashCode();
 
                 if (_replacedServices != null)
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseLoggerFactory)] = (GetLoggerFactory()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
             debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseMemoryCache)] = (GetMemoryCache()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
             debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableSensitiveDataLogging)] = _sensitiveDataLoggingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
-            debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableRichDataErrorHandling)] = _richDataErrorHandingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
+            debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableDetailedErrors)] = _detailedErrorsEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
             debugInfo["Core:" + nameof(DbContextOptionsBuilder.ConfigureWarnings)] = _warningsConfiguration.GetServiceProviderHashCode().ToString(CultureInfo.InvariantCulture);
 
             if (_replacedServices != null)
@@ -455,9 +455,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         builder.Append("SensitiveDataLoggingEnabled ");
                     }
 
-                    if (_richDataErrorHandingEnabled)
+                    if (_detailedErrorsEnabled)
                     {
-                        builder.Append("RichDataErrorHandlingEnabled ");
+                        builder.Append("DetailedErrorsEnabled ");
                     }
 
                     if (_maxPoolSize != null)

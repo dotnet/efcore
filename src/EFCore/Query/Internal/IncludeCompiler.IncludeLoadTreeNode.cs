@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
@@ -22,6 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public partial class IncludeCompiler
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static readonly ParameterExpression CancellationTokenParameter
+            = Expression.Parameter(typeof(CancellationToken), name: "ct");
+
         private sealed class IncludeLoadTreeNode : IncludeLoadTreeNodeBase
         {
             private static readonly MethodInfo _referenceEqualsMethodInfo
@@ -142,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             typeof(Func<>).MakeGenericType(asyncEnumerableType));
 
                     includeCollectionMethodInfo = _queryBufferIncludeCollectionAsyncMethodInfo;
-                    cancellationTokenExpression = QueryCompilationContext.CancellationTokenParameter;
+                    cancellationTokenExpression = CancellationTokenParameter;
                 }
 
                 return

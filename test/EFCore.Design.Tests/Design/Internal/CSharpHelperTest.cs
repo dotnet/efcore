@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _literalExpressionFunc = literalExpressionFunc;
             }
 
-            public override Expression GenerateLiteralExpression(object value)
+            public override Expression GenerateCodeLiteral(object value)
                 => _literalExpressionFunc((T)value);
         }
 

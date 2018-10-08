@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     <para>
     ///         Specifies custom value snapshotting and comparison for
     ///         CLR types that cannot be compared with <see cref="object.Equals(object, object)" />
-    ///         and/or need a deep copy when taking a snapshot. For example, arrays of primitive types
+    ///         and/or need a deep/structural copy when taking a snapshot. For example, arrays of primitive types
     ///         will require both if mutation is to be detected.
     ///     </para>
     ///     <para>

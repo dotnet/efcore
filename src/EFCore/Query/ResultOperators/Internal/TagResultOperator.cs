@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string ToString() => $"WithTag(\"{Tag}\")";
+        public override string ToString() => $"TagWith(\"{Tag}\")";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
