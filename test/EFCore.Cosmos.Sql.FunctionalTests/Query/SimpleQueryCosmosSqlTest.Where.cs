@@ -1631,16 +1631,14 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Discriminator""] = ""Customer""))");
         }
 
-        public override Task Where_chain(bool isAsync)
+        public override async Task Where_chain(bool isAsync)
         {
-            // #13190
-            //await base.Where_chain(isAsync);
+            await base.Where_chain(isAsync);
 
-            //            AssertSql(
-            //                @"SELECT c
-            //FROM root c
-            //WHERE (c[""Discriminator""] = ""Customer""))");
-            return Task.CompletedTask;
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""QUICK"")) AND (c[""OrderDate""] > ""1998-01-01T00:00:00""))");
         }
 
         public override void Where_navigation_contains()
