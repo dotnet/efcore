@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Sql.Storage.Internal;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Internal
 {
@@ -113,9 +115,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Sql.Query.ExpressionVisitors.Inte
             {
                 _sqlBuilder.Append("null");
             }
-            else if (value.GetType().IsNumeric())
+            else if (value.GetType().IsNumeric() || value is DateTime || value is DateTimeOffset)
             {
-                _sqlBuilder.Append(value);
+                var jsonValue = JToken.FromObject(value);
+                _sqlBuilder.Append(jsonValue.ToString(Formatting.None));
             }
             else if (value is bool boolValue)
             {
