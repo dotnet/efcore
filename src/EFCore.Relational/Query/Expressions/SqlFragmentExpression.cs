@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// </summary>
     public class SqlFragmentExpression : Expression
     {
+        private readonly Type _Type;
+
         /// <summary>
         ///     Creates a new instance of a SqlFragmentExpression.
         /// </summary>
@@ -22,6 +24,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotEmpty(sql, nameof(sql));
 
             Sql = sql;
+            _Type = typeof(object);
+        }
+
+        /// <summary>
+        ///     Creates a new instance of a SqlFragmentExpression.
+        /// </summary>
+        public SqlFragmentExpression([NotNull] string sql,
+                                     [NotNull] Type   type)
+        {
+            Check.NotEmpty(sql, nameof(sql));
+            Check.NotNull(type, nameof(type));
+
+            Sql = sql;
+            _Type = type;
         }
 
         /// <summary>
@@ -40,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     (Inherited from <see cref="Expression" />.)
         /// </summary>
         /// <returns> The <see cref="Type" /> that represents the static type of the expression. </returns>
-        public override Type Type => typeof(object);
+        public override Type Type => _Type;
 
         /// <summary>
         ///     Dispatches to the specific visit method for this node type.
@@ -86,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((SqlFragmentExpression)obj);
         }
 
-        private bool Equals(SqlFragmentExpression other) => string.Equals(Sql, other.Sql);
+        private bool Equals(SqlFragmentExpression other) => string.Equals(Sql, other.Sql) && _Type.Equals(other._Type);
 
         /// <summary>
         ///     Returns a hash code for this object.
@@ -94,6 +110,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>
         ///     A hash code for this object.
         /// </returns>
-        public override int GetHashCode() => Sql.GetHashCode();
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Sql.GetHashCode();
+                hashCode = (hashCode * 397) ^ _Type.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 }
