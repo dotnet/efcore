@@ -17,6 +17,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="build\**\*">
+      <Pack>True</Pack>
+      <PackagePath>build</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EFCore.SqlServer\EFCore.SqlServer.csproj" PrivateAssets="contentfiles;build" />
   </ItemGroup>
 

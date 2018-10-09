@@ -49,8 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
                 .AddDbContextDesignTimeServices(context);
-            ConfigureProviderServices(context.GetService<IDatabaseProvider>().Name, services);
-            ConfigureReferencedServices(services);
+            var provider = context.GetService<IDatabaseProvider>().Name;
+            ConfigureProviderServices(provider, services);
+            ConfigureReferencedServices(services, provider);
             ConfigureUserServices(services);
 
             return services.BuildServiceProvider();
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
             ConfigureProviderServices(provider, services, throwOnError: true);
-            ConfigureReferencedServices(services);
+            ConfigureReferencedServices(services, provider);
             ConfigureUserServices(services);
 
             return services.BuildServiceProvider();
@@ -95,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             ConfigureDesignTimeServices(designTimeServicesType, services);
         }
 
-        private void ConfigureReferencedServices(IServiceCollection services)
+        private void ConfigureReferencedServices(IServiceCollection services, string provider)
         {
             _reporter.WriteVerbose(DesignStrings.FindingReferencedServices(_startupAssembly.GetName().Name));
 
@@ -109,6 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             foreach (var reference in references)
             {
+                if (reference.ForProvider != null
+                    && !string.Equals(reference.ForProvider, provider, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 var designTimeServicesType = Type.GetType(reference.TypeName, throwOnError: true);
 
                 _reporter.WriteVerbose(

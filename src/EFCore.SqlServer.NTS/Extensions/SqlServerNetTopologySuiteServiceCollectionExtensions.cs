@@ -28,7 +28,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            // TODO: Use EF infrastructure?
             serviceCollection.TryAddSingleton(NtsGeometryServices.Instance);
 
             new EntityFrameworkRelationalServicesBuilder(serviceCollection)
