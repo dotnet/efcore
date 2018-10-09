@@ -2525,6 +2525,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Alpha.AnotherId), entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
             }
 
+            [Fact]
+            public virtual void Creates_shadow_fk_configuring_using_ForeignKeyAttribute()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<PrincipalShadowFk>().HasMany(e => e.Dependends).WithOne(e => e.Principal);
+
+                modelBuilder.Validate();
+
+                Assert.Equal("PrincipalShadowFkId",
+                    modelBuilder.Model.FindEntityType(typeof(DependentShadowFk)).GetForeignKeys().Single().Properties[0].Name);
+            }
+
             [Fact] // Issue #3376
             public virtual void Can_use_self_referencing_overlapping_FK_PK()
             {

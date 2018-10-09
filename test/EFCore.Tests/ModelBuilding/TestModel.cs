@@ -664,7 +664,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
 
+        protected class DependentShadowFk
+        {
+            public Guid DependentShadowFkId { get; set; }
+            [ForeignKey("PrincipalShadowFkId")]
+            public PrincipalShadowFk Principal { get; set; }
+        }
+
+        protected class PrincipalShadowFk
+        {
+            public Guid PrincipalShadowFkId { get; set; }
+            public List<DependentShadowFk> Dependends { get; set; }
         }
     }
 }
