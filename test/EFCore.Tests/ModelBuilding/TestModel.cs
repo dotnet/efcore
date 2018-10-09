@@ -678,5 +678,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Guid PrincipalShadowFkId { get; set; }
             public List<DependentShadowFk> Dependends { get; set; }
         }
+
+        protected class BaseOwner
+        {
+            public int Id { get; set; }
+            public OwnedTypeInheritance1 Owned1 { get; set; }
+            public OwnedTypeInheritance2 Owned2 { get; set; }
+        }
+
+        protected class DerivedOwner : BaseOwner { }
+
+        [Owned]
+        protected class OwnedTypeInheritance1
+        {
+            public string Value { get; set; }
+        }
+
+        [Owned]
+        protected class OwnedTypeInheritance2
+        {
+            public string Value { get; set; }
+        }
     }
 }

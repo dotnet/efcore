@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
-                else if (relationshipCandidate.TargetTypeBuilder.Metadata.HasDefiningNavigation()
+                else if (IsCandidateUnusedOwnedType(relationshipCandidate.TargetTypeBuilder.Metadata)
                          && filteredRelationshipCandidates.All(
                              c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
-                else if (relationshipCandidate.TargetTypeBuilder.Metadata.HasDefiningNavigation()
+                else if (IsCandidateUnusedOwnedType(relationshipCandidate.TargetTypeBuilder.Metadata)
                          && filteredRelationshipCandidates.All(
                              c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
@@ -840,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var unusedEntityType in unusedEntityTypes)
             {
-                if (unusedEntityType.HasDefiningNavigation()
+                if (IsCandidateUnusedOwnedType(unusedEntityType)
                     && unusedEntityType.DefiningEntityType.FindNavigation(unusedEntityType.DefiningNavigationName) == null)
                 {
                     entityTypeBuilder.ModelBuilder.RemoveEntityType(unusedEntityType, ConfigurationSource.Convention);
@@ -1064,6 +1064,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             InternalEntityTypeBuilder entityTypeBuilder,
             ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
             => entityTypeBuilder.HasAnnotation(NavigationCandidatesAnnotationName, navigationCandidates, ConfigurationSource.Convention);
+
+        private static bool IsCandidateUnusedOwnedType(EntityType entityType)
+            => entityType.HasDefiningNavigation() && !entityType.GetForeignKeys().Any();
 
         private static bool IsAmbiguous(EntityType entityType, MemberInfo navigationProperty)
         {
