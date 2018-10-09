@@ -239,7 +239,8 @@ FROM [Customers] AS [c]");
                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
-FROM [Customers] AS [c]");
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Average_over_max_subquery_is_client_eval(bool isAsync)
@@ -249,7 +250,8 @@ FROM [Customers] AS [c]");
                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
-FROM [Customers] AS [c]");
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Average_on_float_column(bool isAsync)
@@ -345,7 +347,8 @@ FROM [Customers] AS [c]");
                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
-FROM [Customers] AS [c]");
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Min_over_max_subquery_is_client_eval(bool isAsync)
@@ -356,7 +359,8 @@ FROM [Customers] AS [c]");
                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
-FROM [Customers] AS [c]");
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Max_with_no_arg(bool isAsync)
@@ -408,7 +412,8 @@ FROM [Customers] AS [c]");
                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
-FROM [Customers] AS [c]");
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Max_over_sum_subquery_is_client_eval(bool isAsync)
@@ -419,7 +424,8 @@ FROM [Customers] AS [c]");
                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
-FROM [Customers] AS [c]");
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Count_with_predicate(bool isAsync)

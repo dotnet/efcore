@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertAverage<Customer, Customer>(
                 isAsync,
-                cs => cs.Take(3),
+                cs => cs.OrderBy(c => c.CustomerID).Take(3),
                 selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)));
         }
 
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertAverage<Customer, Customer>(
                 isAsync,
-                cs => cs.Take(3),
+                cs => cs.OrderBy(c => c.CustomerID).Take(3),
                 selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertMin<Customer, Customer>(
                 isAsync,
-                cs => cs.Take(3),
+                cs => cs.OrderBy(c => c.CustomerID).Take(3),
                 selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
         }
         [ConditionalTheory]
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertMin<Customer, Customer>(
                 isAsync,
-                cs => cs.Take(3),
+                cs => cs.OrderBy(c => c.CustomerID).Take(3),
                 selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertMax<Customer, Customer>(
                isAsync,
-               cs => cs.Take(3),
+               cs => cs.OrderBy(c => c.CustomerID).Take(3),
                selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
@@ -571,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertMax<Customer, Customer>(
                isAsync,
-               cs => cs.Take(3),
+               cs => cs.OrderBy(c => c.CustomerID).Take(3),
                selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
         }
 
