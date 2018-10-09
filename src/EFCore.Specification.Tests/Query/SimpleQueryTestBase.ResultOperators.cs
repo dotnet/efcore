@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertAverage<Customer, Customer>(
                 isAsync,
                 cs => cs,
-                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
+                selector: c => (decimal)c.Orders.Sum(o => 5 + o.OrderDetails.Average(od => od.ProductID)));
         }
 
         [ConditionalTheory]
@@ -483,7 +483,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertMin<Customer, Customer>(
                 isAsync,
                 cs => cs,
-                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
+                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_over_max_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertMin<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
         [ConditionalTheory]
@@ -530,10 +540,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Max_over_nested_subquery_is_client_eval(bool isAsync)
         {
+            // I THINK some of the customers don't have any orders, which is currently
+            // causing this test to fail.
+
             return AssertMax<Customer, Customer>(
                 isAsync,
                 cs => cs,
-                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
+                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
         [ConditionalTheory]
