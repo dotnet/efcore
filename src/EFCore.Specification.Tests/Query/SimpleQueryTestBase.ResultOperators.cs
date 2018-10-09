@@ -212,6 +212,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_over_nested_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertSum<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
+        }
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_over_min_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertSum<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Sum_on_float_column(bool isAsync)
         {
             return AssertSum<OrderDetail, OrderDetail>(
@@ -314,6 +335,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs,
                 selector: c => c.Orders.Sum(o => o.OrderID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_over_nested_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertAverage<Customer, Customer>(
+                isAsync,
+                cs => cs.Take(3),
+                selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_over_max_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertAverage<Customer, Customer>(
+                isAsync,
+                cs => cs.Take(3),
+                selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
         [ConditionalTheory]
@@ -458,6 +499,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_over_nested_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertMin<Customer, Customer>(
+                isAsync,
+                cs => cs.Take(3),
+                selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+        }
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_over_max_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertMin<Customer, Customer>(
+                isAsync,
+                cs => cs.Take(3),
+                selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Max_with_no_arg(bool isAsync)
         {
             return AssertMax<Order>(
@@ -493,6 +553,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs,
                 selector: c => c.Orders.Sum(o => o.OrderID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_over_nested_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertMax<Customer, Customer>(
+               isAsync,
+               cs => cs.Take(3),
+               selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_over_sum_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertMax<Customer, Customer>(
+               isAsync,
+               cs => cs.Take(3),
+               selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
         }
 
         [ConditionalTheory]
