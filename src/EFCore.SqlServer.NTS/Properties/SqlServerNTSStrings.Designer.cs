@@ -24,28 +24,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string NTSServicesMissing
             => GetString("NTSServicesMissing");
 
-        /// <summary>
-        ///     The GEOGRAPHY structure received is incomplete and cannot be read.
-        /// </summary>
-        public static string UnexpectedEndOfStream
-            => GetString("UnexpectedEndOfStream");
-
-        /// <summary>
-        ///     Unsupported type: {type}
-        /// </summary>
-        public static string UnexpectedGeographyType([CanBeNull] object type)
-            => string.Format(
-                GetString("UnexpectedGeographyType", nameof(type)),
-                type);
-
-        /// <summary>
-        ///     Version {version} of the GEOGRAPHY structure received. This version isn't supported.
-        /// </summary>
-        public static string UnexpectedGeographyVersion([CanBeNull] object version)
-            => string.Format(
-                GetString("UnexpectedGeographyVersion", nameof(version)),
-                version);
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
