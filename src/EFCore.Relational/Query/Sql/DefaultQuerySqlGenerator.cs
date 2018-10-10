@@ -1541,7 +1541,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            GenerateSqlFunctionName(sqlFunctionExpression);
+            if (!string.IsNullOrWhiteSpace(sqlFunctionExpression.Schema))
+            {
+                _relationalCommandBuilder
+                    .Append(SqlGenerator.DelimitIdentifier(sqlFunctionExpression.Schema))
+                    .Append(".")
+                    .Append(SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName));
+            }
+            else
+            {
+                if (sqlFunctionExpression.Instance != null)
+                {
+                    Visit(sqlFunctionExpression.Instance);
+
+                    _relationalCommandBuilder.Append(".");
+                }
+
+                _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);
+            }
 
             if (!sqlFunctionExpression.IsNiladic)
             {
@@ -1559,36 +1576,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
 
             return sqlFunctionExpression;
-        }
-
-        /// <summary>
-        ///     Generates the name part of a SQL function call.
-        /// </summary>
-        /// <param name="sqlFunctionExpression"> The SqlFunctionExpression </param>
-        protected virtual void GenerateSqlFunctionName(SqlFunctionExpression sqlFunctionExpression)
-        {
-            var wroteSchema = false;
-
-            if (sqlFunctionExpression.Instance != null)
-            {
-                Visit(sqlFunctionExpression.Instance);
-
-                _relationalCommandBuilder.Append(".");
-            }
-            else if (!string.IsNullOrWhiteSpace(sqlFunctionExpression.Schema))
-            {
-                _relationalCommandBuilder
-                    .Append(SqlGenerator.DelimitIdentifier(sqlFunctionExpression.Schema))
-                    .Append(".");
-
-                wroteSchema = true;
-            }
-
-            _relationalCommandBuilder
-                .Append(
-                    wroteSchema
-                        ? SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName)
-                        : sqlFunctionExpression.FunctionName);
         }
 
         /// <summary>

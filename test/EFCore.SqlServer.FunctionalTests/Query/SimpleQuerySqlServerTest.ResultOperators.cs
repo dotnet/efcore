@@ -115,6 +115,22 @@ WHERE [p].[ProductID] < 40");
 FROM [Customers] AS [c]");
         }
 
+        public override async Task Sum_over_nested_subquery_is_client_eval(bool isAsync)
+        {
+            await base.Sum_over_nested_subquery_is_client_eval(isAsync);
+            AssertSql(
+               @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]");
+        }
+
+        public override async Task Sum_over_min_subquery_is_client_eval(bool isAsync)
+        {
+            await base.Sum_over_min_subquery_is_client_eval(isAsync);
+            AssertSql(
+               @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]");
+        }
+
         public override async Task Sum_on_float_column(bool isAsync)
         {
             await base.Sum_on_float_column(isAsync);
@@ -216,6 +232,28 @@ WHERE [p].[ProductID] < 40");
 FROM [Customers] AS [c]");
         }
 
+        public override async Task Average_over_nested_subquery_is_client_eval(bool isAsync)
+        {
+            await base.Average_over_nested_subquery_is_client_eval(isAsync);
+            AssertSql(
+               @"@__p_0='3'
+
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Average_over_max_subquery_is_client_eval(bool isAsync)
+        {
+            await base.Average_over_max_subquery_is_client_eval(isAsync);
+            AssertSql(
+               @"@__p_0='3'
+
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
         public override async Task Average_on_float_column(bool isAsync)
         {
             await base.Average_on_float_column(isAsync);
@@ -301,6 +339,30 @@ WHERE [p].[ProductID] < 40");
 FROM [Customers] AS [c]");
         }
 
+        public override async Task Min_over_nested_subquery_is_client_eval(bool isAsync)
+        {
+            await base.Min_over_nested_subquery_is_client_eval(isAsync);
+
+            AssertSql(
+               @"@__p_0='3'
+
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Min_over_max_subquery_is_client_eval(bool isAsync)
+        {
+            await base.Min_over_max_subquery_is_client_eval(isAsync);
+
+            AssertSql(
+               @"@__p_0='3'
+
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
         public override async Task Max_with_no_arg(bool isAsync)
         {
             await base.Max_with_no_arg(isAsync);
@@ -340,6 +402,30 @@ WHERE [p].[ProductID] < 40");
     WHERE [c].[CustomerID] = [o].[CustomerID]
 )
 FROM [Customers] AS [c]");
+        }
+
+        public override async Task Max_over_nested_subquery_is_client_eval(bool isAsync)
+        {
+            await base.Max_over_nested_subquery_is_client_eval(isAsync);
+
+            AssertSql(
+               @"@__p_0='3'
+
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Max_over_sum_subquery_is_client_eval(bool isAsync)
+        {
+            await base.Max_over_sum_subquery_is_client_eval(isAsync);
+
+            AssertSql(
+               @"@__p_0='3'
+
+SELECT TOP(@__p_0) [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Count_with_predicate(bool isAsync)

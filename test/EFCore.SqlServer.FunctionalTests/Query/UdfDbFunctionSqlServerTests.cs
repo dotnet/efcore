@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public UdfDbFunctionSqlServerTests(SqlServer fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
-            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         #region Scalar Tests

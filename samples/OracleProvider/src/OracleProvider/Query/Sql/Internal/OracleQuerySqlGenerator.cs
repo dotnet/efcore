@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
             switch (binaryExpression.NodeType)
             {
                 case ExpressionType.And:
-                {
                     Sql.Append("BITAND(");
 
                     Visit(binaryExpression.Left);
@@ -53,9 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                     Sql.Append(")");
 
                     return binaryExpression;
-                }
+
                 case ExpressionType.Or:
-                {
                     Visit(binaryExpression.Left);
 
                     Sql.Append(" - BITAND(");
@@ -71,9 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                     Visit(binaryExpression.Right);
 
                     return binaryExpression;
-                }
+
                 case ExpressionType.Modulo:
-                {
                     Sql.Append("MOD(");
 
                     Visit(binaryExpression.Left);
@@ -85,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                     Sql.Append(")");
 
                     return binaryExpression;
-                }
+
             }
 
             return base.VisitBinary(binaryExpression);
@@ -169,6 +166,17 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
             Sql.Append(" FROM DUAL");
         }
 
+        public override Expression VisitCrossJoinLateral(CrossJoinLateralExpression crossJoinLateralExpression)
+        {
+            Check.NotNull(crossJoinLateralExpression, nameof(crossJoinLateralExpression));
+
+            Sql.Append("CROSS APPLY ");
+
+            Visit(crossJoinLateralExpression.TableExpression);
+
+            return crossJoinLateralExpression;
+        }
+
         private static readonly HashSet<string> _builtInFunctions
             = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -181,38 +189,11 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                 "COUNT"
             };
 
-        protected override void GenerateSqlFunctionName(SqlFunctionExpression sqlFunctionExpression)
-        {
-            if (sqlFunctionExpression.Instance != null)
-            {
-                Visit(sqlFunctionExpression.Instance);
-
-                Sql.Append(".");
-            }
-
-            Sql.Append(
-                _builtInFunctions.Contains(sqlFunctionExpression.FunctionName)
-                    ? sqlFunctionExpression.FunctionName
-                    : SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName));
-        }
-
-        public override Expression VisitCrossJoinLateral(CrossJoinLateralExpression crossJoinLateralExpression)
-        {
-            Check.NotNull(crossJoinLateralExpression, nameof(crossJoinLateralExpression));
-
-            Sql.Append("CROSS APPLY ");
-
-            Visit(crossJoinLateralExpression.TableExpression);
-
-            return crossJoinLateralExpression;
-        }
-
         public override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             switch (sqlFunctionExpression.FunctionName)
             {
                 case "EXTRACT":
-                {
                     Sql.Append(sqlFunctionExpression.FunctionName);
                     Sql.Append("(");
 
@@ -225,9 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                     Sql.Append(")");
 
                     return sqlFunctionExpression;
-                }
+
                 case "CAST":
-                {
                     Sql.Append(sqlFunctionExpression.FunctionName);
                     Sql.Append("(");
 
@@ -240,10 +220,9 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                     Sql.Append(")");
 
                     return sqlFunctionExpression;
-                }
+
                 case "AVG" when sqlFunctionExpression.Type == typeof(decimal):
                 case "SUM" when sqlFunctionExpression.Type == typeof(decimal):
-                {
                     Sql.Append("CAST(");
 
                     base.VisitSqlFunction(sqlFunctionExpression);
@@ -251,9 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                     Sql.Append(" AS NUMBER(29,4))");
 
                     return sqlFunctionExpression;
-                }
+
                 case "INSTR":
-                {
                     if (sqlFunctionExpression.Arguments[1] is ParameterExpression parameterExpression
                         && ParameterValues.TryGetValue(parameterExpression.Name, out var value)
                         && ((string)value)?.Length == 0)
@@ -262,9 +240,8 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                     }
 
                     break;
-                }
+
                 case "ADD_MONTHS":
-                {
                     Sql.Append("CAST(");
 
                     base.VisitSqlFunction(sqlFunctionExpression);
@@ -272,10 +249,24 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Query.Sql.Internal
                     Sql.Append(" AS TIMESTAMP)");
 
                     return sqlFunctionExpression;
-                }
+
             }
 
-            return base.VisitSqlFunction(sqlFunctionExpression);
+            return base.VisitSqlFunction(
+                // non-instance & non-built-in functions without schema needs to be delimited
+                (!_builtInFunctions.Contains(sqlFunctionExpression.FunctionName)
+                && sqlFunctionExpression.Instance == null)
+                    ? sqlFunctionExpression.IsNiladic
+                        ? new SqlFunctionExpression(
+                            SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName),
+                            sqlFunctionExpression.Type,
+                            sqlFunctionExpression.IsNiladic)
+                        : new SqlFunctionExpression(
+                            SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName),
+                            sqlFunctionExpression.Type,
+                            /* schema:*/ null,
+                            sqlFunctionExpression.Arguments)
+                    : sqlFunctionExpression);
         }
 
         protected override void GenerateProjection(Expression projection)

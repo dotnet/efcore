@@ -976,6 +976,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Validate();
             }
+
+            [Fact]
+            public virtual void Inheritance_where_base_has_multiple_owned_types_works()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<BaseOwner>();
+                modelBuilder.Entity<DerivedOwner>();
+
+                modelBuilder.Validate();
+
+                Assert.Equal(4, modelBuilder.Model.GetEntityTypes().Count());
+            }
         }
     }
 }
