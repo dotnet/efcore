@@ -646,8 +646,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Throws_if_no_usable_constructor()
         {
+            var constructors = new string[] {
+                    CoreStrings.ConstructorBindingFailed("title, did", "did"),
+                    CoreStrings.ConstructorBindingFailed("notTitle, shadow, id", "notTitle"),
+                    CoreStrings.ConstructorBindingFailed("title, shadow, dummy, id", "dummy"),
+                    CoreStrings.ConstructorBindingFailed("title, shadow, dummy, id, description", "dummy, description")
+            };
+
             Assert.Equal(
-                CoreStrings.ConstructorNotFound(nameof(BlogNone), "did', 'notTitle', 'dummy"),
+                CoreStrings.ConstructorNotFound(nameof(BlogNone), string.Join(", ", constructors)),
                 Assert.Throws<InvalidOperationException>(() => GetBinding<BlogNone>()).Message);
         }
 
@@ -664,13 +671,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public BlogNone(string title, Guid? shadow, bool dummy, int id)
             {
             }
+
+            public BlogNone(string title, Guid? shadow, bool dummy, int id, string description)
+            {
+            }
         }
 
         [Fact]
         public void Throws_if_no_usable_constructor_due_to_bad_type()
         {
             Assert.Equal(
-                CoreStrings.ConstructorNotFound(nameof(BlogBadType), "shadow"),
+                CoreStrings.ConstructorNotFound(nameof(BlogBadType), CoreStrings.ConstructorBindingFailed("shadow, id", "shadow")),
                 Assert.Throws<InvalidOperationException>(() => GetBinding<BlogBadType>()).Message);
         }
 
