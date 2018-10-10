@@ -1519,6 +1519,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return caller == null ? null : expression();
         }
 
+        public static IEnumerable<TResult> MaybeDefaultIfEmpty<TResult>(IEnumerable<TResult> caller)
+            where TResult : class
+        {
+            return caller == null ? new List<TResult>() { default } : caller.DefaultIfEmpty();
+        }
+
         #endregion
     }
 }
