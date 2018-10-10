@@ -1323,9 +1323,30 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return navigationJoin.QuerySourceReferenceExpression;
                 }
 
-                adddedJoinClauses.Add(joinClause);
+                var defaultIfEmptyOperator = fromSubqueryExpression.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().FirstOrDefault();
+                if (defaultIfEmptyOperator != null)
+                {
+                    RewriteNavigationIntoGroupJoin(
+                        joinClause,
+                        navigation,
+                        targetEntityType,
+                        outerQuerySourceReferenceExpression,
+                        null,
+                        new List<IBodyClause>(),
+                        new List<ResultOperatorBase>
+                        {
+                            defaultIfEmptyOperator
+                        },
+                        out var navigationJoin);
 
-                outerQuerySourceReferenceExpression = innerQuerySourceReferenceExpression;
+                    _navigationJoins.Add(navigationJoin);
+                    outerQuerySourceReferenceExpression = navigationJoin.QuerySourceReferenceExpression;
+                }
+                else
+                {
+                    adddedJoinClauses.Add(joinClause);
+                    outerQuerySourceReferenceExpression = innerQuerySourceReferenceExpression;
+                }
             }
 
             return outerQuerySourceReferenceExpression;
