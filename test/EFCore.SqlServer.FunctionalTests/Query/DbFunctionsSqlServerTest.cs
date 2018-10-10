@@ -73,6 +73,25 @@ WHERE FREETEXT([c].[Title], N'Representative')");
         }
 
         [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async void FreeText_literal_all_fields()
+        {
+            using (var context = CreateContext())
+            {
+                var result = await context.Employees
+                    .Where(c => EF.Functions.FreeText(c, "Representative"))
+                    .ToListAsync();
+
+                Assert.Equal(result.First().EmployeeID, 1u);
+
+                AssertSql(
+                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE FREETEXT([c].*, N'Representative')");
+            }
+        }
+
+        [ConditionalFact]
         public void FreeText_client_eval_throws()
         {
             Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring"));
@@ -95,6 +114,25 @@ WHERE FREETEXT([c].[Title], N'Representative')");
                     @"SELECT COUNT(*)
 FROM [Employees] AS [c]
 WHERE FREETEXT([c].[Title], N'Representative Sales')");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public void FreeText_multiple_words_multiple_fields()
+        {
+            using (var context = CreateContext())
+            {
+                var result = context.Employees
+                    .Where(c => EF.Functions.FreeText(new { c.Title, c.City }, "Representative Sales"))
+                    .Count();
+
+                Assert.Equal(result, 9);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Employees] AS [c]
+WHERE FREETEXT(([c].[Title], [c].[City]), N'Representative Sales')");
             }
         }
 
@@ -322,7 +360,7 @@ WHERE CONTAINS([c].[Title], N'Representative')");
             using (var context = CreateContext())
             {
                 var result = await context.Employees
-                    .Where(c => EF.Functions.ContainsAny(c.Title, "Representative"))
+                    .Where(c => EF.Functions.Contains(c, "Representative"))
                     .ToListAsync();
 
                 Assert.Equal(result.First().EmployeeID, 1u);
@@ -330,7 +368,7 @@ WHERE CONTAINS([c].[Title], N'Representative')");
                 AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
-WHERE CONTAINS(*, N'Representative')");
+WHERE CONTAINS([c].*, N'Representative')");
             }
         }
 
@@ -357,14 +395,14 @@ WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
         {
             using (var context = CreateContext())
             {
-                var result = context.Employees.SingleOrDefault(c => EF.Functions.ContainsAny(c.Title, "President", 1033));
+                var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c, "President", 1033));
 
                 Assert.Equal(result.EmployeeID, 2u);
 
                 AssertSql(
                     @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
-WHERE CONTAINS(*, N'President', LANGUAGE 1033)");
+WHERE CONTAINS([c].*, N'President', LANGUAGE 1033)");
             }
         }
 
@@ -385,6 +423,26 @@ WHERE CONTAINS(*, N'President', LANGUAGE 1033)");
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
 WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async void Contains_with_logical_operator_multiple_fields()
+        {
+            using (var context = CreateContext())
+            {
+                var result = await context.Employees
+                    .Where(c => EF.Functions.Contains(new { c.Title, c.City }, "Vice OR Inside"))
+                    .ToListAsync();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal(2u, result.First().EmployeeID);
+
+                AssertSql(
+                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE CONTAINS(([c].[Title], [c].[City]), N'Vice OR Inside')");
             }
         }
 

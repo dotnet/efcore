@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.Internal
@@ -32,6 +31,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 nameof(SqlServerDbFunctionsExtensions.FreeText),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
 
+        private static readonly MethodInfo _freeTextWildcardMethodInfo
+            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.FreeText),
+                new[] { typeof(DbFunctions), typeof(object), typeof(string) });
+
+        private static readonly MethodInfo _freeTextWildcardMethodInfoWithLanguage
+            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.FreeText),
+                new[] { typeof(DbFunctions), typeof(object), typeof(string), typeof(int) });
+
         private static readonly MethodInfo _containsMethodInfo
             = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.Contains),
@@ -42,15 +51,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 nameof(SqlServerDbFunctionsExtensions.Contains),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
 
-        private static readonly MethodInfo _containsAnyMethodInfoWithLanguage
+        private static readonly MethodInfo _containsWildcardMethodInfo
             = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.ContainsAny),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
+                nameof(SqlServerDbFunctionsExtensions.Contains),
+                new[] { typeof(DbFunctions), typeof(object), typeof(string) });
 
-         private static readonly MethodInfo _containsAnyMethodInfo
+        private static readonly MethodInfo _containsWildcardMethodInfoWithLanguage
             = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.ContainsAny),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+                nameof(SqlServerDbFunctionsExtensions.Contains),
+                new[] { typeof(DbFunctions), typeof(object), typeof(string), typeof(int) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -60,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (Equals(methodCallExpression.Method, _freeTextMethodInfo))
+            if (Equals(methodCallExpression.Method, _freeTextMethodInfo) ||
+                Equals(methodCallExpression.Method, _freeTextWildcardMethodInfo))
             {
                 ValidatePropertyReference(methodCallExpression.Arguments[1]);
 
@@ -74,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     });
             }
 
-            if (Equals(methodCallExpression.Method, _freeTextMethodInfoWithLanguage))
+            if (Equals(methodCallExpression.Method, _freeTextMethodInfoWithLanguage) ||
+                Equals(methodCallExpression.Method, _freeTextWildcardMethodInfoWithLanguage))
             {
                 ValidatePropertyReference(methodCallExpression.Arguments[1]);
 
@@ -90,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     });
             }
 
-            if (Equals(methodCallExpression.Method, _containsMethodInfo))
+            if (Equals(methodCallExpression.Method, _containsMethodInfo) ||
+                Equals(methodCallExpression.Method, _containsWildcardMethodInfo))
             {
                 ValidatePropertyReference(methodCallExpression.Arguments[1]);
 
@@ -104,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     });
             }
 
-            if (Equals(methodCallExpression.Method, _containsMethodInfoWithLanguage))
+            if (Equals(methodCallExpression.Method, _containsMethodInfoWithLanguage) ||
+                Equals(methodCallExpression.Method, _containsWildcardMethodInfoWithLanguage))
             {
                 ValidatePropertyReference(methodCallExpression.Arguments[1]);
 
@@ -119,33 +132,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                             $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
                     });
             }
-
-            if (Equals(methodCallExpression.Method, _containsAnyMethodInfo))
-            {
-                return new SqlFunctionExpression(
-                    ContainsFunctionName,
-                    typeof(bool),
-                    new[]
-                    {
-                        new SqlFragmentExpression("*"),
-                        methodCallExpression.Arguments[2]
-                    });
-            }
-
-            if (Equals(methodCallExpression.Method, _containsAnyMethodInfoWithLanguage))
-            {
-                return new SqlFunctionExpression(
-                    ContainsFunctionName,
-                    typeof(bool),
-                    new[]
-                    {
-                        new SqlFragmentExpression("*"),
-                        methodCallExpression.Arguments[2],
-                        new SqlFragmentExpression(
-                            $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
-                    });
-            }
-
 
             return null;
         }
@@ -158,7 +144,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 expression = nullableExpression.Operand;
             }
 
-            if (!(expression is ColumnExpression))
+            if (!(expression is ColumnExpression ||
+                  expression is ConstantExpression ||
+                  expression is EntityParameterExpression ||
+                  expression is PropertyListParameterExpression))
             {
                 throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText);
             }

@@ -1810,6 +1810,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
+        ///     Visits a PropertyParameterExpression.
+        /// </summary>
+        /// <param name="propertyListParameterExpression"> The property list parameter expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitPropertyListParameter(PropertyListParameterExpression propertyListParameterExpression)
+        {
+            var fieldName = new string[propertyListParameterExpression.Properties.Length];
+
+            var idx = 0;
+            foreach (var property in propertyListParameterExpression.Properties)
+            {
+                fieldName[idx] = property.Expression.ToString() + ".[" + property.Member.Name + "]";
+                idx++;
+            }
+
+            _relationalCommandBuilder.Append("(");
+            _relationalCommandBuilder.Append(string.Join(", ", fieldName));
+            _relationalCommandBuilder.Append(")");
+
+            return propertyListParameterExpression;
+        }
+
+        /// <summary>
+        ///     Visit an EntityParameterExpression
+        /// </summary>
+        /// <param name="entityParameterExpression"> The EntityParameterExpression expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitEntityParameter(EntityParameterExpression entityParameterExpression)
+        {
+            Check.NotNull(entityParameterExpression, nameof(entityParameterExpression));
+
+            _relationalCommandBuilder.Append("[");
+            _relationalCommandBuilder.Append(entityParameterExpression.Name);
+            _relationalCommandBuilder.Append("].*");
+
+            return entityParameterExpression;
+        }
+
+        /// <summary>
         ///     Infers a type mapping from a column expression.
         /// </summary>
         /// <param name="expression"> The expression to infer a type mapping for. </param>

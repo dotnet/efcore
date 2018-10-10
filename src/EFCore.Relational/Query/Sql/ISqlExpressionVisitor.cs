@@ -166,6 +166,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitPropertyParameter([NotNull] PropertyParameterExpression propertyParameterExpression);
 
         /// <summary>
+        ///     Visit a PropertyListParameterExpression.
+        /// </summary>
+        /// <param name="propertyListParameterExpression"> The property parameter expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        Expression VisitPropertyListParameter([NotNull] PropertyListParameterExpression propertyListParameterExpression);
+
+        /// <summary>
         ///     Visit a SqlFragmentExpression.
         /// </summary>
         /// <param name="sqlFragmentExpression"> The SqlFragmentExpression expression. </param>
@@ -182,5 +191,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     An Expression.
         /// </returns>
         Expression VisitColumnReference([NotNull] ColumnReferenceExpression columnReferenceExpression);
+
+        /// <summary>
+        ///     Visit an EntityParameterExpression
+        /// </summary>
+        /// <param name="entityParameterExpression"> The EntityParameterExpression expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        Expression VisitEntityParameter([NotNull] EntityParameterExpression entityParameterExpression);
     }
 }

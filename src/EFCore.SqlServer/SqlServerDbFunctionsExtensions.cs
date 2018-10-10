@@ -43,6 +43,44 @@ namespace Microsoft.EntityFrameworkCore
         ///     This can happen if the query contains one or more expressions that could not be translated to the store.
         /// </remarks>
         /// <param name="_">DbFunctions instance</param>
+        /// <param name="entityReference">The entity on which the search will be performed.</param>
+        /// <param name="freeText">The text that will be searched for in the property.</param>
+        public static bool FreeText(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] object entityReference,
+            [NotNull] string freeText)
+            => FreeTextCore(entityReference, freeText, null);
+
+        /// <summary>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
+        /// <param name="entityReference">The entity on which the search will be performed.</param>
+        /// <param name="freeText">The text that will be searched for in the property.</param>
+        /// <param name="languageTerm">A Language ID from the sys.syslanguages table.</param>
+        public static bool FreeText(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] object entityReference,
+            [NotNull] string freeText,
+            int languageTerm)
+            => FreeTextCore(entityReference, freeText, languageTerm);
+
+        /// <summary>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
         /// <param name="propertyReference">The property on which the search will be performed.</param>
         /// <param name="freeText">The text that will be searched for in the property.</param>
         public static bool FreeText(
@@ -52,6 +90,11 @@ namespace Microsoft.EntityFrameworkCore
             => FreeTextCore(propertyReference, freeText, null);
 
         private static bool FreeTextCore(string propertyName, string freeText, int? languageTerm)
+        {
+            throw new InvalidOperationException(SqlServerStrings.FreeTextFunctionOnClient);
+        }
+
+        private static bool FreeTextCore(object entityName, string freeText, int? languageTerm)
         {
             throw new InvalidOperationException(SqlServerStrings.FreeTextFunctionOnClient);
         }
@@ -86,15 +129,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     This can happen if the query contains one or more expressions that could not be translated to the store.
         /// </remarks>
         /// <param name="_">DbFunctions instance</param>
-        /// <param name="propertyReference">The property on which the search will be performed.</param>
+        /// <param name="entityReference">The entity on which the search will be performed.</param>
         /// <param name="searchCondition">The text that will be searched for in the property and the condition for a match.</param>
         /// <param name="languageTerm">A Language ID from the sys.syslanguages table.</param>
-        public static bool ContainsAny(
+        public static bool Contains(
             [CanBeNull] this DbFunctions _,
-            [NotNull] string propertyReference,
+            [NotNull] object entityReference,
             [NotNull] string searchCondition,
             int languageTerm)
-            => ContainsCore(propertyReference, searchCondition, languageTerm);
+            => ContainsCore(entityReference, searchCondition, languageTerm);
 
         /// <summary>
         ///     <para>
@@ -124,15 +167,20 @@ namespace Microsoft.EntityFrameworkCore
         ///     This can happen if the query contains one or more expressions that could not be translated to the store.
         /// </remarks>
         /// <param name="_">DbFunctions instance</param>
-        /// <param name="propertyReference">The property on which the search will be performed.</param>
+        /// <param name="entityReference">The entity on which the search will be performed.</param>
         /// <param name="searchCondition">The text that will be searched for in the property and the condition for a match.</param>
-        public static bool ContainsAny(
+        public static bool Contains(
             [CanBeNull] this DbFunctions _,
-            [NotNull] string propertyReference,
+            [NotNull] object entityReference,
             [NotNull] string searchCondition)
-            => ContainsCore(propertyReference, searchCondition, null);
+            => ContainsCore(entityReference, searchCondition, null);
 
         private static bool ContainsCore(string propertyName, string searchCondition, int? languageTerm)
+        {
+            throw new InvalidOperationException(SqlServerStrings.ContainsFunctionOnClient);
+        }
+
+        private static bool ContainsCore(object entityName, string searchCondition, int? languageTerm)
         {
             throw new InvalidOperationException(SqlServerStrings.ContainsFunctionOnClient);
         }

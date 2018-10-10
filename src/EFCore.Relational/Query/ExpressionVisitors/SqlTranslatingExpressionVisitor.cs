@@ -617,12 +617,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 var arguments
                     = methodCallExpression.Arguments
                         .Where(
-                            e => !(e.RemoveConvert() is QuerySourceReferenceExpression)
-                                 && !IsNonTranslatableSubquery(e.RemoveConvert()))
+                            e => !IsNonTranslatableSubquery(e.RemoveConvert()))
                         .Select(
-                            e => (e.RemoveConvert() as ConstantExpression)?.Value is Array || e.RemoveConvert().Type == typeof(DbFunctions)
-                                ? e
-                                : Visit(e))
+                            e => e.RemoveConvert() is QuerySourceReferenceExpression qsre
+                                ? new EntityParameterExpression(qsre.ReferencedQuerySource.ItemName, qsre.ReferencedQuerySource.ItemType)
+                                : e.RemoveConvert() is NewExpression ne
+                                    ? new PropertyListParameterExpression(ne.Arguments.AsEnumerable())
+                                    : (e.RemoveConvert() as ConstantExpression)?.Value is Array || e.RemoveConvert().Type == typeof(DbFunctions)
+                                        ? e
+                                        : Visit(e))
                         .Where(e => e != null)
                         .ToArray();
 
