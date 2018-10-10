@@ -1648,6 +1648,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 propertyType = memberInfo.GetMemberType();
+                typeConfigurationSource = ConfigurationSource.Convention.Max(typeConfigurationSource);
             }
             else
             {

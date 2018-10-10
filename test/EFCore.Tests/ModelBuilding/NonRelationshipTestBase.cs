@@ -1287,6 +1287,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(-1, data.First().Values.Single());
                 Assert.Equal(-2, data.Last().Values.Single());
             }
+
+            [Fact]
+            public virtual void Private_property_is_not_discovered_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<Alpha>();
+                modelBuilder.Entity<Gamma>();
+
+                modelBuilder.Validate();
+
+                Assert.Single(modelBuilder.Model.FindEntityType(typeof(Gamma)).GetProperties());
+            }
         }
     }
 }
