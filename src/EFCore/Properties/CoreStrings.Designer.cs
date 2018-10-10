@@ -2333,12 +2333,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, derivedType);
 
         /// <summary>
-        ///     No suitable constructor found for entity type '{entityType}'. The following parameters could not be bound to properties of the entity: '{parameters}'.
+        ///     No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity: {constructors}.
         /// </summary>
-        public static string ConstructorNotFound([CanBeNull] object entityType, [CanBeNull] object parameters)
+        public static string ConstructorNotFound([CanBeNull] object entityType, [CanBeNull] object constructors)
             => string.Format(
-                GetString("ConstructorNotFound", nameof(entityType), nameof(parameters)),
-                entityType, parameters);
+                GetString("ConstructorNotFound", nameof(entityType), nameof(constructors)),
+                entityType, constructors);
 
         /// <summary>
         ///     Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.
@@ -2782,6 +2782,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("FkAttributeOnNonUniquePrincipal", nameof(navigation), nameof(principalType), nameof(dependentType)),
                 navigation, principalType, dependentType);
+
+        /// <summary>
+        ///     constructor ({parameters}) can't bind {failedBinds}
+        /// </summary>
+        public static string ConstructorBindingFailed([CanBeNull] object parameters, [CanBeNull] object failedBinds)
+            => string.Format(
+                GetString("ConstructorBindingFailed", nameof(parameters), nameof(failedBinds)),
+                parameters, failedBinds);
 
         private static string GetString(string name, params string[] formatterNames)
         {
