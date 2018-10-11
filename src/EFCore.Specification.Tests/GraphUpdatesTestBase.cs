@@ -6189,6 +6189,46 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Re_childing_parent_to_new_child_with_delete()
+        {
+            var oldId = 0;
+            var newId = 0;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var parent = context.Set<ParentAsAChild>().Include(p => p.ChildAsAParent).Single();
+
+                    var oldChild = parent.ChildAsAParent;
+                    oldId = oldChild.Id;
+
+                    context.Remove(oldChild);
+
+                    var newChild = new ChildAsAParent();
+                    parent.ChildAsAParent = newChild;
+
+                    context.SaveChanges();
+
+                    newId = newChild.Id;
+                    Assert.NotEqual(newId, oldId);
+
+                    Assert.Equal(newId, parent.ChildAsAParentId);
+                    Assert.Same(newChild, parent.ChildAsAParent);
+
+                    Assert.Equal(EntityState.Detached, context.Entry(oldChild).State);
+                    Assert.Equal(EntityState.Unchanged, context.Entry(newChild).State);
+                    Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                },
+                context =>
+                {
+                    var parent = context.Set<ParentAsAChild>().Include(p => p.ChildAsAParent).Single();
+                    Assert.Equal(newId, parent.ChildAsAParentId);
+                    Assert.Equal(newId, parent.ChildAsAParent.Id);
+                    Assert.Null(context.Set<ChildAsAParent>().Find(oldId));
+                });
+        }
+
+        [ConditionalFact]
         public virtual void Sometimes_not_calling_DetectChanges_when_required_does_not_throw_for_null_ref()
         {
             ExecuteWithStrategyInTransaction(
@@ -6224,7 +6264,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Can_add_valid_first_depedent_when_multiple_possible_principal_sides()
+        public virtual void Can_add_valid_first_dependent_when_multiple_possible_principal_sides()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -6249,7 +6289,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Can_add_valid_second_depedent_when_multiple_possible_principal_sides()
+        public virtual void Can_add_valid_second_dependent_when_multiple_possible_principal_sides()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -6274,7 +6314,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Can_add_multiple_depedents_when_multiple_possible_principal_sides()
+        public virtual void Can_add_multiple_dependents_when_multiple_possible_principal_sides()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
