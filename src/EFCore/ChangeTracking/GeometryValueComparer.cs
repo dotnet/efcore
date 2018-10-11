@@ -28,13 +28,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var left = Expression.Parameter(typeof(TGeometry), "left");
             var right = Expression.Parameter(typeof(TGeometry), "right");
 
-            return Expression.Lambda<Func<TGeometry, TGeometry, bool>>(
-                Expression.Call(
-                    left,
-                    GetGeometryType().GetRuntimeMethod("EqualsTopologically", new[] { typeof(TGeometry) }),
-                    right),
+            var checkLeftNull = Expression.ReferenceEqual(left, Expression.Constant(null));
+            var checkRightNull = Expression.ReferenceEqual(right, Expression.Constant(null));
+            var bothNotNull = Expression.Call(
                 left,
+                GetGeometryType().GetRuntimeMethod("EqualsTopologically", new[] { typeof(TGeometry) }),
                 right);
+            
+            var body = Expression.Condition(checkLeftNull,
+                            Expression.Condition(checkRightNull, Expression.Constant(true), Expression.Constant(false)),
+                            Expression.Condition(checkRightNull, Expression.Constant(false), bothNotNull));
+            
+            return Expression.Lambda<Func<TGeometry, TGeometry, bool>>(body, left, right);
         }
 
         private static Expression<Func<TGeometry, TGeometry>> GetSnapshotExpression()
@@ -52,7 +57,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 body = Expression.Convert(body, typeof(TGeometry));
             }
 
-            return Expression.Lambda<Func<TGeometry, TGeometry>>(body, instance);
+            var checkNull = Expression.ReferenceEqual(instance, Expression.Constant(null));
+            var returnNull = Expression.Convert(Expression.Constant(null), typeof(TGeometry));
+            var conditional = Expression.Condition(checkNull, returnNull, body);
+            return Expression.Lambda<Func<TGeometry, TGeometry>>(Expression.Convert(conditional, typeof(TGeometry)), instance);
         }
 
         private static Type GetGeometryType()
