@@ -86,7 +86,7 @@ dotnet ef database update
     <SignedPackageFile Include="$(PublishDir)\Newtonsoft.Json.dll" PackagePath="tools/$(TargetFramework)/any/Newtonsoft.Json.dll" Certificate="$(AssemblySigning3rdPartyCertName)" />
   </ItemGroup>
 
-  <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
+  <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec">
 
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg. -->
