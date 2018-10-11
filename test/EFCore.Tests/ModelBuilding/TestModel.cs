@@ -377,6 +377,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class Gamma
         {
             public int Id { get; set; }
+            private int PrivateProperty { get; set; }
 
             public List<Alpha> Alphas { get; set; }
         }
