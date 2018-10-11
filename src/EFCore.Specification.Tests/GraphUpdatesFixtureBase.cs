@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -405,6 +406,8 @@ namespace Microsoft.EntityFrameworkCore
                     .HasForeignKey(tc => tc.QuestTaskId);
 
                 modelBuilder.Entity<TaskChoice>();
+                modelBuilder.Entity<ParentAsAChild>();
+                modelBuilder.Entity<ChildAsAParent>();
             }
 
             protected virtual object CreateFullGraph()
@@ -674,6 +677,12 @@ namespace Microsoft.EntityFrameworkCore
                     new BadOrder
                     {
                         BadCustomer = new BadCustomer()
+                    });
+
+                context.Add(
+                    new ParentAsAChild
+                    {
+                        ChildAsAParent = new ChildAsAParent()
                     });
 
                 context.SaveChanges();
@@ -2740,6 +2749,50 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _questTaskId;
                 set => SetWithNotify(value, ref _questTaskId);
+            }
+        }
+
+        protected class ParentAsAChild : NotifyingEntity
+        {
+            private int _id;
+            private int? _childAsAParentId;
+            private ChildAsAParent _childAsAParent;
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public int? ChildAsAParentId
+            {
+                get => _childAsAParentId;
+                set => SetWithNotify(value, ref _childAsAParentId);
+            }
+
+            public ChildAsAParent ChildAsAParent
+            {
+                get => _childAsAParent;
+                set => SetWithNotify(value, ref _childAsAParent);
+            }
+        }
+
+        protected class ChildAsAParent : NotifyingEntity
+        {
+            private int _id;
+            private ParentAsAChild _parentAsAChild;
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public ParentAsAChild ParentAsAChild
+            {
+                get => _parentAsAChild;
+                set => SetWithNotify(value, ref _parentAsAChild);
             }
         }
 
