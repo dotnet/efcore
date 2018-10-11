@@ -55,10 +55,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options);
             var model = CreateModel();
-            var creator = new InMemoryDatabaseCreator(
-                contextServices.GetRequiredService<StateManagerDependencies>().With(model),
-                contextServices.GetRequiredService<IInMemoryDatabase>());
-            return creator;
+            return new InMemoryDatabaseCreator(
+                contextServices.GetRequiredService<StateManagerDependencies>().With(model));
         }
 
         [Fact]
@@ -161,6 +159,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     b.HasKey(c => c.Id);
                     b.Property(c => c.Name);
+
+                    b.HasData(new Test { Id = 1 });
                 });
 
             return modelBuilder.Model;

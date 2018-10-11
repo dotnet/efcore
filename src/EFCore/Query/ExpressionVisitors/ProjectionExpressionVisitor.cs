@@ -248,8 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 // Remove the added sync-to-async method call when converting to async
                 var lambdaType = unaryExpression.Type.TryGetElementType(typeof(Func<>));
-                if (lambdaType != null
-                    && lambdaType.IsGenericType
+                if (lambdaType?.IsGenericType == true
                     && lambdaType.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>)
                     && newOperand.Type.IsGenericType
                     && newOperand.Type.GetGenericTypeDefinition() == typeof(Func<>)
@@ -258,7 +257,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     && (methodCallExpression.Method.MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToQueryable)
                         || methodCallExpression.Method.MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToEnumerable)))
                 {
-
                     return Expression.Lambda(methodCallExpression.Arguments[0], lambdaExpression.Parameters);
                 }
 

@@ -5253,7 +5253,7 @@ namespace Microsoft.EntityFrameworkCore
             Root root = null;
 
             ExecuteWithStrategyInTransaction(
-                context => { root = LoadOptionalGraph(context); },
+                context => root = LoadOptionalGraph(context),
                 context =>
                 {
                     var removed = root.OptionalSingle;
@@ -5312,7 +5312,7 @@ namespace Microsoft.EntityFrameworkCore
             Root root = null;
 
             ExecuteWithStrategyInTransaction(
-                context => { root = LoadRequiredGraph(context); },
+                context => root = LoadRequiredGraph(context),
                 context =>
                 {
                     var removed = root.RequiredSingle;
@@ -5345,7 +5345,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Same(orphaned, removed.Single);
                     }
                 },
-                context => { root = LoadRequiredGraph(context); },
+                context => root = LoadRequiredGraph(context),
                 context =>
                 {
                     if (!Fixture.ForceRestrict)
@@ -5370,7 +5370,7 @@ namespace Microsoft.EntityFrameworkCore
             Root root = null;
 
             ExecuteWithStrategyInTransaction(
-                context => { root = LoadRequiredNonPkGraph(context); },
+                context => root = LoadRequiredNonPkGraph(context),
                 context =>
                 {
                     var removed = root.RequiredNonPkSingle;
@@ -5577,7 +5577,7 @@ namespace Microsoft.EntityFrameworkCore
             Root root = null;
 
             ExecuteWithStrategyInTransaction(
-                context => { root = LoadOptionalAkGraph(context); },
+                context => root = LoadOptionalAkGraph(context),
                 context =>
                 {
                     var removed = root.OptionalSingleAk;
@@ -5642,7 +5642,7 @@ namespace Microsoft.EntityFrameworkCore
             Root root = null;
 
             ExecuteWithStrategyInTransaction(
-                context => { root = LoadRequiredAkGraph(context); },
+                context => root = LoadRequiredAkGraph(context),
                 context =>
                 {
                     var removed = root.RequiredSingleAk;
@@ -5706,7 +5706,7 @@ namespace Microsoft.EntityFrameworkCore
             Root root = null;
 
             ExecuteWithStrategyInTransaction(
-                context => { root = LoadRequiredNonPkAkGraph(context); },
+                context => root = LoadRequiredNonPkAkGraph(context),
                 context =>
                 {
                     var removed = root.RequiredNonPkSingleAk;

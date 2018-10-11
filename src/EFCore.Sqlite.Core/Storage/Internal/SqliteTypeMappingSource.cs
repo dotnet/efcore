@@ -15,6 +15,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     /// </summary>
     public class SqliteTypeMappingSource : RelationalTypeMappingSource
     {
+        private static readonly HashSet<string> _spatialiteTypes
+            = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "GEOMETRY",
+                "GEOMETRYCOLLECTION",
+                "LINESTRING",
+                "MULTILINESTRING",
+                "MULTIPOINT",
+                "MULTIPOLYGON",
+                "POINT",
+                "POLYGON"
+            };
+
         private const string IntegerTypeName = "INTEGER";
         private const string RealTypeName = "REAL";
         private const string BlobTypeName = "BLOB";
@@ -68,6 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             : base(dependencies, relationalDependencies)
         {
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsSpatialiteType(string columnType)
+            => _spatialiteTypes.Contains(columnType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

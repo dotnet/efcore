@@ -377,6 +377,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class Gamma
         {
             public int Id { get; set; }
+            private int PrivateProperty { get; set; }
 
             public List<Alpha> Alphas { get; set; }
         }
@@ -627,6 +628,77 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int ValueFk { get; set; }
             public int ValueId { get; set; }
             public Value Value { get; set; }
+        }
+
+        protected class QueryType
+        {
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
+        }
+
+        protected class Parent
+        {
+            public int Id { get; set; }
+            public List<CompositeChild> Children { get; set; }
+        }
+
+        protected class CompositeChild
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public Parent Parent { get; set; }
+        }
+
+        protected class BillingOwner
+        {
+            public int Id { get; set; }
+            public BillingDetail Bill1 { get; set; }
+            public BillingDetail Bill2 { get; set; }
+        }
+
+        protected class BillingDetail
+        {
+            public string Country { get; set; }
+        }
+
+        protected class Country
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        protected class DependentShadowFk
+        {
+            public Guid DependentShadowFkId { get; set; }
+            [ForeignKey("PrincipalShadowFkId")]
+            public PrincipalShadowFk Principal { get; set; }
+        }
+
+        protected class PrincipalShadowFk
+        {
+            public Guid PrincipalShadowFkId { get; set; }
+            public List<DependentShadowFk> Dependends { get; set; }
+        }
+
+        protected class BaseOwner
+        {
+            public int Id { get; set; }
+            public OwnedTypeInheritance1 Owned1 { get; set; }
+            public OwnedTypeInheritance2 Owned2 { get; set; }
+        }
+
+        protected class DerivedOwner : BaseOwner { }
+
+        [Owned]
+        protected class OwnedTypeInheritance1
+        {
+            public string Value { get; set; }
+        }
+
+        [Owned]
+        protected class OwnedTypeInheritance2
+        {
+            public string Value { get; set; }
         }
     }
 }

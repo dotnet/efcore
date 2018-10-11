@@ -122,7 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 ? withCanConnect.CanConnect()
                 : throw new NotImplementedException(CoreStrings.CanConnectNotImplemented);
 
-
         /// <summary>
         ///     <para>
         ///         Determines whether or not the database is available and can be connected to.

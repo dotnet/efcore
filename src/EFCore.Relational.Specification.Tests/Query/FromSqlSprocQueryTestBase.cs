@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from mep in context.Set<MostExpensiveProduct>()
                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        from p in context.Set<Product>()
-                           .FromSql(NormalizeDelimeters(@"SELECT * FROM [Products]"))
+                           .FromSql(NormalizeDelimeters("SELECT * FROM [Products]"))
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new
                        {
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = (from p in context.Set<Product>().FromSql(NormalizeDelimeters(@"SELECT * FROM [Products]"))
+                    = (from p in context.Set<Product>().FromSql(NormalizeDelimeters("SELECT * FROM [Products]"))
                        from mep in context.Set<MostExpensiveProduct>()
                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where mep.TenMostExpensiveProducts == p.ProductName

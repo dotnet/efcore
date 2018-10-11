@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -76,18 +75,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(validator, nameof(validator));
 
             var conventionSet = CreateConventionSet(conventionSetBuilder);
+            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator));
 
             var modelBuilder = new ModelBuilder(conventionSet);
-            var model = modelBuilder.GetInfrastructure().Metadata;
-            model.SetProductVersion(ProductInfo.GetVersion());
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
-            model.Validate();
-
-            validator.Validate(model);
-
-            return model;
+            return modelBuilder.FinalizeModel();
         }
 
         /// <summary>

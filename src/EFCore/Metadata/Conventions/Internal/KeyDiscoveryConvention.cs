@@ -55,8 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IReadOnlyList<Property> keyProperties = null;
                 var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
                                  ?? entityType.FindOwnership();
-                if (definingFk != null
-                    && definingFk.IsUnique
+                if (definingFk?.IsUnique == true
                     && definingFk.DeclaringEntityType == entityType)
                 {
                     keyProperties = definingFk.Properties;

@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         sqlBuilder.Build(customSql).ExecuteNonQuery(connection);
                     }
 
-                    if (operations.Any())
+                    if (operations.Count > 0)
                     {
                         var commands = sqlGenerator.Generate(operations);
                         executor.ExecuteNonQuery(commands, connection);

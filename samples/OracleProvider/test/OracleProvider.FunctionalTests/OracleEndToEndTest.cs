@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Level>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
+                modelBuilder.Entity<Level>(eb => eb.HasKey(l => new { l.GameId, l.Id }));
 
                 modelBuilder.Entity<Actor>(
                     eb =>

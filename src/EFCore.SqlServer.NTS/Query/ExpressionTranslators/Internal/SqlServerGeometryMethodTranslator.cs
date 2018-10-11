@@ -48,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         };
 
         private static readonly MethodInfo _getGeometryN = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.GetGeometryN), new[] { typeof(int) });
+        private static readonly MethodInfo _isWithinDistance = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.IsWithinDistance), new[] { typeof(IGeometry), typeof(double) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -78,6 +79,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     "STGeometryN",
                     methodCallExpression.Type,
                     new[] { Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1)) });
+            }
+            if (Equals(method, _isWithinDistance))
+            {
+                return Expression.LessThanOrEqual(
+                    new SqlFunctionExpression(
+                        instance,
+                        "STDistance",
+                        typeof(double),
+                        new[] { methodCallExpression.Arguments[0] }),
+                    methodCallExpression.Arguments[1]);
             }
 
             return null;

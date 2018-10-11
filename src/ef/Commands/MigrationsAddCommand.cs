@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class MigrationsAddCommand
+    internal partial class MigrationsAddCommand
     {
         protected override void Validate()
         {

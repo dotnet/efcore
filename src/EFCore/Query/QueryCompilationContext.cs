@@ -69,13 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         internal ISet<QueryModel> DuplicateQueryModels = new HashSet<QueryModel>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static readonly ParameterExpression CancellationTokenParameter
-            = Expression.Parameter(typeof(CancellationToken), name: "ct");
-
-        /// <summary>
         ///     Registers a mapping between correlated collection query models and metadata needed to process them.
         /// </summary>
         /// <param name="mainFromClause"> The main from clause.</param>
@@ -123,8 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             correlatedSubqueryMetadata = null;
 
-            return _correlatedSubqueryMetadataMap != null
-                   && _correlatedSubqueryMetadataMap.TryGetValue(mainFromClause, out correlatedSubqueryMetadata);
+            return _correlatedSubqueryMetadataMap?.TryGetValue(mainFromClause, out correlatedSubqueryMetadata) == true;
         }
 
         /// <summary>
@@ -385,8 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var entityQueryable = (IQueryable)constantExpression.Value;
                     var entityType = _model.FindEntityType(entityQueryable.ElementType);
 
-                    if (entityType != null
-                        && !entityType.IsQueryType
+                    if (entityType?.IsQueryType == false
                         && (_referencedEntityTypes > 0
                             || entityType.GetDerivedTypesInclusive().Any(et => et.ShadowPropertyCount() > 0)))
                     {

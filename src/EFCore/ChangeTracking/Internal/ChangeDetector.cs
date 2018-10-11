@@ -262,8 +262,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                if (added.Any()
-                    || removed.Any())
+                if (added.Count > 0
+                    || removed.Count > 0)
                 {
                     if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                     {

@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Single_query_tag();
 
             AssertSql(
-                @"-- EFCore: (#Yanni)
+                @"-- Yanni
+
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -32,7 +33,10 @@ ORDER BY [c].[CustomerID]");
             base.Single_query_multiple_tags();
 
             AssertSql(
-                @"-- EFCore: (#Yanni, #Enya)
+                @"-- Yanni
+
+-- Enya
+
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -43,7 +47,10 @@ ORDER BY [c].[CustomerID]");
             base.Tags_on_subquery();
 
             AssertSql(
-                @"-- EFCore: (#Yanni, #Laurel)
+                @"-- Yanni
+
+-- Laurel
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 CROSS JOIN (
@@ -59,7 +66,8 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             base.Duplicate_tags();
 
             AssertSql(
-                @"-- EFCore: (#Yanni)
+                @"-- Yanni
+
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -70,12 +78,14 @@ ORDER BY [c].[CustomerID]");
             base.Tag_on_include_query();
 
             AssertSql(
-                @"-- EFCore: (#Yanni)
+                @"-- Yanni
+
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 //
-                @"-- EFCore: (#Yanni)
+                @"-- Yanni
+
 SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
@@ -91,10 +101,60 @@ ORDER BY [t].[CustomerID]");
             base.Tag_on_scalar_query();
 
             AssertSql(
-                @"-- EFCore: (#Yanni)
+                @"-- Yanni
+
 SELECT TOP(1) [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]");
+        }
+
+        public override void Single_query_multiline_tag()
+        {
+            base.Single_query_multiline_tag();
+
+            AssertSql(
+                @"-- Yanni
+-- AND
+-- Laurel
+
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Single_query_multiple_multiline_tag()
+        {
+            base.Single_query_multiple_multiline_tag();
+
+            AssertSql(
+                @"-- Yanni
+-- AND
+-- Laurel
+
+-- Yet
+-- Another
+-- Multiline
+-- Tag
+
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Single_query_multiline_tag_with_empty_lines()
+        {
+            base.Single_query_multiline_tag_with_empty_lines();
+
+            AssertSql(
+                @"-- Yanni
+-- 
+-- AND
+-- 
+-- Laurel
+
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         private void AssertSql(params string[] expected)

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -15,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Annotations_are_added_when_conventional_model_builder_is_used()
         {
             var model = SqlServerTestHelpers.Instance.CreateConventionBuilder().Model;
+            model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
 
             var annotations = model.GetAnnotations().OrderBy(a => a.Name).ToList();
             Assert.Equal(2, annotations.Count);
@@ -29,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var model = SqlServerTestHelpers.Instance.CreateConventionBuilder()
                 .ForSqlServerUseSequenceHiLo()
                 .Model;
+
+            model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
 
             var annotations = model.GetAnnotations().OrderBy(a => a.Name).ToList();
             Assert.Equal(4, annotations.Count);

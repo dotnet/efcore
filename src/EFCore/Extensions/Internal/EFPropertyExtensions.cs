@@ -35,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
             => Equals(methodInfo, EF.PropertyMethod)
                // fallback to string comparison because MethodInfo.Equals is not
                // always true in .NET Native even if methods are the same
-               || methodInfo != null
-               && methodInfo.IsGenericMethod
+               || methodInfo?.IsGenericMethod == true
                && methodInfo.Name == nameof(EF.Property)
                && methodInfo.DeclaringType?.FullName == _efTypeName;
 

@@ -1623,7 +1623,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Title);
                     });
 
-                modelBuilder.Query<BlogQuery>(b => { b.Property(e => e.Title); });
+                modelBuilder.Query<BlogQuery>(b => b.Property(e => e.Title));
 
                 modelBuilder.Entity<Post>(
                     b =>

@@ -539,8 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         var property = FindProperty(model, operation.Schema, operation.Table, c);
 
-                        return property == null // Couldn't bind column to property
-                               || property.IsColumnNullable();
+                        return property?.IsColumnNullable() != false;
                     })
                 .ToList();
 
@@ -1570,7 +1569,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
-        protected override void IndexExtras(CreateIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
+        protected override void IndexOptions(CreateIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             if (operation[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeProperties && includeProperties.Count > 0)
             {
@@ -1587,7 +1586,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.Append(")");
             }
 
-            base.IndexExtras(operation, model, builder);
+            base.IndexOptions(operation, model, builder);
         }
 
         /// <summary>
@@ -1693,7 +1692,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     yield return index;
                 }
-                else if (index.GetAnnotation(SqlServerAnnotationNames.Include)?.Value is string[] includeProperties)
+                else if (index.SqlServer().IncludeProperties is IReadOnlyList<string> includeProperties)
                 {
                     if (includeProperties.Contains(property.Name))
                     {

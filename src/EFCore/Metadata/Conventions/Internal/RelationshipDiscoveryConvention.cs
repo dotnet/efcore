@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
-                else if (relationshipCandidate.TargetTypeBuilder.Metadata.HasDefiningNavigation()
+                else if (IsCandidateUnusedOwnedType(relationshipCandidate.TargetTypeBuilder.Metadata)
                          && filteredRelationshipCandidates.All(
                              c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
-                else if (relationshipCandidate.TargetTypeBuilder.Metadata.HasDefiningNavigation()
+                else if (IsCandidateUnusedOwnedType(relationshipCandidate.TargetTypeBuilder.Metadata)
                          && filteredRelationshipCandidates.All(
                              c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
@@ -840,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var unusedEntityType in unusedEntityTypes)
             {
-                if (unusedEntityType.HasDefiningNavigation()
+                if (IsCandidateUnusedOwnedType(unusedEntityType)
                     && unusedEntityType.DefiningEntityType.FindNavigation(unusedEntityType.DefiningNavigationName) == null)
                 {
                     entityTypeBuilder.ModelBuilder.RemoveEntityType(unusedEntityType, ConfigurationSource.Convention);
@@ -930,8 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static bool IsCandidateNavigationProperty(
             InternalEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, MemberInfo propertyInfo)
             => propertyInfo != null
-               && sourceEntityTypeBuilder != null
-               && !sourceEntityTypeBuilder.IsIgnored(navigationName, ConfigurationSource.Convention)
+               && sourceEntityTypeBuilder?.IsIgnored(navigationName, ConfigurationSource.Convention) == false
                && sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) == null
                && sourceEntityTypeBuilder.Metadata.FindServiceProperty(navigationName) == null
                && (!sourceEntityTypeBuilder.Metadata.IsQueryType
@@ -1066,13 +1065,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
             => entityTypeBuilder.HasAnnotation(NavigationCandidatesAnnotationName, navigationCandidates, ConfigurationSource.Convention);
 
+        private static bool IsCandidateUnusedOwnedType(EntityType entityType)
+            => entityType.HasDefiningNavigation() && !entityType.GetForeignKeys().Any();
+
         private static bool IsAmbiguous(EntityType entityType, MemberInfo navigationProperty)
         {
             while (entityType != null)
             {
                 var ambigousNavigations = GetAmbigousNavigations(entityType);
-                if (ambigousNavigations != null
-                    && ambigousNavigations.ContainsKey(navigationProperty))
+                if (ambigousNavigations?.ContainsKey(navigationProperty) == true)
                 {
                     return true;
                 }
@@ -1101,8 +1102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static bool HasDeclaredAmbiguousNavigationsTo(EntityType sourceEntityType, Type targetClrType)
         {
             var ambigousNavigations = GetAmbigousNavigations(sourceEntityType);
-            return ambigousNavigations != null
-                   && ambigousNavigations.ContainsValue(targetClrType);
+            return ambigousNavigations?.ContainsValue(targetClrType) == true;
         }
 
         private static ImmutableSortedDictionary<MemberInfo, Type> GetAmbigousNavigations(EntityType entityType)
@@ -1120,7 +1120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var currentAmbiguousNavigations = GetAmbigousNavigations(entityTypeBuilder.Metadata);
             var newAmbiguousNavigations = ImmutableSortedDictionary.CreateRange(
                 MemberInfoNameComparer.Instance,
-                navigationProperties.Where(n => currentAmbiguousNavigations == null || !currentAmbiguousNavigations.ContainsKey(n))
+                navigationProperties.Where(n => currentAmbiguousNavigations?.ContainsKey(n) != true)
                     .Select(n => new KeyValuePair<MemberInfo, Type>(n, targetType)));
 
             if (currentAmbiguousNavigations != null)
@@ -1136,8 +1136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static bool RemoveAmbiguous(EntityType entityType, Type targetType)
         {
             var ambigousNavigations = GetAmbigousNavigations(entityType);
-            if (ambigousNavigations != null
-                && !ambigousNavigations.IsEmpty)
+            if (ambigousNavigations?.IsEmpty == false)
             {
                 var newAmbigousNavigations = ambigousNavigations;
                 foreach (var ambigousNavigation in ambigousNavigations)

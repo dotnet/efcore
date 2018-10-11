@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         var newList = keyValuePair.Value.Where(tuple => tuple.Item2 != entry).ToList();
 
-                        if (newList.Any())
+                        if (newList.Count > 0)
                         {
                             _referencedUntrackedEntities.Value.Add(keyValuePair.Key, newList);
                         }
@@ -592,6 +592,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _queryIsTracked = false;
             _trackingQueryMode = TrackingQueryMode.Simple;
             _singleQueryModeEntityType = null;
+
+            Tracked = null;
+            StateChanged = null;
         }
 
         /// <summary>
@@ -906,7 +909,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                ?.Equals(currentValue, value)
                ?? Equals(currentValue, value);
 
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -920,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var entriesToSave = GetInternalEntriesToSave();
-            if (!entriesToSave.Any())
+            if (entriesToSave.Count == 0)
             {
                 return 0;
             }

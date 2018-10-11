@@ -46,11 +46,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual IReadOnlyList<object[]> SnapshotRows()
             => _rows.Values.ToList();
 
-        private static List<ValueComparer> GetDeepComparers(IEnumerable<IProperty> properties)
-            => properties.Select(GetDeepComparer).ToList();
+        private static List<ValueComparer> GetStructuralComparers(IEnumerable<IProperty> properties)
+            => properties.Select(GetStructuralComparer).ToList();
 
-        private static ValueComparer GetDeepComparer(IProperty p)
-            => p.GetDeepValueComparer() ?? p.FindMapping()?.DeepComparer;
+        private static ValueComparer GetStructuralComparer(IProperty p)
+            => p.GetStructuralValueComparer() ?? p.FindMapping()?.StructuralComparer;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual void Create(IUpdateEntry entry)
             => _rows.Add(
                 CreateKey(entry),
-                entry.EntityType.GetProperties().Select(p => SnapshotValue(p, GetDeepComparer(p), entry)).ToArray());
+                entry.EntityType.GetProperties().Select(p => SnapshotValue(p, GetStructuralComparer(p), entry)).ToArray());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     IsConcurrencyConflict(entry, properties[index], _rows[key][index], concurrencyConflicts);
                 }
 
-                if (concurrencyConflicts.Any())
+                if (concurrencyConflicts.Count > 0)
                 {
                     ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
                 }
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             if (_rows.ContainsKey(key))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
-                var comparers = GetDeepComparers(properties);
+                var comparers = GetStructuralComparers(properties);
                 var valueBuffer = new object[properties.Count];
                 var concurrencyConflicts = new Dictionary<IProperty, object>();
 
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                         : _rows[key][index];
                 }
 
-                if (concurrencyConflicts.Any())
+                if (concurrencyConflicts.Count > 0)
                 {
                     ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
                 }

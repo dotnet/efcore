@@ -1111,7 +1111,6 @@ GROUP BY [o].[CustomerID]");
                 @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
-
         }
 
         public override async Task GroupBy_OrderBy_key(bool isAsync)
@@ -1187,7 +1186,7 @@ OFFSET @__p_1 ROWS");
             await base.GroupBy_aggregate_Pushdown_followed_by_projecting_Length(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task GroupBy_aggregate_Pushdown_followed_by_projecting_constant(bool isAsync)
@@ -1195,7 +1194,7 @@ OFFSET @__p_1 ROWS");
             await base.GroupBy_aggregate_Pushdown_followed_by_projecting_constant(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override void GroupBy_Select_sum_over_unmapped_property()
@@ -1658,7 +1657,7 @@ ORDER BY [o].[CustomerID]");
             await base.GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task GroupBy_with_orderby_take_skip_distinct_followed_by_order_by_group_key(bool isAsync)
@@ -1666,7 +1665,7 @@ ORDER BY [o].[CustomerID]");
             await base.GroupBy_with_orderby_take_skip_distinct_followed_by_order_by_group_key(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override async Task GroupBy_join_anonymous(bool isAsync)
@@ -1829,7 +1828,7 @@ ORDER BY [c].[City]");
             await base.GroupBy_Select_First_GroupBy_followed_by_identity_projection(isAsync);
 
             AssertSql(
-                @"");
+                "");
         }
 
         public override void Select_GroupBy()

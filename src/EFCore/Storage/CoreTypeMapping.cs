@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -53,14 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
             /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
             /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
-            /// <param name="deepComparer"> Supports deep snapshotting needed for mutable reference types. </param>
+            /// <param name="structuralComparer"> Supports structural snapshotting needed for mutable reference types. </param>
             /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
             public CoreTypeMappingParameters(
                 [NotNull] Type clrType,
                 [CanBeNull] ValueConverter converter,
                 [CanBeNull] ValueComparer comparer,
                 [CanBeNull] ValueComparer keyComparer,
-                [CanBeNull] ValueComparer deepComparer,
+                [CanBeNull] ValueComparer structuralComparer,
                 [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
             {
                 Check.NotNull(clrType, nameof(clrType));
@@ -69,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Converter = converter;
                 Comparer = comparer;
                 KeyComparer = keyComparer;
-                DeepComparer = deepComparer;
+                StructuralComparer = structuralComparer;
                 ValueGeneratorFactory = valueGeneratorFactory;
             }
 
@@ -94,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public ValueComparer KeyComparer { get; }
 
             /// <summary>
-            ///     The mapping deep comparer.
+            ///     The mapping structural comparer.
             /// </summary>
-            public ValueComparer DeepComparer { get; }
+            public ValueComparer StructuralComparer { get; }
 
             /// <summary>
             ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
@@ -116,13 +117,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     converter == null ? Converter : converter.ComposeWith(Converter),
                     Comparer,
                     KeyComparer,
-                    DeepComparer,
+                    StructuralComparer,
                     ValueGeneratorFactory);
         }
 
         private ValueComparer _comparer;
         private ValueComparer _keyComparer;
-        private ValueComparer _deepComparer;
+        private ValueComparer _structuralComparer;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CoreTypeMapping" /> class.
@@ -147,9 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _keyComparer = parameters.KeyComparer;
             }
 
-            if (parameters.DeepComparer?.Type == clrType)
+            if (parameters.StructuralComparer?.Type == clrType)
             {
-                _deepComparer = parameters.DeepComparer;
+                _structuralComparer = parameters.StructuralComparer;
             }
 
             ValueGeneratorFactory = parameters.ValueGeneratorFactory
@@ -201,10 +202,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
-        ///     comparing key values to each other. For example, when comparing a PK to and FK.
+        ///     a deep/structural copy and/or comparison is needed.
         /// </summary>
-        public virtual ValueComparer DeepComparer
-            => _deepComparer ?? KeyComparer;
+        public virtual ValueComparer StructuralComparer
+            => _structuralComparer ?? KeyComparer;
 
         private static ValueComparer CreateComparer(Type clrType, bool favorStructuralComparisons)
             => (ValueComparer)Activator.CreateInstance(
@@ -220,12 +221,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter converter);
 
         /// <summary>
-        ///     Attempts generation of a code (e.g. C#) literal for the given value.
+        ///     Creates a an expression tree that can be used to generate code for the literal value.
+        ///     Currently, only very basic expressions such as constructor calls and factory methods taking
+        ///     simple constants are supported.
         /// </summary>
         /// <param name="value"> The value for which a literal is needed. </param>
-        /// <param name="language"> The language, for example "C#". </param>
-        /// <returns> The generated literal, or <c>null</c> if a literal could not be generated. </returns>
-        public virtual string FindCodeLiteral([CanBeNull] object value, [NotNull] string language)
-            => null;
+        /// <returns> An expression tree that can be used to generate code for the literal value. </returns>
+        public virtual Expression GenerateCodeLiteral([NotNull] object value)
+            => throw new NotSupportedException(CoreStrings.LiteralGenerationNotSupported(ClrType.ShortDisplayName()));
     }
 }

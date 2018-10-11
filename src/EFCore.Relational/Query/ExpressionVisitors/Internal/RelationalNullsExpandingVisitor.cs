@@ -35,10 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var unwrappedConvertRight = UnwrapConvertExpression(newRight, out var conversionResultTypeRight);
 
                 var leftUnary = unwrappedConvertLeft as UnaryExpression;
-                var leftNegated = leftUnary != null && leftUnary.NodeType == ExpressionType.Not;
+                var leftNegated = leftUnary?.NodeType == ExpressionType.Not;
 
                 var rightUnary = unwrappedConvertRight as UnaryExpression;
-                var rightNegated = rightUnary != null && rightUnary.NodeType == ExpressionType.Not;
+                var rightNegated = rightUnary?.NodeType == ExpressionType.Not;
 
                 var leftOperand
                     = leftNegated

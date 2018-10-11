@@ -120,18 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string LogFragment
-        {
-            get
-            {
-                if (_logFragment == null)
-                {
-                    _logFragment = _useLazyLoadingProxies
+            => _logFragment
+                ?? (_logFragment = _useLazyLoadingProxies
                         ? "using lazy-loading proxies "
-                        : "";
-                }
-
-                return _logFragment;
-            }
-        }
+                        : "");
     }
 }

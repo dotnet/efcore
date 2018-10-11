@@ -33,6 +33,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Can_configure_one_to_one_relationship_from_an_owned_type(modelBuilder);
             }
+
+            public override void Weak_types_with_FK_to_another_entity_works()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                // Test issue: HasOne<Country> in the base test is adding a shadow entity type when strings are
+                // used. This would not normally happen, but it happens here because no navigation property
+                // or type to do otherwise.
+                modelBuilder.Entity<Country>();
+
+                Weak_types_with_FK_to_another_entity_works(modelBuilder);
+            }
         }
 
         public class NonGenericStringOneToManyType : OneToManyTestBase

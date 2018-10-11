@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Can_configure_one_to_one_relationship_from_an_owned_type(CreateModelBuilder());
             }
 
-            public virtual void Can_configure_one_to_one_relationship_from_an_owned_type(TestModelBuilder modelBuilder)
+            protected virtual void Can_configure_one_to_one_relationship_from_an_owned_type(TestModelBuilder modelBuilder)
             {
                 var model = modelBuilder.Model;
 
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Owned<SpecialOrder>();
 
-                 modelBuilder.Entity<SpecialCustomer>();
+                modelBuilder.Entity<SpecialCustomer>();
                 var specialCustomer = modelBuilder.Entity<SpecialCustomer>().OwnsMany(c => c.SpecialOrders, so =>
                     {
                         so.Ignore(o => o.Customer);
@@ -922,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Ignore<Book>();
                 modelBuilder.Ignore<SpecialBookLabel>();
-                modelBuilder.Entity<BookLabel>().OwnsOne(l => l.AnotherBookLabel, ab => { ab.OwnsOne(l => l.AnotherBookLabel); });
+                modelBuilder.Entity<BookLabel>().OwnsOne(l => l.AnotherBookLabel, ab => ab.OwnsOne(l => l.AnotherBookLabel));
 
                 var model = modelBuilder.Model;
 
@@ -957,6 +957,36 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<PrincipalEntity>().OwnsOne(o => o.InverseNav);
 
                 Assert.Single(modelBuilder.Model.GetEntityTypes(typeof(List<DependentEntity>)));
+            }
+
+            [Fact]
+            public virtual void Weak_types_with_FK_to_another_entity_works()
+            {
+                Weak_types_with_FK_to_another_entity_works(CreateModelBuilder());
+            }
+
+            public virtual void Weak_types_with_FK_to_another_entity_works(TestModelBuilder modelBuilder)
+            {
+                var ownerEntityTypeBuilder = modelBuilder.Entity<BillingOwner>();
+                ownerEntityTypeBuilder.OwnsOne(e => e.Bill1,
+                    o => o.HasOne<Country>().WithMany().HasPrincipalKey(c => c.Name).HasForeignKey(d => d.Country));
+
+                ownerEntityTypeBuilder.OwnsOne(e => e.Bill2,
+                    o => o.HasOne<Country>().WithMany().HasPrincipalKey(c => c.Name).HasForeignKey(d => d.Country));
+
+                modelBuilder.Validate();
+            }
+
+            [Fact]
+            public virtual void Inheritance_where_base_has_multiple_owned_types_works()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<BaseOwner>();
+                modelBuilder.Entity<DerivedOwner>();
+
+                modelBuilder.Validate();
+
+                Assert.Equal(4, modelBuilder.Model.GetEntityTypes().Count());
             }
         }
     }

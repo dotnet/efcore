@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<Level1>(eb => { eb.ToTable(nameof(Level1)); });
+            modelBuilder.Entity<Level1>(eb => eb.ToTable(nameof(Level1)));
         }
 
         protected override void Configure(ReferenceOwnershipBuilder<Level1, Level2> l2)

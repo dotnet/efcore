@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Remotion.Linq.Parsing.ExpressionVisitors;
 
@@ -92,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="expression"> The input expression, containing the database value. </param>
         /// <returns> The expression with conversion added. </returns>
-        public override Expression AddCustomConversion(Expression expression)
+        public override Expression CustomizeDataReaderExpression(Expression expression)
         {
             if (expression.Type != _converter.ProviderClrType)
             {
@@ -106,28 +105,49 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Attempts generation of a code (e.g. C#) literal for the given value.
+        ///     Creates a an expression tree that can be used to generate code for the literal value.
+        ///     Currently, only very basic expressions such as constructor calls and factory methods taking
+        ///     simple constants are supported.
         /// </summary>
         /// <param name="value"> The value for which a literal is needed. </param>
-        /// <param name="language"> The language, for example "C#". </param>
-        /// <returns> The generated literal, or <c>null</c> if a literal could not be generated. </returns>
-        public override string FindCodeLiteral(object value, string language)
-        {
-            var geometryText = AsText(value);
+        /// <returns> An expression tree that can be used to generate code for the literal value. </returns>
+        public override Expression GenerateCodeLiteral(object value)
+            => Expression.Convert(
+                Expression.Call(
+                    Expression.New(WKTReaderType),
+                    WKTReaderType.GetMethod("Read", new[] { typeof(string) }),
+                    Expression.Constant(CreateWktWithSrid(value), typeof(string))),
+                value.GetType());
 
-            // TODO: Allow additional namespaces needed to be put in using directives
-            return geometryText != null
-                   && language.Equals("C#", StringComparison.OrdinalIgnoreCase)
-                ? $"({value.GetType().ShortDisplayName()})new NetTopologySuite.IO.WKTReader().Read(\"{geometryText}\")"
-                : null;
+        private string CreateWktWithSrid(object value)
+        {
+            var srid = GetSrid(value);
+            var text = AsText(value);
+            if (srid != -1)
+            {
+                text = $"SRID={srid};" + text;
+            }
+
+            return text;
         }
 
         /// <summary>
-        ///     Returns the Well-Known-Text (WKT) representation of the given object, or <c>null</c>
-        ///     if the object is not an 'IGeometry'.
+        ///     The type of the NTS 'WKTReader'.
         /// </summary>
-        /// <param name="value"> The value. </param>
+        protected abstract Type WKTReaderType { get; }
+
+        /// <summary>
+        ///     Returns the Well-Known-Text (WKT) representation of the given object.
+        /// </summary>
+        /// <param name="value"> The 'IGeometry' value. </param>
         /// <returns> The WKT. </returns>
-        protected abstract string AsText(object value);
+        protected abstract string AsText([NotNull] object value);
+
+        /// <summary>
+        ///     Returns the SRID representation of the given object.
+        /// </summary>
+        /// <param name="value"> The 'IGeometry' value. </param>
+        /// <returns> The SRID. </returns>
+        protected abstract int GetSrid([NotNull] object value);
     }
 }

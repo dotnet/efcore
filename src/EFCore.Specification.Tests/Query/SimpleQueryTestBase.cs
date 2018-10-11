@@ -33,6 +33,9 @@ using Xunit;
 // ReSharper disable ReplaceWithSingleCallToCount
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable AccessToModifiedClosure
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture> : QueryTestBase<TFixture>
@@ -407,7 +410,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         new NullConditionalExpression(c, Expression.Property(c, "CustomerID")),
                         Expression.Constant("ALFKI")),
                     c);
-
 
             return AssertQuery<Customer>(
                 isAsync,
@@ -1268,7 +1270,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-
         [Theory(Skip = "issue #8956")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_anon(bool isAsync)
@@ -1843,12 +1844,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es =>
                     from e1 in es.Take(3)
-                    where e1.FirstName ==
-                          (from e2 in es.OrderBy(e => e.EmployeeID)
-                           select new
-                           {
-                               Foo = e2
-                           })
+                    where e1.FirstName
+                          == (from e2 in es.OrderBy(e => e.EmployeeID)
+                              select new
+                              {
+                                  Foo = e2
+                              })
                           .First().Foo.FirstName
                     select e1,
                 entryCount: 1);
@@ -1862,9 +1863,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es =>
                     from e1 in es.Take(3)
-                    where e1.FirstName ==
-                          (from e2 in es.OrderBy(e => e.EmployeeID)
-                           select e2)
+                    where e1.FirstName
+                          == (from e2 in es.OrderBy(e => e.EmployeeID)
+                              select e2)
                           .FirstOrDefault().FirstName
                     select e1,
                 entryCount: 1);
@@ -1878,12 +1879,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es =>
                     from e1 in es.Take(3)
-                    where e1.FirstName ==
-                          (from e2 in es.OrderBy(e => e.EmployeeID)
-                           select new
-                           {
-                               Foo = e2
-                           })
+                    where e1.FirstName
+                          == (from e2 in es.OrderBy(e => e.EmployeeID)
+                              select new
+                              {
+                                  Foo = e2
+                              })
                           .FirstOrDefault().Foo.FirstName
                     select e1,
                 entryCount: 1);
@@ -1941,8 +1942,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs =>
                     from c1 in cs
-                    where c1.IsLondon ==
-                          cs.OrderBy(c => c.CustomerID)
+                    where c1.IsLondon
+                          == cs.OrderBy(c => c.CustomerID)
                               .Select(
                                   c => new
                                   {
@@ -5283,8 +5284,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     },
                 e => e.Id1 + " " + e.Id2);
         }
-
-
 
         [Theory(Skip = "issue #8366")]
         [MemberData(nameof(IsAsyncData))]

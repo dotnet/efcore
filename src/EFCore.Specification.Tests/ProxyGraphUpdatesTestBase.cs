@@ -4101,7 +4101,6 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                     {
-
                         removedId = removed.Id;
                         orphanedId = orphaned.Id;
 
@@ -4811,7 +4810,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
                         Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                     });
-
         }
 
         [ConditionalFact]

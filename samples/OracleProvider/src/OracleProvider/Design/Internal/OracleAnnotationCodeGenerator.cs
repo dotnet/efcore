@@ -33,13 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Design.Internal
             Check.NotNull(model, nameof(model));
             Check.NotNull(annotation, nameof(annotation));
 
-            if (annotation.Name == RelationalAnnotationNames.DefaultSchema
-                && string.Equals("SYSTEM", (string)annotation.Value))
-            {
-                return true;
-            }
-
-            return false;
+            return annotation.Name == RelationalAnnotationNames.DefaultSchema
+                && string.Equals("SYSTEM", (string)annotation.Value);
         }
     }
 }

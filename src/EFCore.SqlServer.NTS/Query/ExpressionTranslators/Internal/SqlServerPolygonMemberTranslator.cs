@@ -60,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                             memberExpression.Type,
                             Enumerable.Empty<Expression>()),
                         Expression.Constant(1));
-
                 }
             }
             else if (_geometryMemberToFunctionName.TryGetValue(member, out var functionName))

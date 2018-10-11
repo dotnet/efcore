@@ -1592,7 +1592,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Decimal).HasColumnType("decimal(3)");
                     });
 
-                modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b => { b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"); });
+                modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b => b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"));
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Enables rich error handling of data value exceptions that occur during processing of store query results. Such errors
+        ///         Enables detailed errors when handling data value exceptions that occur during processing of store query results. Such errors
         ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
         ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated
         ///         at runtime during processing of the data value. When this option is enabled and a data error is encountered, the
@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> EnableRichDataErrorHandling(bool richDataErrorHandlingEnabled = true)
-            => (DbContextOptionsBuilder<TContext>)base.EnableRichDataErrorHandling(richDataErrorHandlingEnabled);
+        public new virtual DbContextOptionsBuilder<TContext> EnableDetailedErrors(bool detailedErrorsEnabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableDetailedErrors(detailedErrorsEnabled);
 
         /// <summary>
         ///     <para>
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <example>
         ///     <code>
-        ///         optionsBuilder.ConfigureWarnings(warnings => 
+        ///         optionsBuilder.ConfigureWarnings(warnings =>
         ///             warnings.Default(WarningBehavior.Ignore)
         ///                     .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
         ///                     .Throw(RelationalEventId.QueryClientEvaluationWarning))

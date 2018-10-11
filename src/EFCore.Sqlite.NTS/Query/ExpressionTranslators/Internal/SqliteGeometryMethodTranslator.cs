@@ -43,11 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ToBinary), Type.EmptyTypes), "AsBinary" },
             { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ToText), Type.EmptyTypes), "AsText" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Touches), new[] { typeof(IGeometry) }), "Touches" },
+            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Union), Type.EmptyTypes), "UnaryUnion" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Union), new[] { typeof(IGeometry) }), "GUnion" },
             { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Within), new[] { typeof(IGeometry) }), "Within" }
         };
 
         private static readonly MethodInfo _getGeometryN = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.GetGeometryN), new[] { typeof(int) });
+        private static readonly MethodInfo _isWithinDistance = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.IsWithinDistance), new[] { typeof(IGeometry), typeof(double) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -73,6 +75,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                         methodCallExpression.Object,
                         Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1))
                     });
+            }
+            if (Equals(method, _isWithinDistance))
+            {
+                return Expression.LessThanOrEqual(
+                    new SqlFunctionExpression(
+                        "Distance",
+                        typeof(double),
+                        new[] { methodCallExpression.Object, methodCallExpression.Arguments[0] }),
+                    methodCallExpression.Arguments[1]);
             }
 
             return null;

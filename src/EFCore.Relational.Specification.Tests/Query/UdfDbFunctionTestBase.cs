@@ -246,6 +246,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return builder.ConfigureWarnings(w => w.Ignore(RelationalEventId.QueryClientEvaluationWarning));
             }
 
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Query.Name;
+
             protected override void Seed(DbContext context)
             {
                 context.Database.EnsureCreatedResiliently();

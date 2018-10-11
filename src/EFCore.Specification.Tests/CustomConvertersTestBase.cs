@@ -202,10 +202,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder
                     .Entity<Load>(
-                        b =>
-                        {
-                            b.Property(x => x.Fuel).HasConversion(f => f.Volume, v => new Fuel(v));
-                        });
+                        b => b.Property(x => x.Fuel).HasConversion(f => f.Volume, v => new Fuel(v)));
 
                 modelBuilder.Entity<BuiltInDataTypes>(
                     b =>
@@ -460,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore
                             .HasMaxLength(LongStringLength * 2);
                     });
 
-                modelBuilder.Entity<StringListDataType>(b => { b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList()); });
+                modelBuilder.Entity<StringListDataType>(b => b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList()));
             }
         }
     }

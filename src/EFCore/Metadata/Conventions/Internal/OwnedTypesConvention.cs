@@ -22,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 var entityTypes = modelBuilder.Metadata.GetEntityTypes(type.Name);
                 var otherEntityType = entityTypes.FirstOrDefault();
-                if (otherEntityType != null
-                    && otherEntityType.HasDefiningNavigation())
+                if (otherEntityType?.HasDefiningNavigation() == true)
                 {
                     var ownership = otherEntityType.FindOwnership();
                     if (ownership != null

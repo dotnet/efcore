@@ -65,10 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Attempts to set included property names using the semantics of the <see cref="RelationalAnnotations" /> in use.
         /// </summary>
-        /// <param name="value"> The value to set. </param>
+        /// <param name="properties"> The value to set. </param>
         /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
-        protected virtual bool SetInclude([CanBeNull] IReadOnlyList<string> value) => Annotations.SetAnnotation(
-            SqlServerAnnotationNames.Include,
-            value);
+        protected virtual bool SetInclude([CanBeNull] IReadOnlyList<string> properties)
+            => Annotations.SetAnnotation(
+                SqlServerAnnotationNames.Include,
+                properties);
     }
 }

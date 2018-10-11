@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
             if (clrType == typeof(byte[]))
             {
-                return new InMemoryTypeMapping(clrType, deepComparer: new ArrayDeepComparer<byte>());
+                return new InMemoryTypeMapping(clrType, structuralComparer: new ArrayStructuralComparer<byte>());
             }
 
             if (clrType.FullName == "GeoAPI.Geometries.IGeometry"

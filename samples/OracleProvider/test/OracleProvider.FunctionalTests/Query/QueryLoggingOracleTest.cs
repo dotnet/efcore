@@ -33,11 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"Compiling query model: " + _eol +
-                    @"'from Customer <generated>_0 in DbSet<Customer>" + _eol +
-                    @"select [<generated>_0]'" + _eol +
-                    @"Optimized query model: " + _eol +
-                    @"'from Customer <generated>_0 in DbSet<Customer>",
+                    "Compiling query model: " + _eol +
+                    "'from Customer <generated>_0 in DbSet<Customer>" + _eol +
+                    "select [<generated>_0]'" + _eol +
+                    "Optimized query model: " + _eol +
+                    "'from Customer <generated>_0 in DbSet<Customer>",
                     string.Join(_eol, Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message)));
             }
         }
@@ -88,12 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"Compiling query model: " + _eol +
-                    @"'(from Customer c in DbSet<Customer>" + _eol +
+                    "Compiling query model: " + _eol +
+                    "'(from Customer c in DbSet<Customer>" + _eol +
                     @"select [c]).Include(""Orders"")'" + _eol +
-                    @"Including navigation: '[c].Orders'" + _eol +
-                    @"Optimized query model: " + _eol +
-                    @"'from Customer c in DbSet<Customer>"
+                    "Including navigation: '[c].Orders'" + _eol +
+                    "Optimized query model: " + _eol +
+                    "'from Customer c in DbSet<Customer>"
                     ,
                     string.Join(_eol, Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message)));
             }

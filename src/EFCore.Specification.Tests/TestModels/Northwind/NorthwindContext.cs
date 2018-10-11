@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public void ConfigureFilters(ModelBuilder modelBuilder)
         {
-            // Called explictly from filter test fixtures. Code is here
+            // Called explicitly from filter test fixtures. Code is here
             // so we can capture TenantPrefix in filter exprs (simulates OnModelCreating).
 
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.CompanyName.StartsWith(TenantPrefix));

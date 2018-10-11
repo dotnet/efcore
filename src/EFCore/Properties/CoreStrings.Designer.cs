@@ -49,6 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("StillUsingTypeMapper");
 
         /// <summary>
+        ///     The type mapping for '{type}' has not implemented code literal generation.
+        /// </summary>
+        public static string LiteralGenerationNotSupported([CanBeNull] object type)
+            => string.Format(
+                GetString("LiteralGenerationNotSupported", nameof(type)),
+                type);
+
+        /// <summary>
         ///     The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
         public static string InvalidPropertiesExpression([CanBeNull] object expression)
@@ -201,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 genericParameter);
 
         /// <summary>
-        ///     The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.
+        ///     The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IAsyncQueryProvider can be used for Entity Framework asynchronous operations.
         /// </summary>
         public static string IQueryableProviderNotAsync
             => GetString("IQueryableProviderNotAsync");
@@ -1434,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("HiLoBadBlockSize");
 
         /// <summary>
-        ///     Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explict values instead.
+        ///     Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.
         /// </summary>
         public static string ValueGenWithConversion([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object converter)
             => string.Format(
@@ -2723,7 +2731,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("ErrorInvalidQueryable");
 
         /// <summary>
-        ///     The query type '{queryType}' cannot have a defining query bacause it is derived from '{baseType}'. Only base query types can have a defining query.
+        ///     The query type '{queryType}' cannot have a defining query because it is derived from '{baseType}'. Only base query types can have a defining query.
         /// </summary>
         public static string DerivedQueryTypeDefiningQuery([CanBeNull] object queryType, [CanBeNull] object baseType)
             => string.Format(

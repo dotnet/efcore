@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     definition.EventId.Name,
                     new EventData(
                         definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage()));
+                        (d, _) => ((EventDefinition)d).GenerateMessage()));
             }
         }
 

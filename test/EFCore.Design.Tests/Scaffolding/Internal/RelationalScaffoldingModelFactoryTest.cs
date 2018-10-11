@@ -262,10 +262,10 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Collection(
                 entityType.GetProperties(),
-                pk => { Assert.Equal("Id", pk.Name); },
-                col1 => { Assert.Equal("ProductSKU", col1.Name); },
-                col2 => { Assert.Equal("Vendor_Discount", col2.Name); },
-                col3 => { Assert.Equal("supplierID", col3.Name); });
+                pk => Assert.Equal("Id", pk.Name),
+                col1 => Assert.Equal("ProductSKU", col1.Name),
+                col2 => Assert.Equal("Vendor_Discount", col2.Name),
+                col3 => Assert.Equal("supplierID", col3.Name));
         }
 
         [Fact]
@@ -306,10 +306,10 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Collection(
                 entityType.GetProperties(),
-                pk => { Assert.Equal("Id", pk.Name); },
-                col1 => { Assert.Equal("ProductSku", col1.Name); },
-                col2 => { Assert.Equal("SupplierId", col2.Name); },
-                col3 => { Assert.Equal("VendorDiscount", col3.Name); });
+                pk => Assert.Equal("Id", pk.Name),
+                col1 => Assert.Equal("ProductSku", col1.Name),
+                col2 => Assert.Equal("SupplierId", col2.Name),
+                col3 => Assert.Equal("VendorDiscount", col3.Name));
         }
 
         [Theory]
@@ -699,6 +699,90 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Foreign_key_to_unique_constraint()
+        {
+            var keyColumn = new DatabaseColumn
+            {
+                Name = "Key",
+                StoreType = "int",
+                IsNullable = false
+            };
+
+            var parentTable = new DatabaseTable
+            {
+                Name = "Parent",
+                Columns =
+                {
+                    IdColumn,
+                    keyColumn
+                },
+                PrimaryKey = IdPrimaryKey,
+            };
+
+            parentTable.UniqueConstraints.Add(
+                new DatabaseUniqueConstraint
+                {
+                    Table = parentTable,
+                    Columns =
+                    {
+                        keyColumn
+                    }
+                });
+
+
+            var childrenTable = new DatabaseTable
+            {
+                Name = "Children",
+                Columns =
+                {
+                    IdColumn
+                },
+                PrimaryKey = IdPrimaryKey
+            };
+
+            childrenTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childrenTable,
+                    PrincipalTable = parentTable,
+                    OnDelete = ReferentialAction.Cascade,
+                    Columns =
+                    {
+                        childrenTable.Columns.ElementAt(0)
+                    },
+                    PrincipalColumns =
+                    {
+                        parentTable.Columns.ElementAt(1)
+                    }
+                });
+
+            var model = _factory.Create(
+                new DatabaseModel
+                {
+                    Tables =
+                    {
+                        parentTable,
+                        childrenTable
+                    }
+                },
+                false);
+
+            var parent = (EntityType)model.FindEntityType("Parent");
+
+            var children = (EntityType)model.FindEntityType("Children");
+
+            Assert.NotEmpty(parent.GetReferencingForeignKeys());
+            var fk = Assert.Single(children.GetForeignKeys());
+            Assert.True(fk.IsUnique);
+            Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
+
+            var principalKey = fk.PrincipalKey;
+
+            Assert.Same(parent, principalKey.DeclaringEntityType);
+            Assert.Same(parent.GetProperties().First(p => p.Name == "Key"), principalKey.Properties[0]);
+        }
+
+        [Fact]
         public void Unique_foreign_key()
         {
             var parentTable = new DatabaseTable
@@ -895,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotEmpty(list.GetReferencingForeignKeys());
             Assert.NotEmpty(list.GetForeignKeys());
 
-            var principalKey = list.FindForeignKeys(list.FindProperty("ParentId")).SingleOrDefault().PrincipalKey;
+            var principalKey = list.FindForeignKeys(list.FindProperty("ParentId")).Single().PrincipalKey;
             Assert.Equal("ItemsList", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
@@ -1240,7 +1324,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("EF", ef1.Name);
                     Assert.Collection(
                         ef1.GetProperties(),
-                        id => { Assert.Equal("Id", id.Name); },
+                        id => Assert.Equal("Id", id.Name),
                         s1 =>
                         {
                             Assert.Equal("SanItized", s1.Name);

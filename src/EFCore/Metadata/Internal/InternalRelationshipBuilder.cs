@@ -1078,8 +1078,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (Metadata.PrincipalToDependent != null
-                && !Metadata.PrincipalToDependent.IsShadowProperty
+            if (Metadata.PrincipalToDependent?.IsShadowProperty == false
                 && !Navigation.IsCompatible(
                     Metadata.PrincipalToDependent.GetIdentifyingMemberInfo(),
                     Metadata.PrincipalEntityType.ClrType,
@@ -1323,7 +1322,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                    || CanSetForeignKey(newForeignKeyProperties, configurationSource, Metadata.PrincipalEntityType));
 
         private bool CanInvert(ConfigurationSource? configurationSource)
-            => configurationSource != null && configurationSource.Value.Overrides(Metadata.GetPrincipalEndConfigurationSource());
+            => configurationSource?.Overrides(Metadata.GetPrincipalEndConfigurationSource()) == true;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1527,7 +1526,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 resetIsRequired = true;
             }
 
-            if (dependentEntityType != Metadata.DeclaringEntityType
+            if ((dependentEntityType != Metadata.DeclaringEntityType
+                 && dependentEntityType == Metadata.PrincipalEntityType) // Check if inverted
                 || (properties.Count != 0
                     && !ForeignKey.AreCompatible(
                         principalKeyProperties,
@@ -1743,8 +1743,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             principalEndConfigurationSource = principalEndConfigurationSource ??
                                               (principalEntityTypeBuilder.Metadata != dependentEntityTypeBuilder.Metadata
-                                               && ((principalProperties != null && principalProperties.Count > 0)
-                                                   || (dependentProperties != null && dependentProperties.Count > 0)
+                                               && ((principalProperties?.Count > 0)
+                                                   || (dependentProperties?.Count > 0)
                                                    || (navigationToDependent != null && isUnique == false)
                                                    || isOwnership == true)
                                                   ? configurationSource
@@ -1800,8 +1800,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentEntityTypeBuilder.Metadata,
                     navigationToPrincipal?.Property,
                     navigationToDependent?.Property,
-                    dependentProperties != null && dependentProperties.Any() ? dependentProperties : null,
-                    principalProperties != null && principalProperties.Any() ? principalProperties : null,
+                    dependentProperties?.Count > 0 ? dependentProperties : null,
+                    principalProperties?.Count > 0 ? principalProperties : null,
                     isUnique,
                     isRequired,
                     configurationSource));
@@ -1826,8 +1826,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     navigationToDependent ?? (Metadata.PrincipalToDependent == null
                         ? (PropertyIdentity?)null
                         : PropertyIdentity.Create(Metadata.PrincipalToDependent)),
-                    dependentProperties != null && dependentProperties.Any() ? dependentProperties : null,
-                    principalProperties != null && principalProperties.Any() ? principalProperties : null,
+                    dependentProperties?.Count > 0 ? dependentProperties : null,
+                    principalProperties?.Count > 0 ? principalProperties : null,
                     isRequired ?? Metadata.IsRequired,
                     removeCurrent,
                     principalEndConfigurationSource,
@@ -1869,7 +1869,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : Metadata.PrincipalToDependent?.Name;
 
                 var newRelationshipConfigurationSource = Metadata.GetConfigurationSource();
-                if ((dependentProperties != null && dependentProperties.Any())
+                if ((dependentProperties?.Count > 0)
                     || navigationToPrincipal?.Name != null
                     || navigationToDependent?.Name != null)
                 {
@@ -1911,8 +1911,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     configurationSource)
                                          ?? newRelationshipBuilder;
 
-                if (dependentProperties != null
-                    && dependentProperties.Any())
+                if (dependentProperties?.Count > 0)
                 {
                     dependentProperties = dependentEntityTypeBuilder.GetActualProperties(dependentProperties, configurationSource);
                     var foreignKeyPropertiesConfigurationSource = configurationSource;
@@ -1932,8 +1931,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                if (principalProperties != null
-                    && principalProperties.Any())
+                if (principalProperties?.Count > 0)
                 {
                     principalProperties = principalEntityTypeBuilder.GetActualProperties(principalProperties, configurationSource);
                     var principalKeyConfigurationSource = configurationSource;
@@ -2339,8 +2337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && (shouldResetToPrincipal || shouldResetToDependent)
                     && (navigationToPrincipal == null
                         || navigationToPrincipal.Value.IsNone()
-                        || navigationToDependent == null
-                        || navigationToDependent.Value.IsNone())
+                        || navigationToDependent?.IsNone() != false)
                     && candidateRelationship.Metadata.DependentToPrincipal != null
                     && candidateRelationship.Metadata.PrincipalToDependent != null
                     && ((!candidateRelationshipInverted
@@ -2382,8 +2379,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var temporaryProperties = dependentProperties?.Where(
                 p => p.GetConfigurationSource() == ConfigurationSource.Convention
                      && p.IsShadowProperty).ToList();
-            var tempIndex = temporaryProperties != null
-                            && temporaryProperties.Any()
+            var tempIndex = temporaryProperties?.Count > 0
                             && dependentEntityType.FindIndex(temporaryProperties) == null
                 ? dependentEntityType.Builder.HasIndex(temporaryProperties, ConfigurationSource.Convention).Metadata
                 : null;
@@ -2391,8 +2387,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var temporaryKeyProperties = principalProperties?.Where(
                 p => p.GetConfigurationSource() == ConfigurationSource.Convention
                      && p.IsShadowProperty).ToList();
-            var keyTempIndex = temporaryKeyProperties != null
-                               && temporaryKeyProperties.Any()
+            var keyTempIndex = temporaryKeyProperties?.Count > 0
                                && principalEntityType.FindIndex(temporaryKeyProperties) == null
                 ? principalEntityType.Builder.HasIndex(temporaryKeyProperties, ConfigurationSource.Convention).Metadata
                 : null;

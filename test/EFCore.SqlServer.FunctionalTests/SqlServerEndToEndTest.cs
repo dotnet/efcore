@@ -355,6 +355,42 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [Fact]
+        public void Can_remove_multiple_byte_array_as_key()
+        {
+            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            {
+                var bNum1 = new BNum
+                {
+                    TheWalrus = "Eggman"
+                };
+                var bNum2 = new BNum
+                {
+                    TheWalrus = "Eggmen"
+                };
+
+                var options = Fixture.CreateOptions(testDatabase);
+                using (var context = new ENumContext(options))
+                {
+                    context.Database.EnsureCreatedResiliently();
+
+                    context.AddRange(bNum1, bNum2);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new ENumContext(options))
+                {
+                    Assert.Equal(bNum1.Id, context.BNums.Single(e => e.TheWalrus == "Eggman").Id);
+                    Assert.Equal(bNum2.Id, context.BNums.Single(e => e.TheWalrus == "Eggmen").Id);
+
+                    context.RemoveRange(context.BNums);
+
+                    context.SaveChanges();
+                }
+            }
+        }
+
         private class ENumContext : DbContext
         {
             public ENumContext(DbContextOptions options)
@@ -524,17 +560,17 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Contains("INSERT", Fixture.TestSqlLoggerFactory.SqlStatements[4]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'");
+                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'");
 
                     Assert.Equal(1, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {deletedId}");
+                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {deletedId}");
 
                     Assert.Equal(0, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {addedId} AND Name = 'Blog to Insert'");
+                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {addedId} AND Name = 'Blog to Insert'");
 
                     Assert.Equal(1, rows);
                 }

@@ -642,7 +642,7 @@ FROM user_tables t ";
 
         private static Func<string, string> GenerateSchemaFilter(IReadOnlyList<string> schemas)
         {
-            if (schemas.Any())
+            if (schemas.Count > 0)
             {
                 return s =>
                     {
@@ -678,7 +678,7 @@ FROM user_tables t ";
             Func<string, string> schemaFilter)
         {
             if (schemaFilter != null
-                || tables.Any())
+                || tables.Count > 0)
             {
                 return (s, t) =>
                     {
@@ -693,7 +693,7 @@ FROM user_tables t ";
                             openBracket = true;
                         }
 
-                        if (tables.Any())
+                        if (tables.Count > 0)
                         {
                             if (openBracket)
                             {
@@ -708,7 +708,7 @@ FROM user_tables t ";
                             }
 
                             var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                            if (tablesWithoutSchema.Any())
+                            if (tablesWithoutSchema.Count > 0)
                             {
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(" IN (");
@@ -717,9 +717,9 @@ FROM user_tables t ";
                             }
 
                             var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                            if (tablesWithSchema.Any())
+                            if (tablesWithSchema.Count > 0)
                             {
-                                if (tablesWithoutSchema.Any())
+                                if (tablesWithoutSchema.Count > 0)
                                 {
                                     tableFilterBuilder.Append(" OR ");
                                 }

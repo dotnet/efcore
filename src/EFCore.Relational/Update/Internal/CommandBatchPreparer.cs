@@ -529,8 +529,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                             var candidateKeyValueColumnModifications = columnModifications.Where(
                                 cm =>
-                                    foreignKey.PrincipalKey.Properties.Contains(cm.Property) &&
-                                    (cm.IsWrite || cm.IsRead));
+                                    foreignKey.PrincipalKey.Properties.Contains(cm.Property)
+                                    && (cm.IsWrite || cm.IsRead));
 
                             if (command.EntityState == EntityState.Added
                                 || candidateKeyValueColumnModifications.Any())

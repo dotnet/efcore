@@ -101,7 +101,6 @@ namespace Microsoft.EntityFrameworkCore
                 EnsureCreatedAsyncCount++;
                 return Task.FromResult(true);
             }
-
         }
 
         private class FakeDatabaseCreatorWithCanConnect : FakeDatabaseCreator, IDatabaseCreatorWithCanConnect

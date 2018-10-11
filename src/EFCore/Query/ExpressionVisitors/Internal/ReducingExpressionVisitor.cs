@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Expression Visit(Expression node)
-            => (node != null)
-               && node.CanReduce
+            => (node?.CanReduce == true)
                 ? Visit(node.Reduce())
                 : base.Visit(node);
 

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_all_navigations()
         {
-            CreateAndSeedDatabase(context => context.SeedUsingNavigations(principalNavs: true, dependentNavs: true));
+            CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: true, principalNavs: true));
 
             SimpleVerification();
             FkVerification();
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_dependent_navigations()
         {
-            CreateAndSeedDatabase(context => context.SeedUsingNavigations(principalNavs: false, dependentNavs: true));
+            CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: true, principalNavs: false));
 
             SimpleVerification();
             FkVerification();
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_principal_navigations()
         {
-            CreateAndSeedDatabase(context => context.SeedUsingNavigations(principalNavs: true, dependentNavs: false));
+            CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: false, principalNavs: true));
 
             SimpleVerification();
             FkVerification();
@@ -1142,7 +1142,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(barcode1, incorrectScan2.ExpectedBarcode);
                 Assert.Same(incorrectScan2, barcode1.BadScans.Single());
 
-                Assert.True(barcode3.BadScans == null || !barcode3.BadScans.Any());
+                Assert.True(barcode3.BadScans == null || barcode3.BadScans.Count == 0);
 
                 var complaint1 = context.Complaints.Single(e => e.Details.StartsWith("Don't"));
                 var complaint2 = context.Complaints.Single(e => e.Details.StartsWith("Really"));
@@ -1170,7 +1170,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(customer3, login3.Customer);
                 Assert.Same(login3, customer3.Logins.Single());
 
-                Assert.True(customer0.Logins == null || !customer0.Logins.Any());
+                Assert.True(customer0.Logins == null || customer0.Logins.Count == 0);
 
                 var rsaToken1 = context.RsaTokens.Single(e => e.Serial == "1234");
                 var rsaToken2 = context.RsaTokens.Single(e => e.Serial == "2234");
@@ -1290,7 +1290,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(product2, productReview3.Product);
                 Assert.Same(productReview3, product2.Reviews.Single());
 
-                Assert.True(product3.Reviews == null || !product3.Reviews.Any());
+                Assert.True(product3.Reviews == null || product3.Reviews.Count == 0);
 
                 var productPhoto1 = context.ProductPhotos.Single(e => e.Photo[0] == 101);
                 var productPhoto2 = context.ProductPhotos.Single(e => e.Photo[0] == 103);
@@ -1301,7 +1301,7 @@ namespace Microsoft.EntityFrameworkCore
                     product1.Photos.OrderBy(r => r.Photo.First()).ToArray());
 
                 Assert.Same(productPhoto3, product3.Photos.Single());
-                Assert.True(product2.Photos == null || !product2.Photos.Any());
+                Assert.True(product2.Photos == null || product2.Photos.Count == 0);
 
                 var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
                 var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
@@ -1313,13 +1313,13 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(productWebFeature1, productReview1.Features.Single());
 
                 Assert.Null(productWebFeature2.Photo);
-                Assert.True(productPhoto2.Features == null || !productPhoto2.Features.Any());
+                Assert.True(productPhoto2.Features == null || productPhoto2.Features.Count == 0);
 
                 Assert.Same(productReview3, productWebFeature2.Review);
                 Assert.Same(productWebFeature2, productReview3.Features.Single());
 
-                Assert.True(productPhoto3.Features == null || !productPhoto3.Features.Any());
-                Assert.True(productReview2.Features == null || !productReview2.Features.Any());
+                Assert.True(productPhoto3.Features == null || productPhoto3.Features.Count == 0);
+                Assert.True(productReview2.Features == null || productReview2.Features.Count == 0);
 
                 var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
                 var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));

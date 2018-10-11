@@ -16,36 +16,36 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override async Task Simple_owned_level1(bool isAsync)
+        public override async Task Simple_level1_include(bool isAsync)
         {
-            await base.Simple_owned_level1(isAsync);
+            await base.Simple_level1_include(isAsync);
 
             AssertSql(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
 FROM [Level1] AS [l1]");
         }
 
-        public override async Task Simple_owned_level1_convention(bool isAsync)
+        public override async Task Simple_level1(bool isAsync)
         {
-            await base.Simple_owned_level1_convention(isAsync);
+            await base.Simple_level1(isAsync);
 
             AssertSql(
                 @"SELECT [l].[Id], [l].[Date], [l].[Name]
 FROM [Level1] AS [l]");
         }
 
-        public override async Task Simple_owned_level1_level2(bool isAsync)
+        public override async Task Simple_level1_level2_include(bool isAsync)
         {
-            await base.Simple_owned_level1_level2(isAsync);
+            await base.Simple_level1_level2_include(isAsync);
 
             AssertSql(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
 FROM [Level1] AS [l1]");
         }
 
-        public override async Task Simple_owned_level1_level2_GroupBy_Count(bool isAsync)
+        public override async Task Simple_level1_level2_GroupBy_Count(bool isAsync)
         {
-            await base.Simple_owned_level1_level2_GroupBy_Count(isAsync);
+            await base.Simple_level1_level2_GroupBy_Count(isAsync);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -53,9 +53,9 @@ FROM [Level1] AS [l1]
 GROUP BY [l1].[Level3_Name]");
         }
 
-        public override async Task Simple_owned_level1_level2_GroupBy_Having_Count(bool isAsync)
+        public override async Task Simple_level1_level2_GroupBy_Having_Count(bool isAsync)
         {
-            await base.Simple_owned_level1_level2_GroupBy_Having_Count(isAsync);
+            await base.Simple_level1_level2_GroupBy_Having_Count(isAsync);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -64,9 +64,9 @@ GROUP BY [l1].[Level3_Name]
 HAVING MIN(COALESCE([l1].[Id], 0)) > 0");
         }
 
-        public override async Task Simple_owned_level1_level2_level3(bool isAsync)
+        public override async Task Simple_level1_level2_level3_include(bool isAsync)
         {
-            await base.Simple_owned_level1_level2_level3(isAsync);
+            await base.Simple_level1_level2_level3_include(isAsync);
 
             AssertSql(
                 @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[Id], [l1].[Level3_Optional_Id], [l1].[Level3_Required_Id], [l1].[Level4_Name], [l1].[OneToMany_Optional_Inverse4Id], [l1].[OneToMany_Required_Inverse4Id], [l1].[OneToOne_Optional_PK_Inverse4Id]
@@ -155,8 +155,5 @@ ORDER BY [t].[Id]");
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
     }
 }

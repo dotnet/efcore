@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 _ => { },
-                modelBuilder => { modelBuilder.Query<TestQueryType>(); },
-                result => { Assert.Equal(0, result.Count); });
+                modelBuilder => modelBuilder.Query<TestQueryType>(),
+                result => Assert.Equal(0, result.Count));
         }
 
         [Fact]
@@ -44,13 +44,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id"); });
+                        x => x.Property<short>("Id"));
                 },
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id").HasConversion<int>(); });
+                        x => x.Property<short>("Id").HasConversion<int>());
                 },
                 upOps => Assert.Collection(
                     upOps,
@@ -81,13 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id"); });
+                        x => x.Property<short>("Id"));
                 },
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v); });
+                        x => x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v));
                 },
                 upOps => Assert.Collection(
                     upOps,
@@ -118,13 +118,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id").HasConversion<int>(); });
+                        x => x.Property<short>("Id").HasConversion<int>());
                 },
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
                         "Cat",
-                        x => { x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v); });
+                        x => x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v));
                 },
                 upOps => Assert.Collection(
                     upOps,
@@ -955,7 +955,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 });
                         });
                 },
-                operations => { Assert.Equal(0, operations.Count); });
+                operations => Assert.Equal(0, operations.Count));
         }
 
         [Fact]
@@ -1595,8 +1595,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var targetModelBuilder = CreateModelBuilder();
             targetModelBuilder.Entity<Crab>();
 
-            // NB: Call Validate() so ModelBuilt conventions are applied.
-            targetModelBuilder.GetInfrastructure().Metadata.Validate();
+            targetModelBuilder.FinalizeModel();
 
             var modelDiffer = RelationalTestHelpers.Instance.CreateContextServices()
                 .GetRequiredService<IMigrationsModelDiffer>();
@@ -1634,7 +1633,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasValueGenerator<CustomValueGenerator>();
                     }),
-                operations => { Assert.Equal(0, operations.Count); });
+                operations => Assert.Equal(0, operations.Count));
         }
 
         [Fact]
@@ -1656,7 +1655,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<string>("Name");
                     }),
-                operations => { Assert.Equal(0, operations.Count); });
+                operations => Assert.Equal(0, operations.Count));
         }
 
         private class CustomValueGenerator : ValueGenerator<string>
@@ -2370,10 +2369,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 source => source.Entity(
                     "Raven",
-                    x => { x.HasKey("Id", "RavenId"); }),
+                    x => x.HasKey("Id", "RavenId")),
                 target => target.Entity(
                     "Raven",
-                    x => { x.HasKey("RavenId", "Id"); }),
+                    x => x.HasKey("RavenId", "Id")),
                 operations =>
                 {
                     Assert.Equal(2, operations.Count);
@@ -4811,7 +4810,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
                         });
                 },
-                operations => { Assert.Equal(0, operations.Count); });
+                operations => Assert.Equal(0, operations.Count));
         }
 
         [Fact]
@@ -6316,7 +6315,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
-                    x => { x.Property<int>("Id"); }),
+                    x => x.Property<int>("Id")),
                 source => source.Entity(
                     "EntityWithOneProperty",
                     x =>
@@ -6352,7 +6351,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
-                    x => { x.Property<int>("Id"); }),
+                    x => x.Property<int>("Id")),
                 source => source.Entity(
                     "EntityWithOneProperty",
                     x =>
@@ -6391,7 +6390,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
-                    x => { x.Property<int>("Value1"); }),
+                    x => x.Property<int>("Value1")),
                 source => source.Entity(
                     "EntityWithOneProperty",
                     x =>
@@ -6457,7 +6456,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("EntityWithEnumProperty", operation.Table);
                         Assert.Equal("schema", operation.Schema);
                         Assert.Equal(typeof(string), operation.ClrType);
-                        Assert.Equal(SomeEnum.Default.ToString(), operation.DefaultValue);
+                        Assert.Equal(nameof(SomeEnum.Default), operation.DefaultValue);
                     },
                     o =>
                     {
@@ -6469,7 +6468,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(1, v));
                         AssertMultidimensionalArray(
                             m.Values,
-                            v => Assert.Equal(SomeEnum.NonDefault.ToString(), v));
+                            v => Assert.Equal(nameof(SomeEnum.NonDefault), v));
                     }),
                 downOps => Assert.Collection(
                     downOps,
@@ -6704,6 +6703,182 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(0, v),
                             v => Assert.Equal("", v));
                     }));
+        }
+
+        [Fact]
+        public void SeedData_with_timestamp_column()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTimeStamp",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Value");
+                        x.Property<int>("DefaultValue").HasDefaultValue(42);
+                        x.Property<int>("DefaultValueSql").HasDefaultValueSql("1");
+                        x.Property<int>("ComputedValueSql").HasComputedColumnSql("5");
+                        x.Property<byte[]>("TimeStamp").IsRowVersion();
+                        x.HasData(
+                            new
+                            {
+                                Id = 11,
+                                Value = "Value"
+                            }, //Modified
+                            new
+                            {
+                                Id = 12,
+                                Value = "Value",
+                                DefaultValue = 5,
+                                DefaultValueSql = 5,
+                                ComputedValueSql = 5
+                            }, //Modified
+                            new
+                            {
+                                Id = 21,
+                                Value = "Deleted"
+                            }); //Deleted
+                    }),
+                target => target.Entity(
+                    "EntityWithTimeStamp",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Value");
+                        x.Property<int>("DefaultValue").HasDefaultValue(42);
+                        x.Property<int>("DefaultValueSql").HasDefaultValueSql("1");
+                        x.Property<int>("ComputedValueSql").HasComputedColumnSql("5");
+                        x.Property<byte[]>("TimeStamp").IsRowVersion();
+                        x.HasData(
+                            new
+                            {
+                                Id = 11,
+                                Value = "Modified"
+                            }, //Modified
+                            new
+                            {
+                                Id = 12,
+                                Value = "Modified",
+                                DefaultValue = 6,
+                                DefaultValueSql = 6,
+                                ComputedValueSql = 5
+                            }, //Modified
+                            new
+                            {
+                                Id = 31,
+                                Value = "Added"
+                            }, //Added
+                            new
+                            {
+                                Id = 32,
+                                Value = "DefaultValuesProvided",
+                                DefaultValue = 42,
+                                DefaultValueSql = 42,
+                                ComputedValueSql = 42
+                            }); //Added
+                    }),
+                upOps =>
+                {
+                    Assert.Collection(
+                        upOps,
+                        o =>
+                        {
+                            var m = Assert.IsType<DeleteDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(21, v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(11, v));
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal("Modified", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(12, v));
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(6, v),
+                                v => Assert.Equal(6, v),
+                                v => Assert.Equal("Modified", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<InsertDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(31, v),
+                                v => Assert.Equal("Added", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<InsertDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(32, v),
+                                v => Assert.Equal(42, v),
+                                v => Assert.Equal(42, v),
+                                v => Assert.Equal("DefaultValuesProvided", v));
+                        });
+                },
+                downOps =>
+                {
+                    Assert.Collection(
+                        downOps,
+                        o =>
+                        {
+                            var m = Assert.IsType<DeleteDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(31, v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<DeleteDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(32, v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(11, v));
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal("Value", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.KeyValues,
+                                v => Assert.Equal(12, v));
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(5, v),
+                                v => Assert.Equal(5, v),
+                                v => Assert.Equal("Value", v));
+                        },
+                        o =>
+                        {
+                            var m = Assert.IsType<InsertDataOperation>(o);
+                            AssertMultidimensionalArray(
+                                m.Values,
+                                v => Assert.Equal(21, v),
+                                v => Assert.Equal("Deleted", v));
+                        });
+                });
         }
 
         [Fact]
@@ -7345,7 +7520,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 common => common
-                    .Entity<OldOrder>(x => { x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id"); })
+                    .Entity<OldOrder>(x => x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id"))
                     .Entity<Address>().ToTable("OldOrder"),
                 source => source
                     .Entity<OldOrder>(x => { })
