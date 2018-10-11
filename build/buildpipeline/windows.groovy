@@ -8,6 +8,8 @@ simpleNode('Windows_NT','latest') {
     }
     stage ('Build') {
         def environment = 'set Test__SqlServer__DefaultConnection: Server=(local)\\SQL2016;Database=master;User ID=sa;Password=Password12! & set Test__SqlServer__SupportsMemoryOptimized: true'
-        bat "${environment} & .\\run.cmd -CI default-build"
+        bat "${environment} & .\\build.cmd -ci -verbose"
+        archiveArtifacts allowEmptyArchive: true, artifacts: "artifacts/**/*", onlyIfSuccessful: false
+        mstest testResultsFile:"artifacts/**/*.trx", keepLongStdio: true, skipIfNoTestFiles: true
     }
 }

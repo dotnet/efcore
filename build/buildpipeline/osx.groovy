@@ -6,5 +6,7 @@ simpleNode('OSX10.12','latest') {
     }
     stage ('Build') {
         sh './build.sh --ci'
+        archiveArtifacts allowEmptyArchive: true, artifacts: "artifacts/**/*", onlyIfSuccessful: false
+        mstest testResultsFile:"artifacts/**/*.trx", keepLongStdio: true, skipIfNoTestFiles: true
     }
 }
