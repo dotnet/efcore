@@ -11,7 +11,7 @@ simpleNode('Ubuntu16.04', 'latest-or-auto-docker') {
     }
     finally {
         archiveArtifacts allowEmptyArchive: true, artifacts: "artifacts/**/*", onlyIfSuccessful: false
-        xunit {
+        archiveXUnit {
             mstest pattern:"artifacts/**/*.trx", skipIfNoTestFiles: true
         }
     }

@@ -14,7 +14,7 @@ simpleNode('Windows_NT','latest') {
     }
     finally {
         archiveArtifacts allowEmptyArchive: true, artifacts: "artifacts/**/*", onlyIfSuccessful: false
-        xunit {
+        archiveXUnit {
             mstest pattern:"artifacts/**/*.trx", skipIfNoTestFiles: true
         }
     }
