@@ -297,6 +297,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact] // See issue #12771
+        public virtual void Can_convert_manually_build_expression_with_default()
+        {
+            using (var context = CreateContext())
+            {
+                var parameter = Expression.Parameter(typeof(Customer));
+                var defaultExpression =
+                    Expression.Lambda<Func<Customer, bool>>(
+                        Expression.NotEqual(
+                            Expression.Property(
+                                parameter,
+                                "CustomerID"),
+                            Expression.Default(typeof(string))),
+                        parameter);
+
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                context.Set<Customer>().Where(defaultExpression).Count();
+
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                context.Set<Customer>().Count(defaultExpression);
+            }
+        }
+
         // ReSharper disable once ClassNeverInstantiated.Local
         private static class InMemoryCheck
         {
