@@ -720,11 +720,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             throw new InvalidOperationException(DesignStrings.UnknownLiteral(literalType));
         }
 
-        private bool HandleExpression(Expression expression, StringBuilder builder)
+        private bool HandleExpression(Expression expression, StringBuilder builder, bool simple = false)
         {
             // Only handle trivially simple cases for `new` and factory methods
             switch (expression.NodeType)
             {
+                case ExpressionType.NewArrayInit:
+                    builder
+                        .Append("new ")
+                        .Append(Reference(expression.Type.GetElementType()))
+                        .Append("[] { ");
+
+                    HandleList(((NewArrayExpression)expression).Expressions, builder, simple: true);
+
+                    builder
+                        .Append(" }");
+
+                    return true;
                 case ExpressionType.Convert:
                     builder
                         .Append('(')
@@ -761,10 +773,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     return HandleArguments(callExpression.Arguments, builder);
                 }
                 case ExpressionType.Constant:
-                    builder
-                        .Append(UnknownLiteral(((ConstantExpression)expression).Value));
+                {
+                    var value = ((ConstantExpression)expression).Value;
 
+                    builder
+                        .Append(
+                            simple
+                            && value?.GetType()?.IsNumeric() == true
+                                ? value
+                                : UnknownLiteral(value));
                     return true;
+                }
             }
 
             return false;
@@ -774,20 +793,30 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             builder.Append('(');
 
+            if (!HandleList(argumentExpressions, builder))
+            {
+                return false;
+            }
+
+            builder.Append(')');
+
+            return true;
+        }
+
+        private bool HandleList(IEnumerable<Expression> argumentExpressions, StringBuilder builder, bool simple = false)
+        {
             var separator = string.Empty;
             foreach (var expression in argumentExpressions)
             {
                 builder.Append(separator);
 
-                if (!HandleExpression(expression, builder))
+                if (!HandleExpression(expression, builder, simple))
                 {
                     return false;
                 }
 
                 separator = ", ";
             }
-
-            builder.Append(')');
 
             return true;
         }
