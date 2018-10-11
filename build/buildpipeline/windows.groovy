@@ -9,7 +9,7 @@ simpleNode('Windows_NT','latest') {
     try {
         stage ('Build') {
             def environment = 'set Test__SqlServer__DefaultConnection: Server=(local)\\SQL2016;Database=master;User ID=sa;Password=Password12! & set Test__SqlServer__SupportsMemoryOptimized: true'
-            bat "${environment} & .\\build.cmd -ci -verbose"
+            bat "${environment} & .\\build.cmd -ci /bl:artifacts/logs/msbuild.binlog"
         }
     }
     finally {
