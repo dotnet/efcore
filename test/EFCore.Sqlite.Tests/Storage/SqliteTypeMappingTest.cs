@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("decimal(10,4)", typeof(string))]
         [InlineData("boolean", typeof(string))]
         [InlineData("unknown_type", typeof(string))]
+        [InlineData("", typeof(string))]
         public void It_maps_strings_to_not_null_types(string typeName, Type clrType)
         {
             Assert.Equal(clrType, CreateTypeMapper().FindMapping(typeName).ClrType);
