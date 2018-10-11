@@ -104,11 +104,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         protected override Type WKTReaderType
             => typeof(WKTReader);
 
-        private static SqlServerSpatialReader CreateReader(IGeometryServices services, bool isGeography)
-            => new SqlServerSpatialReader(services) { IsGeography = isGeography };
+        private static SqlServerBytesReader CreateReader(IGeometryServices services, bool isGeography)
+            => new SqlServerBytesReader(services) { IsGeography = isGeography };
 
-        private static SqlServerSpatialWriter CreateWriter(bool isGeography)
-            => new SqlServerSpatialWriter { IsGeography = isGeography };
+        private static SqlServerBytesWriter CreateWriter(bool isGeography)
+            => new SqlServerBytesWriter { IsGeography = isGeography };
 
         private static bool IsGeography(string storeType)
             => string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);

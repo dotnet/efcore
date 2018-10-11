@@ -120,13 +120,4 @@
   <data name="NTSServicesMissing" xml:space="preserve">
     <value>UseNetTopologySuite requires AddEntityFrameworkSqlServerNetTopologySuite to be called on the internal service provider used.</value>
   </data>
-  <data name="UnexpectedEndOfStream" xml:space="preserve">
-    <value>The GEOGRAPHY structure received is incomplete and cannot be read.</value>
-  </data>
-  <data name="UnexpectedGeographyType" xml:space="preserve">
-    <value>Unsupported type: {type}</value>
-  </data>
-  <data name="UnexpectedGeographyVersion" xml:space="preserve">
-    <value>Version {version} of the GEOGRAPHY structure received. This version isn't supported.</value>
-  </data>
 </root>

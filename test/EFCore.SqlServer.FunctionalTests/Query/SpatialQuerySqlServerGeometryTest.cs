@@ -53,6 +53,7 @@ FROM [PointEntity] AS [e]");
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Buffer(bool isAsync)
         {
             await base.Buffer(isAsync);
@@ -82,6 +83,7 @@ SELECT [e].[Id], [e].[Polygon].STContains(@__point_0) AS [Contains]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task ConvexHull(bool isAsync)
         {
             await base.ConvexHull(isAsync);
@@ -121,6 +123,7 @@ SELECT [e].[Id], [e].[LineString].STCrosses(@__lineString_0) AS [Crosses]
 FROM [LineStringEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Difference(bool isAsync)
         {
             await base.Difference(isAsync);
@@ -174,6 +177,7 @@ FROM [PointEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Envelope(bool isAsync)
         {
             await base.Envelope(isAsync);
@@ -251,6 +255,7 @@ FROM [LineStringEntity] AS [e]");
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Intersection(bool isAsync)
         {
             await base.Intersection(isAsync);
@@ -467,6 +472,7 @@ FROM [PointEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task SymmetricDifference(bool isAsync)
         {
             await base.SymmetricDifference(isAsync);
@@ -508,6 +514,7 @@ SELECT [e].[Id], [e].[Polygon].STTouches(@__polygon_0) AS [Touches]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Union(bool isAsync)
         {
             await base.Union(isAsync);
