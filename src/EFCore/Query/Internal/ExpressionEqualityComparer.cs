@@ -423,10 +423,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return CompareListInit((ListInitExpression)a, (ListInitExpression)b);
                     case ExpressionType.Extension:
                         return CompareExtension(a, b);
+                    case ExpressionType.Default:
+                        return CompareDefault((DefaultExpression)a, (DefaultExpression)b);    
                     default:
                         throw new NotImplementedException();
                 }
             }
+
+            private bool CompareDefault(DefaultExpression a, DefaultExpression b)
+                => a.Type == b.Type;
 
             private bool CompareUnary(UnaryExpression a, UnaryExpression b)
                 => Equals(a.Method, b.Method)
