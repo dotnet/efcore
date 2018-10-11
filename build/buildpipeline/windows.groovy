@@ -10,6 +10,8 @@ simpleNode('Windows_NT','latest') {
         def environment = 'set Test__SqlServer__DefaultConnection: Server=(local)\\SQL2016;Database=master;User ID=sa;Password=Password12! & set Test__SqlServer__SupportsMemoryOptimized: true'
         bat "${environment} & .\\build.cmd -ci -verbose"
         archiveArtifacts allowEmptyArchive: true, artifacts: "artifacts/**/*", onlyIfSuccessful: false
-        mstest testResultsFile:"artifacts/**/*.trx", keepLongStdio: true, skipIfNoTestFiles: true
+        archiveXUnit {
+            mstest pattern:"artifacts/**/*.trx", skipIfNoTestFiles: true
+        }
     }
 }
