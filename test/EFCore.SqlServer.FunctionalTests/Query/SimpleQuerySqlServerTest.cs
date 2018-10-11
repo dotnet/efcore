@@ -36,6 +36,20 @@ FROM [Customers] AS [e]
 WHERE [e].[CustomerID] = N'ALFKI'");
         }
 
+        public override void Can_convert_manually_build_expression_with_default()
+        {
+            base.Can_convert_manually_build_expression_with_default();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IS NOT NULL",
+                //
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IS NOT NULL");
+        }
+
         public override void Lifting_when_subquery_nested_order_by_anonymous()
         {
             base.Lifting_when_subquery_nested_order_by_anonymous();
