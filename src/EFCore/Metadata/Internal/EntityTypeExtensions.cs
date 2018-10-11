@@ -534,6 +534,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static IEnumerable<Navigation> GetDerivedNavigations([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDerivedNavigations();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEnumerable<Navigation> GetDerivedNavigationsInclusive([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDerivedNavigationsInclusive();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         // Issue#11266 This method is being used by provider code. Do not break.
         public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().GetDeclaredProperties();

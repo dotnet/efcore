@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             var response = (HttpWebResponse)request.GetResponse();
 
-            return response.StatusCode == HttpStatusCode.OK;
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
         public Task<bool> CreateDocumentAsync(
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 throw new HttpException(response);
             }
 
-            return response.StatusCode == HttpStatusCode.OK;
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
         public bool ReplaceDocument(

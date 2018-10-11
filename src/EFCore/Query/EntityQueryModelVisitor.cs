@@ -606,8 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 else
                 {
                     var subqueryExpression
-                        = (queryModel.SelectClause.Selector
-                            .TryGetReferencedQuerySource() as MainFromClause)?.FromExpression as SubQueryExpression;
+                        = (outputExpression.TryGetReferencedQuerySource() as MainFromClause)?.FromExpression as SubQueryExpression;
 
                     var nestedGroupResultOperator
                         = subqueryExpression?.QueryModel?.ResultOperators

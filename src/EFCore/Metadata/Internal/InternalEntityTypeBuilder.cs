@@ -2289,25 +2289,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool RemoveNonOwnershipRelationships(ConfigurationSource configurationSource)
+        public virtual bool RemoveNonOwnershipRelationships(ForeignKey ownership, ConfigurationSource configurationSource)
         {
-            var referencingRelationships = Metadata.GetDerivedForeignKeysInclusive()
-                .Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null)
+            var incompatibleRelationships = Metadata.GetDerivedForeignKeysInclusive()
+                .Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null
+                    && !Contains(ownership, fk))
                 .Concat(Metadata.GetDerivedReferencingForeignKeysInclusive()
-                    .Where(fk => !fk.IsOwnership)).ToList();
+                    .Where(fk => !fk.IsOwnership
+                        && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
+                .Distinct()
+                .ToList();
 
-            if (referencingRelationships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
+            if (incompatibleRelationships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
             {
                 return false;
             }
 
-            foreach (var foreignKey in referencingRelationships)
+            foreach (var foreignKey in incompatibleRelationships)
             {
                 foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
             }
 
             return true;
         }
+
+        private bool Contains(IForeignKey inheritedFk, IForeignKey derivedFk)
+            => inheritedFk != null
+                && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
+                && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

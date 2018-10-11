@@ -20,7 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public readonly struct MaterializationContext
     {
-        internal static readonly MethodInfo GetValueBufferMethod
+        /// <summary>
+        ///     The <see cref="MethodInfo"/> for the <see cref="ValueBuffer"/> get method.
+        /// </summary>
+        public static readonly MethodInfo GetValueBufferMethod
             = typeof(MaterializationContext).GetProperty(nameof(ValueBuffer)).GetMethod;
 
         internal static readonly PropertyInfo ContextProperty

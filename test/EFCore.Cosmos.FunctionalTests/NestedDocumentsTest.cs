@@ -1,10 +1,11 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,21 +13,106 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-// ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public abstract class TableSplittingTestBase
+    public class NestedDocumentsTest
     {
-        protected TableSplittingTestBase(ITestOutputHelper testOutputHelper)
+        public NestedDocumentsTest(ITestOutputHelper testOutputHelper)
         {
             TestSqlLoggerFactory = (TestSqlLoggerFactory)TestStoreFactory.CreateListLoggerFactory(_ => true);
             //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [Fact]
-        public virtual void Can_update_just_dependents()
+        // #13579
+        // [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Can_update_dependents(bool useNesting)
         {
-            using (CreateTestStore(OnModelCreating))
+            using (CreateTestStore(modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+
+                    if (!useNesting)
+                    {
+                        RemoveNesting(modelBuilder);
+                    }
+                }))
+            {
+                Operator firstOperator;
+                Engine firstEngine;
+                using (var context = CreateContext())
+                {
+                    firstOperator = context.Set<Vehicle>().Select(v => v.Operator).OrderBy(o => o.VehicleName).First();
+                    firstOperator.Name += "1";
+                    firstEngine = context.Set<PoweredVehicle>().Select(v => v.Engine).OrderBy(o => o.VehicleName).First();
+                    firstEngine.Description += "1";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    Assert.Equal(firstOperator.Name,
+                        context.Set<Vehicle>().Select(v => v.Operator).OrderBy(o => o.VehicleName).First().Name);
+                    Assert.Equal(firstEngine.Description,
+                        context.Set<PoweredVehicle>().Select(v => v.Engine).OrderBy(o => o.VehicleName).First().Description);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Can_update_owner_with_dependents(bool useNesting)
+        {
+            using (CreateTestStore(modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+
+                    if (!useNesting)
+                    {
+                        RemoveNesting(modelBuilder);
+                    }
+                }))
+            {
+                Operator firstOperator;
+                Engine firstEngine;
+                using (var context = CreateContext())
+                {
+                    firstOperator = context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator;
+                    firstOperator.Name += "1";
+                    firstEngine = context.Set<PoweredVehicle>().OrderBy(o => o.Engine.VehicleName).First().Engine;
+                    firstEngine.Description += "1";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    Assert.Equal(firstOperator.Name,
+                        context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator.Name);
+                    Assert.Equal(firstEngine.Description,
+                        context.Set<PoweredVehicle>().OrderBy(o => o.Engine.VehicleName).First().Engine.Description);
+                }
+            }
+        }
+
+        // #13559
+        //[Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Can_update_just_dependents(bool useNesting)
+        {
+            using (CreateTestStore(modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+
+                    if (!useNesting)
+                    {
+                        RemoveNesting(modelBuilder);
+                    }
+                }))
             {
                 Operator firstOperator;
                 Engine firstEngine;
@@ -49,19 +135,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Can_query_shared()
+        public virtual void Quering_nested_entity_directly_throws()
         {
             using (CreateTestStore(OnModelCreating))
             {
                 using (var context = CreateContext())
                 {
-                    Assert.Equal(5, context.Set<Operator>().ToList().Count);
+                    Assert.Equal(CosmosStrings.QueryRootNestedEntityType(nameof(Operator), nameof(Vehicle)),
+                        Assert.Throws<InvalidOperationException>(() => context.Set<Operator>().ToList()).Message);
                 }
             }
         }
 
-        [Fact]
-        public virtual void Can_query_shared_derived_hierarchy()
+        // #13559
+        //[Fact]
+        public virtual void Can_query_nested_derived_hierarchy()
         {
             using (CreateTestStore(OnModelCreating))
             {
@@ -72,8 +160,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Can_query_shared_derived_nonhierarchy()
+        // #13559
+        //[Fact]
+        public virtual void Can_query_nested_derived_nonhierarchy()
         {
             using (CreateTestStore(
                 modelBuilder =>
@@ -90,33 +179,31 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Can_use_with_redundant_relationships()
+        public virtual void Can_roundtrip()
+        {
+            Test_roundtrip(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<FuelTank>(eb => eb.Ignore(e => e.Vehicle));
+                });
+        }
+
+        [Fact]
+        public virtual void Can_roundtrip_with_redundant_relationships()
         {
             Test_roundtrip(OnModelCreating);
         }
 
-        // #9005
-        // [Fact]
-        public virtual void Can_use_with_chained_relationships()
+        [Fact]
+        public virtual void Can_roundtrip_with_fanned_relationships()
         {
             Test_roundtrip(
                 modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
-                    //modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
-                });
-        }
-
-        // #9005
-        // [Fact]
-        public virtual void Can_use_with_fanned_relationships()
-        {
-            Test_roundtrip(
-                modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<FuelTank>(eb => eb.Ignore(e => e.Engine));
-                    modelBuilder.Entity<CombustionEngine>(eb => eb.Ignore(e => e.FuelTank));
+                    modelBuilder.Entity<SolidFuelTank>(eb => eb.Ignore(e => e.Rocket));
+                    modelBuilder.Entity<SolidRocket>(eb => eb.Ignore(e => e.SolidFuelTank));
                 });
         }
 
@@ -132,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Inserting_dependent_with_just_one_parent_throws()
+        public virtual void Inserting_dependent_without_principal_throws()
         {
             using (CreateTestStore(OnModelCreating))
             {
@@ -158,25 +245,25 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                     Assert.Equal(
-                        RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                            nameof(PoweredVehicle), "Vehicles", nameof(Engine), "{Name: Fuel transport}", "Added"),
+                        CosmosStrings.OrphanedNestedDocumentSensitive(
+                            nameof(FuelTank), nameof(CombustionEngine), "{VehicleName: Fuel transport}"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
         }
 
         [Fact]
-        public virtual void Can_change_dependent_instance_non_derived()
+        public virtual void Can_change_nested_instance_non_derived()
         {
             using (CreateTestStore(
                 modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<Engine>().ToTable("Engines");
+                    modelBuilder.Entity<Engine>().ToContainer("TransportationContext");
                     modelBuilder.Entity<FuelTank>(
                         eb =>
                         {
-                            eb.ToTable("FuelTanks");
+                            eb.ToContainer("TransportationContext");
                             eb.HasOne(e => e.Engine)
                                 .WithOne(e => e.FuelTank)
                                 .HasForeignKey<FuelTank>(e => e.VehicleName)
@@ -188,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = CreateContext())
                 {
-                    var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
+                    var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
                     bike.Operator = new Operator
                     {
@@ -209,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = CreateContext())
                 {
-                    var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
+                    var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
                     Assert.Equal("repairman", bike.Operator.Name);
 
                     Assert.Equal("Repair", ((LicensedOperator)bike.Operator).LicenseType);
@@ -224,11 +311,11 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<Engine>().ToTable("Engines");
+                    modelBuilder.Entity<Engine>().ToContainer("TransportationContext");
                     modelBuilder.Entity<FuelTank>(
                         eb =>
                         {
-                            eb.ToTable("FuelTanks");
+                            eb.ToContainer("TransportationContext");
                             eb.HasOne(e => e.Engine)
                                 .WithOne(e => e.FuelTank)
                                 .HasForeignKey<FuelTank>(e => e.VehicleName)
@@ -249,8 +336,8 @@ namespace Microsoft.EntityFrameworkCore
                         SeatingCapacity = 2
                     };
 
-                    context.Remove(bike);
-                    context.Add(newBike);
+                    var oldEntry = context.Remove(bike);
+                    var newEntry = context.Add(newBike);
 
                     TestSqlLoggerFactory.Clear();
                     context.SaveChanges();
@@ -258,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = CreateContext())
                 {
-                    var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
+                    var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
                     Assert.Equal(2, bike.SeatingCapacity);
                     Assert.NotNull(bike.Operator);
@@ -266,9 +353,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected readonly string DatabaseName = "TableSplittingTest";
+        protected readonly string DatabaseName = "NestedDocumentsTest";
         protected TestStore TestStore { get; set; }
-        protected abstract ITestStoreFactory TestStoreFactory { get; }
+        protected ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
         protected IServiceProvider ServiceProvider { get; set; }
         protected TestSqlLoggerFactory TestSqlLoggerFactory { get; }
 
@@ -281,16 +368,25 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Vehicle>(
-                eb =>
-                {
-                    eb.HasDiscriminator<string>("Discriminator");
-                    eb.Property<string>("Discriminator").HasColumnName("Discriminator");
-                    eb.ToTable("Vehicles");
-                });
+                eb => eb.OwnsOne(v => v.Operator));
 
-            modelBuilder.Entity<Engine>().ToTable("Vehicles");
-            modelBuilder.Entity<Operator>().ToTable("Vehicles");
-            modelBuilder.Entity<FuelTank>().ToTable("Vehicles");
+            modelBuilder.Entity<CombustionEngine>(
+                eb => eb.OwnsOne(v => v.FuelTank));
+
+            modelBuilder.Entity<PoweredVehicle>(
+                eb => eb.OwnsOne(v => v.Engine));
+        }
+
+        private static void RemoveNesting(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Vehicle>(
+                eb => eb.OwnsOne(v => v.Operator).ToContainer(nameof(TransportationContext)));
+
+            modelBuilder.Entity<CombustionEngine>(
+                eb => eb.OwnsOne(v => v.FuelTank).ToContainer(nameof(TransportationContext)));
+
+            modelBuilder.Entity<PoweredVehicle>(
+                eb => eb.OwnsOne(v => v.Engine).ToContainer(nameof(TransportationContext)));
         }
 
         protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating)

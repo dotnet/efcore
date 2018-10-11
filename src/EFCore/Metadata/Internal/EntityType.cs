@@ -2124,10 +2124,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #region Explicit interface implementations
 
-        IModel ITypeBase.Model => Model;
-        IMutableModel IMutableTypeBase.Model => Model;
-        IMutableModel IMutableEntityType.Model => Model;
-        IEntityType IEntityType.BaseType => _baseType;
+        IModel ITypeBase.Model
+        {
+            [DebuggerStepThrough]
+            get => Model;
+        }
+
+        IMutableModel IMutableTypeBase.Model
+        {
+            [DebuggerStepThrough]
+            get => Model;
+        }
+
+        IMutableModel IMutableEntityType.Model
+        {
+            [DebuggerStepThrough]
+            get => Model;
+        }
+
+        IEntityType IEntityType.BaseType
+        {
+            [DebuggerStepThrough]
+            get => _baseType;
+        }
 
         IMutableEntityType IMutableEntityType.BaseType
         {
