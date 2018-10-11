@@ -2,13 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.SqlTypes;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Microsoft.SqlServer.Types;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -199,11 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [Fact]
         public void Literal_works_when_MultidimensionalArray()
         {
-            var value = new object[,]
-            {
-                { 'A', 1 },
-                { 'B', 2 }
-            };
+            var value = new object[,] { { 'A', 1 }, { 'B', 2 } };
 
             var result = new CSharpHelper(TypeMappingSource).Literal(value);
 
@@ -522,6 +521,55 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     () => new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType())).Message);
         }
 
+        [Fact]
+        public virtual void Can_generate_SqlHierarchyId_literal()
+        {
+            var typeMapping = CreateTypeMappingSource(
+                new TestTypeMappingPlugin<FakeSqlHierarchyId>(
+                    SqlServerUdtTypeMapping.CreateSqlHierarchyIdMapping(
+                        typeof(FakeSqlHierarchyId)).LiteralGenerator));
+
+            Assert.Equal(
+                "Microsoft.SqlServer.Types.FakeSqlHierarchyId.Parse(new System.Data.SqlTypes.SqlString(\"/1/1/3/\"))",
+                new CSharpHelper(typeMapping).UnknownLiteral(
+                    FakeSqlHierarchyId.Parse(
+                        new SqlString("/1/1/3/"))));
+        }
+
+        [Fact]
+        public virtual void Can_generate_SqlGeometry_literal()
+        {
+            var typeMapping = CreateTypeMappingSource(
+                new TestTypeMappingPlugin<FakeSqlGeometry>(
+                    SqlServerUdtTypeMapping.CreateSqlSpatialMapping(
+                            typeof(FakeSqlGeometry),
+                            "geometry")
+                        .LiteralGenerator));
+
+            Assert.Equal(
+                "Microsoft.SqlServer.Types.FakeSqlGeometry.Deserialize(new System.Data.SqlTypes.SqlBytes(new byte[] { 0, 0, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64 }))",
+                new CSharpHelper(typeMapping).UnknownLiteral(
+                    FakeSqlGeometry.Deserialize(
+                        new SqlBytes(new byte[] { 0, 0, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64 }))));
+        }
+
+        [Fact]
+        public virtual void Can_generate_SqlGeography_literal()
+        {
+            var typeMapping = CreateTypeMappingSource(
+                new TestTypeMappingPlugin<FakeSqlGeography>(
+                    SqlServerUdtTypeMapping.CreateSqlSpatialMapping(
+                            typeof(FakeSqlGeography),
+                            "geography")
+                        .LiteralGenerator));
+
+            Assert.Equal(
+                "Microsoft.SqlServer.Types.FakeSqlGeography.Deserialize(new System.Data.SqlTypes.SqlBytes(new byte[] { 230, 16, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64 }))",
+                new CSharpHelper(typeMapping).UnknownLiteral(
+                    FakeSqlGeography.Deserialize(
+                        new SqlBytes(new byte[] { 230, 16, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64 }))));
+        }
+
         private IRelationalTypeMappingSource TypeMappingSource { get; } = CreateTypeMappingSource();
 
         private static SqlServerTypeMappingSource CreateTypeMappingSource<T>(
@@ -581,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         public SimpleTestType(string arg1)
-        : this(arg1, null)
+            : this(arg1, null)
         {
         }
 
@@ -633,5 +681,53 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
     internal class MultiGeneric<T1, T2>
     {
+    }
+}
+
+namespace Microsoft.SqlServer.Types
+{
+    // Has the same shape as Microsoft.SqlServer.Types.SqlHierarchyId for testing code gen
+    public class FakeSqlHierarchyId
+    {
+        private readonly SqlString _value;
+
+        private FakeSqlHierarchyId(SqlString value)
+            => _value = value;
+
+        public static FakeSqlHierarchyId Parse(SqlString input)
+            => new FakeSqlHierarchyId(input);
+
+        public override string ToString()
+            => _value.Value;
+    }
+
+    // Has the same shape as Microsoft.SqlServer.Types.SqlGeometry for testing code gen
+    public class FakeSqlGeometry
+    {
+        private readonly SqlBytes _value;
+
+        private FakeSqlGeometry(SqlBytes value)
+            => _value = value;
+
+        public static FakeSqlGeometry Deserialize(SqlBytes bytes)
+            => new FakeSqlGeometry(bytes);
+
+        public SqlBytes Serialize()
+            => _value;
+    }
+
+    // Has the same shape as Microsoft.SqlServer.Types.SqlGeometry for testing code gen
+    public class FakeSqlGeography
+    {
+        private readonly SqlBytes _value;
+
+        private FakeSqlGeography(SqlBytes value)
+            => _value = value;
+
+        public static FakeSqlGeography Deserialize(SqlBytes bytes)
+            => new FakeSqlGeography(bytes);
+
+        public SqlBytes Serialize()
+            => _value;
     }
 }

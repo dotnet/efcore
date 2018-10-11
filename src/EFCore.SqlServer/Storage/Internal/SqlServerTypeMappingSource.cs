@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -135,9 +136,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> _namedClrMappings
             = new Dictionary<string, Func<Type, RelationalTypeMapping>>(StringComparer.Ordinal)
             {
-                { "Microsoft.SqlServer.Types.SqlHierarchyId", t => new SqlServerUdtTypeMapping(t, "hierarchyid") },
-                { "Microsoft.SqlServer.Types.SqlGeography", t => new SqlServerUdtTypeMapping(t, "geography") },
-                { "Microsoft.SqlServer.Types.SqlGeometry", t => new SqlServerUdtTypeMapping(t, "geometry") }
+                {
+                    "Microsoft.SqlServer.Types.SqlHierarchyId",
+                    t => SqlServerUdtTypeMapping.CreateSqlHierarchyIdMapping(t)
+                },
+                {
+                    "Microsoft.SqlServer.Types.SqlGeography",
+                    t => SqlServerUdtTypeMapping.CreateSqlSpatialMapping(t, "geography")
+                },
+                {
+                    "Microsoft.SqlServer.Types.SqlGeometry",
+                    t => SqlServerUdtTypeMapping.CreateSqlSpatialMapping(t, "geometry")
+                }
             };
 
         /// <summary>
