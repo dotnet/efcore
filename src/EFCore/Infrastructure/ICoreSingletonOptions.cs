@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public interface ICoreSingletonOptions : ISingletonOptions
     {
         /// <summary>
-        ///     Reflects the option set by <see cref="DbContextOptionsBuilder.EnableRichDataErrorHandling" />.
+        ///     Reflects the option set by <see cref="DbContextOptionsBuilder.EnableDetailedErrors" />.
         /// </summary>
-        bool IsRichDataErrorHandingEnabled { get; }
+        bool AreDetailedErrorsEnabled { get; }
     }
 }

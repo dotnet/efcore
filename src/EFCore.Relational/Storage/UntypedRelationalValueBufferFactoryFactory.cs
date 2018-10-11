@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public override bool Equals(object obj)
                 => !(obj is null)
-                   && (obj is CacheKey
-                       && Equals((CacheKey)obj));
+                   && (obj is CacheKey cacheKey
+                       && Equals(cacheKey));
 
             private bool Equals(CacheKey other)
                 => TypeMaterializationInfo.SequenceEqual(other.TypeMaterializationInfo);

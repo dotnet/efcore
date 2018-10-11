@@ -92,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ITaskBlockingExpressionVisitor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemberAccessBindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(INavigationRewritingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IEagerLoadingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQuerySourceTracingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IProjectionExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -253,6 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityResultFindingExpressionVisitorFactory, EntityResultFindingExpressionVisitorFactory>();
             TryAdd<IMemberAccessBindingExpressionVisitorFactory, MemberAccessBindingExpressionVisitorFactory>();
             TryAdd<INavigationRewritingExpressionVisitorFactory, NavigationRewritingExpressionVisitorFactory>();
+            TryAdd<IEagerLoadingExpressionVisitorFactory, EagerLoadingExpressionVisitorFactory>();
             TryAdd<IQuerySourceTracingExpressionVisitorFactory, QuerySourceTracingExpressionVisitorFactory>();
             TryAdd<IRequiresMaterializationExpressionVisitorFactory, RequiresMaterializationExpressionVisitorFactory>();
             TryAdd<IExpressionPrinter, ExpressionPrinter>();

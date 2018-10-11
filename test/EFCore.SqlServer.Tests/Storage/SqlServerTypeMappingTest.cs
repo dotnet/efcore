@@ -269,7 +269,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(GetMapping("varchar(max)"), "Text", "'Text'");
         }
 
-
         public static RelationalTypeMapping GetMapping(string type)
             => new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

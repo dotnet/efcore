@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             IEntityType entityType,
             MaterializationContext c)
         {
-            var comparers = GetDeepComparers(entityType.GetProperties());
+            var comparers = GetStructuralComparers(entityType.GetProperties());
 
             var copy = new object[comparers.Count];
             for (var index = 0; index < comparers.Count; index++)
@@ -87,8 +87,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static object SnapshotValue(ValueComparer comparer, object value)
             => comparer == null ? value : comparer.Snapshot(value);
 
-        private static List<ValueComparer> GetDeepComparers(IEnumerable<IProperty> properties)
-            => properties.Select(p => p.GetDeepValueComparer() ?? p.FindMapping()?.DeepComparer).ToList();
+        private static List<ValueComparer> GetStructuralComparers(IEnumerable<IProperty> properties)
+            => properties.Select(p => p.GetStructuralValueComparer() ?? p.FindMapping()?.StructuralComparer).ToList();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -24,20 +23,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
         {
             var conventionSet = CreateConventionSet(conventionSetBuilder);
+            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator));
 
             var modelBuilder = new ModelBuilder(conventionSet);
-            var model = modelBuilder.GetInfrastructure().Metadata;
-            model.SetProductVersion(ProductInfo.GetVersion());
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
             _onModelCreating(modelBuilder, context);
 
-            model.Validate();
-
-            validator.Validate(model);
-
-            return model;
+            return modelBuilder.FinalizeModel();
         }
 
         public static Func<IServiceProvider, IModelSource> GetFactory(Action<ModelBuilder> onModelCreating)

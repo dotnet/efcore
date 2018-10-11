@@ -71,7 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public TypeMappingSourceDependencies With([NotNull] IValueConverterSelector valueConverterSelector)
             => new TypeMappingSourceDependencies(valueConverterSelector, Plugins);
 
-
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>

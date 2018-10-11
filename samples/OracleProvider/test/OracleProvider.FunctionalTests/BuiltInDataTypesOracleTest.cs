@@ -366,12 +366,12 @@ WHERE ""e"".""Time"" = :timeSpan_0",
             Assert.Equal(
                 @":p0='77'
 :p1='78'
-:p2='1' (Size = 1)
+:p2='1'
 :p3='Your' (Nullable = false) (Size = 2000)
 :p4='strong' (Nullable = false) (Size = 2000)
 :p5='2015-01-02T10:11:12' (DbType = Date)
 :p6='2019-01-02T14:11:12' (DbType = DateTime)
-:p7='01/02/2016 11:11:12 +00:00' (DbType = DateTime)
+:p7='2016-01-02T11:11:12' (DbType = DateTime)
 :p8='102.2'
 :p9='101.1'
 :p10='85.5'
@@ -486,11 +486,11 @@ WHERE ""e"".""Time"" = :timeSpan_0",
             Assert.Equal(
                 @":p0='77'
 :p1='78' (Nullable = true)
-:p2='1' (Nullable = true) (Size = 1)
+:p2='1' (Nullable = true)
 :p3='Your' (Size = 2000)
 :p4='strong' (Size = 2000)
 :p5='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
-:p6='01/02/2016 11:11:12 +00:00' (Nullable = true) (DbType = DateTime)
+:p6='2016-01-02T11:11:12' (Nullable = true) (DbType = DateTime)
 :p7='102.2' (Nullable = true)
 :p8='101.1' (Nullable = true)
 :p9='85.5' (Nullable = true)
@@ -601,7 +601,7 @@ WHERE ""e"".""Time"" = :timeSpan_0",
             Assert.Equal(
                 @":p0='78'
 :p1='' (DbType = Int64)
-:p2='' (Size = 1) (DbType = Int32)
+:p2='' (DbType = Int32)
 :p3='' (Size = 2000)
 :p4='' (Size = 2000)
 :p5='' (DbType = DateTime)
@@ -804,11 +804,11 @@ WHERE ""e"".""Time"" = :timeSpan_0",
             Assert.Equal(
                 @":p0='77'
 :p1='2017-01-02T12:11:12' (DbType = DateTime)
-:p2='01/02/2016 11:11:12 +00:00' (DbType = DateTime)
-:p3='102.2' (Size = 3)
-:p4='101.1' (Size = 3)
-:p5='83.3' (Size = 10)
-:p6='103.3' (Size = 3)",
+:p2='2016-01-02T11:11:12' (DbType = DateTime)
+:p3='102.2'
+:p4='101.1'
+:p5='83.3'
+:p6='103.3'",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -898,12 +898,12 @@ WHERE ""e"".""Time"" = :timeSpan_0",
             var parameters = DumpParameters();
             Assert.Equal(
                 @":p0='78'
-:p1='1' (Size = 1)
+:p1='1'
 :p2='Your' (Size = 2000)
 :p3='strong' (Size = 2000)
 :p4='2015-01-02T10:11:12' (DbType = Date)
 :p5='2019-01-02T14:11:12' (DbType = DateTime)
-:p6='01/02/2016 11:11:12 +00:00' (DbType = DateTime)
+:p6='2016-01-02T11:11:12' (DbType = DateTime)
 :p7='102.2'
 :p8='101.1'
 :p9='85.5'
@@ -1015,11 +1015,11 @@ cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
             var parameters = DumpParameters();
             Assert.Equal(
                 @":p0='78' (Nullable = true)
-:p1='1' (Nullable = true) (Size = 1)
+:p1='1' (Nullable = true)
 :p2='Your' (Size = 2000)
 :p3='strong' (Size = 2000)
 :p4='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
-:p5='01/02/2016 11:11:12 +00:00' (Nullable = true) (DbType = DateTime)
+:p5='2016-01-02T11:11:12' (Nullable = true) (DbType = DateTime)
 :p6='102.2' (Nullable = true)
 :p7='101.1' (Nullable = true)
 :p8='85.5' (Nullable = true)
@@ -1131,7 +1131,7 @@ cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
             var parameters = DumpParameters();
             Assert.Equal(
                 @":p0='' (DbType = Int64)
-:p1='' (Size = 1) (DbType = Int32)
+:p1='' (DbType = Int32)
 :p2='' (Size = 2000)
 :p3='' (Size = 2000)
 :p4='' (DbType = DateTime)
@@ -1337,13 +1337,13 @@ cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @":p0='2017-01-02T12:11:12' (Size = 3) (DbType = DateTime)
-:p1='01/02/2016 11:11:12 +00:00' (DbType = DateTime)
-:p2='102.2' (Size = 3)
-:p3='101.1' (Size = 3)
-:p4='83.3' (Size = 10)
+                @":p0='2017-01-02T12:11:12' (DbType = DateTime)
+:p1='2016-01-02T11:11:12' (DbType = DateTime)
+:p2='102.2'
+:p3='101.1'
+:p4='83.3'
 :p5='77'
-:p6='103.3' (Size = 3)
+:p6='103.3'
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -1914,6 +1914,8 @@ BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [NUMBER] [MaxLengt
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [NUMBER] [MaxLength = 22] [Precision = 19 [Precision = 19 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [NUMBER] [MaxLength = 22] [Precision = 20 [Precision = 20 Scale = 0]
 BuiltInNullableDataTypesShadow.TestString ---> [NVARCHAR2] [MaxLength = 4000]
+EmailTemplate.Id ---> [RAW] [MaxLength = 16]
+EmailTemplate.TemplateType ---> [NUMBER] [MaxLength = 22] [Precision = 10 [Precision = 10 Scale = 0]
 MappedDataTypes.Bigint ---> [NUMBER] [MaxLength = 22] [Precision = 19 [Precision = 19 Scale = 0]
 MappedDataTypes.Bit ---> [NUMBER] [MaxLength = 22] [Precision = 1 [Precision = 1 Scale = 0]
 MappedDataTypes.Char_varyingMax ---> [VARCHAR2] [MaxLength = 2000]
@@ -2232,9 +2234,9 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
 
                 MapPreciseColumnTypes<MappedPrecisionAndScaledDataTypes>(modelBuilder);
 
-                modelBuilder.Entity<MappedDataTypesWithIdentity>(b => { b.HasKey(e => e.Id); });
+                modelBuilder.Entity<MappedDataTypesWithIdentity>(b => b.HasKey(e => e.Id));
 
-                modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(b => { b.HasKey(e => e.Id); });
+                modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(b => b.HasKey(e => e.Id));
 
                 modelBuilder.Entity<MappedSizedDataTypesWithIdentity>()
                     .Property(e => e.Id);

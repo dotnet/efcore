@@ -95,5 +95,35 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return Task.CompletedTask;
         }
+
+        [ConditionalTheory(Skip = "issue #13560")]
+        public override Task Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(bool isAsync)
+        {
+            return base.Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "issue #13560")]
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(bool isAsync)
+        {
+            return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "issue #13560")]
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(bool isAsync)
+        {
+            return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "issue #13560")]
+        public override void SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany()
+        {
+            base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany();
+        }
+
+        [ConditionalTheory(Skip = "issue #13560")]
+        public override Task Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
+        {
+            return base.Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(isAsync);
+        }
     }
 }

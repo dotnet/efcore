@@ -90,11 +90,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var whereClause = collectionQueryModel.BodyClauses
                     .OfType<WhereClause>()
-                    .Single();
+                    .SingleOrDefault();
 
-                whereClause.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
+                if (whereClause != null)
+                {
+                    whereClause.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
 
-                collectionQueryModel.BodyClauses.Remove(whereClause);
+                    collectionQueryModel.BodyClauses.Remove(whereClause);
+                }
+                else
+                {
+                    collectionQueryModel.MainFromClause.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
+                }
 
                 var parentQuerySourceReferenceExpression
                     = querySourceReferenceFindingExpressionTreeVisitor.QuerySourceReferenceExpression;
@@ -503,15 +510,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     foreach (var ordering in orderByClause.Orderings)
                     {
                         int projectionIndex;
-                        var orderingExpression = ordering.Expression;
-                        if (ordering.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression)
-                        {
-                            orderingExpression = nullConditionalExpression.AccessOperation;
-                        }
+                        var orderingExpression = ordering.Expression.RemoveConvert().RemoveNullConditional().RemoveConvert();
 
                         QuerySourceReferenceExpression orderingExpressionQsre = null;
                         string orderingExpressionName = null;
-                        if (orderingExpression.RemoveConvert() is MemberExpression memberExpression
+                        if (orderingExpression is MemberExpression memberExpression
                             && memberExpression.Expression.RemoveConvert() is QuerySourceReferenceExpression memberQsre
                             && memberQsre.ReferencedQuerySource == querySource)
                         {
@@ -519,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             orderingExpressionName = memberExpression.Member.Name;
                         }
 
-                        if (orderingExpression.RemoveConvert() is MethodCallExpression methodCallExpression
+                        if (orderingExpression is MethodCallExpression methodCallExpression
                             && methodCallExpression.IsEFProperty()
                             && methodCallExpression.Arguments[0].RemoveConvert() is QuerySourceReferenceExpression methodCallQsre
                             && methodCallQsre.ReferencedQuerySource == querySource)

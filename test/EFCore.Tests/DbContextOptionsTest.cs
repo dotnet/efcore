@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void IsConfigured_returns_true_if_any_extensions_have_been_added()
+        public void IsConfigured_returns_true_if_any_provider_extensions_have_been_added()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
@@ -103,6 +103,18 @@ namespace Microsoft.EntityFrameworkCore
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new FakeDbContextOptionsExtension2());
 
             Assert.True(optionsBuilder.IsConfigured);
+        }
+
+        [Fact]
+        public void IsConfigured_returns_false_if_only_non_provider_extensions_have_been_added()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+
+            Assert.False(optionsBuilder.IsConfigured);
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new FakeDbContextOptionsExtension1());
+
+            Assert.False(optionsBuilder.IsConfigured);
         }
 
         private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
@@ -122,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            public virtual bool ApplyServices(IServiceCollection services) => false;
+            public virtual bool ApplyServices(IServiceCollection services) => true;
 
             public virtual long GetServiceProviderHashCode() => 0;
 
@@ -193,9 +205,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void EnableRichDataErrorHandling_on_generic_builder_returns_generic_builder()
+        public void EnableDetailedErrors_on_generic_builder_returns_generic_builder()
         {
-            GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableRichDataErrorHandling());
+            GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableDetailedErrors());
         }
 
         [Fact]

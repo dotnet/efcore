@@ -259,6 +259,20 @@ FROM [MultiLineStringEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        public override async Task IsWithinDistance(bool isAsync)
+        {
+            await base.IsWithinDistance(isAsync);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+
+SELECT [e].[Id], CASE
+    WHEN [e].[Point].STDistance(@__point_0) <= 1.0E0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END AS [IsWithinDistance]
+FROM [PointEntity] AS [e]");
+        }
+
         public override async Task Item(bool isAsync)
         {
             await base.Item(isAsync);
@@ -311,6 +325,27 @@ FROM [PolygonEntity] AS [e]");
             AssertSql(
                 @"SELECT [e].[Id], [e].[LineString].STNumPoints() AS [NumPoints]
 FROM [LineStringEntity] AS [e]");
+        }
+
+        public override async Task OgcGeometryType(bool isAsync)
+        {
+            await base.OgcGeometryType(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], CASE [e].[Point].STGeometryType()
+    WHEN N'Point' THEN 1
+    WHEN N'LineString' THEN 2
+    WHEN N'Polygon' THEN 3
+    WHEN N'MultiPoint' THEN 4
+    WHEN N'MultiLineString' THEN 5
+    WHEN N'MultiPolygon' THEN 6
+    WHEN N'GeometryCollection' THEN 7
+    WHEN N'CircularString' THEN 8
+    WHEN N'CompoundCurve' THEN 9
+    WHEN N'CurvePolygon' THEN 10
+    WHEN N'FullGlobe' THEN 126
+END AS [OgcGeometryType]
+FROM [PointEntity] AS [e]");
         }
 
         public override async Task Overlaps(bool isAsync)

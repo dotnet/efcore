@@ -135,6 +135,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddEntityType(queryType);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType AddQueryType(
+            [NotNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var queryType = new EntityType(name, this, configurationSource)
+            {
+                IsQueryType = true
+            };
+
+            return AddEntityType(queryType);
+        }
+
         private EntityType AddEntityType(EntityType entityType)
         {
             var entityTypeName = entityType.Name;

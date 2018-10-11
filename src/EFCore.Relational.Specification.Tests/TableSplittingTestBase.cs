@@ -115,8 +115,8 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Engine); });
-                    modelBuilder.Entity<CombustionEngine>(eb => { eb.Ignore(e => e.FuelTank); });
+                    modelBuilder.Entity<FuelTank>(eb => eb.Ignore(e => e.Engine));
+                    modelBuilder.Entity<CombustionEngine>(eb => eb.Ignore(e => e.FuelTank));
                 });
         }
 

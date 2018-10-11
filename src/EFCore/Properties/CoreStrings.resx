@@ -130,6 +130,9 @@
   <data name="StillUsingTypeMapper" xml:space="preserve">
     <value>The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.</value>
   </data>
+  <data name="LiteralGenerationNotSupported" xml:space="preserve">
+    <value>The type mapping for '{type}' has not implemented code literal generation.</value>
+  </data>
   <data name="InvalidPropertiesExpression" xml:space="preserve">
     <value>The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
   </data>
@@ -188,7 +191,7 @@
     <value>The source IQueryable doesn't implement IAsyncEnumerable&lt;{genericParameter}&gt;. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.</value>
   </data>
   <data name="IQueryableProviderNotAsync" xml:space="preserve">
-    <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.</value>
+    <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IAsyncQueryProvider can be used for Entity Framework asynchronous operations.</value>
   </data>
   <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
     <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy but does not implement the required '{notificationInterface}' interface.</value>
@@ -632,7 +635,7 @@
     <value>The block size used for Hi-Lo value generation must be positive. When the Hi-Lo generator is backed by a SQL sequence this means that the sequence increment must be positive.</value>
   </data>
   <data name="ValueGenWithConversion" xml:space="preserve">
-    <value>Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explict values instead.</value>
+    <value>Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.</value>
   </data>
   <data name="IntraHierarchicalAmbiguousTargetEntityType" xml:space="preserve">
     <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references entity type '{principalEntityType}' that it is in the same hierarchy as the entity type that it is declared on '{dependentEntityType}'.</value>
@@ -1101,7 +1104,7 @@
     <value>Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
   <data name="DerivedQueryTypeDefiningQuery" xml:space="preserve">
-    <value>The query type '{queryType}' cannot have a defining query bacause it is derived from '{baseType}'. Only base query types can have a defining query.</value>
+    <value>The query type '{queryType}' cannot have a defining query because it is derived from '{baseType}'. Only base query types can have a defining query.</value>
   </data>
   <data name="OwnerlessOwnedType" xml:space="preserve">
     <value>The owned entity type '{ownedType}' requires to be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}'.</value>

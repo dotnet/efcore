@@ -409,21 +409,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var key in dependentEntityType.GetKeys())
             {
-                var isContainedInForeignKey = true;
+                var isKeyContainedInForeignKey = true;
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < key.Properties.Count; i++)
                 {
                     if (!foreignKeyProperties.Contains(key.Properties[i]))
                     {
-                        isContainedInForeignKey = false;
+                        isKeyContainedInForeignKey = false;
                         break;
+                    }
+                    else
+                    {
+                        if (!foreignKey.IsUnique)
+                        {
+                            // Stop searching if match found, but is incompatible
+                            return true;
+                        }
                     }
                 }
 
-                if (isContainedInForeignKey
-                    && (!foreignKey.IsUnique
-                        || (key.IsPrimaryKey() && !matchPK)))
+                if (isKeyContainedInForeignKey
+                    && key.IsPrimaryKey()
+                    && !matchPK)
                 {
                     // Stop searching if match found, but is incompatible
                     return true;

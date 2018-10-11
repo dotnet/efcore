@@ -317,6 +317,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Fact]
+        public virtual void Query_with_OfType_eagerly_loads_correct_owned_navigations()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().OfType<LeafA>();
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.NotNull(result[0].BranchAddress);
+                Assert.NotNull(result[0].LeafAAddress);
+                Assert.NotNull(result[0].PersonAddress);
+                Assert.Equal(1, result[0].Orders.Count);
+            }
+        }
+
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
@@ -441,10 +457,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         new
                                         {
                                             OwnedAddressBranchId = 2,
+                                            PlanetId = 1,
                                             Name = "Canada"
                                         }, new
                                         {
                                             OwnedAddressBranchId = 3,
+                                            PlanetId = 1,
                                             Name = "Canada"
                                         });
                                 });
@@ -471,10 +489,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 ab.OwnsOne(a => a.Country, cb =>
                                 {
+                                    cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId).OnDelete(DeleteBehavior.Restrict);
+
                                     cb.HasData(
                                     new
                                     {
                                         OwnedAddressLeafAId = 3,
+                                        PlanetId = 1,
                                         Name = "Mexico"
                                     });
                                 });
@@ -501,25 +522,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 ab.OwnsOne(a => a.Country, cb =>
                                 {
+                                    cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId).OnDelete(DeleteBehavior.Restrict);
+
                                     cb.HasData(
                                     new
                                     {
                                         OwnedAddressLeafBId = 4,
+                                        PlanetId = 1,
                                         Name = "Panama"
                                     });
                                 });
                             });
                     });
 
-                modelBuilder.Entity<Planet>(pb =>
-                {
-                    pb.HasData(new Planet { Id = 1, StarId = 1 });
-                });
+                modelBuilder.Entity<Planet>(pb => pb.HasData(new Planet { Id = 1, StarId = 1 }));
 
-                modelBuilder.Entity<Moon>(mb =>
-                {
-                    mb.HasData(new Moon { Id = 1, PlanetId = 1, Diameter = 3474 });
-                });
+                modelBuilder.Entity<Moon>(mb => mb.HasData(new Moon { Id = 1, PlanetId = 1, Diameter = 3474 }));
 
                 modelBuilder.Entity<Star>(sb =>
                 {
@@ -552,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public string Name { get; set; }
 
-            public int? PlanetId { get; set; }
+            public int PlanetId { get; set; }
             public Planet Planet { get; set; }
         }
 

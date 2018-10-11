@@ -480,6 +480,45 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]) INCLUDE ([Name]);" + EOL,
                 Sql);
         }
+
+        [Fact]
+        public virtual void AlterColumnOperation_with_index_no_included()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity(
+                        "Person", x =>
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.Property<string>("FirstName");
+                            x.Property<string>("LastName");
+                            x.HasIndex("FirstName", "LastName");
+                        }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
+                    IsNullable = true,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = true
+                    }
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL,
+                Sql);
+        }
 #endif
 
         [Fact]

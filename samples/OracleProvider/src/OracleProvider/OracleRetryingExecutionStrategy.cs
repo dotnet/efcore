@@ -116,16 +116,5 @@ namespace Microsoft.EntityFrameworkCore
 
             return OracleTransientExceptionDetector.ShouldRetryOn(exception);
         }
-
-        protected override TimeSpan? GetNextDelay(Exception lastException)
-        {
-            var baseDelay = base.GetNextDelay(lastException);
-            if (baseDelay == null)
-            {
-                return null;
-            }
-
-            return baseDelay;
-        }
     }
 }

@@ -18,9 +18,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly RelationalTypeMapping _binary
             = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
 
-        private static readonly RelationalTypeMapping _binaryKey
-            = new ByteArrayTypeMapping("just_binary(900)", dbType: DbType.Binary, size: 900);
-
         private static readonly RelationalTypeMapping _rowversion
             = new ByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
 

@@ -106,9 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return entry[property];
             }
 
-            var found = _valueBuffers.TryGetValue(entity, out var boxedValueBuffer);
-
-            Debug.Assert(found);
+            _valueBuffers.TryGetValue(entity, out var boxedValueBuffer);
 
             var valueBuffer = (ValueBuffer)boxedValueBuffer;
 

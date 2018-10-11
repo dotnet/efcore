@@ -725,6 +725,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
         {
             var modelBuilder = TestHelpers.CreateConventionBuilder();
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
             buildAction(modelBuilder);
 
             var batch = TestHelpers.CreateContextServices().GetRequiredService<IMigrationsSqlGenerator>()

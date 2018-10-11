@@ -2403,7 +2403,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Ignore(e => e.NavOneToOneDependentEntityId);
                         b.Ignore(e => e.OneToOneDependentEntityId);
                     });
-                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.OneToOnePrincipalEntityId); });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => b.Ignore(e => e.OneToOnePrincipalEntityId));
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2429,7 +2429,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Ignore(e => e.NavOneToOneDependentEntityId);
                         b.Ignore(e => e.OneToOneDependentEntityId);
                     });
-                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.NavOneToOnePrincipalEntityId); });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => b.Ignore(e => e.NavOneToOnePrincipalEntityId));
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2449,8 +2449,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_properties_are_on_both_sides()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.NavOneToOneDependentEntityId); });
-                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.NavOneToOnePrincipalEntityId); });
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b => b.Ignore(e => e.NavOneToOneDependentEntityId));
+                modelBuilder.Entity<OneToOneDependentEntity>(b => b.Ignore(e => e.NavOneToOnePrincipalEntityId));
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2525,6 +2525,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Alpha.AnotherId), entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
             }
 
+            [Fact]
+            public virtual void Creates_shadow_fk_configuring_using_ForeignKeyAttribute()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<PrincipalShadowFk>().HasMany(e => e.Dependends).WithOne(e => e.Principal);
+
+                modelBuilder.Validate();
+
+                Assert.Equal("PrincipalShadowFkId",
+                    modelBuilder.Model.FindEntityType(typeof(DependentShadowFk)).GetForeignKeys().Single().Properties[0].Name);
+            }
+
             [Fact] // Issue #3376
             public virtual void Can_use_self_referencing_overlapping_FK_PK()
             {
@@ -2590,6 +2602,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                     AssertGraph(parent, child1, child2);
                 }
+            }
+
+            [Fact]
+            public virtual void Do_not_match_non_unique_FK_when_overlap_with_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CompositeChild>().HasKey(e => new { e.Id, e.Value });
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(CompositeChild)).GetForeignKeys().Single();
+                Assert.Equal("ParentId", fk.Properties[0].Name);
             }
 
             private static void AssertGraph(

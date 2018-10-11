@@ -1094,7 +1094,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 });
 
             builder.Entity<NotifyingWotty>(
-                b => { b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications); });
+                b => b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications));
 
             builder.Entity<FullyNotifyingWotty>(
                 b =>

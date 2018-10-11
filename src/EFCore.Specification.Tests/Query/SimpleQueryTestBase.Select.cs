@@ -11,6 +11,9 @@ using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable InconsistentNaming
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture>

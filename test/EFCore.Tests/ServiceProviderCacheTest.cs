@@ -156,19 +156,19 @@ namespace Microsoft.EntityFrameworkCore
                 var loggerFactory = new ListLoggerFactory();
 
                 var config1 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
-                    .EnableRichDataErrorHandling()
+                    .EnableDetailedErrors()
                     .EnableSensitiveDataLogging()
                     .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDelete))
                     .Options;
 
                 var config2 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
-                    .EnableRichDataErrorHandling()
+                    .EnableDetailedErrors()
                     .EnableSensitiveDataLogging()
                     .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDeleteOrphan))
                     .Options;
 
                 var config3 = new DbContextOptionsBuilder(CreateOptions<CoreOptionsExtension>(loggerFactory))
-                    .EnableRichDataErrorHandling()
+                    .EnableDetailedErrors()
                     .ConfigureWarnings(w => w.Throw(CoreEventId.CascadeDelete))
                     .Options;
 
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.LogServiceProviderDebugInfo.GenerateMessage(
                         string.Join(
                             ", ",
-                            CoreStrings.ServiceProviderConfigChanged("Core:EnableRichDataErrorHandling"),
+                            CoreStrings.ServiceProviderConfigChanged("Core:EnableDetailedErrors"),
                             CoreStrings.ServiceProviderConfigChanged("Core:ConfigureWarnings"))),
                     loggerFactory.Log[3].Message);
             }

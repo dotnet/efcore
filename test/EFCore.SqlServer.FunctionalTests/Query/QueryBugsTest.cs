@@ -2378,7 +2378,7 @@ WHERE [c].[Id] IN (
         {
             return CreateTestStore(
                 () => new MyContext8909(_options),
-                context => { ClearLog(); });
+                context => ClearLog());
         }
 
         public class MyContext8909 : DbContext
@@ -2713,7 +2713,7 @@ WHERE [w].[Val] = 1");
                     Assert.Equal(0, valueParam.Value);
 
                     var blogs = context.Blogs.FromSql(
-                            @"[dbo].[GetPersonAndVoteCount]  @id, @Value out",
+                            "[dbo].[GetPersonAndVoteCount]  @id, @Value out",
                             new SqlParameter
                             {
                                 ParameterName = "id",
@@ -2805,7 +2805,7 @@ BEGIN
                         .ToListAsync();
 
                     Assert.Equal(2, result.Count);
-                    Assert.Equal(true, result.All(r => r.Students.Any()));
+                    Assert.Equal(true, result.All(r => r.Students.Count > 0));
                 }
             }
         }
@@ -2823,7 +2823,7 @@ BEGIN
                         .ToListAsync();
 
                     Assert.Equal(2, result.Count);
-                    Assert.True(result.All(r => r.Students.Any()));
+                    Assert.True(result.All(r => r.Students.Count > 0));
                     Assert.Null(result.Single(t => t.Name == "Ms. Frizzle").Family);
                     Assert.NotNull(result.Single(t => t.Name == "Mr. Garrison").Family);
                 }
@@ -3835,7 +3835,7 @@ GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
                         .ToList();
 
                     AssertSql(
-                        @"");
+                        "");
                 }
             }
         }
@@ -3875,7 +3875,7 @@ GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
                         .ToList();
 
                     AssertSql(
-                        @"");
+                        "");
                 }
             }
         }
@@ -4655,7 +4655,6 @@ FROM [Prices] AS [e]");
                                      Name = e.Name,
                                      DeviceId = j.DeviceId
                                  }).ToList();
-
                 }
             }
         }
@@ -5153,7 +5152,7 @@ ORDER BY [t].[Id]");
                     Assert.Equal(4, query.Count);
 
                     AssertSql(
-                        @"SELECT o.Amount From Orders AS o");
+                        "SELECT o.Amount From Orders AS o");
                 }
             }
         }
@@ -5235,10 +5234,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
         {
             return CreateTestStore(
                 () => new MyContext13079(_options),
-                context =>
-                {
-                    ClearLog();
-                });
+                context => ClearLog());
         }
 
         public class MyContext13079 : DbContext

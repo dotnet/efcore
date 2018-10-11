@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 await context.Customers.ForEachAsync(
                     // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                    c => { context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList(); });
+                    c => context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList());
             }
         }
 

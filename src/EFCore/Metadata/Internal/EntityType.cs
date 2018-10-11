@@ -126,7 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Builder
         {
-            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            get;
             [DebuggerStepThrough]
             [param: CanBeNull]
             set;
@@ -247,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.CircularInheritance(this.DisplayName(), entityType.DisplayName()));
                 }
 
-                if (_keys.Any())
+                if (_keys.Count > 0)
                 {
                     throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(this.DisplayName()));
                 }
@@ -257,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .SelectMany(FindDerivedPropertiesInclusive)
                     .ToList();
 
-                if (propertyCollisions.Any())
+                if (propertyCollisions.Count > 0)
                 {
                     var derivedProperty = propertyCollisions.First();
                     var baseProperty = entityType.FindProperty(derivedProperty.Name);
@@ -275,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Select(p => p.Name)
                     .SelectMany(FindNavigationsInHierarchy)
                     .ToList();
-                if (navigationCollisions.Any())
+                if (navigationCollisions.Count > 0)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.DuplicateNavigationsOnBase(
@@ -835,8 +836,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var actualProperty = FindProperty(property.Name);
-                if (actualProperty == null
-                    || !actualProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType)
+                if (actualProperty?.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType) != true
                     || property.Builder == null)
                 {
                     throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
@@ -897,33 +897,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (!IsQueryType)
+            if (principalKey.ReferencingForeignKeys == null)
             {
-                if (principalKey.ReferencingForeignKeys == null)
-                {
-                    principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
+                principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
                     {
                         foreignKey
                     };
-                }
-                else
-                {
-                    var added = principalKey.ReferencingForeignKeys.Add(foreignKey);
-                    Debug.Assert(added);
-                }
+            }
+            else
+            {
+                var added = principalKey.ReferencingForeignKeys.Add(foreignKey);
+                Debug.Assert(added);
+            }
 
-                if (principalEntityType.DeclaredReferencingForeignKeys == null)
-                {
-                    principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
+            if (principalEntityType.DeclaredReferencingForeignKeys == null)
+            {
+                principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
                     {
                         foreignKey
                     };
-                }
-                else
-                {
-                    var added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
-                    Debug.Assert(added);
-                }
+            }
+            else
+            {
+                var added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
+                Debug.Assert(added);
             }
 
             PropertyMetadataChanged();
@@ -1054,8 +1051,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return FindDeclaredForeignKeys(properties).SingleOrDefault(
                 fk =>
-                    PropertyListComparer.Instance.Equals(fk.PrincipalKey.Properties, principalKey.Properties) &&
-                    StringComparer.Ordinal.Equals(fk.PrincipalEntityType.Name, principalEntityType.Name));
+                    PropertyListComparer.Instance.Equals(fk.PrincipalKey.Properties, principalKey.Properties)
+                    && StringComparer.Ordinal.Equals(fk.PrincipalEntityType.Name, principalEntityType.Name));
         }
 
         /// <summary>
@@ -1140,11 +1137,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (!IsQueryType)
-            {
-                foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
-                foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
-            }
+            foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
+            foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
 
             PropertyMetadataChanged();
 
@@ -1620,8 +1614,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
             }
 
-            if (memberInfo.DeclaringType == null
-                || !memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+            if (memberInfo.DeclaringType?.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()) != true)
             {
                 throw new ArgumentException(
                     CoreStrings.PropertyWrongEntityClrType(
@@ -1655,6 +1648,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 propertyType = memberInfo.GetMemberType();
+                typeConfigurationSource = ConfigurationSource.Convention.Max(typeConfigurationSource);
             }
             else
             {

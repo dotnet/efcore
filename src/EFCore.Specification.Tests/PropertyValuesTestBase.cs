@@ -2306,9 +2306,9 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property<string>("Shadow2");
                     });
 
-                modelBuilder.Entity<CurrentEmployee>(b => { b.Property<int>("Shadow3"); });
+                modelBuilder.Entity<CurrentEmployee>(b => b.Property<int>("Shadow3"));
 
-                modelBuilder.Entity<PastEmployee>(b => { b.Property<string>("Shadow4"); });
+                modelBuilder.Entity<PastEmployee>(b => b.Property<string>("Shadow4"));
 
                 modelBuilder.Entity<Building>()
                     .HasOne<MailRoom>(nameof(Building.PrincipalMailRoom))

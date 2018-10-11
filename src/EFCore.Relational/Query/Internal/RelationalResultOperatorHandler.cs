@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var expression = handlerContext.SelectExpression.Projection.First();
 
-                if (!(expression.RemoveConvert() is SelectExpression))
+                if (!ContainsSelect(expression))
                 {
                     expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     expression = UnwrapAliasExpression(expression);
@@ -799,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static Expression HandleLast(HandlerContext handlerContext)
         {
             var requiresClientResultOperator = true;
-            if (handlerContext.SelectExpression.OrderBy.Any())
+            if (handlerContext.SelectExpression.OrderBy.Count > 0)
             {
                 if (handlerContext.SelectExpression.Limit != null
                     || handlerContext.SelectExpression.Offset != null)
@@ -852,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
                 var expression = handlerContext.SelectExpression.Projection.First();
 
-                if (!(expression.RemoveConvert() is SelectExpression))
+                if (!ContainsSelect(expression))
                 {
                     var minExpression = new SqlFunctionExpression(
                         "MIN",
@@ -881,7 +881,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
                 var expression = handlerContext.SelectExpression.Projection.First();
 
-                if (!(expression.RemoveConvert() is SelectExpression))
+                if (!ContainsSelect(expression))
                 {
                     var maxExpression = new SqlFunctionExpression(
                         "MAX",
@@ -970,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
                 var expression = handlerContext.SelectExpression.Projection.First();
 
-                if (!(expression.RemoveConvert() is SelectExpression))
+                if (!ContainsSelect(expression))
                 {
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
 
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (selectExpression.IsDistinct
                 || selectExpression.Limit != null
                 || selectExpression.Offset != null
-                || (selectExpression.GroupBy.Any()
+                || (selectExpression.GroupBy.Count > 0
                     && !IsGroupByAggregate(queryModel)))
             {
                 selectExpression.PushDownSubquery();
@@ -1075,5 +1075,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     handlerContext.QueryModelVisitor.QueryCompilationContext,
                     throwOnNullResult)
                 .Visit(handlerContext.QueryModelVisitor.Expression);
+
+        private sealed class ContainsSelectExpressionVisitor : ExpressionVisitor
+        {
+            public bool ContainsExpressionType { get; private set; }
+            public override Expression Visit(Expression node)
+            {
+                if (node is SelectExpression)
+                {
+                    ContainsExpressionType = true;
+                    return node;
+                }
+                return base.Visit(node);
+            }
+        }
+        private static bool ContainsSelect(Expression expression)
+        {
+            var visitor = new ContainsSelectExpressionVisitor();
+            visitor.Visit(expression);
+            return visitor.ContainsExpressionType;
+        }
     }
 }

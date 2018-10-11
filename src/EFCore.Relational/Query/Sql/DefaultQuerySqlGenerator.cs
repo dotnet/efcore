@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -151,11 +152,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             if (SelectExpression.Tags.Count > 0)
             {
-                _relationalCommandBuilder
-                    .Append(SingleLineComment)
-                    .Append(" EFCore: (#")
-                    .Append(SelectExpression.Tags.Join(", #"))
-                    .AppendLine(")");
+                foreach (var tag in SelectExpression.Tags)
+                {
+                    using (var reader = new StringReader(tag))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+
+                            _relationalCommandBuilder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
+                        }
+                    }
+
+                    _relationalCommandBuilder.AppendLine();
+                }
             }
         }
 
@@ -205,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     The default single line comment prefix.
         /// </summary>
-        protected virtual string SingleLineComment { get; } = "--";
+        protected virtual string SingleLineCommentToken { get; } = "--";
 
         /// <summary>
         ///     Visit a top-level SelectExpression.
@@ -1531,7 +1541,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            GenerateSqlFunctionName(sqlFunctionExpression);
+            if (!string.IsNullOrWhiteSpace(sqlFunctionExpression.Schema))
+            {
+                _relationalCommandBuilder
+                    .Append(SqlGenerator.DelimitIdentifier(sqlFunctionExpression.Schema))
+                    .Append(".")
+                    .Append(SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName));
+            }
+            else
+            {
+                if (sqlFunctionExpression.Instance != null)
+                {
+                    Visit(sqlFunctionExpression.Instance);
+
+                    _relationalCommandBuilder.Append(".");
+                }
+
+                _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);
+            }
 
             if (!sqlFunctionExpression.IsNiladic)
             {
@@ -1549,36 +1576,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
 
             return sqlFunctionExpression;
-        }
-
-        /// <summary>
-        ///     Generates the name part of a SQL function call.
-        /// </summary>
-        /// <param name="sqlFunctionExpression"> The SqlFunctionExpression </param>
-        protected virtual void GenerateSqlFunctionName(SqlFunctionExpression sqlFunctionExpression)
-        {
-            var wroteSchema = false;
-
-            if (sqlFunctionExpression.Instance != null)
-            {
-                Visit(sqlFunctionExpression.Instance);
-
-                _relationalCommandBuilder.Append(".");
-            }
-            else if (!string.IsNullOrWhiteSpace(sqlFunctionExpression.Schema))
-            {
-                _relationalCommandBuilder
-                    .Append(SqlGenerator.DelimitIdentifier(sqlFunctionExpression.Schema))
-                    .Append(".");
-
-                wroteSchema = true;
-            }
-
-            _relationalCommandBuilder
-                .Append(
-                    wroteSchema
-                        ? SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName)
-                        : sqlFunctionExpression.FunctionName);
         }
 
         /// <summary>
@@ -1807,6 +1804,51 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(parameterNamePlaceholder);
 
             return propertyParameterExpression;
+        }
+
+        /// <summary>
+        ///     Visits a case expression.
+        /// </summary>
+        /// <param name="caseExpression"> The case expression. </param>
+        /// <returns> An expression. </returns>
+        public virtual Expression VisitCase(CaseExpression caseExpression)
+        {
+            Check.NotNull(caseExpression, nameof(caseExpression));
+
+            _relationalCommandBuilder.Append("CASE");
+
+            if (caseExpression.Operand != null)
+            {
+                _relationalCommandBuilder.Append(" ");
+                Visit(caseExpression.Operand);
+            }
+
+            using (_relationalCommandBuilder.Indent())
+            {
+                foreach (var whenClause in caseExpression.WhenClauses)
+                {
+                    _relationalCommandBuilder
+                        .AppendLine()
+                        .Append("WHEN ");
+                    Visit(whenClause.Test);
+                    _relationalCommandBuilder.Append(" THEN ");
+                    Visit(whenClause.Result);
+                }
+
+                if (caseExpression.ElseResult != null)
+                {
+                    _relationalCommandBuilder
+                        .AppendLine()
+                        .Append("ELSE ");
+                    Visit(caseExpression.ElseResult);
+                }
+            }
+
+            _relationalCommandBuilder
+                .AppendLine()
+                .Append("END");
+
+            return caseExpression;
         }
 
         /// <summary>

@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore
             => base.AddOptions(builder).ConfigureWarnings(w =>
                 w.Ignore(RelationalEventId.BatchSmallerThanMinBatchSize));
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        protected override void BuildModelExternal(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder, context);
+            base.BuildModelExternal(modelBuilder);
 
             modelBuilder.Entity<Chassis>().ToTable("Chassis");
             modelBuilder.Entity<Team>().ToTable("Teams").Property(e => e.Id).ValueGeneratedNever();

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     // ReSharper disable once ArrangeTypeModifiers
-    partial class DbContextInfoCommand
+    internal partial class DbContextInfoCommand
     {
         protected override int Execute()
         {

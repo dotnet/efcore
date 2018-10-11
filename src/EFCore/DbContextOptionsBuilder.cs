@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
         ///     </para>
         /// </summary>
-        public virtual bool IsConfigured => _options.Extensions.Any();
+        public virtual bool IsConfigured => _options.Extensions.Any(e => e.ApplyServices(new ServiceCollection()));
 
         /// <summary>
         ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Enables rich error handling of data value exceptions that occur during processing of store query results. Such errors
+        ///         Enables detailed errors when handling of data value exceptions that occur during processing of store query results. Such errors
         ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
         ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated
         ///         at runtime during processing of the data value. When this option is enabled and a data error is encountered, the
@@ -125,8 +125,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder EnableRichDataErrorHandling(bool richDataErrorHandlingEnabled = true)
-            => WithOption(e => e.WithRichDataErrorHandling(richDataErrorHandlingEnabled));
+        public virtual DbContextOptionsBuilder EnableDetailedErrors(bool detailedErrorsEnabled = true)
+            => WithOption(e => e.WithDetailedErrorsEnabled(detailedErrorsEnabled));
 
         /// <summary>
         ///     <para>

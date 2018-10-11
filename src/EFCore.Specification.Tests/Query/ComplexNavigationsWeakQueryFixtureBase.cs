@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected ComplexNavigationsWeakQueryFixtureBase()
         {
-            QueryAsserter.SetExtractor = new ComplexNavigationsOwnedSetExtractor();
-            QueryAsserter.ExpectedData = new ComplexNavigationsOwnedData();
+            QueryAsserter.SetExtractor = new ComplexNavigationsWeakSetExtractor();
+            QueryAsserter.ExpectedData = new ComplexNavigationsWeakData();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(ComplexNavigationsContext context)
             => ComplexNavigationsData.Seed(context, tableSplitting: true);
 
-        private class ComplexNavigationsOwnedSetExtractor : ISetExtractor
+        private class ComplexNavigationsWeakSetExtractor : ISetExtractor
         {
             public override IQueryable<TEntity> Set<TEntity>(DbContext context)
             {
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => GetLevelThree(context).Select(t => t.OneToOne_Required_PK3).Where(t => t != null);
         }
 
-        private class ComplexNavigationsOwnedData : ComplexNavigationsData
+        private class ComplexNavigationsWeakData : ComplexNavigationsData
         {
             public override IQueryable<TEntity> Set<TEntity>()
             {

@@ -876,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(expression, nameof(expression));
 
             if (expression.Members != null
-                && expression.Arguments.Any()
+                && expression.Arguments.Count > 0
                 && expression.Arguments.Count == expression.Members.Count)
             {
                 var memberBindings

@@ -1,8 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
-using System.Globalization;
 using System.Reflection;
 using GeoAPI;
 using GeoAPI.Geometries;
@@ -79,23 +79,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string AsText(object value)
-        {
-            var geometry = (IGeometry)value;
-            if (geometry == null)
-            {
-                return null;
-            }
+            => ((IGeometry)value).AsText();
 
-            var srid = geometry.SRID;
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override int GetSrid(object value)
+            => ((IGeometry)value).SRID;
 
-            var text = geometry.AsText();
-            if (srid != -1)
-            {
-                text = $"SRID={srid};" + text;
-            }
-
-            return text;
-        }
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Type WKTReaderType
+            => typeof(WKTReader);
 
         private static GaiaGeoReader CreateReader(IGeometryServices geometryServices)
             => new GaiaGeoReader(

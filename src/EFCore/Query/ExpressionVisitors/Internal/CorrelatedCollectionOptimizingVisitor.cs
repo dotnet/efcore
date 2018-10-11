@@ -123,7 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private bool TryRewrite(SubQueryExpression subQueryExpression, bool forceToListResult, Type listResultElementType, out Expression result)
         {
-            if (_queryCompilationContext.TryGetCorrelatedSubqueryMetadata(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata))
+            if (_queryCompilationContext.TryGetCorrelatedSubqueryMetadata(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata)
+                && subQueryExpression.QueryModel.BodyClauses.OfType<WhereClause>()
+                    .Any(c => c.Predicate is NullSafeEqualExpression))
             {
                 var parentQsre = new QuerySourceReferenceExpression(correlatedSubqueryMetadata.ParentQuerySource);
                 result = Rewrite(
@@ -401,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (_queryCompilationContext.IsAsyncQuery)
             {
-                arguments.Add(QueryCompilationContext.CancellationTokenParameter);
+                arguments.Add(IncludeCompiler.CancellationTokenParameter);
             }
 
             var result = Expression.Call(
@@ -413,9 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (_queryCompilationContext.IsAsyncQuery)
             {
-                var taskResultExpression = new TaskBlockingExpressionVisitor().Visit(result);
-
-                return taskResultExpression;
+                return new TaskBlockingExpressionVisitor().Visit(result);
             }
 
             return result;
@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         })
                     .Zip(
                         foreignKeyProperties,
-                        (outer, inner) =>
+                        (outer, _) =>
                         {
                             var outerKeyAccess =
                                 Expression.Call(
@@ -544,12 +544,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static bool AreEquivalentPropertyExpressions(Expression expression1, Expression expression2)
         {
             var expressionWithoutConvert1 = expression1.RemoveConvert();
-            var expressionWithoutNullConditional1 = (expressionWithoutConvert1 as NullConditionalExpression)?.AccessOperation
-                                                    ?? expressionWithoutConvert1;
+            var expressionWithoutNullConditional1 = expressionWithoutConvert1.RemoveNullConditional();
 
             var expressionWithoutConvert2 = expression2.RemoveConvert();
-            var expressionWithoutNullConditional2 = (expressionWithoutConvert2 as NullConditionalExpression)?.AccessOperation
-                                                    ?? expressionWithoutConvert2;
+            var expressionWithoutNullConditional2 = expressionWithoutConvert2.RemoveNullConditional();
 
             QuerySourceReferenceExpression qsre1 = null;
             QuerySourceReferenceExpression qsre2 = null;
@@ -641,8 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     e =>
                     {
                         var expressionWithoutConvert = e.RemoveConvert();
-                        var projectionExpression = (expressionWithoutConvert as NullConditionalExpression)?.AccessOperation
-                                                   ?? expressionWithoutConvert;
+                        var projectionExpression = expressionWithoutConvert.RemoveNullConditional();
 
                         if (projectionExpression is MethodCallExpression methodCall
                             && methodCall.Method.IsEFPropertyMethod())

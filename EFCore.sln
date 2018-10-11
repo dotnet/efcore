@@ -91,11 +91,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers", "src\EFC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers.Test", "test\EFCore.Analyzers.Tests\EFCore.Analyzers.Test.csproj", "{7BC66E5C-BAA3-420B-8331-22821EBA361A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.Sql", "src\EFCore.Cosmos.Sql\EFCore.Cosmos.Sql.csproj", "{6C115EF9-519E-4A4E-BD02-3801777BFEBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos", "src\EFCore.Cosmos\EFCore.Cosmos.csproj", "{6C115EF9-519E-4A4E-BD02-3801777BFEBA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.Sql.FunctionalTests", "test\EFCore.Cosmos.Sql.FunctionalTests\EFCore.Cosmos.Sql.FunctionalTests.csproj", "{76EB1FAD-00F9-4B92-B954-073AF288D3DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.FunctionalTests", "test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj", "{76EB1FAD-00F9-4B92-B954-073AF288D3DD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.Sql.Tests", "test\EFCore.Cosmos.Sql.Tests\EFCore.Cosmos.Sql.Tests.csproj", "{B4E155E5-C0B8-4680-92A0-A0DE745486B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos.Tests", "test\EFCore.Cosmos.Tests\EFCore.Cosmos.Tests.csproj", "{B4E155E5-C0B8-4680-92A0-A0DE745486B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.SqlServer.NTS", "src\EFCore.SqlServer.NTS\EFCore.SqlServer.NTS.csproj", "{F53EB45F-84D7-4520-B813-8916C0C756BB}"
 EndProject

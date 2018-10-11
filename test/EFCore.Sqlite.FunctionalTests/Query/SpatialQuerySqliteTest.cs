@@ -232,6 +232,23 @@ FROM ""PointEntity"" AS ""e""");
 FROM ""PolygonEntity"" AS ""e""");
         }
 
+        public override async Task GeometryType(bool isAsync)
+        {
+            await base.GeometryType(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", CASE rtrim(GeometryType(""e"".""Point""), ' ZM')
+    WHEN 'POINT' THEN 'Point'
+    WHEN 'LINESTRING' THEN 'LineString'
+    WHEN 'POLYGON' THEN 'Polygon'
+    WHEN 'MULTIPOINT' THEN 'MultiPoint'
+    WHEN 'MULTILINESTRING' THEN 'MultiLineString'
+    WHEN 'MULTIPOLYGON' THEN 'MultiPolygon'
+    WHEN 'GEOMETRYCOLLECTION' THEN 'GeometryCollection'
+END AS ""GeometryType""
+FROM ""PointEntity"" AS ""e""");
+        }
+
         public override async Task GetGeometryN(bool isAsync)
         {
             await base.GetGeometryN(isAsync);
@@ -258,6 +275,15 @@ WHERE NumInteriorRing(""e"".""Polygon"") > 0");
             AssertSql(
                 @"SELECT ""e"".""Id"", PointN(""e"".""LineString"", 0 + 1) AS ""Point0""
 FROM ""LineStringEntity"" AS ""e""");
+        }
+
+        public override async Task InteriorPoint(bool isAsync)
+        {
+            await base.InteriorPoint(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", PointOnSurface(""e"".""Polygon"") AS ""InteriorPoint"", ""e"".""Polygon""
+FROM ""PolygonEntity"" AS ""e""");
         }
 
         public override async Task Intersection(bool isAsync)
@@ -336,6 +362,20 @@ FROM ""LineStringEntity"" AS ""e""");
 FROM ""PointEntity"" AS ""e""");
         }
 
+        public override async Task IsWithinDistance(bool isAsync)
+        {
+            await base.IsWithinDistance(isAsync);
+
+            AssertSql(
+                @"@__point_0='0x0001000000000000000000000000000000000000F03F00000000000000000000...' (Size = 60) (DbType = String)
+
+SELECT ""e"".""Id"", CASE
+    WHEN Distance(""e"".""Point"", @__point_0) <= 1.0
+    THEN 1 ELSE 0
+END AS ""IsWithinDistance""
+FROM ""PointEntity"" AS ""e""");
+        }
+
         public override async Task Item(bool isAsync)
         {
             await base.Item(isAsync);
@@ -388,6 +428,23 @@ FROM ""PolygonEntity"" AS ""e""");
             AssertSql(
                 @"SELECT ""e"".""Id"", NumPoints(""e"".""LineString"") AS ""NumPoints""
 FROM ""LineStringEntity"" AS ""e""");
+        }
+
+        public override async Task OgcGeometryType(bool isAsync)
+        {
+            await base.OgcGeometryType(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", CASE rtrim(GeometryType(""e"".""Point""), ' ZM')
+    WHEN 'POINT' THEN 1
+    WHEN 'LINESTRING' THEN 2
+    WHEN 'POLYGON' THEN 3
+    WHEN 'MULTIPOINT' THEN 4
+    WHEN 'MULTILINESTRING' THEN 5
+    WHEN 'MULTIPOLYGON' THEN 6
+    WHEN 'GEOMETRYCOLLECTION' THEN 7
+END AS ""OgcGeometryType""
+FROM ""PointEntity"" AS ""e""");
         }
 
         public override async Task Overlaps(bool isAsync)
@@ -497,6 +554,15 @@ FROM ""PolygonEntity"" AS ""e""");
 
 SELECT ""e"".""Id"", GUnion(""e"".""Polygon"", @__polygon_0) AS ""Union""
 FROM ""PolygonEntity"" AS ""e""");
+        }
+
+        public override async Task Union_void(bool isAsync)
+        {
+            await base.Union_void(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", UnaryUnion(""e"".""MultiLineString"") AS ""Union""
+FROM ""MultiLineStringEntity"" AS ""e""");
         }
 
         public override async Task Within(bool isAsync)
