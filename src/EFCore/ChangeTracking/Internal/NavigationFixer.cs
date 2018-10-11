@@ -366,11 +366,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 SetNavigation(entry, dependentToPrincipal, newPrincipalEntry);
                             }
                         }
-                        else if (oldPrincipalEntry != null
-                                 && ReferenceEquals(entry[dependentToPrincipal], oldPrincipalEntry.Entity)
-                                 && entry.StateManager.TryGetEntry(entry.Entity, foreignKey.DeclaringEntityType) != null)
+                        else if (oldPrincipalEntry != null)
                         {
-                            SetNavigation(entry, dependentToPrincipal, null);
+                            if (ReferenceEquals(entry[dependentToPrincipal], oldPrincipalEntry.Entity)
+                                && entry.StateManager.TryGetEntry(entry.Entity, foreignKey.DeclaringEntityType) != null)
+                            {
+                                SetNavigation(entry, dependentToPrincipal, null);
+                            }
+                        }
+                        else
+                        {
+                            if (entry[dependentToPrincipal] == null
+                                && entry.StateManager.TryGetEntry(entry.Entity, foreignKey.DeclaringEntityType) != null)
+                            {
+                                // FK has changed but navigation is still null
+                                entry.SetIsLoaded(dependentToPrincipal, false);
+                            }
                         }
                     }
 
