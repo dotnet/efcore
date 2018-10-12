@@ -547,10 +547,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         .LiteralGenerator));
 
             Assert.Equal(
-                "Microsoft.SqlServer.Types.FakeSqlGeometry.Deserialize(new System.Data.SqlTypes.SqlBytes(new byte[] { 0, 0, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64 }))",
-                new CSharpHelper(typeMapping).UnknownLiteral(
-                    FakeSqlGeometry.Deserialize(
-                        new SqlBytes(new byte[] { 0, 0, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64 }))));
+                "Microsoft.SqlServer.Types.FakeSqlGeometry.STGeomFromText(new System.Data.SqlTypes.SqlChars(new System.Data.SqlTypes.SqlString(\"POINT (1 2)\")), 0)",
+                new CSharpHelper(typeMapping).UnknownLiteral(new FakeSqlGeometry("POINT (1 2)", 0)));
         }
 
         [Fact]
@@ -564,10 +562,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         .LiteralGenerator));
 
             Assert.Equal(
-                "Microsoft.SqlServer.Types.FakeSqlGeography.Deserialize(new System.Data.SqlTypes.SqlBytes(new byte[] { 230, 16, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64 }))",
-                new CSharpHelper(typeMapping).UnknownLiteral(
-                    FakeSqlGeography.Deserialize(
-                        new SqlBytes(new byte[] { 230, 16, 0, 0, 1, 12, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0, 0, 0, 0, 64 }))));
+                "Microsoft.SqlServer.Types.FakeSqlGeography.STGeomFromText(new System.Data.SqlTypes.SqlChars(new System.Data.SqlTypes.SqlString(\"POINT (1 2)\")), 4326)",
+                new CSharpHelper(typeMapping).UnknownLiteral(new FakeSqlGeography("POINT (1 2)", 4326)));
         }
 
         private IRelationalTypeMappingSource TypeMappingSource { get; } = CreateTypeMappingSource();
@@ -704,30 +700,44 @@ namespace Microsoft.SqlServer.Types
     // Has the same shape as Microsoft.SqlServer.Types.SqlGeometry for testing code gen
     public class FakeSqlGeometry
     {
-        private readonly SqlBytes _value;
+        private readonly string _text;
+        private readonly int _srid;
 
-        private FakeSqlGeometry(SqlBytes value)
-            => _value = value;
+        public FakeSqlGeometry(string text, int srid)
+        {
+            _text = text;
+            _srid = srid;
+        }
 
-        public static FakeSqlGeometry Deserialize(SqlBytes bytes)
-            => new FakeSqlGeometry(bytes);
+        public SqlChars AsTextZM() => new SqlChars(_text);
 
-        public SqlBytes Serialize()
-            => _value;
+        public SqlInt32 STSrid => _srid;
+
+        public static FakeSqlGeometry STGeomFromText(SqlChars geometryTaggedText, int srid)
+        {
+            return new FakeSqlGeometry(geometryTaggedText.ToSqlString().ToString(), srid);
+        }
     }
 
-    // Has the same shape as Microsoft.SqlServer.Types.SqlGeometry for testing code gen
+    // Has the same shape as Microsoft.SqlServer.Types.SqlGeography for testing code gen
     public class FakeSqlGeography
     {
-        private readonly SqlBytes _value;
+        private readonly string _text;
+        private readonly int _srid;
 
-        private FakeSqlGeography(SqlBytes value)
-            => _value = value;
+        public FakeSqlGeography(string text, int srid)
+        {
+            _text = text;
+            _srid = srid;
+        }
 
-        public static FakeSqlGeography Deserialize(SqlBytes bytes)
-            => new FakeSqlGeography(bytes);
+        public SqlChars AsTextZM() => new SqlChars(_text);
 
-        public SqlBytes Serialize()
-            => _value;
+        public SqlInt32 STSrid => _srid;
+
+        public static FakeSqlGeography STGeomFromText(SqlChars geometryTaggedText, int srid)
+        {
+            return new FakeSqlGeography(geometryTaggedText.ToSqlString().ToString(), srid);
+        }
     }
 }

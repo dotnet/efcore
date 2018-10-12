@@ -151,18 +151,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             => new SqlServerUdtTypeMapping(
                 udtType,
                 storeName,
-                v => Expression.Call(
-                    v.GetType().GetMethod("Deserialize"),
-                    Expression.New(
-                        typeof(SqlBytes).GetConstructor(
-                            new[] { typeof(byte[]) }),
-                        Expression.NewArrayInit(
-                            typeof(byte),
-                            ((SqlBytes)v.GetType()
-                                .GetMethod("Serialize")
-                                .Invoke(v, new object[0]))
-                            .Value
-                            .Select(b => (Expression)Expression.Constant(b, typeof(byte)))
-                            .ToArray()))));
+                v =>
+                {
+                    var spatialType = v.GetType();
+                    var noParams = new object[0];
+
+                    var wkt = ((SqlChars)spatialType.GetMethod("AsTextZM").Invoke(v, noParams)).ToSqlString().ToString();
+                    var srid = ((SqlInt32)spatialType.GetMethod("get_STSrid").Invoke(v, noParams)).Value;
+
+                    return Expression.Call(
+                        spatialType.GetMethod("STGeomFromText"),
+                        Expression.New(
+                            typeof(SqlChars).GetConstructor(
+                                new[] { typeof(SqlString) }),
+                            Expression.New(
+                                typeof(SqlString).GetConstructor(
+                                    new[] { typeof(string) }),
+                                Expression.Constant(wkt, typeof(string)))),
+                        Expression.Constant(srid, typeof(int)));
+                });
     }
 }
