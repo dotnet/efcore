@@ -700,5 +700,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public string Value { get; set; }
         }
+
+        protected interface IReplacable
+        {
+            int Property { get; set; }
+        }
+
+        protected class DoubleProperty : IReplacable
+        {
+            public int Id { get; set; }
+            public int Property { get; set; }
+            int IReplacable.Property { get => Property; set => Property = value; }
+        }
     }
 }
