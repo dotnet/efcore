@@ -52,9 +52,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             {
                 new PointEntity
                 {
-                    Id = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B1"),
+                    Id = PointEntity.WellKnownId,
                     Point = factory.CreatePoint(
                         new Coordinate(0, 0))
+                },
+                new PointEntity
+                {
+                    Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E551"),
+                    Point = null
                 }
             };
 
