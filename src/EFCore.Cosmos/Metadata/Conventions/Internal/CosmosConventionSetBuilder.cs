@@ -11,14 +11,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
         public ConventionSet AddConventions(ConventionSet conventionSet)
         {
             var discriminatorConvention = new DiscriminatorConvention();
-
             var storeKeyConvention = new StoreKeyConvention();
             conventionSet.EntityTypeAddedConventions.Add(storeKeyConvention);
             conventionSet.EntityTypeAddedConventions.Add(discriminatorConvention);
 
+            conventionSet.BaseEntityTypeChangedConventions.Add(storeKeyConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);
 
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(storeKeyConvention);
+
+            conventionSet.EntityTypeAnnotationChangedConventions.Add(storeKeyConvention);
 
             return conventionSet;
         }

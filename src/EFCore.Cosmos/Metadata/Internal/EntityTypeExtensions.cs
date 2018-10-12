@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
     public static class EntityTypeExtensions
     {
         public static bool IsDocumentRoot(this IEntityType entityType)
-            => !entityType.IsOwned();
+            => entityType.BaseType == null
+            ? !entityType.IsOwned()
+                || entityType[CosmosAnnotationNames.ContainerName] != null
+            : entityType.BaseType.IsDocumentRoot();
     }
 }

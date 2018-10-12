@@ -82,9 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                     {
                         document["id"] = $"{entityName}|{document["id"]}";
                         document["Discriminator"] = entityName;
-                        // TODO: Update the collection name here once there is model builder config
                         // TODO: Stream the document
-                        await cosmosClient.CreateDocumentAsync("Unicorn", document);
+                        await cosmosClient.CreateDocumentAsync("NorthwindContext", document);
                     }
                 }
             }

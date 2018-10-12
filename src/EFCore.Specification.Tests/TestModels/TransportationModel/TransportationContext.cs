@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     //eb.HasOne(e => e.Vehicle)
                     //    .WithOne()
                     //    .HasForeignKey<FuelTank>(e => e.VehicleName);
+                    eb.Ignore(e => e.Vehicle);
                 });
 
             modelBuilder.Entity<SolidFuelTank>(
@@ -76,13 +77,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         }
 
         public void AssertSeeded()
-            => Assert.Equal(
-                CreateVehicles().OrderBy(v => v.Name).ToList(),
-                Vehicles
-                    .Include(v => v.Operator)
-                    .Include(v => ((PoweredVehicle)v).Engine)
-                    .ThenInclude(e => (e as CombustionEngine).FuelTank)
-                    .OrderBy(v => v.Name).ToList());
+        {
+            var expected = CreateVehicles().OrderBy(v => v.Name).ToList();
+            var actual = Vehicles
+                            .Include(v => v.Operator)
+                            .Include(v => ((PoweredVehicle)v).Engine)
+                            .ThenInclude(e => (e as CombustionEngine).FuelTank)
+                            .OrderBy(v => v.Name).ToList();
+            Assert.Equal(expected, actual);
+        }
 
         protected IEnumerable<Vehicle> CreateVehicles()
             => new List<Vehicle>

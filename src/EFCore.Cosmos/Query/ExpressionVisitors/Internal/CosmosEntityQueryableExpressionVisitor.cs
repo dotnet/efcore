@@ -4,6 +4,8 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -36,6 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
         protected override Expression VisitEntityQueryable([NotNull] Type elementType)
         {
             var entityType = _model.FindEntityType(elementType);
+            if (!entityType.IsDocumentRoot())
+            {
+                throw new InvalidOperationException(
+                    CosmosStrings.QueryRootNestedEntityType(entityType.DisplayName(), entityType.FindOwnership().PrincipalEntityType.DisplayName()));
+            }
 
             return new QueryShaperExpression(
                 QueryModelVisitor.QueryCompilationContext.IsAsyncQuery,

@@ -303,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         throw new InvalidOperationException(CoreStrings.OwnedDerivedType(entityType.DisplayName()));
                     }
 
-                    foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(fk => !fk.IsOwnership))
+                    foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(fk => !fk.IsOwnership
+                        && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.PrincipalOwnedType(
@@ -318,7 +319,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 entityType.DisplayName()));
                     }
 
-                    foreach (var fk in entityType.GetDeclaredForeignKeys().Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null))
+                    foreach (var fk in entityType.GetDeclaredForeignKeys().Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null
+                        && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.InverseToOwnedType(
@@ -334,6 +336,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
         }
+
+        private bool Contains(IForeignKey inheritedFk, IForeignKey derivedFk)
+            => inheritedFk != null
+                && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
+                && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

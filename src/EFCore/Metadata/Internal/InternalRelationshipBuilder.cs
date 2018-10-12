@@ -933,7 +933,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Metadata.SetIsOwnership(true, configurationSource);
                         newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
 
-                        if (!newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.RemoveNonOwnershipRelationships(configurationSource))
+                        if (!newRelationshipBuilder.Metadata.DeclaringEntityType.Builder
+                                .RemoveNonOwnershipRelationships(newRelationshipBuilder.Metadata, configurationSource))
                         {
                             return null;
                         }

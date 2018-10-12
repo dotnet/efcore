@@ -3,7 +3,7 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -26,12 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
         }
 
         public ExpressionVisitor Create(EntityQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
-        {
-            return new CosmosEntityQueryableExpressionVisitor(
+            => new CosmosEntityQueryableExpressionVisitor(
                 _model,
                 _entityMaterializerSource,
                 (CosmosQueryModelVisitor)entityQueryModelVisitor,
                 querySource);
-        }
     }
 }

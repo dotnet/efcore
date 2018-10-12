@@ -307,20 +307,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
                     }
 
-                    var ownership = entityType.GetForeignKeys().FirstOrDefault(
+                    var ownershipCandidate = entityType.GetForeignKeys().FirstOrDefault(
                         fk => fk.PrincipalToDependent != null
                               && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
                               && !fk.PrincipalEntityType.IsInDefinitionPath(clrType));
-                    if (ownership != null)
+                    if (ownershipCandidate != null)
                     {
-                        if (ownership.Builder.IsOwnership(true, configurationSource) == null)
+                        if (ownershipCandidate.Builder.IsOwnership(true, configurationSource) == null)
                         {
                             return false;
                         }
                     }
                     else
                     {
-                        if (!entityType.Builder.RemoveNonOwnershipRelationships(configurationSource))
+                        if (!entityType.Builder.RemoveNonOwnershipRelationships(null, configurationSource))
                         {
                             return false;
                         }
