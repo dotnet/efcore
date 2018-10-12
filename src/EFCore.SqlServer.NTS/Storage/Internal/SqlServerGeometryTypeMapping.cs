@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Globalization;
@@ -103,6 +104,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override Type WKTReaderType
             => typeof(WKTReader);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override void ConfigureParameter(DbParameter parameter)
+        {
+            if (parameter.Value == DBNull.Value)
+            {
+                parameter.Value = SqlBytes.Null;
+            }
+        }
 
         private static SqlServerBytesReader CreateReader(IGeometryServices services, bool isGeography)
             => new SqlServerBytesReader(services) { IsGeography = isGeography };
