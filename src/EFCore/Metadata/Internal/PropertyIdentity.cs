@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public string Name
         {
-            [DebuggerStepThrough] get => Property?.Name ?? (string)_nameOrProperty;
+            [DebuggerStepThrough] get => Property?.GetSimpleMemberName() ?? (string)_nameOrProperty;
         }
 
         /// <summary>

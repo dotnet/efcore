@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -88,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
                 Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null)
-                => new GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder.WithOne(navigationExpression?.GetPropertyAccess().Name));
+                => new GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder.WithOne(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
         }
 
         private class GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
@@ -109,13 +110,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(
                     ReferenceReferenceBuilder.HasForeignKey(
                         typeof(TDependentEntity),
-                        foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                        foreignKeyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
                 => Wrap(
                     ReferenceReferenceBuilder.HasPrincipalKey(
                         typeof(TPrincipalEntity),
-                        keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                        keyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
         }
 
         private class GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>

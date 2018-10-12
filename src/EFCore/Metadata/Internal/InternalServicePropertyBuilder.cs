@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
-            if (Metadata.FieldInfo?.Name == fieldName)
+            if (Metadata.FieldInfo?.GetSimpleMemberName() == fieldName)
             {
                 Metadata.SetField(fieldName, configurationSource);
                 return true;

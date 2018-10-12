@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     fkPropertiesToSet = new List<string>
                     {
-                        fkPropertyOnDependent.Name
+                        fkPropertyOnDependent.GetSimpleMemberName()
                     };
                     upgradeDependentToPrincipalNavigationSource = true;
                 }
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     invertConfigurationSource = ConfigurationSource.DataAnnotation;
                     fkPropertiesToSet = new List<string>
                     {
-                        fkPropertyOnPrincipal.Name
+                        fkPropertyOnPrincipal.GetSimpleMemberName()
                     };
                     upgradePrincipalToDependentNavigationSource = true;
                 }
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     var fkProperty = fkPropertyOnDependent ?? fkPropertyOnPrincipal;
                     if (fkPropertiesOnNavigation.Count != 1
-                        || !Equals(fkPropertiesOnNavigation.First(), fkProperty.Name))
+                        || !Equals(fkPropertiesOnNavigation.First(), fkProperty.GetSimpleMemberName()))
                     {
                         _logger.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
                             fkPropertiesOnDependentToPrincipal != null
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                         fkPropertiesToSet = fkPropertiesOnDependentToPrincipal ?? new List<string>
                         {
-                            fkPropertyOnDependent.Name
+                            fkPropertyOnDependent.GetSimpleMemberName()
                         };
                     }
 
@@ -231,14 +231,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static InversePropertyAttribute GetInversePropertyAttributeOnNavigation(Navigation navigation)
             => navigation.DeclaringEntityType.GetRuntimeProperties()?.Values
                 .FirstOrDefault(
-                    p => string.Equals(p.Name, navigation.Name, StringComparison.OrdinalIgnoreCase)
+                    p => string.Equals(p.GetSimpleMemberName(), navigation.Name, StringComparison.OrdinalIgnoreCase)
                          && Attribute.IsDefined(p, typeof(InversePropertyAttribute), inherit: true))
                 ?.GetCustomAttribute<InversePropertyAttribute>(inherit: true);
 
         private static ForeignKeyAttribute GetForeignKeyAttribute(TypeBase entityType, string propertyName)
             => entityType.GetRuntimeProperties()?.Values
                 .FirstOrDefault(
-                    p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase)
+                    p => string.Equals(p.GetSimpleMemberName(), propertyName, StringComparison.OrdinalIgnoreCase)
                          && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
                 ?.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
 
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 var fkAttributeOnNavigation = GetForeignKeyAttribute(entityType, navigationName);
                 if (fkAttributeOnNavigation != null
-                    && fkAttributeOnNavigation.Name != candidateProperty.Name)
+                    && fkAttributeOnNavigation.Name != candidateProperty.GetSimpleMemberName())
                 {
                     throw new InvalidOperationException(
                         CoreStrings.FkAttributeOnPropertyNavigationMismatch(
@@ -327,8 +327,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     navigation.DeclaringEntityType.GetRuntimeProperties()[navigation.Name].PropertyType;
 
                 var otherNavigations = navigation.DeclaringEntityType.GetRuntimeProperties().Values
-                    .Where(p => p.PropertyType == navigationPropertyTargetType && p.Name != navigation.Name)
-                    .OrderBy(p => p.Name);
+                    .Where(p => p.PropertyType == navigationPropertyTargetType && p.GetSimpleMemberName() != navigation.Name)
+                    .OrderBy(p => p.GetSimpleMemberName());
 
                 foreach (var propertyInfo in otherNavigations)
                 {

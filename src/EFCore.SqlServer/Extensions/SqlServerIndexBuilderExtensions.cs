@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -77,9 +78,16 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(indexBuilder, nameof(indexBuilder));
             Check.NotNull(includeExpression, nameof(includeExpression));
 
-            ForSqlServerInclude(indexBuilder, includeExpression.GetPropertyAccessList().Select(p => p.Name).ToArray());
+            ForSqlServerInclude(indexBuilder, includeExpression.GetPropertyAccessList().Select(GetSimpleMemberName).ToArray());
 
             return indexBuilder;
+        }
+
+        private static string GetSimpleMemberName(MemberInfo member)
+        {
+            var name = member.Name;
+            var index = name.LastIndexOf('.');
+            return index >= 0 ? name.Substring(index + 1) : name;
         }
     }
 }
