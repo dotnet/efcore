@@ -304,6 +304,12 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, ReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, ReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
             Assert.Equal(
