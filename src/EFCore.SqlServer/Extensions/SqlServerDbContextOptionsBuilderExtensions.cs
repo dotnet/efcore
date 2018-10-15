@@ -121,8 +121,12 @@ namespace Microsoft.EntityFrameworkCore
 
             var connectionStringBuilder = new SqlConnectionStringBuilder()
             {
-                MultipleActiveResultSets = true
+                ConnectRetryCount = 0
             };
+            if (optionsBuilder.Options.ContextType != typeof(DbContext))
+            {
+                connectionStringBuilder.InitialCatalog = optionsBuilder.Options.ContextType.Name;
+            }
             connectionStringBuilderAction(connectionStringBuilder);
 
             return UseSqlServer(optionsBuilder, connectionStringBuilder.ConnectionString, sqlServerOptionsAction);

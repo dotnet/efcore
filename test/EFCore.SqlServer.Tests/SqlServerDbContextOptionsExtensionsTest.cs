@@ -98,18 +98,17 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(extension.RowNumberPaging.Value);
         }
 
-
         [Fact]
         public void Can_add_extension_with_connection_stringbuilder_action_generic()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<SampleDbContext>();
             optionsBuilder.UseSqlServer(csb =>
             {
                 csb.DataSource = "Kilimanjaro";
             });
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
-            Assert.Equal("Data Source=Kilimanjaro;MultipleActiveResultSets=True", extension.ConnectionString);
+            Assert.Equal("Data Source=Kilimanjaro;Initial Catalog=SampleDbContext;ConnectRetryCount=0", extension.ConnectionString);
             Assert.Null(extension.Connection);
         }
 
@@ -123,8 +122,10 @@ namespace Microsoft.EntityFrameworkCore
             });
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
-            Assert.Equal("Data Source=Kilimanjaro;MultipleActiveResultSets=True", extension.ConnectionString);
+            Assert.Equal("Data Source=Kilimanjaro;ConnectRetryCount=0", extension.ConnectionString);
             Assert.Null(extension.Connection);
         }
+
+        private class SampleDbContext : DbContext { }
     }
 }
