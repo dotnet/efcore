@@ -222,12 +222,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
-
-                var expression = handlerContext.SelectExpression.Projection.First();
+                var expression = handlerContext.SelectExpression.Projection[0];
 
                 if (!ContainsSelect(expression))
                 {
-                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     expression = UnwrapAliasExpression(expression);
 
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
@@ -850,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
-                var expression = handlerContext.SelectExpression.Projection.First();
+                var expression = handlerContext.SelectExpression.Projection[0];
 
                 if (!ContainsSelect(expression))
                 {
@@ -879,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
-                var expression = handlerContext.SelectExpression.Projection.First();
+                var expression = handlerContext.SelectExpression.Projection[0];
 
                 if (!ContainsSelect(expression))
                 {
@@ -968,13 +966,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
-                var expression = handlerContext.SelectExpression.Projection.First();
+                var expression = handlerContext.SelectExpression.Projection[0];
 
                 if (!ContainsSelect(expression))
                 {
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
 
-                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     Expression sumExpression = new SqlFunctionExpression(
                         "SUM", inputType, new[] { UnwrapAliasExpression(expression) });
                     if (inputType.UnwrapNullableType() == typeof(float))
