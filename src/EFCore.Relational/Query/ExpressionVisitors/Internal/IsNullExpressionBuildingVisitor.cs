@@ -59,6 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 ResultExpression = current;
                 AddToResult(coalesce);
+
+                return binaryExpression;
             }
 
             // a && b == null <-> a == null && b != false || a != false && b == null
