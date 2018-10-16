@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </param>
         public ValueComparer(bool favorStructuralComparisons)
             : this(
-                CreateDefaultEqualsExpression(favorStructuralComparisons),
+                CreateDefaultEqualsExpression(),
                 CreateDefaultHashCodeExpression(favorStructuralComparisons))
         {
         }
@@ -87,18 +87,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Creates an expression for equality.
         /// </summary>
-        /// <param name="favorStructuralComparisons">
-        ///     If <c>true</c>, then <see cref="IStructuralEquatable" /> is used if the type implements it.
-        /// </param>
         /// <returns> The equality expression. </returns>
-        protected static Expression<Func<T, T, bool>> CreateDefaultEqualsExpression(bool favorStructuralComparisons)
+        protected static Expression<Func<T, T, bool>> CreateDefaultEqualsExpression()
         {
             var type = typeof(T);
             var param1 = Expression.Parameter(type, "v1");
             var param2 = Expression.Parameter(type, "v2");
 
-            if (favorStructuralComparisons
-                && typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+            if (typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
             {
                 return Expression.Lambda<Func<T, T, bool>>(
                     Expression.Call(
