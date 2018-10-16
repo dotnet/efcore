@@ -2047,11 +2047,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var data = new List<Dictionary<string, object>>();
-            var valueConverters = new Dictionary<string, ValueConverter>();
+            var valueConverters = new Dictionary<string, ValueConverter>(StringComparer.Ordinal);
             var properties = this.GetPropertiesAndNavigations().ToDictionary(p => p.Name);
             foreach (var rawSeed in _data)
             {
-                var seed = new Dictionary<string, object>();
+                var seed = new Dictionary<string, object>(StringComparer.Ordinal);
                 data.Add(seed);
                 var type = rawSeed.GetType();
                 foreach (var memberInfo in type.GetMembersInHierarchy())

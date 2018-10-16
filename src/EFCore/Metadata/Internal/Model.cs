@@ -22,19 +22,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class Model : ConventionalAnnotatable, IMutableModel
     {
         private readonly SortedDictionary<string, EntityType> _entityTypes
-            = new SortedDictionary<string, EntityType>();
+            = new SortedDictionary<string, EntityType>(StringComparer.Ordinal);
 
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap
             = new ConcurrentDictionary<Type, string>();
 
         private readonly SortedDictionary<string, SortedSet<EntityType>> _entityTypesWithDefiningNavigation
-            = new SortedDictionary<string, SortedSet<EntityType>>();
+            = new SortedDictionary<string, SortedSet<EntityType>>(StringComparer.Ordinal);
 
         private readonly SortedDictionary<string, List<(string, string)>> _detachedEntityTypesWithDefiningNavigation
-            = new SortedDictionary<string, List<(string, string)>>();
+            = new SortedDictionary<string, List<(string, string)>>(StringComparer.Ordinal);
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
-            = new Dictionary<string, ConfigurationSource>();
+            = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
