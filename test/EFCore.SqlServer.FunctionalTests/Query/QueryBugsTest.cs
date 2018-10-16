@@ -5208,7 +5208,7 @@ ORDER BY [t].[Id]");
         #region Bug13079
 
         [Fact]
-        public virtual void Test()
+        public virtual void Multilevel_owned_entities_determine_correct_nullability()
         {
             using (CreateDatabase13079())
             {
@@ -5268,9 +5268,62 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
             public int Property { get; set; }
             public OwnedSubData13079 SubData { get; set; }
         }
+
         public class OwnedSubData13079
         {
             public int Property { get; set; }
+        }
+
+        #endregion
+
+        #region Bug13587
+
+        [Fact]
+        public virtual void Type_casting_inside_sum()
+        {
+            using (CreateDatabase13587())
+            {
+                using (var context = new MyContext13587(_options))
+                {
+                    var result = context.InventoryPools.Sum(p => (decimal)p.Quantity);
+
+                    AssertSql(
+                        @"SELECT SUM(CAST([p].[Quantity] AS decimal(18, 2)))
+FROM [InventoryPools] AS [p]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase13587()
+        {
+            return CreateTestStore(
+                () => new MyContext13587(_options),
+                context => {
+                    context.InventoryPools.Add(new InventoryPool13587
+                    {
+                        Quantity = 2,
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext13587 : DbContext
+        {
+            public virtual DbSet<InventoryPool13587> InventoryPools { get; set; }
+
+            public MyContext13587(DbContextOptions options)
+               : base(options)
+            {
+            }
+        }
+
+        public class InventoryPool13587
+        {
+            public int Id { get; set; }
+            public double Quantity { get; set; }
         }
 
         #endregion
