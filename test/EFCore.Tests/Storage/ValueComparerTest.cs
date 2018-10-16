@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var value2 = new byte[] { 2, 1 };
 
             Assert.True(equals(value1a, value1a));
-            Assert.False(equals(value1a, value1b));
+            Assert.True(equals(value1a, value1b));
             Assert.False(equals(value1a, value2));
 
             Assert.True(keyEquals(value1a, value1a));
@@ -662,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.True(equals(value1a, value1a));
             Assert.True(equals(value1a, value1b)); // Underlying array instances the same
-            Assert.False(equals(value1a, value1c)); // Underlying array instances different
+            Assert.True(equals(value1a, value1c)); // Underlying array instances different
             Assert.False(keyEquals(value1a, value2)); // Underlying array instances different values
 
             Assert.True(keyEquals(value1a, value1a));

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public ArrayStructuralComparer()
             : base(
-                CreateDefaultEqualsExpression(favorStructuralComparisons: true),
+                CreateDefaultEqualsExpression(),
                 CreateDefaultHashCodeExpression(favorStructuralComparisons: true),
                 v => v == null ? null : v.ToArray())
         {

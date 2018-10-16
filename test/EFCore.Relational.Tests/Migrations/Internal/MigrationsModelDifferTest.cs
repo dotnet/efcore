@@ -6187,6 +6187,98 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void SeedData_binary_change()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Value1");
+                        x.HasData(
+                            new
+                            {
+                                Id = 42,
+                                Value1 = new byte[] { 2, 1 }
+                            });
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Value1");
+                        x.HasData(
+                            new
+                            {
+                                Id = 42,
+                                Value1 = new byte[] { 1, 2 }
+                            });
+                    }),
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(
+                            m.Values,
+                            v => Assert.Equal(new byte[] { 1, 2 }, v));
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(
+                            m.Values,
+                            v => Assert.Equal(new byte[] { 2, 1 }, v));
+                    }));
+        }
+
+        [Fact]
+        public void SeedData_binary_no_change()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Value1");
+                        x.HasData(
+                            new
+                            {
+                                Id = 42,
+                                Value1 = new byte[] { 1, 2 }
+                            });
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Value1");
+                        x.HasData(
+                            new
+                            {
+                                Id = 42,
+                                Value1 = new byte[] { 1, 2 }
+                            });
+                    }),
+                upOps => Assert.Empty(upOps),
+                downOps => Assert.Empty(downOps));
+        }
+
+        [Fact]
         public void SeedData_update_with_table_rename()
         {
             Execute(
