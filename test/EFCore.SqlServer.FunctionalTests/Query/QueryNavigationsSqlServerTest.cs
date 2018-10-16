@@ -389,7 +389,7 @@ WHERE ([o.Customer].[City] = N'Seattle') AND (([o.Customer].[Phone] <> N'555 555
 
             AssertSql(
                 @"SELECT (
-    SELECT SUM([od].[Quantity])
+    SELECT SUM(CAST([od].[Quantity] AS int))
     FROM [Order Details] AS [od]
     WHERE [o].[OrderID] = [od].[OrderID]
 ) + (

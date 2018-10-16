@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            if (FieldInfo?.Name == fieldName)
+            if (FieldInfo?.GetSimpleMemberName() == fieldName)
             {
                 SetFieldInfo(FieldInfo, configurationSource);
                 return;

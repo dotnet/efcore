@@ -72,5 +72,12 @@ namespace System.Reflection
                 ? map.InterfaceMethods[index]
                 : targetMethod;
         }
+
+        public static string GetSimpleMemberName(this MemberInfo member)
+        {
+            var name = member.Name;
+            var index = name.LastIndexOf('.');
+            return index >= 0 ? name.Substring(index + 1) : name;
+        }
     }
 }
