@@ -106,10 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var tableName = (annotations.Schema, annotations.TableName);
                 if (!tables.TryGetValue(tableName, out var tableObjects))
                 {
-                    tableObjects = (new Dictionary<string, Property>(),
-                        new Dictionary<string, Key>(),
-                        new Dictionary<string, ForeignKey>(),
-                        new Dictionary<string, Index>());
+                    tableObjects = (new Dictionary<string, Property>(StringComparer.Ordinal),
+                        new Dictionary<string, Key>(StringComparer.Ordinal),
+                        new Dictionary<string, ForeignKey>(StringComparer.Ordinal),
+                        new Dictionary<string, Index>(StringComparer.Ordinal));
                     tables[tableName] = tableObjects;
                 }
 

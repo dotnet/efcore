@@ -4,10 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable MergeConditionalExpression
@@ -764,7 +767,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region Bug13108
 
         [Fact]
-        public virtual void Test()
+        public virtual void Foreign_key_infers_type_for_private_property()
         {
             using (CreateScratch<MyContext13108>(e => { }, "13108"))
             {
@@ -812,6 +815,50 @@ namespace Microsoft.EntityFrameworkCore.Query
             public int Key { get; set; }
             public string Id { get; set; }
             public ICollection<ComplexCaseChild13108> Children { get; set; }
+        }
+
+        #endregion
+
+        #region Bug12617
+
+        [Fact]
+        [UseCulture("de-DE")]
+        public virtual void EntityType_name_is_stored_culture_invariantly()
+        {
+            using (CreateScratch<MyContext12617>(e => { }, "12617"))
+            {
+                using (var context = new MyContext12617())
+                {
+                    Assert.Equal(2, context.Model.GetEntityTypes().Count());
+                    Assert.Equal(2, context.Model.FindEntityType(typeof(Entityss)).GetNavigations().Count());
+                }
+            }
+        }
+
+        private class MyContext12617 : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder.UseInMemoryDatabase("12617");
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Entityß>();
+                modelBuilder.Entity<Entityss>();
+            }
+        }
+
+        public class Entityß
+        {
+            public int Id { get; set; }
+        }
+
+        public class Entityss
+        {
+            public int Id { get; set; }
+            public Entityß Navigationß { get; set; }
+            public Entityß Navigationss { get; set; }
         }
 
         #endregion

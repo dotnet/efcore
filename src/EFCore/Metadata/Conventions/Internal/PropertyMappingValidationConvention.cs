@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                var clrProperties = new HashSet<string>();
+                var clrProperties = new HashSet<string>(StringComparer.Ordinal);
 
                 clrProperties.UnionWith(
                     entityType.GetRuntimeProperties().Values
