@@ -59,10 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 ResultExpression = current;
                 AddToResult(coalesce);
-
-                return binaryExpression;
             }
-
+            else
             // a && b == null <-> a == null && b != false || a != false && b == null
             // this transformation would produce a query that is too complex
             // so we just wrap the whole expression into IsNullExpression instead.
@@ -84,10 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (extensionExpression is NullableExpression nullableExpression)
             {
                 AddToResult(new IsNullExpression(nullableExpression.Operand));
-
-                return extensionExpression;
             }
-
+            else
             if (ContainsNullableColumnExpression(extensionExpression))
             {
                 AddToResult(new IsNullExpression(extensionExpression));
