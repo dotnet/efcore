@@ -117,6 +117,7 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
                         eb.OwnsMany(
                             p => p.Orders, ob =>
                             {
+                                ob.HasKey(o => o.Id);
                                 ob.HasData(
                                     new
                                     {
@@ -283,9 +284,12 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
 
                     sb.OwnsMany(
                         s => s.Composition, ob =>
-                        ob.HasData(
-                            new { Id = "H", Name = "Hydrogen", StarId = 1 },
-                            new { Id = "He", Name = "Helium", StarId = 1 }));
+                        {
+                            ob.HasKey(o => o.Id);
+                            ob.HasData(
+                              new { Id = "H", Name = "Hydrogen", StarId = 1 },
+                              new { Id = "He", Name = "Helium", StarId = 1 });
+                        });
                 });
             }
         }

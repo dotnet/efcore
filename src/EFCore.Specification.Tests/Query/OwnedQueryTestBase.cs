@@ -400,6 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsMany(
                             p => p.Orders, ob =>
                             {
+                                ob.HasKey(o => o.Id);
                                 ob.HasData(
                                     new
                                     {
@@ -544,9 +545,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     sb.HasData(new Star { Id = 1, Name = "Sol" });
                     sb.OwnsMany(
                         s => s.Composition, ob =>
-                        ob.HasData(
-                            new { Id = "H", Name = "Hydrogen", StarId = 1 },
-                            new { Id = "He", Name = "Helium", StarId = 1 }));
+                        {
+                            ob.HasKey(e => e.Id);
+                            ob.HasData(
+                                new { Id = "H", Name = "Hydrogen", StarId = 1 },
+                                new { Id = "He", Name = "Helium", StarId = 1 });
+                        });
                 });
             }
 
