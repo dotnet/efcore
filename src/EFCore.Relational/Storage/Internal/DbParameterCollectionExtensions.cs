@@ -170,7 +170,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 if (valueProperty != null
                     && valueProperty.PropertyType != parameterValue.GetType())
                 {
-                    FormatParameterValue(builder, valueProperty.GetValue(parameterValue));
+                    var isNullProperty = parameterValue.GetType().GetRuntimeProperty("IsNull");
+                    if (isNullProperty != null
+                        && (bool)isNullProperty.GetValue(parameterValue))
+                    {
+                        builder.Append("''");
+                    }
+                    else
+                    {
+                        FormatParameterValue(builder, valueProperty.GetValue(parameterValue));
+                    }
                 }
                 else
                 {
