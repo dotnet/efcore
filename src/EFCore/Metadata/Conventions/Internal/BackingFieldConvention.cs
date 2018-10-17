@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = model.FindEntityType(entityClrType);
             if (entityType == null)
             {
-                fields = new Dictionary<string, FieldInfo>();
+                fields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
                 foreach (var field in entityClrType.GetRuntimeFields())
                 {
                     if (!field.IsStatic

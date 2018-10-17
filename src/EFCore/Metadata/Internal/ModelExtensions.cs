@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (!(model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes))
             {
-                ownedTypes = new HashSet<string>();
+                ownedTypes = new HashSet<string>(StringComparer.Ordinal);
                 model[CoreAnnotationNames.OwnedTypesAnnotation] = ownedTypes;
             }
 

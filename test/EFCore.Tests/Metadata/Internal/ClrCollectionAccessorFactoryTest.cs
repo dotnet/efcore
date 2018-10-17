@@ -237,6 +237,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Delegate_accessor_always_creates_collections_that_use_reference_equality_comparer()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(MyEntity));
+            var otherType = model.AddEntityType(typeof(MyEntityWithCustomComparer));
+            var foreignKey = otherType.GetOrAddForeignKey(
+                otherType.AddProperty("MyEntityId", typeof(int)),
+                entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
+                entityType);
+
+            var navigation = foreignKey.HasPrincipalToDependent(
+                typeof(MyEntity).GetProperty(nameof(MyEntity.AsICollectionWithCustomComparer), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+
+            new BackingFieldConvention().Apply(foreignKey.Builder, navigation);
+
+            var accessor = new ClrCollectionAccessorFactory().Create(navigation);
+
+            var entity = new MyEntity(initialize: false);
+            var value = new MyEntityWithCustomComparer() { Id = 1 };
+
+            Assert.False(accessor.Contains(entity, value));
+
+            accessor.Add(entity, value);
+
+            value.Id = 42;
+
+            accessor.Add(entity, value);
+
+            Assert.Equal(1, entity.AsICollectionWithCustomComparer.Count);
+        }
+
+        [Fact]
         public void Creating_accessor_for_navigation_without_getter_and_no_backing_field_throws()
         {
             var navigation = CreateNavigation("WriteOnlyPropNoField");
@@ -391,6 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class MyEntity
         {
             private ICollection<MyOtherEntity> _asICollection;
+            private ICollection<MyEntityWithCustomComparer> _asICollectionOfEntitiesWithCustomComparer;
             private IList<MyOtherEntity> _asIList;
             private List<MyOtherEntity> _asList;
             private MyCollection _myCollection;
@@ -415,6 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (initialize)
                 {
                     _asICollection = new HashSet<MyOtherEntity>();
+                    _asICollectionOfEntitiesWithCustomComparer = new HashSet<MyEntityWithCustomComparer>();
                     _asIList = new List<MyOtherEntity>();
                     _asList = new List<MyOtherEntity>();
                     _myCollection = new MyCollection();
@@ -442,6 +476,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 get => _asICollection;
                 set => _asICollection = value;
+            }
+
+            internal ICollection<MyEntityWithCustomComparer> AsICollectionWithCustomComparer
+            {
+                get => _asICollectionOfEntitiesWithCustomComparer;
+                set => _asICollectionOfEntitiesWithCustomComparer = value;
             }
 
             internal IList<MyOtherEntity> AsIList
@@ -540,6 +580,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class MyOtherEntity
         {
+        }
+
+        private class MyEntityWithCustomComparer
+        {
+            public int Id { get; set; }
+
+            public override bool Equals(object obj)
+                => obj != null && obj is MyEntityWithCustomComparer other && Id == other.Id;
+
+            public override int GetHashCode()
+            {
+                return Id.GetHashCode();
+            }
         }
 
         private class MyCollection : List<MyOtherEntity>
