@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -24,6 +25,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 123, new IndexedPropertyGetterFactory().Create(propertyB).GetClrValue(indexedClass));
         }
 
+        [Fact]
+        public void Exception_is_returned_for_indexed_property_without_indexer()
+        {
+            var entityType = new Model().AddEntityType(typeof(NonIndexedClass));
+            var idProperty = entityType.AddProperty("Id", typeof(int));
+            var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
+            var propertyB = entityType.AddIndexedProperty("PropertyB", typeof(int));
+
+            var nonIndexedClass = new NonIndexedClass();
+            Assert.Throws<InvalidOperationException>(
+                () => new IndexedPropertyGetterFactory().Create(propertyA).GetClrValue(nonIndexedClass));
+            Assert.Throws<InvalidOperationException>(
+                () => new IndexedPropertyGetterFactory().Create(propertyB).GetClrValue(nonIndexedClass));
+        }
+
         private class IndexedClass
         {
             private Dictionary<string, object> _internalValues = new Dictionary<string, object>()
@@ -38,6 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 get => _internalValues[name];
             }
+        }
+
+        private class NonIndexedClass
+        {
+            internal int Id { get; set; }
+            public string PropA { get; set; }
+            public int PropB { get; set; }
         }
     }
 }

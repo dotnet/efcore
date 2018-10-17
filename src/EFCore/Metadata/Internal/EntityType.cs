@@ -1597,7 +1597,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
                 configurationSource,
                 typeConfigurationSource,
-                false);
+                isIndexProperty: false);
         }
 
         /// <summary>
@@ -1628,7 +1628,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 memberInfo,
                 configurationSource,
                 configurationSource,
-                false);
+                isIndexProperty: false);
         }
 
 
@@ -1652,7 +1652,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 null,
                 configurationSource,
                 typeConfigurationSource,
-                true);
+                isIndexProperty: true);
         }
 
         private Property AddProperty(
