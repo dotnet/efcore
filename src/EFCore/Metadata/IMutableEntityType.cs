@@ -184,6 +184,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableProperty AddProperty([NotNull] string name, [CanBeNull] Type propertyType);
 
         /// <summary>
+        ///     Adds a property based on an indexer to this entity.
+        /// </summary>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <returns> The newly created property. </returns>
+        IMutableProperty AddIndexedProperty([NotNull] string name, [NotNull] Type propertyType);
+
+        /// <summary>
         ///     <para>
         ///         Gets the property with a given name. Returns null if no property with the given name is defined.
         ///     </para>

@@ -2783,6 +2783,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("FkAttributeOnNonUniquePrincipal", nameof(navigation), nameof(principalType), nameof(dependentType)),
                 navigation, principalType, dependentType);
 
+        /// <summary>
+        ///     Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no indexer on '{entity}' taking a single argument of type '{type}'.
+        /// </summary>
+        public static string NoIndexer([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object type)
+            => string.Format(
+                GetString("NoIndexer", nameof(property), nameof(entity), nameof(type)),
+                property, entity, type);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
