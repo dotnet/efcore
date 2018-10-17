@@ -43,9 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            // a ?? b == null <-> a == null && b == null
             if (binaryExpression.NodeType == ExpressionType.Coalesce)
             {
+                // a ?? b == null <-> a == null && b == null
+
                 var current = ResultExpression;
                 ResultExpression = null;
                 Visit(binaryExpression.Left);
@@ -61,12 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 AddToResult(coalesce);
             }
             else
-            // a && b == null <-> a == null && b != false || a != false && b == null
-            // this transformation would produce a query that is too complex
-            // so we just wrap the whole expression into IsNullExpression instead.
             if (binaryExpression.NodeType == ExpressionType.AndAlso
                 || binaryExpression.NodeType == ExpressionType.OrElse)
             {
+                // a && b == null <-> a == null && b != false || a != false && b == null
+                // this transformation would produce a query that is too complex
+                // so we just wrap the whole expression into IsNullExpression instead.
+
                 AddToResult(new IsNullExpression(binaryExpression));
             }
 
