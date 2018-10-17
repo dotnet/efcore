@@ -61,9 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 ResultExpression = current;
                 AddToResult(coalesce);
             }
-            else
-            if (binaryExpression.NodeType == ExpressionType.AndAlso
-                || binaryExpression.NodeType == ExpressionType.OrElse)
+            else if (binaryExpression.NodeType == ExpressionType.AndAlso
+                     || binaryExpression.NodeType == ExpressionType.OrElse)
             {
                 // a && b == null <-> a == null && b != false || a != false && b == null
                 // this transformation would produce a query that is too complex
@@ -85,8 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 AddToResult(new IsNullExpression(nullableExpression.Operand));
             }
-            else
-            if (ContainsNullableColumnExpression(extensionExpression))
+            else if (ContainsNullableColumnExpression(extensionExpression))
             {
                 AddToResult(new IsNullExpression(extensionExpression));
             }
