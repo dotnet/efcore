@@ -17,7 +17,7 @@ EF Core is an object-relational mapper (O/RM) that enables .NET developers to wo
 The source for SQL Server, SQLite, and InMemory providers are included in this project. Additional providers are available.
 For a complete list, see https://docs.microsoft.com/ef/core/providers/.
 
-Provider               | Package name                              | Stable (master branch)    | Nightly (dev branch)
+Provider               | Package name                              | Stable                      | Nightly (master branch)
 -----------------------|-------------------------------------------|-----------------------------|-------------------------
 SQL Server             | `Microsoft.EntityFrameworkCore.SqlServer` | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.SqlServer)
 SQLite                 | `Microsoft.EntityFrameworkCore.SQLite`    | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.Sqlite.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.Sqlite)
