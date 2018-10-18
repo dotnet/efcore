@@ -55,6 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IReadOnlyList<Property> keyProperties = null;
                 var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
                                  ?? entityType.FindOwnership();
+
+                if (definingFk?.IsUnique == false
+                    && definingFk.DeclaringEntityType == entityType)
+                {
+                    entityTypeBuilder.PrimaryKey((IReadOnlyList<string>)null, ConfigurationSource.Convention);
+                    return entityTypeBuilder;
+                }
+
                 if (definingFk?.IsUnique == true
                     && definingFk.DeclaringEntityType == entityType)
                 {

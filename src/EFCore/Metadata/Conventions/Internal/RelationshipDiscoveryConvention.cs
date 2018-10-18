@@ -90,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipCandidates.Values.ToList();
             }
 
-            var navigationCandidates = GetNavigationCandidates(entityType);
-            foreach (var candidateTuple in navigationCandidates)
+            foreach (var candidateTuple in GetNavigationCandidates(entityType))
             {
                 var navigationPropertyInfo = candidateTuple.Key;
                 var targetClrType = candidateTuple.Value;

@@ -400,6 +400,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     c => c.Orders,
                     r =>
                     {
+                        r.HasKey(o => o.OrderId);
                         r.ForSqlServerIsMemoryOptimized();
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);

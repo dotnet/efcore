@@ -895,10 +895,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         });
                     });
 
-                    builder.Entity<EntityWithStringKey>(b =>
+                    builder.Entity<EntityWithStringKey>(b => b.OwnsMany(es => es.Properties, es =>
                     {
-                        b.OwnsMany(es => es.Properties, es => es.HasOne(e => e.EntityWithOneProperty).WithOne());
-                    });
+                        es.HasKey(e => e.Id);
+                        es.HasOne(e => e.EntityWithOneProperty).WithOne();
+                    }));
                 },
                 AddBoilerPlate(GetHeading() + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
