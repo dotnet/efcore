@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     methodCallExpression.Object,
                     functionName,
                     methodCallExpression.Type,
-                    methodCallExpression.Arguments,
+                    Simplify(methodCallExpression.Arguments, isGeography),
                     resultTypeMapping,
                     _typeMappingSource.FindMapping(methodCallExpression.Object.Type, storeType),
                     argumentTypeMappings);
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         methodCallExpression.Object,
                         "STDistance",
                         typeof(double),
-                        new[] { methodCallExpression.Arguments[0] },
+                        Simplify(new[] { methodCallExpression.Arguments[0] }, isGeography),
                         resultTypeMapping: null,
                         _typeMappingSource.FindMapping(methodCallExpression.Object.Type, storeType),
                         new[] { _typeMappingSource.FindMapping(typeof(IGeometry), storeType) }),
@@ -127,6 +127,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             }
 
             return null;
+        }
+
+        private static IEnumerable<Expression> Simplify(IEnumerable<Expression> arguments, bool isGeography)
+        {
+            foreach (var argument in arguments)
+            {
+                if (argument is ConstantExpression constant
+                    && constant.Value is IGeometry geometry
+                    && geometry.SRID == (isGeography ? 4326 : 0))
+                {
+                    yield return new SqlFragmentExpression("'" + geometry.AsText() + "'");
+                    continue;
+                }
+
+                yield return argument;
+            }
         }
     }
 }

@@ -5,8 +5,8 @@ using System;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
-using System.Globalization;
 using System.Reflection;
+using System.Text;
 using GeoAPI;
 using GeoAPI.Geometries;
 using JetBrains.Annotations;
@@ -63,18 +63,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
+            var builder = new StringBuilder();
             var geometry = (IGeometry)value;
-            var srid = geometry.SRID;
+            var defaultSrid = geometry.SRID == (_isGeography ? 4326 : 0);
 
-            var text = "'" + geometry.AsText() + "'";
-            if (srid != (_isGeography ? 4326 : 0))
+            builder
+                .Append(_isGeography ? "geography" : "geometry")
+                .Append("::")
+                .Append(defaultSrid ? "Parse" : "STGeomFromText")
+                .Append("('")
+                .Append(geometry.AsText())
+                .Append("'");
+
+            if (!defaultSrid)
             {
-                text = $"{(_isGeography ? "geography" : "geometry")}::STGeomFromText({text}, {srid})";
+                builder
+                    .Append(", ")
+                    .Append(geometry.SRID);
             }
 
-            return srid > 0
-                ? $"geometry::STGeomFromText({text}, {srid.ToString(CultureInfo.InvariantCulture)})"
-                : text;
+            builder.Append(")");
+
+            return builder.ToString();
         }
 
         /// <summary>

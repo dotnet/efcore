@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -130,6 +131,36 @@ FROM [LineStringEntity] AS [e]");
 
 SELECT [e].[Id], [e].[Polygon].STDifference(@__polygon_0) AS [Difference]
 FROM [PolygonEntity] AS [e]");
+        }
+
+        public override async Task Distance_constant(bool isAsync)
+        {
+            await base.Distance_constant(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], CASE
+    WHEN [e].[Point] IS NULL
+    THEN -1.0E0 ELSE [e].[Point].STDistance('POINT (0 1)')
+END AS [Distance]
+FROM [PointEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "Mixing SRIDs not supported")]
+        public override Task Distance_constant_srid_4326(bool isAsync)
+        {
+            return base.Distance_constant_srid_4326(isAsync);
+        }
+
+        public override async Task Distance_constant_lhs(bool isAsync)
+        {
+            await base.Distance_constant_lhs(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], CASE
+    WHEN [e].[Point] IS NULL
+    THEN -1.0E0 ELSE geometry::Parse('POINT (0 1)').STDistance([e].[Point])
+END AS [Distance]
+FROM [PointEntity] AS [e]");
         }
 
         public override async Task Dimension(bool isAsync)

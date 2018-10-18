@@ -201,6 +201,42 @@ END AS ""Distance""
 FROM ""PointEntity"" AS ""e""");
         }
 
+        public override async Task Distance_constant(bool isAsync)
+        {
+            await base.Distance_constant(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", CASE
+    WHEN ""e"".""Point"" IS NULL
+    THEN -1.0 ELSE Distance(""e"".""Point"", GeomFromText('POINT (0 1)'))
+END AS ""Distance""
+FROM ""PointEntity"" AS ""e""");
+        }
+
+        public override async Task Distance_constant_srid_4326(bool isAsync)
+        {
+            await base.Distance_constant_srid_4326(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", CASE
+    WHEN ""e"".""Point"" IS NULL
+    THEN -1.0 ELSE Distance(""e"".""Point"", GeomFromText('POINT (0 1)', 4326))
+END AS ""Distance""
+FROM ""PointEntity"" AS ""e""");
+        }
+
+        public override async Task Distance_constant_lhs(bool isAsync)
+        {
+            await base.Distance_constant_lhs(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", CASE
+    WHEN ""e"".""Point"" IS NULL
+    THEN -1.0 ELSE Distance(GeomFromText('POINT (0 1)'), ""e"".""Point"")
+END AS ""Distance""
+FROM ""PointEntity"" AS ""e""");
+        }
+
         public override async Task EndPoint(bool isAsync)
         {
             await base.EndPoint(isAsync);
