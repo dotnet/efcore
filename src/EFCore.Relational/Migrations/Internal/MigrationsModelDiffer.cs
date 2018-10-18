@@ -622,6 +622,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType)
         {
             var shadowProperties = new List<IProperty>();
+            var shadowPrimaryKeyProperties = new List<IProperty>();
+            var primaryKeyPropertyGroups = new Dictionary<PropertyInfo, IProperty>();
             var groups = new Dictionary<PropertyInfo, List<IProperty>>();
             var unorderedGroups = new Dictionary<PropertyInfo, SortedDictionary<int, IProperty>>();
             var types = new Dictionary<Type, SortedDictionary<int, PropertyInfo>>();
@@ -631,6 +633,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var clrProperty = property.PropertyInfo;
                 if (clrProperty == null)
                 {
+                    if (property.IsPrimaryKey())
+                    {
+                        shadowPrimaryKeyProperties.Add(property);
+
+                        continue;
+                    }
+
                     var foreignKey = property.GetContainingForeignKeys()
                         .FirstOrDefault(fk => fk.DependentToPrincipal?.PropertyInfo != null);
                     if (foreignKey == null)
@@ -647,6 +656,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
                 else
                 {
+                    if (property.IsPrimaryKey())
+                    {
+                        primaryKeyPropertyGroups.Add(clrProperty, property);
+                    }
+
                     groups.Add(
                         clrProperty, new List<IProperty>
                         {
@@ -704,8 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     foreach (var right in types.Keys)
                     {
-                        if (right == baseType
-                            && baseType != left)
+                        if (right == baseType)
                         {
                             graph.AddEdge(right, left, null);
                             found = true;
@@ -721,7 +734,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            return graph.TopologicalSort().SelectMany(t => types[t].Values).SelectMany(p => groups[p])
+            var sortedPropertyInfos = graph.TopologicalSort().SelectMany(e => types[e].Values).ToList();
+
+            return sortedPropertyInfos
+                .Select(pi => primaryKeyPropertyGroups.ContainsKey(pi) ? primaryKeyPropertyGroups[pi] : null)
+                .Where(e => e != null)
+                .Concat(shadowPrimaryKeyProperties)
+                .Concat(sortedPropertyInfos.Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi)).SelectMany(p => groups[p]))
                 .Concat(shadowProperties)
                 .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(GetSortedProperties));
         }
