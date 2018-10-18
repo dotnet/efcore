@@ -9,6 +9,7 @@ using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Storage;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.Internal
@@ -50,48 +51,98 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         private static readonly MethodInfo _getGeometryN = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.GetGeometryN), new[] { typeof(int) });
         private static readonly MethodInfo _isWithinDistance = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.IsWithinDistance), new[] { typeof(IGeometry), typeof(double) });
 
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public SqlServerGeometryMethodTranslator(IRelationalTypeMappingSource typeMappingSource)
+            => _typeMappingSource = typeMappingSource;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            var instance = methodCallExpression.Object;
-            var isGeography = string.Equals(
-                instance.FindProperty(instance.Type)?.Relational().ColumnType,
-                "geography",
-                StringComparison.OrdinalIgnoreCase);
+            if (!typeof(IGeometry).IsAssignableFrom(methodCallExpression.Method.DeclaringType))
+            {
+                return null;
+            }
+
+            var storeType = methodCallExpression.FindSpatialStoreType();
+            var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
             var method = methodCallExpression.Method.OnInterface(typeof(IGeometry));
             if (_methodToFunctionName.TryGetValue(method, out var functionName)
                 || (!isGeography && _geometryMethodToFunctionName.TryGetValue(method, out functionName)))
             {
+                var argumentTypeMappings = new RelationalTypeMapping[methodCallExpression.Arguments.Count];
+                for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
+                {
+                    var type = methodCallExpression.Arguments[i].Type;
+                    if (typeof(IGeometry).IsAssignableFrom(type))
+                    {
+                        argumentTypeMappings[i] = _typeMappingSource.FindMapping(type, storeType);
+                    }
+                }
+
+                RelationalTypeMapping resultTypeMapping = null;
+                if (typeof(IGeometry).IsAssignableFrom(methodCallExpression.Type))
+                {
+                    resultTypeMapping = _typeMappingSource.FindMapping(methodCallExpression.Type, storeType);
+                }
+
                 return new SqlFunctionExpression(
-                    instance,
+                    methodCallExpression.Object,
                     functionName,
                     methodCallExpression.Type,
-                    methodCallExpression.Arguments);
+                    Simplify(methodCallExpression.Arguments, isGeography),
+                    resultTypeMapping,
+                    _typeMappingSource.FindMapping(methodCallExpression.Object.Type, storeType),
+                    argumentTypeMappings);
             }
             if (Equals(method, _getGeometryN))
             {
                 return new SqlFunctionExpression(
-                    instance,
+                    methodCallExpression.Object,
                     "STGeometryN",
                     methodCallExpression.Type,
-                    new[] { Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1)) });
+                    new[] { Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1)) },
+                    _typeMappingSource.FindMapping(typeof(IGeometry), storeType));
             }
             if (Equals(method, _isWithinDistance))
             {
                 return Expression.LessThanOrEqual(
                     new SqlFunctionExpression(
-                        instance,
+                        methodCallExpression.Object,
                         "STDistance",
                         typeof(double),
-                        new[] { methodCallExpression.Arguments[0] }),
+                        Simplify(new[] { methodCallExpression.Arguments[0] }, isGeography),
+                        resultTypeMapping: null,
+                        _typeMappingSource.FindMapping(methodCallExpression.Object.Type, storeType),
+                        new[] { _typeMappingSource.FindMapping(typeof(IGeometry), storeType) }),
                     methodCallExpression.Arguments[1]);
             }
 
             return null;
+        }
+
+        private static IEnumerable<Expression> Simplify(IEnumerable<Expression> arguments, bool isGeography)
+        {
+            foreach (var argument in arguments)
+            {
+                if (argument is ConstantExpression constant
+                    && constant.Value is IGeometry geometry
+                    && geometry.SRID == (isGeography ? 4326 : 0))
+                {
+                    yield return new SqlFragmentExpression("'" + geometry.AsText() + "'");
+                    continue;
+                }
+
+                yield return argument;
+            }
         }
     }
 }

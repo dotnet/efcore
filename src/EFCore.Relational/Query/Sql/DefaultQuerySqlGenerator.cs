@@ -665,8 +665,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="joinAction">An optional join action.</param>
         protected virtual void GenerateList(
             [NotNull] IReadOnlyList<Expression> items,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null)
-            => GenerateList(items, e => Visit(e), joinAction);
+            [CanBeNull] Action<IRelationalCommandBuilder> joinAction)
+            => GenerateList(items, joinAction, typeMappings: null);
+
+        /// <summary>
+        ///     Performs generation over a list of items by visiting each item.
+        /// </summary>
+        /// <param name="items">The list of items.</param>
+        /// <param name="joinAction">An optional join action.</param>
+        /// <param name="typeMappings">Option type mappings for each item.</param>
+        protected virtual void GenerateList(
+            [NotNull] IReadOnlyList<Expression> items,
+            [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null,
+            [CanBeNull] IReadOnlyList<RelationalTypeMapping> typeMappings = null)
+            => GenerateList(items, e => Visit(e), joinAction, typeMappings);
 
         /// <summary>
         ///     Perform generation over a list of items using a provided generation action
@@ -679,12 +691,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual void GenerateList<T>(
             [NotNull] IReadOnlyList<T> items,
             [NotNull] Action<T> generationAction,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null)
+            [CanBeNull] Action<IRelationalCommandBuilder> joinAction)
+            => GenerateList(items, generationAction, joinAction, typeMappings: null);
+
+        /// <summary>
+        ///     Perform generation over a list of items using a provided generation action
+        ///     and optional join action.
+        /// </summary>
+        /// <typeparam name="T">The item type.</typeparam>
+        /// <param name="items">The list of items.</param>
+        /// <param name="generationAction">The generation action.</param>
+        /// <param name="joinAction">An optional join action.</param>
+        /// <param name="typeMappings">Option type mappings for each item.</param>
+        protected virtual void GenerateList<T>(
+            [NotNull] IReadOnlyList<T> items,
+            [NotNull] Action<T> generationAction,
+            [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null,
+            [CanBeNull] IReadOnlyList<RelationalTypeMapping> typeMappings = null)
         {
             Check.NotNull(items, nameof(items));
             Check.NotNull(generationAction, nameof(generationAction));
 
             joinAction = joinAction ?? (isb => isb.Append(", "));
+
+            var parentTypeMapping = _typeMapping;
 
             for (var i = 0; i < items.Count; i++)
             {
@@ -693,8 +723,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     joinAction(_relationalCommandBuilder);
                 }
 
+                _typeMapping = typeMappings != null && i < typeMappings.Count && typeMappings[i] != null
+                    ? typeMappings[i]
+                    : parentTypeMapping;
+
                 generationAction(items[i]);
             }
+
+            _typeMapping = parentTypeMapping;
         }
 
         /// <summary>
@@ -1552,7 +1588,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 if (sqlFunctionExpression.Instance != null)
                 {
+                    var parentTypeMapping = _typeMapping;
+                    _typeMapping = sqlFunctionExpression.InstanceTypeMapping ?? parentTypeMapping;
+
                     Visit(sqlFunctionExpression.Instance);
+
+                    _typeMapping = parentTypeMapping;
 
                     _relationalCommandBuilder.Append(".");
                 }
@@ -1567,8 +1608,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var parentTypeMapping = _typeMapping;
                 _typeMapping = null;
 
-                // TODO: Infer type mappings of arguments
-                GenerateList(sqlFunctionExpression.Arguments);
+                GenerateList(sqlFunctionExpression.Arguments, typeMappings: sqlFunctionExpression.ArgumentTypeMappings);
 
                 _typeMapping = parentTypeMapping;
 

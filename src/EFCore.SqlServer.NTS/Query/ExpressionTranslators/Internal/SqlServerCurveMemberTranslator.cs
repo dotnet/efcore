@@ -10,6 +10,7 @@ using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.Internal
 {
@@ -28,31 +29,49 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
 
         private static readonly MemberInfo _isRing = typeof(ICurve).GetRuntimeProperty(nameof(ICurve.IsRing));
 
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public SqlServerCurveMemberTranslator(IRelationalTypeMappingSource typeMappingSource)
+            => _typeMappingSource = typeMappingSource;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression Translate(MemberExpression memberExpression)
         {
-            var instance = memberExpression.Expression;
-            var isGeography = string.Equals(
-                instance.FindProperty(instance.Type)?.Relational().ColumnType,
-                "geography",
-                StringComparison.OrdinalIgnoreCase);
+            if (!typeof(ICurve).IsAssignableFrom(memberExpression.Member.DeclaringType))
+            {
+                return null;
+            }
+
+            var storeType = memberExpression.FindSpatialStoreType();
+            var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
             var member = memberExpression.Member.OnInterface(typeof(ICurve));
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
+                RelationalTypeMapping resultTypeMapping = null;
+                if (typeof(IGeometry).IsAssignableFrom(memberExpression.Type))
+                {
+                    resultTypeMapping = _typeMappingSource.FindMapping(memberExpression.Type, storeType);
+                }
+
                 return new SqlFunctionExpression(
-                    instance,
+                    memberExpression.Expression,
                     functionName,
                     memberExpression.Type,
-                    Enumerable.Empty<Expression>());
+                    Enumerable.Empty<Expression>(),
+                    resultTypeMapping);
             }
             else if (!isGeography && Equals(member, _isRing))
             {
                 return new SqlFunctionExpression(
-                    instance,
+                    memberExpression.Expression,
                     "STIsRing",
                     memberExpression.Type,
                     Enumerable.Empty<Expression>());

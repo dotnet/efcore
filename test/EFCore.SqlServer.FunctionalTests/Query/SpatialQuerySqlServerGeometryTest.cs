@@ -55,7 +55,6 @@ WHERE [e].[Id] = '2f39aade-4d8d-42d2-88ce-775c84ab83b1'");
 FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Buffer(bool isAsync)
         {
             await base.Buffer(isAsync);
@@ -85,7 +84,6 @@ SELECT [e].[Id], [e].[Polygon].STContains(@__point_0) AS [Contains]
 FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task ConvexHull(bool isAsync)
         {
             await base.ConvexHull(isAsync);
@@ -113,7 +111,6 @@ FROM [MultiLineStringEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task Crosses(bool isAsync)
         {
             await base.Crosses(isAsync);
@@ -125,7 +122,6 @@ SELECT [e].[Id], [e].[LineString].STCrosses(@__lineString_0) AS [Crosses]
 FROM [LineStringEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Difference(bool isAsync)
         {
             await base.Difference(isAsync);
@@ -135,6 +131,36 @@ FROM [LineStringEntity] AS [e]");
 
 SELECT [e].[Id], [e].[Polygon].STDifference(@__polygon_0) AS [Difference]
 FROM [PolygonEntity] AS [e]");
+        }
+
+        public override async Task Distance_constant(bool isAsync)
+        {
+            await base.Distance_constant(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], CASE
+    WHEN [e].[Point] IS NULL
+    THEN -1.0E0 ELSE [e].[Point].STDistance('POINT (0 1)')
+END AS [Distance]
+FROM [PointEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "Mixing SRIDs not supported")]
+        public override Task Distance_constant_srid_4326(bool isAsync)
+        {
+            return base.Distance_constant_srid_4326(isAsync);
+        }
+
+        public override async Task Distance_constant_lhs(bool isAsync)
+        {
+            await base.Distance_constant_lhs(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], CASE
+    WHEN [e].[Point] IS NULL
+    THEN -1.0E0 ELSE geometry::Parse('POINT (0 1)').STDistance([e].[Point])
+END AS [Distance]
+FROM [PointEntity] AS [e]");
         }
 
         public override async Task Dimension(bool isAsync)
@@ -158,7 +184,6 @@ SELECT [e].[Id], [e].[Polygon].STDisjoint(@__point_0) AS [Disjoint]
 FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task Distance(bool isAsync)
         {
             await base.Distance(isAsync);
@@ -166,11 +191,13 @@ FROM [PolygonEntity] AS [e]");
             AssertSql(
                 @"@__point_0='0x00000000010C0000000000000000000000000000F03F' (Size = 22) (DbType = Binary)
 
-SELECT [e].[Id], [e].[Point].STDistance(@__point_0) AS [Distance]
+SELECT [e].[Id], CASE
+    WHEN [e].[Point] IS NULL
+    THEN -1.0E0 ELSE [e].[Point].STDistance(@__point_0)
+END AS [Distance]
 FROM [PointEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task EndPoint(bool isAsync)
         {
             await base.EndPoint(isAsync);
@@ -180,7 +207,6 @@ FROM [PointEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Envelope(bool isAsync)
         {
             await base.Envelope(isAsync);
@@ -202,7 +228,6 @@ FROM [PointEntity] AS [e]
 WHERE [e].[Id] = '2f39aade-4d8d-42d2-88ce-775c84ab83b1'");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task ExteriorRing(bool isAsync)
         {
             await base.ExteriorRing(isAsync);
@@ -221,7 +246,6 @@ FROM [PolygonEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task GetGeometryN(bool isAsync)
         {
             await base.GetGeometryN(isAsync);
@@ -259,7 +283,6 @@ FROM [LineStringEntity] AS [e]");
 FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Intersection(bool isAsync)
         {
             await base.Intersection(isAsync);
@@ -271,7 +294,6 @@ SELECT [e].[Id], [e].[Polygon].STIntersection(@__polygon_0) AS [Intersection]
 FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task Intersects(bool isAsync)
         {
             await base.Intersects(isAsync);
@@ -338,7 +360,6 @@ FROM [PointEntity] AS [e]
 WHERE [e].[Id] = '2f39aade-4d8d-42d2-88ce-775c84ab83b1'");
         }
 
-        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task IsWithinDistance(bool isAsync)
         {
             await base.IsWithinDistance(isAsync);
@@ -347,13 +368,12 @@ WHERE [e].[Id] = '2f39aade-4d8d-42d2-88ce-775c84ab83b1'");
                 @"@__point_0='0x00000000010C0000000000000000000000000000F03F' (Size = 22) (DbType = Binary)
 
 SELECT [e].[Id], CASE
-    WHEN [e].[Point].STDistance(@__point_0) <= 1.0E0
+    WHEN [e].[Point] IS NOT NULL AND ([e].[Point].STDistance(@__point_0) <= 1.0E0)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END AS [IsWithinDistance]
 FROM [PointEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Item(bool isAsync)
         {
             await base.Item(isAsync);
@@ -483,7 +503,6 @@ FROM [PointEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task SymmetricDifference(bool isAsync)
         {
             await base.SymmetricDifference(isAsync);
@@ -513,7 +532,6 @@ FROM [PointEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better argument type inference")]
         public override async Task Touches(bool isAsync)
         {
             await base.Touches(isAsync);
@@ -525,7 +543,6 @@ SELECT [e].[Id], [e].[Polygon].STTouches(@__polygon_0) AS [Touches]
 FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "Needs better result type inference")]
         public override async Task Union(bool isAsync)
         {
             await base.Union(isAsync);

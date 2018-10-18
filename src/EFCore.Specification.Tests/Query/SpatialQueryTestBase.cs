@@ -318,6 +318,78 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distance_constant(bool isAsync)
+        {
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        Distance = e.Point == null ? -1 : e.Point.Distance(new Point(0, 1))
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.Distance, a.Distance);
+                    }
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distance_constant_srid_4326(bool isAsync)
+        {
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        Distance = e.Point == null ? -1 : e.Point.Distance(new Point(0, 1) { SRID = 4326 })
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.Distance, a.Distance);
+                    }
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distance_constant_lhs(bool isAsync)
+        {
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        Distance = e.Point == null ? -1 : new Point(0, 1).Distance(e.Point)
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (AssertDistances)
+                    {
+                        Assert.Equal(e.Distance, a.Distance);
+                    }
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task EndPoint(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(isAsync, es => es.Select(e => new { e.Id, e.LineString.EndPoint }));
