@@ -1123,6 +1123,6 @@
     <value>The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.</value>
   </data>
   <data name="NoIndexer" xml:space="preserve">
-    <value>Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no indexer on '{entity}' taking a single argument of type '{stringType}' and returning type '{objectType}'.</value>
+    <value>Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.</value>
   </data>
 </root>

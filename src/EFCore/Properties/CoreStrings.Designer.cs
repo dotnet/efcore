@@ -2784,12 +2784,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 navigation, principalType, dependentType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no indexer on '{entity}' taking a single argument of type '{stringType}' and returning type '{objectType}'.
+        ///     Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.
         /// </summary>
-        public static string NoIndexer([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object stringType, [CanBeNull] object objectType)
+        public static string NoIndexer([CanBeNull] object property, [CanBeNull] object entity)
             => string.Format(
-                GetString("NoIndexer", nameof(property), nameof(entity), nameof(stringType), nameof(objectType)),
-                property, entity, stringType, objectType);
+                GetString("NoIndexer", nameof(property), nameof(entity)),
+                property, entity);
 
         private static string GetString(string name, params string[] formatterNames)
         {

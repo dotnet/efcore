@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             // find indexer with single argument of type string which returns an object
             var indexerPropertyInfo =
-                (from p in propertyBase.DeclaringType.ClrType.GetDefaultMembers().OfType<PropertyInfo>()
+                (from p in propertyBase.DeclaringType.ClrType.GetRuntimeProperties()
                  where p.PropertyType == typeof(object)
                  let q = p.GetIndexParameters()
                  where q.Length == 1 && q[0].ParameterType == typeof(string)
@@ -36,9 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (indexerPropertyInfo == null)
             {
-                throw new InvalidOperationException(CoreStrings.NoIndexer(propertyBase.Name,
-                        propertyBase.DeclaringType.DisplayName(), typeof(string).ShortDisplayName(),
-                        typeof(object).ShortDisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.NoIndexer(propertyBase.Name, propertyBase.DeclaringType.DisplayName()));
             }
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
