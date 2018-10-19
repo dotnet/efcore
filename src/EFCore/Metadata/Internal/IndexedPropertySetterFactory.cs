@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -16,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class IndexedPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
+    public class IndexedPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
+        protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
             PropertyInfo propertyInfo, IPropertyBase propertyBase)
         {
             Debug.Assert(propertyBase != null);
@@ -42,31 +41,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
+            var valueParameter = Expression.Parameter(typeof(TValue), "value");
             var indexerParameterList = new List<Expression>() { Expression.Constant(propertyBase.Name) };
-            Expression readExpression = Expression.MakeIndex(
-                entityParameter, indexerPropertyInfo, indexerParameterList);
 
-            if (readExpression.Type != typeof(TValue))
-            {
-                readExpression = Expression.Convert(readExpression, typeof(TValue));
-            }
+            // the indexer expects the value to be an object, so cast it to that if necessary
+            var propertyType = propertyBase.ClrType;
+            var convertedParameter = propertyType == typeof(object)
+                ? (Expression)valueParameter
+                : Expression.TypeAs(valueParameter, typeof(object));
 
-            var property = propertyBase as IProperty;
-            var comparer = typeof(TValue).IsNullableType()
-                ? null
-                : property?.GetValueComparer()
-                  ?? property?.FindMapping()?.Comparer
-                  ?? (ValueComparer)Activator.CreateInstance(
-                      typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                      new object[] { false });
+            Expression writeExpression = Expression.Assign(
+                Expression.MakeIndex(entityParameter, indexerPropertyInfo, indexerParameterList),
+                convertedParameter);
 
-            var hasDefaultValueExpression = comparer == null
-                ? Expression.Equal(readExpression, Expression.Default(typeof(TValue)))
-                : comparer.ExtractEqualsBody(readExpression, Expression.Default(typeof(TValue)));
+            var setter = Expression.Lambda<Action<TEntity, TValue>>(
+                writeExpression,
+                entityParameter,
+                valueParameter).Compile();
 
-            return new ClrPropertyGetter<TEntity, TValue>(
-                Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
-                Expression.Lambda<Func<TEntity, bool>>(hasDefaultValueExpression, entityParameter).Compile());
+            return propertyType.IsNullableType()
+                   && propertyType.UnwrapNullableType().GetTypeInfo().IsEnum
+                ? new NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue>(setter)
+                : (IClrPropertySetter)new ClrPropertySetter<TEntity, TValue>(setter);
         }
     }
 }

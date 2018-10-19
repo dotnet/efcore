@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IClrPropertySetter _setter;
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
-        private bool _isIndexProperty;
+        private bool _isIndexedProperty;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Name = name;
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;
-            _isIndexProperty = isIndexProperty;
+            _isIndexedProperty = isIndexProperty;
         }
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertyGetter Getter => _isIndexProperty
+        public virtual IClrPropertyGetter Getter => _isIndexedProperty
             ? NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new IndexedPropertyGetterFactory().Create(p))
             : NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
 
@@ -269,8 +269,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertySetter Setter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
+        public virtual IClrPropertySetter Setter => _isIndexedProperty
+            ? NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new IndexedPropertySetterFactory().Create(p))
+            : NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
