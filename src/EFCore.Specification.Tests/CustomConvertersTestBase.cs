@@ -20,6 +20,64 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Can_query_and_update_with_nullable_converter_on_primary_key()
+        {
+            using (var context = CreateContext())
+            {
+                var principal = context.Add(
+                    new NullablePrincipal
+                    {
+                        Id = 1,
+                        Dependents = new List<NonNullableDependent>
+                        {
+                            new NonNullableDependent()
+                        }
+                    }).Entity;
+
+                var pkEntry = context.Entry(principal).Property(e => e.Id);
+                var fkEntry = context.Entry(principal.Dependents.Single()).Property(e => e.PrincipalId);
+
+                Assert.Equal(1, fkEntry.CurrentValue);
+                Assert.Equal(1, fkEntry.OriginalValue);
+                Assert.Equal(1, pkEntry.CurrentValue);
+                Assert.Equal(1, pkEntry.CurrentValue);
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var dependent = context.Set<NonNullableDependent>().Include(e => e.Principal).Single();
+
+                Assert.Equal(1, dependent.PrincipalId);
+                Assert.Equal(1, dependent.Principal.Id);
+
+                var fkEntry = context.Entry(dependent).Property(e => e.PrincipalId);
+                var pkEntry = context.Entry(dependent.Principal).Property(e => e.Id);
+
+                Assert.Equal(1, fkEntry.CurrentValue);
+                Assert.Equal(1, fkEntry.OriginalValue);
+                Assert.Equal(1, pkEntry.CurrentValue);
+                Assert.Equal(1, pkEntry.CurrentValue);
+            }
+        }
+
+        protected class NullablePrincipal
+        {
+            public int? Id { get; set; }
+
+            public ICollection<NonNullableDependent> Dependents { get; set; }
+        }
+
+        protected class NonNullableDependent
+        {
+            public int Id { get; set; }
+
+            public int PrincipalId { get; set; }
+            public NullablePrincipal Principal { get; set; }
+        }
+
+        [Fact]
         public virtual void Can_query_and_update_with_conversion_for_custom_type()
         {
             Guid id;
@@ -191,6 +249,15 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder
+                    .Entity<NullablePrincipal>(
+                        b =>
+                        {
+                            b.HasMany(e => e.Dependents).WithOne(e => e.Principal).HasForeignKey(e => e.PrincipalId);
+                            b.Property(e => e.Id).ValueGeneratedNever();
+                            b.Property(e => e.Id).HasConversion(v => v, v => (int)v);
+                        });
 
                 modelBuilder
                     .Entity<User>(
