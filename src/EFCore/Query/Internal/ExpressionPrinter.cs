@@ -632,7 +632,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (methodCallExpression.Object != null)
             {
-                Visit(methodCallExpression.Object);
+                if (methodCallExpression.Object is BinaryExpression)
+                {
+                    _stringBuilder.Append("(");
+                    Visit(methodCallExpression.Object);
+                    _stringBuilder.Append(")");
+                }
+                else
+                {
+                    Visit(methodCallExpression.Object);
+                }
+
                 _stringBuilder.Append(".");
             }
 
