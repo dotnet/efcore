@@ -2140,13 +2140,52 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 var parentIsSearchCondition = _isSearchCondition;
 
-                // All current Extension expressions have value type children
-                _isSearchCondition = false;
+                Expression newExpression;
+                switch (extensionExpression)
+                {
+                    case SelectExpression selectExpression:
+                        // We skip visiting SelectExpression here because it will be processed by outer visitor when
+                        // generating SQL
+                        newExpression = selectExpression;
+                        break;
 
-                // We skip selectExpression here because it will be processed by outer visitor when generating SQL
-                var newExpression = extensionExpression is SelectExpression
-                    ? extensionExpression
-                    : base.VisitExtension(extensionExpression);
+                    case CaseExpression caseExpression:
+                        _isSearchCondition = false;
+                        var newOperand = Visit(caseExpression.Operand);
+
+                        var whenThenListChanged = false;
+                        var newWhenThenList = new List<CaseWhenClause>();
+                        foreach (var whenClause in caseExpression.WhenClauses)
+                        {
+                            _isSearchCondition = caseExpression.Operand == null;
+                            var newTest = Visit(whenClause.Test);
+
+                            _isSearchCondition = false;
+                            var newResult = Visit(whenClause.Result);
+                            var newWhenThen = newTest != whenClause.Test || newResult != whenClause.Result
+                                ? new CaseWhenClause(newTest, newResult)
+                                : whenClause;
+
+                            newWhenThenList.Add(newWhenThen);
+                            whenThenListChanged |= newWhenThen != whenClause;
+                        }
+
+                        _isSearchCondition = false;
+                        var newElseResult = Visit(caseExpression.ElseResult);
+
+                        newExpression = newOperand != caseExpression.Operand
+                                || whenThenListChanged
+                                || newElseResult != caseExpression.ElseResult
+                            ? new CaseExpression(newOperand, newWhenThenList, newElseResult)
+                            : caseExpression;
+                        break;
+
+                    default:
+                        // All other Extension expressions have value type children
+                        _isSearchCondition = false;
+                        newExpression = base.VisitExtension(extensionExpression);
+                        break;
+                }
 
                 _isSearchCondition = parentIsSearchCondition;
 

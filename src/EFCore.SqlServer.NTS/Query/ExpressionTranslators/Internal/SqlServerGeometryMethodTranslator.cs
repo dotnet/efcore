@@ -115,15 +115,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             if (Equals(method, _isWithinDistance))
             {
                 return Expression.LessThanOrEqual(
-                    new SqlFunctionExpression(
-                        methodCallExpression.Object,
-                        "STDistance",
-                        typeof(double),
-                        Simplify(new[] { methodCallExpression.Arguments[0] }, isGeography),
-                        resultTypeMapping: null,
-                        _typeMappingSource.FindMapping(methodCallExpression.Object.Type, storeType),
-                        new[] { _typeMappingSource.FindMapping(typeof(IGeometry), storeType) }),
-                    methodCallExpression.Arguments[1]);
+                    Expression.Convert(
+                        new SqlFunctionExpression(
+                            methodCallExpression.Object,
+                            "STDistance",
+                            typeof(double),
+                            Simplify(new[] { methodCallExpression.Arguments[0] }, isGeography),
+                            resultTypeMapping: null,
+                            _typeMappingSource.FindMapping(methodCallExpression.Object.Type, storeType),
+                            new[] { _typeMappingSource.FindMapping(typeof(IGeometry), storeType) }),
+                        typeof(double?)),
+                    Expression.Convert(methodCallExpression.Arguments[1], typeof(double?)));
             }
 
             return null;

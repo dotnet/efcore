@@ -750,8 +750,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             ? ((UnaryExpression)e).Operand.Type
                             : e.Type;
 
-                        var mapping = (e.UnwrapAliasExpression() as SqlFunctionExpression)?.ResultTypeMapping;
-
                         bool? fromLeftOuterJoin = null;
 
                         var originatingColumnExpression = e.FindOriginatingColumnExpression();
@@ -770,12 +768,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             e.FindProperty(queryType),
                             Dependencies.TypeMappingSource,
                             fromLeftOuterJoin,
-                            mapping: mapping);
+                            mapping: FindResultTypeMapping(e));
                     }))
                 {
                     yield return typeMaterializationInfo;
                 }
             }
+        }
+
+        private RelationalTypeMapping FindResultTypeMapping(Expression e)
+        {
+            switch (e)
+            {
+                case AliasExpression aliasExpression:
+                    return FindResultTypeMapping(aliasExpression.Expression);
+
+                case ConditionalExpression conditionalExpression:
+                    return FindResultTypeMapping(conditionalExpression.IfTrue)
+                        ?? FindResultTypeMapping(conditionalExpression.IfFalse);
+
+                case SqlFunctionExpression sqlFunctionExpression:
+                    return sqlFunctionExpression.ResultTypeMapping;
+            }
+
+            return null;
         }
 
         private static bool ComputeTablePath(
