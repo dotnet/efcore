@@ -2333,7 +2333,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, derivedType);
 
         /// <summary>
-        ///     No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity: {constructors}.
+        ///     No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.
         /// </summary>
         public static string ConstructorNotFound([CanBeNull] object entityType, [CanBeNull] object constructors)
             => string.Format(
@@ -2784,12 +2784,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 navigation, principalType, dependentType);
 
         /// <summary>
-        ///     constructor ({parameters}) can't bind {failedBinds}
+        ///     cannot bind '{failedBinds}' in '{parameters}'
         /// </summary>
-        public static string ConstructorBindingFailed([CanBeNull] object parameters, [CanBeNull] object failedBinds)
+        public static string ConstructorBindingFailed([CanBeNull] object failedBinds, [CanBeNull] object parameters)
             => string.Format(
-                GetString("ConstructorBindingFailed", nameof(parameters), nameof(failedBinds)),
-                parameters, failedBinds);
+                GetString("ConstructorBindingFailed", nameof(failedBinds), nameof(parameters)),
+                failedBinds, parameters);
 
         private static string GetString(string name, params string[] formatterNames)
         {
