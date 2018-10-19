@@ -14,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        public override void Fields_used_correctly_for_store_generated_values()
+        {
+            // Computed columns not supported
+        }
+
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 

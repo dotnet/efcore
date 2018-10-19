@@ -3748,6 +3748,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Creates_field_backed_FK_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<Alpha>();
+
+                modelBuilder.Entity<Quarks>(
+                    b => b.HasOne<Beta>().WithOne().HasForeignKey<Quarks>("ForUp").IsRequired());
+
+                var fkProperty = modelBuilder.Model.FindEntityType(typeof(Quarks)).GetForeignKeys().Single().Properties.Single();
+                Assert.Equal("ForUp", fkProperty.Name);
+                Assert.Equal(typeof(int), fkProperty.ClrType);
+                Assert.Equal("_forUp", fkProperty.FieldInfo.Name);
+            }
+
+            [Fact]
             public virtual void Handles_identity_correctly_while_removing_navigation()
             {
                 var modelBuilder = CreateModelBuilder();
