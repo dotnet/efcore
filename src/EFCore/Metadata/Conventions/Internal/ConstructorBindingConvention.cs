@@ -85,16 +85,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         var constructorErrors = bindingFailures.SelectMany(f => f)
                             .GroupBy(f => f.Member as ConstructorInfo)
                             .Select(x => 
-                                CoreStrings.ConstructorBindingFailed(
-                                    string.Join(", ", x.Key.GetParameters().Select(y => y.Name)), 
-                                    string.Join(", ", x.Select(f => f.Name))
+                                CoreStrings.ConstructorBindingFailed( 
+                                    string.Join(", ", x.Select(f => f.Name)),
+                                    entityType.DisplayName() + "(" + 
+                                        string.Join(", ", x.Key.GetParameters().Select(y => y.Name)) +
+                                        ")"
                                 )
                             );
                         
                         throw new InvalidOperationException(
                             CoreStrings.ConstructorNotFound(
                                 entityType.DisplayName(),
-                                string.Join(", ", constructorErrors)));
+                                string.Join("; ", constructorErrors)));
                     }
 
                     if (foundBindings.Count > 1)
