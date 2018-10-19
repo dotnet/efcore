@@ -74,7 +74,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var hasDefaultValueExpression = comparer == null
                 ? Expression.Equal(readExpression, Expression.Default(typeof(TValue)))
-                : comparer.ExtractEqualsBody(readExpression, Expression.Default(typeof(TValue)));
+                : comparer.ExtractEqualsBody(
+                    comparer.Type != typeof(TValue)
+                        ? Expression.Convert(readExpression, comparer.Type)
+                        : readExpression,
+                    Expression.Default(comparer.Type));
 
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
