@@ -1651,7 +1651,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         public override async Task Where_subquery_expression(bool isAsync)

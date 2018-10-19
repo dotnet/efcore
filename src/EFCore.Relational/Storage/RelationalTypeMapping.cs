@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#pragma warning disable 618
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -67,9 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Precision = precision ?? converterHints?.Precision;
                 Scale = scale ?? converterHints?.Scale;
                 FixedLength = fixedLength;
-#pragma warning disable 618
                 PrecisionAndScaleOverriden = false;
-#pragma warning restore 618
             }
 
             // #12405
@@ -86,9 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 bool precisionAndScaleOverriden = false)
                 : this(coreParameters, storeType, storeTypePostfix, dbType, unicode, size, fixedLength, precision, scale)
             {
-#pragma warning disable 618
                 PrecisionAndScaleOverriden = precisionAndScaleOverriden;
-#pragma warning restore 618
             }
 
             /// <summary>
@@ -160,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     mappingInfo.Size ?? Size,
                     mappingInfo.IsFixedLength ?? FixedLength,
                     mappingInfo.Precision ?? Precision,
-                    mappingInfo.Scale ?? Scale);
+                    mappingInfo.Scale ?? Scale,
+                    PrecisionAndScaleOverriden);
 
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
@@ -183,7 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     size,
                     FixedLength,
                     Precision,
-                    Scale);
+                    Scale,
+                    PrecisionAndScaleOverriden);
 
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
@@ -223,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     Size,
                     FixedLength,
                     Precision,
-                    Scale);
+                    Scale,
+                    PrecisionAndScaleOverriden);
         }
 
         private static readonly MethodInfo _getFieldValueMethod
@@ -270,17 +270,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
             : base(parameters.CoreParameters)
         {
             Parameters = parameters;
+            PrecisionAndScaleOverriden = parameters.PrecisionAndScaleOverriden;
 
             var size = parameters.Size;
-
             var storeType = parameters.StoreType;
 
             if (storeType != null)
             {
+                StoreTypeNameBase = GetBaseName(storeType);
                 if (size != null
                     && parameters.StoreTypePostfix == StoreTypePostfix.Size)
                 {
-                    storeType = GetBaseName(storeType) + "(" + size + ")";
+                    storeType = StoreTypeNameBase + "(" + size + ")";
                 }
                 else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
                          || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
@@ -289,9 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     var converter = parameters.CoreParameters.Converter;
                     // Fallback to 2.1 behavior
                     // #12405
-#pragma warning disable 618
-                    var oldBehavior = !parameters.PrecisionAndScaleOverriden;
-#pragma warning restore 618
+                    var oldBehavior = !PrecisionAndScaleOverriden;
                     if (oldBehavior)
                     {
                         precision = converter?.MappingHints?.Precision;
@@ -305,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             scale = converter.MappingHints?.Scale;
                         }
 
-                        storeType = GetBaseName(storeType)
+                        storeType = StoreTypeNameBase
                                     + "("
                                     + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
                                         ? precision.ToString()
@@ -395,13 +394,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
         public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
         {
-            var storeTypeOrSizeChanged = (mappingInfo.Size != null
-                                          && mappingInfo.Size != Size
-                                          && StoreTypePostfix == StoreTypePostfix.Size)
-                                         || (mappingInfo.StoreTypeName != null
-                                             && !string.Equals(mappingInfo.StoreTypeName, StoreType, StringComparison.Ordinal));
-
-            RelationalTypeMapping clone;
+            var checkStoreTypeAndSize = true;
+            RelationalTypeMapping clone = null;
             if ((mappingInfo.Scale != null
                  && mappingInfo.Scale != Parameters.Scale
                  && StoreTypePostfix == StoreTypePostfix.PrecisionAndScale)
@@ -410,25 +404,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     && (StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
                         || StoreTypePostfix == StoreTypePostfix.Precision)))
             {
-                clone = storeTypeOrSizeChanged
-                    ? Clone(Parameters.WithTypeMappingInfo(mappingInfo))
-                    : Clone(
-                        mappingInfo.Precision ?? Parameters.Precision,
-                        mappingInfo.Scale ?? Parameters.Scale);
-
-                if (clone.GetType() != GetType())
+                var oldBehavior = !PrecisionAndScaleOverriden;
+                if (!oldBehavior)
                 {
-                    // Fallback to 2.1 behavior
+                    var storeTypeChanged = mappingInfo.StoreTypeNameBase != null
+                                            && !string.Equals(mappingInfo.StoreTypeNameBase, StoreTypeNameBase, StringComparison.OrdinalIgnoreCase);
+
+                    clone = storeTypeChanged
+                        ? Clone(Parameters.WithTypeMappingInfo(mappingInfo))
+                        : Clone(
+                            mappingInfo.Precision ?? Parameters.Precision,
+                            mappingInfo.Scale ?? Parameters.Scale);
+
+                    // Fallback to 2.1 behavior if Clone is not overriden
                     // #12405
-                    clone = storeTypeOrSizeChanged
-                        ? Clone(
-                            mappingInfo.StoreTypeName ?? StoreType,
-                            mappingInfo.Size ?? Size)
-                        : this;
+                    oldBehavior = clone.GetType() != GetType();
                 }
+
+                checkStoreTypeAndSize = oldBehavior;
             }
-            else
+
+            if (checkStoreTypeAndSize)
             {
+                var storeTypeOrSizeChanged = (mappingInfo.Size != null
+                                              && mappingInfo.Size != Size
+                                              && StoreTypePostfix == StoreTypePostfix.Size)
+                                             || (mappingInfo.StoreTypeName != null
+                                                 && !string.Equals(mappingInfo.StoreTypeName, StoreType, StringComparison.OrdinalIgnoreCase));
+
                 clone = storeTypeOrSizeChanged
                     ? Clone(
                         mappingInfo.StoreTypeName ?? StoreType,
@@ -455,6 +458,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual string StoreType { get; }
 
         /// <summary>
+        ///     Gets the base name of the database type.
+        /// </summary>
+        public virtual string StoreTypeNameBase { get; }
+
+        /// <summary>
         ///     Gets the <see cref="System.Data.DbType" /> to be used.
         /// </summary>
         public virtual DbType? DbType => Parameters.DbType;
@@ -473,6 +481,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets a value indicating whether the type is constrained to fixed-length data.
         /// </summary>
         public virtual bool IsFixedLength => Parameters.FixedLength;
+
+        private bool PrecisionAndScaleOverriden { get; }
 
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.
