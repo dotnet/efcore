@@ -750,6 +750,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             ? ((UnaryExpression)e).Operand.Type
                             : e.Type;
 
+                        var mapping = (e.UnwrapAliasExpression() as SqlFunctionExpression)?.ResultTypeMapping;
+
                         bool? fromLeftOuterJoin = null;
 
                         var originatingColumnExpression = e.FindOriginatingColumnExpression();
@@ -767,7 +769,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             queryType,
                             e.FindProperty(queryType),
                             Dependencies.TypeMappingSource,
-                            fromLeftOuterJoin);
+                            fromLeftOuterJoin,
+                            mapping: mapping);
                     }))
                 {
                     yield return typeMaterializationInfo;

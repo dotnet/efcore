@@ -15,16 +15,18 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
+                .Entity<Customer>();
 
-            Assert.Equal("Unicorn", entityType.Cosmos().ContainerName);
+            Assert.Equal(nameof(Customer), entityType.Metadata.Cosmos().ContainerName);
 
-            entityType.Cosmos().ContainerName = "Customizer";
-            Assert.Equal("Customizer", entityType.Cosmos().ContainerName);
+            entityType.ToContainer("Customizer");
+            Assert.Equal("Customizer", entityType.Metadata.Cosmos().ContainerName);
 
-            entityType.Cosmos().ContainerName = null;
-            Assert.Equal("Unicorn", entityType.Cosmos().ContainerName);
+            entityType.ToContainer(null);
+            Assert.Equal(nameof(Customer), entityType.Metadata.Cosmos().ContainerName);
+
+            modelBuilder.HasDefaultContainerName("Unicorn");
+            Assert.Equal("Unicorn", entityType.Metadata.Cosmos().ContainerName);
         }
 
         private class Customer

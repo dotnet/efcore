@@ -24,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
 
         protected virtual IEntityType EntityType => (IEntityType)Annotations.Metadata;
 
+        protected virtual CosmosModelAnnotations GetAnnotations(IModel model)
+            => new CosmosModelAnnotations(model);
+
         protected virtual CosmosEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
             => new CosmosEntityTypeAnnotations(entityType);
 
@@ -38,14 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
             set => SetContainerName(value);
         }
 
-        private static string GetDefaultContainerName() => "Unicorn";
+        private string GetDefaultContainerName() => GetAnnotations(EntityType.Model).DefaultContainerName
+            ?? EntityType.ShortName();
 
         protected virtual bool SetContainerName([CanBeNull] string value)
-        {
-            return Annotations.SetAnnotation(
+            => Annotations.SetAnnotation(
                 CosmosAnnotationNames.ContainerName,
                 Check.NullButNotEmpty(value, nameof(value)));
-        }
 
         public virtual IProperty DiscriminatorProperty
         {

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal;
@@ -28,6 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IDatabase, CosmosDatabase>()
                 .TryAdd<IExecutionStrategyFactory, CosmosExecutionStrategyFactory>()
                 .TryAdd<IDbContextTransactionManager, CosmosTransactionManager>()
+                .TryAdd<IModelCustomizer, CosmosModelCustomizer>()
                 .TryAdd<IConventionSetBuilder, CosmosConventionSetBuilder>()
                 .TryAdd<IDatabaseCreator, CosmosDatabaseCreator>()
                 .TryAdd<IQueryContextFactory, CosmosQueryContextFactory>()
@@ -35,7 +37,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosEntityQueryableExpressionVisitorFactory>()
                 .TryAdd<IMemberAccessBindingExpressionVisitorFactory, CosmosMemberAccessBindingExpressionVisitorFactory>()
                 .TryAdd<INavigationRewritingExpressionVisitorFactory, CosmosNavigationRewritingExpressionVisitorFactory>()
-                .TryAdd<IEagerLoadingExpressionVisitorFactory, CosmosEagerLoadingExpressionVisitorFactory>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddScoped<CosmosClient, CosmosClient>()

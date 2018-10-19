@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.Internal
 {
@@ -16,12 +17,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<IMethodCallTranslator> Translators { get; } = new IMethodCallTranslator[]
+        public SqlServerNetTopologySuiteMethodCallTranslatorPlugin(IRelationalTypeMappingSource typeMappingSource)
         {
-            new SqlServerGeometryMethodTranslator(),
-            new SqlServerGeometryCollectionMethodTranslator(),
-            new SqlServerLineStringMethodTranslator(),
-            new SqlServerPolygonMethodTranslator()
-        };
+            Translators = new IMethodCallTranslator[]
+            {
+                new SqlServerGeometryMethodTranslator(typeMappingSource),
+                new SqlServerGeometryCollectionMethodTranslator(typeMappingSource),
+                new SqlServerLineStringMethodTranslator(typeMappingSource),
+                new SqlServerPolygonMethodTranslator(typeMappingSource)
+            };
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<IMethodCallTranslator> Translators { get; }
     }
 }

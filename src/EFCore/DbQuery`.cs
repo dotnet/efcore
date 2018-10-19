@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     ///     <para>
     ///         <see cref="DbQuery{TQuery}" /> objects are usually obtained from a <see cref="DbQuery{TQuery}" />
-    ///         property on a derived <see cref="DbContext" /> or from the <see cref="DbContext.Set{TQuery}" />
+    ///         property on a derived <see cref="DbContext" /> or from the <see cref="DbContext.Query{TQuery}" />
     ///         method.
     ///     </para>
     /// </summary>

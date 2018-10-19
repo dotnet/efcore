@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(navigationPropertyInfo, nameof(navigationPropertyInfo));
             Check.NotNull(attribute, nameof(attribute));
 
-            if (!entityTypeBuilder.CanAddOrReplaceNavigation(navigationPropertyInfo.Name, ConfigurationSource.DataAnnotation))
+            if (!entityTypeBuilder.CanAddOrReplaceNavigation(navigationPropertyInfo.GetSimpleMemberName(), ConfigurationSource.DataAnnotation))
             {
                 return entityTypeBuilder;
             }
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = entityTypeBuilder.Metadata;
             var targetClrType = targetEntityTypeBuilder.Metadata.ClrType;
             var inverseNavigationPropertyInfo = targetEntityTypeBuilder.Metadata.GetRuntimeProperties().Values
-                .FirstOrDefault(p => string.Equals(p.Name, attribute.Property, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
                 || !FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo).GetTypeInfo()
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (Attribute.IsDefined(inverseNavigationPropertyInfo, typeof(InversePropertyAttribute)))
             {
                 var inverseAttribute = inverseNavigationPropertyInfo.GetCustomAttribute<InversePropertyAttribute>(true);
-                if (inverseAttribute.Property != navigationMemberInfo.Name)
+                if (inverseAttribute.Property != navigationMemberInfo.GetSimpleMemberName())
                 {
                     throw new InvalidOperationException(
                         CoreStrings.InversePropertyMismatch(
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (entityType.DefiningEntityType != null
                 && entityType.DefiningEntityType == targetEntityTypeBuilder.Metadata
-                && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.Name)
+                && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.GetSimpleMemberName())
             {
                 _logger.NonDefiningInverseNavigationWarning(
                     entityType, navigationMemberInfo,
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var leastDerivedEntityTypes = modelBuilder.FindLeastDerivedEntityTypes(
                 declaringType,
-                t => !t.IsIgnored(navigationPropertyInfo.Name, ConfigurationSource.DataAnnotation));
+                t => !t.IsIgnored(navigationPropertyInfo.GetSimpleMemberName(), ConfigurationSource.DataAnnotation));
             foreach (var leastDerivedEntityType in leastDerivedEntityTypes)
             {
                 Apply(leastDerivedEntityType, navigationPropertyInfo, targetClrType, attribute);
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
                 var inverseTargetEntityType = model.FindActualEntityType(referencingTuple.Item2);
-                if ((inverseTargetEntityType?.Builder.IsIgnored(referencingTuple.Item1.Name, ConfigurationSource.DataAnnotation) != false))
+                if ((inverseTargetEntityType?.Builder.IsIgnored(referencingTuple.Item1.GetSimpleMemberName(), ConfigurationSource.DataAnnotation) != false))
                 {
                     if (tuplesToRemove == null)
                     {

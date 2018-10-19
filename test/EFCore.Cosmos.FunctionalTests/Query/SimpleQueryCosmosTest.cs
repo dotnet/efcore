@@ -889,7 +889,10 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task All_top_level_subquery(bool isAsync)
         {
-            await base.All_top_level_subquery(isAsync);
+            await AssertSingleResult<Customer>(
+                isAsync,
+                syncQuery: cs => cs.All(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))),
+                asyncQuery: cs => cs.AllAsync(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -899,7 +902,10 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task All_top_level_subquery_ef_property(bool isAsync)
         {
-            await base.All_top_level_subquery_ef_property(isAsync);
+            await AssertSingleResult<Customer>(
+                isAsync,
+                syncQuery: cs => cs.All(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
+                asyncQuery: cs => cs.AllAsync(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1357,12 +1363,25 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         public override async Task Take_with_single_select_many(bool isAsync)
         {
-            await base.Take_with_single_select_many(isAsync);
+            await AssertSingle<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    (from c in cs.Where(cu => cu.CustomerID == "ALFKI")
+                     from o in os.Where(or => or.OrderID < 10300)
+                     orderby c.CustomerID, o.OrderID
+                     select new
+                     {
+                         c,
+                         o
+                     })
+                    .Take(1)
+                    .Cast<object>(),
+                entryCount: 2);
 
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task Distinct_Skip(bool isAsync)
@@ -1632,7 +1651,25 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
+        public override async Task Where_subquery_expression(bool isAsync)
+        {
+            await AssertQuery<Order, Order>(
+                isAsync,
+                (o1, o2) =>
+                {
+                    var firstOrder = o1.First();
+                    Expression<Func<Order, bool>> expr = z => z.OrderID == firstOrder.OrderID;
+                    return o1.Where(x => x.OrderID < 10300 && o2.Where(expr).Any());
+                },
+                entryCount: 52);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
         }
 
         public override async Task Where_subquery_expression_same_parametername(bool isAsync)
@@ -2512,7 +2549,15 @@ WHERE (c[""Discriminator""] = ""Order"")");
 
         public override async Task Contains_with_subquery_involving_join_binds_to_correct_table(bool isAsync)
         {
-            await base.Contains_with_subquery_involving_join_binds_to_correct_table(isAsync);
+            await AssertQuery<Order, OrderDetail>(
+                isAsync,
+                (os, ods) =>
+                    os.Where(
+                        o => o.OrderID > 11002 && o.OrderID < 11004
+                             && ods.Where(od => od.Product.ProductName == "Chai")
+                                 .Select(od => od.OrderID)
+                                 .Contains(o.OrderID)),
+                entryCount: 1);
 
             AssertSql(
                 @"SELECT c

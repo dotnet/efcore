@@ -94,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeTypeName"> The provider-specific relational type name for which mapping is needed. </param>
         public RelationalTypeMappingInfo([NotNull] string storeTypeName)
         {
-            Check.NotEmpty(storeTypeName, nameof(storeTypeName));
+            // Note: Empty string is allowed for store type name because SQLite
+            Check.NotNull(storeTypeName, nameof(storeTypeName));
 
             _coreTypeMappingInfo = new TypeMappingInfo();
             StoreTypeName = storeTypeName;

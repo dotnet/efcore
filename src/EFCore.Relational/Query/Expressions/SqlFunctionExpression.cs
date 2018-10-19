@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
@@ -31,9 +32,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string functionName,
             [NotNull] Type returnType)
             : this(
+                instance: null,
                 Check.NotEmpty(functionName, nameof(functionName)),
+                schema: null,
                 Check.NotNull(returnType, nameof(returnType)),
-                Enumerable.Empty<Expression>())
+                niladic: false,
+                arguments: Enumerable.Empty<Expression>(),
+                resultTypeMapping: null,
+                instanceTypeMapping: null,
+                argumentTypeMappings: null)
         {
         }
 
@@ -48,10 +55,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] Type returnType,
             [NotNull] IEnumerable<Expression> arguments)
             : this(
+                instance: null,
                 Check.NotEmpty(functionName, nameof(functionName)),
+                schema: null,
                 Check.NotNull(returnType, nameof(returnType)),
-                /*schema*/ null,
-                Check.NotNull(arguments, nameof(arguments)))
+                niladic: false,
+                Check.NotNull(arguments, nameof(arguments)),
+                resultTypeMapping: null,
+                instanceTypeMapping: null,
+                argumentTypeMappings: null)
         {
         }
 
@@ -71,7 +83,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 schema: null,
                 Check.NotNull(returnType, nameof(returnType)),
                 niladic,
-                arguments: Enumerable.Empty<Expression>())
+                arguments: Enumerable.Empty<Expression>(),
+                resultTypeMapping: null,
+                instanceTypeMapping: null,
+                argumentTypeMappings: null)
         {
         }
 
@@ -88,12 +103,44 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [CanBeNull] string schema,
             [NotNull] IEnumerable<Expression> arguments)
             : this(
-                /*instance*/ null,
+                instance: null,
                 Check.NotEmpty(functionName, nameof(functionName)),
                 schema,
                 Check.NotNull(returnType, nameof(returnType)),
                 niladic: false,
-                Check.NotNull(arguments, nameof(arguments)))
+                Check.NotNull(arguments, nameof(arguments)),
+                resultTypeMapping: null,
+                instanceTypeMapping: null,
+                argumentTypeMappings: null)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
+        /// </summary>
+        /// <param name="functionName"> Name of the function. </param>
+        /// <param name="schema"> The schema this function exists in if any. </param>
+        /// <param name="returnType"> The return type. </param>
+        /// <param name="arguments"> The arguments. </param>
+        /// <param name="resultTypeMapping"> The result type mapping. </param>
+        /// <param name="argumentTypeMappings"> The type mappings for each argument. </param>
+        public SqlFunctionExpression(
+            [NotNull] string functionName,
+            [NotNull] Type returnType,
+            [CanBeNull] string schema,
+            [NotNull] IEnumerable<Expression> arguments,
+            [CanBeNull] RelationalTypeMapping resultTypeMapping = null,
+            [CanBeNull] IEnumerable<RelationalTypeMapping> argumentTypeMappings = null)
+            : this(
+                instance: null,
+                Check.NotEmpty(functionName, nameof(functionName)),
+                schema,
+                Check.NotNull(returnType, nameof(returnType)),
+                niladic: false,
+                Check.NotNull(arguments, nameof(arguments)),
+                resultTypeMapping,
+                instanceTypeMapping: null,
+                argumentTypeMappings)
         {
         }
 
@@ -104,18 +151,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="functionName"> Name of the function. </param>
         /// <param name="returnType"> The return type. </param>
         /// <param name="arguments"> The arguments. </param>
+        /// <param name="resultTypeMapping"> The result type mapping. </param>
+        /// <param name="instanceTypeMapping"> The instance type mapping. </param>
+        /// <param name="argumentTypeMappings"> The type mappings for each argument. </param>
         public SqlFunctionExpression(
-            [NotNull] Expression instance,
+            [CanBeNull] Expression instance,
             [NotNull] string functionName,
             [NotNull] Type returnType,
-            [NotNull] IEnumerable<Expression> arguments)
+            [NotNull] IEnumerable<Expression> arguments,
+            [CanBeNull] RelationalTypeMapping resultTypeMapping = null,
+            [CanBeNull] RelationalTypeMapping instanceTypeMapping = null,
+            [CanBeNull] IEnumerable<RelationalTypeMapping> argumentTypeMappings = null)
             : this(
-                Check.NotNull(instance, nameof(instance)),
+                instance,
                 Check.NotEmpty(functionName, nameof(functionName)),
-                /*schema*/ null,
+                schema: null,
                 Check.NotNull(returnType, nameof(returnType)),
                 niladic: false,
-                Check.NotNull(arguments, nameof(arguments)))
+                Check.NotNull(arguments, nameof(arguments)),
+                resultTypeMapping,
+                instanceTypeMapping,
+                argumentTypeMappings)
         {
         }
 
@@ -137,7 +193,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 schema: null,
                 Check.NotNull(returnType, nameof(returnType)),
                 niladic,
-                arguments: Enumerable.Empty<Expression>())
+                arguments: Enumerable.Empty<Expression>(),
+                resultTypeMapping: null,
+                instanceTypeMapping: null,
+                argumentTypeMappings: null)
         {
         }
 
@@ -147,7 +206,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [CanBeNull] string schema,
             [NotNull] Type returnType,
             bool niladic,
-            [NotNull] IEnumerable<Expression> arguments)
+            [NotNull] IEnumerable<Expression> arguments,
+            [CanBeNull] RelationalTypeMapping resultTypeMapping,
+            [CanBeNull] RelationalTypeMapping instanceTypeMapping,
+            [CanBeNull] IEnumerable<RelationalTypeMapping> argumentTypeMappings)
         {
             Instance = instance;
             FunctionName = functionName;
@@ -155,6 +217,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Schema = schema;
             IsNiladic = niladic;
             _arguments = arguments.ToList().AsReadOnly();
+            ResultTypeMapping = resultTypeMapping;
+            InstanceTypeMapping = instanceTypeMapping;
+            ArgumentTypeMappings = argumentTypeMappings?.ToList().AsReadOnly();
         }
 
         /// <summary>
@@ -188,6 +253,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The arguments.
         /// </summary>
         public virtual IReadOnlyList<Expression> Arguments => _arguments;
+
+        /// <summary>
+        ///     Gets the type mapping of the result.
+        /// </summary>
+        public virtual RelationalTypeMapping ResultTypeMapping { get; }
+
+        /// <summary>
+        ///     Gets the type mapping of the instance.
+        /// </summary>
+        public virtual RelationalTypeMapping InstanceTypeMapping { get; }
+
+        /// <summary>
+        ///     Gets the type mappings for each argument.
+        /// </summary>
+        public virtual IReadOnlyList<RelationalTypeMapping> ArgumentTypeMappings { get; }
 
         /// <summary>
         ///     Returns the node type of this <see cref="Expression" />. (Inherited from <see cref="Expression" />.)
@@ -232,7 +312,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newArguments = visitor.VisitAndConvert(_arguments, nameof(VisitChildren));
 
             return newInstance != Instance || newArguments != _arguments
-                ? new SqlFunctionExpression(newInstance, FunctionName, Schema, Type, IsNiladic, newArguments)
+                ? new SqlFunctionExpression(
+                    newInstance,
+                    FunctionName,
+                    Schema,
+                    Type,
+                    IsNiladic,
+                    newArguments,
+                    ResultTypeMapping,
+                    InstanceTypeMapping,
+                    ArgumentTypeMappings)
                 : this;
         }
 

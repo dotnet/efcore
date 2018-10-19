@@ -222,13 +222,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
-
-                var expression = handlerContext.SelectExpression.Projection.First();
+                var expression = handlerContext.SelectExpression.Projection[0];
 
                 if (!ContainsSelect(expression))
                 {
-                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
-                    expression = UnwrapAliasExpression(expression);
+                    expression = expression.UnwrapAliasExpression();
 
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
                     var outputType = inputType;
@@ -850,14 +848,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
-                var expression = handlerContext.SelectExpression.Projection.First();
+                var expression = handlerContext.SelectExpression.Projection[0];
 
                 if (!ContainsSelect(expression))
                 {
                     var minExpression = new SqlFunctionExpression(
                         "MIN",
                         handlerContext.QueryModel.SelectClause.Selector.Type,
-                        new[] { UnwrapAliasExpression(expression) });
+                        new[] { expression.UnwrapAliasExpression() });
 
                     handlerContext.SelectExpression.SetProjectionExpression(minExpression);
 
@@ -879,14 +877,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
-                var expression = handlerContext.SelectExpression.Projection.First();
+                var expression = handlerContext.SelectExpression.Projection[0];
 
                 if (!ContainsSelect(expression))
                 {
                     var maxExpression = new SqlFunctionExpression(
                         "MAX",
                         handlerContext.QueryModel.SelectClause.Selector.Type,
-                        new[] { UnwrapAliasExpression(expression) });
+                        new[] { expression.UnwrapAliasExpression() });
 
                     handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
 
@@ -968,15 +966,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.SelectExpression.Projection.Count == 1)
             {
                 PrepareSelectExpressionForAggregate(handlerContext.SelectExpression, handlerContext.QueryModel);
-                var expression = handlerContext.SelectExpression.Projection.First();
+                var expression = handlerContext.SelectExpression.Projection[0];
 
                 if (!ContainsSelect(expression))
                 {
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
 
-                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     Expression sumExpression = new SqlFunctionExpression(
-                        "SUM", inputType, new[] { UnwrapAliasExpression(expression) });
+                        "SUM", inputType, new[] { expression.UnwrapAliasExpression() });
                     if (inputType.UnwrapNullableType() == typeof(float))
                     {
                         sumExpression = new ExplicitCastExpression(sumExpression, inputType);
@@ -1061,9 +1058,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static bool IsGroupByAggregate(QueryModel queryModel)
             => queryModel.MainFromClause.FromExpression is QuerySourceReferenceExpression mainFromClauseQsre
                 && mainFromClauseQsre.ReferencedQuerySource.ItemType.IsGrouping();
-
-        private static Expression UnwrapAliasExpression(Expression expression)
-            => (expression as AliasExpression)?.Expression ?? expression;
 
         private static readonly MethodInfo _transformClientExpressionMethodInfo
             = typeof(RelationalResultOperatorHandler).GetTypeInfo()

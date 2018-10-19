@@ -167,10 +167,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (comparer != null)
                 {
-                    expression = ReplacingExpressionVisitor.Replace(
+                    var snapshotExpression = ReplacingExpressionVisitor.Replace(
                         comparer.SnapshotExpression.Parameters.Single(),
                         expression,
                         comparer.SnapshotExpression.Body);
+
+                    expression = propertyBase.ClrType.IsNullableType()
+                        ? Expression.Condition(
+                            Expression.Equal(expression, Expression.Constant(null, propertyBase.ClrType)),
+                            Expression.Constant(null, propertyBase.ClrType),
+                            snapshotExpression)
+                        : snapshotExpression;
                 }
             }
 

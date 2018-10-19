@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
-using System.Globalization;
 using System.Reflection;
+using System.Text;
 using GeoAPI;
 using GeoAPI.Geometries;
 using JetBrains.Annotations;
@@ -62,18 +63,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
+            var builder = new StringBuilder();
             var geometry = (IGeometry)value;
-            var srid = geometry.SRID;
+            var defaultSrid = geometry.SRID == (_isGeography ? 4326 : 0);
 
-            var text = "'" + geometry.AsText() + "'";
-            if (srid != (_isGeography ? 4326 : 0))
+            builder
+                .Append(_isGeography ? "geography" : "geometry")
+                .Append("::")
+                .Append(defaultSrid ? "Parse" : "STGeomFromText")
+                .Append("('")
+                .Append(geometry.AsText())
+                .Append("'");
+
+            if (!defaultSrid)
             {
-                text = $"{(_isGeography ? "geography" : "geometry")}::STGeomFromText({text}, {srid})";
+                builder
+                    .Append(", ")
+                    .Append(geometry.SRID);
             }
 
-            return srid > 0
-                ? $"geometry::STGeomFromText({text}, {srid.ToString(CultureInfo.InvariantCulture)})"
-                : text;
+            builder.Append(")");
+
+            return builder.ToString();
         }
 
         /// <summary>
@@ -104,11 +115,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         protected override Type WKTReaderType
             => typeof(WKTReader);
 
-        private static SqlServerSpatialReader CreateReader(IGeometryServices services, bool isGeography)
-            => new SqlServerSpatialReader(services) { IsGeography = isGeography };
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override void ConfigureParameter(DbParameter parameter)
+        {
+            if (parameter.Value == DBNull.Value)
+            {
+                parameter.Value = SqlBytes.Null;
+            }
+        }
 
-        private static SqlServerSpatialWriter CreateWriter(bool isGeography)
-            => new SqlServerSpatialWriter { IsGeography = isGeography };
+        private static SqlServerBytesReader CreateReader(IGeometryServices services, bool isGeography)
+            => new SqlServerBytesReader(services) { IsGeography = isGeography };
+
+        private static SqlServerBytesWriter CreateWriter(bool isGeography)
+            => new SqlServerBytesWriter { IsGeography = isGeography };
 
         private static bool IsGeography(string storeType)
             => string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);

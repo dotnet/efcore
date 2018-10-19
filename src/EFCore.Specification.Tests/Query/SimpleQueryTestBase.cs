@@ -3931,6 +3931,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Subquery_member_pushdown_does_not_change_original_subquery_model2(bool isAsync)
+        {
+            return AssertQuery<Order, Customer>(
+                isAsync,
+                (os, cs) =>
+                    os.OrderBy(o => o.OrderID)
+                        .Take(3)
+                        .Select(
+                            o => new
+                            {
+                                OrderId = o.OrderID,
+                                City = EF.Property<string>(cs.SingleOrDefault(c => c.CustomerID == o.CustomerID), "City")
+                            })
+                        .OrderBy(o => o.City),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_expression_with_to_string_and_contains(bool isAsync)
         {
             return AssertQuery<Order>(

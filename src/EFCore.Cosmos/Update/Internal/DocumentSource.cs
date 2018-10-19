@@ -15,26 +15,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
     public class DocumentSource
     {
         private readonly string _collectionId;
-        private readonly IEntityType _entityType;
         private readonly CosmosDatabase _database;
+        private readonly IProperty _idProperty;
 
         public DocumentSource(IEntityType entityType, CosmosDatabase database)
         {
             _collectionId = entityType.Cosmos().ContainerName;
-            _entityType = entityType;
             _database = database;
+            _idProperty = entityType.FindProperty(StoreKeyConvention.IdPropertyName);
         }
 
         public string GetCollectionId()
             => _collectionId;
 
         public string GetId(IUpdateEntry entry)
-            => entry.GetCurrentValue<string>(_entityType.FindProperty(StoreKeyConvention.IdPropertyName));
+            => entry.GetCurrentValue<string>(_idProperty);
 
         public JObject CreateDocument(IUpdateEntry entry)
         {
             var document = new JObject();
-            foreach (var property in _entityType.GetProperties())
+            foreach (var property in entry.EntityType.GetProperties())
             {
                 if (property.Name != StoreKeyConvention.JObjectPropertyName)
                 {
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
             }
 
-            foreach (var ownedNavigation in _entityType.GetNavigations())
+            foreach (var ownedNavigation in entry.EntityType.GetNavigations())
             {
                 var fk = ownedNavigation.ForeignKey;
                 if (!fk.IsOwnership
@@ -58,8 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 {
                     document[ownedNavigation.Name] = null;
                 }
-
-                if (fk.IsUnique)
+                else if (fk.IsUnique)
                 {
                     var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(nestedValue, fk.DeclaringEntityType);
                     document[ownedNavigation.Name] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
@@ -82,17 +81,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
         public JObject UpdateDocument(JObject document, IUpdateEntry entry)
         {
-            foreach (var property in _entityType.GetProperties())
+            foreach (var property in entry.EntityType.GetProperties())
             {
                 if (property.Name != StoreKeyConvention.JObjectPropertyName
-                    && entry.IsModified(property))
+                    && property.Name != StoreKeyConvention.IdPropertyName
+                    && (entry.EntityState == EntityState.Added
+                        || entry.IsModified(property)))
                 {
                     var value = entry.GetCurrentValue(property);
                     document[property.Name] = value != null ? JToken.FromObject(value) : null;
                 }
             }
 
-            foreach (var ownedNavigation in _entityType.GetNavigations())
+            foreach (var ownedNavigation in entry.EntityType.GetNavigations())
             {
                 var fk = ownedNavigation.ForeignKey;
                 if (!fk.IsOwnership
@@ -108,8 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 {
                     document[ownedNavigation.Name] = null;
                 }
-
-                if (fk.IsUnique)
+                else if (fk.IsUnique)
                 {
                     var nestedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(nestedValue, fk.DeclaringEntityType);
                     var nestedDocument = (JObject)document[ownedNavigation.Name];

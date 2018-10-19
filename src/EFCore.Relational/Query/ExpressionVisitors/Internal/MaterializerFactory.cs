@@ -24,9 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
-        private static readonly MethodInfo _getValueBufferMethod
-            = typeof(MaterializationContext).GetProperty(nameof(MaterializationContext.ValueBuffer)).GetMethod;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -96,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         discriminatorValueVariable,
                         _entityMaterializerSource
                             .CreateReadValueExpression(
-                                Expression.Call(materializationContextParameter, _getValueBufferMethod),
+                                Expression.Call(materializationContextParameter, MaterializationContext.GetValueBufferMethod),
                                 discriminatorProperty.ClrType,
                                 indexMap[discriminatorProperty.GetIndex()],
                                 discriminatorProperty)),

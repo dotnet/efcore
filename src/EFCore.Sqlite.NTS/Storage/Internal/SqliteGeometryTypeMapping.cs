@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Reflection;
+using System.Text;
 using GeoAPI;
 using GeoAPI.Geometries;
 using JetBrains.Annotations;
@@ -57,14 +58,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
+            var builder = new StringBuilder();
             var geometry = (IGeometry)value;
-            var srid = geometry.SRID;
 
-            var text = "'" + geometry.AsText() + "'";
+            builder
+                .Append("GeomFromText('")
+                .Append(geometry.AsText())
+                .Append("'");
 
-            return srid != 0
-                ? $"GeomFromText({text}, {srid})"
-                : $"GeomFromText({text})";
+            if (geometry.SRID != 0)
+            {
+                builder
+                    .Append(", ")
+                    .Append(geometry.SRID);
+            }
+
+            builder.Append(")");
+
+            return builder.ToString();
         }
 
         /// <summary>

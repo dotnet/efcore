@@ -3090,6 +3090,290 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_nested_required_navigation_filter_and_explicit_DefaultIfEmpty(bool isAsync)
+        {
+            return AssertQuery<Level1>(
+                isAsync,
+                l1s =>
+                    from l1 in l1s
+                    from l3 in l1.OneToOne_Required_FK1.OneToMany_Required2.Where(l => l.Id > 5).DefaultIfEmpty()
+                    where l3 != null
+                    select l1,
+                l1s =>
+                    from l1 in l1s.Where(l => l.OneToOne_Required_FK1 != null)
+                    from l3 in Maybe(
+                        l1.OneToOne_Required_FK1,
+                        () => l1.OneToOne_Required_FK1.OneToMany_Required2.Where(l => l.Id > 5).DefaultIfEmpty())
+                    where l3 != null
+                    select l1,
+                e => e.Id,
+                (e, a) => Assert.Equal(e.Id, a.Id));
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            join l2 in ctx.LevelFour.SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2) on l1.Id equals l2.Level1_Optional_Id
+                            select new { l1, l2 };
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(bool isAsync)
+        {
+            return AssertQuery<Level1, Level4>(
+                isAsync,
+                (l1s, l4s)
+                    => from l1 in l1s
+                       join l2 in l4s.SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty()) on l1.Id equals l2.Level1_Optional_Id
+                       select new { l1, l2 },
+                (l1s, l4s)
+                    => from l1 in l1s
+                       join l2 in l4s.SelectMany(l4 => MaybeDefaultIfEmpty(
+                           Maybe(
+                               l4.OneToOne_Required_FK_Inverse4,
+                               () => Maybe(
+                                   l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3,
+                                   () => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2)))) on l1.Id equals MaybeScalar(l2, () => l2.Level1_Optional_Id)
+                       select new { l1, l2 },
+               elementSorter: e => e.l1?.Id + " " + e.l2?.Id,
+               elementAsserter: (e, a) =>
+               {
+                   Assert.Equal(e.l1.Id, a.l1.Id);
+                   Assert.Equal(e.l2.Id, a.l2.Id);
+               }); 
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(bool isAsync)
+        {
+            return AssertQuery<Level4, Level1>(
+                isAsync,
+                (l4s, l1s)
+                    => from l2 in l4s.SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty())
+                       join l1 in l1s on l2.Level1_Optional_Id equals l1.Id
+                       select new { l2, l1 },
+                (l4s, l1s)
+                    => from l2 in l4s.SelectMany(l4 => MaybeDefaultIfEmpty(
+                        Maybe(
+                            l4.OneToOne_Required_FK_Inverse4,
+                            () => Maybe(
+                                l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3,
+                                () => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2))))
+                       join l1 in l1s on MaybeScalar(l2, () => l2.Level1_Optional_Id) equals l1.Id
+                       select new { l2, l1 },
+               elementSorter: e => e.l2?.Id + " " + e.l1?.Id,
+               elementAsserter: (e, a) =>
+               {
+                   Assert.Equal(e.l2.Id, a.l2.Id);
+                   Assert.Equal(e.l1.Id, a.l1.Id);
+               });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(bool isAsync)
+        {
+            return AssertQuery<Level1, Level2>(
+                isAsync,
+                (l1s, l2s)
+                    => from l4 in l1s.SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                       join l2 in l2s on l4.Id equals l2.Id
+                       select new { l4, l2 },
+                 (l1s, l2s)
+                    => from l4 in l1s.SelectMany(l1 => MaybeDefaultIfEmpty(
+                        Maybe(
+                            l1.OneToOne_Required_FK1,
+                            () => Maybe(
+                                l1.OneToOne_Required_FK1.OneToOne_Optional_FK2,
+                                () => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3))))
+                       join l2 in l2s on MaybeScalar<int>(l4, () => l4.Id) equals l2.Id
+                       select new { l4, l2 },
+               elementSorter: e => e.l4?.Id + " " + e.l2?.Id,
+               elementAsserter: (e, a) =>
+               {
+                   Assert.Equal(e.l4.Id, a.l4.Id);
+                   Assert.Equal(e.l2.Id, a.l2.Id);
+               });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(bool isAsync)
+        {
+            return AssertQuery<Level1, Level2>(
+                isAsync,
+                (l1s, l2s)
+                    => from l4 in l1s.SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                       join l2 in l2s on l4.Id equals l2.Id into grouping
+                       from l2 in grouping.DefaultIfEmpty()
+                       select new { l4, l2 },
+                (l1s, l2s)
+                    => from l4 in l1s.SelectMany(l1 => MaybeDefaultIfEmpty(
+                        Maybe(
+                            l1.OneToOne_Required_FK1,
+                            () => Maybe(
+                                l1.OneToOne_Required_FK1.OneToOne_Optional_FK2,
+                                () => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3))))
+                       join l2 in l2s on MaybeScalar<int>(l4, () => l4.Id) equals l2.Id into grouping
+                       from l2 in grouping.DefaultIfEmpty()
+                       select new { l4, l2 },
+               elementSorter: e => e.l4?.Id + " " + e.l2?.Id,
+               elementAsserter: (e, a) =>
+               {
+                   Assert.Equal(e.l4?.Id, a.l4?.Id);
+                   Assert.Equal(e.l2?.Id, a.l2?.Id);
+               });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(bool isAsync)
+        {
+            return AssertQuery<Level1, Level4>(
+                isAsync,
+                (l1s, l4s)
+                    => from l4 in l1s.SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                       join l2 in l4s.SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty()) on l4.Id equals l2.Id
+                       select new { l4, l2 },
+                (l1s, l4s)
+                    => from l4 in l1s.SelectMany(l1 => MaybeDefaultIfEmpty(
+                        Maybe(
+                            l1.OneToOne_Required_FK1,
+                            () => Maybe(
+                                l1.OneToOne_Required_FK1.OneToOne_Optional_FK2,
+                                () => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3))))
+                       join l2 in l4s.SelectMany(l4 => MaybeDefaultIfEmpty(
+                           Maybe(
+                               l4.OneToOne_Required_FK_Inverse4,
+                               () => Maybe(
+                                   l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3,
+                                   () => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2)))) on MaybeScalar<int>(l4, () => l4.Id) equals MaybeScalar<int>(l2, () => l2.Id)
+                       select new { l4, l2 },
+               elementSorter: e => e.l4?.Id + " " + e.l2?.Id,
+               elementAsserter: (e, a) =>
+               {
+                   Assert.Equal(e.l4.Id, a.l4.Id);
+                   Assert.Equal(e.l2.Id, a.l2.Id);
+               });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_same_navs(bool isAsync)
+        {
+            return AssertQuery<Level4>(
+                isAsync,
+                l4s => from l3 in l4s.SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2.DefaultIfEmpty())
+                       select l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2,
+                l4s => from l3 in l4s.SelectMany(l4 => MaybeDefaultIfEmpty(
+                    Maybe(
+                        l4.OneToOne_Required_FK_Inverse4,
+                        () => Maybe(
+                            l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3,
+                            () => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2))))
+                       select Maybe(
+                           l3,
+                           () => l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_different_navs(bool isAsync)
+        {
+            return AssertQuery<Level1>(
+                isAsync,
+                l1s => from l3 in l1s.SelectMany(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.DefaultIfEmpty())
+                       select l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2,
+                l1s => from l3 in l1s.SelectMany(l1 => MaybeDefaultIfEmpty(
+                    Maybe(
+                        l1.OneToOne_Optional_FK1,
+                        () => l1.OneToOne_Optional_FK1.OneToMany_Optional2)))
+                       select Maybe(
+                           l3,
+                           () => l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
+        {
+            return AssertQuery<Level1, Level4>(
+                isAsync,
+                (l1s, l4s)
+                    => from l4 in l1s.SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                       join l2 in l4s.SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty()) on l4.Id equals l2.Id
+                       join l3 in l4s.SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2.DefaultIfEmpty()) on l2.Id equals l3.Id into grouping
+                       from l3 in grouping.DefaultIfEmpty()
+                       where l4.OneToMany_Optional_Inverse4.Name != "Foo"
+                       orderby l2.OneToOne_Optional_FK2.Id
+                       select new { Entity = l4, Collection = l2.OneToMany_Optional_Self2.Where(e => e.Id != 42).ToList(), Property = l3.OneToOne_Optional_FK_Inverse3.OneToOne_Required_FK2.Name },
+                (l1s, l4s)
+                    => from l4 in l1s.SelectMany(l1 => MaybeDefaultIfEmpty(
+                        Maybe(
+                            l1.OneToOne_Required_FK1,
+                            () => Maybe(
+                                l1.OneToOne_Required_FK1.OneToOne_Optional_FK2,
+                                () => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3))))
+                       join l2 in l4s.SelectMany(l4 => MaybeDefaultIfEmpty(
+                           Maybe(
+                               l4.OneToOne_Required_FK_Inverse4,
+                               () => Maybe(
+                                   l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3,
+                                   () => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2)))) on MaybeScalar<int>(l4, () => l4.Id) equals MaybeScalar<int>(l2, () => l2.Id)
+                       join l3 in l4s.SelectMany(l4 => MaybeDefaultIfEmpty(
+                           Maybe(
+                               l4.OneToOne_Required_FK_Inverse4,
+                               () => Maybe(
+                                   l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3,
+                                   () => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2)))) on MaybeScalar<int>(l2, () => l2.Id) equals MaybeScalar<int>(l3, () => l3.Id) into grouping
+                       from l3 in grouping.DefaultIfEmpty()
+                       where Maybe(
+                           l4,
+                           () => Maybe(
+                               l4.OneToMany_Optional_Inverse4,
+                               () => l4.OneToMany_Optional_Inverse4.Name)) != "Foo"
+                       orderby MaybeScalar(
+                           l2,
+                           () => MaybeScalar<int>(
+                               l2.OneToOne_Optional_FK2,
+                               () => l2.OneToOne_Optional_FK2.Id))
+                       select new
+                       {
+                           Entity = l4,
+                           Collection = Maybe(
+                               l2,
+                               () => Maybe(
+                                   l2.OneToMany_Optional_Self2,
+                                   () => l2.OneToMany_Optional_Self2.Where(e => e.Id != 42).ToList())),
+                           Property = Maybe(
+                               l3,
+                               () => Maybe(
+                                   l3.OneToOne_Optional_FK_Inverse3,
+                                   () => Maybe(
+                                       l3.OneToOne_Optional_FK_Inverse3.OneToOne_Required_FK2,
+                                       () => l3.OneToOne_Optional_FK_Inverse3.OneToOne_Required_FK2.Name)))
+                       },
+                elementSorter: e => e.Entity.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Entity.Id, a.Entity.Id);
+                    CollectionAsserter<Level2>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.Collection, a.Collection);
+                    Assert.Equal(e.Property, a.Property);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_SelectMany_with_navigation_and_explicit_DefaultIfEmpty(bool isAsync)
         {
             return AssertQuery<Level1>(

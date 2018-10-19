@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionOwnershipBuilder<TEntity, TDependentEntity> Ignore(
             [NotNull] Expression<Func<TDependentEntity, object>> propertyExpression)
             => (CollectionOwnershipBuilder<TEntity, TDependentEntity>)
-                base.Ignore(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().Name);
+                base.Ignore(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().GetSimpleMemberName());
 
         /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TNewRelatedEntity : class
         {
             var navigation = navigationExpression?.GetPropertyAccess();
-            var relatedEntityType = FindRelatedEntityType(typeof(TNewRelatedEntity), navigation?.Name);
+            var relatedEntityType = FindRelatedEntityType(typeof(TNewRelatedEntity), navigation?.GetSimpleMemberName());
 
             return new ReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity>(
                 DependentEntityType,

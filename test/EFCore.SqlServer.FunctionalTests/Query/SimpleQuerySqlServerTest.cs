@@ -3048,6 +3048,57 @@ FROM [Customers] AS [c2]
 WHERE [c2].[CustomerID] = @_outer_CustomerID1");
         }
 
+        public override async Task Subquery_member_pushdown_does_not_change_original_subquery_model2(bool isAsync)
+        {
+            await base.Subquery_member_pushdown_does_not_change_original_subquery_model2(isAsync);
+
+            AssertSql(
+                @"@__p_0='3'
+
+SELECT [t].[CustomerID], [t].[OrderID]
+FROM (
+    SELECT TOP(@__p_0) [o].*
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]",
+                //
+                @"@_outer_CustomerID='VINET' (Size = 5)
+
+SELECT TOP(2) [c0].[City]
+FROM [Customers] AS [c0]
+WHERE [c0].[CustomerID] = @_outer_CustomerID",
+                //
+                @"@_outer_CustomerID='TOMSP' (Size = 5)
+
+SELECT TOP(2) [c0].[City]
+FROM [Customers] AS [c0]
+WHERE [c0].[CustomerID] = @_outer_CustomerID",
+                //
+                @"@_outer_CustomerID='HANAR' (Size = 5)
+
+SELECT TOP(2) [c0].[City]
+FROM [Customers] AS [c0]
+WHERE [c0].[CustomerID] = @_outer_CustomerID",
+                //
+                @"@_outer_CustomerID1='TOMSP' (Size = 5)
+
+SELECT TOP(2) [c2].[City]
+FROM [Customers] AS [c2]
+WHERE [c2].[CustomerID] = @_outer_CustomerID1",
+                //
+                @"@_outer_CustomerID1='VINET' (Size = 5)
+
+SELECT TOP(2) [c2].[City]
+FROM [Customers] AS [c2]
+WHERE [c2].[CustomerID] = @_outer_CustomerID1",
+                //
+                @"@_outer_CustomerID1='HANAR' (Size = 5)
+
+SELECT TOP(2) [c2].[City]
+FROM [Customers] AS [c2]
+WHERE [c2].[CustomerID] = @_outer_CustomerID1");
+        }
+
         public override async Task Query_expression_with_to_string_and_contains(bool isAsync)
         {
             await base.Query_expression_with_to_string_and_contains(isAsync);

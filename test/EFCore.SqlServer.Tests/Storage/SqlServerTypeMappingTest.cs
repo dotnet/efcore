@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -117,9 +118,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void Create_and_clone_UDT_mapping_with_converter()
         {
+            Func<object, Expression> literalGenerator = Expression.Constant;
+
             var mapping = new SqlServerUdtTypeMapping(
                 typeof(object),
                 "storeType",
+                literalGenerator,
                 StoreTypePostfix.None,
                 "udtType",
                 new FakeValueConverter(),
@@ -150,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Same(literalGenerator, clone.LiteralGenerator);
 
             var newConverter = new FakeValueConverter();
             clone = (SqlServerUdtTypeMapping)mapping.Clone(newConverter);
@@ -171,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Same(literalGenerator, clone.LiteralGenerator);
         }
 
         public static RelationalTypeMapping GetMapping(Type type)

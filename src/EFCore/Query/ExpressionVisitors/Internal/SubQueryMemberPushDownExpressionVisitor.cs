@@ -140,10 +140,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (methodCallExpression.Method.IsEFPropertyMethod())
             {
-                var subQueryExpression = newMethodCallExpression.Arguments[0] as SubQueryExpression;
-                if (subQueryExpression?.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression subSelector)
+                if (newMethodCallExpression.Arguments[0] is SubQueryExpression subQueryExpression
+                    && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression subSelector)
                 {
-                    var subQueryModel = subQueryExpression.QueryModel;
+                    var querySourceMapping = new QuerySourceMapping();
+                    var subQueryModel = subQueryExpression.QueryModel.Clone(querySourceMapping);
+                    _queryCompilationContext.UpdateMapping(querySourceMapping);
+                    var clonedSubSelector = querySourceMapping.GetExpression(subSelector.ReferencedQuerySource);
 
                     subQueryModel.SelectClause.Selector
                         = methodCallExpression
@@ -151,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 null,
                                 new[]
                                 {
-                                    subSelector,
+                                    clonedSubSelector,
                                     methodCallExpression.Arguments[1]
                                 });
 

@@ -377,6 +377,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class Gamma
         {
             public int Id { get; set; }
+            private int PrivateProperty { get; set; }
 
             public List<Alpha> Alphas { get; set; }
         }
@@ -698,6 +699,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class OwnedTypeInheritance2
         {
             public string Value { get; set; }
+        }
+
+        protected interface IReplacable
+        {
+            int Property { get; set; }
+        }
+
+        protected class DoubleProperty : IReplacable
+        {
+            public int Id { get; set; }
+            public int Property { get; set; }
+            int IReplacable.Property { get => Property; set => Property = value; }
         }
     }
 }

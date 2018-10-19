@@ -488,6 +488,113 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
+        public virtual void Lazy_load_many_to_one_reference_to_principal_changed_non_found_FK(EntityState state)
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+                var child = context.CreateProxy<Child>();
+                child.Id = 767;
+                child.ParentId = 797;
+
+                context.Attach(child);
+
+                ClearLog();
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
+
+                referenceEntry.IsLoaded = true;
+
+                changeDetector.DetectChangesCalled = false;
+
+                child.ParentId = 707;
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.NotNull(child.Parent);
+
+                Assert.True(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                Assert.Same(child, parent.Children.Single());
+                Assert.Same(parent, child.Parent);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Unchanged)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Deleted)]
+        public virtual void Lazy_load_many_to_one_reference_to_principal_changed_found_FK(EntityState state)
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+                var parent = context.CreateProxy<Parent>();
+                parent.Id = 797;
+                parent.AlternateId = "X";
+
+                var child = context.CreateProxy<Child>();
+                child.Id = 767;
+
+                child.ParentId = 797;
+                child.Parent = parent;
+                parent.Children = new List<Child>
+                {
+                    child
+                };
+
+                context.Attach(child);
+                context.Attach(parent);
+
+                ClearLog();
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
+
+                referenceEntry.IsLoaded = true;
+
+                changeDetector.DetectChangesCalled = false;
+
+                child.ParentId = 707;
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.NotNull(child.Parent);
+
+                Assert.True(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                var newParent = context.ChangeTracker.Entries<Parent>().Single(e => e.Entity.Id != parent.Id).Entity;
+
+                Assert.Same(child, newParent.Children.Single());
+                Assert.Same(newParent, child.Parent);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Unchanged)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_collection_not_found(EntityState state)
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))

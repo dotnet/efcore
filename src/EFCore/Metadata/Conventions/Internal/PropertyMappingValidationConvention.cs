@@ -61,12 +61,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                var clrProperties = new HashSet<string>();
+                var clrProperties = new HashSet<string>(StringComparer.Ordinal);
 
                 clrProperties.UnionWith(
                     entityType.GetRuntimeProperties().Values
                         .Where(pi => pi.IsCandidateProperty())
-                        .Select(pi => pi.Name));
+                        .Select(pi => pi.GetSimpleMemberName()));
 
                 clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
                 clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         // ReSharper disable CheckForReferenceEqualityInstead.1
                         // ReSharper disable CheckForReferenceEqualityInstead.3
                         if (entityType.GetDerivedTypes().All(
-                            dt => dt.FindDeclaredNavigation(actualProperty.Name) == null)
+                            dt => dt.FindDeclaredNavigation(actualProperty.GetSimpleMemberName()) == null)
                             && (!isTargetWeakOrOwned
                                 || (!targetType.Equals(entityType.ClrType)
                                     && (!entityType.IsInOwnershipPath(targetType)

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -95,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         public virtual QueryTypeBuilder<TQuery> Ignore([NotNull] Expression<Func<TQuery, object>> propertyExpression)
             => (QueryTypeBuilder<TQuery>)base.Ignore(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().Name);
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().GetSimpleMemberName());
 
         /// <summary>
         ///     Excludes the given property from the query type. This method is typically used to remove properties

@@ -370,12 +370,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             _querySource = qs;
                             _propertyName = p.Name;
 
-                            if ((_queryModelVisitor.QueryCompilationContext.FindEntityType(_querySource)
-                                 ?? _queryModelVisitor.QueryCompilationContext.Model.FindEntityType(_querySource.ItemType))
-                                ?.FindProperty(_propertyName)?.IsPrimaryKey()
-                                ?? false)
+                            if (_querySource != null)
                             {
-                                _propertyName = null;
+                                if ((_queryModelVisitor.QueryCompilationContext.FindEntityType(_querySource)
+                                     ?? _queryModelVisitor.QueryCompilationContext.Model.FindEntityType(_querySource.ItemType))
+                                    ?.FindProperty(_propertyName)?.IsPrimaryKey()
+                                    ?? false)
+                                {
+                                    _propertyName = null;
+                                }
                             }
                         });
                 }

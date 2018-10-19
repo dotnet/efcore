@@ -12,6 +12,22 @@ namespace Microsoft.EntityFrameworkCore
     public static class CosmosMetadataExtensions
     {
         /// <summary>
+        ///     Gets the Cosmos-specific metadata for a model.
+        /// </summary>
+        /// <param name="model"> The model to get metadata for. </param>
+        /// <returns> The Cosmos-specific metadata for the model. </returns>
+        public static ICosmosModelAnnotations Cosmos(this IModel model)
+            => new CosmosModelAnnotations(model);
+
+        /// <summary>
+        ///     Gets the Cosmos-specific metadata for a model.
+        /// </summary>
+        /// <param name="model"> The model to get metadata for. </param>
+        /// <returns> The Cosmos-specific metadata for the model. </returns>
+        public static CosmosModelAnnotations Cosmos(this IMutableModel model)
+            => (CosmosModelAnnotations)Cosmos((IModel)model);
+
+        /// <summary>
         ///     Gets the Cosmos-specific metadata for an entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to get metadata for. </param>

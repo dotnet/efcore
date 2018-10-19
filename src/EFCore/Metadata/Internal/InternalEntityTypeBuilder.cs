@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] MemberInfo clrProperty, ConfigurationSource configurationSource)
-            => Property(clrProperty.Name, clrProperty.GetMemberType(), clrProperty, configurationSource, configurationSource);
+            => Property(clrProperty.GetSimpleMemberName(), clrProperty.GetMemberType(), clrProperty, configurationSource, configurationSource);
 
         private InternalPropertyBuilder Property(
             [NotNull] string propertyName,
@@ -474,8 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if ((propertyType != null
                      && propertyType != existingProperty.ClrType)
-                    || (clrProperty != null
-                        && existingProperty.GetIdentifyingMemberInfo() == null))
+                    || (clrProperty?.IsSameAs(existingProperty.GetIdentifyingMemberInfo()) == false))
                 {
                     if (!configurationSource.HasValue
                         || !configurationSource.Value.Overrides(existingProperty.GetConfigurationSource()))
@@ -532,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalServicePropertyBuilder ServiceProperty(
             [NotNull] MemberInfo memberInfo, ConfigurationSource configurationSource)
         {
-            var propertyName = memberInfo.Name;
+            var propertyName = memberInfo.GetSimpleMemberName();
             if (IsIgnored(propertyName, configurationSource))
             {
                 return null;
@@ -1931,7 +1930,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             targetEntityTypeBuilder,
                             dependentProperties: null,
                             principalKey: null,
-                            navigationToPrincipalName: navigationProperty?.Name,
+                            navigationToPrincipalName: navigationProperty?.GetSimpleMemberName(),
                             isRequired: required,
                             configurationSource: configurationSource);
                     }
@@ -1947,7 +1946,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             this,
                             dependentProperties: null,
                             principalKey: null,
-                            navigationToPrincipalName: navigationProperty?.Name,
+                            navigationToPrincipalName: navigationProperty?.GetSimpleMemberName(),
                             isRequired: null,
                             configurationSource: configurationSource);
                     }
@@ -2223,7 +2222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         ownedEntityType = targetType == null
                             ? ModelBuilder.Entity(targetTypeName, configurationSource, allowOwned: true)
-                            : ModelBuilder.Entity(targetType,  configurationSource, allowOwned: true);
+                            : ModelBuilder.Entity(targetType, configurationSource, allowOwned: true);
                     }
 
                     if (ownedEntityType == null)
@@ -2289,25 +2288,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool RemoveNonOwnershipRelationships(ConfigurationSource configurationSource)
+        public virtual bool RemoveNonOwnershipRelationships(ForeignKey ownership, ConfigurationSource configurationSource)
         {
-            var referencingRelationships = Metadata.GetDerivedForeignKeysInclusive()
-                .Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null)
+            var incompatibleRelationships = Metadata.GetDerivedForeignKeysInclusive()
+                .Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null
+                    && !Contains(ownership, fk))
                 .Concat(Metadata.GetDerivedReferencingForeignKeysInclusive()
-                    .Where(fk => !fk.IsOwnership)).ToList();
+                    .Where(fk => !fk.IsOwnership
+                        && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
+                .Distinct()
+                .ToList();
 
-            if (referencingRelationships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
+            if (incompatibleRelationships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
             {
                 return false;
             }
 
-            foreach (var foreignKey in referencingRelationships)
+            foreach (var foreignKey in incompatibleRelationships)
             {
                 foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
             }
 
             return true;
         }
+
+        private bool Contains(IForeignKey inheritedFk, IForeignKey derivedFk)
+            => inheritedFk != null
+                && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
+                && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

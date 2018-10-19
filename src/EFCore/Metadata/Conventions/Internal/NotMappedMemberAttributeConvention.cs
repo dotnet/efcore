@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true))
                 {
-                    entityTypeBuilder.Ignore(member.Name, ConfigurationSource.DataAnnotation);
+                    entityTypeBuilder.Ignore(member.GetSimpleMemberName(), ConfigurationSource.DataAnnotation);
                 }
             }
 

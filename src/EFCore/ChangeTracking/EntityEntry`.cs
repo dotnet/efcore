@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().GetSimpleMemberName());
         }
 
         /// <summary>
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().GetSimpleMemberName());
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().Name);
+            return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetPropertyAccess().GetSimpleMemberName());
         }
 
         /// <summary>

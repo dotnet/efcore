@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             CollectionProperty = navigationProperty;
-            CollectionName = navigationProperty?.Name;
+            CollectionName = navigationProperty?.GetSimpleMemberName();
             Builder = builder;
         }
 

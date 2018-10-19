@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                 .GetMethod;
 
-        public static Expression<Func<JObject, object[]>> Create(IEntityType entityType)
+        public static Expression<Func<JObject, object[]>> Create(List<IProperty> usedProperties)
             => Expression.Lambda<Func<JObject, object[]>>(
                 Expression.NewArrayInit(
                     typeof(object),
-                    entityType.GetProperties()
+                    usedProperties
                         .Select(p =>
                                 CreateGetValueExpression(
                                     _jObjectParameter,

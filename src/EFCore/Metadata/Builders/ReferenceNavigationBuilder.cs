@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             ReferenceProperty = navigationProperty;
-            ReferenceName = navigationProperty?.Name;
+            ReferenceName = navigationProperty?.GetSimpleMemberName();
             Builder = builder;
         }
 

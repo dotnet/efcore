@@ -29,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly QueryModel _parentQueryModel;
             private readonly IncludeCompiler _includeCompiler;
 
+            private static readonly MethodInfo _emptyMethodInfo
+                = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.Empty));
+
             public CollectionQueryModelRewritingExpressionVisitor(
                 QueryCompilationContext queryCompilationContext,
                 QueryModel parentQueryModel,
@@ -92,16 +95,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .OfType<WhereClause>()
                     .SingleOrDefault();
 
-                if (whereClause != null)
+                if (whereClause == null)
                 {
-                    whereClause.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
+                    // Assuming this is a client query
 
-                    collectionQueryModel.BodyClauses.Remove(whereClause);
+                    collectionQueryModel.MainFromClause.FromExpression =
+                        Expression.Coalesce(
+                            collectionQueryModel.MainFromClause.FromExpression,
+                            Expression.Call(null, _emptyMethodInfo.MakeGenericMethod(navigation.GetTargetType().ClrType)));
+
+                    return;
                 }
-                else
-                {
-                    collectionQueryModel.MainFromClause.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
-                }
+
+                whereClause.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
+
+                collectionQueryModel.BodyClauses.Remove(whereClause);
 
                 var parentQuerySourceReferenceExpression
                     = querySourceReferenceFindingExpressionTreeVisitor.QuerySourceReferenceExpression;

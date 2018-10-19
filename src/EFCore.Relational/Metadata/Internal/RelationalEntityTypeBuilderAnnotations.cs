@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return propertyInfo == null
                 ? RemoveDiscriminator()
                 : DiscriminatorProperty != null
-                   && DiscriminatorProperty.Name == propertyInfo.Name
+                   && DiscriminatorProperty.Name == propertyInfo.GetSimpleMemberName()
                    && DiscriminatorProperty.ClrType == propertyInfo.PropertyType
                 ? DiscriminatorBuilder(null, null)
                 : DiscriminatorBuilder(b => b.Property(propertyInfo, Annotations.ConfigurationSource), null);

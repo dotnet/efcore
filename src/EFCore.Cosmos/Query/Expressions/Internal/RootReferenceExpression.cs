@@ -21,9 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
             _alias = alias;
         }
 
-        public override string ToString()
-        {
-            return _alias;
-        }
+        public override string ToString() => _alias;
     }
 }

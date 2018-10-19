@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected TableSplittingTestBase(ITestOutputHelper testOutputHelper)
         {
-            TestSqlLoggerFactory = (TestSqlLoggerFactory)TestStoreFactory.CreateListLoggerFactory(l => true);
+            TestSqlLoggerFactory = (TestSqlLoggerFactory)TestStoreFactory.CreateListLoggerFactory(_ => true);
             //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
