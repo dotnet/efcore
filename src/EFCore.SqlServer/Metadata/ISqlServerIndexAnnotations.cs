@@ -21,5 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns included property names, or <c>null</c> if they have not been specified.
         /// </summary>
         IReadOnlyList<string> IncludeProperties { get; }
+
+        /// <summary>
+        ///     Indicates whether or not the index is created with online option, or <c>null</c> if
+        ///     online option has not been specified.
+        /// </summary>
+        bool? IsOnline { get; }
     }
 }

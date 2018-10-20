@@ -1587,6 +1587,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             base.IndexOptions(operation, model, builder);
+
+            if (operation[SqlServerAnnotationNames.Online] is bool isOnline && isOnline)
+            {
+                builder.Append(" WITH (ONLINE = ON)");
+            }
         }
 
         /// <summary>

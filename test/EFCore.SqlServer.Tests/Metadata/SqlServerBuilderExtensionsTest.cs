@@ -830,6 +830,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
+        public void Can_set_index_online()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ForSqlServerHasIndex(e => e.Name)
+                .ForSqlServerIsOnline();
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.True(index.SqlServer().IsOnline);
+        }
+
+        [Fact]
+        public void Can_set_index_online_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .ForSqlServerIsOnline();
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.True(index.SqlServer().IsOnline);
+        }
+
+        [Fact]
         public void Can_set_sequences_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();

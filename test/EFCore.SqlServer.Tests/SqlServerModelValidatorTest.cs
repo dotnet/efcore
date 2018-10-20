@@ -288,6 +288,16 @@ namespace Microsoft.EntityFrameworkCore
             VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name)), modelBuilder.Model);
         }
 
+        [Fact]
+        public void Passes_for_online_index()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(c => c.Type);
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerIsOnline();
+
+            Validate(modelBuilder.Model);
+        }
+
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping] =
                 new SqlServerTypeMappingSource(
