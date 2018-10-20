@@ -563,7 +563,8 @@ namespace Microsoft.EntityFrameworkCore
             => new DbContextPoolConfigurationSnapshot(
                 _changeTracker?.AutoDetectChangesEnabled,
                 _changeTracker?.QueryTrackingBehavior,
-                _database?.AutoTransactionsEnabled);
+                _database?.AutoTransactionsEnabled,
+                _changeTracker?.LazyLoadingEnabled);
 
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
@@ -571,17 +572,23 @@ namespace Microsoft.EntityFrameworkCore
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
+                Debug.Assert(configurationSnapshot.QueryTrackingBehavior.HasValue);
+                Debug.Assert(configurationSnapshot.LazyLoadingEnabled.HasValue);
+
                 ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
-            }
-
-            if (configurationSnapshot.QueryTrackingBehavior != null)
-            {
                 ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;
+                ChangeTracker.LazyLoadingEnabled = configurationSnapshot.LazyLoadingEnabled.Value;
+            }
+            else
+            {
+                ((IResettableService)_changeTracker)?.ResetState();
             }
 
-            if (configurationSnapshot.AutoTransactionsEnabled != null)
+            if (_database != null)
             {
-                Database.AutoTransactionsEnabled = configurationSnapshot.AutoTransactionsEnabled.Value;
+                _database.AutoTransactionsEnabled
+                    = configurationSnapshot.AutoTransactionsEnabled == null
+                      || configurationSnapshot.AutoTransactionsEnabled.Value;
             }
         }
 
