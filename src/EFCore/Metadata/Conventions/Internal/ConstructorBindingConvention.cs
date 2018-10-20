@@ -86,9 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             .GroupBy(f => f.Member as ConstructorInfo)
                             .Select(x => 
                                 CoreStrings.ConstructorBindingFailed( 
-                                    string.Join(", ", x.Select(f => f.Name)),
+                                    string.Join("', '", x.Select(f => f.Name)),
                                     entityType.DisplayName() + "(" + 
-                                        string.Join(", ", x.Key.GetParameters().Select(y => y.Name)) +
+                                        string.Join(", ", x.Key.GetParameters().Select(y => 
+                                            y.ParameterType.ShortDisplayName() + " " + y.Name)
+                                        ) + 
                                         ")"
                                 )
                             );
