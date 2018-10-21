@@ -969,7 +969,7 @@
     <value>The seed entity for entity type '{entityType}' cannot be added because the value provided is of a derived type '{derivedType}'. Add the derived seed entities to the corresponding entity type.</value>
   </data>
   <data name="ConstructorNotFound" xml:space="preserve">
-    <value>No suitable constructor found for entity type '{entityType}'. The following parameters could not be bound to properties of the entity: '{parameters}'.</value>
+    <value>No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.</value>
   </data>
   <data name="ConstructorConflict" xml:space="preserve">
     <value>Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.</value>
@@ -1124,5 +1124,8 @@
   </data>
   <data name="NoIndexer" xml:space="preserve">
     <value>Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.</value>
+  </data>
+  <data name="ConstructorBindingFailed" xml:space="preserve">
+    <value>cannot bind '{failedBinds}' in '{parameters}'</value>
   </data>
 </root>
