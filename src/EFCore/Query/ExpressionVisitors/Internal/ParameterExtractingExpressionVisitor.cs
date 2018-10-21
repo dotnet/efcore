@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            var returnValue = (TryOptimize(conditionalExpression.Test) as ConstantExpression).Value as bool?;
+            var returnValue = (TryOptimize(conditionalExpression.Test) as ConstantExpression)?.Value as bool?;
 
             if (returnValue == null)
             {
