@@ -298,6 +298,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+        {
+            var returnValue = (TryOptimize(conditionalExpression.Test) as ConstantExpression).Value as bool?;
+
+            if (returnValue == null)
+            {
+                return base.VisitConditional(conditionalExpression);
+            }
+
+            return (bool)returnValue ? conditionalExpression.IfTrue : conditionalExpression.IfFalse;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             var value = constantExpression.Value;
