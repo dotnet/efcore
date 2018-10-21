@@ -925,15 +925,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return true;
         }
 
-        [ContractAnnotation("propertyInfo:null => false")]
+        [ContractAnnotation("memberInfo:null => false")]
         private static bool IsCandidateNavigationProperty(
-            InternalEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, MemberInfo propertyInfo)
-            => propertyInfo != null
+            InternalEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, MemberInfo memberInfo)
+            => memberInfo != null
                && sourceEntityTypeBuilder?.IsIgnored(navigationName, ConfigurationSource.Convention) == false
                && sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) == null
                && sourceEntityTypeBuilder.Metadata.FindServiceProperty(navigationName) == null
+               && (!(memberInfo is PropertyInfo propertyInfo) || propertyInfo.GetIndexParameters().Length == 0)
                && (!sourceEntityTypeBuilder.Metadata.IsQueryType
-                   || (propertyInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
+                   || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
