@@ -20,41 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
-        #region Bug13068
-
-        [Fact]
-        public void Null_coalesce_does_not_short_circuit_well_13068()
-        {
-            List<int> values = null;
-            bool? test = false;
-
-            using (CreateScratch<DatabaseContext_13068>(_ => { }, "13068"))
-            {
-                using (var db = new DatabaseContext_13068())
-                {
-                    var result = db.Foos.Select(b => new { Test = (test ?? values.Contains(1)) }).ToList();
-                    Assert.All(result, x => Assert.False(x.Test));
-                }
-            }
-        }
-
-        public class DatabaseContext_13068 : DbContext
-        {
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase("13068").EnableDetailedErrors().EnableSensitiveDataLogging();
-            }
-
-            public DbSet<Foo_13068> Foos { get; set; }
-        }
-
-        public class Foo_13068
-        {
-            public long Id { get; set; }
-            public ICollection<Motor> Motors { get; set; } = new HashSet<Motor>();
-        }
-
-        #endregion
 
         #region Bug9849
 

@@ -704,6 +704,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_Coalesce_Short_Circuit(bool isAsync)
+        {
+            List<int> values = null;
+            bool? test = false;
+
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Distinct().Select(c => new { Customer = c, Test = (test ?? values.Contains(1)) }),
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Distinct_Skip_Take(bool isAsync)
         {
             return AssertQuery<Customer>(

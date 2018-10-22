@@ -2518,6 +2518,18 @@ ORDER BY CASE
 END");
         }
 
+        public override async Task Null_Coalesce_Short_Circuit(bool isAsync)
+        {
+            await base.Null_Coalesce_Short_Circuit(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM (
+    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+) AS [t]");
+        }
+
         public override async Task OrderBy_conditional_operator_where_condition_null(bool isAsync)
         {
             await base.OrderBy_conditional_operator_where_condition_null(isAsync);
