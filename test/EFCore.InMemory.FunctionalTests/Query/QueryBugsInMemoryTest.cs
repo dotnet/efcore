@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Data2 = foo != null ? foo.Bar : 1, // Will also crash
                             Data3 = !hasData ? 1 : foo.Bar // Order doesn't matter, crashes
                         })
-                        .FirstOrDefault(c => c.Id == 1);
+                        .ToList();
                 }
             }
         }

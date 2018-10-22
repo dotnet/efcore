@@ -1586,27 +1586,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_ternary_boolean_condition_true(bool isAsync)
+        public virtual Task Where_ternary_boolean_condition(bool isAsync)
         {
-            var flag = true;
-
             return AssertQuery<Product>(
                 isAsync,
                 ps => ps
-                    .Where(p => flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20),
-                entryCount: 51);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_ternary_boolean_condition_false(bool isAsync)
-        {
-            var flag = false;
-
-            return AssertQuery<Product>(
-                isAsync,
-                ps => ps
-                    .Where(p => flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20),
+                    .Where(p => p.Discontinued ? p.UnitsInStock >= 20 : p.UnitsInStock < 20),
                 entryCount: 26);
         }
 
@@ -1614,7 +1599,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_ternary_boolean_condition_with_another_condition(bool isAsync)
         {
-            var flag = true;
             var productId = 15;
 
             return AssertQuery<Product>(
@@ -1622,35 +1606,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ps => ps
                     .Where(
                         p => p.ProductID < productId
-                             && (flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20)),
-                entryCount: 9);
+                             && (p.Discontinued ? p.UnitsInStock >= 20 : p.UnitsInStock < 20)),
+                entryCount: 5);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_ternary_boolean_condition_with_false_as_result_true(bool isAsync)
         {
-            var flag = true;
-
             return AssertQuery<Product>(
                 isAsync,
                 ps => ps
                     // ReSharper disable once SimplifyConditionalTernaryExpression
-                    .Where(p => flag ? p.UnitsInStock >= 20 : false),
-                entryCount: 51);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_ternary_boolean_condition_with_false_as_result_false(bool isAsync)
-        {
-            var flag = false;
-
-            return AssertQuery<Product>(
-                isAsync,
-                ps => ps
-                    // ReSharper disable once SimplifyConditionalTernaryExpression
-                    .Where(p => flag ? p.UnitsInStock >= 20 : false));
+                    .Where(p => p.Discontinued ? p.UnitsInStock >= 20 : false),
+                entryCount: 4);
         }
 
         // TODO: Re-write entity ref equality to identity equality.

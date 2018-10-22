@@ -1460,24 +1460,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((((@__i_0 + 20) + c[""CustomerID""]) || @__j_1) || 42) = c[""CompanyName""]))");
         }
 
-        public override async Task Where_ternary_boolean_condition_true(bool isAsync)
+        public override async Task Where_ternary_boolean_condition(bool isAsync)
         {
-            await base.Where_ternary_boolean_condition_true(isAsync);
+            await base.Where_ternary_boolean_condition(isAsync);
 
             AssertSql(
                 @"@__flag_0='True'
-
-SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : (c[""UnitsInStock""] < 20)))");
-        }
-
-        public override async Task Where_ternary_boolean_condition_false(bool isAsync)
-        {
-            await base.Where_ternary_boolean_condition_false(isAsync);
-
-            AssertSql(
-                @"@__flag_0='False'
 
 SELECT c
 FROM root c
@@ -1490,7 +1478,6 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""
 
             AssertSql(
                 @"@__productId_0='15'
-@__flag_1='True'
 
 SELECT c
 FROM root c
@@ -1502,21 +1489,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND ((c[""ProductID""] < @__productI
             await base.Where_ternary_boolean_condition_with_false_as_result_true(isAsync);
 
             AssertSql(
-                @"@__flag_0='True'
-
-SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : false))");
-        }
-
-        public override async Task Where_ternary_boolean_condition_with_false_as_result_false(bool isAsync)
-        {
-            await base.Where_ternary_boolean_condition_with_false_as_result_false(isAsync);
-
-            AssertSql(
-                @"@__flag_0='False'
-
-SELECT c
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : false))");
         }
