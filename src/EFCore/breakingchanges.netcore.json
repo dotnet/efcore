@@ -1,4 +1,4 @@
-﻿  [
+﻿﻿  [
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ValueConversion.CharToStringConverter : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<System.Char, System.String>",
       "Kind": "Removal"
@@ -48,3 +48,4 @@
       "Kind": "Addition"
     }
   ]
+

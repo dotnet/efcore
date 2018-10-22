@@ -3564,6 +3564,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Can_query_on_indexed_properties()
+        {
+            using (var context = CreateContext())
+            {
+                // using variables for the property names (rather than constants) tests that
+                // query can replace the value of that variable correctly in the expression tree
+                var nationPropertyName = City.NationPropertyName;
+
+                var tyrusCities = context.Cities
+                    .Where(city => (string)city[nationPropertyName] == "Tyrus").ToArray();
+                Assert.Equal(2, tyrusCities.Length);
+
+                // check that materialization has populated the Nation indexed property
+                foreach(var tyrusCity in tyrusCities)
+                {
+                    Assert.Equal("Tyrus", tyrusCity[nationPropertyName]);
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Navigation_access_on_derived_entity_using_cast()
         {
             using (var ctx = CreateContext())

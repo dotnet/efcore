@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -1557,12 +1558,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Binds a method call to a CLR or shadow property access.
+        ///     Binds a method call to a CLR, shadow or indexed property access.
         /// </summary>
         /// <param name="methodCallExpression"> The method call expression. </param>
         /// <param name="targetMethodCallExpression"> The target method call expression. </param>
         /// <returns>
-        ///     A value buffer access expression.
+        ///     A property access expression.
         /// </returns>
         public virtual Expression BindMethodCallToEntity(
             [NotNull] MethodCallExpression methodCallExpression,
@@ -1574,6 +1575,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 methodCallExpression,
                 (Func<IPropertyBase, IQuerySource, Expression>)((property, _) =>
                 {
+                    if (targetMethodCallExpression.Method.IsEFIndexer())
+                    {
+                        return Expression.Call(
+                            _getValueFromEntityMethodInfo.MakeGenericMethod(property.ClrType),
+                            Expression.Constant(property.GetGetter()),
+                            targetMethodCallExpression.Object);
+                    }
+
                     var propertyType = targetMethodCallExpression.Method.GetGenericArguments()[0];
 
                     if (targetMethodCallExpression.Arguments[0] is ConstantExpression maybeConstantExpression)

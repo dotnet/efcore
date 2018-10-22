@@ -144,6 +144,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return TryExtractParameter(methodCallExpression);
             }
 
+            if (methodInfo.IsEFIndexer())
+            {
+                return VisitIndexerCall(methodCallExpression);
+            }
+
             if (!methodInfo.IsStatic)
             {
                 return base.VisitMethodCall(methodCallExpression);
@@ -234,6 +239,46 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (newArguments != null)
             {
                 methodCallExpression = methodCallExpression.Update(methodCallExpression.Object, newArguments);
+            }
+
+            return methodCallExpression;
+        }
+
+        private Expression VisitIndexerCall(MethodCallExpression methodCallExpression)
+        {
+            Visit(methodCallExpression.Object);
+
+            var argument = methodCallExpression.Arguments.Single();
+            var newArgument = Visit(argument);
+            if (newArgument.RemoveConvert() is ParameterExpression parameter)
+            {
+                var parameterValue = _parameterValues.ParameterValues[parameter.Name];
+
+                if (_parameterCache.TryGetValue(argument, out var cachedParameter))
+                {
+                    if (cachedParameter.RefCount == 1)
+                    {
+                        _parameterCache.Remove(argument);
+                        _parameterValues.RemoveParameter(parameter.Name);
+                    }
+                    else
+                    {
+                        _parameterCache[argument] = (cachedParameter.Parameter, cachedParameter.RefCount - 1);
+                    }
+                }
+
+                var constantParameterValue = Expression.Constant(parameterValue);
+
+                newArgument = newArgument is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert
+                    ? unaryExpression.Update(constantParameterValue)
+                    : (Expression)constantParameterValue;
+            }
+
+            if (newArgument != argument)
+            {
+                methodCallExpression =
+                    methodCallExpression.Update(methodCallExpression.Object, new Expression[] { newArgument });
             }
 
             return methodCallExpression;

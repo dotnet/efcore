@@ -144,29 +144,36 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             };
 
         public static IReadOnlyList<City> CreateCities()
-            => new List<City>
+        {
+            var jacinto = new City
             {
-                new City
-                {
-                    Location = "Jacinto's location",
-                    Name = "Jacinto"
-                },
-                new City
-                {
-                    Location = "Ephyra's location",
-                    Name = "Ephyra"
-                },
-                new City
-                {
-                    Location = "Hanover's location",
-                    Name = "Hanover"
-                },
-                new City
-                {
-                    Location = "Unknown",
-                    Name = "Unknown"
-                }
+                Location = "Jacinto's location",
+                Name = "Jacinto"
             };
+            jacinto[City.NationPropertyName] = "Tyrus";
+
+            var ephyra = new City
+            {
+                Location = "Ephyra's location",
+                Name = "Ephyra"
+            };
+            ephyra[City.NationPropertyName] = "Tyrus";
+
+            var hanover = new City
+            {
+                Location = "Hanover's location",
+                Name = "Hanover"
+            };
+
+            var unknown = new City
+            {
+                Location = "Unknown",
+                Name = "Unknown"
+            };
+
+            var cities = new List<City>() { jacinto, ephyra, hanover, unknown };
+            return cities;
+        }
 
         public static IReadOnlyList<Weapon> CreateWeapons()
             => new List<Weapon>

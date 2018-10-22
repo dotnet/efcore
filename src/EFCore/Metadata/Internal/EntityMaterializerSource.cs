@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Concat(
                         entityType
                             .GetProperties()
-                            .Where(p => !p.IsShadowProperty)));
+                            .Where(p => !p.IsShadowProperty || p.IsIndexedProperty)));
 
             foreach (var consumedProperty in constructorBinding
                 .ParameterBindings
@@ -138,11 +138,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constructorExpression)
                 };
 
+            var indexerPropertyInfo =
+                (from p in entityType.ClrType.GetRuntimeProperties()
+                 where p.PropertyType == typeof(object)
+                 let q = p.GetIndexParameters()
+                 where q.Length == 1 && q[0].ParameterType == typeof(string)
+                 select p).FirstOrDefault();
+
             blockExpressions.AddRange(
                 from property in properties
-                let targetMember = Expression.MakeMemberAccess(
-                    instanceVariable,
-                    property.GetMemberInfo(forConstruction: true, forSet: true))
+                let targetMember =
+                    property.IsIndexedProperty
+                        ? (Expression)Expression.MakeIndex(
+                            instanceVariable,
+                            indexerPropertyInfo,
+                            new List<Expression>() { Expression.Constant(property.Name) })
+                        : Expression.MakeMemberAccess(
+                            instanceVariable,
+                            property.GetMemberInfo(forConstruction: true, forSet: true))
                 select
                     Expression.Assign(
                         targetMember,
