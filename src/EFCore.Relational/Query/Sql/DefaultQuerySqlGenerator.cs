@@ -644,7 +644,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 if (processedExperssion.RemoveConvert() is ConstantExpression
                     || processedExperssion.RemoveConvert() is ParameterExpression)
                 {
-                    _relationalCommandBuilder.Append("(SELECT 1)");
+                    _relationalCommandBuilder.Append("(SELECT 1");
+                    GeneratePseudoFromClause();
+                    _relationalCommandBuilder.Append(")");
                 }
                 else
                 {
