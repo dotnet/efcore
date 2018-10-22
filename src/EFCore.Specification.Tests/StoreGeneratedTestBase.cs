@@ -1142,6 +1142,26 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
+        [Fact]
+        public virtual void Fields_used_correctly_for_store_generated_values()
+        {
+            var id = 0;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Add(new WithBackingFields()).Entity;
+
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
+                context =>
+                {
+                    var entity = context.Set<WithBackingFields>().Single(e => e.Id.Equals(id));
+                    Assert.Equal(1, entity.NullableAsNonNullable);
+                    Assert.Equal(1, entity.NonNullableAsNullable);
+                });
+        }
+
         protected class Darwin
         {
             public int Id { get; set; }
@@ -1216,6 +1236,30 @@ namespace Microsoft.EntityFrameworkCore
             public string OnUpdateUseBeforeThrowAfter { get; set; }
             public string OnUpdateIgnoreBeforeThrowAfter { get; set; }
             public string OnUpdateThrowBeforeThrowAfter { get; set; }
+        }
+
+        protected class WithBackingFields
+        {
+            private int _id;
+            public int Id
+            {
+                get => _id;
+                set => _id = value;
+            }
+
+            private int? _nullableAsNonNullable = 0;
+            public int NullableAsNonNullable
+            {
+                get => (int)_nullableAsNonNullable;
+                set => _nullableAsNonNullable = value;
+            }
+
+            private int _nonNullableAsNullable;
+            public int? NonNullableAsNullable
+            {
+                get => _nonNullableAsNullable;
+                set => _nonNullableAsNullable = (int)value;
+            }
         }
 
         protected class WithConverter<TKey>
@@ -1486,6 +1530,13 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                 modelBuilder.Entity<Darwin>();
+
+                modelBuilder.Entity<WithBackingFields>(b =>
+                {
+                    b.Property(e => e.Id).HasField("_id");
+                    b.Property(e => e.NullableAsNonNullable).HasField("_nullableAsNonNullable").ValueGeneratedOnAddOrUpdate();
+                    b.Property(e => e.NonNullableAsNullable).HasField("_nonNullableAsNullable").ValueGeneratedOnAddOrUpdate();
+                });
             }
         }
     }
