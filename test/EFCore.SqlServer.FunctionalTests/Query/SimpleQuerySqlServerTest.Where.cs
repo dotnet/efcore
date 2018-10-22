@@ -1370,14 +1370,41 @@ FROM [Customers] AS [c]
 WHERE (((CAST(@__i_0 + 20 AS nvarchar(max)) + [c].[CustomerID]) + CAST(@__j_1 AS nvarchar(max))) + CAST(42 AS nvarchar(max))) = [c].[CompanyName]");
         }
 
-        public override async Task Where_ternary_boolean_condition(bool isAsync)
+        public override async Task Where_ternary_boolean_condition_true(bool isAsync)
         {
-            await base.Where_ternary_boolean_condition(isAsync);
+            await base.Where_ternary_boolean_condition_true(isAsync);
 
             AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+                @"@__flag_0='True'
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (([p].[Discontinued] = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR (([p].[Discontinued] <> 1) AND ([p].[UnitsInStock] < CAST(20 AS smallint)))");
+WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < CAST(20 AS smallint)))");
+        }
+
+        public override async Task Where_ternary_boolean_condition_false(bool isAsync)
+        {
+            await base.Where_ternary_boolean_condition_false(isAsync);
+
+            AssertSql(
+                @"@__flag_0='False'
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < CAST(20 AS smallint)))");
+        }
+
+        public override async Task Where_ternary_boolean_condition_with_another_condition(bool isAsync)
+        {
+            await base.Where_ternary_boolean_condition_with_another_condition(isAsync);
+
+            AssertSql(
+                @"@__productId_0='15'
+@__flag_1='True'
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < CAST(20 AS smallint))))");
         }
 
         public override async Task Where_ternary_boolean_condition_with_false_as_result_true(bool isAsync)
@@ -1385,9 +1412,23 @@ WHERE (([p].[Discontinued] = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))
             await base.Where_ternary_boolean_condition_with_false_as_result_true(isAsync);
 
             AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+                @"@__flag_0='True'
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[Discontinued] = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
+WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
+        }
+
+        public override async Task Where_ternary_boolean_condition_with_false_as_result_false(bool isAsync)
+        {
+            await base.Where_ternary_boolean_condition_with_false_as_result_false(isAsync);
+
+            AssertSql(
+                @"@__flag_0='False'
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
         }
 
         public override async Task Where_compare_constructed_equal(bool isAsync)
