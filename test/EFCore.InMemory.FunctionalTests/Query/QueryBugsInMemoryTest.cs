@@ -20,55 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
-        #region Bug12521
-
-        [Fact]
-        public void Ternary_operation_should_not_evaluate_both_sides()
-        {
-            using (CreateScratch<DatabaseContext_Bug12521>((ctx) => ctx.Customers.Add(new Customer_bug12521 { Id = 1 }), "Bug12521"))
-            {
-                using (var context = new DatabaseContext_Bug12521())
-                {
-                    Foo_Bug12521 foo = null;
-                    var hasData = !(foo is null);
-                    int control = (hasData ? foo.Bar : 1); // Equals 1, our ternary is correct
-
-                    var query = context.Customers
-                        .Select(c => new
-                        {
-                            c.Id,
-                            Data1 = hasData ? foo.Bar : 1, // Will crash
-                            Data2 = foo != null ? foo.Bar : 1, // Will also crash
-                            Data3 = !hasData ? 1 : foo.Bar // Order doesn't matter, crashes
-                        })
-                        .ToList();
-                }
-            }
-        }
-
-        public class Foo_Bug12521
-        {
-            public int Bar { get; set; }
-        }
-
-        public class DatabaseContext_Bug12521 : DbContext
-        {
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase("Bug12521");
-                optionsBuilder.EnableDetailedErrors().EnableSensitiveDataLogging();
-            }
-
-            public DbSet<Customer_bug12521> Customers { get; set; }
-        }
-
-        public class Customer_bug12521
-        {
-            public long Id { get; set; }
-        }
-
-        #endregion
-
         #region Bug9849
 
         [Fact]

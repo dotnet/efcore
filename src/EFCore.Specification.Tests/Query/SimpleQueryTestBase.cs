@@ -704,6 +704,26 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Ternary_should_not_evaluate_both_sides(bool isAsync)
+        {
+            Customer customer = null;
+            bool hasData = !(customer is null);
+
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Select(c => new
+                {
+                    Client = c,
+                    Data1 = hasData ? customer.CustomerID : "none",
+                    Data2 = customer != null ? customer.CustomerID : "none",
+                    Data3 = !hasData ? "none" : customer.CustomerID
+                }).Take(10),
+                assertOrder: true,
+                entryCount: 10);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Distinct_Skip_Take(bool isAsync)
         {
             return AssertQuery<Customer>(

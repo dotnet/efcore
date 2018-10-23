@@ -1440,6 +1440,17 @@ WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
 FROM [Customers] AS [c]");
         }
 
+        public override async Task Ternary_should_not_evaluate_both_sides(bool isAsync)
+        {
+            await base.Ternary_should_not_evaluate_both_sides(isAsync);
+
+            AssertSql(
+                @"@__p_3='10'
+
+SELECT TOP(@__p_3) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
         public override async Task Where_compare_constructed_multi_value_equal(bool isAsync)
         {
             await base.Where_compare_constructed_multi_value_equal(isAsync);
