@@ -1445,9 +1445,11 @@ FROM [Customers] AS [c]");
             await base.Ternary_should_not_evaluate_both_sides(isAsync);
 
             AssertSql(
-                @"@__p_3='10'
+                @"@__p_0='none' (Size = 4000)
+@__p_1='none' (Size = 4000)
+@__p_2='none' (Size = 4000)
 
-SELECT TOP(@__p_3) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], @__p_0 AS [Data1], @__p_1 AS [Data2], @__p_2 AS [Data3]
 FROM [Customers] AS [c]");
         }
 

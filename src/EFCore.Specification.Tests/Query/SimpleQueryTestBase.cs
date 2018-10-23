@@ -736,15 +736,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.Select(c => new
                 {
-                    Client = c,
+                    c.CustomerID,
                     Data1 = hasData ? customer.CustomerID : "none",
                     Data2 = customer != null ? customer.CustomerID : "none",
                     Data3 = !hasData ? "none" : customer.CustomerID
-                }).Take(10),
-                assertOrder: true,
-                entryCount: 10);
+                }));
         }
-        
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_Coalesce_Short_Circuit(bool isAsync)
