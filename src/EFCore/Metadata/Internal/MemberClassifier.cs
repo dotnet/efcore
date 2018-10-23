@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || targetType == typeof(object)
                 || _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()) != null
                 || _typeMappingSource.FindMapping(targetType) != null
+                || targetType.GetTypeInfo().IsArray
                 ? null
                 : targetType;
         }

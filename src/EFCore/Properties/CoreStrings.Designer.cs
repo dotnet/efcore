@@ -2333,12 +2333,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, derivedType);
 
         /// <summary>
-        ///     No suitable constructor found for entity type '{entityType}'. The following parameters could not be bound to properties of the entity: '{parameters}'.
+        ///     No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.
         /// </summary>
-        public static string ConstructorNotFound([CanBeNull] object entityType, [CanBeNull] object parameters)
+        public static string ConstructorNotFound([CanBeNull] object entityType, [CanBeNull] object constructors)
             => string.Format(
-                GetString("ConstructorNotFound", nameof(entityType), nameof(parameters)),
-                entityType, parameters);
+                GetString("ConstructorNotFound", nameof(entityType), nameof(constructors)),
+                entityType, constructors);
 
         /// <summary>
         ///     Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.
@@ -2782,6 +2782,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("FkAttributeOnNonUniquePrincipal", nameof(navigation), nameof(principalType), nameof(dependentType)),
                 navigation, principalType, dependentType);
+
+        /// <summary>
+        ///     Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.
+        /// </summary>
+        public static string NoIndexer([CanBeNull] object property, [CanBeNull] object entity)
+            => string.Format(
+                GetString("NoIndexer", nameof(property), nameof(entity)),
+                property, entity);
+
+        /// <summary>
+        ///     cannot bind '{failedBinds}' in '{parameters}'
+        /// </summary>
+        public static string ConstructorBindingFailed([CanBeNull] object failedBinds, [CanBeNull] object parameters)
+            => string.Format(
+                GetString("ConstructorBindingFailed", nameof(failedBinds), nameof(parameters)),
+                failedBinds, parameters);
 
         private static string GetString(string name, params string[] formatterNames)
         {

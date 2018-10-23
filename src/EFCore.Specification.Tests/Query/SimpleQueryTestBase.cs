@@ -297,6 +297,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact] // See issue #12771
+        public virtual void Can_convert_manually_build_expression_with_default()
+        {
+            using (var context = CreateContext())
+            {
+                var parameter = Expression.Parameter(typeof(Customer));
+                var defaultExpression =
+                    Expression.Lambda<Func<Customer, bool>>(
+                        Expression.NotEqual(
+                            Expression.Property(
+                                parameter,
+                                "CustomerID"),
+                            Expression.Default(typeof(string))),
+                        parameter);
+
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                context.Set<Customer>().Where(defaultExpression).Count();
+
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                context.Set<Customer>().Count(defaultExpression);
+            }
+        }
+
         // ReSharper disable once ClassNeverInstantiated.Local
         private static class InMemoryCheck
         {
@@ -720,6 +743,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }).Take(10),
                 assertOrder: true,
                 entryCount: 10);
+        }
+        
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_Coalesce_Short_Circuit(bool isAsync)
+        {
+            List<int> values = null;
+            bool? test = false;
+
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Distinct().Select(c => new { Customer = c, Test = (test ?? values.Contains(1)) }),
+                entryCount: 91);
         }
 
         [ConditionalTheory]

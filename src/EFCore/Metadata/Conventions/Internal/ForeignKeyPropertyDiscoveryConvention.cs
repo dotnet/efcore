@@ -50,8 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             relationshipBuilder = DiscoverProperties(relationshipBuilder);
 
             var fksToProcess = relationshipBuilder.Metadata.DeclaringEntityType.GetForeignKeysInHierarchy()
-                .Where(fk => fk != relationshipBuilder.Metadata
-                             && ConfigurationSource.Convention.Overrides(fk.GetForeignKeyPropertiesConfigurationSource()))
+                .Where(fk => fk != relationshipBuilder.Metadata)
                 .ToList();
 
             foreach (var fk in fksToProcess)
@@ -70,6 +69,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKey = relationshipBuilder.Metadata;
             if (!ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
             {
+                foreach (var fkProperty in foreignKey.Properties)
+                {
+                    if (fkProperty.GetTypeConfigurationSource() == null
+                        && (fkProperty.IsShadowProperty
+                            || fkProperty.PropertyInfo == null && fkProperty.GetFieldInfoConfigurationSource() == ConfigurationSource.Convention)
+                        && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired)
+                    {
+                        fkProperty.DeclaringEntityType.Builder.Property(
+                            fkProperty.Name,
+                            fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired),
+                            fkProperty.GetConfigurationSource(),
+                            ConfigurationSource.Convention);
+                    }
+                }
+
                 return relationshipBuilder;
             }
 
@@ -499,8 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys().Concat(entityType.GetDerivedForeignKeys()).ToList())
             {
-                if (foreignKey.Builder != null
-                    && ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
+                if (foreignKey.Builder != null)
                 {
                     DiscoverProperties(foreignKey.Builder);
                 }
@@ -509,7 +522,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var foreignKey in entityType.GetReferencingForeignKeys().ToList())
             {
                 if (foreignKey.Builder != null
-                    && ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource())
                     && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
                 {
                     DiscoverProperties(foreignKey.Builder);
@@ -532,18 +544,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         InternalRelationshipBuilder IForeignKeyUniquenessChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
-            => ConfigurationSource.Convention.Overrides(relationshipBuilder.Metadata.GetForeignKeyPropertiesConfigurationSource())
-                ? DiscoverProperties(relationshipBuilder)
-                : relationshipBuilder;
+            => DiscoverProperties(relationshipBuilder);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         InternalRelationshipBuilder IForeignKeyRequirednessChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
-            => ConfigurationSource.Convention.Overrides(relationshipBuilder.Metadata.GetForeignKeyPropertiesConfigurationSource())
-                ? DiscoverProperties(relationshipBuilder)
-                : relationshipBuilder;
+            => DiscoverProperties(relationshipBuilder);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -574,8 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var foreignKey in foreignKeys)
             {
                 if ((!foreignKey.IsUnique
-                     || foreignKey.DeclaringEntityType.BaseType != null)
-                    && ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
+                     || foreignKey.DeclaringEntityType.BaseType != null))
                 {
                     DiscoverProperties(foreignKey.Builder);
                 }
@@ -591,8 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKeys = entityTypeBuilder.Metadata.GetDerivedForeignKeysInclusive().ToList();
             foreach (var foreignKey in foreignKeys)
             {
-                if (foreignKey.IsUnique
-                    && ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
+                if (foreignKey.IsUnique)
                 {
                     DiscoverProperties(foreignKey.Builder);
                 }
@@ -601,10 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var referencingForeignKeys = entityTypeBuilder.Metadata.GetDerivedReferencingForeignKeysInclusive().ToList();
             foreach (var referencingForeignKey in referencingForeignKeys)
             {
-                if (ConfigurationSource.Convention.Overrides(referencingForeignKey.GetForeignKeyPropertiesConfigurationSource()))
-                {
-                    DiscoverProperties(referencingForeignKey.Builder);
-                }
+                DiscoverProperties(referencingForeignKey.Builder);
             }
 
             return true;

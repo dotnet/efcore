@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (binaryExpression.NodeType == ExpressionType.ArrayIndex
+            if ((binaryExpression.NodeType == ExpressionType.ArrayIndex || binaryExpression.NodeType == ExpressionType.Coalesce)
                 && _partialEvaluationInfo.IsEvaluatableExpression(binaryExpression))
             {
                 return TryExtractParameter(binaryExpression);

@@ -554,8 +554,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="projection"> The projection expression. </param>
         protected virtual void GenerateProjection([NotNull] Expression projection)
             => Visit(
-                    ApplyExplicitCastToBoolInProjectionOptimization(
-                        ApplyOptimizations(projection, searchCondition: false)));
+                ApplyExplicitCastToBoolInProjectionOptimization(
+                    ApplyOptimizations(projection, searchCondition: false)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -644,7 +644,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 if (processedExperssion.RemoveConvert() is ConstantExpression
                     || processedExperssion.RemoveConvert() is ParameterExpression)
                 {
-                    _relationalCommandBuilder.Append("(SELECT 1)");
+                    _relationalCommandBuilder.Append("(SELECT 1");
+                    GeneratePseudoFromClause();
+                    _relationalCommandBuilder.Append(")");
                 }
                 else
                 {

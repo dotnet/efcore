@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var runtimeVersion = ProductInfo.GetVersion();
             if (toolsVersion != null
-                && new SemanticVersionComparer().Compare(RemovePatch(toolsVersion), RemovePatch(runtimeVersion)) < 0)
+                && new SemanticVersionComparer().Compare(toolsVersion, runtimeVersion) < 0)
             {
                 reporter.WriteWarning(DesignStrings.VersionMismatch(toolsVersion, runtimeVersion));
             }
@@ -105,19 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                     rootNamespace,
                     language,
                     designArgs));
-
-            string RemovePatch(string versionString)
-            {
-                var prereleaseIndex = versionString.IndexOf("-", StringComparison.Ordinal);
-                if (prereleaseIndex != -1)
-                {
-                    versionString = versionString.Substring(0, prereleaseIndex);
-                }
-
-                var version = new Version(versionString);
-
-                return new Version(version.Major, version.Minor).ToString();
-            }
         }
 
         /// <summary>

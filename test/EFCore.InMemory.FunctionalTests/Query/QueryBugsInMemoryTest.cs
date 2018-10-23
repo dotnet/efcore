@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
+
         #region Bug9849
 
         [Fact]

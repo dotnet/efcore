@@ -18,10 +18,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     Instances of this class are typically obtained from <see cref="DbContext.ChangeTracker" /> and it is not designed
     ///     to be directly constructed in your application code.
     /// </summary>
-    public class ChangeTracker : IInfrastructure<IStateManager>
+    public class ChangeTracker : IInfrastructure<IStateManager>, IResettableService
     {
         private readonly IModel _model;
         private QueryTrackingBehavior _queryTrackingBehavior;
+        private QueryTrackingBehavior _defaultQueryTrackingBehavior;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -40,13 +41,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Context = context;
 
-            _queryTrackingBehavior = context
-                                         .GetService<IDbContextOptions>()
-                                         .Extensions
-                                         .OfType<CoreOptionsExtension>()
-                                         .FirstOrDefault()
-                                         ?.QueryTrackingBehavior
-                                     ?? QueryTrackingBehavior.TrackAll;
+            _defaultQueryTrackingBehavior
+                = context
+                      .GetService<IDbContextOptions>()
+                      .Extensions
+                      .OfType<CoreOptionsExtension>()
+                      .FirstOrDefault()
+                      ?.QueryTrackingBehavior
+                  ?? QueryTrackingBehavior.TrackAll;
+
+            _queryTrackingBehavior = _defaultQueryTrackingBehavior;
 
             StateManager = stateManager;
             ChangeDetector = changeDetector;
@@ -329,6 +333,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString() => base.ToString();
+
+        void IResettableService.ResetState()
+        {
+            _queryTrackingBehavior = _defaultQueryTrackingBehavior;
+            AutoDetectChangesEnabled = true;
+            LazyLoadingEnabled = true;
+        }
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
