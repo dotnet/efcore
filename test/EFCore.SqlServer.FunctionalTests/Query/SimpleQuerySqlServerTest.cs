@@ -1900,6 +1900,19 @@ ORDER BY [t].[CustomerID]
 OFFSET @__p_0 ROWS");
         }
 
+        public override async Task Ternary_should_not_evaluate_both_sides(bool isAsync)
+        {
+            await base.Ternary_should_not_evaluate_both_sides(isAsync);
+
+            AssertSql(
+                @"@__p_0='none' (Size = 4000)
+@__p_1='none' (Size = 4000)
+@__p_2='none' (Size = 4000)
+
+SELECT [c].[CustomerID], @__p_0 AS [Data1], @__p_1 AS [Data2], @__p_2 AS [Data3]
+FROM [Customers] AS [c]");
+        }
+
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Distinct_Skip_Take(bool isAsync)
         {
