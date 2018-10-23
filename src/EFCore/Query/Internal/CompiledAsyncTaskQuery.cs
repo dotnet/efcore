@@ -163,6 +163,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Func<QueryContext, Task<TResult>> CreateCompiledQuery(
             IQueryCompiler queryCompiler, Expression expression)
-            => queryCompiler.CreateCompiledAsyncTaskQuery<TResult>(expression);
+            => queryCompiler.CreateCompiledAsyncSingletonQuery<TResult>(expression);
     }
 }

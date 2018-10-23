@@ -41,17 +41,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             throw new NotImplementedException();
         }
 
-        TResult1 IQueryProvider.Execute<TResult1>(Expression expression)
+        TResult IQueryProvider.Execute<TResult>(Expression expression)
         {
             throw new NotImplementedException();
         }
 
-        IAsyncEnumerable<TResult1> IAsyncQueryProvider.ExecuteAsync<TResult1>(Expression expression)
+        TResult IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression)
         {
             throw new NotImplementedException();
         }
 
-        Task<TResult1> IAsyncQueryProvider.ExecuteAsync<TResult1>(Expression expression, CancellationToken cancellationToken)
+        Task<TResult> IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

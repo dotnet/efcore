@@ -28,6 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(IDatabase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
 
+        private static MethodInfo CompileAsyncQueryMethod { get; }
+            = typeof(IDatabase).GetTypeInfo()
+                .GetDeclaredMethod(nameof(IDatabase.CompileAsyncQuery));
+
         private readonly IQueryContextFactory _queryContextFactory;
         private readonly ICompiledQueryCache _compiledQueryCache;
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
@@ -158,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression query)
+        public virtual TResult ExecuteAsync<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
 
@@ -166,15 +170,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
 
-            return CompileAsyncQuery<TResult>(query)(queryContext);
+            var compiledQuery
+                = _compiledQueryCache
+                    .GetOrAddAsyncQuery(
+                        _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
+                        () => CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database));
+
+            return compiledQuery(queryContext);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateCompiledAsyncEnumerableQuery<TResult>(
-            Expression query)
+        public virtual Func<QueryContext, TResult> CreateCompiledAsyncQuery<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
 
@@ -183,27 +192,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Func<QueryContext, Task<TResult>> CreateCompiledAsyncTaskQuery<TResult>(Expression query)
-        {
-            Check.NotNull(query, nameof(query));
-
-            query = _queryModelGenerator.ExtractParameters(
-                _logger, query, _queryContextFactory.Create(), parameterize: false);
-
-            var compiledQuery = CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
-
-            return CreateCompiledSingletonAsyncQuery(compiledQuery, _logger, _contextType);
-        }
-
-        private static Func<QueryContext, Task<TResult>> CreateCompiledSingletonAsyncQuery<TResult>(
-            Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger, Type contextType)
-            => qc => ExecuteSingletonAsyncQuery(qc, compiledQuery, logger, contextType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -219,9 +207,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
 
-            var compiledQuery = CompileAsyncQuery<TResult>(query);
+            var compiledQuery
+                = _compiledQueryCache
+                    .GetOrAddAsyncQuery(
+                        _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
+                        () => CompileAsyncQueryCore<IAsyncEnumerable<TResult>>(query, _queryModelGenerator, _database));
 
             return ExecuteSingletonAsyncQuery(queryContext, compiledQuery, _logger, _contextType);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Func<QueryContext, Task<TResult>> CreateCompiledAsyncSingletonQuery<TResult>(Expression query)
+        {
+            Check.NotNull(query, nameof(query));
+
+            query = _queryModelGenerator.ExtractParameters(
+                _logger, query, _queryContextFactory.Create(), parameterize: false);
+
+            var compiledQuery = CompileAsyncQueryCore<IAsyncEnumerable<TResult>>(query, _queryModelGenerator, _database);
+
+            return qc => ExecuteSingletonAsyncQuery(qc, compiledQuery, _logger, _contextType);
         }
 
         private static async Task<TResult> ExecuteSingletonAsyncQuery<TResult>(
@@ -249,29 +257,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(
-            [NotNull] Expression query)
-        {
-            Check.NotNull(query, nameof(query));
-
-            return _compiledQueryCache
-                .GetOrAddAsyncQuery(
-                    _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
-                    () => CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database));
-        }
-
-        private static Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQueryCore<TResult>(
+        private static Func<QueryContext, TResult> CompileAsyncQueryCore<TResult>(
             Expression query,
             IQueryModelGenerator queryModelGenerator,
             IDatabase database)
         {
             var queryModel = queryModelGenerator.ParseQuery(query);
 
-            return database.CompileAsyncQuery<TResult>(queryModel);
+            var resultItemType
+                = (queryModel.GetOutputDataInfo()
+                      as StreamedSequenceInfo)?.ResultItemType
+                  ?? typeof(TResult).TryGetSequenceType();
+
+            try
+            {
+                return (Func<QueryContext, TResult>)CompileAsyncQueryMethod
+                   .MakeGenericMethod(resultItemType)
+                   .Invoke(database, new object[] { queryModel });
+            }
+            catch (TargetInvocationException e)
+            {
+                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+
+                throw;
+            }
         }
     }
 }

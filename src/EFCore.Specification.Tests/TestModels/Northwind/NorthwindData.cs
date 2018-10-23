@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 throw new NotImplementedException();
             }
 
-            public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
+            public TResult ExecuteAsync<TResult>(Expression expression)
             {
                 throw new NotImplementedException();
             }
