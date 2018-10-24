@@ -71,19 +71,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     throw new ArgumentException(
                         RelationalStrings.CaseWhenClauseTestTypeUnexpected(
                             whenClause.Test.Type,
-                            expectedWhenOperandType));
+                            expectedWhenOperandType),
+                        nameof(whenClauses));
                 }
                 if (whenClause.Result.Type != resultType)
                 {
                     throw new ArgumentException(
-                        RelationalStrings.CaseWhenClauseResultTypeUnexpected(whenClause.Result.Type, resultType));
+                        RelationalStrings.CaseWhenClauseResultTypeUnexpected(whenClause.Result.Type, resultType),
+                        nameof(whenClauses));
                 }
             }
 
             if (elseResult != null && elseResult.Type != resultType)
             {
                 throw new ArgumentException(
-                    RelationalStrings.CaseElseResultTypeUnexpected(elseResult.Type, resultType));
+                    RelationalStrings.CaseElseResultTypeUnexpected(elseResult.Type, resultType),
+                    nameof(elseResult));
             }
 
             Type = resultType;

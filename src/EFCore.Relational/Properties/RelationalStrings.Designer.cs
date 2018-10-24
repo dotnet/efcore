@@ -1037,6 +1037,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("CaseWhenClauseTestTypeUnexpected", nameof(whenOperandType), nameof(expectedWhenOperandType)),
                 whenOperandType, expectedWhenOperandType);
 
+        /// <summary>
+        ///     The number of argument type mappings does not match the number of arguments.
+        /// </summary>
+        public static string SqlFunctionArgumentsAndMappingsMismatch
+            => GetString("SqlFunctionArgumentsAndMappingsMismatch");
+
+        /// <summary>
+        ///     One of the specified argument type mappings was null.
+        /// </summary>
+        public static string SqlFunctionNullArgumentMapping
+            => GetString("SqlFunctionNullArgumentMapping");
+
+        /// <summary>
+        ///     An instance type mapping was specified without an instance expression.
+        /// </summary>
+        public static string SqlFunctionUnexpectedInstanceMapping
+            => GetString("SqlFunctionUnexpectedInstanceMapping");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
