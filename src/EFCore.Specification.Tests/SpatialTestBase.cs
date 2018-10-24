@@ -120,6 +120,24 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Translators_handle_static_members()
+        {
+            using (var db = Fixture.CreateContext())
+            {
+                Enumerable.FirstOrDefault(
+                    from e in db.Set<PointEntity>()
+                    select new
+                    {
+                        e.Id,
+                        e.Point,
+                        Point.Empty,
+                        DateTime.UtcNow,
+                        Guid = Guid.NewGuid()
+                    });
+            }
+        }
+
         protected virtual void ExecuteWithStrategyInTransaction(
             Action<SpatialContext> testOperation,
             Action<SpatialContext> nestedTestOperation1 = null,
