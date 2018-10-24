@@ -26,10 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             var member = memberExpression.Member.OnInterface(typeof(IMultiCurve));
             if (Equals(member, _isClosed))
             {
-                return new SqlFunctionExpression(
-                    "IsClosed",
-                    memberExpression.Type,
-                    new[] { memberExpression.Expression });
+                return new CaseExpression(
+                    new CaseWhenClause(
+                        Expression.Not(new IsNullExpression(memberExpression.Expression)),
+                        new SqlFunctionExpression(
+                            "IsClosed",
+                            memberExpression.Type,
+                            new[] { memberExpression.Expression })));
             }
 
             return null;

@@ -75,7 +75,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                             new Coordinate(0, 0),
                             new Coordinate(1, 0)
                         })
-                }
+                },
+                new LineStringEntity
+                {
+                    Id = 2,
+                    LineString = null
+                },
             };
 
         public static IReadOnlyList<PolygonEntity> CreatePolygonEntities(IGeometryFactory factory)
@@ -92,6 +97,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                             new Coordinate(0, 1),
                             new Coordinate(0, 0)
                         })
+                },
+                new PolygonEntity
+                {
+                    Id = Guid.Parse("F1B00CB9-862B-417B-955A-F1F7688B2AB5"),
+                    Polygon = null
                 }
             };
 
@@ -117,6 +127,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                                     new Coordinate(1, 1)
                                 })
                         })
+                },
+                new MultiLineStringEntity
+                {
+                    Id = 2,
+                    MultiLineString = null
                 }
             };
     }

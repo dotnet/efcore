@@ -33,10 +33,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             var member = memberExpression.Member.OnInterface(typeof(ICurve));
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
-                return new SqlFunctionExpression(
+                Expression newExpression = new SqlFunctionExpression(
                     functionName,
                     memberExpression.Type,
                     new[] { memberExpression.Expression });
+                if (memberExpression.Type == typeof(bool))
+                {
+                    newExpression = new CaseExpression(
+                        new CaseWhenClause(
+                            Expression.Not(new IsNullExpression(memberExpression.Expression)),
+                            newExpression));
+                }
+
+                return newExpression;
             }
 
             return null;

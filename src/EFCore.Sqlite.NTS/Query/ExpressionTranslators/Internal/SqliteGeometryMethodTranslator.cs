@@ -60,10 +60,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             var method = methodCallExpression.Method.OnInterface(typeof(IGeometry));
             if (_methodToFunctionName.TryGetValue(method, out var functionName))
             {
-                return new SqlFunctionExpression(
+                Expression newExpression = new SqlFunctionExpression(
                     functionName,
                     methodCallExpression.Type,
                     new[] { methodCallExpression.Object }.Concat(methodCallExpression.Arguments));
+                if (methodCallExpression.Type == typeof(bool))
+                {
+                    newExpression = new CaseExpression(
+                        new CaseWhenClause(
+                            Expression.Not(new IsNullExpression(methodCallExpression.Object)),
+                            newExpression));
+                }
+
+                return newExpression;
             }
             if (Equals(method, _getGeometryN))
             {
