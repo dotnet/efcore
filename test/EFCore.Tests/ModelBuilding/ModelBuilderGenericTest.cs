@@ -150,6 +150,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestQueryTypeBuilder<TQuery> Query<TQuery>()
                 => new GenericTestQueryTypeBuilder<TQuery>(ModelBuilder.Query<TQuery>());
 
+            public override TestModelBuilder Query<TQuery>(Action<TestQueryTypeBuilder<TQuery>> buildAction)
+            {
+                ModelBuilder.Query<TQuery>(queryTypeBuilder => buildAction(new GenericTestQueryTypeBuilder<TQuery>(queryTypeBuilder)));
+                return this;
+            }
+
             public override TestModelBuilder Ignore<TEntity>()
             {
                 ModelBuilder.Ignore<TEntity>();

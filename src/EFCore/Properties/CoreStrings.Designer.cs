@@ -2791,6 +2791,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("ConstructorBindingFailed", nameof(failedBinds), nameof(parameters)),
                 failedBinds, parameters);
 
+        /// <summary>
+        ///     The navigation '{navigation}' cannot be added because it targets the query type '{queryType}'. Navigations can only target entity types.
+        /// </summary>
+        public static string NavigationToQueryType([CanBeNull] object navigation, [CanBeNull] object queryType)
+            => string.Format(
+                GetString("NavigationToQueryType", nameof(navigation), nameof(queryType)),
+                navigation, queryType);
+
+        /// <summary>
+        ///     The key {key} cannot be added to query type '{queryType}'. Query types cannot have keys.
+        /// </summary>
+        public static string QueryTypeWithKey([CanBeNull] object key, [CanBeNull] object queryType)
+            => string.Format(
+                GetString("QueryTypeWithKey", nameof(key), nameof(queryType)),
+                key, queryType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
