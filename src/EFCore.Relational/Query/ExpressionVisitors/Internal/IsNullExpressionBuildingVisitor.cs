@@ -43,9 +43,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (binaryExpression.NodeType == ExpressionType.Coalesce)
+            // a && b == null <-> a == null && b != false || a != false && b == null
+            // this transformation would produce a query that is too complex
+            // so we just wrap the whole expression into IsNullExpression instead.
+            if (binaryExpression.NodeType == ExpressionType.AndAlso
+                || binaryExpression.NodeType == ExpressionType.OrElse)
+            {
+                AddToResult(new IsNullExpression(binaryExpression));
+            }
+            else
             {
                 // a ?? b == null <-> a == null && b == null
+                // for other binary operators f(a, b) == null <=> a == null || b == null
+                var joinOperator = binaryExpression.NodeType == ExpressionType.Coalesce
+                    ? ExpressionType.AndAlso
+                    : ExpressionType.OrElse;
 
                 var current = ResultExpression;
                 ResultExpression = null;
@@ -56,19 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 Visit(binaryExpression.Right);
                 var right = ResultExpression;
 
-                var coalesce = CombineExpressions(left, right, ExpressionType.AndAlso);
+                var result = CombineExpressions(left, right, joinOperator);
 
                 ResultExpression = current;
-                AddToResult(coalesce);
-            }
-            else if (binaryExpression.NodeType == ExpressionType.AndAlso
-                     || binaryExpression.NodeType == ExpressionType.OrElse)
-            {
-                // a && b == null <-> a == null && b != false || a != false && b == null
-                // this transformation would produce a query that is too complex
-                // so we just wrap the whole expression into IsNullExpression instead.
-
-                AddToResult(new IsNullExpression(binaryExpression));
+                AddToResult(result);
             }
 
             return binaryExpression;
@@ -80,13 +83,43 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is NullableExpression nullableExpression)
+            switch (extensionExpression)
             {
-                AddToResult(new IsNullExpression(nullableExpression.Operand));
+                case NullableExpression nullableExpression:
+                    AddToResult(new IsNullExpression(nullableExpression.Operand));
+                    return extensionExpression;
+
+                case ExplicitCastExpression explicitCastExpression:
+                    return Visit(explicitCastExpression.Operand);
+
+                case SqlFunctionExpression sqlFunctionExpression:
+                    var current = ResultExpression;
+                    Expression result = null;
+                    foreach (var argument in sqlFunctionExpression.Arguments)
+                    {
+                        ResultExpression = null;
+                        Visit(argument);
+                        if (result == null)
+                        {
+                            result = ResultExpression;
+                        }
+                        else
+                        {
+                            result = CombineExpressions(result, ResultExpression, ExpressionType.OrElse);
+                        }
+                    }
+
+                    ResultExpression = current;
+                    AddToResult(result);
+
+                    return extensionExpression;
             }
-            else if (ContainsNullableColumnExpression(extensionExpression))
+
+            if (ContainsNullableColumnExpression(extensionExpression))
             {
                 AddToResult(new IsNullExpression(extensionExpression));
+
+                return extensionExpression;
             }
 
             return extensionExpression;

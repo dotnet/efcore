@@ -7055,6 +7055,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory(Skip = "issue #13721")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => ts.Where(t => t.Note.Substring(0, t.Gear.SquadId) == t.GearNickName),
+                ts => ts.Where(t => Maybe(t.Gear, () => t.Note.Substring(0, t.Gear.SquadId)) == t.GearNickName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => ts.Where(t => t.Note.Substring(0, t.Gear.Squad.Name.Length) == t.GearNickName),
+                ts => ts.Where(t => Maybe(t.Gear, () => t.Note.Substring(0, t.Gear.Squad.Name.Length)) == t.GearNickName));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

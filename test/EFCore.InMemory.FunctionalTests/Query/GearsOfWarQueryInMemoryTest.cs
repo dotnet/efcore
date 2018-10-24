@@ -20,5 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Double_order_by_on_nullable_bool_coming_from_optional_navigation(isAsync);
         }
+
+        [ConditionalTheory(Skip = "issue #13746")]
+        public override Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool isAsync)
+        {
+            return base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(isAsync);
+        }
     }
 }

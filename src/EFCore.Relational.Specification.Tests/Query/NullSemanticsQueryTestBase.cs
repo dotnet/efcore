@@ -762,6 +762,64 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Fact]
+        public virtual void Null_semantics_applied_when_comparing_function_with_nullable_argument_to_a_nullable_column()
+        {
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") == e.NullableIntA),
+                es => es.Where(e => (e.NullableStringA == null && e.NullableIntA == null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") == e.NullableIntA)),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("ar") == e.NullableIntA),
+                es => es.Where(e => (e.NullableStringA == null && e.NullableIntA == null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("ar") == e.NullableIntA)),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableIntB),
+                es => es.Where(e => (e.NullableStringA == null && e.NullableIntB != null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") != e.NullableIntB)),
+                useRelationalNulls: false);
+        }
+
+        [Fact]
+        public virtual void Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments()
+        {
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") == e.NullableStringB.IndexOf("ar")),
+                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) == MaybeScalar<int>(e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringB.IndexOf("ar")),
+                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) != MaybeScalar<int>(e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringA.IndexOf("ar")),
+                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) != MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("ar"))),
+                useRelationalNulls: false);
+        }
+
+        [Fact]
+        public virtual void Null_semantics_applied_when_comparing_two_functions_with_multiple_nullable_arguments()
+        {
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) == e.NullableStringA),
+                es => es.Where(e => (e.NullableStringA == null && (e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null)) || (e.NullableStringA != null && e.NullableStringB != null && e.NullableStringC != null && e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) == e.NullableStringA)),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) != e.NullableStringA),
+                es => es.Where(e => ((e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null) && e.NullableStringA != null) || (e.NullableStringA != null && e.NullableStringB != null && e.NullableStringC != null && e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) != e.NullableStringA)),
+                useRelationalNulls: false);
+        }
+
+        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
+            where TResult : struct
+        {
+            return caller == null ? null : expression();
+        }
+
         private RawSqlString NormalizeDelimeters(RawSqlString sql)
             => Fixture.TestStore.NormalizeDelimeters(sql);
 

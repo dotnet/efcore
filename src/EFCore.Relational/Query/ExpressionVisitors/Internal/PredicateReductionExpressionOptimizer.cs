@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
@@ -25,6 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var newLeft = Visit(node.Left);
                 var newRight = Visit(node.Right);
+
+                if (ExpressionEqualityComparer.Instance.Equals(newLeft, newRight))
+                {
+                    return newLeft;
+                }
+
                 var constantLeft = newLeft as ConstantExpression;
                 var constantRight = newRight as ConstantExpression;
 

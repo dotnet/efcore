@@ -1194,6 +1194,56 @@ FROM [Entities1] AS [e]");
 FROM [Entities1] AS [e]");
         }
 
+        public override void Null_semantics_applied_when_comparing_function_with_nullable_argument_to_a_nullable_column()
+        {
+            base.Null_semantics_applied_when_comparing_function_with_nullable_argument_to_a_nullable_column();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) = [e].[NullableIntA]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableIntA] IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((CHARINDEX(N'ar', [e].[NullableStringA]) - 1) = [e].[NullableIntA]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableIntA] IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) <> [e].[NullableIntB]) OR ([e].[NullableStringA] IS NULL OR [e].[NullableIntB] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)");
+        }
+
+        public override void Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments()
+        {
+            base.Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) = (CHARINDEX(N'ar', [e].[NullableStringB]) - 1)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) <> (CHARINDEX(N'ar', [e].[NullableStringB]) - 1)) OR ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) <> (CHARINDEX(N'ar', [e].[NullableStringA]) - 1)) OR [e].[NullableStringA] IS NULL) AND [e].[NullableStringA] IS NOT NULL");
+        }
+
+        public override void Null_semantics_applied_when_comparing_two_functions_with_multiple_nullable_arguments()
+        {
+            base.Null_semantics_applied_when_comparing_two_functions_with_multiple_nullable_arguments();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) = [e].[NullableStringA]) OR ((([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) AND [e].[NullableStringA] IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) <> [e].[NullableStringA]) OR ((([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) OR [e].[NullableStringA] IS NULL)) AND ((([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL) AND [e].[NullableStringC] IS NOT NULL) OR [e].[NullableStringA] IS NOT NULL)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

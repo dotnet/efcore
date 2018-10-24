@@ -320,7 +320,7 @@ WHERE length(""c"".""City"") = 6");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (instr(""c"".""City"", 'Sea') - 1) <> -1");
+WHERE ((instr(""c"".""City"", 'Sea') - 1) <> -1) OR ""c"".""City"" IS NULL");
         }
 
         public override async Task Indexof_with_emptystring(bool isAsync)

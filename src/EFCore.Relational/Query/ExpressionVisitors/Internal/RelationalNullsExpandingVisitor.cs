@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         // ?a != ?b -> [(a != b) || (a == null || b == null)] && (a != null || b != null)]
         //
-        // a | b | F1 = a != b | F2 = (a == null || b == null) | F3 = F1 && F2 |
+        // a | b | F1 = a != b | F2 = (a == null || b == null) | F3 = F1 || F2 |
         //   |   |             |                               |               |
         // 0 | 0 | 0           | 0                             | 0             |
         // 0 | 1 | 1           | 0                             | 1             |

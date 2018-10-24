@@ -731,7 +731,7 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CHARINDEX(N'Sea', [c].[City]) - 1) <> -1");
+WHERE ((CHARINDEX(N'Sea', [c].[City]) - 1) <> -1) OR [c].[City] IS NULL");
         }
 
         public override async Task Where_string_replace(bool isAsync)
@@ -983,7 +983,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = [c].[City]) OR ([c].[City] IS NULL AND [c].[City] IS NULL)");
+WHERE ([c].[City] = [c].[City]) OR [c].[City] IS NULL");
         }
 
         public override async Task Where_in_optimization_multiple(bool isAsync)

@@ -1239,7 +1239,7 @@ ORDER BY [t].[Nickname]");
                 @"SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL
     THEN CASE
-        WHEN CAST(LEN([g].[LeaderNickname]) AS int) <> CAST(LEN([g].[LeaderNickname]) AS int)
+        WHEN ((CAST(LEN([g].[LeaderNickname]) AS int) <> CAST(LEN([g].[LeaderNickname]) AS int)) OR [g].[LeaderNickname] IS NULL) AND [g].[LeaderNickname] IS NOT NULL
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END ELSE NULL
 END
@@ -1255,7 +1255,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
                 @"SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL
     THEN CASE
-        WHEN (([g].[LeaderNickname] = [g].[LeaderNickname]) AND ([g].[LeaderNickname] IS NOT NULL AND [g].[LeaderNickname] IS NOT NULL)) OR ([g].[LeaderNickname] IS NULL AND [g].[LeaderNickname] IS NULL)
+        WHEN (([g].[LeaderNickname] = [g].[LeaderNickname]) AND [g].[LeaderNickname] IS NOT NULL) OR [g].[LeaderNickname] IS NULL
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END ELSE NULL
 END
@@ -8068,6 +8068,30 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[FullName] <> N'Dom
 ) AS [WeaponName]
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] <> N'Dom')");
+        }
+
+        public override async Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(bool isAsync)
+        {
+            await base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool isAsync)
+        {
+            await base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [t.Gear].*
+    FROM [Gears] AS [t.Gear]
+    WHERE [t.Gear].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+LEFT JOIN [Squads] AS [t.Gear.Squad] ON [t0].[SquadId] = [t.Gear.Squad].[Id]
+WHERE (SUBSTRING([t].[Note], 1, CAST(LEN([t.Gear.Squad].[Name]) AS int)) = [t].[GearNickName]) OR (([t].[Note] IS NULL OR [t.Gear.Squad].[Name] IS NULL) AND [t].[GearNickName] IS NULL)");
         }
 
         private void AssertSql(params string[] expected)
