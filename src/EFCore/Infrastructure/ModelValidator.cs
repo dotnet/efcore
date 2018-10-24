@@ -499,12 +499,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.IsQueryType
-                    && entityType.BaseType != null
-                    && entityType.DefiningQuery != null)
+                if (entityType.IsQueryType)
                 {
-                    throw new InvalidOperationException(
-                        CoreStrings.DerivedQueryTypeDefiningQuery(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                    if (entityType.BaseType != null
+                        && entityType.DefiningQuery != null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.DerivedQueryTypeDefiningQuery(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                    }
+
+                    var navigation = entityType.GetForeignKeys().FirstOrDefault(fk => fk.PrincipalToDependent != null)?.PrincipalToDependent;
+                    if (navigation != null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.NavigationToQueryType(navigation.Name, entityType.DisplayName()));
+                    }
+
+                    var key = entityType.GetKeys().FirstOrDefault();
+                    if (key != null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.QueryTypeWithKey(Property.Format(key.Properties), entityType.DisplayName()));
+                    }
                 }
             }
         }

@@ -41,7 +41,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned<TEntity>());
 
             public override TestQueryTypeBuilder<TQuery> Query<TQuery>()
-                => new GenericTestQueryTypeBuilder<TQuery>(ModelBuilder.Query<TQuery>());
+                => new GenericTypeTestQueryTypeBuilder<TQuery>(ModelBuilder.Query<TQuery>());
+
+            public override TestModelBuilder Query<TQuery>(Action<TestQueryTypeBuilder<TQuery>> buildAction)
+            {
+                ModelBuilder.Query<TQuery>(queryTypeBuilder => buildAction(new GenericTypeTestQueryTypeBuilder<TQuery>(queryTypeBuilder)));
+                return this;
+            }
 
             public override TestModelBuilder Ignore<TEntity>()
             {
@@ -76,6 +82,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
                 => new GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(navigationExpression));
+        }
+
+        private class GenericTypeTestQueryTypeBuilder<TQuery> : GenericTestQueryTypeBuilder<TQuery>
+            where TQuery : class
+        {
+            public GenericTypeTestQueryTypeBuilder(QueryTypeBuilder<TQuery> queryTypeBuilder)
+                : base(queryTypeBuilder)
+            {
+            }
+
+            protected override TestQueryTypeBuilder<TQuery> Wrap(QueryTypeBuilder<TQuery> queryTypeBuilder)
+                => new GenericTypeTestQueryTypeBuilder<TQuery>(queryTypeBuilder);
+
+            public override TestReferenceNavigationBuilder<TQuery, TRelatedEntity> HasOne<TRelatedEntity>(
+                Expression<Func<TQuery, TRelatedEntity>> navigationExpression = null)
+                => new GenericTypeTestReferenceNavigationBuilder<TQuery, TRelatedEntity>(QueryTypeBuilder.HasOne(navigationExpression));
         }
 
         private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>

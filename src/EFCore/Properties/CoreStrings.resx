@@ -1128,4 +1128,10 @@
   <data name="ConstructorBindingFailed" xml:space="preserve">
     <value>cannot bind '{failedBinds}' in '{parameters}'</value>
   </data>
+  <data name="NavigationToQueryType" xml:space="preserve">
+    <value>The navigation '{navigation}' cannot be added because it targets the query type '{queryType}'. Navigations can only target entity types.</value>
+  </data>
+  <data name="QueryTypeWithKey" xml:space="preserve">
+    <value>The key {key} cannot be added to query type '{queryType}'. Query types cannot have keys.</value>
+  </data>
 </root>
