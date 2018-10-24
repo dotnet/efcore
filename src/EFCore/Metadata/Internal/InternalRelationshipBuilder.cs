@@ -1579,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             properties = Metadata.PrincipalEntityType.Builder.GetActualProperties(properties, configurationSource);
-            if (!CanSetPrincipalKey(properties, configurationSource, out var resetDependent))
+            if (!CanSetPrincipalKey(properties, configurationSource, out var resetDependent, out var oldNameDependentProperties))
             {
                 return null;
             }
@@ -1605,15 +1605,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource,
                 principalProperties: properties,
                 dependentProperties: resetDependent ? Array.Empty<Property>() : null,
-                principalEndConfigurationSource: properties == null ? (ConfigurationSource?)null : configurationSource);
+                principalEndConfigurationSource: properties == null ? (ConfigurationSource?)null : configurationSource,
+                oldNameDependentProperties: oldNameDependentProperties);
         }
 
         private bool CanSetPrincipalKey(
             IReadOnlyList<Property> properties,
             ConfigurationSource? configurationSource,
-            out bool resetDependent)
+            out bool resetDependent,
+            out IReadOnlyList<Property> oldNameDependentProperties)
         {
             resetDependent = false;
+            oldNameDependentProperties = null;
             if (properties == null)
             {
                 return false;
@@ -1642,6 +1645,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return false;
                 }
 
+                if (Metadata.GetForeignKeyPropertiesConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
+                    && Metadata.Properties.All(p => p.GetTypeConfigurationSource() == null))
+                {
+                    oldNameDependentProperties = Metadata.Properties;
+                }
+
                 resetDependent = true;
             }
 
@@ -1655,6 +1664,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PropertyIdentity? navigationToPrincipal = null,
             PropertyIdentity? navigationToDependent = null,
             IReadOnlyList<Property> dependentProperties = null,
+            IReadOnlyList<Property> oldNameDependentProperties = null,
             IReadOnlyList<Property> principalProperties = null,
             bool? isUnique = null,
             bool? isRequired = null,
@@ -1758,6 +1768,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToPrincipal,
                 navigationToDependent,
                 dependentProperties,
+                oldNameDependentProperties,
                 principalProperties,
                 isUnique,
                 isRequired,
@@ -1775,6 +1786,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PropertyIdentity? navigationToPrincipal,
             PropertyIdentity? navigationToDependent,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
+            [CanBeNull] IReadOnlyList<Property> oldNameDependentProperties,
             [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
@@ -1828,6 +1840,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         ? (PropertyIdentity?)null
                         : PropertyIdentity.Create(Metadata.PrincipalToDependent)),
                     dependentProperties?.Count > 0 ? dependentProperties : null,
+                    oldNameDependentProperties,
                     principalProperties?.Count > 0 ? principalProperties : null,
                     isRequired ?? Metadata.IsRequired,
                     removeCurrent,
@@ -1912,9 +1925,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     configurationSource)
                                          ?? newRelationshipBuilder;
 
-                if (dependentProperties?.Count > 0)
+                if (dependentProperties?.Count > 0
+                    || oldNameDependentProperties != null)
                 {
-                    dependentProperties = dependentEntityTypeBuilder.GetActualProperties(dependentProperties, configurationSource);
+                    dependentProperties = dependentEntityTypeBuilder.GetActualProperties(
+                        oldNameDependentProperties ?? dependentProperties, configurationSource);
                     var foreignKeyPropertiesConfigurationSource = configurationSource;
                     if (PropertyListComparer.Instance.Equals(Metadata.Properties, dependentProperties)
                         && !oldRelationshipInverted)
@@ -2102,6 +2117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PropertyIdentity? navigationToPrincipal,
             PropertyIdentity? navigationToDependent,
             IReadOnlyList<Property> dependentProperties,
+            IReadOnlyList<Property> oldNameDependentProperties,
             IReadOnlyList<Property> principalProperties,
             bool isRequired,
             bool removeCurrent,
@@ -2482,9 +2498,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (newRelationshipBuilder == null)
             {
-                var principalKey = principalProperties == null
-                    ? null
-                    : principalEntityType.RootType().Builder.HasKey(principalProperties, configurationSource).Metadata;
+                Key principalKey = null;
+                if (principalProperties != null)
+                {
+                    principalKey = principalEntityType.RootType().Builder.HasKey(principalProperties, configurationSource).Metadata;
+
+                    Debug.Assert(dependentProperties == null || oldNameDependentProperties == null);
+
+                    if (dependentProperties == null
+                        && oldNameDependentProperties != null)
+                    {
+
+                        var detachedProperties = InternalEntityTypeBuilder.DetachProperties(oldNameDependentProperties);
+                        dependentProperties = dependentEntityType.Builder.GetOrCreateProperties(
+                            oldNameDependentProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention, principalProperties, isRequired);
+                        detachedProperties.Attach(dependentEntityType.Builder);
+                    }
+                }
+
                 newRelationshipBuilder = dependentEntityType.Builder.CreateForeignKey(
                     principalEntityType.Builder,
                     dependentProperties,

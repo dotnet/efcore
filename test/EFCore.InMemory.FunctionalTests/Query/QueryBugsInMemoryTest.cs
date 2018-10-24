@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -760,105 +759,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public int Id { get; set; }
-        }
-
-        #endregion
-
-        #region Bug13108
-
-        [Fact]
-        public virtual void Foreign_key_infers_type_for_private_property()
-        {
-            using (CreateScratch<MyContext13108>(e => { }, "13108"))
-            {
-                using (var context = new MyContext13108())
-                {
-                    var model = (Model)context.Model;
-                    Assert.Equal(ConfigurationSource.Convention,
-                        model.FindEntityType(typeof(ComplexCaseChild13108))
-                        .GetProperties().Where(p => p.Name == "ParentKey").Single()
-                        .GetTypeConfigurationSource());
-                }
-            }
-        }
-
-        private class MyContext13108 : DbContext
-        {
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase("13108");
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<ComplexCaseChild13108>(b =>
-                {
-                    b.HasKey(c => c.Key);
-                    b.Property("ParentKey");
-                    b.HasOne(c => c.Parent).WithMany(c => c.Children).HasForeignKey("ParentKey");
-                });
-
-                modelBuilder.Entity<ComplexCaseParent13108>().HasKey(c => c.Key);
-            }
-        }
-
-        public class ComplexCaseChild13108
-        {
-            public int Key { get; set; }
-            public string Id { get; set; }
-            private int ParentKey { get; set; }
-            public ComplexCaseParent13108 Parent { get; set; }
-        }
-
-        public class ComplexCaseParent13108
-        {
-            public int Key { get; set; }
-            public string Id { get; set; }
-            public ICollection<ComplexCaseChild13108> Children { get; set; }
-        }
-
-        #endregion
-
-        #region Bug12617
-
-        [Fact]
-        [UseCulture("de-DE")]
-        public virtual void EntityType_name_is_stored_culture_invariantly()
-        {
-            using (CreateScratch<MyContext12617>(e => { }, "12617"))
-            {
-                using (var context = new MyContext12617())
-                {
-                    Assert.Equal(2, context.Model.GetEntityTypes().Count());
-                    Assert.Equal(2, context.Model.FindEntityType(typeof(Entityss)).GetNavigations().Count());
-                }
-            }
-        }
-
-        private class MyContext12617 : DbContext
-        {
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase("12617");
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Entityß>();
-                modelBuilder.Entity<Entityss>();
-            }
-        }
-
-        public class Entityß
-        {
-            public int Id { get; set; }
-        }
-
-        public class Entityss
-        {
-            public int Id { get; set; }
-            public Entityß Navigationß { get; set; }
-            public Entityß Navigationss { get; set; }
         }
 
         #endregion
