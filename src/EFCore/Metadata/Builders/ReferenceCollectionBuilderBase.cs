@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -61,10 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType = oldBuilder.DependentEntityType;
                 _foreignKeyProperties = foreignKeySet
                     ? builder.Metadata.Properties
-                    : oldBuilder._foreignKeyProperties;
+                    : DependentEntityType.Builder.GetActualProperties(oldBuilder._foreignKeyProperties, null);
                 _principalKeyProperties = principalKeySet
                     ? builder.Metadata.PrincipalKey.Properties
-                    : oldBuilder._principalKeyProperties;
+                    : PrincipalEntityType.Builder.GetActualProperties(oldBuilder._principalKeyProperties, null);
                 _required = requiredSet
                     ? builder.Metadata.IsRequired
                     : oldBuilder._required;

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
-    public class UnmappedTypesSqlServerTest : UnmappedTypesTest
+    public class ModelBuilderSqlServerTest : ModelBuilderOtherTest
     {
         protected override DbContextOptions Configure()
             => new DbContextOptionsBuilder()
