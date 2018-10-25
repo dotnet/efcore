@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -34,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<MultiLineStringEntity>().Property(e => e.MultiLineString).HasColumnType("geometry");
             modelBuilder.Entity<PointEntity>().Property(e => e.Point).HasColumnType("geometry");
             modelBuilder.Entity<PolygonEntity>().Property(e => e.Polygon).HasColumnType("geometry");
+            modelBuilder.Entity<GeoPointEntity>().Property(e => e.Location).HasColumnType("geometry");
         }
     }
 #endif

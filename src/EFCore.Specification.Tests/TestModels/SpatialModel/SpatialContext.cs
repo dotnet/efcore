@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         public static void Seed(SpatialContext context, IGeometryFactory factory)
         {
             context.AddRange(SpatialData.CreatePointEntities(factory));
+            context.AddRange(SpatialData.CreateGeoPointEntities());
             context.AddRange(SpatialData.CreateLineStringEntities(factory));
             context.AddRange(SpatialData.CreatePolygonEntities(factory));
             context.AddRange(SpatialData.CreateMultiLineStringEntities(factory));

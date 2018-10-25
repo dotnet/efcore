@@ -20,8 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <typeparam name="TProvider"> The native type of the database provider. </typeparam>
     public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : RelationalTypeMapping
     {
-        private readonly ValueConverter<TGeometry, TProvider> _converter;
-
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalGeometryTypeMapping{TGeometry,TProvider}" /> class.
         /// </summary>
@@ -32,17 +30,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] string storeType)
             : base(CreateRelationalTypeMappingParameters(storeType))
         {
-            _converter = converter;
+            SpatialConverter = converter;
         }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
         /// <param name="parameters"> The parameters for this mapping. </param>
-        protected RelationalGeometryTypeMapping(RelationalTypeMappingParameters parameters)
+        /// <param name="converter"> The converter to use when converting to and from database types. </param>
+        protected RelationalGeometryTypeMapping(
+            RelationalTypeMappingParameters parameters,
+            ValueConverter<TGeometry, TProvider> converter)
             : base(parameters)
         {
+            SpatialConverter = converter;
         }
+
+        /// <summary>
+        ///     The underlying IGeometry converter.
+        /// </summary>
+        protected virtual ValueConverter<TGeometry, TProvider> SpatialConverter { get; }
 
         private static RelationalTypeMappingParameters CreateRelationalTypeMappingParameters(string storeType)
         {
@@ -71,9 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
 
+            if (Converter != null)
+            {
+                value = Converter.ConvertToProvider(value);
+            }
+
             parameter.Value = value == null
                 ? DBNull.Value
-                : _converter.ConvertToProvider(value);
+                : SpatialConverter.ConvertToProvider(value);
 
             if (nullable.HasValue)
             {
@@ -93,15 +105,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The expression with conversion added. </returns>
         public override Expression CustomizeDataReaderExpression(Expression expression)
         {
-            if (expression.Type != _converter.ProviderClrType)
+            if (expression.Type != SpatialConverter.ProviderClrType)
             {
-                expression = Expression.Convert(expression, _converter.ProviderClrType);
+                expression = Expression.Convert(expression, SpatialConverter.ProviderClrType);
             }
 
             return ReplacingExpressionVisitor.Replace(
-                _converter.ConvertFromProviderExpression.Parameters.Single(),
+                SpatialConverter.ConvertFromProviderExpression.Parameters.Single(),
                 expression,
-                _converter.ConvertFromProviderExpression.Body);
+                SpatialConverter.ConvertFromProviderExpression.Body);
         }
 
         /// <summary>
