@@ -18,6 +18,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        public override async Task WithConversion(bool isAsync)
+        {
+            await base.WithConversion(isAsync);
+
+            AssertSql(
+                @"SELECT ""g"".""Id"", ""g"".""Location""
+FROM ""GeoPointEntity"" AS ""g""");
+        }
+
         public override async Task Area(bool isAsync)
         {
             await base.Area(isAsync);

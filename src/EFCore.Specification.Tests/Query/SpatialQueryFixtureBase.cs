@@ -47,6 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<LineStringEntity>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<PolygonEntity>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<MultiLineStringEntity>().Property(e => e.Id).ValueGeneratedNever();
+
+            modelBuilder.Entity<GeoPointEntity>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Location).HasConversion(
+                        v => GeometryFactory.CreatePoint(new Coordinate(v.Lat, v.Lon)),
+                        v => new GeoPoint(v.X, v.Y));
+                });
         }
 
         protected override void Seed(SpatialContext context)

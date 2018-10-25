@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<MultiLineStringEntity>().Property(e => e.MultiLineString).HasColumnType("geometry");
             modelBuilder.Entity<PointEntity>().Property(e => e.Point).HasColumnType("geometry");
             modelBuilder.Entity<PolygonEntity>().Property(e => e.Polygon).HasColumnType("geometry");
+            modelBuilder.Entity<GeoPointEntity>().Property(e => e.Location).HasColumnType("geometry");
         }
     }
 #endif
