@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (!clrType.IsValidEntityType())
             {
-                throw new ArgumentException(CoreStrings.InvalidEntityType(clrType, nameof(clrType)));
+                throw new ArgumentException(CoreStrings.InvalidEntityType(clrType));
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (IsQueryType != entityType.IsQueryType)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ErrorMixedQueryEntityTypeInheritance(entityType.DisplayName(), this.DisplayName()));
+                        CoreStrings.MixedQueryEntityTypeInheritance(entityType.DisplayName(), this.DisplayName()));
                 }
 
                 if (this.HasClrType())

@@ -468,11 +468,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var b = model.AddQueryType(typeof(B));
 
             Assert.Equal(
-                CoreStrings.ErrorMixedQueryEntityTypeInheritance(typeof(A).Name, typeof(B).Name),
+                CoreStrings.MixedQueryEntityTypeInheritance(typeof(A).Name, typeof(B).Name),
                 Assert.Throws<InvalidOperationException>(() => b.HasBaseType(a)).Message);
 
             Assert.Equal(
-                CoreStrings.ErrorMixedQueryEntityTypeInheritance(typeof(B).Name, typeof(A).Name),
+                CoreStrings.MixedQueryEntityTypeInheritance(typeof(B).Name, typeof(A).Name),
                 Assert.Throws<InvalidOperationException>(() => a.HasBaseType(b)).Message);
         }
 

@@ -558,7 +558,7 @@
     <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
-    <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
+    <value>The specified type '{type}'must be a non-interface reference type to be used as an entity type .</value>
     <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
@@ -747,7 +747,7 @@
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
-    <value>A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>
+    <value>A second operation started on this context before a previous operation completed. This is usually caused by different threads using the same instance of DbContext, however instance members are not guaranteed to be thread safe. This could also be caused by a nested query being evaluated on the client, if this is the case rewrite the query avoiding nested invocations.</value>
   </data>
   <data name="EntityTypesNotInRelationship" xml:space="preserve">
     <value>The specified entity types '{invalidDependentType}' and '{invalidPrincipalType}' are invalid. They should be '{dependentType}' and '{principalType}' or entity types in the same hierarchy.</value>
@@ -1012,7 +1012,7 @@
   <data name="QueryTypeNotValid" xml:space="preserve">
     <value>Unable to track an instance of type '{type}' because it is a query type. Only entity types may be tracked.</value>
   </data>
-  <data name="ErrorMixedQueryEntityTypeInheritance" xml:space="preserve">
+  <data name="MixedQueryEntityTypeInheritance" xml:space="preserve">
     <value>Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.</value>
   </data>
   <data name="CannotAccessEntityAsQuery" xml:space="preserve">
@@ -1021,12 +1021,9 @@
   <data name="CannotAccessQueryAsEntity" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because a query type with the same name already exists.</value>
   </data>
-  <data name="ErrorNavCannotTargetQueryType" xml:space="preserve">
-    <value>Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.</value>
-  </data>
   <data name="LogRedundantIndexRemoved" xml:space="preserve">
-    <value>The index {redundantIndex} was not created as the properties are already covered by the index {otherIndex}.</value>
-    <comment>Debug CoreEventId.RedundantIndexRemoved string string</comment>
+    <value>The index {redundantIndex} was not created on entity type '{firstEntityType}' as the properties are already covered by the index {otherIndex}.</value>
+    <comment>Debug CoreEventId.RedundantIndexRemoved string string string</comment>
   </data>
   <data name="LogIncompatibleMatchingForeignKeyProperties" xml:space="preserve">
     <value>The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.</value>
@@ -1130,5 +1127,9 @@
   </data>
   <data name="QueryTypeWithKey" xml:space="preserve">
     <value>The key {key} cannot be added to query type '{queryType}'. Query types cannot have keys.</value>
+  </data>
+  <data name="LogRedundantForeignKey" xml:space="preserve">
+    <value>The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.</value>
+    <comment>Warning CoreEventId.RedundantForeignKeyWarning string string</comment>
   </data>
 </root>

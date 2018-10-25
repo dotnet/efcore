@@ -1,9 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -41,6 +43,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results = context.Query<ProductQuery>().ToArray();
 
                 Assert.Equal(69, results.Length);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Query_throws_for_non_query()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(CoreStrings.InvalidSetTypeEntity(nameof(Product)),
+                    Assert.Throws<InvalidOperationException>(() => context.Query<Product>().ToArray()).Message);
             }
         }
 
