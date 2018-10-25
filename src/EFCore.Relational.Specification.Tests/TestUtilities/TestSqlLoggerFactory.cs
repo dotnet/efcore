@@ -13,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestSqlLoggerFactory : ListLoggerFactory
     {
+        private bool _proceduralQueryGeneration = false;
+
         private const string FileNewLine = @"
 ";
 
@@ -41,6 +43,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return;
             }
 #endif
+
+            if (_proceduralQueryGeneration)
+            {
+                return;
+            }
+
             try
             {
                 if (assertOrder)

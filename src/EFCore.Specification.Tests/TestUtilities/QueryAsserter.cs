@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -17,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private readonly Dictionary<Type, Func<dynamic, object>> _entitySorters;
         private readonly Dictionary<Type, Action<dynamic, dynamic>> _entityAsserters;
         private readonly IncludeQueryResultAsserter _includeResultAsserter;
+
+        private const bool ProceduralQueryGeneration = false;
 
         public QueryAsserter(
             Func<TContext> contextCreator,
@@ -40,9 +43,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, object> actualSyncQuery,
             Func<IQueryable<TItem1>, Task<object>> actualAsyncQuery,
             Func<IQueryable<TItem1>, object> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
@@ -82,9 +86,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, TResult> actualSyncQuery,
             Func<IQueryable<TItem1>, Task<TResult>> actualAsyncQuery,
             Func<IQueryable<TItem1>, TResult> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
@@ -124,9 +129,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> actualSyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<object>> actualAsyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
@@ -166,9 +172,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> actualSyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<TResult>> actualAsyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
@@ -208,9 +215,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> actualSyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<object>> actualAsyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
@@ -250,9 +258,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, TResult> actualSyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<TResult>> actualAsyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, TResult> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
@@ -295,14 +304,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            Action<dynamic, dynamic> elementAsserter,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(SetExtractor.Set<TItem1>(context)).ToArrayAsync()
                     : actualQuery(SetExtractor.Set<TItem1>(context)).ToArray();
@@ -338,14 +356,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            Action<dynamic, dynamic> elementAsserter,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(
                         SetExtractor.Set<TItem1>(context),
@@ -387,14 +414,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertQuery<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            Action<dynamic, dynamic> elementAsserter,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(
                         SetExtractor.Set<TItem1>(context),
@@ -444,56 +480,71 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<int>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<int>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<int>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
-            => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder, isAsync);
+            => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<long>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<short>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public virtual Task AssertQueryScalarAsync<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<bool>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public virtual Task AssertQueryScalarAsync<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TResult : struct
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public override async Task AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(SetExtractor.Set<TItem1>(context)).ToArrayAsync()
                     : actualQuery(SetExtractor.Set<TItem1>(context)).ToArray();
@@ -513,29 +564,40 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual Task AssertQueryScalar<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public virtual Task AssertQueryScalar<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, int>(actualQuery, expectedQuery, assertOrder, isAsync);
+            => AssertQueryScalar<TItem1, TItem2, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         public override async Task AssertQueryScalar<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(
                         SetExtractor.Set<TItem1>(context),
@@ -561,21 +623,31 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual Task AssertQueryScalar<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<int>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public override async Task AssertQueryScalar<TItem1, TItem2, TItem3, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(
                         SetExtractor.Set<TItem1>(context),
@@ -608,31 +680,43 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<int?>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public virtual Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
-            => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder, isAsync);
+            => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         public override async Task AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(SetExtractor.Set<TItem1>(context)).ToArrayAsync()
                     : actualQuery(SetExtractor.Set<TItem1>(context)).ToArray();
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToArray();
+
                 TestHelpers.AssertResultsNullable(
                     expected,
                     actual,
@@ -646,29 +730,40 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual Task AssertQueryScalar<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> query,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync);
+            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
 
         public virtual Task AssertQueryScalar<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, int>(actualQuery, expectedQuery, assertOrder, isAsync);
+            => AssertQueryScalar<TItem1, TItem2, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         public override async Task AssertQueryScalar<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(
                         SetExtractor.Set<TItem1>(context),
@@ -680,6 +775,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),
                     ExpectedData.Set<TItem2>()).ToArray();
+
                 TestHelpers.AssertResultsNullable(
                     expected,
                     actual,
@@ -696,26 +792,36 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public Task<List<object>> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            List<Func<dynamic, object>> clientProjections,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
 
         public override async Task<List<object>> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            List<Func<dynamic, object>> clientProjections,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return default;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(
                         SetExtractor.Set<TItem1>(context)).ToListAsync()
@@ -766,27 +872,37 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            List<Func<dynamic, object>> clientProjections,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
 
         public override async Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            List<Func<dynamic, object>> clientProjections,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
         {
             using (var context = _contextCreator())
             {
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return default;
+                }
+
                 var actual = isAsync
                     ? await actualQuery(
                         SetExtractor.Set<TItem1>(context),

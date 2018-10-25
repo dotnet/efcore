@@ -20,27 +20,30 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, object> actualSyncQuery,
             Func<IQueryable<TItem1>, Task<object>> actualAsyncQuery,
             Func<IQueryable<TItem1>, object> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class;
 
         public abstract Task AssertSingleResult<TItem1, TResult>(
             Func<IQueryable<TItem1>, TResult> actualSyncQuery,
             Func<IQueryable<TItem1>, Task<TResult>> actualAsyncQuery,
             Func<IQueryable<TItem1>, TResult> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class;
 
         public abstract Task AssertSingleResult<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> actualSyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<object>> actualAsyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class;
 
@@ -48,9 +51,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> actualSyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<TResult>> actualAsyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class;
 
@@ -58,9 +62,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> actualSyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<object>> actualAsyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class;
@@ -69,9 +74,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, TResult> actualSyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<TResult>> actualAsyncQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, TResult> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0,
-            bool isAsync = false)
+            Action<object, object> asserter,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class;
@@ -83,32 +89,35 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract Task AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            Action<dynamic, dynamic> elementAsserter,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class;
 
         public abstract Task AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            Action<dynamic, dynamic> elementAsserter,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class;
 
         public abstract Task AssertQuery<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            Action<dynamic, dynamic> elementAsserter,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class;
@@ -120,23 +129,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract Task AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class;
 
         public abstract Task AssertQueryScalar<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class;
 
         public abstract Task AssertQueryScalar<TItem1, TItem2, TItem3, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class;
@@ -148,16 +160,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract Task AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TResult : struct;
 
         public abstract Task AssertQueryScalar<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder = false,
-            bool isAsync = false)
+            bool assertOrder,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class
             where TResult : struct;
@@ -170,22 +184,24 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            List<Func<dynamic, object>> clientProjections,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class;
 
         public abstract Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            bool isAsync = false)
+            Func<dynamic, object> elementSorter,
+            List<Func<dynamic, object>> clientProjections,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
             where TItem1 : class
             where TItem2 : class;
 

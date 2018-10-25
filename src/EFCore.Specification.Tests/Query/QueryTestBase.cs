@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -990,9 +991,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1>(
             bool isAsync,
@@ -1001,9 +1003,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1, TItem2>(
             bool isAsync,
@@ -1011,10 +1014,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1, TItem2>(
             bool isAsync,
@@ -1023,10 +1027,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1, TItem2, TItem3>(
             bool isAsync,
@@ -1034,11 +1039,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => AssertQuery(isAsync, query, query, elementSorter, elementAsserter, assertOrder, entryCount);
+            => AssertQuery(isAsync, query, query, elementSorter, elementAsserter, assertOrder, entryCount, testMethodName);
 
         public Task AssertQuery<TItem1, TItem2, TItem3>(
             bool isAsync,
@@ -1047,11 +1053,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             Action<dynamic, dynamic> elementAsserter = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         #endregion
 
@@ -1060,187 +1067,210 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<int>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<double>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<int>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<int>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar<TItem1, int>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, int>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<uint>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<uint>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<uint>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar<TItem1, uint>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, uint>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<long>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<short>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<bool>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<bool>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<bool>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar<TItem1, bool>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, bool>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<DateTime>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<DateTimeOffset>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TimeSpan>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TResult>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TResult>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TResult : struct
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TResult>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync);
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, int>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, TItem2, int>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<bool>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, bool>(isAsync, query, query, assertOrder);
+            => AssertQueryScalar<TItem1, TItem2, bool>(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<bool>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<bool>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, bool>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, TItem2, bool>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<DateTime>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, DateTime>(isAsync, query, query, assertOrder);
+            => AssertQueryScalar<TItem1, TItem2, DateTime>(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<DateTime>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<DateTime>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, DateTime>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, TItem2, DateTime>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2, TResult>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync);
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2, TItem3>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<int>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2, TItem3, TResult>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync);
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         #endregion
 
@@ -1249,82 +1279,92 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<int?>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar<TItem1, int>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, int>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<bool?>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TimeSpan?>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<DateTime?>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<bool?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<bool?>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertQueryScalar<TItem1, bool>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, bool>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TResult>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync);
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> query,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar(isAsync, query, query, assertOrder);
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, int>(isAsync, actualQuery, expectedQuery, assertOrder);
+            => AssertQueryScalar<TItem1, TItem2, int>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
 
         public Task AssertQueryScalar<TItem1, TItem2, TResult>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync);
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
         #endregion
 
@@ -1337,9 +1377,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertIncludeQuery(isAsync, query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
+            => AssertIncludeQuery(isAsync, query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, testMethodName);
 
         public Task<List<object>> AssertIncludeQuery<TItem1>(
             bool isAsync,
@@ -1349,9 +1390,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             bool isAsync,
@@ -1360,10 +1402,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertIncludeQuery(isAsync, query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
+            => AssertIncludeQuery(isAsync, query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, testMethodName);
 
         public Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             bool isAsync,
@@ -1373,10 +1416,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
 
         #endregion
 
@@ -1387,9 +1431,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<IQueryable<TItem1>, object> syncQuery,
             Func<IQueryable<TItem1>, Task<object>> asyncQuery,
             Action<object, object> asserter = null,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount);
+            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
@@ -1397,18 +1442,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<IQueryable<TItem1>, Task<object>> actualAsyncQuery,
             Func<IQueryable<TItem1>, object> expectedQuery,
             Action<object, object> asserter = null,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, int> syncQuery,
             Func<IQueryable<TItem1>, Task<int>> asyncQuery,
             Action<object, object> asserter = null,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount);
+            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
@@ -1416,18 +1463,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<IQueryable<TItem1>, Task<int>> actualAsyncQuery,
             Func<IQueryable<TItem1>, int> expectedQuery,
             Action<object, object> asserter = null,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, long> syncQuery,
             Func<IQueryable<TItem1>, Task<long>> asyncQuery,
             Action<object, object> asserter = null,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount);
+            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
@@ -1435,18 +1484,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<IQueryable<TItem1>, Task<long>> actualAsyncQuery,
             Func<IQueryable<TItem1>, long> expectedQuery,
             Action<object, object> asserter = null,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
             Func<IQueryable<TItem1>, bool> syncQuery,
             Func<IQueryable<TItem1>, Task<bool>> asyncQuery,
             Action<object, object> asserter = null,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount);
+            => AssertSingleResult(isAsync, syncQuery, asyncQuery, syncQuery, asserter, entryCount, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
@@ -1454,9 +1505,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<IQueryable<TItem1>, Task<bool>> actualAsyncQuery,
             Func<IQueryable<TItem1>, bool> expectedQuery,
             Action<object, object> asserter = null,
-            int entryCount = 0)
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         #endregion
 
