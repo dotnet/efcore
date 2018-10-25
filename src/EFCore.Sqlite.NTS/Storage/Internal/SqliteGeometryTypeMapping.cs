@@ -10,6 +10,7 @@ using GeoAPI.Geometries;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
@@ -40,8 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected SqliteGeometryTypeMapping(RelationalTypeMappingParameters parameters)
-            : base(parameters)
+        protected SqliteGeometryTypeMapping(
+            RelationalTypeMappingParameters parameters,
+                ValueConverter<TGeometry, byte[]> converter)
+            : base(parameters, converter)
         {
         }
 
@@ -50,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-            => new SqliteGeometryTypeMapping<TGeometry>(parameters);
+            => new SqliteGeometryTypeMapping<TGeometry>(parameters, SpatialConverter);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

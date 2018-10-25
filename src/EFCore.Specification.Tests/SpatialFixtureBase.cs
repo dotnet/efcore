@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class SpatialFixtureBase : SharedStoreFixtureBase<SpatialContext>
     {
-        private IGeometryFactory _geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0);
+        private readonly IGeometryFactory _geometryFactory
+            = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0);
 
         protected override string StoreName
             => "SpatialTest";
@@ -20,6 +21,15 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<LineStringEntity>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<PolygonEntity>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<MultiLineStringEntity>().Property(e => e.Id).ValueGeneratedNever();
+
+            modelBuilder.Entity<GeoPointEntity>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Location).HasConversion(
+                        v => _geometryFactory.CreatePoint(new Coordinate(v.Lat, v.Lon)),
+                        v => new GeoPoint(v.X, v.Y));
+                });
         }
 
         protected override void Seed(SpatialContext context)

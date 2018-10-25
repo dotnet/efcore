@@ -12,6 +12,7 @@ using GeoAPI.Geometries;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
@@ -45,8 +46,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected SqlServerGeometryTypeMapping(RelationalTypeMappingParameters parameters)
-            : base(parameters)
+        protected SqlServerGeometryTypeMapping(
+            RelationalTypeMappingParameters parameters,
+            ValueConverter<TGeometry, SqlBytes> converter)
+            : base(parameters, converter)
         {
         }
 
@@ -55,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-            => new SqlServerGeometryTypeMapping<TGeometry>(parameters);
+            => new SqlServerGeometryTypeMapping<TGeometry>(parameters, SpatialConverter);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

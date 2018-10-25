@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
     public class SpatialData : IExpectedData
     {
         private readonly IReadOnlyList<PointEntity> _pointEntities;
+        private readonly IReadOnlyList<GeoPointEntity> _geoPointEntities;
         private readonly IReadOnlyList<LineStringEntity> _lineStringEntities;
         private readonly IReadOnlyList<PolygonEntity> _polygonEntities;
         private readonly IReadOnlyList<MultiLineStringEntity> _multiLineStringEntities;
@@ -19,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         public SpatialData(IGeometryFactory factory)
         {
             _pointEntities = CreatePointEntities(factory);
+            _geoPointEntities = CreateGeoPointEntities();
             _lineStringEntities = CreateLineStringEntities(factory);
             _polygonEntities = CreatePolygonEntities(factory);
             _multiLineStringEntities = CreateMultiLineStringEntities(factory);
@@ -30,6 +32,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             if (typeof(TEntity) == typeof(PointEntity))
             {
                 return (IQueryable<TEntity>)_pointEntities.AsQueryable();
+            }
+            if (typeof(TEntity) == typeof(GeoPointEntity))
+            {
+                return (IQueryable<TEntity>)_geoPointEntities.AsQueryable();
             }
             if (typeof(TEntity) == typeof(LineStringEntity))
             {
@@ -61,6 +67,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                     Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E551"),
                     Point = null
                 }
+            };
+
+        public static IReadOnlyList<GeoPointEntity> CreateGeoPointEntities()
+            => new[]
+            {
+                new GeoPointEntity
+                {
+                    Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E552"),
+                    Location = new GeoPoint(-122.34877, 47.6233355)
+                },
+                new GeoPointEntity
+                {
+                    Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E553"),
+                    Location = new GeoPoint(-122.3308366, 47.5978429)
+                },
             };
 
         public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(IGeometryFactory factory)

@@ -26,6 +26,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task WithConversion(bool isAsync)
+        {
+            return AssertQuery<GeoPointEntity>(
+                isAsync,
+                es => es,
+                elementSorter: x => x.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    Assert.Equal(e.Location.Lat, a.Location.Lat);
+                    Assert.Equal(e.Location.Lon, a.Location.Lon);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Area(bool isAsync)
         {
             return AssertQuery<PolygonEntity>(
