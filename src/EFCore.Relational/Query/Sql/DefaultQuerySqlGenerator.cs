@@ -725,9 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     joinAction(_relationalCommandBuilder);
                 }
 
-                _typeMapping = typeMappings != null && i < typeMappings.Count && typeMappings[i] != null
-                    ? typeMappings[i]
-                    : parentTypeMapping;
+                _typeMapping = typeMappings?[i] ?? parentTypeMapping;
 
                 generationAction(items[i]);
             }

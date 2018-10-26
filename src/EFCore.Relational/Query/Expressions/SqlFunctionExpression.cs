@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -151,6 +152,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="functionName"> Name of the function. </param>
         /// <param name="returnType"> The return type. </param>
         /// <param name="arguments"> The arguments. </param>
+        public SqlFunctionExpression(
+            [CanBeNull] Expression instance,
+            [NotNull] string functionName,
+            [NotNull] Type returnType,
+            [NotNull] IEnumerable<Expression> arguments)
+            : this(
+                instance,
+                Check.NotEmpty(functionName, nameof(functionName)),
+                schema: null,
+                Check.NotNull(returnType, nameof(returnType)),
+                niladic: false,
+                Check.NotNull(arguments, nameof(arguments)),
+                resultTypeMapping: null,
+                instanceTypeMapping: null,
+                argumentTypeMappings: null)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SqlFunctionExpression" /> class.
+        /// </summary>
+        /// <param name="instance"> The instance on which the function is called. </param>
+        /// <param name="functionName"> Name of the function. </param>
+        /// <param name="returnType"> The return type. </param>
+        /// <param name="arguments"> The arguments. </param>
         /// <param name="resultTypeMapping"> The result type mapping. </param>
         /// <param name="instanceTypeMapping"> The instance type mapping. </param>
         /// <param name="argumentTypeMappings"> The type mappings for each argument. </param>
@@ -211,6 +237,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [CanBeNull] RelationalTypeMapping instanceTypeMapping,
             [CanBeNull] IEnumerable<RelationalTypeMapping> argumentTypeMappings)
         {
+            if (instanceTypeMapping != null
+                && instance == null)
+            {
+                throw new ArgumentException(
+                    RelationalStrings.SqlFunctionUnexpectedInstanceMapping,
+                    nameof(instanceTypeMapping));
+            }
+
             Instance = instance;
             FunctionName = functionName;
             Type = returnType;
@@ -220,6 +254,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             ResultTypeMapping = resultTypeMapping;
             InstanceTypeMapping = instanceTypeMapping;
             ArgumentTypeMappings = argumentTypeMappings?.ToList().AsReadOnly();
+
+            if (ArgumentTypeMappings != null)
+            {
+                if (_arguments.Count != ArgumentTypeMappings.Count)
+                {
+                    throw new ArgumentException(
+                        RelationalStrings.SqlFunctionArgumentsAndMappingsMismatch,
+                        nameof(argumentTypeMappings));
+                }
+                if (ArgumentTypeMappings.Any(m => m == null))
+                {
+                    throw new ArgumentException(
+                        RelationalStrings.SqlFunctionNullArgumentMapping,
+                        nameof(argumentTypeMappings));
+                }
+            }
         }
 
         /// <summary>

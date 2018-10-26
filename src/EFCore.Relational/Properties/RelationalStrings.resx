@@ -492,4 +492,13 @@
   <data name="CaseWhenClauseTestTypeUnexpected" xml:space="preserve">
     <value>The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.</value>
   </data>
+  <data name="SqlFunctionArgumentsAndMappingsMismatch" xml:space="preserve">
+    <value>The number of argument type mappings does not match the number of arguments.</value>
+  </data>
+  <data name="SqlFunctionNullArgumentMapping" xml:space="preserve">
+    <value>One of the specified argument type mappings was null.</value>
+  </data>
+  <data name="SqlFunctionUnexpectedInstanceMapping" xml:space="preserve">
+    <value>An instance type mapping was specified without an instance expression.</value>
+  </data>
 </root>
