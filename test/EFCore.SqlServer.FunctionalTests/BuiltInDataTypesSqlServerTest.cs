@@ -539,6 +539,25 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             }
         }
 
+        [Fact]
+        public void Translate_array_length()
+        {
+            using (var db = CreateContext())
+            {
+                db.Set<MappedDataTypesWithIdentity>()
+                    .Where(p => p.BytesAsImage.Length == 0)
+                    .Select(p => p.BytesAsImage.Length)
+                    .FirstOrDefault();
+
+                AssertSql(@"SELECT TOP(1) CAST(DATALENGTH([p].[BytesAsImage]) AS int)
+FROM [MappedDataTypesWithIdentity] AS [p]
+WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
+            }
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
         private string DumpParameters()
             => Fixture.TestSqlLoggerFactory.Parameters.Single().Replace(", ", _eol);
 
