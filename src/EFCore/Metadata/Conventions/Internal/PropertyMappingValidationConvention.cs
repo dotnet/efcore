@@ -109,8 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         // ReSharper disable CheckForReferenceEqualityInstead.1
                         // ReSharper disable CheckForReferenceEqualityInstead.3
-                        if (entityType.GetDerivedTypes().All(
-                            dt => dt.FindDeclaredNavigation(actualProperty.GetSimpleMemberName()) == null)
+                        if ((!entityType.IsQueryType
+                                || targetSequenceType == null)
+                            && entityType.GetDerivedTypes().All(
+                                dt => dt.FindDeclaredNavigation(actualProperty.GetSimpleMemberName()) == null)
                             && (!isTargetWeakOrOwned
                                 || (!targetType.Equals(entityType.ClrType)
                                     && (!entityType.IsInOwnershipPath(targetType)
@@ -126,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 throw new InvalidOperationException(
                                     CoreStrings.AmbiguousOwnedNavigation(entityType.DisplayName(), targetType.ShortDisplayName()));
                             }
+
                             throw new InvalidOperationException(
                                 CoreStrings.NavigationNotAdded(
                                     entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));

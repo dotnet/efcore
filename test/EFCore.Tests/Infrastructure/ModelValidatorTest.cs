@@ -156,6 +156,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
+        public virtual void Passes_on_redundant_foreign_key()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<A>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
+
+            VerifyWarning(CoreStrings.LogRedundantForeignKey.GenerateMessage("{'Id'}", "A"), modelBuilder.Model, LogLevel.Warning);
+        }
+
+        [Fact]
         public virtual void Passes_on_escapable_foreign_key_cycles()
         {
             var model = new Model();
@@ -536,20 +546,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 CoreStrings.DerivedQueryTypeDefiningQuery("Generic<int>", nameof(Abstract)),
-                modelBuilder.Model);
-        }
-
-        [Fact]
-        public virtual void Detects_navigations_to_query_types()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            var context = new DbContext(new DbContextOptions<DbContext>());
-            modelBuilder.Query<A>();
-            modelBuilder.Entity<B>().Ignore(b => b.A)
-                .HasMany(b => b.ManyAs).WithOne();
-
-            VerifyError(
-                CoreStrings.NavigationToQueryType(nameof(B.ManyAs), nameof(A)),
                 modelBuilder.Model);
         }
 

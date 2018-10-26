@@ -1246,12 +1246,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("RelationshipCannotBeInverted");
 
         /// <summary>
-        ///     The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.
+        ///     The specified type '{type}'must be a non-interface reference type to be used as an entity type .
         /// </summary>
-        public static string InvalidEntityType([CanBeNull] object type, [CanBeNull] object argumentName)
+        public static string InvalidEntityType([CanBeNull] object type)
             => string.Format(
-                GetString("InvalidEntityType", nameof(type), nameof(argumentName)),
-                type, argumentName);
+                GetString("InvalidEntityType", nameof(type)),
+                type);
 
         /// <summary>
         ///     The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.
@@ -1739,7 +1739,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property);
 
         /// <summary>
-        ///     A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
+        ///     A second operation started on this context before a previous operation completed. This is usually caused by different threads using the same instance of DbContext, however instance members are not guaranteed to be thread safe. This could also be caused by a nested query being evaluated on the client, if this is the case rewrite the query avoiding nested invocations.
         /// </summary>
         public static string ConcurrentMethodInvocation
             => GetString("ConcurrentMethodInvocation");
@@ -2462,9 +2462,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.
         /// </summary>
-        public static string ErrorMixedQueryEntityTypeInheritance([CanBeNull] object baseType, [CanBeNull] object derivedType)
+        public static string MixedQueryEntityTypeInheritance([CanBeNull] object baseType, [CanBeNull] object derivedType)
             => string.Format(
-                GetString("ErrorMixedQueryEntityTypeInheritance", nameof(baseType), nameof(derivedType)),
+                GetString("MixedQueryEntityTypeInheritance", nameof(baseType), nameof(derivedType)),
                 baseType, derivedType);
 
         /// <summary>
@@ -2484,22 +2484,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.
+        ///     The index {redundantIndex} was not created on entity type '{firstEntityType}' as the properties are already covered by the index {otherIndex}.
         /// </summary>
-        public static string ErrorNavCannotTargetQueryType([CanBeNull] object type)
-            => string.Format(
-                GetString("ErrorNavCannotTargetQueryType", nameof(type)),
-                type);
-
-        /// <summary>
-        ///     The index {redundantIndex} was not created as the properties are already covered by the index {otherIndex}.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogRedundantIndexRemoved
-            = new EventDefinition<string, string>(
+        public static readonly EventDefinition<string, string, string> LogRedundantIndexRemoved
+            = new EventDefinition<string, string, string>(
                 CoreEventId.RedundantIndexRemoved,
                 LogLevel.Debug,
                 "CoreEventId.RedundantIndexRemoved",
-                LoggerMessage.Define<string, string>(
+                LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug,
                     CoreEventId.RedundantIndexRemoved,
                     _resourceManager.GetString("LogRedundantIndexRemoved")));
@@ -2814,6 +2806,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("QueryTypeWithKey", nameof(key), nameof(queryType)),
                 key, queryType);
+
+        /// <summary>
+        ///     The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogRedundantForeignKey
+            = new EventDefinition<string, string>(
+                CoreEventId.RedundantForeignKeyWarning,
+                LogLevel.Warning,
+                "CoreEventId.RedundantForeignKeyWarning",
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.RedundantForeignKeyWarning,
+                    _resourceManager.GetString("LogRedundantForeignKey")));
 
         private static string GetString(string name, params string[] formatterNames)
         {

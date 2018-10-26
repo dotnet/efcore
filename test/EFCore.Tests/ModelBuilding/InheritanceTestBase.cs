@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var (Level, _, Message, _, _) = modelBuilder.ModelLoggerFactory.Log.Single(e => e.Id == CoreEventId.RedundantIndexRemoved);
                 Assert.Equal(LogLevel.Debug, Level);
-                Assert.Equal(CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", "{'CustomerId', 'AnotherCustomerId'}"), Message);
+                Assert.Equal(CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}"), Message);
 
                 principalEntityBuilder.HasOne<Order>().WithOne()
                     .HasPrincipalKey<Customer>(
@@ -618,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
                 var indexRemoveMessage =
-                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", "{'CustomerId', 'AnotherCustomerId'}");
+                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}");
                 Assert.Equal(2, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
 
                 dependentEntityBuilder.HasIndex(

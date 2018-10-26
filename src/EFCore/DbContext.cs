@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore
         IDbQueryCache,
         IDbContextPoolable
     {
-        private readonly IDictionary<Type, object> _sets = new Dictionary<Type, object>();
+        private IDictionary<Type, object> _sets;
+        private IDictionary<Type, object> _queries;
         private readonly DbContextOptions _options;
 
         private IDbContextServices _contextServices;
@@ -200,6 +201,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
+            if (_sets == null)
+            {
+                _sets = new Dictionary<Type, object>();
+            }
+
             if (!_sets.TryGetValue(type, out var set))
             {
                 set = source.Create(this, type);
@@ -217,13 +223,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            if (!_sets.TryGetValue(type, out var set))
+            if (_queries == null)
             {
-                set = source.CreateQuery(this, type);
-                _sets[type] = set;
+                _queries = new Dictionary<Type, object>();
             }
 
-            return set;
+            if (!_queries.TryGetValue(type, out var query))
+            {
+                query = source.CreateQuery(this, type);
+                _queries[type] = query;
+            }
+
+            return query;
         }
 
         /// <summary>
@@ -606,11 +617,25 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            foreach (var set in _sets.Values)
+            if (_sets != null)
             {
-                if (set is IResettableService resettable)
+                foreach (var set in _sets.Values)
                 {
-                    resettable.ResetState();
+                    if (set is IResettableService resettable)
+                    {
+                        resettable.ResetState();
+                    }
+                }
+            }
+
+            if (_queries != null)
+            {
+                foreach (var query in _queries.Values)
+                {
+                    if (query is IResettableService resettable)
+                    {
+                        resettable.ResetState();
+                    }
                 }
             }
 

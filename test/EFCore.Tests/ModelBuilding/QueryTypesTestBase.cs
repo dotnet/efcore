@@ -41,6 +41,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(Customer))?.FindProperty("TempId"));
             }
+
+            [Fact]
+            public virtual void Query_type_with_collection_navigations_does_not_throw()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<CustomerDetails>();
+
+                modelBuilder.Query<Customer>();
+
+                modelBuilder.Validate();
+
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(Customer)).GetNavigations());
+            }
         }
     }
 }

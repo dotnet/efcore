@@ -271,13 +271,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             bool pointsToPrincipal)
         {
-            if (PrincipalEntityType.IsQueryType)
+            var name = propertyIdentity?.Name;
+            if (pointsToPrincipal
+                && PrincipalEntityType.IsQueryType)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ErrorNavCannotTargetQueryType(PrincipalEntityType.DisplayName()));
+                    CoreStrings.NavigationToQueryType(name, PrincipalEntityType.DisplayName()));
             }
 
-            var name = propertyIdentity?.Name;
+            if (!pointsToPrincipal
+                && DeclaringEntityType.IsQueryType)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NavigationToQueryType(name, DeclaringEntityType.DisplayName()));
+            }
+
             var oldNavigation = pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
             if (name == oldNavigation?.Name)
             {

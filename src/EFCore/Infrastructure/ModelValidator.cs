@@ -350,13 +350,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.BaseType == null)
-                {
-                    continue;
-                }
-
                 foreach (var declaredForeignKey in entityType.GetDeclaredForeignKeys())
                 {
+                    if (declaredForeignKey.PrincipalEntityType == declaredForeignKey.DeclaringEntityType
+                        && PropertyListComparer.Instance.Equals(declaredForeignKey.PrincipalKey.Properties, declaredForeignKey.Properties))
+                    {
+                        Dependencies.ModelLogger.RedundantForeignKeyWarning(declaredForeignKey);
+                    }
+
+                    if (entityType.BaseType == null)
+                    {
+                        continue;
+                    }
+
                     var inheritedKey = declaredForeignKey.Properties.Where(p => p.ValueGenerated != ValueGenerated.Never)
                         .SelectMany(p => p.GetContainingKeys().Where(k => k.DeclaringEntityType != entityType)).FirstOrDefault();
                     if (inheritedKey != null)
@@ -506,13 +512,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         throw new InvalidOperationException(
                             CoreStrings.DerivedQueryTypeDefiningQuery(entityType.DisplayName(), entityType.BaseType.DisplayName()));
-                    }
-
-                    var navigation = entityType.GetForeignKeys().FirstOrDefault(fk => fk.PrincipalToDependent != null)?.PrincipalToDependent;
-                    if (navigation != null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NavigationToQueryType(navigation.Name, entityType.DisplayName()));
                     }
 
                     var key = entityType.GetKeys().FirstOrDefault();
