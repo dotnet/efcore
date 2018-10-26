@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public DatabaseOperations(
             [NotNull] IOperationReporter reporter,
+            [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _rootNamespace = rootNamespace;
             _language = language;
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter, args);
+            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
         }
 
         /// <summary>
