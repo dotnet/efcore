@@ -75,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Employee>(
                 isAsync,
                 es =>
-                    from e1 in es.Take(2)
-                    join e2 in es.Take(2) on e1.EmployeeID equals GetEmployeeID(e2)
-                    from e3 in es.Skip(6).Take(2)
+                    from e1 in es.OrderBy(e => e.EmployeeID).Take(2)
+                    join e2 in es.OrderBy(e => e.EmployeeID).Take(2) on e1.EmployeeID equals GetEmployeeID(e2)
+                    from e3 in es.OrderBy(e => e.EmployeeID).Skip(6).Take(2)
                     select new
                     {
                         e1,
