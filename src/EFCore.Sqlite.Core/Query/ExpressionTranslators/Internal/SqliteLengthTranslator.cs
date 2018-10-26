@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqliteStringLengthTranslator : IMemberTranslator
+    public class SqliteLengthTranslator : IMemberTranslator
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
         /// </summary>
         public virtual Expression Translate(MemberExpression memberExpression)
             => memberExpression.Expression != null
-               && memberExpression.Expression.Type == typeof(string)
+               && (memberExpression.Expression.Type == typeof(string)
+                || memberExpression.Expression.Type == typeof(byte[]))
                && memberExpression.Member.Name == nameof(string.Length)
                 ? new SqlFunctionExpression("length", memberExpression.Type, new[] { memberExpression.Expression })
                 : null;
