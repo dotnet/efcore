@@ -611,10 +611,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = await (from o1 in context.Set<Order>()
                                  .Include(o => o.Customer)
                                  .OrderBy(o => o.CustomerID)
+                                 .ThenBy(o => o.OrderID)
                                  .Take(2)
                              from o2 in context.Set<Order>()
                                  .Include(o => o.Customer)
                                  .OrderBy(o => o.CustomerID)
+                                 .ThenBy(o => o.OrderID)
                                  .Skip(2)
                                  .Take(2)
                              select new
