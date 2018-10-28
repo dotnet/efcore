@@ -26,9 +26,7 @@ namespace Microsoft.EntityFrameworkCore
                 b =>
                 {
                     b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Location).HasConversion(
-                        v => _geometryFactory.CreatePoint(new Coordinate(v.Lat, v.Lon)),
-                        v => new GeoPoint(v.X, v.Y));
+                    b.Property(e => e.Location).HasConversion(new GeoPointConverter(_geometryFactory));
                 });
         }
 

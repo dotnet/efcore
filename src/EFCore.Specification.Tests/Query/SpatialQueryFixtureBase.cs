@@ -52,9 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 b =>
                 {
                     b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Location).HasConversion(
-                        v => GeometryFactory.CreatePoint(new Coordinate(v.Lat, v.Lon)),
-                        v => new GeoPoint(v.X, v.Y));
+                    b.Property(e => e.Location).HasConversion(new GeoPointConverter(GeometryFactory));
                 });
         }
 

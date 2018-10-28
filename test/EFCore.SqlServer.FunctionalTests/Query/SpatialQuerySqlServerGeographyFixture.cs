@@ -4,15 +4,16 @@
 using System.Threading;
 using GeoAPI;
 using GeoAPI.Geometries;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
 #if !Test21
-    public class SpatialQuerySqlServerGeographyFixture : SpatialQueryRelationalFixture
+    public class SpatialQuerySqlServerGeographyFixture : SpatialQuerySqlServerFixture
     {
         private IGeometryServices _geometryServices;
         private IGeometryFactory _geometryFactory;
@@ -20,10 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IGeometryServices GeometryServices
             => LazyInitializer.EnsureInitialized(
                 ref _geometryServices,
-                () => new NtsGeometryServices(
-                    NtsGeometryServices.Instance.DefaultCoordinateSequenceFactory,
-                    NtsGeometryServices.Instance.DefaultPrecisionModel,
-                    4326));
+                () => CreateGeometryServices());
+
+        protected static NtsGeometryServices CreateGeometryServices()
+            => new NtsGeometryServices(
+                NtsGeometryServices.Instance.DefaultCoordinateSequenceFactory,
+                NtsGeometryServices.Instance.DefaultPrecisionModel,
+                4326);
 
         public override IGeometryFactory GeometryFactory
             => LazyInitializer.EnsureInitialized(
@@ -33,20 +37,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override string StoreName
             => "SpatialQueryGeographyTest";
 
-        protected override ITestStoreFactory TestStoreFactory
-            => SqlServerTestStoreFactory.Instance;
-
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection)
-                .AddSingleton(GeometryServices)
-                .AddEntityFrameworkSqlServerNetTopologySuite();
+            => base.AddServices(serviceCollection.AddSingleton(GeometryServices))
+                .AddSingleton<IRelationalTypeMappingSource, ReplacementTypeMappingSource>();
 
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        protected class ReplacementTypeMappingSource : SqlServerTypeMappingSource
         {
-            var optionsBuilder = base.AddOptions(builder);
-            new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
+            public ReplacementTypeMappingSource(
+                TypeMappingSourceDependencies dependencies,
+                RelationalTypeMappingSourceDependencies relationalDependencies)
+                : base(dependencies, relationalDependencies)
+            {
+            }
 
-            return optionsBuilder;
+            protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+                => mappingInfo.ClrType == typeof(GeoPoint)
+                    ? ((RelationalTypeMapping)base.FindMapping(typeof(IPoint))
+                        .Clone(new GeoPointConverter(CreateGeometryServices().CreateGeometryFactory())))
+                    .Clone("geography", null)
+                    : base.FindMapping(mappingInfo);
         }
     }
 #endif

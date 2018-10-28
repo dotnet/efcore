@@ -152,6 +152,35 @@ SELECT [e].[Id], [e].[Polygon].STDifference(@__polygon_0) AS [Difference]
 FROM [PolygonEntity] AS [e]");
         }
 
+        public override async Task Distance_on_converted_geometry_type(bool isAsync)
+        {
+            await base.Distance_on_converted_geometry_type(isAsync);
+
+            AssertSql(
+                @"@__point_0='0x00000000010C000000000000F03F0000000000000000' (Nullable = false) (Size = 22) (DbType = Binary)
+
+SELECT [e].[Id], [e].[Location].STDistance(@__point_0) AS [Distance]
+FROM [GeoPointEntity] AS [e]");
+        }
+
+        public override async Task Distance_on_converted_geometry_type_constant(bool isAsync)
+        {
+            await base.Distance_on_converted_geometry_type_constant(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[Location].STDistance(geometry::Parse('POINT (0 1)')) AS [Distance]
+FROM [GeoPointEntity] AS [e]");
+        }
+
+        public override async Task Distance_on_converted_geometry_type_constant_lhs(bool isAsync)
+        {
+            await base.Distance_on_converted_geometry_type_constant_lhs(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], geometry::Parse('POINT (0 1)').STDistance([e].[Location]) AS [Distance]
+FROM [GeoPointEntity] AS [e]");
+        }
+
         public override async Task Distance_constant(bool isAsync)
         {
             await base.Distance_constant(isAsync);

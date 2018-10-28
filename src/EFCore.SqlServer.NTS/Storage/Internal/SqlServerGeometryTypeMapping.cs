@@ -51,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             ValueConverter<TGeometry, SqlBytes> converter)
             : base(parameters, converter)
         {
+            _isGeography = IsGeography(StoreType);
         }
 
         /// <summary>

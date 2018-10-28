@@ -27,6 +27,35 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM ""PointEntity"" AS ""p""");
         }
 
+        public override async Task Distance_on_converted_geometry_type(bool isAsync)
+        {
+            await base.Distance_on_converted_geometry_type(isAsync);
+
+            AssertSql(
+                @"@__point_0='0x0001000000000000000000000000000000000000F03F00000000000000000000...' (Nullable = false) (Size = 60) (DbType = String)
+
+SELECT ""e"".""Id"", Distance(""e"".""Location"", @__point_0) AS ""Distance""
+FROM ""GeoPointEntity"" AS ""e""");
+        }
+
+        public override async Task Distance_on_converted_geometry_type_constant(bool isAsync)
+        {
+            await base.Distance_on_converted_geometry_type_constant(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", Distance(""e"".""Location"", GeomFromText('POINT (0 1)')) AS ""Distance""
+FROM ""GeoPointEntity"" AS ""e""");
+        }
+
+        public override async Task Distance_on_converted_geometry_type_constant_lhs(bool isAsync)
+        {
+            await base.Distance_on_converted_geometry_type_constant_lhs(isAsync);
+
+            AssertSql(
+                @"SELECT ""e"".""Id"", Distance(GeomFromText('POINT (0 1)'), ""e"".""Location"") AS ""Distance""
+FROM ""GeoPointEntity"" AS ""e""");
+        }
+
         public override async Task WithConversion(bool isAsync)
         {
             await base.WithConversion(isAsync);

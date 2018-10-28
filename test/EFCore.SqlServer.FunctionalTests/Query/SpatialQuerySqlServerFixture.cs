@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,23 +11,23 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Query
 {
 #if !Test21
-    public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
+    public class SpatialQuerySqlServerFixture : SpatialQueryRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory
-            => SqliteTestStoreFactory.Instance;
+            => SqlServerTestStoreFactory.Instance;
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
             => base.AddServices(serviceCollection)
-                .AddEntityFrameworkSqliteNetTopologySuite()
-                .AddSingleton<IRelationalTypeMappingSource, ReplacementTypeMappingSource>();
+                .AddEntityFrameworkSqlServerNetTopologySuite();
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         {
             var optionsBuilder = base.AddOptions(builder);
-            new SqliteDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
+            new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
 
             return optionsBuilder;
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
@@ -39,26 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
                 b => b.HasTranslation(
                     e => new SqlFunctionExpression(
-                        "Distance",
+                        e.First(),
+                        "STDistance",
                         typeof(double),
-                        e)));
-        }
-
-        private class ReplacementTypeMappingSource : SqliteTypeMappingSource
-        {
-            public ReplacementTypeMappingSource(
-                TypeMappingSourceDependencies dependencies,
-                RelationalTypeMappingSourceDependencies relationalDependencies)
-                : base(dependencies, relationalDependencies)
-            {
-            }
-
-            protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
-                => mappingInfo.ClrType == typeof(GeoPoint)
-                    ? ((RelationalTypeMapping)base.FindMapping(typeof(IPoint))
-                        .Clone(new GeoPointConverter()))
-                    .Clone("geometry", null)
-                    : base.FindMapping(mappingInfo);
+                        e.Skip(1))));
         }
     }
 #endif
