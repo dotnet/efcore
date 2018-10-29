@@ -86,12 +86,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                 new GeoPointEntity
                 {
                     Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E552"),
-                    Location = new GeoPoint(-122.34877, 47.6233355)
+                    Location = new GeoPoint(47.6233355, -122.34877)
                 },
                 new GeoPointEntity
                 {
                     Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E553"),
-                    Location = new GeoPoint(-122.3308366, 47.5978429)
+                    Location = new GeoPoint(47.5978429, -122.3308366)
                 },
             };
 

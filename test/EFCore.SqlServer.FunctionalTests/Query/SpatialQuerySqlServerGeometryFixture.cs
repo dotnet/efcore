@@ -1,31 +1,18 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
 #if !Test21
-    public class SpatialQuerySqlServerGeometryFixture : SpatialQueryRelationalFixture
+    public class SpatialQuerySqlServerGeometryFixture : SpatialQuerySqlServerFixture
     {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqlServerTestStoreFactory.Instance;
-
-        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection)
-                .AddEntityFrameworkSqlServerNetTopologySuite();
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        {
-            var optionsBuilder = base.AddOptions(builder);
-            new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
-
-            return optionsBuilder;
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
@@ -41,6 +28,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
             modelBuilder.Entity<PolygonEntity>().Property(e => e.Polygon).HasColumnType("geometry");
             modelBuilder.Entity<GeoPointEntity>().Property(e => e.Location).HasColumnType("geometry");
+        }
+
+        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+            => base.AddServices(serviceCollection)
+                .AddSingleton<IRelationalTypeMappingSource, ReplacementTypeMappingSource>();
+
+        protected class ReplacementTypeMappingSource : SqlServerTypeMappingSource
+        {
+            public ReplacementTypeMappingSource(
+                TypeMappingSourceDependencies dependencies,
+                RelationalTypeMappingSourceDependencies relationalDependencies)
+                : base(dependencies, relationalDependencies)
+            {
+            }
+
+            protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+                => mappingInfo.ClrType == typeof(GeoPoint)
+                    ? ((RelationalTypeMapping)base.FindMapping(typeof(IPoint))
+                        .Clone(new GeoPointConverter())).Clone("geometry", null)
+                    : base.FindMapping(mappingInfo);
         }
     }
 #endif
