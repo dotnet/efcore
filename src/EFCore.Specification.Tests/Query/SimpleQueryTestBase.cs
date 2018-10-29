@@ -1642,7 +1642,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) =>
                     from c in cs.OrderBy(c => c.CustomerID).Take(3)
-                    select os.OrderBy(o => c.CustomerID).Skip(100).Take(2),
+                    select os.OrderBy(o => o.OrderID).ThenBy(o => c.CustomerID).Skip(100).Take(2),
                 elementSorter: CollectionSorter<Order>(),
                 elementAsserter: CollectionAsserter<Order>());
         }
