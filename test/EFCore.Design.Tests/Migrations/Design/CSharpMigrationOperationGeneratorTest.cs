@@ -2127,13 +2127,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    values: new object[,]" + _eol +
                 "    {" + _eol +
                 "        { 0, null, null }," + _eol +
-                "        { 1, \"Daenerys Targaryen\", (Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\") }," + _eol +
-                "        { 2, \"John Snow\", (Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") }," + _eol +
-                "        { 3, \"Arya Stark\", (LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\") }," + _eol +
-                "        { 4, \"Harry Strickland\", (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\") }," + _eol +
-                "        { 5, \"The Imp\", (MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))\") }," + _eol +
-                "        { 6, \"The Kingslayer\", (MultiLineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))\") }," + _eol +
-                "        { 7, \"Aemon Targaryen\", (GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))\") }" + _eol +
+                "        { 1, \"Daenerys Targaryen\", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\") }," + _eol +
+                "        { 2, \"John Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") }," + _eol +
+                "        { 3, \"Arya Stark\", (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\") }," + _eol +
+                "        { 4, \"Harry Strickland\", (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\") }," + _eol +
+                "        { 5, \"The Imp\", (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))\") }," + _eol +
+                "        { 6, \"The Kingslayer\", (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))\") }," + _eol +
+                "        { 7, \"Aemon Targaryen\", (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))\") }" + _eol +
                 "    });",
                 o =>
                 {
@@ -2167,7 +2167,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "mb.InsertData(" + _eol +
                 "    table: \"People\"," + _eol +
                 "    column: \"Geometry\"," + _eol +
-                "    value: (Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\"));",
+                "    value: (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\"));",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2192,7 +2192,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "mb.InsertData(" + _eol +
                 "    table: \"People\"," + _eol +
                 "    columns: new[] { \"First Name\", \"Last Name\", \"Geometry\" }," + _eol +
-                "    values: new object[] { \"John\", \"Snow\", (Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") });",
+                "    values: new object[] { \"John\", \"Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2223,8 +2223,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    column: \"Geometries\"," + _eol +
                 "    values: new object[]" + _eol +
                 "    {" + _eol +
-                "        (LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\")," + _eol +
-                "        (MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\")" + _eol +
+                "        (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\")," + _eol +
+                "        (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\")" + _eol +
                 "    });",
                 o =>
                 {
