@@ -17,7 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Scaffolding.Internal
         {
         }
 
-        public override MethodCallCodeFragment GenerateUseProvider(string connectionString)
-            => new MethodCallCodeFragment(nameof(OracleDbContextOptionsExtensions.UseOracle), connectionString);
+        public override MethodCallCodeFragment GenerateUseProvider(
+            string connectionString,
+            MethodCallCodeFragment providerOptions)
+            => new MethodCallCodeFragment(
+                nameof(OracleDbContextOptionsExtensions.UseOracle),
+                providerOptions == null
+                ? new object[] { connectionString }
+                : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
     }
 }
