@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
 {
@@ -54,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         }
 
         public static IReadOnlyList<PointEntity> CreatePointEntities(IGeometryFactory factory)
-            => new[]
+        {
+            var entities = new[]
             {
                 new PointEntity
                 {
@@ -68,6 +70,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                     Point = null
                 }
             };
+
+            foreach (var entity in entities)
+            {
+                entity.Geometry = entity.Point?.Copy();
+                entity.ConcretePoint = (Point)entity.Point?.Copy();
+            }
+
+            return entities;
+        }
 
         public static IReadOnlyList<GeoPointEntity> CreateGeoPointEntities()
             => new[]

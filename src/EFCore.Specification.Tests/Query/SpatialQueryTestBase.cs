@@ -26,6 +26,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task SimpleSelect(bool isAsync)
+        {
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es,
+                elementSorter: x => x.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    Assert.Equal((IGeometry)e.Geometry, (IGeometry)a.Geometry, GeometryComparer.Instance);
+                    Assert.Equal((IPoint)e.Point, (IPoint)a.Point, GeometryComparer.Instance);
+                    Assert.Equal((Point)e.ConcretePoint, (Point)a.ConcretePoint, GeometryComparer.Instance);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task WithConversion(bool isAsync)
         {
             return AssertQuery<GeoPointEntity>(
@@ -363,6 +381,66 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         e.Id,
                         Distance = e.Point == null ? (double?)null : e.Point.Distance(point)
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (e.Distance == null)
+                    {
+                        Assert.Null(a.Distance);
+                    }
+                    else if (AssertDistances)
+                    {
+                        Assert.Equal(e.Distance, a.Distance);
+                    }
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distance_geometry(bool isAsync)
+        {
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
+
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        Distance = e.Geometry == null ? (double?)null : e.Geometry.Distance(point)
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (e.Distance == null)
+                    {
+                        Assert.Null(a.Distance);
+                    }
+                    else if (AssertDistances)
+                    {
+                        Assert.Equal(e.Distance, a.Distance);
+                    }
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distance_concrete(bool isAsync)
+        {
+            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
+
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        Distance = e.ConcretePoint == null ? (double?)null : e.ConcretePoint.Distance(point)
                     }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
@@ -981,6 +1059,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         e.Id,
                         SRID = e.Point == null ? (int?)null : e.Point.SRID
+                    }),
+                elementSorter: x => x.Id);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SRID_geometry(bool isAsync)
+        {
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        SRID = e.Geometry == null ? (int?)null : e.Geometry.SRID
+                    }),
+                elementSorter: x => x.Id);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SRID_concrete(bool isAsync)
+        {
+            return AssertQuery<PointEntity>(
+                isAsync,
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        SRID = e.ConcretePoint == null ? (int?)null : e.ConcretePoint.SRID
                     }),
                 elementSorter: x => x.Id);
         }

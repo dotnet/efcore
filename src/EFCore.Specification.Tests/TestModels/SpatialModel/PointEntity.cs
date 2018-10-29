@@ -3,6 +3,7 @@
 
 using System;
 using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
 {
@@ -11,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         public static readonly Guid WellKnownId = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B1");
 
         public Guid Id { get; set; }
+        public IGeometry Geometry { get; set; }
         public IPoint Point { get; set; }
+        public Point ConcretePoint { get; set; }
     }
 }

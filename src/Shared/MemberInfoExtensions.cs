@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -66,7 +67,7 @@ namespace System.Reflection
             }
 
             var map = targetMethod.DeclaringType.GetInterfaceMap(interfaceType);
-            var index = map.TargetMethods.IndexOf(targetMethod);
+            var index = map.TargetMethods.IndexOf(targetMethod, MemberInfoComparer.Instance);
 
             return index != -1
                 ? map.InterfaceMethods[index]
@@ -78,6 +79,17 @@ namespace System.Reflection
             var name = member.Name;
             var index = name.LastIndexOf('.');
             return index >= 0 ? name.Substring(index + 1) : name;
+        }
+
+        private class MemberInfoComparer : IEqualityComparer<MemberInfo>
+        {
+            public static readonly MemberInfoComparer Instance = new MemberInfoComparer();
+
+            public bool Equals(MemberInfo x, MemberInfo y)
+                => x.IsSameAs(y);
+
+            public int GetHashCode(MemberInfo obj)
+                => obj.GetHashCode();
         }
     }
 }

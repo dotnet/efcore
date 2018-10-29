@@ -20,6 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override bool AssertDistances
             => false;
 
+        public override async Task SimpleSelect(bool isAsync)
+        {
+            await base.SimpleSelect(isAsync);
+
+            AssertSql(
+                @"SELECT [p].[Id], [p].[ConcretePoint], [p].[Geometry], [p].[Point]
+FROM [PointEntity] AS [p]");
+        }
+
         public override async Task WithConversion(bool isAsync)
         {
             await base.WithConversion(isAsync);
@@ -142,6 +151,28 @@ FROM [PolygonEntity] AS [e]");
                 @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
 
 SELECT [e].[Id], [e].[Point].STDistance(@__point_0) AS [Distance]
+FROM [PointEntity] AS [e]");
+        }
+
+        public override async Task Distance_geometry(bool isAsync)
+        {
+            await base.Distance_geometry(isAsync);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+
+SELECT [e].[Id], [e].[Geometry].STDistance(@__point_0) AS [Distance]
+FROM [PointEntity] AS [e]");
+        }
+
+        public override async Task Distance_concrete(bool isAsync)
+        {
+            await base.Distance_concrete(isAsync);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+
+SELECT [e].[Id], [e].[ConcretePoint].STDistance(@__point_0) AS [Distance]
 FROM [PointEntity] AS [e]");
         }
 
@@ -398,6 +429,24 @@ FROM [PolygonEntity] AS [e]");
 
             AssertSql(
                 @"SELECT [e].[Id], [e].[Point].STSrid AS [SRID]
+FROM [PointEntity] AS [e]");
+        }
+
+        public override async Task SRID_geometry(bool isAsync)
+        {
+            await base.SRID_geometry(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[Geometry].STSrid AS [SRID]
+FROM [PointEntity] AS [e]");
+        }
+
+        public override async Task SRID_concrete(bool isAsync)
+        {
+            await base.SRID_concrete(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[ConcretePoint].STSrid AS [SRID]
 FROM [PointEntity] AS [e]");
         }
 
