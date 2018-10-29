@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class DesignTimeServicesBuilder
     {
+        private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
         private readonly IOperationReporter _reporter;
         private readonly string[] _args;
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public DesignTimeServicesBuilder(
+            [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [NotNull] IOperationReporter reporter,
             [NotNull] string[] args)
@@ -36,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _startupAssembly = startupAssembly;
             _reporter = reporter;
             _args = args;
+            _assembly = assembly;
         }
 
         /// <summary>
@@ -100,7 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             _reporter.WriteVerbose(DesignStrings.FindingReferencedServices(_startupAssembly.GetName().Name));
 
-            var references = _startupAssembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>().ToList();
+            var references = _startupAssembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>()
+                                .Concat(_assembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>())
+                                .Distinct()
+                                .ToList();
+
             if (references.Count == 0)
             {
                 _reporter.WriteVerbose(DesignStrings.NoReferencedServices);
