@@ -102,9 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyAddedConventions.Add(maxLengthAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(stringLengthAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(timestampAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
-            conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
 
             conventionSet.PrimaryKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PrimaryKeyChangedConventions.Add(valueGeneratorConvention);

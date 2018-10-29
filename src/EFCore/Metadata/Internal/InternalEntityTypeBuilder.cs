@@ -2554,7 +2554,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IReadOnlyList<Property> GetOrCreateProperties(
             [CanBeNull] IReadOnlyList<string> propertyNames,
-            ConfigurationSource configurationSource,
+            ConfigurationSource? configurationSource,
             [CanBeNull] IReadOnlyList<Property> referencedProperties = null,
             bool required = false,
             bool useDefaultType = false)
@@ -2585,15 +2585,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         : referencedProperties[i].ClrType;
 
                     InternalPropertyBuilder propertyBuilder;
-                    if (clrProperty != null)
+                    if (!configurationSource.HasValue)
                     {
-                        propertyBuilder = Property(clrProperty, configurationSource);
+                        return null;
+                    }
+                    else if (clrProperty != null)
+                    {
+                        propertyBuilder = Property(clrProperty, configurationSource.Value);
                     }
                     else if (type != null)
                     {
                         // TODO: Log that a shadow property is created
                         propertyBuilder = Property(
-                            propertyName, required ? type : type.MakeNullable(), configurationSource, typeConfigurationSource: null);
+                            propertyName, required ? type : type.MakeNullable(), configurationSource.Value, typeConfigurationSource: null);
                     }
                     else
                     {
@@ -2607,10 +2611,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     property = propertyBuilder.Metadata;
                 }
-                else
+                else if (configurationSource.HasValue)
                 {
-                    property.DeclaringEntityType.UpdateConfigurationSource(configurationSource);
-                    property = property.DeclaringEntityType.Builder.Property(property.Name, configurationSource).Metadata;
+                    property.DeclaringEntityType.UpdateConfigurationSource(configurationSource.Value);
+                    property = property.DeclaringEntityType.Builder.Property(property.Name, configurationSource.Value).Metadata;
                 }
 
                 propertyList.Add(property);
