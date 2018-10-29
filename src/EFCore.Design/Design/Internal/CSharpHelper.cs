@@ -740,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 case ExpressionType.Convert:
                     builder
                         .Append('(')
-                        .Append(Reference(expression.Type))
+                        .Append(Reference(expression.Type, useFullName: true))
                         .Append(')');
 
                     return HandleExpression(((UnaryExpression)expression).Operand, builder);

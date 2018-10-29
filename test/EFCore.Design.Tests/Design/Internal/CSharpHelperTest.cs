@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     typeof(SimpleTestType)));
 
             Assert.Equal(
-                "(SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory().Create(\"Jerry\")",
+                "(Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory().Create(\"Jerry\")",
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     typeof(SimpleTestType)));
 
             Assert.Equal(
-                "(SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory(\"4096\").Create(\"Jerry\", 77)",
+                "(Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory(\"4096\").Create(\"Jerry\", 77)",
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     typeof(SimpleTestType)));
 
             Assert.Equal(
-                "(SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory(\"4096\").Create(\"Jerry\", (int?)77)",
+                "(Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType)new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory(\"4096\").Create(\"Jerry\", (int?)77)",
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
