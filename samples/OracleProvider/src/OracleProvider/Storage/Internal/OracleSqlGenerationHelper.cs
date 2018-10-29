@@ -35,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 
         public override string BatchTerminator => "GO" + Environment.NewLine + Environment.NewLine;
 
-        public override string DelimitIdentifier(string identifier)
+        public override string DelimitIdentifier(string identifier, bool includeDelimiter = true)
             => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\""; // Interpolation okay; strings
 
-        public override string DelimitIdentifier(string name, string schema)
-            => DelimitIdentifier(name);
+        public override string DelimitIdentifier(string name, string schema, bool includeDelimiter = true)
+            => DelimitIdentifier(name, includeDelimiter);
 
-        public override void DelimitIdentifier(StringBuilder builder, string identifier)
+        public override void DelimitIdentifier(StringBuilder builder, string identifier, bool includeDelimiter = true)
         {
             Check.NotEmpty(identifier, nameof(identifier));
 
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             builder.Append('"');
         }
 
-        public override void DelimitIdentifier(StringBuilder builder, string name, string schema)
-            => DelimitIdentifier(builder, name);
+        public override void DelimitIdentifier(StringBuilder builder, string name, string schema, bool includeDelimiter = true)
+            => DelimitIdentifier(builder, name, includeDelimiter);
     }
 }

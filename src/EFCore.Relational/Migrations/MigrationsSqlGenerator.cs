@@ -1664,13 +1664,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Concatenates the given column names into a <see cref="ISqlGenerationHelper.DelimitIdentifier(string)" />
+        ///     Concatenates the given column names into a <see cref="ISqlGenerationHelper.DelimitIdentifier(string, bool)" />
         ///     separated list.
         /// </summary>
         /// <param name="columns"> The column names. </param>
         /// <returns> The column list. </returns>
         protected virtual string ColumnList([NotNull] string[] columns)
-            => string.Join(", ", columns.Select(Dependencies.SqlGenerationHelper.DelimitIdentifier));
+            => string.Join(", ", columns.Select(c => Dependencies.SqlGenerationHelper.DelimitIdentifier(c)));
 
         /// <summary>
         ///     Checks whether or not <see cref="AddColumnOperation" /> supports the passing in the

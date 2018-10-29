@@ -100,23 +100,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Generates the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
         /// <param name="identifier"> The identifier to delimit. </param>
+        /// <param name="includeDelimiters">The include delimiters or not.</param>
         /// <returns> The generated string. </returns>
-        string DelimitIdentifier([NotNull] string identifier);
+        string DelimitIdentifier([NotNull] string identifier, bool includeDelimiters = true);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="identifier"> The identifier to delimit. </param>
-        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier);
+        /// <param name="includeDelimiters">The include delimiters or not.</param>
+        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier, bool includeDelimiters = true);
 
         /// <summary>
         ///     Generates the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
+        /// <param name="includeDelimiters">The include delimiters or not.</param>
         /// <returns> The generated string. </returns>
-        string DelimitIdentifier([NotNull] string name, [CanBeNull] string schema);
+        string DelimitIdentifier([NotNull] string name, [CanBeNull] string schema, bool includeDelimiters = true);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -124,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
-        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string schema);
+        /// <param name="includeDelimiters">The include delimiters or not.</param>
+        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string schema, bool includeDelimiters = true);
     }
 }

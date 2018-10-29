@@ -54,20 +54,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string DelimitIdentifier(string identifier)
-            => $"[{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}]"; // Interpolation okay; strings
+        public override string DelimitIdentifier(string identifier, bool includeDelimiters = true)
+            => includeDelimiters // Interpolation okay; strings
+                ? $"[{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}]"
+                : $"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override void DelimitIdentifier(StringBuilder builder, string identifier)
+        public override void DelimitIdentifier(StringBuilder builder, string identifier, bool includeDelimiters = true)
         {
             Check.NotEmpty(identifier, nameof(identifier));
 
-            builder.Append('[');
+            if (includeDelimiters)
+            {
+                builder.Append('[');
+            }
+
             EscapeIdentifier(builder, identifier);
-            builder.Append(']');
+
+            if (includeDelimiters)
+            {
+                builder.Append(']');
+            }
         }
     }
 }

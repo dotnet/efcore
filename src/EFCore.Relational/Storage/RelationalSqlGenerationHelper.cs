@@ -128,10 +128,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Generates the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
         /// <param name="identifier">The identifier to delimit.</param>
+        /// <param name="includeDelimiters">The include delimiters or not.</param>
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string DelimitIdentifier(string identifier)
+        public virtual string DelimitIdentifier(string identifier, bool includeDelimiters = true)
             => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\""; // Interpolation okay; strings
 
         /// <summary>
@@ -139,13 +140,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="identifier">The identifier to delimit.</param>
-        public virtual void DelimitIdentifier(StringBuilder builder, string identifier)
+        /// <param name="includeDelimiters">The include delimiters or not.</param>
+        public virtual void DelimitIdentifier(StringBuilder builder, string identifier, bool includeDelimiters = true)
         {
             Check.NotEmpty(identifier, nameof(identifier));
 
-            builder.Append('"');
+            if (includeDelimiters)
+            {
+                builder.Append('"');
+            }
+
             EscapeIdentifier(builder, identifier);
-            builder.Append('"');
+
+            if (includeDelimiters)
+            {
+                builder.Append('"');
+            }
         }
 
         /// <summary>
@@ -153,14 +163,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="name">The identifier to delimit.</param>
         /// <param name="schema">The schema of the identifier.</param>
+        /// <param name="includeDelimiters">The include delimiters or not.</param>
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string DelimitIdentifier(string name, string schema)
+        public virtual string DelimitIdentifier(string name, string schema, bool includeDelimiters = true)
             => (!string.IsNullOrEmpty(schema)
                    ? DelimitIdentifier(schema) + "."
                    : string.Empty)
-               + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
+               + DelimitIdentifier(Check.NotEmpty(name, nameof(name)), includeDelimiters);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -168,15 +179,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">The identifier to delimit.</param>
         /// <param name="schema">The schema of the identifier.</param>
-        public virtual void DelimitIdentifier(StringBuilder builder, string name, string schema)
+        /// <param name="includeDelimiters">The include delimiters or not.</param>
+        public virtual void DelimitIdentifier(StringBuilder builder, string name, string schema, bool includeDelimiters = true)
         {
             if (!string.IsNullOrEmpty(schema))
             {
-                DelimitIdentifier(builder, schema);
+                DelimitIdentifier(builder, schema, includeDelimiters);
                 builder.Append(".");
             }
 
-            DelimitIdentifier(builder, name);
+            DelimitIdentifier(builder, name, includeDelimiters);
         }
     }
 }

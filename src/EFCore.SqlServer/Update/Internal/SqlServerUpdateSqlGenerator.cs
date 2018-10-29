@@ -10,6 +10,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
@@ -477,6 +478,51 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
+        }
+
+        /// <summary>
+        ///     Appends a SQL fragment for starting an <c>INSERT</c>.
+        /// </summary>
+        /// <param name="commandStringBuilder"> The builder to which the SQL should be appended. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="schema"> The table schema, or <c>null</c> to use the default schema. </param>
+        /// <param name="operations"> The operations representing the data to be inserted. </param>
+        protected override void AppendInsertCommandHeader(
+            StringBuilder commandStringBuilder,
+            string name,
+            string schema,
+            IReadOnlyList<ColumnModification> operations)
+        {
+            commandStringBuilder.Append("INSERT INTO ");
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
+
+            if (operations.Count > 0)
+            {
+                commandStringBuilder
+                    .Append(" (")
+                    .AppendJoin(
+                        operations,
+                        SqlGenerationHelper,
+                        (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName, o.Property?.FindAnnotation(SqlServerAnnotationNames.PseudoColumn) == null))
+                    .Append(")");
+            }
+        }
+
+        /// <summary>
+        ///     Appends a SQL fragment for starting an <c>SELECT</c>.
+        /// </summary>
+        /// <param name="commandStringBuilder"> The builder to which the SQL should be appended. </param>
+        /// <param name="operations"> The operations representing the data to be read. </param>
+        protected override void AppendSelectCommandHeader(
+            StringBuilder commandStringBuilder,
+            IReadOnlyList<ColumnModification> operations)
+        {
+            commandStringBuilder
+                .Append("SELECT ")
+                .AppendJoin(
+                    operations,
+                    SqlGenerationHelper,
+                    (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName, o.Property?.FindAnnotation(SqlServerAnnotationNames.PseudoColumn) == null));
         }
 
         /// <summary>
