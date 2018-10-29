@@ -305,6 +305,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual IReadOnlyList<Expression> Arguments => _arguments;
 
         /// <summary>
+        ///     Gets the value to be used when joining arguments
+        /// </summary>
+        public virtual string[] ParameterSeparators { get; set; } = { ", " };
+
+        /// <summary>
         ///     Gets the type mapping of the result.
         /// </summary>
         public virtual RelationalTypeMapping ResultTypeMapping { get; }

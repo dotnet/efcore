@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AppendLine()
                     .Append("FROM ");
 
-                GenerateList(selectExpression.Tables, sql => sql.AppendLine());
+                GenerateList(selectExpression.Tables, (sql, _) => sql.AppendLine());
             }
             else
             {
@@ -667,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="joinAction">An optional join action.</param>
         protected virtual void GenerateList(
             [NotNull] IReadOnlyList<Expression> items,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction)
+            [CanBeNull] Action<IRelationalCommandBuilder, int> joinAction)
             => GenerateList(items, joinAction, typeMappings: null);
 
         /// <summary>
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="typeMappings">Option type mappings for each item.</param>
         protected virtual void GenerateList(
             [NotNull] IReadOnlyList<Expression> items,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null,
+            [CanBeNull] Action<IRelationalCommandBuilder, int> joinAction = null,
             [CanBeNull] IReadOnlyList<RelationalTypeMapping> typeMappings = null)
             => GenerateList(items, e => Visit(e), joinAction, typeMappings);
 
@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual void GenerateList<T>(
             [NotNull] IReadOnlyList<T> items,
             [NotNull] Action<T> generationAction,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction)
+            [CanBeNull] Action<IRelationalCommandBuilder, int> joinAction)
             => GenerateList(items, generationAction, joinAction, typeMappings: null);
 
         /// <summary>
@@ -708,13 +708,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual void GenerateList<T>(
             [NotNull] IReadOnlyList<T> items,
             [NotNull] Action<T> generationAction,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null,
+            [CanBeNull] Action<IRelationalCommandBuilder, int> joinAction = null,
             [CanBeNull] IReadOnlyList<RelationalTypeMapping> typeMappings = null)
         {
             Check.NotNull(items, nameof(items));
             Check.NotNull(generationAction, nameof(generationAction));
 
-            joinAction = joinAction ?? (isb => isb.Append(", "));
+            joinAction = joinAction ?? ((isb, _) => isb.Append(", "));
 
             var parentTypeMapping = _typeMapping;
 
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 if (i > 0)
                 {
-                    joinAction(_relationalCommandBuilder);
+                    joinAction(_relationalCommandBuilder, i - 1);
                 }
 
                 _typeMapping = typeMappings?[i] ?? parentTypeMapping;
@@ -1608,7 +1608,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var parentTypeMapping = _typeMapping;
                 _typeMapping = null;
 
-                GenerateList(sqlFunctionExpression.Arguments, typeMappings: sqlFunctionExpression.ArgumentTypeMappings);
+                GenerateList(
+                    sqlFunctionExpression.Arguments,
+                    (builder, index) => builder.Append(
+                        sqlFunctionExpression
+                            .ParameterSeparators[sqlFunctionExpression.ParameterSeparators.Length > 1 ? index : 0]),
+                    sqlFunctionExpression.ArgumentTypeMappings);
 
                 _typeMapping = parentTypeMapping;
 
