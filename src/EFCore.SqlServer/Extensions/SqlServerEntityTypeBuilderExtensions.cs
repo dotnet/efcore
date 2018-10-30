@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -74,6 +75,79 @@ namespace Microsoft.EntityFrameworkCore
 
             return new IndexBuilder<TEntity>(
                 builder.HasIndex(indexExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+        }
+
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting SQL Server as a graph node.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="nodeIdPropertyExpression"> The entity property to be used as the $node_id. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ForSqlServerIsGraphNode<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            Expression<Func<TEntity, string>> nodeIdPropertyExpression)
+            where TEntity : class
+        {
+            entityTypeBuilder.Metadata.SqlServer().IsGraphNode = true;
+
+            entityTypeBuilder.Property(nodeIdPropertyExpression).HasColumnName("$node_id");
+            entityTypeBuilder.Property(nodeIdPropertyExpression).Metadata.SqlServer().IsPseudoColumn = true;
+            entityTypeBuilder.Property(nodeIdPropertyExpression).Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting SQL Server as a graph edge.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="fromIdPropertyExpression"> The entity property to be used as the $from_id. </param>
+        /// <param name="toIdPropertyExpression"> The entity property to be used as the $to_id. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ForSqlServerIsGraphEdge<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            Expression<Func<TEntity, string>> fromIdPropertyExpression,
+            Expression<Func<TEntity, string>> toIdPropertyExpression)
+            where TEntity : class
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            entityTypeBuilder.Metadata.SqlServer().IsGraphEdge = true;
+
+            entityTypeBuilder.Property(fromIdPropertyExpression).HasColumnName("$from_id");
+            entityTypeBuilder.Property(fromIdPropertyExpression).Metadata.SqlServer().IsPseudoColumn = true;
+
+            entityTypeBuilder.Property(toIdPropertyExpression).HasColumnName("$to_id");
+            entityTypeBuilder.Property(toIdPropertyExpression).Metadata.SqlServer().IsPseudoColumn = true;
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting SQL Server as a graph edge.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="edgeIdPropertyExpression"> The entity property to be used as the $edge_id. </param>
+        /// <param name="fromIdPropertyExpression"> The entity property to be used as the $from_id. </param>
+        /// <param name="toIdPropertyExpression"> The entity property to be used as the $to_id. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ForSqlServerIsGraphEdge<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            Expression<Func<TEntity, string>> edgeIdPropertyExpression,
+            Expression<Func<TEntity, string>> fromIdPropertyExpression,
+            Expression<Func<TEntity, string>> toIdPropertyExpression)
+            where TEntity : class
+        {
+            entityTypeBuilder = ForSqlServerIsGraphEdge(entityTypeBuilder, fromIdPropertyExpression, toIdPropertyExpression);
+
+            entityTypeBuilder.Property(edgeIdPropertyExpression).HasColumnName("$edge_id");
+            entityTypeBuilder.Property(edgeIdPropertyExpression).Metadata.SqlServer().IsPseudoColumn = true;
+            entityTypeBuilder.Property(edgeIdPropertyExpression).Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+
+            return entityTypeBuilder;
         }
     }
 }
