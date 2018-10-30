@@ -922,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby c.CustomerID
                       select new
                       {
-                          First = c.Orders.FirstOrDefault()
+                          First = c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
                       },
                 cs => from c in cs
                       orderby c.CustomerID

@@ -646,6 +646,7 @@ SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM (
     SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
 ) AS [t]
 ORDER BY [t].[OrderID]",
                 //
@@ -2450,7 +2451,8 @@ WHERE [o].[CustomerID] = @_outer_CustomerID");
                 @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]",
