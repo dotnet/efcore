@@ -1,195 +1,18 @@
 {
-  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Design, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Design, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
   "Types": [
     {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.DatabaseColumnExtensions",
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator",
       "Visibility": "Public",
-      "Kind": "Class",
+      "Kind": "Interface",
       "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DisplayName",
-          "Parameters": [
-            {
-              "Name": "column",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseColumn"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "IsKeyOrIndex",
-          "Parameters": [
-            {
-              "Name": "column",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseColumn"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "IsRowVersion",
-          "Parameters": [
-            {
-              "Name": "column",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseColumn"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.DatabaseForeignKeyExtensions",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DisplayName",
-          "Parameters": [
-            {
-              "Name": "foreignKey",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseForeignKey"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.DatabaseTableExtensions",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DisplayName",
-          "Parameters": [
-            {
-              "Name": "table",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseTable"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CandidateNamingService",
-      "Visibility": "Public",
-      "Kind": "Class",
       "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICandidateNamingService"
+        "Microsoft.EntityFrameworkCore.Design.ILanguageBasedService"
       ],
       "Members": [
         {
           "Kind": "Method",
-          "Name": "GenerateCandidateIdentifier",
-          "Parameters": [
-            {
-              "Name": "originalIdentifier",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICandidateNamingService",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetDependentEndCandidateNavigationPropertyName",
-          "Parameters": [
-            {
-              "Name": "foreignKey",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IForeignKey"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICandidateNamingService",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetPrincipalEndCandidateNavigationPropertyName",
-          "Parameters": [
-            {
-              "Name": "foreignKey",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IForeignKey"
-            },
-            {
-              "Name": "dependentEndNavigationPropertyName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICandidateNamingService",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpDbContextGenerator",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpDbContextGenerator"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "WriteCode",
+          "Name": "GenerateModel",
           "Parameters": [
             {
               "Name": "model",
@@ -197,6 +20,10 @@
             },
             {
               "Name": "namespace",
+              "Type": "System.String"
+            },
+            {
+              "Name": "contextDir",
               "Type": "System.String"
             },
             {
@@ -208,815 +35,18 @@
               "Type": "System.String"
             },
             {
-              "Name": "useDataAnnotations",
-              "Type": "System.Boolean"
+              "Name": "options",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions"
             }
           ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpDbContextGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "providerCodeGenerator",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingProviderCodeGenerator"
-            },
-            {
-              "Name": "annotationCodeGenerator",
-              "Type": "Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator"
-            },
-            {
-              "Name": "cSharpUtilities",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities"
-            }
-          ],
-          "Visibility": "Public",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel",
           "GenericParameter": []
         }
       ],
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpEntityTypeGenerator",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpEntityTypeGenerator"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "WriteCode",
-          "Parameters": [
-            {
-              "Name": "entityType",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IEntityType"
-            },
-            {
-              "Name": "namespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "useDataAnnotations",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpEntityTypeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "cSharpUtilities",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpNamer<T0>",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "GetName",
-          "Parameters": [
-            {
-              "Name": "item",
-              "Type": "T0"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "nameGetter",
-              "Type": "System.Func<T0, System.String>"
-            },
-            {
-              "Name": "cSharpUtilities",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities"
-            },
-            {
-              "Name": "singularizePluralizer",
-              "Type": "System.Func<System.String, System.String>"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Field",
-          "Name": "NameCache",
-          "Parameters": [],
-          "ReturnType": "System.Collections.Generic.Dictionary<T0, System.String>",
-          "ReadOnly": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": [
-        {
-          "ParameterName": "T",
-          "ParameterPosition": 0,
-          "BaseTypeOrInterfaces": []
-        }
-      ]
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpScaffoldingGenerator",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ScaffoldingCodeGenerator",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_CSharpDbContextGenerator",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpDbContextGenerator",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_CSharpEntityTypeGenerator",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpEntityTypeGenerator",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FileExtension",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteCode",
-          "Parameters": [
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            },
-            {
-              "Name": "outputPath",
-              "Type": "System.String"
-            },
-            {
-              "Name": "namespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contextName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "connectionString",
-              "Type": "System.String"
-            },
-            {
-              "Name": "useDataAnnotations",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ReverseEngineerFiles",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "fileService",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService"
-            },
-            {
-              "Name": "cSharpDbContextGenerator",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpDbContextGenerator"
-            },
-            {
-              "Name": "cSharpEntityTypeGenerator",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpEntityTypeGenerator"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpUniqueNamer<T0>",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpNamer<T0>",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "GetName",
-          "Parameters": [
-            {
-              "Name": "item",
-              "Type": "T0"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "nameGetter",
-              "Type": "System.Func<T0, System.String>"
-            },
-            {
-              "Name": "cSharpUtilities",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities"
-            },
-            {
-              "Name": "singularizePluralizer",
-              "Type": "System.Func<System.String, System.String>"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "nameGetter",
-              "Type": "System.Func<T0, System.String>"
-            },
-            {
-              "Name": "usedNames",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "cSharpUtilities",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities"
-            },
-            {
-              "Name": "singularizePluralizer",
-              "Type": "System.Func<System.String, System.String>"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": [
-        {
-          "ParameterName": "T",
-          "ParameterPosition": 0,
-          "BaseTypeOrInterfaces": []
-        }
-      ]
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpUtilities",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DelimitString",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "EscapeString",
-          "Parameters": [
-            {
-              "Name": "str",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "EscapeVerbatimString",
-          "Parameters": [
-            {
-              "Name": "str",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Byte[]"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Int32"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Int64"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Decimal"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Single"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Double"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.TimeSpan"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.DateTime"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.DateTimeOffset"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Guid"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateVerbatimStringLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "IsCSharpKeyword",
-          "Parameters": [
-            {
-              "Name": "identifier",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateCSharpIdentifier",
-          "Parameters": [
-            {
-              "Name": "identifier",
-              "Type": "System.String"
-            },
-            {
-              "Name": "existingIdentifiers",
-              "Type": "System.Collections.Generic.ICollection<System.String>"
-            },
-            {
-              "Name": "singularizePluralizer",
-              "Type": "System.Func<System.String, System.String>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateCSharpIdentifier",
-          "Parameters": [
-            {
-              "Name": "identifier",
-              "Type": "System.String"
-            },
-            {
-              "Name": "existingIdentifiers",
-              "Type": "System.Collections.Generic.ICollection<System.String>"
-            },
-            {
-              "Name": "singularizePluralizer",
-              "Type": "System.Func<System.String, System.String>"
-            },
-            {
-              "Name": "uniquifier",
-              "Type": "System.Func<System.String, System.Collections.Generic.ICollection<System.String>, System.String>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Uniquifier",
-          "Parameters": [
-            {
-              "Name": "proposedIdentifier",
-              "Type": "System.String"
-            },
-            {
-              "Name": "existingIdentifiers",
-              "Type": "System.Collections.Generic.ICollection<System.String>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetTypeName",
-          "Parameters": [
-            {
-              "Name": "type",
-              "Type": "System.Type"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "IsValidIdentifier",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.FileSystemFileService",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DirectoryExists",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "FileExists",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "fileName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "IsFileReadOnly",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "fileName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "RetrieveFileContents",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "fileName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "OutputFile",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "fileName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contents",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICandidateNamingService",
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGeneratorSelector",
       "Visibility": "Public",
       "Kind": "Interface",
       "Abstract": true,
@@ -1024,49 +54,21 @@
       "Members": [
         {
           "Kind": "Method",
-          "Name": "GenerateCandidateIdentifier",
+          "Name": "Select",
           "Parameters": [
             {
-              "Name": "originalIdentifier",
+              "Name": "language",
               "Type": "System.String"
             }
           ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetDependentEndCandidateNavigationPropertyName",
-          "Parameters": [
-            {
-              "Name": "foreignKey",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IForeignKey"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetPrincipalEndCandidateNavigationPropertyName",
-          "Parameters": [
-            {
-              "Name": "foreignKey",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IForeignKey"
-            },
-            {
-              "Name": "dependentEndNavigationPropertyName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator",
           "GenericParameter": []
         }
       ],
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpDbContextGenerator",
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.IReverseEngineerScaffolder",
       "Visibility": "Public",
       "Kind": "Interface",
       "Abstract": true,
@@ -1074,475 +76,7 @@
       "Members": [
         {
           "Kind": "Method",
-          "Name": "WriteCode",
-          "Parameters": [
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            },
-            {
-              "Name": "namespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contextName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "connectionString",
-              "Type": "System.String"
-            },
-            {
-              "Name": "useDataAnnotations",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpEntityTypeGenerator",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "WriteCode",
-          "Parameters": [
-            {
-              "Name": "entityType",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IEntityType"
-            },
-            {
-              "Name": "namespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "useDataAnnotations",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DelimitString",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "EscapeString",
-          "Parameters": [
-            {
-              "Name": "str",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "EscapeVerbatimString",
-          "Parameters": [
-            {
-              "Name": "str",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateCSharpIdentifier",
-          "Parameters": [
-            {
-              "Name": "identifier",
-              "Type": "System.String"
-            },
-            {
-              "Name": "existingIdentifiers",
-              "Type": "System.Collections.Generic.ICollection<System.String>"
-            },
-            {
-              "Name": "singularizePluralizer",
-              "Type": "System.Func<System.String, System.String>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateCSharpIdentifier",
-          "Parameters": [
-            {
-              "Name": "identifier",
-              "Type": "System.String"
-            },
-            {
-              "Name": "existingIdentifiers",
-              "Type": "System.Collections.Generic.ICollection<System.String>"
-            },
-            {
-              "Name": "singularizePluralizer",
-              "Type": "System.Func<System.String, System.String>"
-            },
-            {
-              "Name": "uniquifier",
-              "Type": "System.Func<System.String, System.Collections.Generic.ICollection<System.String>, System.String>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Byte[]"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.DateTime"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.DateTimeOffset"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Decimal"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Double"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Single"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Guid"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Int32"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Int64"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.TimeSpan"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateVerbatimStringLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetTypeName",
-          "Parameters": [
-            {
-              "Name": "type",
-              "Type": "System.Type"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "IsCSharpKeyword",
-          "Parameters": [
-            {
-              "Name": "identifier",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "IsValidIdentifier",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Uniquifier",
-          "Parameters": [
-            {
-              "Name": "proposedIdentifier",
-              "Type": "System.String"
-            },
-            {
-              "Name": "existingIdentifiers",
-              "Type": "System.Collections.Generic.ICollection<System.String>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DirectoryExists",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "FileExists",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "fileName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "IsFileReadOnly",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "fileName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "OutputFile",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "fileName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contents",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "RetrieveFileContents",
-          "Parameters": [
-            {
-              "Name": "directoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "fileName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IModelScaffolder",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Generate",
+          "Name": "ScaffoldModel",
           "Parameters": [
             {
               "Name": "connectionString",
@@ -1557,15 +91,15 @@
               "Type": "System.Collections.Generic.IEnumerable<System.String>"
             },
             {
-              "Name": "projectPath",
+              "Name": "namespace",
               "Type": "System.String"
             },
             {
-              "Name": "outputPath",
+              "Name": "language",
               "Type": "System.String"
             },
             {
-              "Name": "rootNamespace",
+              "Name": "contextDir",
               "Type": "System.String"
             },
             {
@@ -1573,715 +107,96 @@
               "Type": "System.String"
             },
             {
-              "Name": "useDataAnnotations",
-              "Type": "System.Boolean"
+              "Name": "modelOptions",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions"
+            },
+            {
+              "Name": "codeOptions",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Save",
+          "Parameters": [
+            {
+              "Name": "scaffoldedModel",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel"
+            },
+            {
+              "Name": "outputDir",
+              "Type": "System.String"
             },
             {
               "Name": "overwriteFiles",
               "Type": "System.Boolean"
-            },
-            {
-              "Name": "useDatabaseNames",
-              "Type": "System.Boolean"
             }
           ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ReverseEngineerFiles",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.SavedModelFiles",
           "GenericParameter": []
         }
       ],
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_FileExtension",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FileService",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetExistingFilePaths",
-          "Parameters": [
-            {
-              "Name": "outputPath",
-              "Type": "System.String"
-            },
-            {
-              "Name": "dbContextClassName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "entityTypes",
-              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IEntityType>"
-            }
-          ],
-          "ReturnType": "System.Collections.Generic.IList<System.String>",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetReadOnlyFilePaths",
-          "Parameters": [
-            {
-              "Name": "outputPath",
-              "Type": "System.String"
-            },
-            {
-              "Name": "dbContextClassName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "entityTypes",
-              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IEntityType>"
-            }
-          ],
-          "ReturnType": "System.Collections.Generic.IList<System.String>",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteCode",
-          "Parameters": [
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            },
-            {
-              "Name": "outputPath",
-              "Type": "System.String"
-            },
-            {
-              "Name": "namespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contextName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "connectionString",
-              "Type": "System.String"
-            },
-            {
-              "Name": "dataAnnotations",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ReverseEngineerFiles",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingModelFactory",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Create",
-          "Parameters": [
-            {
-              "Name": "connectionString",
-              "Type": "System.String"
-            },
-            {
-              "Name": "tables",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "schemas",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "useDatabaseNames",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingTypeMapper",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "FindMapping",
-          "Parameters": [
-            {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "keyOrIndex",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "rowVersion",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.TypeScaffoldingInfo",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ModelScaffolder",
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions",
       "Visibility": "Public",
       "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IModelScaffolder"
-      ],
+      "ImplementedInterfaces": [],
       "Members": [
         {
           "Kind": "Method",
-          "Name": "Generate",
-          "Parameters": [
-            {
-              "Name": "connectionString",
-              "Type": "System.String"
-            },
-            {
-              "Name": "tables",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "schemas",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "projectPath",
-              "Type": "System.String"
-            },
-            {
-              "Name": "outputPath",
-              "Type": "System.String"
-            },
-            {
-              "Name": "rootNamespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contextName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "useDataAnnotations",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "overwriteFiles",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "useDatabaseNames",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ReverseEngineerFiles",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IModelScaffolder",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "scaffoldingModelFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingModelFactory"
-            },
-            {
-              "Name": "scaffoldingCodeGenerator",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator"
-            },
-            {
-              "Name": "cSharpUtilities",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.RelationalScaffoldingModelFactory",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingModelFactory"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_Reporter",
+          "Name": "get_UseDataAnnotations",
           "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter",
+          "ReturnType": "System.Boolean",
           "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_TypeMapper",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_CandidateNamingService",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICandidateNamingService",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Create",
-          "Parameters": [
-            {
-              "Name": "connectionString",
-              "Type": "System.String"
-            },
-            {
-              "Name": "tables",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "schemas",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "useDatabaseNames",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingModelFactory",
           "Visibility": "Public",
           "GenericParameter": []
         },
         {
           "Kind": "Method",
-          "Name": "CreateFromDatabaseModel",
+          "Name": "set_UseDataAnnotations",
           "Parameters": [
             {
-              "Name": "databaseModel",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel"
-            },
-            {
-              "Name": "useDatabaseNames",
+              "Name": "value",
               "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetEntityTypeName",
-          "Parameters": [
-            {
-              "Name": "table",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseTable"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetDbSetName",
-          "Parameters": [
-            {
-              "Name": "table",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseTable"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetPropertyName",
-          "Parameters": [
-            {
-              "Name": "column",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseColumn"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitDatabaseModel",
-          "Parameters": [
-            {
-              "Name": "modelBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
-            },
-            {
-              "Name": "databaseModel",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitSequences",
-          "Parameters": [
-            {
-              "Name": "modelBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
-            },
-            {
-              "Name": "sequences",
-              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseSequence>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitSequence",
-          "Parameters": [
-            {
-              "Name": "modelBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
-            },
-            {
-              "Name": "sequence",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseSequence"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.SequenceBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitTables",
-          "Parameters": [
-            {
-              "Name": "modelBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
-            },
-            {
-              "Name": "tables",
-              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseTable>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitTable",
-          "Parameters": [
-            {
-              "Name": "modelBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
-            },
-            {
-              "Name": "table",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseTable"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitColumns",
-          "Parameters": [
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
-            },
-            {
-              "Name": "columns",
-              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseColumn>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitColumn",
-          "Parameters": [
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
-            },
-            {
-              "Name": "column",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseColumn"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitPrimaryKey",
-          "Parameters": [
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
-            },
-            {
-              "Name": "table",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseTable"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitUniqueConstraints",
-          "Parameters": [
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
-            },
-            {
-              "Name": "uniqueConstraints",
-              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseUniqueConstraint>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitUniqueConstraint",
-          "Parameters": [
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
-            },
-            {
-              "Name": "uniqueConstraint",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseUniqueConstraint"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitIndexes",
-          "Parameters": [
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
-            },
-            {
-              "Name": "indexes",
-              "Type": "System.Collections.Generic.ICollection<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseIndex>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitIndex",
-          "Parameters": [
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder"
-            },
-            {
-              "Name": "index",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseIndex"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitForeignKeys",
-          "Parameters": [
-            {
-              "Name": "modelBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
-            },
-            {
-              "Name": "foreignKeys",
-              "Type": "System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseForeignKey>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitForeignKey",
-          "Parameters": [
-            {
-              "Name": "modelBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.ModelBuilder"
-            },
-            {
-              "Name": "foreignKey",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseForeignKey"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "AddNavigationProperties",
-          "Parameters": [
-            {
-              "Name": "foreignKey",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey"
             }
           ],
           "ReturnType": "System.Void",
           "Virtual": true,
-          "Visibility": "Protected",
+          "Visibility": "Public",
           "GenericParameter": []
         },
         {
           "Kind": "Method",
-          "Name": "ExistingIdentifiers",
-          "Parameters": [
-            {
-              "Name": "entityType",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IEntityType"
-            }
-          ],
-          "ReturnType": "System.Collections.Generic.List<System.String>",
+          "Name": "get_SuppressConnectionStringWarning",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
           "Virtual": true,
-          "Visibility": "Protected",
+          "Visibility": "Public",
           "GenericParameter": []
         },
         {
           "Kind": "Method",
-          "Name": "GetTypeScaffoldingInfo",
+          "Name": "set_SuppressConnectionStringWarning",
           "Parameters": [
             {
-              "Name": "column",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseColumn"
+              "Name": "value",
+              "Type": "System.Boolean"
             }
           ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.TypeScaffoldingInfo",
+          "ReturnType": "System.Void",
           "Virtual": true,
-          "Visibility": "Protected",
+          "Visibility": "Public",
           "GenericParameter": []
         },
         {
           "Kind": "Constructor",
           "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            },
-            {
-              "Name": "typeMapper",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper"
-            },
-            {
-              "Name": "databaseModelFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.IDatabaseModelFactory"
-            },
-            {
-              "Name": "candidateNamingService",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICandidateNamingService"
-            },
-            {
-              "Name": "pluralizer",
-              "Type": "Microsoft.EntityFrameworkCore.Design.IPluralizer"
-            },
-            {
-              "Name": "cSharpUtilities",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ICSharpUtilities"
-            },
-            {
-              "Name": "scaffoldingTypeMapper",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingTypeMapper"
-            }
-          ],
+          "Parameters": [],
           "Visibility": "Public",
           "GenericParameter": []
         }
@@ -2289,7 +204,143 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ReverseEngineerFiles",
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Language",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Abstract": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Dependencies",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateModel",
+          "Parameters": [
+            {
+              "Name": "model",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            },
+            {
+              "Name": "namespace",
+              "Type": "System.String"
+            },
+            {
+              "Name": "contextDir",
+              "Type": "System.String"
+            },
+            {
+              "Name": "contextName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "connectionString",
+              "Type": "System.String"
+            },
+            {
+              "Name": "options",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel",
+          "Virtual": true,
+          "Abstract": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "dependencies",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies"
+            }
+          ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_UseDatabaseNames",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_UseDatabaseNames",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.SavedModelFiles",
       "Visibility": "Public",
       "Kind": "Class",
       "ImplementedInterfaces": [],
@@ -2305,7 +356,50 @@
         },
         {
           "Kind": "Method",
-          "Name": "set_ContextFile",
+          "Name": "get_AdditionalFiles",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IList<System.String>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "contextFile",
+              "Type": "System.String"
+            },
+            {
+              "Name": "additionalFiles",
+              "Type": "System.Collections.Generic.IEnumerable<System.String>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Path",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Path",
           "Parameters": [
             {
               "Name": "value",
@@ -2319,230 +413,31 @@
         },
         {
           "Kind": "Method",
-          "Name": "get_EntityTypeFiles",
-          "Parameters": [],
-          "ReturnType": "System.Collections.Generic.IList<System.String>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ScaffoldingCodeGenerator",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_FileService",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FileExtension",
+          "Name": "get_Code",
           "Parameters": [],
           "ReturnType": "System.String",
           "Virtual": true,
-          "Abstract": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator",
           "Visibility": "Public",
           "GenericParameter": []
         },
         {
           "Kind": "Method",
-          "Name": "GetExistingFilePaths",
+          "Name": "set_Code",
           "Parameters": [
             {
-              "Name": "outputPath",
+              "Name": "value",
               "Type": "System.String"
-            },
-            {
-              "Name": "dbContextClassName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "entityTypes",
-              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IEntityType>"
             }
           ],
-          "ReturnType": "System.Collections.Generic.IList<System.String>",
+          "ReturnType": "System.Void",
           "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetReadOnlyFilePaths",
-          "Parameters": [
-            {
-              "Name": "outputPath",
-              "Type": "System.String"
-            },
-            {
-              "Name": "dbContextClassName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "entityTypes",
-              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IEntityType>"
-            }
-          ],
-          "ReturnType": "System.Collections.Generic.IList<System.String>",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteCode",
-          "Parameters": [
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            },
-            {
-              "Name": "outputPath",
-              "Type": "System.String"
-            },
-            {
-              "Name": "namespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contextName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "connectionString",
-              "Type": "System.String"
-            },
-            {
-              "Name": "dataAnnotations",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ReverseEngineerFiles",
-          "Virtual": true,
-          "Abstract": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingCodeGenerator",
           "Visibility": "Public",
           "GenericParameter": []
         },
         {
           "Kind": "Constructor",
           "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "fileService",
-              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IFileService"
-            }
-          ],
-          "Visibility": "Protected",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ScaffoldingServiceCollectionExtensions",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "AddScaffolding",
-          "Parameters": [
-            {
-              "Name": "serviceCollection",
-              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
-            },
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            }
-          ],
-          "ReturnType": "Microsoft.Extensions.DependencyInjection.IServiceCollection",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ScaffoldingTypeMapper",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingTypeMapper"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_TypeMapper",
           "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "FindMapping",
-          "Parameters": [
-            {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "keyOrIndex",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "rowVersion",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.TypeScaffoldingInfo",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.IScaffoldingTypeMapper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "typeMapper",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper"
-            }
-          ],
           "Visibility": "Public",
           "GenericParameter": []
         }
@@ -2550,43 +445,39 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.TypeScaffoldingInfo",
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel",
       "Visibility": "Public",
       "Kind": "Class",
       "ImplementedInterfaces": [],
       "Members": [
         {
           "Kind": "Method",
-          "Name": "get_ClrType",
+          "Name": "get_ContextFile",
           "Parameters": [],
-          "ReturnType": "System.Type",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
         },
         {
           "Kind": "Method",
-          "Name": "get_IsInferred",
-          "Parameters": [],
-          "ReturnType": "System.Boolean",
+          "Name": "set_ContextFile",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile"
+            }
+          ],
+          "ReturnType": "System.Void",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
         },
         {
           "Kind": "Method",
-          "Name": "get_ScaffoldUnicode",
+          "Name": "get_AdditionalFiles",
           "Parameters": [],
-          "ReturnType": "System.Nullable<System.Boolean>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_ScaffoldMaxLength",
-          "Parameters": [],
-          "ReturnType": "System.Nullable<System.Int32>",
+          "ReturnType": "System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile>",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -2594,1110 +485,7 @@
         {
           "Kind": "Constructor",
           "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "clrType",
-              "Type": "System.Type"
-            },
-            {
-              "Name": "inferred",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "scaffoldUnicode",
-              "Type": "System.Nullable<System.Boolean>"
-            },
-            {
-              "Name": "scaffoldMaxLength",
-              "Type": "System.Nullable<System.Int32>"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Internal.DesignStrings",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DuplicateMigrationName",
-          "Parameters": [
-            {
-              "Name": "migrationName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_MultipleContexts",
           "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "MultipleContextsWithName",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "MultipleContextsWithQualifiedName",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NoContext",
-          "Parameters": [
-            {
-              "Name": "assembly",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NoContextWithName",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UseContext",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "DroppingDatabase",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "DatabaseDropped",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_ManuallyDeleted",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NoMigrationFile",
-          "Parameters": [
-            {
-              "Name": "file",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "migrationClass",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NoMigrationMetadataFile",
-          "Parameters": [
-            {
-              "Name": "file",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_NoSnapshot",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NoSnapshotFile",
-          "Parameters": [
-            {
-              "Name": "file",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "snapshotClass",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "RemovingMigration",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_RemovingSnapshot",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_RevertingSnapshot",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "RevertMigration",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UnknownOperation",
-          "Parameters": [
-            {
-              "Name": "operationType",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UnknownLiteral",
-          "Parameters": [
-            {
-              "Name": "literalType",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "CannotFindRuntimeProviderAssembly",
-          "Parameters": [
-            {
-              "Name": "assemblyName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_DestructiveOperation",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WritingMigration",
-          "Parameters": [
-            {
-              "Name": "file",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WritingSnapshot",
-          "Parameters": [
-            {
-              "Name": "file",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Done",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ReusingNamespace",
-          "Parameters": [
-            {
-              "Name": "type",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ReusingSnapshotName",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "CannotFindDesignTimeProviderAssemblyAttribute",
-          "Parameters": [
-            {
-              "Name": "attributeName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "runtimeProviderAssemblyName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NonRelationalProvider",
-          "Parameters": [
-            {
-              "Name": "provider",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UnreferencedAssembly",
-          "Parameters": [
-            {
-              "Name": "assembly",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "startupProject",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FindingContexts",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ForeignMigrations",
-          "Parameters": [
-            {
-              "Name": "migrationsNamespace",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ContextClassNotValidCSharpIdentifier",
-          "Parameters": [
-            {
-              "Name": "contextClassName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "MigrationsAssemblyMismatch",
-          "Parameters": [
-            {
-              "Name": "assembly",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "migrationsAssembly",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_SensitiveInformationWarning",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ForceRemoveMigration",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NoParameterlessConstructor",
-          "Parameters": [
-            {
-              "Name": "contextType",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NotExistDatabase",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UsingEnvironment",
-          "Parameters": [
-            {
-              "Name": "environment",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FindingBuildWebHost",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FindingServiceProvider",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NoBuildWebHost",
-          "Parameters": [
-            {
-              "Name": "programClass",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NoEntryPoint",
-          "Parameters": [
-            {
-              "Name": "startupAssembly",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_NoServiceProvider",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UsingBuildWebHost",
-          "Parameters": [
-            {
-              "Name": "programClass",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "FoundDbContext",
-          "Parameters": [
-            {
-              "Name": "contextType",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UsingDbContextFactory",
-          "Parameters": [
-            {
-              "Name": "factory",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "FindingDesignTimeServices",
-          "Parameters": [
-            {
-              "Name": "startupAssembly",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "FindingProviderServices",
-          "Parameters": [
-            {
-              "Name": "provider",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_NoDesignTimeServices",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UsingDesignTimeServices",
-          "Parameters": [
-            {
-              "Name": "designTimeServices",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UsingProviderServices",
-          "Parameters": [
-            {
-              "Name": "provider",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FindingContextFactories",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FindingReferencedContexts",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "FoundContextFactory",
-          "Parameters": [
-            {
-              "Name": "factory",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ProviderReturnedNullModel",
-          "Parameters": [
-            {
-              "Name": "providerTypeName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ReadOnlyFiles",
-          "Parameters": [
-            {
-              "Name": "outputDirectoryName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "readOnlyFiles",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ExistingFiles",
-          "Parameters": [
-            {
-              "Name": "outputDirectoryName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "existingFiles",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "CannotFindTypeMappingForColumn",
-          "Parameters": [
-            {
-              "Name": "columnName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "dateType",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ForeignKeyScaffoldErrorPrincipalKeyNotFound",
-          "Parameters": [
-            {
-              "Name": "foreignKeyName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "columnsList",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "principalEntityType",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ForeignKeyScaffoldErrorPrincipalTableScaffoldingError",
-          "Parameters": [
-            {
-              "Name": "foreignKeyName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "principaltableName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "PrimaryKeyErrorPropertyNotFound",
-          "Parameters": [
-            {
-              "Name": "tableName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "columnNames",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "MissingPrimaryKey",
-          "Parameters": [
-            {
-              "Name": "tableName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UnableToGenerateEntityType",
-          "Parameters": [
-            {
-              "Name": "tableName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "BadSequenceType",
-          "Parameters": [
-            {
-              "Name": "sequenceName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "typeName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ForeignKeyPrincipalEndContainsNullableColumns",
-          "Parameters": [
-            {
-              "Name": "foreignKeyName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "indexName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "columnNames",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "NonNullableBoooleanColumnHasDefaultConstraint",
-          "Parameters": [
-            {
-              "Name": "columnName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ForeignKeyScaffoldErrorPrincipalTableNotFound",
-          "Parameters": [
-            {
-              "Name": "foreignKeyName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ForeignKeyScaffoldErrorPropertyNotFound",
-          "Parameters": [
-            {
-              "Name": "foreignKeyName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "columnNames",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UnableToScaffoldIndexMissingProperty",
-          "Parameters": [
-            {
-              "Name": "indexName",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "columnNames",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "MultipleAnnotationConflict",
-          "Parameters": [
-            {
-              "Name": "annotationName",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_SequencesRequireName",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "InvokeBuildWebHostFailed",
-          "Parameters": [
-            {
-              "Name": "startupClass",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "error",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Migrations.Internal.ISnapshotModelProcessor",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Process",
-          "Parameters": [
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Migrations.Internal.SnapshotModelProcessor",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Migrations.Internal.ISnapshotModelProcessor"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Process",
-          "Parameters": [
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Internal.ISnapshotModelProcessor",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "operationReporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            }
-          ],
           "Visibility": "Public",
           "GenericParameter": []
         }
@@ -4387,17 +1175,29 @@
       "Members": [
         {
           "Kind": "Method",
-          "Name": "get_CSharpDependencies",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_FileExtension",
-          "Parameters": [],
+          "Name": "GenerateMetadata",
+          "Parameters": [
+            {
+              "Name": "migrationNamespace",
+              "Type": "System.String"
+            },
+            {
+              "Name": "contextType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "migrationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "migrationId",
+              "Type": "System.String"
+            },
+            {
+              "Name": "targetModel",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            }
+          ],
           "ReturnType": "System.String",
           "Virtual": true,
           "Override": true,
@@ -4435,38 +1235,6 @@
         },
         {
           "Kind": "Method",
-          "Name": "GenerateMetadata",
-          "Parameters": [
-            {
-              "Name": "migrationNamespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contextType",
-              "Type": "System.Type"
-            },
-            {
-              "Name": "migrationName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "migrationId",
-              "Type": "System.String"
-            },
-            {
-              "Name": "targetModel",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
           "Name": "GenerateSnapshot",
           "Parameters": [
             {
@@ -4491,6 +1259,37 @@
           "Override": true,
           "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
           "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_FileExtension",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Override": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Language",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Override": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_CSharpDependencies",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies",
+          "Virtual": true,
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -5127,11 +1926,68 @@
         },
         {
           "Kind": "Method",
+          "Name": "GenerateFluentApiForAnnotation",
+          "Parameters": [
+            {
+              "Name": "annotations",
+              "Type": "System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation>",
+              "Direction": "Ref"
+            },
+            {
+              "Name": "annotationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "annotationValueFunc",
+              "Type": "System.Func<Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation, System.Object>"
+            },
+            {
+              "Name": "fluentApiMethodName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "stringBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Internal.IndentedStringBuilder"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "GenerateAnnotation",
           "Parameters": [
             {
               "Name": "annotation",
               "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation"
+            },
+            {
+              "Name": "stringBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Internal.IndentedStringBuilder"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateData",
+          "Parameters": [
+            {
+              "Name": "builderName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "properties",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IProperty>"
+            },
+            {
+              "Name": "data",
+              "Type": "System.Collections.Generic.IEnumerable<System.Collections.Generic.IDictionary<System.String, System.Object>>"
             },
             {
               "Name": "stringBuilder",
@@ -5266,7 +2122,9 @@
       "Visibility": "Public",
       "Kind": "Interface",
       "Abstract": true,
-      "ImplementedInterfaces": [],
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Design.ILanguageBasedService"
+      ],
       "Members": [
         {
           "Kind": "Method",
@@ -5349,6 +2207,108 @@
           "Name": "get_FileExtension",
           "Parameters": [],
           "ReturnType": "System.String",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGeneratorSelector",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Select",
+          "Parameters": [
+            {
+              "Name": "language",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ScaffoldMigration",
+          "Parameters": [
+            {
+              "Name": "migrationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "rootNamespace",
+              "Type": "System.String"
+            },
+            {
+              "Name": "subNamespace",
+              "Type": "System.String",
+              "DefaultValue": "null"
+            },
+            {
+              "Name": "language",
+              "Type": "System.String",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "RemoveMigration",
+          "Parameters": [
+            {
+              "Name": "projectDir",
+              "Type": "System.String"
+            },
+            {
+              "Name": "rootNamespace",
+              "Type": "System.String"
+            },
+            {
+              "Name": "force",
+              "Type": "System.Boolean"
+            },
+            {
+              "Name": "language",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Save",
+          "Parameters": [
+            {
+              "Name": "projectDir",
+              "Type": "System.String"
+            },
+            {
+              "Name": "migration",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration"
+            },
+            {
+              "Name": "outputDir",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles",
           "GenericParameter": []
         }
       ],
@@ -5450,54 +2410,6 @@
       "Members": [
         {
           "Kind": "Method",
-          "Name": "get_FileExtension",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Abstract": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Dependencies",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateMigration",
-          "Parameters": [
-            {
-              "Name": "migrationNamespace",
-              "Type": "System.String"
-            },
-            {
-              "Name": "migrationName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "upOperations",
-              "Type": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation>"
-            },
-            {
-              "Name": "downOperations",
-              "Type": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Abstract": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
           "Name": "GenerateMetadata",
           "Parameters": [
             {
@@ -5519,6 +2431,34 @@
             {
               "Name": "targetModel",
               "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Abstract": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateMigration",
+          "Parameters": [
+            {
+              "Name": "migrationNamespace",
+              "Type": "System.String"
+            },
+            {
+              "Name": "migrationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "upOperations",
+              "Type": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation>"
+            },
+            {
+              "Name": "downOperations",
+              "Type": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation>"
             }
           ],
           "ReturnType": "System.String",
@@ -5554,6 +2494,36 @@
           "Abstract": true,
           "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
           "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_FileExtension",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Abstract": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Language",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Dependencies",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies",
+          "Virtual": true,
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -5620,7 +2590,9 @@
       "Name": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder",
       "Visibility": "Public",
       "Kind": "Class",
-      "ImplementedInterfaces": [],
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder"
+      ],
       "Members": [
         {
           "Kind": "Method",
@@ -5645,12 +2617,40 @@
             },
             {
               "Name": "subNamespace",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ScaffoldMigration",
+          "Parameters": [
+            {
+              "Name": "migrationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "rootNamespace",
+              "Type": "System.String"
+            },
+            {
+              "Name": "subNamespace",
+              "Type": "System.String",
+              "DefaultValue": "null"
+            },
+            {
+              "Name": "language",
               "Type": "System.String",
               "DefaultValue": "null"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration",
           "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder",
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -5696,6 +2696,33 @@
         },
         {
           "Kind": "Method",
+          "Name": "RemoveMigration",
+          "Parameters": [
+            {
+              "Name": "projectDir",
+              "Type": "System.String"
+            },
+            {
+              "Name": "rootNamespace",
+              "Type": "System.String"
+            },
+            {
+              "Name": "force",
+              "Type": "System.Boolean"
+            },
+            {
+              "Name": "language",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Save",
           "Parameters": [
             {
@@ -5713,6 +2740,7 @@
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles",
           "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder",
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -5846,6 +2874,14 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_MigrationsCodeGeneratorSelector",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGeneratorSelector",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "get_HistoryRepository",
           "Parameters": [],
           "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.IHistoryRepository",
@@ -5878,6 +2914,14 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_Migrator",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.IMigrator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "With",
           "Parameters": [
             {
@@ -5959,6 +3003,19 @@
           "Name": "With",
           "Parameters": [
             {
+              "Name": "migrationsCodeGeneratorSelector",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGeneratorSelector"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
               "Name": "historyRepository",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.IHistoryRepository"
             }
@@ -6000,6 +3057,19 @@
             {
               "Name": "snapshotModelProcessor",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.Internal.ISnapshotModelProcessor"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
+              "Name": "migrator",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.IMigrator"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies",
@@ -6031,8 +3101,8 @@
               "Type": "Microsoft.EntityFrameworkCore.Migrations.IMigrationsIdGenerator"
             },
             {
-              "Name": "migrationCodeGenerator",
-              "Type": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator"
+              "Name": "migrationsCodeGeneratorSelector",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGeneratorSelector"
             },
             {
               "Name": "historyRepository",
@@ -6049,6 +3119,10 @@
             {
               "Name": "snapshotModelProcessor",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.Internal.ISnapshotModelProcessor"
+            },
+            {
+              "Name": "migrator",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.IMigrator"
             }
           ],
           "Visibility": "Public",
@@ -6192,310 +3266,6 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Metadata.Internal.ScaffoldingAnnotationNames",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Field",
-          "Name": "Prefix",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": [],
-          "Constant": true,
-          "Literal": "\"Scaffolding:\""
-        },
-        {
-          "Kind": "Field",
-          "Name": "ColumnOrdinal",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": [],
-          "Constant": true,
-          "Literal": "\"Scaffolding:ColumnOrdinal\""
-        },
-        {
-          "Kind": "Field",
-          "Name": "DependentEndNavigation",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": [],
-          "Constant": true,
-          "Literal": "\"Scaffolding:DependentEndNavigation\""
-        },
-        {
-          "Kind": "Field",
-          "Name": "PrincipalEndNavigation",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": [],
-          "Constant": true,
-          "Literal": "\"Scaffolding:PrincipalEndNavigation\""
-        },
-        {
-          "Kind": "Field",
-          "Name": "EntityTypeErrors",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": [],
-          "Constant": true,
-          "Literal": "\"Scaffolding:EntityTypeErrors\""
-        },
-        {
-          "Kind": "Field",
-          "Name": "DbSetName",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": [],
-          "Constant": true,
-          "Literal": "\"Scaffolding:DbSetName\""
-        },
-        {
-          "Kind": "Field",
-          "Name": "DatabaseName",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": [],
-          "Constant": true,
-          "Literal": "\"Scaffolding:DatabaseName\""
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Metadata.Internal.ScaffoldingEntityTypeAnnotations",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.RelationalEntityTypeAnnotations",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_DbSetName",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_DbSetName",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "entity",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IEntityType"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Metadata.Internal.ScaffoldingMetadataExtensions",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Scaffolding",
-          "Parameters": [
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.ScaffoldingModelAnnotations",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Scaffolding",
-          "Parameters": [
-            {
-              "Name": "property",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.ScaffoldingPropertyAnnotations",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Scaffolding",
-          "Parameters": [
-            {
-              "Name": "entityType",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IEntityType"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.ScaffoldingEntityTypeAnnotations",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Metadata.Internal.ScaffoldingModelAnnotations",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.RelationalModelAnnotations",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_EntityTypeErrors",
-          "Parameters": [],
-          "ReturnType": "System.Collections.Generic.IDictionary<System.String, System.String>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_EntityTypeErrors",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Collections.Generic.IDictionary<System.String, System.String>"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_DatabaseName",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_DatabaseName",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Metadata.Internal.ScaffoldingPropertyAnnotations",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_ColumnOrdinal",
-          "Parameters": [],
-          "ReturnType": "System.Int32",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_ColumnOrdinal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Int32"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "property",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
       "Name": "Microsoft.EntityFrameworkCore.Design.DbContextActivator",
       "Visibility": "Public",
       "Kind": "Class",
@@ -6532,12 +3302,80 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Design.DesignTimeServiceCollectionExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "AddEntityFrameworkDesignTimeServices",
+          "Parameters": [
+            {
+              "Name": "services",
+              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
+            },
+            {
+              "Name": "reporter",
+              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter",
+              "DefaultValue": "null"
+            },
+            {
+              "Name": "applicationServiceProviderAccessor",
+              "Type": "System.Func<System.IServiceProvider>",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.Extensions.DependencyInjection.IServiceCollection",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "AddDbContextDesignTimeServices",
+          "Parameters": [
+            {
+              "Name": "services",
+              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
+            },
+            {
+              "Name": "context",
+              "Type": "Microsoft.EntityFrameworkCore.DbContext"
+            }
+          ],
+          "ReturnType": "Microsoft.Extensions.DependencyInjection.IServiceCollection",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
       "Visibility": "Public",
       "Kind": "Interface",
       "Abstract": true,
       "ImplementedInterfaces": [],
       "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Fragment",
+          "Parameters": [
+            {
+              "Name": "fragment",
+              "Type": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment"
+            }
+          ],
+          "ReturnType": "System.String",
+          "GenericParameter": []
+        },
         {
           "Kind": "Method",
           "Name": "Identifier",
@@ -6919,6 +3757,23 @@
               "Type": "System.Object"
             }
           ],
+          "ReturnType": "System.String",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Language",
+          "Parameters": [],
           "ReturnType": "System.String",
           "GenericParameter": []
         }
@@ -7353,1503 +4208,6 @@
           "Kind": "Constructor",
           "Name": ".ctor",
           "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.AppServiceProviderFactory",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Create",
-          "Parameters": [
-            {
-              "Name": "args",
-              "Type": "System.String[]"
-            }
-          ],
-          "ReturnType": "System.IServiceProvider",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "FindProgramClass",
-          "Parameters": [],
-          "ReturnType": "System.Type",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "startupAssembly",
-              "Type": "System.Reflection.Assembly"
-            },
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.ContextInfo",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_ProviderName",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_ProviderName",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_DatabaseName",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_DatabaseName",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_DataSource",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_DataSource",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Options",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_Options",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.CSharpHelper",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Design.ICSharpHelper"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Lambda",
-          "Parameters": [
-            {
-              "Name": "properties",
-              "Type": "System.Collections.Generic.IReadOnlyList<System.String>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Reference",
-          "Parameters": [
-            {
-              "Name": "type",
-              "Type": "System.Type"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Identifier",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.String"
-            },
-            {
-              "Name": "scope",
-              "Type": "System.Collections.Generic.ICollection<System.String>",
-              "DefaultValue": "null"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Namespace",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.String[]",
-              "IsParams": true
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Byte"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "values",
-              "Type": "System.Byte[]"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Char"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.DateTime"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.DateTimeOffset"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Decimal"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Double"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Single"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Guid"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Int32"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Int64"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.SByte"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Int16"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.TimeSpan"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.UInt32"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.UInt64"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.UInt16"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal<T0>",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Nullable<T0>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "T",
-              "ParameterPosition": 0,
-              "New": true,
-              "Struct": true,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal<T0>",
-          "Parameters": [
-            {
-              "Name": "values",
-              "Type": "System.Collections.Generic.IReadOnlyList<T0>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "T",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "values",
-              "Type": "System.Collections.Generic.IReadOnlyList<System.Object>"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "values",
-              "Type": "System.Collections.Generic.IReadOnlyList<System.Object>"
-            },
-            {
-              "Name": "vertical",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "values",
-              "Type": "System.Object[]"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Literal",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Enum"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UnknownLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.DatabaseOperations",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "ScaffoldContext",
-          "Parameters": [
-            {
-              "Name": "provider",
-              "Type": "System.String"
-            },
-            {
-              "Name": "connectionString",
-              "Type": "System.String"
-            },
-            {
-              "Name": "outputDir",
-              "Type": "System.String"
-            },
-            {
-              "Name": "dbContextClassName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "schemas",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "tables",
-              "Type": "System.Collections.Generic.IEnumerable<System.String>"
-            },
-            {
-              "Name": "useDataAnnotations",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "overwriteFiles",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "useDatabaseNames",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.Internal.ReverseEngineerFiles",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            },
-            {
-              "Name": "startupAssembly",
-              "Type": "System.Reflection.Assembly"
-            },
-            {
-              "Name": "projectDir",
-              "Type": "System.String"
-            },
-            {
-              "Name": "rootNamespace",
-              "Type": "System.String"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.DbContextOperations",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "DropDatabase",
-          "Parameters": [
-            {
-              "Name": "contextType",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "CreateContext",
-          "Parameters": [
-            {
-              "Name": "contextType",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.DbContext",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetContextTypes",
-          "Parameters": [],
-          "ReturnType": "System.Collections.Generic.IEnumerable<System.Type>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetContextType",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Type",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetContextInfo",
-          "Parameters": [
-            {
-              "Name": "contextType",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Design.Internal.ContextInfo",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            },
-            {
-              "Name": "assembly",
-              "Type": "System.Reflection.Assembly"
-            },
-            {
-              "Name": "startupAssembly",
-              "Type": "System.Reflection.Assembly"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            },
-            {
-              "Name": "assembly",
-              "Type": "System.Reflection.Assembly"
-            },
-            {
-              "Name": "startupAssembly",
-              "Type": "System.Reflection.Assembly"
-            },
-            {
-              "Name": "appServicesFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.AppServiceProviderFactory"
-            }
-          ],
-          "Visibility": "Protected",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.DesignTimeServicesBuilder",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Build",
-          "Parameters": [
-            {
-              "Name": "context",
-              "Type": "Microsoft.EntityFrameworkCore.DbContext"
-            }
-          ],
-          "ReturnType": "System.IServiceProvider",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Build",
-          "Parameters": [
-            {
-              "Name": "provider",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.IServiceProvider",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ConfigureServices",
-          "Parameters": [
-            {
-              "Name": "services",
-              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
-            }
-          ],
-          "ReturnType": "Microsoft.Extensions.DependencyInjection.IServiceCollection",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ConfigureContextServices",
-          "Parameters": [
-            {
-              "Name": "contextServices",
-              "Type": "System.IServiceProvider"
-            },
-            {
-              "Name": "services",
-              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
-            }
-          ],
-          "ReturnType": "Microsoft.Extensions.DependencyInjection.IServiceCollection",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "startupAssembly",
-              "Type": "System.Reflection.Assembly"
-            },
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.ForwardingProxy",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Unwrap<T0>",
-          "Parameters": [
-            {
-              "Name": "target",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "T0",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "T",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter",
-      "Visibility": "Public",
-      "Kind": "Interface",
-      "Abstract": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "WriteError",
-          "Parameters": [
-            {
-              "Name": "message",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteWarning",
-          "Parameters": [
-            {
-              "Name": "message",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteInformation",
-          "Parameters": [
-            {
-              "Name": "message",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteVerbose",
-          "Parameters": [
-            {
-              "Name": "message",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.MigrationInfo",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_Id",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_Id",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Name",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "set_Name",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.MigrationsOperations",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "AddMigration",
-          "Parameters": [
-            {
-              "Name": "name",
-              "Type": "System.String"
-            },
-            {
-              "Name": "outputDir",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contextType",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetMigrations",
-          "Parameters": [
-            {
-              "Name": "contextType",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Design.Internal.MigrationInfo>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ScriptMigration",
-          "Parameters": [
-            {
-              "Name": "fromMigration",
-              "Type": "System.String"
-            },
-            {
-              "Name": "toMigration",
-              "Type": "System.String"
-            },
-            {
-              "Name": "idempotent",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "contextType",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "UpdateDatabase",
-          "Parameters": [
-            {
-              "Name": "targetMigration",
-              "Type": "System.String"
-            },
-            {
-              "Name": "contextType",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "RemoveMigration",
-          "Parameters": [
-            {
-              "Name": "contextType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "force",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            },
-            {
-              "Name": "assembly",
-              "Type": "System.Reflection.Assembly"
-            },
-            {
-              "Name": "startupAssembly",
-              "Type": "System.Reflection.Assembly"
-            },
-            {
-              "Name": "projectDir",
-              "Type": "System.String"
-            },
-            {
-              "Name": "rootNamespace",
-              "Type": "System.String"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.NullPluralizer",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Design.IPluralizer"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "Pluralize",
-          "Parameters": [
-            {
-              "Name": "identifier",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.IPluralizer",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Singularize",
-          "Parameters": [
-            {
-              "Name": "identifier",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.IPluralizer",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.OperationLogger",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.Extensions.Logging.ILogger"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "IsEnabled",
-          "Parameters": [
-            {
-              "Name": "logLevel",
-              "Type": "Microsoft.Extensions.Logging.LogLevel"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.Extensions.Logging.ILogger",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "BeginScope<T0>",
-          "Parameters": [
-            {
-              "Name": "state",
-              "Type": "T0"
-            }
-          ],
-          "ReturnType": "System.IDisposable",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.Extensions.Logging.ILogger",
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TState",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "Log<T0>",
-          "Parameters": [
-            {
-              "Name": "logLevel",
-              "Type": "Microsoft.Extensions.Logging.LogLevel"
-            },
-            {
-              "Name": "eventId",
-              "Type": "Microsoft.Extensions.Logging.EventId"
-            },
-            {
-              "Name": "state",
-              "Type": "T0"
-            },
-            {
-              "Name": "exception",
-              "Type": "System.Exception"
-            },
-            {
-              "Name": "formatter",
-              "Type": "System.Func<T0, System.Exception, System.String>"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.Extensions.Logging.ILogger",
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TState",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "categoryName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.OperationLoggerProvider",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.Extensions.Logging.ILoggerProvider"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "CreateLogger",
-          "Parameters": [
-            {
-              "Name": "categoryName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.Extensions.Logging.ILogger",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.Extensions.Logging.ILoggerProvider",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Dispose",
-          "Parameters": [],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "ImplementedInterface": "System.IDisposable",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "reporter",
-              "Type": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Design.Internal.OperationReporter",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter"
-      ],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "WriteError",
-          "Parameters": [
-            {
-              "Name": "message",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteWarning",
-          "Parameters": [
-            {
-              "Name": "message",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteInformation",
-          "Parameters": [
-            {
-              "Name": "message",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "WriteVerbose",
-          "Parameters": [
-            {
-              "Name": "message",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "handler",
-              "Type": "Microsoft.EntityFrameworkCore.Design.IOperationReportHandler"
-            }
-          ],
           "Visibility": "Public",
           "GenericParameter": []
         }

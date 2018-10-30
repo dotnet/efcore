@@ -1,0 +1,169 @@
+{
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Proxies, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "Types": [
+    {
+      "Name": "Microsoft.Extensions.DependencyInjection.ProxiesServiceCollectionExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "AddEntityFrameworkProxies",
+          "Parameters": [
+            {
+              "Name": "serviceCollection",
+              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
+            }
+          ],
+          "ReturnType": "Microsoft.Extensions.DependencyInjection.IServiceCollection",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.ProxiesExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "UseLazyLoadingProxies",
+          "Parameters": [
+            {
+              "Name": "optionsBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder"
+            },
+            {
+              "Name": "useLazyLoadingProxies",
+              "Type": "System.Boolean",
+              "DefaultValue": "True"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "UseLazyLoadingProxies<T0>",
+          "Parameters": [
+            {
+              "Name": "optionsBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<T0>"
+            },
+            {
+              "Name": "useLazyLoadingProxies",
+              "Type": "System.Boolean",
+              "DefaultValue": "True"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TContext",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": [
+                "Microsoft.EntityFrameworkCore.DbContext"
+              ]
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "CreateProxy",
+          "Parameters": [
+            {
+              "Name": "context",
+              "Type": "Microsoft.EntityFrameworkCore.DbContext"
+            },
+            {
+              "Name": "entityType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "constructorArguments",
+              "Type": "System.Object[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "System.Object",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CreateProxy<T0>",
+          "Parameters": [
+            {
+              "Name": "context",
+              "Type": "Microsoft.EntityFrameworkCore.DbContext"
+            },
+            {
+              "Name": "constructorArguments",
+              "Type": "System.Object[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "T0",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "CreateProxy<T0>",
+          "Parameters": [
+            {
+              "Name": "set",
+              "Type": "Microsoft.EntityFrameworkCore.DbSet<T0>"
+            },
+            {
+              "Name": "constructorArguments",
+              "Type": "System.Object[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "T0",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        }
+      ],
+      "GenericParameters": []
+    }
+  ]
+}
