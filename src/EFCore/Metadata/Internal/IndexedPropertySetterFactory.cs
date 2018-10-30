@@ -26,14 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Debug.Assert(propertyBase != null);
 
-            // find indexer with single argument of type string which returns an object
-            var indexerPropertyInfo =
-                (from p in propertyBase.DeclaringType.ClrType.GetRuntimeProperties()
-                 where p.PropertyType == typeof(object)
-                 let q = p.GetIndexParameters()
-                 where q.Length == 1 && q[0].ParameterType == typeof(string)
-                 select p).FirstOrDefault();
-
+            var indexerPropertyInfo = propertyBase.DeclaringType.EFIndexerProperty();
             if (indexerPropertyInfo == null)
             {
                 throw new InvalidOperationException(

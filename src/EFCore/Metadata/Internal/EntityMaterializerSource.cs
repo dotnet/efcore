@@ -138,12 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constructorExpression)
                 };
 
-            var indexerPropertyInfo =
-                (from p in entityType.ClrType.GetRuntimeProperties()
-                 where p.PropertyType == typeof(object)
-                 let q = p.GetIndexParameters()
-                 where q.Length == 1 && q[0].ParameterType == typeof(string)
-                 select p).FirstOrDefault();
+            var indexerPropertyInfo = entityType.EFIndexerProperty();
 
             blockExpressions.AddRange(
                 from property in properties
