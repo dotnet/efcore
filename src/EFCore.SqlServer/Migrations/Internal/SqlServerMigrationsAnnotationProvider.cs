@@ -89,6 +89,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     SqlServerAnnotationNames.ValueGenerationStrategy,
                     SqlServerValueGenerationStrategy.IdentityColumn);
             }
+
+            if (property.SqlServer().IsPseudoColumn)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.PseudoColumn, true);
+            }
         }
 
         /// <summary>
@@ -101,6 +106,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.MemoryOptimized,
+                    true);
+            }
+
+            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.SqlServer().IsGraphNode))
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.GraphNode,
+                    true);
+            }
+
+            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.SqlServer().IsGraphEdge))
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.GraphEdge,
                     true);
             }
         }
@@ -117,9 +136,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     SqlServerAnnotationNames.MemoryOptimized,
                     true);
             }
+
+            if (IsGraphNode(entityType))
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.GraphNode,
+                    true);
+            }
+
+            if (IsGraphEdge(entityType))
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.GraphEdge,
+                    true);
+            }
         }
 
         private static bool IsMemoryOptimized(IEntityType entityType)
             => entityType.GetAllBaseTypesInclusive().Any(t => t.SqlServer().IsMemoryOptimized);
+
+        private static bool IsGraphNode(IEntityType entityType)
+            => entityType.GetAllBaseTypesInclusive().Any(t => t.SqlServer().IsGraphNode);
+
+        private static bool IsGraphEdge(IEntityType entityType)
+            => entityType.GetAllBaseTypesInclusive().Any(t => t.SqlServer().IsGraphEdge);
     }
 }
