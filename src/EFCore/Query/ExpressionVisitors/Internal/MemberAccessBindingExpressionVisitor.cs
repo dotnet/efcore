@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             MethodCallExpression newExpression = null;
-            Expression firstArgument = null;
+            Expression querySource = null;
 
             if (methodCallExpression.Method.IsEFPropertyMethod())
             {
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (newArguments[0].Type == typeof(ValueBuffer))
                 {
-                    firstArgument = newArguments[0];
+                    querySource = newArguments[0];
 
                     // Compensate for ValueBuffer being a struct, and hence not compatible with Object method
                     newExpression
@@ -318,17 +318,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             newArguments[1]);
                 }
             }
+            else if (methodCallExpression.Method.IsEFIndexer())
+            {
+                querySource = Visit(methodCallExpression.Object);
+                if (querySource.Type == typeof(ValueBuffer))
+                {
+                    return _queryModelVisitor.BindMethodCallToValueBuffer(methodCallExpression, querySource);
+                }
+            }
 
             if (newExpression == null)
             {
                 newExpression = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
             }
 
-            firstArgument = firstArgument ?? newExpression.Arguments.FirstOrDefault();
+            querySource = querySource ?? newExpression.Arguments.FirstOrDefault();
 
             return newExpression != methodCallExpression
-                && firstArgument?.Type == typeof(ValueBuffer)
-                ? _queryModelVisitor.BindMethodCallToValueBuffer(methodCallExpression, firstArgument) ?? newExpression
+                && querySource?.Type == typeof(ValueBuffer)
+                ? _queryModelVisitor.BindMethodCallToValueBuffer(methodCallExpression, querySource) ?? newExpression
                 : _queryModelVisitor.BindMethodCallToEntity(methodCallExpression, newExpression) ?? newExpression;
         }
 

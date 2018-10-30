@@ -3563,25 +3563,49 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_query_on_indexed_properties()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_on_indexed_properties(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                // using variables for the property names (rather than constants) tests that
-                // query can replace the value of that variable correctly in the expression tree
-                var nationPropertyName = City.NationPropertyName;
+            // using variables for the property names (rather than constants) tests that
+            // query can replace the value of that variable correctly in the expression tree
+            var nationPropertyName = City.NationPropertyName;
 
-                var tyrusCities = context.Cities
-                    .Where(city => (string)city[nationPropertyName] == "Tyrus").ToArray();
-                Assert.Equal(2, tyrusCities.Length);
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      where (string)c[nationPropertyName] == "Tyrus"
+                      select c);
+        }
 
-                // check that materialization has populated the Nation indexed property
-                foreach(var tyrusCity in tyrusCities)
-                {
-                    Assert.Equal("Tyrus", tyrusCity[nationPropertyName]);
-                }
-            }
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_projection_on_indexed_properties(bool isAsync)
+        {
+            // using variables for the property names (rather than constants) tests that
+            // query can replace the value of that variable correctly in the expression tree
+            var nationPropertyName = City.NationPropertyName;
+
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      where (string)c[nationPropertyName] == "Tyrus"
+                      select (string)c[nationPropertyName]);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_order_by_indexed_property_on_query(bool isAsync)
+        {
+            // using variables for the property names (rather than constants) tests that
+            // query can replace the value of that variable correctly in the expression tree
+            var nationPropertyName = City.NationPropertyName;
+
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      orderby (string)c[nationPropertyName]
+                      select c);
         }
 
         [ConditionalFact]
