@@ -45,6 +45,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
                 }
 
+                if (Conditions.HasFlag(SqlServerCondition.SupportsGraphing))
+                {
+                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsGraphing)) ?? false;
+                }
+
                 if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
                 {
                     isMet &= TestEnvironment.IsSqlAzure;
@@ -98,6 +103,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         SupportsAttach = 1 << 5,
         SupportsHiddenColumns = 1 << 6,
         IsNotTeamCity = 1 << 7,
-        SupportsFullTextSearch = 1 << 8
+        SupportsFullTextSearch = 1 << 8,
+        SupportsGraphing = 1 << 9
     }
 }
