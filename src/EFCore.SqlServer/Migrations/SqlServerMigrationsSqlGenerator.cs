@@ -429,7 +429,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IModel model,
             MigrationCommandListBuilder builder)
         {
-            base.Generate(operation, model, builder, terminate: false);
+            Generate(operation, model, builder, terminate: false);
+
+            var isNode = IsGraphNode(operation);
+            var isEdge = IsGraphEdge(operation);
 
             var memoryOptimized = IsMemoryOptimized(operation);
             if (memoryOptimized)
@@ -444,10 +447,93 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }
                 }
             }
+            else if (isNode)
+            {
+                builder.AppendLine();
+                using (builder.Indent())
+                {
+                    builder.AppendLine("AS NODE");
+                }
+            }
+            else if (isEdge)
+            {
+                builder.AppendLine();
+                using (builder.Indent())
+                {
+                    builder.AppendLine("AS EDGE");
+                }
+            }
 
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: memoryOptimized);
+        }
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="CreateTableOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected override void Generate(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("CREATE TABLE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
+                .AppendLine(" (");
+
+            using (builder.Indent())
+            {
+                var columns = operation.Columns.Where(c => !IsPseudoColumn(c)).ToList();
+                for (var i = 0; i < columns.Count; i++)
+                {
+                    var column = columns[i];
+
+                    ColumnDefinition(column, model, builder);
+
+                    if (i != columns.Count - 1)
+                    {
+                        builder.AppendLine(",");
+                    }
+                }
+
+                if (operation.PrimaryKey != null)
+                {
+                    builder.AppendLine(",");
+                    PrimaryKeyConstraint(operation.PrimaryKey, model, builder);
+                }
+
+                foreach (var uniqueConstraint in operation.UniqueConstraints)
+                {
+                    builder.AppendLine(",");
+                    UniqueConstraint(uniqueConstraint, model, builder);
+                }
+
+                foreach (var foreignKey in operation.ForeignKeys)
+                {
+                    builder.AppendLine(",");
+                    ForeignKeyConstraint(foreignKey, model, builder);
+                }
+
+                builder.AppendLine();
+            }
+
+            builder.Append(")");
+
+            if (terminate)
+            {
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         /// <summary>
@@ -1777,5 +1863,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
+
+        private static bool IsGraphNode(Annotatable annotatable)
+            => annotatable[SqlServerAnnotationNames.GraphNode] as bool? == true;
+
+        private static bool IsGraphEdge(Annotatable annotatable)
+            => annotatable[SqlServerAnnotationNames.GraphEdge] as bool? == true;
+
+        private static bool IsPseudoColumn(Annotatable annotatable)
+            => annotatable[SqlServerAnnotationNames.PseudoColumn] as bool? == true;
+
     }
 }
