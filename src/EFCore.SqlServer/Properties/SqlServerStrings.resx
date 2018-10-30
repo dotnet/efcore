@@ -241,4 +241,19 @@
     <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.</value>
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
+  <data name="MatchFunctionOnClient" xml:space="preserve">
+    <value>The 'Match' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
+  </data>
+  <data name="EntityIsNotAGraphEdge" xml:space="preserve">
+    <value>The entity type '{entityType}' is not a valid graph edge.</value>
+  </data>
+  <data name="ParameterIsNotAnEntity" xml:space="preserve">
+    <value>The parameter is not an entity, was expecting a graph {graphType}.</value>
+  </data>
+  <data name="GraphEntityMissingBaseType" xml:space="preserve">
+    <value>Graph entities must be a GraphNode or a GraphEdge.</value>
+  </data>
+  <data name="InvalidGraphType" xml:space="preserve">
+    <value>An invalid graph type of {graphType} was given while trying to scaffold the table {tableName}.</value>
+  </data>
 </root>

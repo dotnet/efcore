@@ -364,6 +364,42 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     SqlServerEventId.ReflexiveConstraintIgnored,
                     _resourceManager.GetString("LogReflexiveConstraintIgnored")));
 
+        /// <summary>
+        ///     The 'Match' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
+        /// </summary>
+        public static string MatchFunctionOnClient
+            => GetString("MatchFunctionOnClient");
+
+        /// <summary>
+        ///     The entity type '{entityType}' is not a valid graph edge.
+        /// </summary>
+        public static string EntityIsNotAGraphEdge([CanBeNull] object entityType)
+            => string.Format(
+                GetString("EntityIsNotAGraphEdge", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The parameter is not an entity, was expecting a graph {graphType}.
+        /// </summary>
+        public static string ParameterIsNotAnEntity([CanBeNull] object graphType)
+            => string.Format(
+                GetString("ParameterIsNotAnEntity", nameof(graphType)),
+                graphType);
+
+        /// <summary>
+        ///     Graph entities must be a GraphNode or a GraphEdge.
+        /// </summary>
+        public static string GraphEntityMissingBaseType
+            => GetString("GraphEntityMissingBaseType");
+
+        /// <summary>
+        ///     An invalid graph type of {graphType} was given while trying to scaffold the table {tableName}.
+        /// </summary>
+        public static string InvalidGraphType([CanBeNull] object graphType, [CanBeNull] object tableName)
+            => string.Format(
+                GetString("InvalidGraphType", nameof(graphType), nameof(tableName)),
+                graphType, tableName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
