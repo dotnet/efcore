@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             return modelExtensions.FindSequence(sequenceName, sequenceSchema);
         }
-
+        
         /// <summary>
         ///     <para>
         ///         Gets or sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
@@ -397,6 +397,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             base.ClearAllServerGeneratedValues();
         }
+
+        /// <summary>
+        ///     Gets or sets the whether the column is a pseudo column
+        /// </summary>
+        public virtual bool IsPseudoColumn
+        {
+            get
+            {
+                var annotation = Annotations.Metadata.FindAnnotation(SqlServerAnnotationNames.PseudoColumn);
+                return annotation != null && (bool)annotation.Value;
+            }
+            set => SetPseudoColumn(value);
+        }
+
+        /// <summary>
+        ///     Sets whether the column is a pseudo column
+        /// </summary>
+        internal virtual bool SetPseudoColumn(bool value)
+            => Annotations.SetAnnotation(SqlServerAnnotationNames.PseudoColumn, value);
 
         private static bool IsCompatible(IProperty property)
         {

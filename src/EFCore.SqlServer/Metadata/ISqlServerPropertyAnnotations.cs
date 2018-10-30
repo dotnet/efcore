@@ -37,5 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The sequence to use, or <c>null</c> if no sequence exists in the model. </returns>
         ISequence FindHiLoSequence();
+
+        /// <summary>
+        ///     A flag indicating if the property is a graph pseudocolumn.
+        /// </summary>
+        bool IsPseudoColumn { get; }
     }
 }

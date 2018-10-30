@@ -50,5 +50,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public const string MemoryOptimized = Prefix + "MemoryOptimized";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public const string GraphNode = Prefix + "GraphNode";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public const string GraphEdge = Prefix + "GraphEdge";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public const string PseudoColumn = Prefix + "PseudoColumn";
+
     }
 }

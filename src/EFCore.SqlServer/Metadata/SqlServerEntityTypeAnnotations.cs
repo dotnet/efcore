@@ -49,5 +49,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
         protected virtual bool SetIsMemoryOptimized(bool value)
             => Annotations.SetAnnotation(SqlServerAnnotationNames.MemoryOptimized, value);
+
+        /// <summary>
+        ///     Indicates whether or not the type is mapped to a graph node table.
+        /// </summary>
+        public virtual bool IsGraphNode
+        {
+            get => Annotations.Metadata[SqlServerAnnotationNames.GraphNode] as bool? ?? false;
+            set => SetIsGraphNode(value);
+        }
+
+        /// <summary>
+        ///     Attempts to set graph node.
+        /// </summary>
+        /// <param name="value"> The value to set. </param>
+        /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
+        protected virtual bool SetIsGraphNode(bool value)
+            => Annotations.SetAnnotation(SqlServerAnnotationNames.GraphNode, value);
+
+        /// <summary>
+        ///     Indicates whether or not the type is mapped to a graph edge table.
+        /// </summary>
+        public virtual bool IsGraphEdge
+        {
+            get => Annotations.Metadata[SqlServerAnnotationNames.GraphEdge] as bool? ?? false;
+            set => SetIsGraphEdge(value);
+        }
+
+        /// <summary>
+        ///     Attempts to set graph edge.
+        /// </summary>
+        /// <param name="value"> The value to set. </param>
+        /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
+        protected virtual bool SetIsGraphEdge(bool value)
+            => Annotations.SetAnnotation(SqlServerAnnotationNames.GraphEdge, value);
     }
 }
