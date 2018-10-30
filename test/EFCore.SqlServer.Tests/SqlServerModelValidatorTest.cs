@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Detects_incompatible_momory_optimized_shared_table()
+        public virtual void Detects_incompatible_memory_optimized_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -154,6 +154,22 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch("Table", nameof(A), nameof(B), nameof(A), nameof(B)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_incompatible_non_clustered_shared_key()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table")
+                .HasKey(a => a.Id).ForSqlServerIsClustered();
+            modelBuilder.Entity<B>().ToTable("Table")
+                .HasKey(b => b.Id).ForSqlServerIsClustered(false);
+
+            VerifyError(
+                SqlServerStrings.DuplicateKeyMismatchedClustering("{'Id'}", nameof(B), "{'Id'}", nameof(A), "Table", "PK_Table"),
                 modelBuilder.Model);
         }
 

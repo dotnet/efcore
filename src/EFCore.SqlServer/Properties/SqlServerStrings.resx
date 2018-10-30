@@ -241,4 +241,7 @@
     <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.</value>
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
+  <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
+    <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.</value>
+  </data>
 </root>
