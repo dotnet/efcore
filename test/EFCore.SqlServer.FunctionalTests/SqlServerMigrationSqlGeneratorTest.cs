@@ -1562,6 +1562,164 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+        public override void CreateTableOperation()
+        {
+            base.CreateTableOperation();
+
+            Assert.Equal(
+                "CREATE TABLE [dbo].[People] (" + EOL +
+                "    [Id] int NOT NULL," + EOL +
+                "    [EmployerId] int NULL," + EOL +
+                "    [SSN] char(11) NULL," + EOL +
+                "    PRIMARY KEY ([Id])," + EOL +
+                "    UNIQUE ([SSN])," + EOL +
+                "    FOREIGN KEY ([EmployerId]) REFERENCES [Companies] ([Id])" + EOL +
+                ");" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateTableOperation_as_graph_node()
+        {
+            var createTableOperation = new CreateTableOperation
+            {
+                Name = "People",
+                Schema = "dbo",
+                Columns =
+                {
+                    new AddColumnOperation
+                    {
+                        Name = "Id",
+                        Table = "People",
+                        ClrType = typeof(int),
+                        IsNullable = false
+                    },
+                    new AddColumnOperation
+                    {
+                        Name = "EmployerId",
+                        Table = "People",
+                        ClrType = typeof(int),
+                        IsNullable = true
+                    },
+                    new AddColumnOperation
+                    {
+                        Name = "SSN",
+                        Table = "People",
+                        ClrType = typeof(string),
+                        ColumnType = "char(11)",
+                        IsNullable = true
+                    }
+                },
+                PrimaryKey = new AddPrimaryKeyOperation
+                {
+                    Columns = new[] { "Id" }
+                },
+                UniqueConstraints =
+                {
+                    new AddUniqueConstraintOperation
+                    {
+                        Columns = new[] { "SSN" }
+                    }
+                },
+                ForeignKeys =
+                {
+                    new AddForeignKeyOperation
+                    {
+                        Columns = new[] { "EmployerId" },
+                        PrincipalTable = "Companies",
+                        PrincipalColumns = new[] { "Id" }
+                    }
+                }
+            };
+
+            createTableOperation.AddAnnotation(SqlServerAnnotationNames.GraphNode, true);
+            Generate(createTableOperation);
+
+            Assert.Equal(
+                "CREATE TABLE [dbo].[People] (" + EOL +
+                "    [Id] int NOT NULL," + EOL +
+                "    [EmployerId] int NULL," + EOL +
+                "    [SSN] char(11) NULL," + EOL +
+                "    PRIMARY KEY ([Id])," + EOL +
+                "    UNIQUE ([SSN])," + EOL +
+                "    FOREIGN KEY ([EmployerId]) REFERENCES [Companies] ([Id])" + EOL +
+                ")" + EOL +
+                "    AS NODE" + EOL +
+                ";" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateTableOperation_as_graph_edge()
+        {
+            var createTableOperation = new CreateTableOperation
+            {
+                Name = "People",
+                Schema = "dbo",
+                Columns =
+                {
+                    new AddColumnOperation
+                    {
+                        Name = "Id",
+                        Table = "People",
+                        ClrType = typeof(int),
+                        IsNullable = false
+                    },
+                    new AddColumnOperation
+                    {
+                        Name = "EmployerId",
+                        Table = "People",
+                        ClrType = typeof(int),
+                        IsNullable = true
+                    },
+                    new AddColumnOperation
+                    {
+                        Name = "SSN",
+                        Table = "People",
+                        ClrType = typeof(string),
+                        ColumnType = "char(11)",
+                        IsNullable = true
+                    }
+                },
+                PrimaryKey = new AddPrimaryKeyOperation
+                {
+                    Columns = new[] { "Id" }
+                },
+                UniqueConstraints =
+                {
+                    new AddUniqueConstraintOperation
+                    {
+                        Columns = new[] { "SSN" }
+                    }
+                },
+                ForeignKeys =
+                {
+                    new AddForeignKeyOperation
+                    {
+                        Columns = new[] { "EmployerId" },
+                        PrincipalTable = "Companies",
+                        PrincipalColumns = new[] { "Id" }
+                    }
+                }
+            };
+
+            createTableOperation.AddAnnotation(SqlServerAnnotationNames.GraphEdge, true);
+            Generate(createTableOperation);
+
+            Assert.Equal(
+                "CREATE TABLE [dbo].[People] (" + EOL +
+                "    [Id] int NOT NULL," + EOL +
+                "    [EmployerId] int NULL," + EOL +
+                "    [SSN] char(11) NULL," + EOL +
+                "    PRIMARY KEY ([Id])," + EOL +
+                "    UNIQUE ([SSN])," + EOL +
+                "    FOREIGN KEY ([EmployerId]) REFERENCES [Companies] ([Id])" + EOL +
+                ")" + EOL +
+                "    AS EDGE" + EOL +
+                ";" + EOL,
+                Sql);
+        }
+
         public SqlServerMigrationSqlGeneratorTest()
             : base(SqlServerTestHelpers.Instance)
         {
