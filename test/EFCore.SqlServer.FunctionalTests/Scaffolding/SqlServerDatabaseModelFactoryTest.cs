@@ -625,6 +625,50 @@ CREATE TABLE [Blogs] (
                 "DROP TABLE [Blogs]");
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsGraphing)]
+        public void Set_graph_node_table_annotation()
+        {
+            Test(
+                @"
+CREATE TABLE [Blogs] (
+    [Id] int NOT NULL IDENTITY,
+    CONSTRAINT [PK_Blogs] PRIMARY KEY NONCLUSTERED ([Id])
+) AS NODE;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = Assert.Single(dbModel.Tables.Where(t => t.Name == "Blogs"));
+
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.True((bool)table[SqlServerAnnotationNames.GraphNode]);
+                },
+                "DROP TABLE [Blogs]");
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsGraphing)]
+        public void Set_graph_edge_table_annotation()
+        {
+            Test(
+                @"
+CREATE TABLE [Blogs] (
+    [Id] int NOT NULL IDENTITY,
+    CONSTRAINT [PK_Blogs] PRIMARY KEY NONCLUSTERED ([Id])
+) AS EDGE;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = Assert.Single(dbModel.Tables.Where(t => t.Name == "Blogs"));
+
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.True((bool)table[SqlServerAnnotationNames.GraphEdge]);
+                },
+                "DROP TABLE [Blogs]");
+        }
+
         [Fact]
         public void Create_columns()
         {
