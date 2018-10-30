@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public Expression Translate(MethodCallExpression methodCallExpression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
             var method = methodCallExpression.Method.OnInterface(typeof(IGeometry));
             if (_methodToFunctionName.TryGetValue(method, out var functionName))
