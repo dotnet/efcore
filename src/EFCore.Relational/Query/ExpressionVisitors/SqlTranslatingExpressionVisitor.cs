@@ -600,6 +600,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         }
 
         /// <summary>
+        /// Gets a filtered list of arguments
+        /// </summary>
+        /// <param name="methodCallExpression"> The expression with arguments to filter </param>
+        /// <returns>
+        ///     An array of expressions
+        /// </returns>
+        protected virtual Expression[] GetArguments(MethodCallExpression methodCallExpression)
+        {
+            return methodCallExpression.Arguments
+                .Where(
+                    e => !(e.RemoveConvert() is QuerySourceReferenceExpression)
+                         && !IsNonTranslatableSubquery(e.RemoveConvert()))
+                .Select(
+                    e => (e.RemoveConvert() as ConstantExpression)?.Value is Array || e.RemoveConvert().Type == typeof(DbFunctions)
+                        ? e
+                        : Visit(e))
+                .Where(e => e != null)
+                .ToArray();
+        }
+
+        /// <summary>
         ///     Visits a method call expression.
         /// </summary>
         /// <param name="methodCallExpression"> The expression to visit. </param>
@@ -617,17 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (operand != null
                 || methodCallExpression.Object == null)
             {
-                var arguments
-                    = methodCallExpression.Arguments
-                        .Where(
-                            e => !(e.RemoveConvert() is QuerySourceReferenceExpression)
-                                 && !IsNonTranslatableSubquery(e.RemoveConvert()))
-                        .Select(
-                            e => (e.RemoveConvert() as ConstantExpression)?.Value is Array || e.RemoveConvert().Type == typeof(DbFunctions)
-                                ? e
-                                : Visit(e))
-                        .Where(e => e != null)
-                        .ToArray();
+                var arguments = GetArguments(methodCallExpression);
 
                 if (arguments.Length == methodCallExpression.Arguments.Count)
                 {
@@ -670,7 +681,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                    ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
         }
 
-        private bool IsNonTranslatableSubquery(Expression expression)
+        /// <summary>
+        /// Determines if an expression is translatable
+        /// </summary>
+        /// <param name="expression"> The expression to check </param>
+        /// <returns>
+        ///     Value indicating if the expression is non-translatable
+        /// </returns>
+        protected virtual bool IsNonTranslatableSubquery(Expression expression)
             => expression is SubQueryExpression subQueryExpression
                && !(subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedScalarValueInfo
                     || subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedSingleValueInfo streamedSingleValueInfo
