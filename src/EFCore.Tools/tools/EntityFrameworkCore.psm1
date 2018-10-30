@@ -822,7 +822,8 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
             'runtime associated with this framework, and projects targeting it cannot be executed directly. To use ' +
             'the Entity Framework Core Package Manager Console Tools with this project, add an executable project ' +
             'targeting .NET Framework or .NET Core that references this project, and set it as the startup project; ' +
-            'or, update this project to cross-target .NET Framework or .NET Core.'
+            'or, update this project to cross-target .NET Framework or .NET Core. For more information on using the ' +
+            'EF Core Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034705'
     }
     else
     {

@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 startupAssembly,
                 args);
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter, args);
+            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
         }
 
         /// <summary>

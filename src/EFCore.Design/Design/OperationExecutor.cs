@@ -91,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     reporter,
+                    assembly.Value,
                     startupAssembly.Value,
                     _projectDir,
                     rootNamespace,
