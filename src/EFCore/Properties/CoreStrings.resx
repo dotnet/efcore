@@ -1135,4 +1135,7 @@
     <value>The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.</value>
     <comment>Warning CoreEventId.RedundantForeignKeyWarning string string</comment>
   </data>
+  <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
+    <value>There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.</value>
+  </data>
 </root>

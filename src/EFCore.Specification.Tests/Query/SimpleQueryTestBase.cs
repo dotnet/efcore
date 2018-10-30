@@ -1672,8 +1672,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) =>
-                    from c in cs.Take(3)
-                    select os.OrderBy(o => c.CustomerID).Skip(100).Take(2),
+                    from c in cs.OrderBy(c => c.CustomerID).Take(3)
+                    select os.OrderBy(o => o.OrderID).ThenBy(o => c.CustomerID).Skip(100).Take(2),
                 elementSorter: CollectionSorter<Order>(),
                 elementAsserter: CollectionAsserter<Order>());
         }
@@ -3478,7 +3478,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var orders
-                    = (from o in context.Orders.Take(1)
+                    = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
                            // ReSharper disable once UseMethodAny.0
                        where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                               where (from c in context.Set<Customer>()

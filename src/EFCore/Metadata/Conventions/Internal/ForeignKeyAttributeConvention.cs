@@ -194,6 +194,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 newRelationshipBuilder = newRelationshipBuilder.RelatedEntityTypes(
                     foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, invertConfigurationSource.Value);
             }
+            else
+            {
+                var existingProperties = foreignKey.DeclaringEntityType.Builder.GetOrCreateProperties(fkPropertiesToSet, null);
+                if (existingProperties != null)
+                {
+                    var conflictingFk = foreignKey.DeclaringEntityType.FindForeignKeys(existingProperties)
+                        .FirstOrDefault(fk => fk != foreignKey
+                            && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
+                            && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
+                            && fk.GetForeignKeyPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
+                    if (conflictingFk != null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingForeignKeyAttributes(
+                                Property.Format(existingProperties),
+                                foreignKey.DeclaringEntityType.DisplayName()));
+                    }
+                }
+            }
 
             return newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;
         }
@@ -204,8 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal?.Name;
             var principalToDepedentNavigationName = foreignKey.PrincipalToDependent?.Name;
 
-            if (GetInversePropertyAttributeOnNavigation(foreignKey.PrincipalToDependent) != null
-                || GetInversePropertyAttributeOnNavigation(foreignKey.DependentToPrincipal) != null)
+            if (GetInversePropertyAttribute(foreignKey.PrincipalToDependent) != null
+                || GetInversePropertyAttribute(foreignKey.DependentToPrincipal) != null)
             {
                 // Relationship is joined by InversePropertyAttribute
                 throw new InvalidOperationException(
@@ -228,19 +247,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 : relationshipBuilder;
         }
 
-        private static InversePropertyAttribute GetInversePropertyAttributeOnNavigation(Navigation navigation)
-            => navigation.DeclaringEntityType.GetRuntimeProperties()?.Values
-                .FirstOrDefault(
-                    p => string.Equals(p.GetSimpleMemberName(), navigation.Name, StringComparison.OrdinalIgnoreCase)
-                         && Attribute.IsDefined(p, typeof(InversePropertyAttribute), inherit: true))
-                ?.GetCustomAttribute<InversePropertyAttribute>(inherit: true);
-
         private static ForeignKeyAttribute GetForeignKeyAttribute(TypeBase entityType, string propertyName)
             => entityType.GetRuntimeProperties()?.Values
                 .FirstOrDefault(
                     p => string.Equals(p.GetSimpleMemberName(), propertyName, StringComparison.OrdinalIgnoreCase)
                          && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
                 ?.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
+
+        private static ForeignKeyAttribute GetForeignKeyAttribute(Navigation navigation)
+            => GetAttribute<ForeignKeyAttribute>(navigation.PropertyInfo);
+
+        private static InversePropertyAttribute GetInversePropertyAttribute(Navigation navigation)
+            => GetAttribute<InversePropertyAttribute>(navigation.PropertyInfo);
+
+        private static TAttribute GetAttribute<TAttribute>(MemberInfo memberInfo)
+            where TAttribute : Attribute
+        {
+            if (memberInfo == null
+                || !Attribute.IsDefined(memberInfo, typeof(TAttribute), inherit: true))
+            {
+                return null;
+            }
+
+            return memberInfo.GetCustomAttribute<TAttribute>(inherit: true);
+        }
 
         [ContractAnnotation("navigationName:null => null")]
         private MemberInfo FindForeignKeyAttributeOnProperty(EntityType entityType, string navigationName)
@@ -256,7 +286,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var memberInfo in entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(entityType.GetRuntimeFields().Values))
             {
-                if (!Attribute.IsDefined(memberInfo, typeof(ForeignKeyAttribute), inherit: true))
+                if (entityType.Builder.IsIgnored(memberInfo.GetSimpleMemberName(), ConfigurationSource.Convention)
+                    || !Attribute.IsDefined(memberInfo, typeof(ForeignKeyAttribute), inherit: true))
                 {
                     continue;
                 }
@@ -310,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 : relationshipBuilder.Metadata.PrincipalToDependent;
 
             var navigationFkAttribute = navigation != null
-                ? GetForeignKeyAttribute(navigation.DeclaringEntityType, navigation.Name)
+                ? GetForeignKeyAttribute(navigation)
                 : null;
 
             if (navigationFkAttribute != null)
@@ -332,13 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 foreach (var propertyInfo in otherNavigations)
                 {
-                    if (!Attribute.IsDefined(propertyInfo, typeof(ForeignKeyAttribute), inherit: true))
-                    {
-                        continue;
-                    }
-
-                    var attribute = propertyInfo.GetCustomAttribute<ForeignKeyAttribute>(true);
-                    if (attribute.Name == navigationFkAttribute.Name)
+                    var attribute = GetAttribute<ForeignKeyAttribute>(propertyInfo);
+                    if (attribute?.Name == navigationFkAttribute.Name)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.MultipleNavigationsSameFk(navigation.DeclaringEntityType.DisplayName(), attribute.Name));

@@ -2820,6 +2820,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     CoreEventId.RedundantForeignKeyWarning,
                     _resourceManager.GetString("LogRedundantForeignKey")));
 
+        /// <summary>
+        ///     There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.
+        /// </summary>
+        public static string ConflictingForeignKeyAttributes([CanBeNull] object propertyList, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("ConflictingForeignKeyAttributes", nameof(propertyList), nameof(entityType)),
+                propertyList, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

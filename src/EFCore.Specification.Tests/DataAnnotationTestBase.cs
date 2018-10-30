@@ -1949,7 +1949,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             Assert.Equal(
-                CoreStrings.InvalidRelationshipUsingDataAnnotations("B", nameof(A), "A", nameof(B)),
+                CoreStrings.InvalidRelationshipUsingDataAnnotations(nameof(A.B), nameof(A), nameof(B.A), nameof(B)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>()).Message);
         }
 
@@ -1961,6 +1961,18 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.InvalidRelationshipUsingDataAnnotations("C", nameof(D), "D", nameof(C)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
+        }
+
+        [Fact]
+        public virtual void ForeignKeyAttribute_throws_if_applied_on_two_relationships_targetting_the_same_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<B>();
+
+            Assert.Equal(
+                CoreStrings.ConflictingForeignKeyAttributes("{'AId'}", nameof(ConflictingFKAttributes)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ConflictingFKAttributes>()).Message);
         }
 
         protected class A
@@ -1999,6 +2011,19 @@ namespace Microsoft.EntityFrameworkCore
 
             [ForeignKey("CId")]
             public C C { get; set; }
+        }
+
+        protected class ConflictingFKAttributes
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("A")]
+            public int AId { get; set; }
+
+            public A A { get; set; }
+
+            [ForeignKey("AId")]
+            public A As { get; set; }
         }
 
         [Fact]
