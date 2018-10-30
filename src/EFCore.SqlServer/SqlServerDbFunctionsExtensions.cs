@@ -58,6 +58,28 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server MATCH store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
+        /// <param name="node1">The first node in the graph.</param>
+        /// <param name="edge">The edge relation to link <paramref name="node1"/> and <paramref name="node2"/>.</param>
+        /// <param name="node2">The second node in the graph relation.</param>
+        public static bool Match(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] object node1,
+            [NotNull] object edge,
+            [NotNull] object node2)
+        {
+            throw new InvalidOperationException(SqlServerStrings.MatchFunctionOnClient);
+        }
+
+        /// <summary>
+        ///     <para>
         ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server CONTAINS store function.
         ///     </para>
         /// </summary>

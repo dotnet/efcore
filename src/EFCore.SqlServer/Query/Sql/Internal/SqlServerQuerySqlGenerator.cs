@@ -8,10 +8,12 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
 {
@@ -38,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
             }
         }
 
+
         /// <summary>
         ///     Visit a BinaryExpression.
         /// </summary>
@@ -48,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             if (binaryExpression.Left is SqlFunctionExpression sqlFunctionExpression
-                && (sqlFunctionExpression.FunctionName == "FREETEXT" || sqlFunctionExpression.FunctionName == "CONTAINS"))
+                && (sqlFunctionExpression.FunctionName == "FREETEXT" ||
+                    sqlFunctionExpression.FunctionName == "CONTAINS" ||
+                    sqlFunctionExpression.FunctionName == "MATCH"))
             {
                 Visit(binaryExpression.Left);
 
@@ -58,6 +63,45 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
             return base.VisitBinary(binaryExpression);
         }
 
+        /// <summary>
+        ///     Visits a ColumnExpression.
+        /// </summary>
+        /// <param name="columnExpression"> The column expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public override Expression VisitColumn(ColumnExpression columnExpression)
+        {
+            Check.NotNull(columnExpression, nameof(columnExpression));
+
+            var includeDelimiters = columnExpression.Property.FindAnnotation(SqlServerAnnotationNames.PseudoColumn) == null;
+
+            Sql.Append(SqlGenerator.DelimitIdentifier(columnExpression.Table.Alias))
+                .Append(".")
+                .Append(SqlGenerator.DelimitIdentifier(columnExpression.Name, includeDelimiters));
+
+            return columnExpression;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression)
+        {
+            Check.NotNull(crossJoinExpression, nameof(crossJoinExpression));
+
+            if (!ExpressionContainsMatchFunction(SelectExpression.Predicate))
+            {
+                return base.VisitCrossJoin(crossJoinExpression);
+            }
+
+            //This isn't a real CROSS JOIN, it's a graph query
+            Sql.Append(", ");
+            Visit(crossJoinExpression.TableExpression);
+            return crossJoinExpression;
+        }
+        
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -124,7 +168,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
                 return sqlFunctionExpression;
             }
 
+            if (sqlFunctionExpression.FunctionName == "MATCH")
+            {
+                var matchFunctionExpression = new SqlFunctionExpression(
+                    sqlFunctionExpression.FunctionName,
+                    sqlFunctionExpression.Type,
+                    sqlFunctionExpression.Arguments)
+                {
+                    ParameterSeparators = new[] { "-(", ")->" }
+                };
+
+                return base.VisitSqlFunction(matchFunctionExpression);
+            }
+
             return base.VisitSqlFunction(sqlFunctionExpression);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+        {
+            Sql.Append($"[{expression.ReferencedQuerySource.ItemName}]");
+
+            return expression;
         }
 
         /// <summary>
@@ -148,6 +216,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
                && expression.Type.UnwrapNullableType() == typeof(bool)
                 ? new ExplicitCastExpression(expression, expression.Type)
                 : expression;
+        
+        private bool ExpressionContainsMatchFunction(Expression expression)
+        {
+            switch (expression)
+            {
+                case BinaryExpression binaryExpression:
+                    return ExpressionContainsMatchFunction(binaryExpression);
+                case SqlFunctionExpression sqlFunctionExpression:
+                    return ExpressionContainsMatchFunction(sqlFunctionExpression);
+                default:
+                    return false;
+            }
+        }
+
+        private bool ExpressionContainsMatchFunction(BinaryExpression binaryExpression)
+        {
+            return ExpressionContainsMatchFunction((Expression)(binaryExpression.Left))
+                   || ExpressionContainsMatchFunction((Expression)(binaryExpression.Right));
+        }
+
+        private bool ExpressionContainsMatchFunction(SqlFunctionExpression sqlFunctionExpression)
+        {
+            return sqlFunctionExpression.FunctionName == "MATCH";
+        }
 
         private class RowNumberPagingExpressionVisitor : ExpressionVisitorBase
         {
