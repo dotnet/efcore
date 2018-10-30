@@ -241,6 +241,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [Fact]
+        public void Add_non_clustered_primary_key_with_owned()
+        {
+            Execute(
+                _ => { },
+                target => target.Entity(
+                    "Ram",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.HasKey("Id").ForSqlServerIsClustered(false);
+                        x.OwnsOne("Address", "Address");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    var addKey = createTableOperation.PrimaryKey;
+                    Assert.Equal("PK_Ram", addKey.Name);
+                    Assert.False((bool)addKey[SqlServerAnnotationNames.Clustered]);
+                });
+        }
+
+        [Fact]
         public void Alter_unique_constraint_clustering()
         {
             Execute(
