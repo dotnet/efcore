@@ -437,6 +437,7 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                 Version.TryParse(connection.ServerVersion, out var serverVersion);
                 var supportsMemoryOptimizedTable = serverVersion?.Major >= 12;
                 var supportsTemporalTable = serverVersion?.Major >= 13;
+                var supportsGraph = serverVersion?.Major >= 14;
 
                 var commandText = @"
 SELECT
@@ -447,6 +448,14 @@ SELECT
                 {
                     commandText += @",
     [t].[is_memory_optimized]";
+                }
+
+                if (supportsGraph)
+                {
+                    commandText += @",
+    [t].[is_node]";
+                    commandText += @",
+    [t].[is_edge]";
                 }
 
                 commandText += @"
@@ -500,6 +509,18 @@ WHERE " + filter;
                             }
                         }
 
+                        if (supportsGraph)
+                        {
+                            if (reader.GetValueOrDefault<bool>("is_node"))
+                            {
+                                table[SqlServerAnnotationNames.GraphNode] = true;
+                            }
+                            if (reader.GetValueOrDefault<bool>("is_edge"))
+                            {
+                                table[SqlServerAnnotationNames.GraphEdge] = true;
+                            }
+                        }
+
                         tables.Add(table);
                     }
                 }
@@ -521,11 +542,24 @@ WHERE " + filter;
         {
             using (var command = connection.CreateCommand())
             {
+                Version.TryParse(connection.ServerVersion, out var serverVersion);
+                var supportsGraph = serverVersion?.Major >= 14;
+
                 var commandText = @"
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
-    [c].[name] AS [column_name],
+    [c].[name] AS [column_name],";
+
+                if (supportsGraph)
+                {
+                    commandText += @"
+    [c].[graph_type],
+    [t].[is_node],
+    [t].[is_edge],";
+                }
+
+                commandText += @"
     [c].[column_id] AS [ordinal],
     SCHEMA_NAME([tp].[schema_id]) AS [type_schema],
     [tp].[name] AS [type_name],
@@ -542,8 +576,7 @@ JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
 WHERE " + tableFilter;
 
-                if (Version.TryParse(connection.ServerVersion, out var serverVersion)
-                    && serverVersion.Major >= 13)
+                if (serverVersion.Major >= 13)
                 {
                     commandText += " AND [c].[is_hidden] = 0";
                 }
@@ -569,7 +602,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
 
                         foreach (var dataRecord in tableColumnGroup)
                         {
-                            var columnName = dataRecord.GetValueOrDefault<string>("column_name");
+                            var columnName = GetColumnName(dataRecord, supportsGraph);
                             var ordinal = dataRecord.GetValueOrDefault<int>("ordinal");
                             var dataTypeSchemaName = dataRecord.GetValueOrDefault<string>("type_schema");
                             var dataTypeName = dataRecord.GetValueOrDefault<string>("type_name");
@@ -580,6 +613,11 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                             var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
                             var defaultValue = dataRecord.GetValueOrDefault<string>("default_sql");
                             var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
+                            var graphType = supportsGraph
+                                ? dataRecord.GetValueOrDefault<int?>("graph_type")
+                                : null;
+                            var isNode = supportsGraph && dataRecord.GetValueOrDefault<bool>("is_node");
+                            var isEdge = supportsGraph && dataRecord.GetValueOrDefault<bool>("is_edge");
 
                             _logger.ColumnFound(
                                 DisplayName(tableSchema, tableName),
@@ -631,6 +669,20 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                             if (storeType == "rowversion")
                             {
                                 column[ScaffoldingAnnotationNames.ConcurrencyToken] = true;
+                            }
+
+                            if (graphType.HasValue && graphType > 0)
+                            {
+                                column[SqlServerAnnotationNames.PseudoColumn] = true;
+
+                                if (graphType == 2 && isNode)
+                                {
+                                    column[SqlServerAnnotationNames.GraphNode] = true;
+                                }
+                                else if (graphType == 2 && isEdge)
+                                {
+                                    column[SqlServerAnnotationNames.GraphEdge] = true;
+                                }
                             }
 
                             table.Columns.Add(column);
@@ -735,10 +787,61 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
             return dataTypeName;
         }
 
+        private string GetColumnName(DbDataRecord dataRecord, bool supportsGraph)
+        {
+            var columnName = dataRecord.GetValueOrDefault<string>("column_name");
+            if (!supportsGraph)
+            {
+                return columnName;
+            }
+
+            var tableName = dataRecord.GetValueOrDefault<string>("table_name");
+            var graphType = dataRecord.GetValueOrDefault<int?>("graph_type");
+
+            if (graphType == null)
+            {
+                return columnName;
+            }
+
+            if (dataRecord.GetValueOrDefault<bool>("is_node"))
+            {
+                switch (graphType)
+                {
+                    case 1:
+                    case 2:
+                        return "$node_id";
+                }
+            }
+            else if (dataRecord.GetValueOrDefault<bool>("is_edge"))
+            {
+                switch (graphType)
+                {
+                    case 1:
+                    case 2:
+                        return "$edge_id";
+
+                    case 3:
+                    case 4:
+                    case 5:
+                        return "$from_id";
+
+                    case 6:
+                    case 7:
+                    case 8:
+                        return "$to_id";
+                }
+            }
+
+            throw new InvalidOperationException(SqlServerStrings.InvalidGraphType(graphType, tableName));
+        }
+
         private void GetIndexes(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
         {
             using (var command = connection.CreateCommand())
             {
+                Version.TryParse(connection.ServerVersion, out var serverVersion);
+                var supportsGraph = serverVersion?.Major >= 14;
+
                 command.CommandText = @"
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
@@ -749,12 +852,23 @@ SELECT
     [i].[is_unique_constraint],
     [i].[is_unique],
     [i].[has_filter],
-    [i].[filter_definition],
+    [i].[filter_definition],";
+
+                if (supportsGraph)
+                {
+                    command.CommandText += @"
+    [c].[graph_type],
+    [t].[is_node],
+    [t].[is_edge],";
+                }
+
+                command.CommandText += @"
     COL_NAME([ic].[object_id], [ic].[column_id]) AS [column_name]
 FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
 JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
-WHERE " + tableFilter + @"
+JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
+WHERE " + (supportsGraph ? "([c].[graph_type] IS NULL OR [c].[graph_type] NOT IN (4, 7)) AND " : "") + tableFilter + @"
 ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                 using (var reader = command.ExecuteReader())
@@ -798,7 +912,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                             foreach (var dataRecord in primaryKeyGroup)
                             {
-                                var columnName = dataRecord.GetValueOrDefault<string>("column_name");
+                                var columnName = GetColumnName(dataRecord, supportsGraph);
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                                              ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
@@ -834,7 +948,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                             foreach (var dataRecord in uniqueConstraintGroup)
                             {
-                                var columnName = dataRecord.GetValueOrDefault<string>("column_name");
+                                var columnName = GetColumnName(dataRecord, supportsGraph);
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                                              ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
@@ -877,7 +991,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                             foreach (var dataRecord in indexGroup)
                             {
-                                var columnName = dataRecord.GetValueOrDefault<string>("column_name");
+                                var columnName = GetColumnName(dataRecord, supportsGraph);
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                                              ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
