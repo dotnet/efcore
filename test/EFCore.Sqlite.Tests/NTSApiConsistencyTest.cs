@@ -4,29 +4,29 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ApiConsistencyTest : ApiConsistencyTestBase
+#if !Test21
+    public class NTSApiConsistencyTest : ApiConsistencyTestBase
     {
         private static readonly Type[] _fluentApiTypes =
         {
-            typeof(SqliteServiceCollectionExtensions),
-            typeof(SqliteDbContextOptionsBuilderExtensions),
-            typeof(SqliteDbContextOptionsBuilder),
-            typeof(SqlitePropertyBuilderExtensions)
+            typeof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions),
+            typeof(SqliteNetTopologySuitePropertyBuilderExtensions),
+            typeof(SqliteNetTopologySuiteServiceCollectionExtensions)
         };
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
 
         protected override void AddServices(ServiceCollection serviceCollection)
         {
-            serviceCollection.AddEntityFrameworkSqlite();
+            serviceCollection.AddEntityFrameworkSqliteNetTopologySuite();
         }
 
-        protected override Assembly TargetAssembly => typeof(SqliteRelationalConnection).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly
+            => typeof(SqliteNetTopologySuiteServiceCollectionExtensions).GetTypeInfo().Assembly;
     }
+#endif
 }
