@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses.StreamedData;
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IQueryModelGenerator _queryModelGenerator;
 
         private readonly Type _contextType;
+        private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -52,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IDatabase database,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IQueryModelGenerator queryModelGenerator)
+            [NotNull] IQueryModelGenerator queryModelGenerator,
+            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
             Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
@@ -60,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(database, nameof(database));
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
 
             _queryContextFactory = queryContextFactory;
             _compiledQueryCache = compiledQueryCache;
@@ -68,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _logger = logger;
             _contextType = currentContext.Context.GetType();
             _queryModelGenerator = queryModelGenerator;
+            _evaluatableExpressionFilter = evaluatableExpressionFilter;
         }
 
         /// <summary>
@@ -86,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
+            query = ExtractParameters(query, queryContext, _logger);
 
             var compiledQuery
                 = _compiledQueryCache
@@ -105,8 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = _queryModelGenerator.ExtractParameters(
-                _logger, query, _queryContextFactory.Create(), parameterize: false);
+            query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
             return CompileQueryCore<TResult>(query, _queryModelGenerator, _database, _logger, _contextType);
         }
@@ -162,13 +166,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+#pragma warning disable RCS1047 // Non-asynchronous method name should not end with 'Async'.
         public virtual TResult ExecuteAsync<TResult>(Expression query)
+#pragma warning restore RCS1047 // Non-asynchronous method name should not end with 'Async'.
         {
             Check.NotNull(query, nameof(query));
 
             var queryContext = _queryContextFactory.Create();
 
-            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
+            query = ExtractParameters(query, queryContext, _logger);
 
             var compiledQuery
                 = _compiledQueryCache
@@ -187,8 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = _queryModelGenerator.ExtractParameters(
-                _logger, query, _queryContextFactory.Create(), parameterize: false);
+            query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
             return CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
         }
@@ -205,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             queryContext.CancellationToken = cancellationToken;
 
-            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
+            query = ExtractParameters(query, queryContext, _logger);
 
             var compiledQuery
                 = _compiledQueryCache
@@ -224,8 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = _queryModelGenerator.ExtractParameters(
-                _logger, query, _queryContextFactory.Create(), parameterize: false);
+            query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
             var compiledQuery = CompileAsyncQueryCore<IAsyncEnumerable<TResult>>(query, _queryModelGenerator, _database);
 
@@ -281,6 +285,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 throw;
             }
+        }
+
+        public virtual Expression ExtractParameters(
+            [NotNull] Expression query,
+            [NotNull] IParameterValues parameterValues,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            bool parameterize = true,
+            bool generateContextAccessors = false)
+        {
+            var visitor = new ParameterExtractingExpressionVisitor(
+                _evaluatableExpressionFilter,
+                parameterValues,
+                _contextType,
+                logger,
+                parameterize,
+                generateContextAccessors);
+
+            return visitor.ExtractParameters(query);
         }
     }
 }

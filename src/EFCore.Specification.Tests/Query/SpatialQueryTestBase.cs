@@ -496,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     e => new
                     {
                         e.Id,
-                        Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(0, 1) { SRID = 4326 })
+                        Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 })
                     }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>

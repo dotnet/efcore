@@ -8,18 +8,11 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
+
     public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
     {
         private readonly IModel _model;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public RelationalEvaluatableExpressionFilter([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
@@ -27,12 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _model = model;
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
-            => _model.Relational().FindDbFunction(methodCallExpression.Method) == null
-               && base.IsEvaluatableMethodCall(methodCallExpression);
+        public override bool IsEvaluatableExpression(Expression expression)
+        {
+            if (expression is MethodCallExpression methodCallExpression
+                && _model.Relational().FindDbFunction(methodCallExpression.Method) != null)
+            {
+                return false;
+            }
+
+            return base.IsEvaluatableExpression(expression);
+        }
     }
 }

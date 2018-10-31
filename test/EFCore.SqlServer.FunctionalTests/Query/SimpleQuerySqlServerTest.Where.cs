@@ -141,17 +141,17 @@ WHERE [c].[City] = @__city_0");
             await base.Where_method_call_nullable_type_closure_via_query_cache(isAsync);
 
             AssertSql(
-                @"@__city_Int_0='2'
+                @"@__p_0='2' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[ReportsTo] = @__city_Int_0",
+WHERE [e].[ReportsTo] = @__p_0",
                 //
-                @"@__city_Int_0='5'
+                @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[ReportsTo] = @__city_Int_0");
+WHERE [e].[ReportsTo] = @__p_0");
         }
 
         public override async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool isAsync)
@@ -159,17 +159,17 @@ WHERE [e].[ReportsTo] = @__city_Int_0");
             await base.Where_method_call_nullable_type_reverse_closure_via_query_cache(isAsync);
 
             AssertSql(
-                @"@__city_NullableInt_0='1' (Nullable = true)
+                @"@__p_0='1' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] > @__city_NullableInt_0",
+WHERE [e].[EmployeeID] > @__p_0",
                 //
-                @"@__city_NullableInt_0='5' (Nullable = true)
+                @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] > @__city_NullableInt_0");
+WHERE [e].[EmployeeID] > @__p_0");
         }
 
         public override async Task Where_method_call_closure_via_query_cache(bool isAsync)
@@ -298,6 +298,20 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0");
         }
 
+        public override async Task Where_new_instance_field_access_query_cache(bool isAsync)
+        {
+            await base.Where_new_instance_field_access_query_cache(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = N'London'",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = N'Seattle'");
+        }
+
         public override async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)
         {
             await base.Where_new_instance_field_access_closure_via_query_cache(isAsync);
@@ -321,17 +335,17 @@ WHERE [c].[City] = @__InstanceFieldValue_0");
             await base.Where_simple_closure_via_query_cache_nullable_type(isAsync);
 
             AssertSql(
-                @"@__reportsTo_0='2' (Nullable = true)
+                @"@__p_0='2' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[ReportsTo] = @__reportsTo_0",
+WHERE [e].[ReportsTo] = @__p_0",
                 //
-                @"@__reportsTo_0='5' (Nullable = true)
+                @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[ReportsTo] = @__reportsTo_0",
+WHERE [e].[ReportsTo] = @__p_0",
                 //
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -347,17 +361,17 @@ WHERE [e].[ReportsTo] IS NULL");
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL",
                 //
-                @"@__reportsTo_0='5' (Nullable = true)
+                @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[ReportsTo] = @__reportsTo_0",
+WHERE [e].[ReportsTo] = @__p_0",
                 //
-                @"@__reportsTo_0='2' (Nullable = true)
+                @"@__p_0='2' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[ReportsTo] = @__reportsTo_0");
+WHERE [e].[ReportsTo] = @__p_0");
         }
 
         public override void Where_subquery_closure_via_query_cache()
@@ -601,11 +615,11 @@ WHERE 0 = 1");
             await base.Where_equals_using_int_overload_on_mismatched_types(isAsync);
 
             AssertSql(
-                @"@__shortPrm_0='1'
+                @"@__p_0='1'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = @__shortPrm_0");
+WHERE [e].[EmployeeID] = @__p_0");
         }
 
         public override async Task Where_equals_on_mismatched_types_nullable_int_long(bool isAsync)
@@ -1362,12 +1376,12 @@ WHERE (CAST(@__i_0 AS nvarchar(max)) + [c].[CustomerID]) = [c].[CompanyName]");
             await base.Where_concat_string_int_comparison3(isAsync);
 
             AssertSql(
-                @"@__i_0='10'
+                @"@__p_0='30'
 @__j_1='21'
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (((CAST(@__i_0 + 20 AS nvarchar(max)) + [c].[CustomerID]) + CAST(@__j_1 AS nvarchar(max))) + CAST(42 AS nvarchar(max))) = [c].[CompanyName]");
+WHERE (((CAST(@__p_0 AS nvarchar(max)) + [c].[CustomerID]) + CAST(@__j_1 AS nvarchar(max))) + CAST(42 AS nvarchar(max))) = [c].[CompanyName]");
         }
 
         public override async Task Where_ternary_boolean_condition_true(bool isAsync)
@@ -1679,6 +1693,18 @@ WHERE (
 
             AssertSql(@"SELECT CAST([c].[OrderDate] AS time)
 FROM [Orders] AS [c]");
+        }
+
+        public override async Task TypeBinary_short_circuit(bool isAsync)
+        {
+            await base.TypeBinary_short_circuit(isAsync);
+
+            AssertSql(
+                @"@__p_0='False'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE @__p_0 = 1");
         }
     }
 }

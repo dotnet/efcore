@@ -392,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)
+        public virtual async Task Where_new_instance_field_access_query_cache(bool isAsync)
         {
             await AssertQuery<Customer>(
                 isAsync,
@@ -409,6 +409,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.City == new City
                     {
                         InstanceFieldValue = "Seattle"
+                    }.InstanceFieldValue),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)
+        {
+            var city = "London";
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(
+                    c => c.City == new City
+                    {
+                        InstanceFieldValue = city
+                    }.InstanceFieldValue),
+                entryCount: 6);
+
+            city = "Seattle";
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(
+                    c => c.City == new City
+                    {
+                        InstanceFieldValue = city
                     }.InstanceFieldValue),
                 entryCount: 1);
         }
@@ -1934,6 +1959,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Order>(
                 isAsync,
                 o => o.Select(c => c.OrderDate.Value.TimeOfDay));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task TypeBinary_short_circuit(bool isAsync)
+        {
+            var customer = new Customer();
+
+            return AssertQuery<Order>(
+                isAsync,
+#pragma warning disable CS0184 // 'is' expression's given expression is never of the provided type
+                os => os.Where(o => (customer is Order)));
+#pragma warning restore CS0184 // 'is' expression's given expression is never of the provided type
         }
     }
 }

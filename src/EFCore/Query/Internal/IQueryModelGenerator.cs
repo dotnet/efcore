@@ -19,16 +19,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         QueryModel ParseQuery([NotNull] Expression query);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        Expression ExtractParameters(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            [NotNull] Expression query,
-            [NotNull] IParameterValues parameterValues,
-            bool parameterize = true,
-            bool generateContextAccessors = false);
     }
 }

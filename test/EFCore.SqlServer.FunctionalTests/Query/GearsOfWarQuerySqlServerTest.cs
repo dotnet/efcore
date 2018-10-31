@@ -672,13 +672,6 @@ WHERE ([w].[AmmunitionType] & NULL) > 0");
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
-
-            Assert.Contains(
-                RelationalStrings.LogValueConversionSqlLiteralWarning
-                    .GenerateMessage(
-                        typeof(AmmunitionType).ShortDisplayName(),
-                        new EnumToNumberConverter<AmmunitionType, int>().GetType().ShortDisplayName()),
-                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Where_bitwise_and_nullable_enum_with_nullable_parameter(bool isAsync)
@@ -697,13 +690,6 @@ WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0",
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
-
-            Assert.Contains(
-                RelationalStrings.LogValueConversionSqlLiteralWarning
-                    .GenerateMessage(
-                        typeof(AmmunitionType).ShortDisplayName(),
-                        new EnumToNumberConverter<AmmunitionType, int>().GetType().ShortDisplayName()),
-                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Where_bitwise_or_enum(bool isAsync)
@@ -3083,11 +3069,9 @@ WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
             await base.Where_datetimeoffset_date_component(isAsync);
 
             AssertSql(
-                @"@__Date_0='0001-01-01T00:00:00'
-
-SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE CONVERT(date, [m].[Timeline]) > @__Date_0");
+WHERE CONVERT(date, [m].[Timeline]) > '0001-01-01T00:00:00.0000000'");
         }
 
         public override async Task Where_datetimeoffset_year_component(bool isAsync)
@@ -8162,6 +8146,33 @@ LEFT JOIN (
 ) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
 LEFT JOIN [Squads] AS [t.Gear.Squad] ON [t0].[SquadId] = [t.Gear.Squad].[Id]
 WHERE (SUBSTRING([t].[Note], 1, CAST(LEN([t.Gear.Squad].[Name]) AS int)) = [t].[GearNickName]) OR (([t].[Note] IS NULL OR [t.Gear.Squad].[Name] IS NULL) AND [t].[GearNickName] IS NULL)");
+        }
+        public override async Task Filter_with_new_Guid(bool isAsync)
+        {
+            await base.Filter_with_new_Guid(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
+FROM [Tags] AS [t]
+WHERE [t].[Id] = 'df36f493-463f-4123-83f9-6b135deeb7ba'");
+        }
+
+        public override async Task Filter_with_new_Guid_closure(bool isAsync)
+        {
+            await base.Filter_with_new_Guid_closure(isAsync);
+
+            AssertSql(
+                @"@__p_0='df36f493-463f-4123-83f9-6b135deeb7bd'
+
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
+FROM [Tags] AS [t]
+WHERE [t].[Id] = @__p_0",
+                //
+                @"@__p_0='b39a6fba-9026-4d69-828e-fd7068673e57'
+
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
+FROM [Tags] AS [t]
+WHERE [t].[Id] = @__p_0");
         }
 
         private void AssertSql(params string[] expected)

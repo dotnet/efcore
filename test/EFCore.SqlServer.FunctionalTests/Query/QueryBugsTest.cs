@@ -3939,7 +3939,7 @@ GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
 
         #region Bug11803_11791
 
-        [Fact]
+        [Fact(Skip = "See issue#13587")]
         public virtual void Query_filter_with_db_set_should_not_block_other_filters()
         {
             using (CreateDatabase11803())
@@ -5140,7 +5140,7 @@ ORDER BY [t].[Id]");
 
         #region Bug13346
 
-        [Fact]
+        [Fact(Skip = "See issue#13587")]
         public virtual void ToQuery_can_define_in_own_terms_using_FromSql()
         {
             using (CreateDatabase13346())

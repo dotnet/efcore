@@ -133,15 +133,15 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
             base.From_sql_queryable_multiple_composed_with_closure_parameters();
 
             AssertSql(
-                @"@__8__locals1_startDate_1='1997-01-01T00:00:00'
-@__8__locals1_endDate_2='1998-01-01T00:00:00'
+                @"@p0='1997-01-01T00:00:00'
+@p1='1998-01-01T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p0 AND @p1
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
@@ -152,28 +152,28 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
 
             AssertSql(
                 @"@p0='London' (Size = 4000)
-@__8__locals1_startDate_1='1997-01-01T00:00:00'
-@__8__locals1_endDate_2='1998-01-01T00:00:00'
+@p1='1997-01-01T00:00:00'
+@p2='1998-01-01T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
                 @"@p0='Berlin' (Size = 4000)
-@__8__locals1_startDate_1='1998-04-01T00:00:00'
-@__8__locals1_endDate_2='1998-05-01T00:00:00'
+@p1='1998-04-01T00:00:00'
+@p2='1998-05-01T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
@@ -660,26 +660,28 @@ WHERE [o].[CustomerID] IN (
 
                 Assert.Equal(26, actual.Length);
 
-                AssertSql(
-                    @"@title='Sales Representative' (Nullable = false) (Size = 20)
+            AssertSql(
+                @"@p0='London' (Size = 4000)
+@title='Sales Representative' (Nullable = false) (Size = 20)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] IN (
     SELECT [c].[CustomerID]
     FROM (
-        SELECT * FROM ""Customers"" WHERE ""City"" = N'London' AND ""ContactTitle"" = @title
+        SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title
     ) AS [c]
 )",
-                    //
-                    @"@city='London' (Nullable = false) (Size = 6)
+                //
+                @"@city='London' (Nullable = false) (Size = 6)
+@p1='Sales Representative' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] IN (
     SELECT [c].[CustomerID]
     FROM (
-        SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = N'Sales Representative'
+        SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1
     ) AS [c]
 )");
             }

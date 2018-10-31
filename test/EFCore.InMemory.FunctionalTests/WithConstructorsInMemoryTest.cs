@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -12,6 +13,12 @@ namespace Microsoft.EntityFrameworkCore
         public WithConstructorsInMemoryTest(WithConstructorsInMemoryFixture fixture)
             : base(fixture)
         {
+        }
+
+        [Fact(Skip = "See issue#13857")]
+        public override void Query_with_query_type()
+        {
+            base.Query_with_query_type();
         }
 
         public override void Query_and_update_using_constructors_with_property_parameters()

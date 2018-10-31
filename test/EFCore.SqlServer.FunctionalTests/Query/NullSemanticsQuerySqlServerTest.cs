@@ -934,12 +934,12 @@ WHERE CASE
     END ELSE CAST(0 AS BIT)
 END = 1",
                 //
-                @"@__prm_0='True'
+                @"@__p_0='False'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE CASE
-    WHEN @__prm_0 = 0
+    WHEN @__p_0 = 1
     THEN CAST(1 AS BIT) ELSE CASE
         WHEN [e].[StringA] LIKE N'A' + N'%' AND (LEFT([e].[StringA], LEN(N'A')) = N'A')
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -1080,17 +1080,17 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
             base.Where_comparison_null_constant_and_null_parameter();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
+                @"@__p_0='True'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 IS NULL",
+WHERE @__p_0 = 1",
                 //
-                @"@__prm_0='' (Size = 4000)
+                @"@__p_0='False'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 IS NOT NULL");
+WHERE @__p_0 = 1");
         }
 
         public override void Where_comparison_null_constant_and_nonnull_parameter()
@@ -1098,17 +1098,17 @@ WHERE @__prm_0 IS NOT NULL");
             base.Where_comparison_null_constant_and_nonnull_parameter();
 
             AssertSql(
-                @"@__prm_0='Foo' (Size = 4000)
+                @"@__p_0='False'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 IS NULL",
+WHERE @__p_0 = 1",
                 //
-                @"@__prm_0='Foo' (Size = 4000)
+                @"@__p_0='True'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 IS NOT NULL");
+WHERE @__p_0 = 1");
         }
 
         public override void Where_comparison_nonnull_constant_and_null_parameter()
@@ -1116,12 +1116,17 @@ WHERE @__prm_0 IS NOT NULL");
             base.Where_comparison_nonnull_constant_and_null_parameter();
 
             AssertSql(
-                @"SELECT [e].[Id]
+                @"@__p_0='False'
+
+SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE 0 = 1",
+WHERE @__p_0 = 1",
                 //
-                @"SELECT [e].[Id]
-FROM [Entities1] AS [e]");
+                @"@__p_0='True'
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE @__p_0 = 1");
         }
 
         public override void Where_comparison_null_semantics_optimization_works_with_complex_predicates()
@@ -1153,15 +1158,17 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
             base.Switching_parameter_value_to_null_produces_different_cache_entry();
 
             AssertSql(
-                @"@__prm_0='Foo' (Size = 4000)
+                @"@__p_0='True'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 = N'Foo'",
+WHERE @__p_0 = 1",
                 //
-                @"SELECT [e].[Id]
+                @"@__p_0='False'
+
+SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE 0 = 1");
+WHERE @__p_0 = 1");
         }
 
         public override void From_sql_composed_with_relational_null_comparison()
