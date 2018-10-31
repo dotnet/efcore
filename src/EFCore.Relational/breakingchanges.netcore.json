@@ -10,6 +10,11 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Scaffolding.ProviderCodeGeneratorDependencies",
+      "MemberId": "public .ctor()",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMemberTranslatorDependencies",
       "MemberId": "public .ctor()",
       "Kind": "Removal"
@@ -123,6 +128,21 @@
       "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.UShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
       "MemberId": "public override Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(System.String storeType, System.Nullable<System.Int32> size)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateContextOptions()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateProviderOptions()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateUseProvider(System.String connectionString, Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment providerOptions)",
+      "Kind": "Addition"
     },
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",

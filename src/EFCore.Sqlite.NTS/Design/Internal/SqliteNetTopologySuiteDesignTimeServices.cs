@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
             => serviceCollection
                 .AddSingleton<IRelationalTypeMappingSourcePlugin, SqliteNetTopologySuiteTypeMappingSourcePlugin>()
+                .AddSingleton<IProviderCodeGeneratorPlugin, SqliteNetTopologySuiteCodeGeneratorPlugin>()
                 .TryAddSingleton(NtsGeometryServices.Instance);
     }
 }

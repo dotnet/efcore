@@ -1,7 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -104,6 +108,40 @@ namespace TestNamespace
                     Assert.Empty(code.AdditionalFiles);
                 },
                 model => Assert.Empty(model.GetEntityTypes()));
+        }
+
+        [Fact]
+        public void Plugins_work()
+        {
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+            services.AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>();
+
+            var generator = services
+                .BuildServiceProvider()
+                .GetRequiredService<IModelCodeGenerator>();
+
+            var scaffoldedModel = generator.GenerateModel(
+                new Model(),
+                "TestNamespace",
+                contextDir: string.Empty,
+                "TestDbContext",
+                "Initial Catalog=TestDatabase",
+                new ModelCodeGenerationOptions { SuppressConnectionStringWarning = true });
+
+            Assert.Contains(
+                @"optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"", x => x.SetProviderOption()).SetContextOption();",
+                scaffoldedModel.ContextFile.Code);
+        }
+
+        private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
+        {
+            public override MethodCallCodeFragment GenerateProviderOptions()
+                => new MethodCallCodeFragment("SetProviderOption");
+
+            public override MethodCallCodeFragment GenerateContextOptions()
+                => new MethodCallCodeFragment("SetContextOption");
         }
     }
 }

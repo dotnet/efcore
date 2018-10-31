@@ -203,15 +203,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             .IncrementIndent();
                     }
 
-                    _sb.Append("optionsBuilder")
-                        .Append(
-                            _providerConfigurationCodeGenerator != null
-                                ? _code.Fragment(
-                                    _providerConfigurationCodeGenerator.GenerateUseProvider(connectionString))
+                    _sb.Append("optionsBuilder");
+
+                    if (_providerConfigurationCodeGenerator != null)
+                    {
+                        var useProviderCall = _providerConfigurationCodeGenerator.GenerateUseProvider(
+                            connectionString,
+                            _providerConfigurationCodeGenerator.GenerateProviderOptions());
+                        var contextOptions = _providerConfigurationCodeGenerator.GenerateContextOptions();
+                        if (contextOptions != null)
+                        {
+                            useProviderCall = useProviderCall.Chain(contextOptions);
+                        }
+
+                        _sb.Append(_code.Fragment(useProviderCall));
+                    }
+                    else
+                    {
 #pragma warning disable CS0618 // Type or member is obsolete
-                                : _legacyProviderCodeGenerator.GenerateUseProvider(connectionString, Language))
+                        _sb.Append(_legacyProviderCodeGenerator.GenerateUseProvider(connectionString, Language));
 #pragma warning restore CS0618 // Type or member is obsolete
-                        .AppendLine(";");
+                    }
+
+                    _sb.AppendLine(";");
                 }
 
                 _sb.AppendLine("}");

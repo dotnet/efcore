@@ -4,8 +4,6 @@
 using System;
 using System.Data.SqlTypes;
 using System.Linq.Expressions;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -320,6 +318,28 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
             Assert.Equal(".Test().Test()", result);
+        }
+
+        [Fact]
+        public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain()
+        {
+            var method = new MethodCallCodeFragment("One", Array.Empty<object>(), new MethodCallCodeFragment("Two"))
+                .Chain("Three");
+
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
+
+            Assert.Equal(".One().Two().Three()", result);
+        }
+
+        [Fact]
+        public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain_with_call()
+        {
+            var method = new MethodCallCodeFragment("One", Array.Empty<object>(), new MethodCallCodeFragment("Two"))
+                .Chain(new MethodCallCodeFragment("Three", Array.Empty<object>(), new MethodCallCodeFragment("Four")));
+
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
+
+            Assert.Equal(".One().Two().Three().Four()", result);
         }
 
         [Fact]

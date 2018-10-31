@@ -70,6 +70,17 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="arguments"> The next method call's arguments. </param>
         /// <returns> A new fragment representing the method chain. </returns>
         public virtual MethodCallCodeFragment Chain([NotNull] string method, [NotNull] params object[] arguments)
-            => new MethodCallCodeFragment(Method, _arguments.ToArray(), new MethodCallCodeFragment(method, arguments));
+            => Chain(new MethodCallCodeFragment(method, arguments));
+
+        /// <summary>
+        ///     Creates a method chain from this method to another.
+        /// </summary>
+        /// <param name="call"> The next method. </param>
+        /// <returns> A new fragment representing the method chain. </returns>
+        public virtual MethodCallCodeFragment Chain([NotNull] MethodCallCodeFragment call)
+            => new MethodCallCodeFragment(
+                Method,
+                _arguments.ToArray(),
+                ChainedCall?.Chain(call) ?? call);
     }
 }
