@@ -1,4 +1,4 @@
-﻿﻿  [
+﻿  [
     {
       "TypeId": "public class Microsoft.EntityFrameworkCore.Storage.ValueConversion.CharToStringConverter : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<System.Char, System.String>",
       "Kind": "Removal"
@@ -46,6 +46,10 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
       "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddIndexedProperty(System.String name, System.Type propertyType)",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IPropertyBase : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "MemberId": "System.Boolean get_IsIndexedProperty()",
+      "Kind": "Addition"
     }
   ]
-
