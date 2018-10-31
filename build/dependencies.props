@@ -22,14 +22,18 @@
     <OracleManagedDataAccessPackageVersion>12.2.1100</OracleManagedDataAccessPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
     <SQLitePCLRawBundleGreenPackageVersion>1.1.11</SQLitePCLRawBundleGreenPackageVersion>
+    <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.11</SQLitePCLRawBundleSqlcipherPackageVersion>
+    <SQLitePCLRawCorePackageVersion>1.1.11</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.0.0</StyleCopAnalyzersPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.5.0</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.5.0</SystemComponentModelAnnotationsPackageVersion>
     <SystemDataSqlClientPackageVersion>4.5.1</SystemDataSqlClientPackageVersion>
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.5.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
     <SystemInteractiveAsyncPackageVersion>3.1.1</SystemInteractiveAsyncPackageVersion>
+    <XunitAnalyzersPackageVersion>0.8.0</XunitAnalyzersPackageVersion>
     <XunitAssertPackageVersion>2.3.1</XunitAssertPackageVersion>
     <XunitCorePackageVersion>2.3.1</XunitCorePackageVersion>
+    <XunitPackageVersion>2.3.1</XunitPackageVersion>
     <XunitRunnerVisualStudioPackageVersion>2.4.0-beta.1.build3945</XunitRunnerVisualStudioPackageVersion>
   </PropertyGroup>
 

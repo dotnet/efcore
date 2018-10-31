@@ -1,0 +1,142 @@
+﻿<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Linq" #>
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+
+namespace Microsoft.Data.Sqlite
+{
+    partial class SqliteConnection
+    {
+<#
+    var ordinal = new[] { "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth" };
+
+    var first = true;
+    foreach (var resultSelector in new[] { false, true })
+    {
+        var resultTypeArgument = resultSelector
+            ? ", TResult"
+            : "";
+
+        var resultSelectorParameter = resultSelector
+            ? ", Func<TAccumulate, TResult> resultSelector"
+            : "";
+
+        var resultSelectorArgument = resultSelector
+            ? "resultSelector"
+            : "a => a";
+
+        foreach (var seed in new[] { false, true })
+        {
+            if (resultSelector && !seed)
+            {
+                continue;
+            }
+
+            var seedParameter = seed
+                ? ", TAccumulate seed"
+                : "";
+
+            var seedArgument = seed
+                ? "seed"
+                : "default";
+
+            for (var arity = 0; arity <= 15; arity++)
+            {
+                var parameterTypeArgumentList = Enumerable.Range(1, arity).Select(j => "T" + j).ToList();
+
+                var typeArgumentsList = new List<string>();
+                typeArgumentsList.AddRange(parameterTypeArgumentList);
+                typeArgumentsList.Add("TAccumulate");
+
+                if (resultSelector)
+                {
+                    typeArgumentsList.Add("TResult");
+                }
+
+                var typeArguments = String.Join(", ", typeArgumentsList);
+
+                var lambdaTypeArgumentList = new List<string>();
+                lambdaTypeArgumentList.Add("TAccumulate");
+                lambdaTypeArgumentList.AddRange(parameterTypeArgumentList);
+                lambdaTypeArgumentList.Add("TAccumulate");
+
+                var lambdaTypeArguments = string.Join(", ", lambdaTypeArgumentList);
+
+                var lambdaArgumentsList = new List<string>();
+
+                lambdaArgumentsList.Add("a");
+
+                for (var i = 0; i < parameterTypeArgumentList.Count; i++)
+                {
+                    lambdaArgumentsList.Add("r.GetFieldValue<" + parameterTypeArgumentList[i] + ">(" + i + ")");
+                }
+
+                var lambdaArguments = string.Join(", ", lambdaArgumentsList);
+
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    WriteLine("");
+                }
+#>
+        /// <summary>
+        ///     Creates or redefines an aggregate SQL function.
+        /// </summary>
+<# for (var i = 1; i <= arity; i++) { #>
+        /// <typeparam name="T<#= i #>">The type of the <#= ordinal[i - 1] #> parameter of the function.</typeparam>
+<# } #>
+        /// <typeparam name="TAccumulate">The type of the accumulator value.</typeparam>
+<# if (resultSelector) { #>
+        /// <typeparam name="TResult">The type of the resulting value.</typeparam>
+<# } #>
+        /// <param name="name">The name of the SQL function.</param>
+<# if (seed) { #>
+        /// <param name="seed">The initial accumulator value.</param>
+<# } #>
+        /// <param name="func">An accumulator function to be invoked on each element. Pass null to delete a function.</param>
+<# if (resultSelector) { #>
+        /// <param name="resultSelector">
+        ///     A function to transform the final accumulator value into the result value. Pass null to
+        ///     delete a function.
+        /// </param>
+<# } #>
+        /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
+        public virtual void CreateAggregate<<#= typeArguments #>>(string name<#= seedParameter #>, Func<<#= lambdaTypeArguments #>> func<#= resultSelectorParameter #>, bool isDeterministic = false)
+            => CreateAggregateCore(name, <#= arity #>, <#= seedArgument #>, IfNotNull<TAccumulate, TAccumulate>(func, (a, r) => func(<#= lambdaArguments #>)), <#= resultSelectorArgument #>, isDeterministic);
+<#
+            }
+#>
+
+        /// <summary>
+        ///     Creates or redefines an aggregate SQL function.
+        /// </summary>
+        /// <typeparam name="TAccumulate">The type of the accumulator value.</typeparam>
+<# if (resultSelector) { #>
+        /// <typeparam name="TResult">The type of the resulting value.</typeparam>
+<# } #>
+        /// <param name="name">The name of the SQL function.</param>
+<# if (seed) { #>
+        /// <param name="seed">The initial accumulator value.</param>
+<# } #>
+        /// <param name="func">An accumulator function to be invoked on each element. Pass null to delete a function.</param>
+<# if (resultSelector) { #>
+        /// <param name="resultSelector">
+        ///     A function to transform the final accumulator value into the result value. Pass null to
+        ///     delete a function.
+        /// </param>
+<# } #>
+        /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
+        public virtual void CreateAggregate<TAccumulate<#= resultTypeArgument #>>(string name<#= seedParameter #>, Func<TAccumulate, object[], TAccumulate> func<#= resultSelectorParameter #>, bool isDeterministic = false)
+            => CreateAggregateCore(name, -1, <#= seedArgument #>, IfNotNull<TAccumulate, TAccumulate>(func, (a, r) => func(a, GetValues(r))), <#= resultSelectorArgument #>, isDeterministic);
+<#
+        }
+    }
+#>
+    }
+}

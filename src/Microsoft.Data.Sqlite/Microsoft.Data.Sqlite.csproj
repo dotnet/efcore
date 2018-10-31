@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>SQLite implementation of the System.Data.Common provider model.
+
+Commonly Used Types:
+Microsoft.Data.Sqlite.SqliteCommand
+Microsoft.Data.Sqlite.SqliteConnection
+Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+Microsoft.Data.Sqlite.SqliteDataReader
+Microsoft.Data.Sqlite.SqliteException
+Microsoft.Data.Sqlite.SqliteFactory
+Microsoft.Data.Sqlite.SqliteParameter
+Microsoft.Data.Sqlite.SqliteTransaction</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableApiCheck>false</EnableApiCheck>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <MinClientVersion>3.6</MinClientVersion>
+    <PackageTags>SQLite;Data;ADO.NET</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="$(SQLitePCLRawBundleGreenPackageVersion)">
+      <PrivateAssets>None</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="lib\**\*">
+      <Pack>True</Pack>
+      <PackagePath>lib</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
