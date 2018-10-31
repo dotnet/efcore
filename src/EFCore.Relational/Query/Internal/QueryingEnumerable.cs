@@ -209,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         _relationalQueryContext.Connection?.Close();
                     }
+                    _relationalQueryContext.Connection?.UnregisterBufferable(this);
 
                     _disposed = true;
                 }

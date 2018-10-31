@@ -630,6 +630,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Unregisters a potentially bufferable active query.
+        /// </summary>
+        /// <param name="bufferable"> The bufferable query. </param>
+        void IRelationalConnection.UnregisterBufferable(IBufferable bufferable)
+        {
+            // hot path
+            Debug.Assert(bufferable != null);
+
+            if (!IsMultipleActiveResultSetsEnabled)
+            {
+                _activeQueries.Remove(bufferable);
+            }
+        }
+
+        /// <summary>
         ///     Asynchronously registers a potentially bufferable active query.
         /// </summary>
         /// <param name="bufferable"> The bufferable query. </param>
