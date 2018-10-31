@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -253,6 +254,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var options = context.GetService<IDbContextOptions>();
             info.Options = options.BuildOptionsFragment().Trim();
+
+            var migrationsAssembly = context.GetService<IMigrationsAssembly>();
+            var snapshotModelProcessor = context.GetService<ISnapshotModelProcessor>();
+            var modelDiffer = context.GetService<IMigrationsModelDiffer>();
+
+            info.PendingChanges = modelDiffer.HasDifferences(
+                snapshotModelProcessor.Process(migrationsAssembly.ModelSnapshot?.Model)?.GetRelationalModel(),
+                context.Model.GetRelationalModel());
+
+            var relationalDatabaseCreator = context.GetService<IDatabaseCreator>() as IRelationalDatabaseCreator;
+            var databaseExists = relationalDatabaseCreator.Exists();
+            info.PendingMigrations = (databaseExists
+                                        ? (context.Database.GetPendingMigrations().Count() > 0)
+                                        : (context.Database.GetMigrations().Count() > 0));
 
             return info;
         }

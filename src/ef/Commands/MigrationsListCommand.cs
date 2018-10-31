@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 Reporter.WriteData("  {");
                 Reporter.WriteData("    \"id\": \"" + migrations[i]["Id"] + "\",");
                 Reporter.WriteData("    \"name\": \"" + migrations[i]["Name"] + "\",");
-                Reporter.WriteData("    \"safeName\": \"" + safeName + "\"");
+                Reporter.WriteData("    \"safeName\": \"" + safeName + "\",");
+                Reporter.WriteData("    \"applied\": \"" + migrations[i]["Applied"] + "\"");
 
                 var line = "  }";
                 if (i != migrations.Count - 1)

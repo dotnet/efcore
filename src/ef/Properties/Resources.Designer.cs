@@ -540,6 +540,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string NoTransactionsDescription
             => GetString("NoTransactionsDescription");
 
+        /// <summary>
+        ///     Pending Model Changes: {pendingChanges}
+        /// </summary>
+        public static string PendingChanges([CanBeNull] object pendingChanges)
+            => string.Format(
+                GetString("PendingChanges", nameof(pendingChanges)),
+                pendingChanges);
+
+        /// <summary>
+        ///     Pending Migrations: {pendingMigrations}
+        /// </summary>
+        public static string PendingMigrations([CanBeNull] object pendingMigrations)
+            => string.Format(
+                GetString("PendingMigrations", nameof(pendingMigrations)),
+                pendingMigrations);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

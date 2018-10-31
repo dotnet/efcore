@@ -120,6 +120,62 @@ function Get-DbContext(
 
 <#
 .SYNOPSIS
+    Lists the migrations for the selected project and whether they have been applied to the Database.
+
+.DESCRIPTION
+    Lists the migrations for the selected project and whether they have been applied to the Database.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.LINK
+    about_EntityFrameworkCore
+#>
+function Get-Migration(
+    $Context,
+    $Project,
+    $StartupProject,
+    $CheckIfApplied)
+{
+    throw $UpdatePowerShell
+}
+
+<#
+.SYNOPSIS
+    Lists the migrations for the selected project and whether they have been applied to the Database.
+
+.DESCRIPTION
+    Lists the migrations for the selected project and whether they have been applied to the Database.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.LINK
+    about_EntityFrameworkCore
+#>
+function Get-Migration(
+    $Context,
+    $Project,
+    $StartupProject,
+    $CheckIfApplied)
+{
+    throw $UpdatePowerShell
+}
+
+<#
+.SYNOPSIS
     Removes the last migration.
 
 .DESCRIPTION

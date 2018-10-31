@@ -354,4 +354,10 @@
   <data name="NoTransactionsDescription" xml:space="preserve">
     <value>Don't generate SQL transaction statements.</value>
   </data>
+  <data name="PendingChanges" xml:space="preserve">
+    <value>Pending Model Changes: {pendingChanges}</value>
+  </data>
+  <data name="PendingMigrations" xml:space="preserve">
+    <value>Pending Migrations: {pendingMigrations}</value>
+  </data>
 </root>

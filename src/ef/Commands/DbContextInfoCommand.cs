@@ -31,7 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             Reporter.WriteData("  \"providerName\": " + Json.Literal(result["ProviderName"] as string) + ",");
             Reporter.WriteData("  \"databaseName\": " + Json.Literal(result["DatabaseName"] as string) + ",");
             Reporter.WriteData("  \"dataSource\": " + Json.Literal(result["DataSource"] as string) + ",");
-            Reporter.WriteData("  \"options\": " + Json.Literal(result["Options"] as string));
+            Reporter.WriteData("  \"options\": " + Json.Literal(result["Options"] as string) + ",");
+            Reporter.WriteData("  \"pendingChanges\": " + result["PendingChanges"] + ",");
+            Reporter.WriteData("  \"pendingMigrations\": " + result["PendingMigrations"]);
             Reporter.WriteData("}");
         }
 
@@ -41,6 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             Reporter.WriteData(Resources.DatabaseName(result["DatabaseName"]));
             Reporter.WriteData(Resources.DataSource(result["DataSource"]));
             Reporter.WriteData(Resources.Options(result["Options"]));
+            Reporter.WriteData(Resources.PendingChanges(result["PendingChanges"]));
+            Reporter.WriteData(Resources.PendingMigrations(result["PendingMigrations"]));
         }
     }
 }
