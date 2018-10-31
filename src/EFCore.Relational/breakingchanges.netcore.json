@@ -1,0 +1,7 @@
+[
+     {
+       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalConnection : Microsoft.EntityFrameworkCore.Storage.IRelationalTransactionManager, System.IDisposable",
+       "MemberId": "System.Void UnregisterBufferable(Microsoft.EntityFrameworkCore.Query.Internal.IBufferable bufferable)",
+       "Kind": "Addition"
+     }
+]

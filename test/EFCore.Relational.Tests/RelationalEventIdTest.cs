@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -123,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore
             public SemaphoreSlim Semaphore => throw new NotImplementedException();
             public void RegisterBufferable(IBufferable bufferable) => throw new NotImplementedException();
             public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public void UnregisterBufferable([NotNull] IBufferable bufferable) => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
             public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();

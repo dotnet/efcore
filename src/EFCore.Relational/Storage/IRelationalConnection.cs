@@ -92,6 +92,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void RegisterBufferable([NotNull] IBufferable bufferable);
 
         /// <summary>
+        ///     Unregisters a potentially bufferable active query.
+        /// </summary>
+        /// <param name="bufferable"> The bufferable query. </param>
+        void UnregisterBufferable([NotNull] IBufferable bufferable);
+
+        /// <summary>
         ///     Asynchronously registers a potentially bufferable active query.
         /// </summary>
         /// <param name="bufferable"> The bufferable query. </param>
