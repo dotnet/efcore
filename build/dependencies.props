@@ -43,7 +43,6 @@
   <!-- These are package versions that should not be overridden or updated by automation. -->
   <PropertyGroup Label="Package Versions: Pinned">
     <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.1.1</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
-    <MicrosoftDataSqliteCorePackageVersion>2.1.0</MicrosoftDataSqliteCorePackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>2.1.1</MicrosoftExtensionsCachingMemoryPackageVersion>
     <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.1.1</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
     <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.1.1</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
