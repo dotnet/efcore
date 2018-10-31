@@ -19,6 +19,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <MinClientVersion>3.6</MinClientVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>Microsoft.Data.Sqlite.Core.ruleset</CodeAnalysisRuleSet>
+    <PackageTags>SQLite;Data;ADO.NET</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

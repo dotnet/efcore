@@ -16,6 +16,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <EnableApiCheck>false</EnableApiCheck>
     <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
+    <PackageTags>SQLite;Data;ADO.NET</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
