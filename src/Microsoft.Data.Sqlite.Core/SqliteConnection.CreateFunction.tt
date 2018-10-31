@@ -1,0 +1,124 @@
+﻿<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Linq" #>
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+
+namespace Microsoft.Data.Sqlite
+{
+    partial class SqliteConnection
+    {
+<#
+    var ordinal = new[] { "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth" };
+
+    var first = true;
+    foreach (var state in new[] { false, true })
+    {
+        var maxArguments = state
+            ? 15
+            : 16;
+
+        var stateTypeArgument = state
+            ? "TState, "
+            : "";
+
+        var stateParameter = state
+            ? "TState state, "
+            : "";
+
+        var stateArgument = state
+            ? "state"
+            : "null";
+
+        var stateParameterType = state
+            ? "TState"
+            : "object";
+
+        var lambdaStateArgument = state
+            ? "s, "
+            : "";
+
+        for (var arity = 0; arity <= maxArguments; arity++)
+        {
+            var parameterTypeArgumentList = Enumerable.Range(1, arity).Select(j => "T" + j).ToList();
+
+            var typeArgumentsList = new List<string>();
+
+            if (state)
+            {
+                typeArgumentsList.Add("TState");
+            }
+
+            typeArgumentsList.AddRange(parameterTypeArgumentList);
+            typeArgumentsList.Add("TResult");
+
+            var typeArguments = String.Join(", ", typeArgumentsList);
+
+            var lambdaArgumentsList = new List<string>();
+
+            if (state)
+            {
+                lambdaArgumentsList.Add("s");
+            }
+
+            for (var i = 0; i < parameterTypeArgumentList.Count; i++)
+            {
+                lambdaArgumentsList.Add("r.GetFieldValue<" + parameterTypeArgumentList[i] + ">(" + i + ")");
+            }
+
+            var lambdaArguments = string.Join(", ", lambdaArgumentsList);
+
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                WriteLine("");
+            }
+#>
+        /// <summary>
+        ///     Creates or redefines a SQL function.
+        /// </summary>
+<# if (state) { #>
+        /// <typeparam name="TState">The type of the state.</typeparam>
+<# } #>
+<# for (var i = 1; i <= arity; i++) { #>
+        /// <typeparam name="T<#= i #>">The type of the <#= ordinal[i - 1] #> parameter of the function.</typeparam>
+<# } #>
+        /// <typeparam name="TResult">The type of the resulting value.</typeparam>
+        /// <param name="name">The name of the SQL function.</param>
+<# if (state) { #>
+        /// <param name="state">An object available during each invocation of the function.</param>
+<# } #>
+        /// <param name="function">The function to be invoked.</param>
+        /// <param name="isDeterministic">Flag indicating whether the function is deterministic.</param>
+        public virtual void CreateFunction<<#= typeArguments #>>(string name, <#= stateParameter #>Func<<#= typeArguments #>> function, bool isDeterministic = false)
+            => CreateFunctionCore(name, <#= arity #>, <#= stateArgument #>, IfNotNull<<#= stateParameterType #>, TResult>(function, (s, r) => function(<#= lambdaArguments #>)), isDeterministic);
+<#
+        }
+
+#>
+
+        /// <summary>
+        ///     Creates or redefines a SQL function.
+        /// </summary>
+<# if (state) { #>
+        /// <typeparam name="TState">The type of the state.</typeparam>
+<# } #>
+        /// <typeparam name="TResult">The type of the resulting value.</typeparam>
+        /// <param name="name">The name of the SQL function.</param>
+<# if (state) { #>
+        /// <param name="state">An object available during each invocation of the function.</param>
+<# } #>
+        /// <param name="function">The function to be invoked.</param>
+        /// <param name="isDeterministic">Flag indicating whether the function is deterministic.</param>
+        public virtual void CreateFunction<<#= stateTypeArgument #>TResult>(string name, <#= stateParameter #>Func<<#= stateTypeArgument #>object[], TResult> function, bool isDeterministic = false)
+            => CreateFunctionCore(name, -1, <#= stateArgument #>, IfNotNull<<#= stateParameterType #>, TResult>(function, (s, r) => function(<#= lambdaStateArgument #>GetValues(r))), isDeterministic);
+<#
+    }
+#>
+    }
+}
