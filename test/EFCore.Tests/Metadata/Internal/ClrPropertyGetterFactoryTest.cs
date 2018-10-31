@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
             public bool IsShadowProperty { get; }
+            public bool IsIndexedProperty { get; }
             public IEntityType DeclaringEntityType { get; }
             public bool IsNullable { get; }
             public PropertySaveBehavior BeforeSaveBehavior { get; }

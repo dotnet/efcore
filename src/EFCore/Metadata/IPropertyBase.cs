@@ -47,5 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
         /// </summary>
         bool IsShadowProperty { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether this is an indexed property. An indexed property is one that does not have a
+        ///     corresponding property in the entity class, rather the entity class has an indexer which takes the name
+        ///     of the property as argument and returns an object.
+        /// </summary>
+        bool IsIndexedProperty { get; }
     }
 }

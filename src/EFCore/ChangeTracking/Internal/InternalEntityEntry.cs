@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty);
+            Debug.Assert(propertyBase.IsIndexedProperty || !propertyBase.IsShadowProperty);
 
             return ((PropertyBase)propertyBase).Getter.GetClrValue(Entity);
         }
