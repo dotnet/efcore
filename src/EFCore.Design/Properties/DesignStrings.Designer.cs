@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name, error);
 
         /// <summary>
-        ///     Unable to create an object of type '{contextType}'. Add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.
+        ///     Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
         /// </summary>
         public static string NoParameterlessConstructor([CanBeNull] object contextType)
             => string.Format(
