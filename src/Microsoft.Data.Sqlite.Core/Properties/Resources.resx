@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CallRequiresOpenConnection" xml:space="preserve">
+    <value>{methodName} can only be called when the connection is open.</value>
+  </data>
+  <data name="CallRequiresSetCommandText" xml:space="preserve">
+    <value>CommandText must be set before {methodName} can be called.</value>
+  </data>
+  <data name="ConnectionStringRequiresClosedConnection" xml:space="preserve">
+    <value>ConnectionString cannot be set when the connection is open.</value>
+  </data>
+  <data name="DataReaderClosed" xml:space="preserve">
+    <value>Invalid attempt to call {operation} when reader is closed.</value>
+  </data>
+  <data name="InvalidCacheMode" xml:space="preserve">
+    <value>The cache mode '{mode}' is invalid.</value>
+  </data>
+  <data name="InvalidCommandBehavior" xml:space="preserve">
+    <value>The CommandBehavior '{behavior}' is invalid.</value>
+  </data>
+  <data name="InvalidCommandType" xml:space="preserve">
+    <value>The CommandType '{commandType}' is invalid.</value>
+  </data>
+  <data name="InvalidIsolationLevel" xml:space="preserve">
+    <value>The IsolationLevel '{isolationLevel}' is invalid.</value>
+  </data>
+  <data name="InvalidParameterDirection" xml:space="preserve">
+    <value>The ParameterDirection '{direction}' is invalid.</value>
+  </data>
+  <data name="KeywordNotSupported" xml:space="preserve">
+    <value>Keyword not supported: '{keyword}'.</value>
+  </data>
+  <data name="MissingParameters" xml:space="preserve">
+    <value>Must add values for the following parameters: {parameters}</value>
+  </data>
+  <data name="NoData" xml:space="preserve">
+    <value>No data exists for the row/column.</value>
+  </data>
+  <data name="OpenRequiresSetConnectionString" xml:space="preserve">
+    <value>ConnectionString must be set before Open can be called.</value>
+  </data>
+  <data name="ParallelTransactionsNotSupported" xml:space="preserve">
+    <value>SqliteConnection does not support nested transactions.</value>
+  </data>
+  <data name="ParameterNotFound" xml:space="preserve">
+    <value>A SqliteParameter with ParameterName '{parameterName}' is not contained by this SqliteParameterCollection.</value>
+  </data>
+  <data name="RequiresSet" xml:space="preserve">
+    <value>{propertyName} must be set.</value>
+  </data>
+  <data name="TransactionCompleted" xml:space="preserve">
+    <value>This SqliteTransaction has completed; it is no longer usable.</value>
+  </data>
+  <data name="TransactionConnectionMismatch" xml:space="preserve">
+    <value>The transaction object is not associated with the connection object.</value>
+  </data>
+  <data name="TransactionRequired" xml:space="preserve">
+    <value>Execute requires the command to have a transaction object when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.</value>
+  </data>
+  <data name="UnknownDataType" xml:space="preserve">
+    <value>No mapping exists from object type {typeName} to a known managed provider native type.</value>
+  </data>
+  <data name="SqliteNativeError" xml:space="preserve">
+    <value>SQLite Error {errorCode}: '{message}'.</value>
+  </data>
+  <data name="DefaultNativeError" xml:space="preserve">
+    <value>For more information on this error code see http://sqlite.org/rescode.html</value>
+  </data>
+  <data name="AmbiguousParameterName" xml:space="preserve">
+    <value>Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.</value>
+  </data>
+  <data name="AlreadyLoaded" xml:space="preserve">
+    <value>The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.</value>
+  </data>
+  <data name="InvalidEnumValue" xml:space="preserve">
+    <value>The {enumType} enumeration value, {value}, is invalid.</value>
+  </data>
+  <data name="ConvertFailed" xml:space="preserve">
+    <value>Cannot convert object of type '{sourceType}' to object of type '{targetType}'.</value>
+  </data>
+  <data name="CannotStoreNaN" xml:space="preserve">
+    <value>Cannot store 'NaN' values.</value>
+  </data>
+  <data name="DataReaderOpen" xml:space="preserve">
+    <value>An open reader is already associated with this command. Close it before opening a new one.</value>
+  </data>
+  <data name="SetRequiresNoOpenReader" xml:space="preserve">
+    <value>An open reader is associated with this command. Close it before changing the {propertyName} property.</value>
+  </data>
+  <data name="CalledOnNullValue" xml:space="preserve">
+    <value>The data is NULL at ordinal {ordinal}. This method can't be called on NULL values. Check using IsDBNull before calling.</value>
+  </data>
+  <data name="UDFCalledWithNull" xml:space="preserve">
+    <value>The SQL function '{function}' was called with a NULL argument at ordinal {ordinal}. Create the function using a Nullable parameter or rewrite your query to avoid passing NULL.</value>
+  </data>
+</root>
