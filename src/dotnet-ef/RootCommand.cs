@@ -79,7 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             if (!_noBuild.HasValue())
             {
+                Reporter.WriteInformation(Resources.BuildStarted);
                 startupProject.Build();
+                Reporter.WriteInformation(Resources.BuildSucceeded);
             }
 
             string executable;
