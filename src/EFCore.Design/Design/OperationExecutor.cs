@@ -439,7 +439,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                     ["Name"] = m.Name,
                     ["SafeName"] = nameGroups.Count(g => g.Key == m.Name) == 1
                         ? m.Name
-                        : m.Id
+                        : m.Id,
+                    ["Applied"] = m.Applied
                 });
         }
 

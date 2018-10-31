@@ -22,6 +22,8 @@ LONG DESCRIPTION
         --------------------------  ---------------------------------------------------
         Add-Migration               Adds a new migration.
 
+        Get-Migration               Lists the migrations in the migration assembly.
+
         Drop-Database               Drops the database.
 
         Get-DbContext               Gets information about a DbContext type.
@@ -38,6 +40,7 @@ LONG DESCRIPTION
 
 SEE ALSO
     Add-Migration
+    Get-Migration
     Drop-Database
     Get-DbContext
     Remove-Migration

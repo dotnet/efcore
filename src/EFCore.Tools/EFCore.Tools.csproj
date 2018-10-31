@@ -14,6 +14,7 @@
 
 Enables these commonly used commands:
 Add-Migration
+Get-Migration
 Drop-Database
 Get-DbContext
 Scaffold-DbContext

@@ -151,9 +151,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var migrationsAssembly = services.GetRequiredService<IMigrationsAssembly>();
             var idGenerator = services.GetRequiredService<IMigrationsIdGenerator>();
+            var appliedMigrations = services.GetRequiredService<IHistoryRepository>()
+                                            .GetAppliedMigrations()
+                                            .Select(x => x.MigrationId)
+                                            .ToArray();
 
             return from id in migrationsAssembly.Migrations.Keys
-                   select new MigrationInfo { Id = id, Name = idGenerator.GetName(id) };
+                   select new MigrationInfo
+                   {
+                       Id = id,
+                       Name = idGenerator.GetName(id),
+                       Applied = Array.IndexOf(appliedMigrations, id) >= 0
+                   };
         }
 
         /// <summary>

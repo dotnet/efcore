@@ -216,6 +216,52 @@ function Get-DbContext
 }
 
 #
+# Get-Migration
+#
+
+Register-TabExpansion Get-Migration @{
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Lists the migrations for the selected project and whether they have been applied to the Database.
+
+.DESCRIPTION
+    Lists the migrations for the selected project and whether they have been applied to the Database.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.LINK
+    about_EntityFrameworkCore
+#>
+function Get-Migration
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param([string] $Context, [string] $Project, [string] $StartupProject, [switch] $ShowPending)
+
+    $project = GetProject $Project
+    $startupProject = GetStartupProject $StartupProject $project
+
+    $params = 'migrations', 'list', '--json'
+    $params += GetParams $Context
+
+    # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+    $result = (EF $project $startupProject $params) -join "`n" | ConvertFrom-Json
+
+    return $result | %{ WriteMigrationLine $_ $ShowPending }
+}
+
+#
 # Remove-Migration
 #
 
@@ -761,6 +807,25 @@ function GetMigrations($context, $projectName, $startupProjectName)
     $result = (EF $project $startupProject $params $null -skipBuild) -join "`n" | ConvertFrom-Json
 
     return $result | %{ $_.safeName }
+}
+
+function WriteMigrationLine($migration, $ShowPending)
+{
+    If ($ShowPending)
+    {
+        If ($migration.applied -eq $true) {
+            Write-Host $migration.safeName -ForegroundColor Green
+        }
+        Else {
+            Write-Host "$($migration.safeName) - Pending" -ForegroundColor Yellow
+        }
+    }
+    Else
+    {
+        If ($migration.applied -eq $true){
+            Write-Host $migration.safeName
+        }
+    }
 }
 
 function WarnIfEF6($cmdlet)
