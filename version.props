@@ -1,6 +1,13 @@
 ﻿<Project>
   <PropertyGroup>
     <VersionPrefix>2.1.4</VersionPrefix>
+    <!--
+      Temporary: due to the way aspnet/AspNetCore runs static analysis on projects to determine versions,
+      and the way we merged repos after the 2.1.4 release, this needs to be set to 2.1.0 until the next release.
+      This can be removed when updating this file for the next EF Core patch.
+    -->
+    <VersionPrefix Condition="$(MSBuildProjectName.StartsWith('Microsoft.Data.Sqlite'))">2.1.0</VersionPrefix>
+
     <VersionSuffix>rtm</VersionSuffix>
     <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' == 'rtm' ">$(VersionPrefix)</PackageVersion>
     <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' != 'rtm' ">$(VersionPrefix)-$(VersionSuffix)-final</PackageVersion>
