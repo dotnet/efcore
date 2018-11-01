@@ -1373,7 +1373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Gear>(
                 isAsync,
                 gs => from g in gs
-                      // ReSharper disable once ConstantNullCoalescingCondition
+                          // ReSharper disable once ConstantNullCoalescingCondition
                       where (new
                       {
                           Name = g.LeaderNickname
@@ -1431,7 +1431,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Gear>(
                 isAsync,
                 gs => from g in gs
-                      // ReSharper disable once EqualExpressionComparison
+                          // ReSharper disable once EqualExpressionComparison
                       where new
                       {
                           Five = 5
@@ -1981,10 +1981,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ts, gs) =>
                     (from t in ts
                      join g in gs.OfType<Officer>() on new
-                         {
-                             id1 = t.GearSquadId,
-                             id2 = t.GearNickName
-                         }
+                     {
+                         id1 = t.GearSquadId,
+                         id2 = t.GearNickName
+                     }
                          equals new
                          {
                              id1 = (int?)g.SquadId,
@@ -2006,10 +2006,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     (from g in gs.OfType<Officer>()
                      join t in ts on new
-                         {
-                             id1 = (int?)g.SquadId,
-                             id2 = g.Nickname
-                         }
+                     {
+                         id1 = (int?)g.SquadId,
+                         id2 = g.Nickname
+                     }
                          equals new
                          {
                              id1 = t.GearSquadId,
@@ -2260,7 +2260,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                      // ReSharper disable once MergeConditionalExpression
+                          // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                       select g2 != null ? g2 : g1,
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -2283,7 +2283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                      // ReSharper disable once MergeConditionalExpression
+                          // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                       select new
                       {
@@ -3563,25 +3563,50 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_query_on_indexed_properties()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_on_indexed_properties(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                // using variables for the property names (rather than constants) tests that
-                // query can replace the value of that variable correctly in the expression tree
-                var nationPropertyName = City.NationPropertyName;
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      where (string)c[City.NationPropertyName] == "Tyrus"
+                      select c);
+        }
 
-                var tyrusCities = context.Cities
-                    .Where(city => (string)city[nationPropertyName] == "Tyrus").ToArray();
-                Assert.Equal(2, tyrusCities.Length);
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_on_indexed_properties_when_property_name_from_closure(bool isAsync)
+        {
+            var nationPropertyName = City.NationPropertyName;
 
-                // check that materialization has populated the Nation indexed property
-                foreach(var tyrusCity in tyrusCities)
-                {
-                    Assert.Equal("Tyrus", tyrusCity[nationPropertyName]);
-                }
-            }
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      where (string)c[nationPropertyName] == "Tyrus"
+                      select c);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_projection_on_indexed_properties(bool isAsync)
+        {
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      where (string)c[City.NationPropertyName] == "Tyrus"
+                      select (string)c[City.NationPropertyName]);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_order_by_indexed_property_on_query(bool isAsync)
+        {
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      orderby (string)c[City.NationPropertyName]
+                      select c);
         }
 
         [ConditionalFact]

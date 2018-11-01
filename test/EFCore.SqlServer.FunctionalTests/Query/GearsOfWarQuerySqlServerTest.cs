@@ -3794,14 +3794,44 @@ WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'Locust
 ORDER BY [f].[Name]");
         }
 
-        public override void Can_query_on_indexed_properties()
+        public override async Task Can_query_on_indexed_properties(bool isAsync)
         {
-            base.Can_query_on_indexed_properties();
+            await base.Can_query_on_indexed_properties(isAsync);
 
             AssertSql(
-                @"SELECT [city].[Name], [city].[Location], [city].[Nation]
-FROM [Cities] AS [city]
-WHERE [city].[Nation] = N'Tyrus'");
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Nation] = N'Tyrus'");
+        }
+
+        public override async Task Can_query_on_indexed_properties_when_property_name_from_closure(bool isAsync)
+        {
+            await base.Can_query_on_indexed_properties_when_property_name_from_closure(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Nation] = N'Tyrus'");
+        }
+
+        public override async Task Can_query_projection_on_indexed_properties(bool isAsync)
+        {
+            await base.Can_query_projection_on_indexed_properties(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Nation] = N'Tyrus'");
+        }
+
+        public override async Task Can_order_by_indexed_property_on_query(bool isAsync)
+        {
+            await base.Can_order_by_indexed_property_on_query(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+ORDER BY [c].[Nation]");
         }
 
         public override void Navigation_access_on_derived_entity_using_cast()

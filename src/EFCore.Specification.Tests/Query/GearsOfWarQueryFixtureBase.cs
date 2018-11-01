@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             Assert.Equal(e.Name, a.Name);
                             Assert.Equal(e.Location, a.Location);
+                            Assert.Equal(e[City.NationPropertyName], a[City.NationPropertyName]);
                         }
                     }
                 },
