@@ -610,9 +610,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            var operand = _queryModelVisitor.QueryCompilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
-                ? methodCallExpression.Object
-                : Visit(methodCallExpression.Object);
+            // if method is EFIndexer then we need to skip attempting to translate
+            // the method call and fall through to binding the expression below
+            // (this supports joining on an indexed property)
+            var operand =
+                methodCallExpression.Method.IsEFIndexer()
+                ? null
+                :  _queryModelVisitor.QueryCompilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
+                    ? methodCallExpression.Object
+                    : Visit(methodCallExpression.Object);
 
             if (operand != null
                 || methodCallExpression.Object == null)
