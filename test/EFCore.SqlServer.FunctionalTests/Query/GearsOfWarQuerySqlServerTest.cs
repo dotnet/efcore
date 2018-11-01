@@ -3804,6 +3804,16 @@ FROM [Cities] AS [c]
 WHERE [c].[Nation] = N'Tyrus'");
         }
 
+        public override async Task Can_query_on_indexed_properties_when_property_name_from_closure(bool isAsync)
+        {
+            await base.Can_query_on_indexed_properties_when_property_name_from_closure(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Nation] = N'Tyrus'");
+        }
+
         public override async Task Can_query_projection_on_indexed_properties(bool isAsync)
         {
             await base.Can_query_projection_on_indexed_properties(isAsync);
