@@ -37,7 +37,7 @@ namespace Microsoft.Data.Sqlite
             if (stmtQueue.Count != 0)
             {
                 (_stmt, _hasRows) = stmtQueue.Dequeue();
-                _record = new SqliteDataRecord(_stmt);
+                _record = new SqliteDataRecord(_stmt, command.Connection);
             }
 
             _command = command;
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Sqlite
             raw.sqlite3_reset(_stmt);
 
             (_stmt, _hasRows) = _stmtQueue.Dequeue();
-            _record = new SqliteDataRecord(_stmt);
+            _record = new SqliteDataRecord(_stmt, _command.Connection);
             _stepped = false;
             _done = false;
 
@@ -412,7 +412,16 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The returned object.</returns>
         public override Stream GetStream(int ordinal)
-            => _record.GetStream(ordinal);
+            => GetStream(ordinal, false);
+
+        /// <summary>
+        ///     Retrieves data as a Stream.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <param name="writable">Flag indicating, whether the stream can be written to.</param>
+        /// <returns>The returned object.</returns>
+        public virtual Stream GetStream(int ordinal, bool writable)
+            => _record.GetStream(ordinal, writable);
 
         /// <summary>
         ///     Gets the value of the specified column.

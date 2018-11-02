@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -11,11 +12,13 @@ namespace Microsoft.Data.Sqlite
     internal class SqliteDataRecord : SqliteValueReader
     {
         private readonly sqlite3_stmt _stmt;
+        private readonly SqliteConnection _connection;
         private readonly byte[][] _blobCache;
 
-        public SqliteDataRecord(sqlite3_stmt stmt)
+        public SqliteDataRecord(sqlite3_stmt stmt, SqliteConnection connection)
         {
             _stmt = stmt;
+            _connection = connection;
             _blobCache = new byte[FieldCount][];
         }
 
@@ -195,8 +198,76 @@ namespace Microsoft.Data.Sqlite
             return charsToRead;
         }
 
-        public virtual Stream GetStream(int ordinal)
-            => new MemoryStream(GetCachedBlob(ordinal), false);
+        public virtual Stream GetStream(int ordinal, bool writable)
+        {
+            if (ordinal < 0 || ordinal >= FieldCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
+            }
+            
+            var blobDatabaseName = raw.sqlite3_column_database_name(_stmt, ordinal);
+            var blobTableName = raw.sqlite3_column_table_name(_stmt, ordinal);
+
+            var rowidOrdinal = -1;
+            for (var i = 0; i < FieldCount; i++)
+            {
+                if (i == ordinal)
+                {
+                    continue;
+                }
+
+                var databaseName = raw.sqlite3_column_database_name(_stmt, i);
+                if (databaseName != blobDatabaseName)
+                {
+                    continue;
+                }
+
+                var tableName = raw.sqlite3_column_table_name(_stmt, i);
+                if (tableName != blobTableName)
+                {
+                    continue;
+                }
+
+                var columnName = raw.sqlite3_column_origin_name(_stmt, i);
+                if ((columnName == "rowid") || (columnName == "_rowid_") || (columnName == "oid"))
+                {
+                    rowidOrdinal = i;
+                    break;
+                }
+
+                var rc = raw.sqlite3_table_column_metadata(
+                    _connection.Handle,
+                    databaseName,
+                    tableName,
+                    columnName,
+                    out var dataType,
+                    out var collSeq,
+                    out var notNull,
+                    out var primaryKey,
+                    out var autoInc);
+                SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+                if ((dataType == "INTEGER") && (primaryKey != 0))
+                {
+                    rowidOrdinal = i;
+                    break;
+                }
+            }
+
+            if (rowidOrdinal < 0)
+            {
+                if (writable)
+                {
+                    throw new InvalidOperationException("Record cannot be opened as writable!");
+                }
+
+                return new MemoryStream(GetCachedBlob(ordinal), false);
+            }
+
+            var blobColumnName = raw.sqlite3_column_origin_name(_stmt, ordinal);
+            var rowid = GetInt32(rowidOrdinal);
+
+            return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, writable);
+        }
 
         internal void Clear()
         {
