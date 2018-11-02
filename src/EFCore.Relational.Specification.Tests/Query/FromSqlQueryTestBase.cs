@@ -887,6 +887,35 @@ AND ((]UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
+        [Fact]
+        public virtual void From_sql_parameterization_issue_12213()
+        {
+            using (var context = CreateContext())
+            {
+                var min = 10300;
+                var max = 10400;
+
+                var query1 = context.Orders
+                    .FromSql(NormalizeDelimeters($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+                    .Select(o => o.OrderID);
+                query1.ToList();
+
+                var query2 = context.Orders
+                    .Where(o => o.OrderID <= max && query1.Contains(o.OrderID))
+                    .Select(o => o.OrderID);
+                query2.ToList();
+
+                var query3 = context.Orders
+                    .Where(o => o.OrderID <= max
+                        && context.Orders
+                            .FromSql(NormalizeDelimeters($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+                            .Select(i => i.OrderID)
+                            .Contains(o.OrderID))
+                    .Select(o => o.OrderID);
+                query3.ToList();
+            }
+        }
+
         private RawSqlString NormalizeDelimeters(RawSqlString sql)
             => Fixture.TestStore.NormalizeDelimeters(sql);
 
