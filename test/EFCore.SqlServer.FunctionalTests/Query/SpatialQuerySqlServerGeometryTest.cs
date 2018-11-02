@@ -198,7 +198,7 @@ FROM [PointEntity] AS [e]");
                     e => new
                     {
                         e.Id,
-                        Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(0, 1) { SRID = 4326 })
+                        Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 })
                     }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
@@ -208,7 +208,7 @@ FROM [PointEntity] AS [e]");
                 });
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Point].STDistance(geometry::STGeomFromText('POINT (0 1)', 4326)) AS [Distance]
+                @"SELECT [e].[Id], [e].[Point].STDistance(geometry::STGeomFromText('POINT (1 1)', 4326)) AS [Distance]
 FROM [PointEntity] AS [e]");
         }
 

@@ -3915,7 +3915,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = from g1 in ctx.Gears
                             from g2 in ctx.Gears
-                            // ReSharper disable once PossibleUnintendedReferenceComparison
+                                // ReSharper disable once PossibleUnintendedReferenceComparison
                             where g1.Weapons == g2.Weapons
                             orderby g1.Nickname
                             select new
@@ -4402,9 +4402,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Gear>(
                 isAsync,
                 gs => (from g in gs
-                      where g.Nickname != "Marcus"
-                      orderby g.Nickname
-                      select g.Weapons.ToList()).Select(e => e.Count),
+                       where g.Nickname != "Marcus"
+                       orderby g.Nickname
+                       select g.Weapons.ToList()).Select(e => e.Count),
                 assertOrder: true);
         }
 
@@ -6820,7 +6820,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar<Gear>(
                 isAsync,
-                gs => gs.Include(g => g.CityOfBirth ).GroupBy(g => g.Rank).Select(g => g.Average(gg => gg.SquadId)));
+                gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Average(gg => gg.SquadId)));
         }
 
         [ConditionalTheory]
@@ -7006,7 +7006,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        public  TEntity Client<TEntity>(TEntity entity) => entity;
+        public TEntity Client<TEntity>(TEntity entity) => entity;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -7151,6 +7151,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => ts.Where(t => t.Note.Substring(0, t.Gear.Squad.Name.Length) == t.GearNickName),
                 ts => ts.Where(t => Maybe(t.Gear, () => t.Note.Substring(0, t.Gear.Squad.Name.Length)) == t.GearNickName));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filter_with_new_Guid(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => from t in ts
+                      where t.Id == new Guid("DF36F493-463F-4123-83F9-6B135DEEB7BA")
+                      select t);
+        }
+
+        public virtual async Task Filter_with_new_Guid_closure(bool isAsync)
+        {
+            var guid = "DF36F493-463F-4123-83F9-6B135DEEB7BD";
+
+            await AssertQuery<CogTag>(
+                isAsync,
+                ts => from t in ts
+                      where t.Id == new Guid(guid)
+                      select t);
+
+            guid = "B39A6FBA-9026-4D69-828E-FD7068673E57";
+
+            await AssertQuery<CogTag>(
+                isAsync,
+                ts => from t in ts
+                      where t.Id == new Guid(guid)
+                      select t);
+        }
+
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 

@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Local_array(bool isAsync)
+        public virtual Task Local_dictionary(bool isAsync)
         {
             var context = new Context();
             context.Arguments.Add("customerId", "ALFKI");
@@ -3145,7 +3145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_conditional_operator_where_condition_null(bool isAsync)
+        public virtual Task OrderBy_conditional_operator_where_condition_false(bool isAsync)
         {
             var fakeCustomer = new Customer();
             return AssertQuery<Customer>(
@@ -3581,11 +3581,55 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task DateTime_parse_is_parameterized(bool isAsync)
+        public virtual Task DateTime_parse_is_inlined(bool isAsync)
         {
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderDate > DateTime.Parse("1/1/1998 12:00:00 PM")),
+                entryCount: 267);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DateTime_parse_is_parameterized_when_from_closure(bool isAsync)
+        {
+            var date = "1/1/1998 12:00:00 PM";
+
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderDate > DateTime.Parse(date)),
+                entryCount: 267);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task New_DateTime_is_inlined(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderDate > new DateTime(1998, 1, 1, 12, 0, 0)),
+                entryCount: 267);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task New_DateTime_is_parameterized_when_from_closure(bool isAsync)
+        {
+            var year = 1998;
+            var month = 1;
+            var date = 1;
+            var hour = 12;
+
+            await AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderDate > new DateTime(year, month, date, hour, 0, 0)),
+                entryCount: 267);
+
+            hour = 11;
+
+            await AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderDate > new DateTime(year, month, date, hour, 0, 0)),
                 entryCount: 267);
         }
 

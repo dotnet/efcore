@@ -72,9 +72,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override async Task Local_array(bool isAsync)
+        public override async Task Local_dictionary(bool isAsync)
         {
-            await base.Local_array(isAsync);
+            await base.Local_dictionary(isAsync);
 
             AssertSql(
                 @"@__get_Item_0='ALFKI'
@@ -1848,9 +1848,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task OrderBy_conditional_operator_where_condition_null(bool isAsync)
+        public override async Task OrderBy_conditional_operator_where_condition_false(bool isAsync)
         {
-            await base.OrderBy_conditional_operator_where_condition_null(isAsync);
+            await base.OrderBy_conditional_operator_where_condition_false(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -1948,9 +1948,16 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task DateTime_parse_is_parameterized(bool isAsync)
+        public override async Task DateTime_parse_is_inlined(bool isAsync)
         {
-            await base.DateTime_parse_is_parameterized(isAsync);
+            await base.DateTime_parse_is_inlined(isAsync);
+
+            AssertSql(" ");
+        }
+
+        public override async Task DateTime_parse_is_parameterized_when_from_closure(bool isAsync)
+        {
+            await base.DateTime_parse_is_parameterized_when_from_closure(isAsync);
 
             AssertSql(
                 @"@__Parse_0='1998-01-01T12:00:00'
@@ -1958,6 +1965,20 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__Parse_0))");
+        }
+
+        public override async Task New_DateTime_is_inlined(bool isAsync)
+        {
+            await base.New_DateTime_is_inlined(isAsync);
+
+            AssertSql(" ");
+        }
+
+        public override async Task New_DateTime_is_parameterized_when_from_closure(bool isAsync)
+        {
+            await base.New_DateTime_is_parameterized_when_from_closure(isAsync);
+
+            AssertSql(" ");
         }
 
         public override void Random_next_is_not_funcletized_1()

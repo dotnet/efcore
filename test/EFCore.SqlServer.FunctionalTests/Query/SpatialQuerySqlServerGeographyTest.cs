@@ -187,7 +187,7 @@ FROM [PointEntity] AS [e]");
             await base.Distance_constant_srid_4326(isAsync);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Point].STDistance('POINT (0 1)') AS [Distance]
+                @"SELECT [e].[Id], [e].[Point].STDistance('POINT (1 1)') AS [Distance]
 FROM [PointEntity] AS [e]");
         }
 

@@ -557,9 +557,9 @@ WHERE ([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL");
             await base.OrderBy_client_Take(isAsync);
 
             AssertSql(
-                @"@__p_1='10'
+                @"@__p_0='10'
 
-SELECT TOP(@__p_1) [o].[EmployeeID], [o].[City], [o].[Country], [o].[FirstName], [o].[ReportsTo], [o].[Title]
+SELECT TOP(@__p_0) [o].[EmployeeID], [o].[City], [o].[Country], [o].[FirstName], [o].[ReportsTo], [o].[Title]
 FROM [Employees] AS [o]
 ORDER BY (SELECT 1)");
         }
@@ -889,17 +889,37 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
             await base.Contains_with_local_list_inline_closure_mix(isAsync);
 
             AssertSql(
-                @"@__id_0='ALFKI' (Size = 5)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', @__id_0)",
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')",
                 //
-                @"@__id_0='ANATR' (Size = 5)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', @__id_0)");
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ANATR')");
+        }
+
+        public override async Task Contains_with_local_non_primitive_list_inline_closure_mix(bool isAsync)
+        {
+            await base.Contains_with_local_non_primitive_list_inline_closure_mix(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ANATR')");
+        }
+
+        public override async Task Contains_with_local_non_primitive_list_closure_mix(bool isAsync)
+        {
+            await base.Contains_with_local_non_primitive_list_closure_mix(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
         }
 
         public override async Task Contains_with_local_collection_false(bool isAsync)

@@ -133,16 +133,16 @@ FROM [Orders] AS [c1_Orders]");
             return getter();
         }
 
-        public override async Task Local_array(bool isAsync)
+        public override async Task Local_dictionary(bool isAsync)
         {
-            await base.Local_array(isAsync);
+            await base.Local_dictionary(isAsync);
 
             AssertSql(
-                @"@__get_Item_0='ALFKI' (Size = 5)
+                @"@__p_0='ALFKI' (Size = 5)
 
 SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__get_Item_0");
+WHERE [c].[CustomerID] = @__p_0");
         }
 
         public override void Method_with_constant_queryable_arg()
@@ -2546,15 +2546,17 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task OrderBy_conditional_operator_where_condition_null(bool isAsync)
+        public override async Task OrderBy_conditional_operator_where_condition_false(bool isAsync)
         {
-            await base.OrderBy_conditional_operator_where_condition_null(isAsync);
+            await base.OrderBy_conditional_operator_where_condition_false(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__p_0='False'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY CASE
-    WHEN 0 = 1
+    WHEN @__p_0 = 1
     THEN N'ZZ' ELSE [c].[City]
 END");
         }
@@ -2692,16 +2694,54 @@ FROM [Customers] AS [c]
 ORDER BY COALESCE([c].[Region], N'ZZ')");
         }
 
-        public override async Task DateTime_parse_is_parameterized(bool isAsync)
+        public override async Task DateTime_parse_is_inlined(bool isAsync)
         {
-            await base.DateTime_parse_is_parameterized(isAsync);
+            await base.DateTime_parse_is_inlined(isAsync);
 
             AssertSql(
-                @"@__Parse_0='1998-01-01T12:00:00' (DbType = DateTime)
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'");
+        }
+
+        public override async Task DateTime_parse_is_parameterized_when_from_closure(bool isAsync)
+        {
+            await base.DateTime_parse_is_parameterized_when_from_closure(isAsync);
+
+            AssertSql(
+                @"@__Parse_0='1998-01-01T12:00:00' (Nullable = true) (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] > @__Parse_0");
+        }
+
+        public override async Task New_DateTime_is_inlined(bool isAsync)
+        {
+            await base.New_DateTime_is_inlined(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'");
+        }
+
+        public override async Task New_DateTime_is_parameterized_when_from_closure(bool isAsync)
+        {
+            await base.New_DateTime_is_parameterized_when_from_closure(isAsync);
+
+            AssertSql(
+                @"@__p_0='1998-01-01T12:00:00' (Nullable = true) (DbType = DateTime)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > @__p_0",
+                //
+                @"@__p_0='1998-01-01T11:00:00' (Nullable = true) (DbType = DateTime)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > @__p_0");
         }
 
         public override void Random_next_is_not_funcletized_1()

@@ -72,11 +72,11 @@ WHERE [e].[IsEnabled] = @__ef_filter__Property_0");
             base.DbContext_method_call_is_parameterized();
 
             AssertSql(
-                @"@__ef_filter__ef_filter_0='2'
+                @"@__ef_filter__p_0='2'
 
 SELECT [e].[Id], [e].[Tenant]
 FROM [MethodCallFilter] AS [e]
-WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
+WHERE [e].[Tenant] = @__ef_filter__p_0");
         }
 
         public override void DbContext_list_is_parameterized()
@@ -120,11 +120,11 @@ WHERE [e].[IsEnabled] = @__ef_filter__Enabled_0");
             base.DbContext_property_method_call_is_parameterized();
 
             AssertSql(
-                @"@__ef_filter__ef_filter_0='2'
+                @"@__ef_filter__p_0='2'
 
 SELECT [e].[Id], [e].[Tenant]
 FROM [PropertyMethodCallFilter] AS [e]
-WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
+WHERE [e].[Tenant] = @__ef_filter__p_0");
         }
 
         public override void DbContext_method_call_chain_is_parameterized()
@@ -132,11 +132,11 @@ WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
             base.DbContext_method_call_chain_is_parameterized();
 
             AssertSql(
-                @"@__ef_filter__ef_filter_0='2'
+                @"@__ef_filter__p_0='2'
 
 SELECT [e].[Id], [e].[Tenant]
 FROM [MethodCallChainFilter] AS [e]
-WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
+WHERE [e].[Tenant] = @__ef_filter__p_0");
         }
 
         public override void DbContext_complex_expression_is_parameterized()
@@ -145,28 +145,25 @@ WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
 
             AssertSql(
                 @"@__ef_filter__Property_0='False'
-@__ef_filter__Tenant_1='0'
-@__ef_filter__ef_filter_2='2'
+@__ef_filter__p_1='True'
 
 SELECT [x].[Id], [x].[IsEnabled]
 FROM [ComplexFilter] AS [x]
-WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND ((@__ef_filter__Tenant_1 + @__ef_filter__ef_filter_2) > 0)",
+WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = 1)",
                 //
                 @"@__ef_filter__Property_0='True'
-@__ef_filter__Tenant_1='0'
-@__ef_filter__ef_filter_2='2'
+@__ef_filter__p_1='True'
 
 SELECT [x].[Id], [x].[IsEnabled]
 FROM [ComplexFilter] AS [x]
-WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND ((@__ef_filter__Tenant_1 + @__ef_filter__ef_filter_2) > 0)",
+WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = 1)",
                 //
                 @"@__ef_filter__Property_0='True'
-@__ef_filter__Tenant_1='-3'
-@__ef_filter__ef_filter_2='2'
+@__ef_filter__p_1='False'
 
 SELECT [x].[Id], [x].[IsEnabled]
 FROM [ComplexFilter] AS [x]
-WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND ((@__ef_filter__Tenant_1 + @__ef_filter__ef_filter_2) > 0)");
+WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = 1)");
         }
 
         public override void DbContext_property_based_filter_does_not_short_circuit()
@@ -174,23 +171,25 @@ WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND ((@__ef_filter__Tenant_1 
             base.DbContext_property_based_filter_does_not_short_circuit();
 
             AssertSql(
-                @"@__ef_filter__IsModerated_0='True' (Nullable = true)
+                @"@__ef_filter__p_0='False'
+@__ef_filter__IsModerated_1='True' (Nullable = true)
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [ShortCircuitFilter] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_0 = [x].[IsModerated]))",
+WHERE ([x].[IsDeleted] = 0) AND ((@__ef_filter__p_0 = 1) OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
                 //
-                @"@__ef_filter__IsModerated_0='False' (Nullable = true)
+                @"@__ef_filter__p_0='False'
+@__ef_filter__IsModerated_1='False' (Nullable = true)
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [ShortCircuitFilter] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_0 = [x].[IsModerated]))",
+WHERE ([x].[IsDeleted] = 0) AND ((@__ef_filter__p_0 = 1) OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
                 //
-                @"@__ef_filter__IsModerated_0=''
+                @"@__ef_filter__p_0='True'
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [ShortCircuitFilter] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [x].[IsModerated] IS NULL)");
+WHERE ([x].[IsDeleted] = 0) AND ((@__ef_filter__p_0 = 1) OR [x].[IsModerated] IS NULL)");
         }
 
         public override void EntityTypeConfiguration_DbContext_field_is_parameterized()
@@ -234,11 +233,11 @@ WHERE [e].[IsEnabled] = @__ef_filter__Property_0");
             base.EntityTypeConfiguration_DbContext_method_call_is_parameterized();
 
             AssertSql(
-                @"@__ef_filter__ef_filter_0='2'
+                @"@__ef_filter__p_0='2'
 
 SELECT [e].[Id], [e].[Tenant]
 FROM [EntityTypeConfigurationMethodCallFilter] AS [e]
-WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
+WHERE [e].[Tenant] = @__ef_filter__p_0");
         }
 
         public override void EntityTypeConfiguration_DbContext_property_chain_is_parameterized()
@@ -300,11 +299,11 @@ WHERE [e].[IsEnabled] = @__ef_filter__Property_0");
             base.Remote_method_DbContext_property_method_call_is_parameterized();
 
             AssertSql(
-                @"@__ef_filter__ef_filter_0='2'
+                @"@__ef_filter__p_0='2'
 
 SELECT [e].[Id], [e].[Tenant]
 FROM [RemoteMethodParamsFilter] AS [e]
-WHERE [e].[Tenant] = @__ef_filter__ef_filter_0");
+WHERE [e].[Tenant] = @__ef_filter__p_0");
         }
 
         public override void Extension_method_DbContext_field_is_parameterized()

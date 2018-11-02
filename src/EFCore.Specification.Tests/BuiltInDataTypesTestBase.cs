@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Can_filter_projection_with_captured_enum_variable(bool async)
+        public virtual async Task Can_filter_projection_with_captured_enum_variable(bool async)
         {
             using (var context = CreateContext())
             {
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Can_filter_projection_with_inline_enum_variable(bool async)
+        public virtual async Task Can_filter_projection_with_inline_enum_variable(bool async)
         {
             using (var context = CreateContext())
             {

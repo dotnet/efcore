@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore
             base.Lazy_load_collection(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707' (Nullable = true)
+                @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -35,11 +35,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             base.Lazy_load_many_to_one_reference_to_principal(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707'
+                @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -49,11 +49,11 @@ WHERE [e].[Id] = @__get_Item_0",
             base.Lazy_load_one_to_one_reference_to_principal(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707'
+                @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -63,11 +63,11 @@ WHERE [e].[Id] = @__get_Item_0",
             base.Lazy_load_one_to_one_reference_to_dependent(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707' (Nullable = true)
+                @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -77,11 +77,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             base.Lazy_load_one_to_one_PK_to_PK_reference_to_principal(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707'
+                @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -91,11 +91,11 @@ WHERE [e].[Id] = @__get_Item_0",
             base.Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707'
+                @"@__p_0='707'
 
 SELECT [e].[Id]
 FROM [SinglePkToPk] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -119,11 +119,11 @@ WHERE [e].[Id] = @__get_Item_0",
             base.Lazy_load_collection_not_found(state);
 
             Assert.Equal(
-                @"@__get_Item_0='767' (Nullable = true)
+                @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -133,11 +133,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             base.Lazy_load_many_to_one_reference_to_principal_not_found(state);
 
             Assert.Equal(
-                @"@__get_Item_0='787'
+                @"@__p_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -147,11 +147,11 @@ WHERE [e].[Id] = @__get_Item_0",
             base.Lazy_load_one_to_one_reference_to_principal_not_found(state);
 
             Assert.Equal(
-                @"@__get_Item_0='787'
+                @"@__p_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -161,11 +161,11 @@ WHERE [e].[Id] = @__get_Item_0",
             base.Lazy_load_one_to_one_reference_to_dependent_not_found(state);
 
             Assert.Equal(
-                @"@__get_Item_0='767' (Nullable = true)
+                @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -217,11 +217,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             base.Lazy_load_many_to_one_reference_to_principal_alternate_key(state);
 
             Assert.Equal(
-                @"@__get_Item_0='Root' (Size = 450)
+                @"@__p_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[AlternateId] = @__get_Item_0",
+WHERE [e].[AlternateId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -231,11 +231,11 @@ WHERE [e].[AlternateId] = @__get_Item_0",
             base.Lazy_load_one_to_one_reference_to_principal_alternate_key(state);
 
             Assert.Equal(
-                @"@__get_Item_0='Root' (Size = 450)
+                @"@__p_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[AlternateId] = @__get_Item_0",
+WHERE [e].[AlternateId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -245,11 +245,11 @@ WHERE [e].[AlternateId] = @__get_Item_0",
             base.Lazy_load_one_to_one_reference_to_dependent_alternate_key(state);
 
             Assert.Equal(
-                @"@__get_Item_0='Root' (Size = 450)
+                @"@__p_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [SingleAk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -273,11 +273,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             base.Lazy_load_collection_shadow_fk(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707' (Nullable = true)
+                @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildShadowFk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -287,11 +287,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             base.Lazy_load_many_to_one_reference_to_principal_shadow_fk(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707'
+                @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -301,11 +301,11 @@ WHERE [e].[Id] = @__get_Item_0",
             base.Lazy_load_one_to_one_reference_to_principal_shadow_fk(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707'
+                @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -315,11 +315,11 @@ WHERE [e].[Id] = @__get_Item_0",
             base.Lazy_load_one_to_one_reference_to_dependent_shadow_fk(state);
 
             Assert.Equal(
-                @"@__get_Item_0='707' (Nullable = true)
+                @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [SingleShadowFk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -343,12 +343,12 @@ WHERE [e].[ParentId] = @__get_Item_0",
             base.Lazy_load_collection_composite_key(state);
 
             Assert.Equal(
-                @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707' (Nullable = true)
+                @"@__p_0='Root' (Size = 450)
+@__p_1='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [ChildCompositeKey] AS [e]
-WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
+WHERE ([e].[ParentAlternateId] = @__p_0) AND ([e].[ParentId] = @__p_1)",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -358,12 +358,12 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
             base.Lazy_load_many_to_one_reference_to_principal_composite_key(state);
 
             Assert.Equal(
-                @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707'
+                @"@__p_0='Root' (Size = 450)
+@__p_1='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
+WHERE ([e].[AlternateId] = @__p_0) AND ([e].[Id] = @__p_1)",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -373,12 +373,12 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
             base.Lazy_load_one_to_one_reference_to_principal_composite_key(state);
 
             Assert.Equal(
-                @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707'
+                @"@__p_0='Root' (Size = 450)
+@__p_1='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
+WHERE ([e].[AlternateId] = @__p_0) AND ([e].[Id] = @__p_1)",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -388,12 +388,12 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
             base.Lazy_load_one_to_one_reference_to_dependent_composite_key(state);
 
             Assert.Equal(
-                @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707' (Nullable = true)
+                @"@__p_0='Root' (Size = 450)
+@__p_1='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [SingleCompositeKey] AS [e]
-WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
+WHERE ([e].[ParentAlternateId] = @__p_0) AND ([e].[ParentId] = @__p_1)",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }
@@ -419,11 +419,11 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -436,11 +436,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -453,11 +453,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -470,11 +470,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -487,11 +487,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -504,11 +504,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id]
 FROM [SinglePkToPk] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -521,11 +521,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -538,11 +538,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -555,11 +555,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -572,11 +572,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -589,11 +589,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -606,11 +606,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id]
 FROM [SinglePkToPk] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -673,11 +673,11 @@ WHERE 0 = 1",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='767' (Nullable = true)
+                    @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -690,11 +690,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='787'
+                    @"@__p_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -707,11 +707,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='787'
+                    @"@__p_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -724,11 +724,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='767' (Nullable = true)
+                    @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -741,11 +741,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='767' (Nullable = true)
+                    @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -758,11 +758,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='787'
+                    @"@__p_0='787'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -775,11 +775,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='787'
+                    @"@__p_0='787'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -792,11 +792,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='767' (Nullable = true)
+                    @"@__p_0='767' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -869,11 +869,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -886,11 +886,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -903,11 +903,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -920,11 +920,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -937,11 +937,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -954,11 +954,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id]
 FROM [SinglePkToPk] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -971,11 +971,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -988,11 +988,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1005,11 +1005,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1022,11 +1022,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1039,11 +1039,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1056,11 +1056,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1073,11 +1073,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1090,11 +1090,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1107,11 +1107,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='767' (Nullable = true)
+                    @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1124,11 +1124,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='787'
+                    @"@__p_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1141,11 +1141,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='787'
+                    @"@__p_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1158,11 +1158,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='767' (Nullable = true)
+                    @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1175,11 +1175,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='767' (Nullable = true)
+                    @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1192,11 +1192,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='787'
+                    @"@__p_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1209,11 +1209,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='787'
+                    @"@__p_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1226,11 +1226,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='767' (Nullable = true)
+                    @"@__p_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1283,11 +1283,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1300,11 +1300,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1317,11 +1317,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1334,11 +1334,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1351,11 +1351,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
+                    @"@__p_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildAk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1368,11 +1368,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
+                    @"@__p_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[AlternateId] = @__get_Item_0",
+WHERE [e].[AlternateId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1385,11 +1385,11 @@ WHERE [e].[AlternateId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
+                    @"@__p_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[AlternateId] = @__get_Item_0",
+WHERE [e].[AlternateId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1402,11 +1402,11 @@ WHERE [e].[AlternateId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
+                    @"@__p_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [SingleAk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1419,11 +1419,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
+                    @"@__p_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildAk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1436,11 +1436,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
+                    @"@__p_0='Root' (Size = 450)
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[AlternateId] = @__get_Item_0",
+WHERE [e].[AlternateId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1453,11 +1453,11 @@ WHERE [e].[AlternateId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
+                    @"@__p_0='Root' (Size = 450)
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[AlternateId] = @__get_Item_0",
+WHERE [e].[AlternateId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1470,11 +1470,11 @@ WHERE [e].[AlternateId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
+                    @"@__p_0='Root' (Size = 450)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [SingleAk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1537,11 +1537,11 @@ WHERE 0 = 1",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildShadowFk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1554,11 +1554,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1571,11 +1571,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1588,11 +1588,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [SingleShadowFk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1605,11 +1605,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildShadowFk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1622,11 +1622,11 @@ WHERE [e].[ParentId] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1639,11 +1639,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707'
+                    @"@__p_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE [e].[Id] = @__get_Item_0",
+WHERE [e].[Id] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1656,11 +1656,11 @@ WHERE [e].[Id] = @__get_Item_0",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='707' (Nullable = true)
+                    @"@__p_0='707' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [SingleShadowFk] AS [e]
-WHERE [e].[ParentId] = @__get_Item_0",
+WHERE [e].[ParentId] = @__p_0",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1723,12 +1723,12 @@ WHERE 0 = 1",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707' (Nullable = true)
+                    @"@__p_0='Root' (Size = 450)
+@__p_1='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [ChildCompositeKey] AS [e]
-WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
+WHERE ([e].[ParentAlternateId] = @__p_0) AND ([e].[ParentId] = @__p_1)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1741,12 +1741,12 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707'
+                    @"@__p_0='Root' (Size = 450)
+@__p_1='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
+WHERE ([e].[AlternateId] = @__p_0) AND ([e].[Id] = @__p_1)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1759,12 +1759,12 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707'
+                    @"@__p_0='Root' (Size = 450)
+@__p_1='707'
 
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
+WHERE ([e].[AlternateId] = @__p_0) AND ([e].[Id] = @__p_1)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1777,12 +1777,12 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707' (Nullable = true)
+                    @"@__p_0='Root' (Size = 450)
+@__p_1='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [SingleCompositeKey] AS [e]
-WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
+WHERE ([e].[ParentAlternateId] = @__p_0) AND ([e].[ParentId] = @__p_1)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1795,12 +1795,12 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707' (Nullable = true)
+                    @"@__p_0='Root' (Size = 450)
+@__p_1='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [ChildCompositeKey] AS [e]
-WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
+WHERE ([e].[ParentAlternateId] = @__p_0) AND ([e].[ParentId] = @__p_1)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1813,12 +1813,12 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707'
+                    @"@__p_0='Root' (Size = 450)
+@__p_1='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
+WHERE ([e].[AlternateId] = @__p_0) AND ([e].[Id] = @__p_1)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1831,12 +1831,12 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707'
+                    @"@__p_0='Root' (Size = 450)
+@__p_1='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
-WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
+WHERE ([e].[AlternateId] = @__p_0) AND ([e].[Id] = @__p_1)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -1849,12 +1849,12 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
             if (!async)
             {
                 Assert.Equal(
-                    @"@__get_Item_0='Root' (Size = 450)
-@__get_Item_1='707' (Nullable = true)
+                    @"@__p_0='Root' (Size = 450)
+@__p_1='707' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [SingleCompositeKey] AS [e]
-WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
+WHERE ([e].[ParentAlternateId] = @__p_0) AND ([e].[ParentId] = @__p_1)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }

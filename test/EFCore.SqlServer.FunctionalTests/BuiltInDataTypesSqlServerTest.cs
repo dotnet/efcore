@@ -72,7 +72,7 @@ WHERE [e].[TimeSpanAsTime] = '00:01:02'",
 
                 Assert.Equal(0, results.Count);
                 Assert.Equal(
-                    @"@__timeSpan_0='02:01:00'
+                    @"@__timeSpan_0='02:01:00' (Nullable = true)
 
 SELECT [e].[Int]
 FROM [MappedNullableDataTypes] AS [e]
@@ -2826,6 +2826,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;
+
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Query.Name;
 
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 

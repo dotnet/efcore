@@ -44,11 +44,9 @@ WHERE ([c].[ContactName] LIKE [c].[ContactName] + N'%' AND (LEFT([c].[ContactNam
             await base.String_StartsWith_MethodCall(isAsync);
 
             AssertSql(
-                @"@__LocalMethod1_0='M' (Size = 4000)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] LIKE @__LocalMethod1_0 + N'%' AND (LEFT([c].[ContactName], LEN(@__LocalMethod1_0)) = @__LocalMethod1_0)) OR (@__LocalMethod1_0 = N'')");
+WHERE [c].[ContactName] LIKE N'M' + N'%' AND (LEFT([c].[ContactName], LEN(N'M')) = N'M')");
         }
 
         public override async Task String_EndsWith_Literal(bool isAsync)
@@ -86,11 +84,9 @@ WHERE (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]) OR 
             await base.String_EndsWith_MethodCall(isAsync);
 
             AssertSql(
-                @"@__LocalMethod2_0='m' (Size = 4000)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (RIGHT([c].[ContactName], LEN(@__LocalMethod2_0)) = @__LocalMethod2_0) OR (@__LocalMethod2_0 = N'')");
+WHERE RIGHT([c].[ContactName], LEN(N'm')) = N'm'");
         }
 
         public override async Task String_Contains_Literal(bool isAsync)
@@ -136,11 +132,9 @@ WHERE (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0) OR ([c].[ContactName
                 entryCount: 34);
 
             AssertSql(
-                @"@__LocalMethod1_0='M' (Size = 4000)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CHARINDEX(@__LocalMethod1_0, [c].[ContactName]) > 0) OR (@__LocalMethod1_0 = N'')");
+WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         }
 
         public override async Task String_Compare_simple_zero(bool isAsync)
@@ -273,11 +267,9 @@ WHERE [c].[CustomerID] = N'M' + [c].[CustomerID]",
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> UPPER([c].[CustomerID])",
                 //
-                @"@__ToUpper_0='ALF' (Size = 4000)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] > REPLACE(N'ALFKI', @__ToUpper_0, [c].[CustomerID])",
+WHERE [c].[CustomerID] > REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])",
                 //
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -287,11 +279,9 @@ WHERE [c].[CustomerID] <= N'M' + [c].[CustomerID]",
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > UPPER([c].[CustomerID])",
                 //
-                @"@__ToUpper_0='ALF' (Size = 4000)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] < REPLACE(N'ALFKI', @__ToUpper_0, [c].[CustomerID])");
+WHERE [c].[CustomerID] < REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])");
         }
 
         public override async Task String_Compare_multi_predicate(bool isAsync)
@@ -438,11 +428,9 @@ WHERE [c].[CustomerID] = N'M' + [c].[CustomerID]",
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> UPPER([c].[CustomerID])",
                 //
-                @"@__ToUpper_0='ALF' (Size = 4000)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] > REPLACE(N'ALFKI', @__ToUpper_0, [c].[CustomerID])",
+WHERE [c].[CustomerID] > REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])",
                 //
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -452,11 +440,9 @@ WHERE [c].[CustomerID] <= N'M' + [c].[CustomerID]",
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > UPPER([c].[CustomerID])",
                 //
-                @"@__ToUpper_0='ALF' (Size = 4000)
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] < REPLACE(N'ALFKI', @__ToUpper_0, [c].[CustomerID])");
+WHERE [c].[CustomerID] < REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])");
         }
 
         public override async Task String_Compare_to_multi_predicate(bool isAsync)
@@ -508,11 +494,9 @@ WHERE ABS([od].[UnitPrice]) > 10.0");
             await base.Where_math_abs_uncorrelated(isAsync);
 
             AssertSql(
-                @"@__Abs_0='10'
-
-SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE @__Abs_0 < [od].[ProductID]");
+WHERE 10 < [od].[ProductID]");
         }
 
         public override async Task Where_math_ceiling1(bool isAsync)

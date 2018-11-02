@@ -24,7 +24,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
+using ReLinq = Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -146,6 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IPropertyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
+                { typeof(ReLinq.IEvaluatableExpressionFilter), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IEvaluatableExpressionFilter), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ITypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) }
             };
@@ -280,6 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
             TryAdd<Func<IStateManager>>(p => p.GetService<IStateManager>);
+            TryAdd<ReLinq.IEvaluatableExpressionFilter, ReLinqEvaluatableExpressionFilter>();
             TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();
             TryAdd<IValueConverterSelector, ValueConverterSelector>();
             TryAdd<IConstructorBindingFactory, ConstructorBindingFactory>();

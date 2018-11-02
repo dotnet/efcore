@@ -780,6 +780,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 case ParameterExpression parameterExpression:
                     if (parameters.TryGetValue(parameterExpression.Name, out var parameterValue))
                     {
+                        IsCacheable = false;
+
                         var argumentValuesFromParameter = (object[])parameterValue;
 
                         substitutions = new string[argumentValuesFromParameter.Length];
@@ -1785,7 +1787,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 if (typeMapping == null
                     || (!typeMapping.ClrType.UnwrapNullableType().IsAssignableFrom(parameterType)
                         && (parameterType.IsEnum
-                        || !typeof(IConvertible).IsAssignableFrom(parameterType))))
+                            || !typeof(IConvertible).IsAssignableFrom(parameterType))))
                 {
                     typeMapping = Dependencies.TypeMappingSource.GetMapping(parameterType);
                 }

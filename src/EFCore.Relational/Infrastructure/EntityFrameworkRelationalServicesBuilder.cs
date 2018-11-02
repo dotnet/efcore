@@ -21,7 +21,7 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
-using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
+using ReLinq = Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -173,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IExpressionFragmentTranslator, RelationalCompositeExpressionFragmentTranslator>();
             TryAdd<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>();
             TryAdd<INamedConnectionStringResolver, NamedConnectionStringResolver>();
+            TryAdd<ReLinq.IEvaluatableExpressionFilter, ReLinqRelationalEvaluatableExpressionFilter>();
             TryAdd<IEvaluatableExpressionFilter, RelationalEvaluatableExpressionFilter>();
             TryAdd<IRelationalTransactionFactory, RelationalTransactionFactory>();
 

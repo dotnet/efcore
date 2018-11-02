@@ -573,6 +573,13 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Nested_InstancePropertyValue_0))");
         }
 
+        public override async Task Where_new_instance_field_access_query_cache(bool isAsync)
+        {
+            await base.Where_new_instance_field_access_query_cache(isAsync);
+
+            AssertSql(" ");
+        }
+
         public override async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)
         {
             await base.Where_new_instance_field_access_closure_via_query_cache(isAsync);
@@ -1749,6 +1756,13 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
+        public override async Task TypeBinary_short_circuit(bool isAsync)
+        {
+            await base.TypeBinary_short_circuit(isAsync);
+
+            AssertSql(" ");
         }
     }
 }

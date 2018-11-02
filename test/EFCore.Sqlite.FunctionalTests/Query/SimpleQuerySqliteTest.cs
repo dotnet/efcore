@@ -202,11 +202,9 @@ WHERE (""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%' AND (substr(""c""
             await base.String_StartsWith_MethodCall(isAsync);
 
             AssertSql(
-                @"@__LocalMethod1_0='M' (Size = 1)
-
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (""c"".""ContactName"" LIKE @__LocalMethod1_0 || '%' AND (substr(""c"".""ContactName"", 1, length(@__LocalMethod1_0)) = @__LocalMethod1_0)) OR (@__LocalMethod1_0 = '')");
+WHERE ""c"".""ContactName"" LIKE 'M' || '%' AND (substr(""c"".""ContactName"", 1, length('M')) = 'M')");
         }
 
         public override async Task String_EndsWith_Literal(bool isAsync)
@@ -244,11 +242,9 @@ WHERE (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""C
             await base.String_EndsWith_MethodCall(isAsync);
 
             AssertSql(
-                @"@__LocalMethod2_0='m' (Size = 1)
-
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (substr(""c"".""ContactName"", -length(@__LocalMethod2_0)) = @__LocalMethod2_0) OR (@__LocalMethod2_0 = '')");
+WHERE substr(""c"".""ContactName"", -length('m')) = 'm'");
         }
 
         public override async Task String_Contains_Literal(bool isAsync)
@@ -286,11 +282,9 @@ WHERE (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0) OR (""c"".""Cont
             await base.String_Contains_MethodCall(isAsync);
 
             AssertSql(
-                @"@__LocalMethod1_0='M' (Size = 1)
-
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (instr(""c"".""ContactName"", @__LocalMethod1_0) > 0) OR (@__LocalMethod1_0 = '')");
+WHERE instr(""c"".""ContactName"", 'M') > 0");
         }
 
         public override async Task IsNullOrWhiteSpace_in_predicate(bool isAsync)
@@ -440,11 +434,9 @@ WHERE abs(""od"".""Quantity"") > 10");
             await base.Where_math_abs_uncorrelated(isAsync);
 
             AssertSql(
-                @"@__Abs_0='10' (DbType = String)
-
-SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
+                @"SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
 FROM ""Order Details"" AS ""od""
-WHERE @__Abs_0 < ""od"".""ProductID""");
+WHERE 10 < ""od"".""ProductID""");
         }
 
         public override async Task Select_math_round_int(bool isAsync)

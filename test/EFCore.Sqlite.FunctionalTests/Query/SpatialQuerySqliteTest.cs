@@ -287,7 +287,7 @@ FROM ""PointEntity"" AS ""e""");
             await base.Distance_constant_srid_4326(isAsync);
 
             AssertSql(
-                @"SELECT ""e"".""Id"", Distance(""e"".""Point"", GeomFromText('POINT (0 1)', 4326)) AS ""Distance""
+                @"SELECT ""e"".""Id"", Distance(""e"".""Point"", GeomFromText('POINT (1 1)', 4326)) AS ""Distance""
 FROM ""PointEntity"" AS ""e""");
         }
 

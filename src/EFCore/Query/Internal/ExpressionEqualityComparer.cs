@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     case ExpressionType.Extension:
                         return CompareExtension(a, b);
                     case ExpressionType.Default:
-                        return CompareDefault((DefaultExpression)a, (DefaultExpression)b);    
+                        return CompareDefault((DefaultExpression)a, (DefaultExpression)b);
                     default:
                         throw new NotImplementedException();
                 }

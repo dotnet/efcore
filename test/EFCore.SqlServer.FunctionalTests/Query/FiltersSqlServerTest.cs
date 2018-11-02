@@ -57,11 +57,11 @@ WHERE ([c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0 + N'%' AND (LEFT([c].
 
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
-@__get_Item_0='ALFKI' (Size = 5)
+@__p_0='ALFKI' (Size = 5)
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (([c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)) OR (@__ef_filter__TenantPrefix_0 = N'')) AND ([c].[CustomerID] = @__get_Item_0)");
+WHERE (([c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)) OR (@__ef_filter__TenantPrefix_0 = N'')) AND ([c].[CustomerID] = @__p_0)");
         }
 
         public override void Materialized_query_parameter()
@@ -192,7 +192,7 @@ ORDER BY [p].[ProductID]",
                 @"SELECT [p1].[ProductID], [p1].[Discontinued], [p1].[ProductName], [p1].[SupplierID], [p1].[UnitPrice], [p1].[UnitsInStock]
 FROM [Products] AS [p1]",
                 //
-                @"@__ef_filter___quantity_0='50'
+                @"@__ef_filter___quantity_0='50' (DbType = Int16)
 
 SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
@@ -204,7 +204,7 @@ WHERE [od].[Quantity] > @__ef_filter___quantity_0");
             base.Navs_query();
 
             AssertSql(
-                @"@__ef_filter___quantity_1='50'
+                @"@__ef_filter___quantity_1='50' (DbType = Int16)
 @__ef_filter__TenantPrefix_0='B' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]

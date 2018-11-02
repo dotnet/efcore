@@ -138,7 +138,7 @@ WHERE [dbo].[IsTopCustomer]([c].[Id]) = 1");
             base.Scalar_Function_Where_Not_Correlated_Static();
 
             AssertSql(
-                @"@__startDate_0='2000-04-01T00:00:00'
+                @"@__startDate_0='2000-04-01T00:00:00' (Nullable = true)
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
@@ -503,7 +503,7 @@ WHERE [dbo].[IsTopCustomer]([c].[Id]) = 1");
             base.Scalar_Function_Where_Not_Correlated_Instance();
 
             AssertSql(
-                @"@__startDate_1='2000-04-01T00:00:00'
+                @"@__startDate_1='2000-04-01T00:00:00' (Nullable = true)
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]

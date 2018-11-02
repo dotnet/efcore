@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "See issue#13587")]
         public virtual void QueryType_with_nav_defining_query()
         {
             using (var context = CreateContext())
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory]
+        [Theory(Skip = "See issue#13587")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_defining_query(bool isAsync)
         {
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer).Select(cv => cv.Orders.Where(cc => true).ToList()));
         }
 
-        [Theory]
+        [Theory(Skip = "See issue#13587")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_mixed_tracking(bool isAsync)
         {
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.c.CustomerID);
         }
 
-        [Theory]
+        [Theory(Skip = "See issue#13587")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_included_nav(bool isAsync)
         {
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [Theory(Skip = "See issue#13587")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_included_navs_multi_level(bool isAsync)
         {
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory]
+        [Theory(Skip = "See issue#13587")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_select_where_navigation(bool isAsync)
         {
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select ov);
         }
 
-        [Theory]
+        [Theory(Skip = "See issue#13587")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_select_where_navigation_multi_level(bool isAsync)
         {
