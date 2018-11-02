@@ -492,7 +492,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         break;
 
                     case MethodCallExpression methodCallExpression
-                    when methodCallExpression.IsEFProperty():
+                    when methodCallExpression.IsEFProperty()
+                        || methodCallExpression.Method.IsEFIndexer():
+                        sql = sqlTranslatingExpressionVisitor.Visit(methodCallExpression);
+                        memberInfoMappings[groupByKeyMemberInfo] = sql;
+                        key = new[] { sql };
+                        break;
+
+                    case UnaryExpression unaryExpression
+                    when unaryExpression.RemoveConvert() is MethodCallExpression methodCallExpression
+                        && methodCallExpression.Method.IsEFIndexer():
                         sql = sqlTranslatingExpressionVisitor.Visit(methodCallExpression);
                         memberInfoMappings[groupByKeyMemberInfo] = sql;
                         key = new[] { sql };

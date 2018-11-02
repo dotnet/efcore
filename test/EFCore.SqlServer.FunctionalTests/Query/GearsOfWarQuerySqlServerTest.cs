@@ -3834,6 +3834,36 @@ FROM [Cities] AS [c]
 ORDER BY [c].[Nation]");
         }
 
+        public override async Task Can_group_by_indexed_property_on_query(bool isAsync)
+        {
+            await base.Can_group_by_indexed_property_on_query(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Cities] AS [c]
+GROUP BY [c].[Nation]");
+        }
+
+        public override async Task Can_group_by_converted_indexed_property_on_query(bool isAsync)
+        {
+            await base.Can_group_by_converted_indexed_property_on_query(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Cities] AS [c]
+GROUP BY [c].[Nation]");
+        }
+
+        public override async Task Can_join_on_indexed_property_on_query(bool isAsync)
+        {
+            await base.Can_join_on_indexed_property_on_query(isAsync);
+
+            AssertSql(
+                @"SELECT [c1].[Name], [c2].[Location]
+FROM [Cities] AS [c1]
+INNER JOIN [Cities] AS [c2] ON [c1].[Nation] = [c2].[Nation]");
+        }
+
         public override void Navigation_access_on_derived_entity_using_cast()
         {
             base.Navigation_access_on_derived_entity_using_cast();

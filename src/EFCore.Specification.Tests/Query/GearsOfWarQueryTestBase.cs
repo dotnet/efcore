@@ -3609,6 +3609,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select c);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_group_by_indexed_property_on_query(bool isAsync)
+        {
+            return AssertQueryScalar<City>(
+                isAsync,
+                cs => cs.GroupBy(c => c[City.NationPropertyName]).Select(g => g.Count()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_group_by_converted_indexed_property_on_query(bool isAsync)
+        {
+            return AssertQueryScalar<City>(
+                isAsync,
+                cs => cs.GroupBy(c => (string)c[City.NationPropertyName]).Select(g => g.Count()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_join_on_indexed_property_on_query(bool isAsync)
+        {
+            return AssertQuery<City>(
+                isAsync,
+                cs =>
+                    (from c1 in cs
+                     join c2 in cs
+                         on c1[City.NationPropertyName] equals c2[City.NationPropertyName]
+                     select new { c1.Name, c2.Location }));
+        }
+
         [ConditionalFact]
         public virtual void Navigation_access_on_derived_entity_using_cast()
         {
