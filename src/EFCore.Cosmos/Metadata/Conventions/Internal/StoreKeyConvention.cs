@@ -21,8 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 
         public InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            if (entityTypeBuilder.Metadata.BaseType == null
-                && entityTypeBuilder.Metadata.IsDocumentRoot())
+            var entityType = entityTypeBuilder.Metadata;
+            if (entityType.BaseType == null
+                && entityType.IsDocumentRoot()
+                && !entityType.IsQueryType)
             {
                 var idProperty = entityTypeBuilder.Property(IdPropertyName, typeof(string), ConfigurationSource.Convention);
                 idProperty.HasValueGenerator((_, __) => new StringValueGenerator(generateTemporaryValues: false), ConfigurationSource.Convention);
@@ -32,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
             }
             else
             {
-                var entityType = entityTypeBuilder.Metadata;
                 var idProperty = entityType.FindDeclaredProperty(IdPropertyName);
                 if (idProperty != null)
                 {
