@@ -687,6 +687,43 @@ WHERE [o].[CustomerID] IN (
             }
         }
 
+        public override void From_sql_parameterization_issue_12213()
+        {
+            base.From_sql_parameterization_issue_12213();
+
+            AssertSql(
+                @"@p0='10300'
+
+SELECT [o].[OrderID]
+FROM (
+    SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
+) AS [o]",
+                //
+                @"@__max_0='10400'
+@p0='10300'
+
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
+    SELECT [o0].[OrderID]
+    FROM (
+        SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
+    ) AS [o0]
+)",
+                //
+                @"@__max_0='10400'
+@p0='10300'
+
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
+    SELECT [i].[OrderID]
+    FROM (
+        SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
+    ) AS [i]
+)");
+        }
+
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqlParameter
             {
