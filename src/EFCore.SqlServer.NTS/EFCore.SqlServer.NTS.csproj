@@ -9,7 +9,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQL Server;GIS;NTS;OGC;Spatial</PackageTags>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
-    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
 
   <ItemGroup>

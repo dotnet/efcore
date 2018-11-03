@@ -1,0 +1,115 @@
+{
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "Types": [
+    {
+      "Name": "Microsoft.Extensions.DependencyInjection.SqliteNetTopologySuiteServiceCollectionExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "AddEntityFrameworkSqliteNetTopologySuite",
+          "Parameters": [
+            {
+              "Name": "serviceCollection",
+              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
+            }
+          ],
+          "ReturnType": "Microsoft.Extensions.DependencyInjection.IServiceCollection",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.SqliteNetTopologySuiteDbContextOptionsBuilderExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "UseNetTopologySuite",
+          "Parameters": [
+            {
+              "Name": "optionsBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.SqliteNetTopologySuitePropertyBuilderExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ForSqliteHasDimension",
+          "Parameters": [
+            {
+              "Name": "propertyBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder"
+            },
+            {
+              "Name": "ordinates",
+              "Type": "GeoAPI.Geometries.Ordinates"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForSqliteHasDimension<T0>",
+          "Parameters": [
+            {
+              "Name": "propertyBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0>"
+            },
+            {
+              "Name": "ordinates",
+              "Type": "GeoAPI.Geometries.Ordinates"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TProperty",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        }
+      ],
+      "GenericParameters": []
+    }
+  ]
+}
