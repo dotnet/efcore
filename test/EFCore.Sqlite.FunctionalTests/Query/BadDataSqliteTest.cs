@@ -370,6 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public SemaphoreSlim Semaphore { get; }
             public void RegisterBufferable(IBufferable bufferable) { }
             public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public void UnregisterBufferable(IBufferable bufferable) => throw new NotImplementedException();
             public string ConnectionString { get; }
             public DbConnection DbConnection { get; }
             public Guid ConnectionId { get; }
