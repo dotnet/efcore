@@ -818,7 +818,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 case ExpressionType.Convert:
                     _stringBuilder.Append("(" + unaryExpression.Type.ShortDisplayName() + ")");
-                    Visit(unaryExpression.Operand);
+
+                    if (unaryExpression.Operand is BinaryExpression)
+                    {
+                        _stringBuilder.Append("(");
+                        Visit(unaryExpression.Operand);
+                        _stringBuilder.Append(")");
+                    }
+                    else
+                    {
+                        Visit(unaryExpression.Operand);
+                    }
+
                     break;
 
                 case ExpressionType.Throw:
