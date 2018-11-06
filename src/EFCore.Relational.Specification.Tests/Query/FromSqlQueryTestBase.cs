@@ -897,7 +897,7 @@ AND ((]UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
                 var query1 = context.Orders
                     .FromSql(NormalizeDelimeters($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
-                    .Select(o => o.OrderID);
+                    .Select(i => i.OrderID);
                 query1.ToList();
 
                 var query2 = context.Orders

@@ -694,10 +694,10 @@ WHERE [o].[CustomerID] IN (
             AssertSql(
                 @"@p0='10300'
 
-SELECT [o].[OrderID]
+SELECT [i].[OrderID]
 FROM (
     SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
-) AS [o]",
+) AS [i]",
                 //
                 @"@__max_0='10400'
 @p0='10300'
@@ -705,10 +705,10 @@ FROM (
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
-    SELECT [o0].[OrderID]
+    SELECT [i].[OrderID]
     FROM (
         SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
-    ) AS [o0]
+    ) AS [i]
 )",
                 //
                 @"@__max_0='10400'
