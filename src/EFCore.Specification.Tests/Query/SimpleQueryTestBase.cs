@@ -67,6 +67,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Throws<InvalidOperationException>(
                             () =>
                                 (from c in context1.Customers
+                                 from o in context2.Orders
+                                 select c).First()).Message);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_context_instances_2()
+        {
+            using (var context1 = CreateContext())
+            {
+                using (var context2 = CreateContext())
+                {
+                    Assert.Equal(
+                        CoreStrings.ErrorInvalidQueryable,
+                        Assert.Throws<InvalidOperationException>(
+                            () =>
+                                (from c in context1.Customers
                                  from o in context2.Set<Order>()
                                  select c).First()).Message);
                 }
