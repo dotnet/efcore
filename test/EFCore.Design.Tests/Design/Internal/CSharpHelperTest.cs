@@ -4,6 +4,7 @@
 using System;
 using System.Data.SqlTypes;
 using System.Linq.Expressions;
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -212,6 +213,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 "}",
                 result);
         }
+
+        [Fact]
+        public void Literal_works_when_BigInteger() =>
+            Literal_works(
+                new BigInteger(42),
+                "BigInteger.Parse(\"42\", NumberFormatInfo.InvariantInfo)");
 
         [Fact]
         public void UnknownLiteral_throws_when_unknown()
