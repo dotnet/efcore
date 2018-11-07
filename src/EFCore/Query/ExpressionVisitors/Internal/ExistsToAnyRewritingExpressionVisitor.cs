@@ -23,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Arguments.Count == 1 &&
-                methodCallExpression.Method.Name == nameof(List<int>.Exists) &&
-                methodCallExpression.Method.DeclaringType.IsGenericType &&
-                methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
+            if (methodCallExpression.Arguments.Count == 1
+                && methodCallExpression.Method.Name == nameof(List<int>.Exists)
+                && methodCallExpression.Method.DeclaringType.IsGenericType
+                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
             {
                 var genericTypeParameters = methodCallExpression.Method.DeclaringType.GetGenericArguments();
                 if (genericTypeParameters.Length == 1

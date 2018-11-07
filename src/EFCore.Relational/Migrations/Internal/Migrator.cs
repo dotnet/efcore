@@ -138,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 appliedMigrationEntries.Select(t => t.MigrationId),
                 targetMigration,
                 out var migrationsToApply,
-                out var migrationsToRevert);
+                out var migrationsToRevert,
+                out var actualTargetMigration);
 
             for (var i = 0; i < migrationsToRevert.Count; i++)
             {
@@ -146,25 +147,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var index = i;
                 yield return () =>
-                    {
-                        _logger.MigrationReverting(this, migration);
+                {
+                    _logger.MigrationReverting(this, migration);
 
-                        return GenerateDownSql(
-                            migration,
-                            index != migrationsToRevert.Count - 1
-                                ? migrationsToRevert[index + 1]
-                                : null);
-                    };
+                    return GenerateDownSql(
+                        migration,
+                        index != migrationsToRevert.Count - 1
+                            ? migrationsToRevert[index + 1]
+                            : actualTargetMigration);
+                };
             }
 
             foreach (var migration in migrationsToApply)
             {
                 yield return () =>
-                    {
-                        _logger.MigrationApplying(this, migration);
+                {
+                    _logger.MigrationApplying(this, migration);
 
-                        return GenerateUpSql(migration);
-                    };
+                    return GenerateUpSql(migration);
+                };
             }
 
             if (migrationsToRevert.Count + migrationsToApply.Count == 0)
@@ -181,7 +182,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IEnumerable<string> appliedMigrationEntries,
             string targetMigration,
             out IReadOnlyList<Migration> migrationsToApply,
-            out IReadOnlyList<Migration> migrationsToRevert)
+            out IReadOnlyList<Migration> migrationsToRevert,
+            out Migration actualTargetMigration)
         {
             var appliedMigrations = new Dictionary<string, TypeInfo>();
             var unappliedMigrations = new Dictionary<string, TypeInfo>();
@@ -190,6 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 _logger.MigrationsNotFound(this, _migrationsAssembly);
             }
+
             foreach (var migration in _migrationsAssembly.Migrations)
             {
                 if (appliedMigrationEntrySet.Contains(migration.Key))
@@ -201,12 +204,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     unappliedMigrations.Add(migration.Key, migration.Value);
                 }
             }
+
             if (string.IsNullOrEmpty(targetMigration))
             {
                 migrationsToApply = unappliedMigrations
                     .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
                 migrationsToRevert = Array.Empty<Migration>();
+                actualTargetMigration = null;
             }
             else if (targetMigration == Migration.InitialDatabase)
             {
@@ -215,6 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .OrderByDescending(m => m.Key)
                     .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
+                actualTargetMigration = null;
             }
             else
             {
@@ -228,6 +234,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .OrderByDescending(m => m.Key)
                     .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
+                actualTargetMigration = appliedMigrations
+                    .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) == 0)
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
+                    .SingleOrDefault();
             }
         }
 
@@ -258,7 +268,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 appliedMigrations,
                 toMigration,
                 out var migrationsToApply,
-                out var migrationsToRevert);
+                out var migrationsToRevert,
+                out var actualTargetMigration);
 
             var builder = new IndentedStringBuilder();
 
@@ -274,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var migration = migrationsToRevert[i];
                 var previousMigration = i != migrationsToRevert.Count - 1
                     ? migrationsToRevert[i + 1]
-                    : null;
+                    : actualTargetMigration;
 
                 _logger.MigrationGeneratingDownScript(this, migration, fromMigration, toMigration, idempotent);
 
@@ -287,6 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             builder.AppendLines(command.CommandText);
                         }
+
                         builder.AppendLine(_historyRepository.GetEndIfScript());
                     }
                     else
@@ -311,6 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             builder.AppendLines(command.CommandText);
                         }
+
                         builder.AppendLine(_historyRepository.GetEndIfScript());
                     }
                     else

@@ -216,6 +216,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipBuilder;
             }
 
+            public virtual InternalRelationshipBuilder OnForeignKeyRequirednessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            {
+                Add(new OnForeignKeyRequirednessChangedNode(relationshipBuilder));
+                return relationshipBuilder;
+            }
+
             public virtual InternalRelationshipBuilder OnForeignKeyOwnershipChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyOwnershipChangedNode(relationshipBuilder));
@@ -604,6 +610,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var uniquenessConvention in _conventionSet.ForeignKeyUniquenessChangedConventions)
                 {
                     relationshipBuilder = uniquenessConvention.Apply(relationshipBuilder);
+                    if (relationshipBuilder?.Metadata.Builder == null)
+                    {
+                        return null;
+                    }
+                }
+
+                return relationshipBuilder;
+            }
+
+            public override InternalRelationshipBuilder OnForeignKeyRequirednessChanged(InternalRelationshipBuilder relationshipBuilder)
+            {
+                if (relationshipBuilder.Metadata.Builder == null)
+                {
+                    return null;
+                }
+
+                foreach (var requirednessConvention in _conventionSet.ForeignKeyRequirednessChangedConventions)
+                {
+                    relationshipBuilder = requirednessConvention.Apply(relationshipBuilder);
                     if (relationshipBuilder?.Metadata.Builder == null)
                     {
                         return null;
@@ -1045,6 +1070,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public InternalRelationshipBuilder RelationshipBuilder { get; }
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyUniquenessChanged(this);
+        }
+
+        private class OnForeignKeyRequirednessChangedNode : ConventionNode
+        {
+            public OnForeignKeyRequirednessChangedNode(InternalRelationshipBuilder relationshipBuilder)
+            {
+                RelationshipBuilder = relationshipBuilder;
+            }
+
+            public InternalRelationshipBuilder RelationshipBuilder { get; }
+
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyRequirednessChanged(this);
         }
 
         private class OnForeignKeyOwnershipChangedNode : ConventionNode

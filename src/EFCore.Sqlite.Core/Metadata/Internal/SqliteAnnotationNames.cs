@@ -38,5 +38,23 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public const string InlinePrimaryKeyName = Prefix + "InlinePrimaryKeyName";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public const string InitSpatialMetaData = Prefix + "InitSpatialMetaData";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public const string Srid = Prefix + "Srid";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public const string Dimension = Prefix + "Dimension";
     }
 }

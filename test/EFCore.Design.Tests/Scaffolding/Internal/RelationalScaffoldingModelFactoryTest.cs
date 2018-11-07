@@ -262,10 +262,10 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Collection(
                 entityType.GetProperties(),
-                pk => { Assert.Equal("Id", pk.Name); },
-                col1 => { Assert.Equal("ProductSKU", col1.Name); },
-                col2 => { Assert.Equal("Vendor_Discount", col2.Name); },
-                col3 => { Assert.Equal("supplierID", col3.Name); });
+                pk => Assert.Equal("Id", pk.Name),
+                col1 => Assert.Equal("ProductSKU", col1.Name),
+                col2 => Assert.Equal("Vendor_Discount", col2.Name),
+                col3 => Assert.Equal("supplierID", col3.Name));
         }
 
         [Fact]
@@ -306,10 +306,10 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Collection(
                 entityType.GetProperties(),
-                pk => { Assert.Equal("Id", pk.Name); },
-                col1 => { Assert.Equal("ProductSku", col1.Name); },
-                col2 => { Assert.Equal("SupplierId", col2.Name); },
-                col3 => { Assert.Equal("VendorDiscount", col3.Name); });
+                pk => Assert.Equal("Id", pk.Name),
+                col1 => Assert.Equal("ProductSku", col1.Name),
+                col2 => Assert.Equal("SupplierId", col2.Name),
+                col3 => Assert.Equal("VendorDiscount", col3.Name));
         }
 
         [Theory]
@@ -323,7 +323,9 @@ namespace Microsoft.EntityFrameworkCore
                 StoreType = StoreType
             };
 
+#pragma warning disable CS0618 // Type or member is obsolete
             column.SetUnderlyingStoreType(underlyingType);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var info = new DatabaseModel
             {
@@ -436,37 +438,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
         }
 
-        [Fact]
-        public void Sql_variant()
-        {
-            var databaseModel = new DatabaseModel
-            {
-                Tables =
-                {
-                    new DatabaseTable
-                    {
-                        Name = "MyTable",
-                        Columns =
-                        {
-                            IdColumn,
-                            new DatabaseColumn
-                            {
-                                Name = "MyColumn",
-                                StoreType = "sql_variant"
-                            }
-                        },
-                        PrimaryKey = IdPrimaryKey
-                    }
-                }
-            };
-
-            var model = _factory.Create(databaseModel, useDatabaseNames: true);
-
-            var property = model.FindEntityType("MyTable").GetProperty("MyColumn");
-            Assert.Equal(typeof(object), property.ClrType);
-            Assert.Equal("sql_variant", property.Relational().ColumnType);
-        }
-
         [Theory]
         [InlineData(new[] { "Id" }, 1)]
         [InlineData(new[] { "Id", "AltId" }, 2)]
@@ -480,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore
                     new DatabaseTable
                     {
                         Name = "PkTable",
-                        PrimaryKey = new DatabasePrimaryKey()
+                        PrimaryKey = new DatabasePrimaryKey { Name="MyPk" }
                     }
                 }
             };
@@ -494,9 +465,53 @@ namespace Microsoft.EntityFrameworkCore
                 info.Tables[0].Columns.Add(column);
                 info.Tables[0].PrimaryKey.Columns.Add(column);
             }
+
             var model = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
 
+            Assert.Equal(model.FindPrimaryKey().Relational().Name, "MyPk");
             Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
+        }
+
+        [Fact]
+        public void Unique_constraint()
+        {
+            var myColumn = new DatabaseColumn
+            {
+                Name = "MyColumn",
+                StoreType = "int"
+            };
+
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "MyTable",
+                        Columns =
+                        {
+                            IdColumn,
+                            myColumn
+                        },
+                        PrimaryKey = IdPrimaryKey,
+                        UniqueConstraints =
+                        {
+                            new DatabaseUniqueConstraint
+                            {
+                                Name = "MyUniqueConstraint",
+                                Columns = { myColumn }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var entityType = (EntityType)_factory.Create(databaseModel, false).GetEntityTypes().Single();
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsUnique);
+            Assert.Equal("MyUniqueConstraint", index.Relational().Name);
+            Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
         }
 
         [Fact]
@@ -616,7 +631,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [Fact]
         public void Foreign_key()
-
         {
             var parentTable = new DatabaseTable
             {
@@ -685,8 +699,91 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Unique_foreign_key()
+        public void Foreign_key_to_unique_constraint()
+        {
+            var keyColumn = new DatabaseColumn
+            {
+                Name = "Key",
+                StoreType = "int",
+                IsNullable = false
+            };
 
+            var parentTable = new DatabaseTable
+            {
+                Name = "Parent",
+                Columns =
+                {
+                    IdColumn,
+                    keyColumn
+                },
+                PrimaryKey = IdPrimaryKey,
+            };
+
+            parentTable.UniqueConstraints.Add(
+                new DatabaseUniqueConstraint
+                {
+                    Table = parentTable,
+                    Columns =
+                    {
+                        keyColumn
+                    }
+                });
+
+
+            var childrenTable = new DatabaseTable
+            {
+                Name = "Children",
+                Columns =
+                {
+                    IdColumn
+                },
+                PrimaryKey = IdPrimaryKey
+            };
+
+            childrenTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childrenTable,
+                    PrincipalTable = parentTable,
+                    OnDelete = ReferentialAction.Cascade,
+                    Columns =
+                    {
+                        childrenTable.Columns.ElementAt(0)
+                    },
+                    PrincipalColumns =
+                    {
+                        parentTable.Columns.ElementAt(1)
+                    }
+                });
+
+            var model = _factory.Create(
+                new DatabaseModel
+                {
+                    Tables =
+                    {
+                        parentTable,
+                        childrenTable
+                    }
+                },
+                false);
+
+            var parent = (EntityType)model.FindEntityType("Parent");
+
+            var children = (EntityType)model.FindEntityType("Children");
+
+            Assert.NotEmpty(parent.GetReferencingForeignKeys());
+            var fk = Assert.Single(children.GetForeignKeys());
+            Assert.True(fk.IsUnique);
+            Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
+
+            var principalKey = fk.PrincipalKey;
+
+            Assert.Same(parent, principalKey.DeclaringEntityType);
+            Assert.Same(parent.GetProperties().First(p => p.Name == "Key"), principalKey.Properties[0]);
+        }
+
+        [Fact]
+        public void Unique_foreign_key()
         {
             var parentTable = new DatabaseTable
             {
@@ -742,7 +839,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [Fact]
         public void Composite_foreign_key()
-
         {
             var ida = new DatabaseColumn
             {
@@ -838,7 +934,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [Fact]
         public void It_loads_self_referencing_foreign_key()
-
         {
             var table = new DatabaseTable
             {
@@ -884,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotEmpty(list.GetReferencingForeignKeys());
             Assert.NotEmpty(list.GetForeignKeys());
 
-            var principalKey = list.FindForeignKeys(list.FindProperty("ParentId")).SingleOrDefault().PrincipalKey;
+            var principalKey = list.FindForeignKeys(list.FindProperty("ParentId")).Single().PrincipalKey;
             Assert.Equal("ItemsList", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
@@ -1229,7 +1324,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("EF", ef1.Name);
                     Assert.Collection(
                         ef1.GetProperties(),
-                        id => { Assert.Equal("Id", id.Name); },
+                        id => Assert.Equal("Id", id.Name),
                         s1 =>
                         {
                             Assert.Equal("SanItized", s1.Name);
@@ -1673,6 +1768,43 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(model.FindEntityType("Principal").FindProperty("Index").Relational().ColumnType);
             Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").Relational().ColumnType);
             Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").Relational().ColumnType);
+        }
+
+        [Fact]
+        public void Unmapped_column_with_underlying_store_type_is_ignored()
+        {
+            var columnWithUnknownType = new DatabaseColumn
+            {
+                Name = "ColumnWithUnknownStoreType",
+                StoreType = "unknown_type_alias"
+            };
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            columnWithUnknownType.SetUnderlyingStoreType("unknown_type");
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            var dbModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "Table",
+                        Columns =
+                        {
+                            IdColumn,
+                            columnWithUnknownType
+                        },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+
+            var model = _factory.Create(dbModel, false);
+
+            var columns = model.FindEntityType("Table").GetProperties().ToList();
+
+            Assert.Equal(1, columns.Count);
         }
 
         public class FakePluralizer : IPluralizer

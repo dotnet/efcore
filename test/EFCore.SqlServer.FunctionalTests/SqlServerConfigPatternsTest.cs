@@ -12,6 +12,7 @@ using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Local
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerConfigPatternsTest
@@ -152,16 +153,16 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.NoProviderConfigured,
                         Assert.Throws<InvalidOperationException>(
                             () =>
+                            {
+                                using (var context = new NorthwindContext(
+                                    new DbContextOptionsBuilder().UseInternalServiceProvider(
+                                        new ServiceCollection()
+                                            .AddEntityFrameworkSqlServer()
+                                            .BuildServiceProvider()).Options))
                                 {
-                                    using (var context = new NorthwindContext(
-                                        new DbContextOptionsBuilder().UseInternalServiceProvider(
-                                            new ServiceCollection()
-                                                .AddEntityFrameworkSqlServer()
-                                                .BuildServiceProvider()).Options))
-                                    {
-                                        Assert.Equal(91, context.Customers.Count());
-                                    }
-                                }).Message);
+                                    Assert.Equal(91, context.Customers.Count());
+                                }
+                            }).Message);
                 }
             }
 
@@ -190,12 +191,12 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.NoProviderConfigured,
                         Assert.Throws<InvalidOperationException>(
                             () =>
+                            {
+                                using (var context = new NorthwindContext())
                                 {
-                                    using (var context = new NorthwindContext())
-                                    {
-                                        Assert.Equal(91, context.Customers.Count());
-                                    }
-                                }).Message);
+                                    Assert.Equal(91, context.Customers.Count());
+                                }
+                            }).Message);
                 }
             }
 
@@ -223,14 +224,14 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.NoProviderConfigured,
                         Assert.Throws<InvalidOperationException>(
                             () =>
+                            {
+                                using (var context = new NorthwindContext(
+                                    new DbContextOptionsBuilder()
+                                        .UseInternalServiceProvider(serviceProvider).Options))
                                 {
-                                    using (var context = new NorthwindContext(
-                                        new DbContextOptionsBuilder()
-                                            .UseInternalServiceProvider(serviceProvider).Options))
-                                    {
-                                        Assert.Equal(91, context.Customers.Count());
-                                    }
-                                }).Message);
+                                    Assert.Equal(91, context.Customers.Count());
+                                }
+                            }).Message);
                 }
             }
 
@@ -480,9 +481,9 @@ namespace Microsoft.EntityFrameworkCore
         private static void ConfigureModel(ModelBuilder builder)
             => builder.Entity<Customer>(
                 b =>
-                    {
-                        b.HasKey(c => c.CustomerID);
-                        b.ToTable("Customers");
-                    });
+                {
+                    b.HasKey(c => c.CustomerID);
+                    b.ToTable("Customers");
+                });
     }
 }

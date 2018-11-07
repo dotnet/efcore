@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 
         public int TeamId { get; set; }
         public string Name { get; set; }
-        
+
         public virtual Team Team
         {
             get => _loader.Load(this, ref _team);

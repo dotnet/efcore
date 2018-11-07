@@ -17,7 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
-            relationshipBuilder.Metadata.PrincipalToDependent.IsEagerLoaded = relationshipBuilder.Metadata.IsOwnership;
+            if (relationshipBuilder.Metadata.PrincipalToDependent != null)
+            {
+                relationshipBuilder.Metadata.PrincipalToDependent.IsEagerLoaded = relationshipBuilder.Metadata.IsOwnership;
+            }
 
             return relationshipBuilder;
         }

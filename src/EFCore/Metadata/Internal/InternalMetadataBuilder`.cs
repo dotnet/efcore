@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public new virtual TMetadata Metadata
         {
-            [DebuggerStepThrough] get { return (TMetadata)base.Metadata; }
+            [DebuggerStepThrough] get => (TMetadata)base.Metadata;
         }
     }
 }

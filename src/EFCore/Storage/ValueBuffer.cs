@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -59,12 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The value at the requested index. </returns>
         public object this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _values[_offset + index];
+
             [param: CanBeNull] set => _values[_offset + index] = value;
         }
 
         internal static readonly MethodInfo GetValueMethod
-            = typeof(ValueBuffer).GetRuntimeProperties().Single(p => p.GetIndexParameters().Any()).GetMethod;
+            = typeof(ValueBuffer).GetRuntimeProperties().Single(p => p.GetIndexParameters().Length > 0).GetMethod;
 
         /// <summary>
         ///     Gets the number of values in this buffer.
@@ -103,12 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public override bool Equals(object obj)
         {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return obj is ValueBuffer buffer
+            return obj is null
+                ? false
+                : obj is ValueBuffer buffer
                    && Equals(buffer);
         }
 

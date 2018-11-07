@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("decimal(10,4)", typeof(string))]
         [InlineData("boolean", typeof(string))]
         [InlineData("unknown_type", typeof(string))]
+        [InlineData("", typeof(string))]
         public void It_maps_strings_to_not_null_types(string typeName, Type clrType)
         {
             Assert.Equal(clrType, CreateTypeMapper().FindMapping(typeName).ClrType);
@@ -58,55 +59,50 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Type type)
             => CreateTypeMapper().FindMapping(type);
 
-        public override void GenerateSqlLiteral_returns_char_literal()
+        public override void Char_literal_generated_correctly()
         {
-            var literal = new SqliteCharTypeMapping("TEXT").GenerateSqlLiteral('A');
-            Assert.Equal("65", literal);
+            Test_GenerateSqlLiteral_helper(new SqliteCharTypeMapping("TEXT"), 'A', "65");
         }
 
-        public override void GenerateSqlLiteral_returns_DateTime_literal()
+        public override void DateTimeOffset_literal_generated_correctly()
         {
-            var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
-            Assert.Equal("'2015-03-12 13:36:37.371'", literal);
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(DateTimeOffset)),
+                new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
+                "'2015-03-12 13:36:37.371-07:00'");
         }
 
-        public override void GenerateSqlLiteral_returns_DateTimeOffset_literal()
+        public override void DateTime_literal_generated_correctly()
         {
-            var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = GetMapping(typeof(DateTimeOffset)).GenerateSqlLiteral(value);
-            Assert.Equal("'2015-03-12 13:36:37.371-07:00'", literal);
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(DateTime)),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12 13:36:37.371'");
         }
 
-        public override void GenerateSqlLiteral_returns_Guid_literal()
-        {
-            var value = new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292");
-            var literal = GetMapping(typeof(Guid)).GenerateSqlLiteral(value);
-            Assert.Equal("X'9E3AF4C6E191EF45A320832EA23B7292'", literal);
-        }
-
-        public override void GenerateSqlLiteral_for_ULong_works_for_range_limits()
-        {
-            var typeMapping = new SqliteULongTypeMapping("INTEGER");
-            var literal = typeMapping.GenerateSqlLiteral(ulong.MinValue);
-            Assert.Equal("0", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(long.MaxValue + 1ul);
-            Assert.Equal("-9223372036854775808", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(ulong.MaxValue);
-            Assert.Equal("-1", literal);
-        }
-
-        [Fact]
-        public override void GenerateSqlLiteral_for_Decimal_works_for_range_limits()
+        public override void Decimal_literal_generated_correctly()
         {
             var typeMapping = new SqliteDecimalTypeMapping("TEXT");
-            var literal = typeMapping.GenerateSqlLiteral(decimal.MinValue);
-            Assert.Equal("'-79228162514264337593543950335.0'", literal);
 
-            literal = typeMapping.GenerateSqlLiteral(decimal.MaxValue);
-            Assert.Equal("'79228162514264337593543950335.0'", literal);
+            Test_GenerateSqlLiteral_helper(typeMapping, decimal.MinValue, "'-79228162514264337593543950335.0'");
+            Test_GenerateSqlLiteral_helper(typeMapping, decimal.MaxValue, "'79228162514264337593543950335.0'");
+        }
+
+        public override void Guid_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(Guid)),
+                new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292"),
+                "X'9E3AF4C6E191EF45A320832EA23B7292'");
+        }
+
+        public override void ULong_literal_generated_correctly()
+        {
+            var typeMapping = new SqliteULongTypeMapping("INTEGER");
+
+            Test_GenerateSqlLiteral_helper(typeMapping, ulong.MinValue, "0");
+            Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "-1");
+            Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue + 1ul, "-9223372036854775808");
         }
 
         protected override DbContextOptions ContextOptions { get; }

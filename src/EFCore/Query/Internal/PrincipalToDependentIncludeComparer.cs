@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual bool ShouldInclude(in ValueBuffer valueBuffer)
             => _dependentKeyValueFactory.TryCreateFromBuffer(valueBuffer, out var key)
-            && _equalityComparer.Equals(key, _principalKeyValue);
+               && _equalityComparer.Equals(key, _principalKeyValue);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -46,6 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual bool ShouldInclude(InternalEntityEntry internalEntityEntry)
             => _dependentKeyValueFactory.TryCreateFromCurrentValues(internalEntityEntry, out var key)
-            && _equalityComparer.Equals(key, _principalKeyValue);
+               && _equalityComparer.Equals(key, _principalKeyValue);
     }
 }

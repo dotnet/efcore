@@ -367,7 +367,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 clrType = clrType.MakeNullable();
             }
 
-            if (clrType == typeof(bool) && column.DefaultValueSql != null)
+            if (clrType == typeof(bool)
+                && column.DefaultValueSql != null)
             {
                 _reporter.WriteWarning(
                     DesignStrings.NonNullableBoooleanColumnHasDefaultConstraint(column.DisplayName()));
@@ -439,7 +440,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             property.Metadata.AddAnnotations(
                 column.GetAnnotations().Where(
+#pragma warning disable CS0618 // Type or member is obsolete
                     a => a.Name != ScaffoldingAnnotationNames.UnderlyingStoreType
+#pragma warning restore CS0618 // Type or member is obsolete
                          && a.Name != ScaffoldingAnnotationNames.ConcurrencyToken));
 
             return property;
@@ -465,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .Where(c => _unmappedColumns.Contains(c))
                 .Select(c => c.Name)
                 .ToList();
-            if (unmappedColumns.Any())
+            if (unmappedColumns.Count > 0)
             {
                 _reporter.WriteWarning(
                     DesignStrings.PrimaryKeyErrorPropertyNotFound(
@@ -489,6 +492,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         property.ValueGenerated = ValueGenerated.Never;
                     }
                 }
+            }
+
+            if (!string.IsNullOrEmpty(primaryKey.Name)
+                && primaryKey.Name != ConstraintNamer.GetDefaultName(keyBuilder.Metadata))
+            {
+                keyBuilder.HasName(primaryKey.Name);
             }
 
             keyBuilder.Metadata.AddAnnotations(primaryKey.GetAnnotations());
@@ -526,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .Where(c => _unmappedColumns.Contains(c))
                 .Select(c => c.Name)
                 .ToList();
-            if (unmappedColumns.Any())
+            if (unmappedColumns.Count > 0)
             {
                 _reporter.WriteWarning(
                     DesignStrings.UnableToScaffoldIndexMissingProperty(
@@ -538,7 +547,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var propertyNames = uniqueConstraint.Columns.Select(GetPropertyName).ToArray();
             var indexBuilder = builder.HasIndex(propertyNames).IsUnique();
 
-            if (!string.IsNullOrEmpty(uniqueConstraint.Name))
+            if (!string.IsNullOrEmpty(uniqueConstraint.Name)
+                && uniqueConstraint.Name != ConstraintNamer.GetDefaultName(indexBuilder.Metadata))
             {
                 indexBuilder.HasName(uniqueConstraint.Name);
             }
@@ -578,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .Where(c => _unmappedColumns.Contains(c))
                 .Select(c => c.Name)
                 .ToList();
-            if (unmappedColumns.Any())
+            if (unmappedColumns.Count > 0)
             {
                 _reporter.WriteWarning(
                     DesignStrings.UnableToScaffoldIndexMissingProperty(
@@ -664,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .Where(c => _unmappedColumns.Contains(c))
                 .Select(c => c.Name)
                 .ToList();
-            if (unmappedDependentColumns.Any())
+            if (unmappedDependentColumns.Count > 0)
             {
                 _reporter.WriteWarning(
                     DesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(
@@ -693,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .Where(pc => principalEntityType.FindProperty(GetPropertyName(pc)) == null)
                 .Select(pc => pc.Name)
                 .ToList();
-            if (unmappedPrincipalColumns.Any())
+            if (unmappedPrincipalColumns.Count > 0)
             {
                 _reporter.WriteWarning(
                     DesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(
@@ -713,14 +723,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (principalKey == null)
             {
                 var index = principalEntityType.FindIndex(principalProperties.AsReadOnly());
-                if (index != null
-                    && index.IsUnique)
+                if (index?.IsUnique == true)
                 {
                     // ensure all principal properties are non-nullable even if the columns
                     // are nullable on the database. EF's concept of a key requires this.
                     var nullablePrincipalProperties =
                         principalPropertiesMap.Where(tuple => tuple.property.IsNullable).ToList();
-                    if (nullablePrincipalProperties.Any())
+                    if (nullablePrincipalProperties.Count > 0)
                     {
                         _reporter.WriteWarning(
                             DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
@@ -733,6 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             .ToList()
                             .ForEach(tuple => tuple.property.IsNullable = false);
                     }
+
                     principalKey = principalEntityType.AddKey(principalProperties);
                 }
                 else
@@ -755,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var dependentKey = dependentEntityType.FindKey(dependentProperties);
             var dependentIndex = dependentEntityType.FindIndex(dependentProperties);
             key.IsUnique = dependentKey != null
-                           || dependentIndex != null && dependentIndex.IsUnique;
+                           || dependentIndex?.IsUnique == true;
 
             if (!string.IsNullOrEmpty(foreignKey.Name)
                 && foreignKey.Name != ConstraintNamer.GetDefaultName(key))
@@ -852,21 +862,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var typeScaffoldingInfo = _scaffoldingTypeMapper.FindMapping(
+#pragma warning disable CS0618 // Type or member is obsolete
                 column.GetUnderlyingStoreType() ?? column.StoreType,
+#pragma warning restore CS0618 // Type or member is obsolete
                 column.IsKeyOrIndex(),
                 column.IsRowVersion());
 
-            if (column.GetUnderlyingStoreType() != null)
+            if (typeScaffoldingInfo == null)
             {
-                return new TypeScaffoldingInfo(
+                return null;
+            }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            return column.GetUnderlyingStoreType() != null
+#pragma warning restore CS0618 // Type or member is obsolete
+                ? new TypeScaffoldingInfo(
                     typeScaffoldingInfo.ClrType,
                     inferred: false,
                     scaffoldUnicode: typeScaffoldingInfo.ScaffoldUnicode,
                     scaffoldMaxLength: typeScaffoldingInfo.ScaffoldMaxLength,
-                    scaffoldFixedLength: typeScaffoldingInfo.ScaffoldFixedLength);
-            }
-
-            return typeScaffoldingInfo;
+                    scaffoldFixedLength: typeScaffoldingInfo.ScaffoldFixedLength)
+                : typeScaffoldingInfo;
         }
 
         private static void AssignOnDeleteAction(
@@ -894,8 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         // TODO use CSharpUniqueNamer
         private static string NavigationUniquifier([NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
-            if (existingIdentifiers == null
-                || !existingIdentifiers.Contains(proposedIdentifier))
+            if (existingIdentifiers?.Contains(proposedIdentifier) != true)
             {
                 return proposedIdentifier;
             }

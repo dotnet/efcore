@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     <para>
     ///         Specifies custom value snapshotting and comparison for
     ///         CLR types that cannot be compared with <see cref="object.Equals(object, object)" />
-    ///         and/or need a deep copy when taking a snapshot. For example, arrays of primitive types
+    ///         and/or need a deep/structural copy when taking a snapshot. For example, arrays of primitive types
     ///         will require both if mutation is to be detected.
     ///     </para>
     ///     <para>
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Takes the <see cref="HashCodeExpression"/> and replaces the parameter with the given expression,
+        ///     Takes the <see cref="HashCodeExpression" /> and replaces the parameter with the given expression,
         ///     returning the transformed body.
         /// </summary>
         /// <param name="expression"> The new expression. </param>
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Takes the <see cref="SnapshotExpression"/> and replaces the parameter with the given expression,
+        ///     Takes the <see cref="SnapshotExpression" /> and replaces the parameter with the given expression,
         ///     returning the transformed body.
         /// </summary>
         /// <param name="expression"> The new expression. </param>

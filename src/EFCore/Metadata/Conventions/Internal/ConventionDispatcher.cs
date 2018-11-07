@@ -221,6 +221,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalRelationshipBuilder OnForeignKeyRequirednessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            => _scope.OnForeignKeyRequirednessChanged(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder OnForeignKeyOwnershipChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
             => _scope.OnForeignKeyOwnershipChanged(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
 
@@ -298,8 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 _dispatcher = dispatcher;
                 var currentScope = _dispatcher._scope;
 
-                if (currentScope.Children != null
-                    && currentScope.Children[currentScope.Children.Count - 1] is ConventionScope lastScope
+                if (currentScope.Children?[currentScope.Children.Count - 1] is ConventionScope lastScope
                     && lastScope.Children == null)
                 {
                     dispatcher._scope = lastScope;

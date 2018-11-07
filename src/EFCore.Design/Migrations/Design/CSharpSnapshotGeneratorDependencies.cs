@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     </para>
         /// </summary>
         /// <param name="csharpHelper"> The C# helper. </param>
-        public CSharpSnapshotGeneratorDependencies([NotNull] ICSharpHelper csharpHelper)
+        public CSharpSnapshotGeneratorDependencies(
+            [NotNull] ICSharpHelper csharpHelper)
         {
             Check.NotNull(csharpHelper, nameof(csharpHelper));
 
@@ -61,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="csharpHelper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpSnapshotGeneratorDependencies With([NotNull] ICSharpHelper csharpHelper)
+        public CSharpSnapshotGeneratorDependencies With(
+            [NotNull] ICSharpHelper csharpHelper)
             => new CSharpSnapshotGeneratorDependencies(csharpHelper);
     }
 }

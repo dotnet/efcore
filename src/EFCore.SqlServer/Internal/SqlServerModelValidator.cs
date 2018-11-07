@@ -42,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             ValidateDefaultDecimalMapping(model);
             ValidateByteIdentityMapping(model);
             ValidateNonKeyValueGeneration(model);
+            ValidateIndexIncludeProperties(model);
         }
 
         /// <summary>
@@ -52,10 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
-                            && !p.IsForeignKey()))
+                .Where(
+                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                         && !p.IsForeignKey()))
             {
+#pragma warning disable IDE0019 // Use pattern matching
                 var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionalAnnotation;
+#pragma warning restore IDE0019 // Use pattern matching
                 var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionalAnnotation;
                 if ((type == null
                      && (typeMapping == null
@@ -102,6 +106,52 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ValidateIndexIncludeProperties([NotNull] IModel model)
+        {
+            foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
+            {
+                var includeProperties = index.SqlServer().IncludeProperties;
+                if (includeProperties?.Count > 0)
+                {
+                    var notFound = includeProperties
+                        .Where(i => index.DeclaringEntityType.FindProperty(i) == null)
+                        .FirstOrDefault();
+
+                    if (notFound != null)
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.IncludePropertyNotFound(index.DeclaringEntityType.DisplayName(), notFound));
+                    }
+
+                    var duplicate = includeProperties
+                        .GroupBy(i => i)
+                        .Where(g => g.Count() > 1)
+                        .Select(y => y.Key)
+                        .FirstOrDefault();
+
+                    if (duplicate != null)
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.IncludePropertyDuplicated(index.DeclaringEntityType.DisplayName(), duplicate));
+                    }
+
+                    var inIndex = includeProperties
+                        .Where(i => index.Properties.Any(p => i == p.Name))
+                        .FirstOrDefault();
+
+                    if (inIndex != null)
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.IncludePropertyInIndex(index.DeclaringEntityType.DisplayName(), inIndex));
+                    }
+                }
             }
         }
 
@@ -178,6 +228,42 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var sb = new StringBuilder()
                     .AppendJoin(identityColumns.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
                 throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, tableName));
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override void ValidateSharedKeysCompatibility(
+            IReadOnlyList<IEntityType> mappedTypes, string tableName)
+        {
+            base.ValidateSharedKeysCompatibility(mappedTypes, tableName);
+
+            var keyMappings = new Dictionary<string, IKey>();
+
+            foreach (var key in mappedTypes.SelectMany(et => et.GetDeclaredKeys()))
+            {
+                var keyName = key.Relational().Name;
+
+                if (!keyMappings.TryGetValue(keyName, out var duplicateKey))
+                {
+                    keyMappings[keyName] = key;
+                    continue;
+                }
+
+                if (key.SqlServer().IsClustered
+                     != duplicateKey.SqlServer().IsClustered)
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.DuplicateKeyMismatchedClustering(
+                            Property.Format(key.Properties),
+                            key.DeclaringEntityType.DisplayName(),
+                            Property.Format(duplicateKey.Properties),
+                            duplicateKey.DeclaringEntityType.DisplayName(),
+                            tableName,
+                            keyName));
+                }
             }
         }
     }

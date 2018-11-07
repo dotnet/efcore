@@ -139,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 var defaultMapping = _typeMappingSource.FindMapping(mapping.ClrType);
 
-                if (string.Equals(defaultMapping?.StoreType, storeType, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(defaultMapping?.StoreType, storeType, StringComparison.OrdinalIgnoreCase)
+                    && mapping.ClrType.UnwrapNullableType() != typeof(decimal))
                 {
                     canInfer = true;
                 }

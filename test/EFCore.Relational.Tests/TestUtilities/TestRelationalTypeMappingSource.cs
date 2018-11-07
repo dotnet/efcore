@@ -7,7 +7,6 @@ using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -18,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private static readonly RelationalTypeMapping _binary
             = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
-
-        private static readonly RelationalTypeMapping _binaryKey
-            = new ByteArrayTypeMapping("just_binary(900)", dbType: DbType.Binary, size: 900);
 
         private static readonly RelationalTypeMapping _rowversion
             = new ByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
@@ -64,11 +60,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
             }
 
-            public override RelationalTypeMapping Clone(string storeType, int? size)
-                => new IntArrayTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-            public override CoreTypeMapping Clone(ValueConverter converter)
-                => new IntArrayTypeMapping(Parameters.WithComposedConverter(converter));
+            protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+                => new IntArrayTypeMapping(parameters);
         }
 
         private static readonly RelationalTypeMapping _intArray
@@ -151,7 +144,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         fixedLength))
             {
             }
-
         }
 
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
@@ -200,14 +192,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            if (storeTypeName != null
+            return storeTypeName != null
                 && _simpleNameMappings.TryGetValue(storeTypeName, out var mappingFromName)
-                && (clrType == null || mappingFromName.ClrType == clrType))
-            {
-                return mappingFromName;
-            }
-
-            return null;
+                && (clrType == null || mappingFromName.ClrType == clrType)
+                ? mappingFromName
+                : null;
         }
     }
 }

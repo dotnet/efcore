@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -31,12 +32,50 @@ namespace Microsoft.EntityFrameworkCore
 
         protected string ActiveProvider { get; private set; }
 
+        // Database deletion can happen as async file operation and SQLClient
+        // doesn't account for this, so give some time for it to happen on slow C.I. machines
+        protected virtual void GiveMeSomeTime(DbContext db)
+        {
+            var stillExists = true;
+            for (var i = 0; stillExists && i < 10; i++)
+            {
+                try
+                {
+                    Thread.Sleep(500);
+
+                    stillExists = db.GetService<IRelationalDatabaseCreator>().Exists();
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        protected async virtual Task GiveMeSomeTimeAsync(DbContext db)
+        {
+            var stillExists = true;
+            for (var i = 0; stillExists && i < 10; i++)
+            {
+                try
+                {
+                    await Task.Delay(500);
+
+                    stillExists = await db.GetService<IRelationalDatabaseCreator>().ExistsAsync();
+                }
+                catch
+                {
+                }
+            }
+        }
+
         [ConditionalFact]
-        public void Can_apply_all_migrations()
+        public virtual void Can_apply_all_migrations()
         {
             using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
+
+                GiveMeSomeTime(db);
 
                 db.Database.Migrate();
 
@@ -50,11 +89,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_apply_one_migration()
+        public virtual void Can_apply_one_migration()
         {
             using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
+
+                GiveMeSomeTime(db);
 
                 var migrator = db.GetService<IMigrator>();
                 migrator.Migrate("Migration1");
@@ -67,11 +108,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_revert_all_migrations()
+        public virtual void Can_revert_all_migrations()
         {
             using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
+
+                GiveMeSomeTime(db);
+
                 db.Database.Migrate();
 
                 var migrator = db.GetService<IMigrator>();
@@ -83,11 +127,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_revert_one_migrations()
+        public virtual void Can_revert_one_migrations()
         {
             using (var db = Fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
+
+                GiveMeSomeTime(db);
+
                 db.Database.Migrate();
 
                 var migrator = db.GetService<IMigrator>();
@@ -101,11 +148,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public async Task Can_apply_all_migrations_async()
+        public virtual async Task Can_apply_all_migrations_async()
         {
             using (var db = Fixture.CreateContext())
             {
                 await db.Database.EnsureDeletedAsync();
+
+                await GiveMeSomeTimeAsync(db);
 
                 await db.Database.MigrateAsync();
 
@@ -255,16 +304,19 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        /// <remarks>
+        /// <summary>
         ///     Creating databases and executing DDL is slow. This oddly-structured test allows us to get the most ammount of
         ///     coverage using the least ammount of database operations.
-        /// </remarks>
+        /// </summary>
         [ConditionalFact]
         public virtual async Task Can_execute_operations()
         {
             using (var db = Fixture.CreateContext())
             {
                 await db.Database.EnsureDeletedAsync();
+
+                await GiveMeSomeTimeAsync(db);
+
                 await db.Database.EnsureCreatedAsync();
 
                 var services = db.GetInfrastructure();
@@ -286,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected virtual async Task ExecuteAsync(IServiceProvider services, Action<MigrationBuilder> buildMigration)
+        protected virtual Task ExecuteAsync(IServiceProvider services, Action<MigrationBuilder> buildMigration)
         {
             var generator = services.GetRequiredService<IMigrationsSqlGenerator>();
             var executor = services.GetRequiredService<IMigrationCommandExecutor>();
@@ -299,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var commandList = generator.Generate(operations);
 
-            await executor.ExecuteNonQueryAsync(commandList, connection);
+            return executor.ExecuteNonQueryAsync(commandList, connection);
         }
 
         protected virtual void BuildFirstMigration(MigrationBuilder migrationBuilder)
@@ -313,11 +365,11 @@ namespace Microsoft.EntityFrameworkCore
                     ColumnWithDefaultToAlter = x.Column<int>(nullable: true, defaultValue: 1)
                 },
                 constraints: x =>
-                    {
-                        x.PrimaryKey(
-                            name: "PK_CreatedTable",
-                            columns: t => t.Id);
-                    });
+                {
+                    x.PrimaryKey(
+                        name: "PK_CreatedTable",
+                        columns: t => t.Id);
+                });
         }
 
         protected virtual Task AssertFirstMigrationAsync(DbConnection connection)

@@ -11,14 +11,13 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\Key.snk</AssemblyOriginatorKeyFile>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
-    <PublicSign Condition="'$(OS)' != 'Windows_NT'">True</PublicSign>
     <RepositoryType>git</RepositoryType>
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
-    <RepositoryUrl>https://github.com/aspnet/EntityFramework.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/aspnet/EntityFrameworkCore</RepositoryUrl>
     <SignAssembly>True</SignAssembly>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>7.2</LangVersion>
-    <NoWarn>$(NoWarn);CA1032;CA1034;CA1063;CA1815;CA1819</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;CA1032;CA1034;CA1052;CA1063;CA1815;CA1819;CA1822;CA2231</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

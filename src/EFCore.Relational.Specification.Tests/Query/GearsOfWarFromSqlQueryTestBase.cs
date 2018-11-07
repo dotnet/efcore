@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Xunit;
@@ -20,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Weapon>()
-                    .FromSql(@"SELECT ""Id"", ""Name"", ""IsAutomatic"", ""AmmunitionType"", ""OwnerFullName"", ""SynergyWithId"" FROM ""Weapons"" ORDER BY ""Name""")
+                var actual = context.Set<Weapon>().FromSql(NormalizeDelimeters("SELECT [Id], [Name], [IsAutomatic], [AmmunitionType], [OwnerFullName], [SynergyWithId] FROM [Weapons] ORDER BY [Name]"))
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);
@@ -32,6 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("Baird's Gnasher", first.Name);
             }
         }
+
+        private RawSqlString NormalizeDelimeters(RawSqlString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
+
+        private FormattableString NormalizeDelimeters(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 

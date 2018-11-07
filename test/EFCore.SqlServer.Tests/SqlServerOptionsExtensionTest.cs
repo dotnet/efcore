@@ -90,12 +90,12 @@ namespace Microsoft.EntityFrameworkCore
                     .UseSqlServer(
                         "Database=Maltesers",
                         b =>
+                        {
+                            if (_rowNumberPagingEnabled)
                             {
-                                if (_rowNumberPagingEnabled)
-                                {
-                                    b.UseRowNumberForPaging();
-                                }
-                            });
+                                b.UseRowNumberForPaging();
+                            }
+                        });
             }
         }
     }

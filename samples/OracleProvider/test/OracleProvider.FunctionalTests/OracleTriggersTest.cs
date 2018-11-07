@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TriggersContext CreateContext() => (TriggersContext)Fixture.CreateContext();
 
-        protected class TriggersContext : DbContext
+        protected class TriggersContext : PoolableDbContext
         {
             public TriggersContext(DbContextOptions options)
                 : base(options)

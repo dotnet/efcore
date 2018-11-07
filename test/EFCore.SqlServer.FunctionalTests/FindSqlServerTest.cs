@@ -3,8 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -70,24 +68,24 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.Find_int_key_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='77'
+            AssertSql(
+                @"@__p_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_int_key_not_in_store()
         {
             base.Returns_null_for_int_key_not_in_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='99'
+            AssertSql(
+                @"@__p_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Id] = @__p_0");
         }
 
         public override void Find_nullable_int_key_tracked()
@@ -101,24 +99,24 @@ WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         {
             base.Find_int_key_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='77'
+            AssertSql(
+                @"@__p_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_nullable_int_key_not_in_store()
         {
             base.Returns_null_for_int_key_not_in_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='99'
+            AssertSql(
+                @"@__p_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Id] = @__p_0");
         }
 
         public override void Find_string_key_tracked()
@@ -132,24 +130,24 @@ WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         {
             base.Find_string_key_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='Cat' (Size = 450)
+            AssertSql(
+                @"@__p_0='Cat' (Size = 450)
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [StringKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_string_key_not_in_store()
         {
             base.Returns_null_for_string_key_not_in_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='Fox' (Size = 450)
+            AssertSql(
+                @"@__p_0='Fox' (Size = 450)
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [StringKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Id] = @__p_0");
         }
 
         public override void Find_composite_key_tracked()
@@ -163,26 +161,26 @@ WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         {
             base.Find_composite_key_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='77'
-@__get_Item_1='Dog' (Size = 450)
+            AssertSql(
+                @"@__p_0='77'
+@__p_1='Dog' (Size = 450)
 
 SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
 FROM [CompositeKey] AS [e]
-WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql, ignoreLineEndingDifferences: true);
+WHERE ([e].[Id1] = @__p_0) AND ([e].[Id2] = @__p_1)");
         }
 
         public override void Returns_null_for_composite_key_not_in_store()
         {
             base.Returns_null_for_composite_key_not_in_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='77'
-@__get_Item_1='Fox' (Size = 450)
+            AssertSql(
+                @"@__p_0='77'
+@__p_1='Fox' (Size = 450)
 
 SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
 FROM [CompositeKey] AS [e]
-WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql, ignoreLineEndingDifferences: true);
+WHERE ([e].[Id1] = @__p_0) AND ([e].[Id2] = @__p_1)");
         }
 
         public override void Find_base_type_tracked()
@@ -196,24 +194,24 @@ WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql, ignoreL
         {
             base.Find_base_type_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='77'
+            AssertSql(
+                @"@__p_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_0)");
         }
 
         public override void Returns_null_for_base_type_not_in_store()
         {
             base.Returns_null_for_base_type_not_in_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='99'
+            AssertSql(
+                @"@__p_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_0)");
         }
 
         public override void Find_derived_type_tracked()
@@ -227,48 +225,48 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
         {
             base.Find_derived_type_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='78'
+            AssertSql(
+                @"@__p_0='78'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
         }
 
         public override void Returns_null_for_derived_type_not_in_store()
         {
             base.Returns_null_for_derived_type_not_in_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='99'
+            AssertSql(
+                @"@__p_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
         }
 
         public override void Find_base_type_using_derived_set_tracked()
         {
             base.Find_base_type_using_derived_set_tracked();
 
-            Assert.Equal(
-                @"@__get_Item_0='88'
+            AssertSql(
+                @"@__p_0='88'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
         }
 
         public override void Find_base_type_using_derived_set_from_store()
         {
             base.Find_base_type_using_derived_set_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='77'
+            AssertSql(
+                @"@__p_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
         }
 
         public override void Find_derived_type_using_base_set_tracked()
@@ -282,12 +280,12 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
         {
             base.Find_derived_using_base_set_type_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='78'
+            AssertSql(
+                @"@__p_0='78'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_0)");
         }
 
         public override void Find_shadow_key_tracked()
@@ -301,31 +299,34 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
         {
             base.Find_shadow_key_from_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='77'
+            AssertSql(
+                @"@__p_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [ShadowKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_shadow_key_not_in_store()
         {
             base.Returns_null_for_shadow_key_not_in_store();
 
-            Assert.Equal(
-                @"@__get_Item_0='99'
+            AssertSql(
+                @"@__p_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [ShadowKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
+WHERE [e].[Id] = @__p_0");
         }
 
         private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
         public class FindSqlServerFixture : FindFixtureBase
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
         }
     }

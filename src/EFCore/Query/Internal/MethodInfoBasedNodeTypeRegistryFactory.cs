@@ -23,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly();
 
         private readonly MethodInfoBasedNodeTypeRegistry _methodInfoBasedNodeTypeRegistry;
-        private readonly bool _quirkEnabled;
-
         private volatile INodeTypeProvider[] _nodeTypeProviders;
 
         /// <summary>
@@ -37,30 +35,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(methodInfoBasedNodeTypeRegistry, nameof(methodInfoBasedNodeTypeRegistry));
 
-            _quirkEnabled = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12682", out var isEnabled)
-                && isEnabled;
-
             _methodInfoBasedNodeTypeRegistry = methodInfoBasedNodeTypeRegistry;
 
-            if (!_quirkEnabled)
-            {
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(TrackingExpressionNode.SupportedMethods, typeof(TrackingExpressionNode));
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(IgnoreQueryFiltersExpressionNode.SupportedMethods, typeof(IgnoreQueryFiltersExpressionNode));
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(IncludeExpressionNode.SupportedMethods, typeof(IncludeExpressionNode));
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(StringIncludeExpressionNode.SupportedMethods, typeof(StringIncludeExpressionNode));
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(ThenIncludeExpressionNode.SupportedMethods, typeof(ThenIncludeExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
+                .Register(TrackingExpressionNode.SupportedMethods, typeof(TrackingExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
+                .Register(TagExpressionNode.SupportedMethods, typeof(TagExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
+                .Register(IgnoreQueryFiltersExpressionNode.SupportedMethods, typeof(IgnoreQueryFiltersExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
+                .Register(IncludeExpressionNode.SupportedMethods, typeof(IncludeExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
+                .Register(StringIncludeExpressionNode.SupportedMethods, typeof(StringIncludeExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
+                .Register(ThenIncludeExpressionNode.SupportedMethods, typeof(ThenIncludeExpressionNode));
 
-                _nodeTypeProviders = new INodeTypeProvider[]
-                {
+            _nodeTypeProviders = new INodeTypeProvider[]
+            {
                     _methodInfoBasedNodeTypeRegistry,
                     _methodNameBasedNodeTypeRegistry
-                };
-            }
+            };
         }
 
         /// <summary>
@@ -73,21 +67,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(methods, nameof(methods));
             Check.NotNull(nodeType, nameof(nodeType));
 
-            if (_quirkEnabled)
+            lock (_syncLock)
             {
                 _methodInfoBasedNodeTypeRegistry.Register(methods, nodeType);
-            }
-            else
-            {
-                lock (_syncLock)
+                _nodeTypeProviders = new INodeTypeProvider[]
                 {
-                    _methodInfoBasedNodeTypeRegistry.Register(methods, nodeType);
-                    _nodeTypeProviders = new INodeTypeProvider[]
-                    {
                         _methodInfoBasedNodeTypeRegistry,
                         _methodNameBasedNodeTypeRegistry
-                    };
-                }
+                };
             }
         }
 
@@ -95,33 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     Creates a <see cref="INodeTypeProvider" />.
         /// </summary>
         /// <returns>The <see cref="INodeTypeProvider" />.</returns>
-        public virtual INodeTypeProvider Create()
-        {
-            if (_quirkEnabled)
-            {
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(TrackingExpressionNode.SupportedMethods, typeof(TrackingExpressionNode));
-
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(IgnoreQueryFiltersExpressionNode.SupportedMethods, typeof(IgnoreQueryFiltersExpressionNode));
-
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(IncludeExpressionNode.SupportedMethods, typeof(IncludeExpressionNode));
-
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(StringIncludeExpressionNode.SupportedMethods, typeof(StringIncludeExpressionNode));
-
-                _methodInfoBasedNodeTypeRegistry
-                    .Register(ThenIncludeExpressionNode.SupportedMethods, typeof(ThenIncludeExpressionNode));
-
-                _nodeTypeProviders = new INodeTypeProvider[]
-                {
-                    _methodInfoBasedNodeTypeRegistry,
-                    MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
-                };
-            }
-
-            return new CompoundNodeTypeProvider(_nodeTypeProviders);
-        }
+        public virtual INodeTypeProvider Create() => new CompoundNodeTypeProvider(_nodeTypeProviders);
     }
 }

@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private const string Format = "yyyyMMddHHmmss";
 
         private DateTime _lastTimestamp = DateTime.MinValue;
+        private object _lock = new object();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -43,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var now = DateTime.UtcNow;
             var timestamp = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
 
-            lock (this)
+            lock (_lock)
             {
                 if (timestamp <= _lastTimestamp)
                 {

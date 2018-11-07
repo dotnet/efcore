@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Level>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
+                modelBuilder.Entity<Level>(eb => eb.HasKey(l => new { l.GameId, l.Id }));
 
                 modelBuilder.Entity<Actor>(
                     eb =>
@@ -940,7 +940,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id
             {
-                get { return _id; }
+                get => _id;
                 set
                 {
                     if (_id != value)
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public string Name
             {
-                get { return _name; }
+                get => _name;
                 set
                 {
                     if (_name != value)
@@ -968,7 +968,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool George
             {
-                get { return _george; }
+                get => _george;
                 set
                 {
                     if (_george != value)
@@ -982,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public Guid TheGu
             {
-                get { return _theGu; }
+                get => _theGu;
                 set
                 {
                     if (_theGu != value)
@@ -996,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public DateTime NotFigTime
             {
-                get { return _notFigTime; }
+                get => _notFigTime;
                 set
                 {
                     if (_notFigTime != value)
@@ -1010,7 +1010,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte ToEat
             {
-                get { return _toEat; }
+                get => _toEat;
                 set
                 {
                     if (_toEat != value)
@@ -1024,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public char CupOfChar
             {
-                get { return _cupOfChar; }
+                get => _cupOfChar;
                 set
                 {
                     if (_cupOfChar != value)
@@ -1038,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public double OrNothing
             {
-                get { return _orNothing; }
+                get => _orNothing;
                 set
                 {
                     if (_orNothing != value)
@@ -1052,7 +1052,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public short Fuse
             {
-                get { return _fuse; }
+                get => _fuse;
                 set
                 {
                     if (_fuse != value)
@@ -1066,7 +1066,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public long WayRound
             {
-                get { return _wayRound; }
+                get => _wayRound;
                 set
                 {
                     if (_wayRound != value)
@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public sbyte NotToEat
             {
-                get { return _notToEat; }
+                get => _notToEat;
                 set
                 {
                     if (_notToEat != value)
@@ -1094,7 +1094,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public float Away
             {
-                get { return _away; }
+                get => _away;
                 set
                 {
                     if (_away != value)
@@ -1108,7 +1108,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public ushort OrULong
             {
-                get { return _orULong; }
+                get => _orULong;
                 set
                 {
                     if (_orULong != value)
@@ -1122,7 +1122,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public uint OrUSkint
             {
-                get { return _orUSkint; }
+                get => _orUSkint;
                 set
                 {
                     if (_orUSkint != value)
@@ -1136,7 +1136,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public ulong OrUShort
             {
-                get { return _orUShort; }
+                get => _orUShort;
                 set
                 {
                     if (_orUShort != value)
@@ -1150,7 +1150,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte[] AndChew
             {
-                get { return _andChew; }
+                get => _andChew;
                 set
                 {
                     if (_andChew != value) // Not a great way to compare byte arrays
@@ -1199,7 +1199,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id
             {
-                get { return _id; }
+                get => _id;
                 set
                 {
                     if (_id != value)
@@ -1212,7 +1212,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public string Name
             {
-                get { return _name; }
+                get => _name;
                 set
                 {
                     if (_name != value)
@@ -1225,7 +1225,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool George
             {
-                get { return _george; }
+                get => _george;
                 set
                 {
                     if (_george != value)
@@ -1238,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public Guid TheGu
             {
-                get { return _theGu; }
+                get => _theGu;
                 set
                 {
                     if (_theGu != value)
@@ -1251,7 +1251,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public DateTime NotFigTime
             {
-                get { return _notFigTime; }
+                get => _notFigTime;
                 set
                 {
                     if (_notFigTime != value)
@@ -1264,7 +1264,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte ToEat
             {
-                get { return _toEat; }
+                get => _toEat;
                 set
                 {
                     if (_toEat != value)
@@ -1277,7 +1277,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public char CupOfChar
             {
-                get { return _cupOfChar; }
+                get => _cupOfChar;
                 set
                 {
                     if (_cupOfChar != value)
@@ -1290,7 +1290,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public double OrNothing
             {
-                get { return _orNothing; }
+                get => _orNothing;
                 set
                 {
                     if (_orNothing != value)
@@ -1303,7 +1303,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public short Fuse
             {
-                get { return _fuse; }
+                get => _fuse;
                 set
                 {
                     if (_fuse != value)
@@ -1316,7 +1316,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public long WayRound
             {
-                get { return _wayRound; }
+                get => _wayRound;
                 set
                 {
                     if (_wayRound != value)
@@ -1329,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public sbyte NotToEat
             {
-                get { return _notToEat; }
+                get => _notToEat;
                 set
                 {
                     if (_notToEat != value)
@@ -1342,7 +1342,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public float Away
             {
-                get { return _away; }
+                get => _away;
                 set
                 {
                     if (_away != value)
@@ -1355,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public ushort OrULong
             {
-                get { return _orULong; }
+                get => _orULong;
                 set
                 {
                     if (_orULong != value)
@@ -1368,7 +1368,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public uint OrUSkint
             {
-                get { return _orUSkint; }
+                get => _orUSkint;
                 set
                 {
                     if (_orUSkint != value)
@@ -1381,7 +1381,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public ulong OrUShort
             {
-                get { return _orUShort; }
+                get => _orUShort;
                 set
                 {
                     if (_orUShort != value)
@@ -1394,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte[] AndChew
             {
-                get { return _andChew; }
+                get => _andChew;
                 set
                 {
                     if (_andChew != value) // Not a great way to compare byte arrays

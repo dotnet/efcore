@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IClrPropertySetter _setter;
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
+        private bool _isIndexedProperty;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -32,13 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected PropertyBase(
             [NotNull] string name,
             [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo)
+            [CanBeNull] FieldInfo fieldInfo,
+            bool isIndexProperty = false)
         {
             Check.NotEmpty(name, nameof(name));
 
             Name = name;
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;
+            _isIndexedProperty = isIndexProperty;
         }
 
         /// <summary>
@@ -66,6 +69,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool IsIndexedProperty => _isIndexedProperty;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual PropertyInfo PropertyInfo { [DebuggerStepThrough] get; }
 
         /// <summary>
@@ -75,7 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual FieldInfo FieldInfo
         {
             [DebuggerStepThrough] get => _fieldInfo;
-            [DebuggerStepThrough] [param: CanBeNull] set => SetFieldInfo(value, ConfigurationSource.Explicit);
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set => SetFieldInfo(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -90,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            if (FieldInfo?.Name == fieldName)
+            if (FieldInfo?.GetSimpleMemberName() == fieldName)
             {
                 SetFieldInfo(FieldInfo, configurationSource);
                 return;
@@ -176,6 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             propertyName,
                             propertyType.ShortDisplayName()));
                 }
+
                 return false;
             }
 
@@ -186,6 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityClrType.ShortDisplayName()));
                 }
+
                 return false;
             }
 
@@ -201,9 +214,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _indexes, this,
                 property =>
-                    {
-                        var _ = (property.DeclaringType as EntityType)?.Counts;
-                    });
+                {
+                    var _ = (property.DeclaringType as EntityType)?.Counts;
+                });
 
             [param: CanBeNull]
             set
@@ -254,15 +267,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertyGetter Getter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
+        public virtual IClrPropertyGetter Getter => _isIndexedProperty
+            ? NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new IndexedPropertyGetterFactory().Create(p))
+            : NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertySetter Setter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
+        public virtual IClrPropertySetter Setter => _isIndexedProperty
+            ? NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new IndexedPropertySetterFactory().Create(p))
+            : NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

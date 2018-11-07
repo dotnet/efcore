@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
 
                 var cancellationTokenPresent
                     = (_expectedMethodCall.Arguments[_expectedMethodCall.Arguments.Count - 1] is MemberExpression lastArgument)
-                    && (lastArgument.Type == typeof(CancellationToken));
+                      && (lastArgument.Type == typeof(CancellationToken));
 
                 if (cancellationTokenPresent)
                 {
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             public IQueryable<TElement> CreateQuery<TElement>(Expression expression) => throw new NotImplementedException();
             public object Execute(Expression expression) => throw new NotImplementedException();
             public TResult Execute<TResult>(Expression expression) => throw new NotImplementedException();
-            public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression) => throw new NotImplementedException();
+            public TResult ExecuteAsync<TResult>(Expression expression) => throw new NotImplementedException();
         }
 
         private class FakeQueryable<TElement> : IQueryable<TElement>
@@ -304,6 +304,12 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, ReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, ReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
             Assert.Equal(

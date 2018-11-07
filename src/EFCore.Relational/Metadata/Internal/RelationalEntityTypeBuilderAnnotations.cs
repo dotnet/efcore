@@ -123,12 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] Type discriminatorType)
         {
-            if (discriminatorType == null)
-            {
-                return RemoveDiscriminator();
-            }
-
-            return DiscriminatorProperty != null
+            return discriminatorType == null
+                ? RemoveDiscriminator()
+                : DiscriminatorProperty != null
                    && DiscriminatorProperty.ClrType == discriminatorType
                 ? DiscriminatorBuilder(null, null)
                 : DiscriminatorBuilder(null, discriminatorType);
@@ -151,13 +148,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] PropertyInfo propertyInfo)
         {
-            if (propertyInfo == null)
-            {
-                return RemoveDiscriminator();
-            }
-
-            return DiscriminatorProperty != null
-                   && DiscriminatorProperty.Name == propertyInfo.Name
+            return propertyInfo == null
+                ? RemoveDiscriminator()
+                : DiscriminatorProperty != null
+                   && DiscriminatorProperty.Name == propertyInfo.GetSimpleMemberName()
                    && DiscriminatorProperty.ClrType == propertyInfo.PropertyType
                 ? DiscriminatorBuilder(null, null)
                 : DiscriminatorBuilder(b => b.Property(propertyInfo, Annotations.ConfigurationSource), null);

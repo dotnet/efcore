@@ -22,8 +22,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="lib/**/*" target="" />
-    <file src="tools/**/*" target=""/>
+    <file src="lib\**\*" target="lib/" />
+    <file src="tools\**\*" target="tools/"/>
     <file src="$targetDir$*.psd1" target="tools/"/>
     <file src="../ef/bin/$configuration$/net461/ef.exe" target="tools/net461/any/" />
     <file src="../ef/bin/$configuration$/net461/ef.pdb" target="tools/net461/any/" />

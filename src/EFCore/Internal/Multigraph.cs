@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class Multigraph<TVertex, TEdge> : Graph<TVertex>
     {
         private readonly HashSet<TVertex> _vertices = new HashSet<TVertex>();
+
         private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap =
             new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
 
@@ -43,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     return edgeList;
                 }
             }
+
             return Enumerable.Empty<TEdge>();
         }
 
@@ -171,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             predecessorCounts.Remove(successor);
                         }
                     }
+
                     index++;
                 }
 
@@ -208,13 +211,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 }
                             }
                         }
+
                         candidateIndex++;
                     }
+
                     if (!broken)
                     {
                         // Failed to break the cycle
                         var currentCycleVertex = _vertices.First(v => predecessorCounts.ContainsKey(v));
-                        var cycle = new List<TVertex> { currentCycleVertex };
+                        var cycle = new List<TVertex>
+                        {
+                            currentCycleVertex
+                        };
                         var finished = false;
                         while (!finished)
                         {
@@ -233,12 +241,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 }
                             }
                         }
+
                         cycle.Reverse();
 
                         ThrowCycle(cycle, formatCycle);
                     }
                 }
             }
+
             return sortedQueue;
         }
 
@@ -259,6 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
                     currentCycleVertex = vertex;
                 }
+
                 cycleString = formatCycle(cycleData);
             }
 
@@ -342,14 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (result.Sum(b => b.Count) != _vertices.Count)
             {
                 var currentCycleVertex = _vertices.First(
-                    v =>
-                    {
-                        if (predecessorCounts.TryGetValue(v, out var predecessorNumber))
-                        {
-                            return predecessorNumber != 0;
-                        }
-                        return false;
-                    });
+                    v => predecessorCounts.TryGetValue(v, out var predecessorNumber) ? predecessorNumber != 0 : false);
                 var cyclicWalk = new List<TVertex>
                 {
                     currentCycleVertex
@@ -375,6 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         }
                     }
                 }
+
                 cyclicWalk.Reverse();
 
                 var cycle = new List<TVertex>();
@@ -391,6 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         break;
                     }
                 }
+
                 cycle.Add(startingVertex);
 
                 ThrowCycle(cycle, formatCycle);

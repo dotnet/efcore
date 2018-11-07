@@ -34,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                     new LikeExpression(
                         // ReSharper disable once AssignNullToNotNullAttribute
                         methodCallExpression.Object,
-                        Expression.Add(methodCallExpression.Arguments[0],
-                        Expression.Constant("%", typeof(string)), _concat)),
+                        Expression.Add(
+                            methodCallExpression.Arguments[0],
+                            Expression.Constant("%", typeof(string)), _concat)),
                     new NullCompensatedExpression(
                         Expression.Equal(
                             new SqlFunctionExpression(

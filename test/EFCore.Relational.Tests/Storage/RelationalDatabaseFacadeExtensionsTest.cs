@@ -75,7 +75,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, 2 }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object>
+                    {
+                        1,
+                        2
+                    }, commandBuilder.Parameters);
             }
         }
 
@@ -98,7 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, 2 }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object>
+                    {
+                        1,
+                        2
+                    }, commandBuilder.Parameters);
             }
         }
 
@@ -130,7 +140,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, "Cheese" }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object>
+                    {
+                        1,
+                        "Cheese"
+                    }, commandBuilder.Parameters);
             }
         }
 
@@ -149,20 +164,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new List<object> { 1, 2 }, cancellationToken);
+                        await context.Database.ExecuteSqlCommandAsync(
+                            "<Some query>", new List<object>
+                            {
+                                1,
+                                2
+                            }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new List<object> { 1, 2 });
+                        await context.Database.ExecuteSqlCommandAsync(
+                            "<Some query>", new List<object>
+                            {
+                                1,
+                                2
+                            });
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", new List<object> { 1, 2 });
+                    context.Database.ExecuteSqlCommand(
+                        "<Some query>", new List<object>
+                        {
+                            1,
+                            2
+                        });
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, 2 }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object>
+                    {
+                        1,
+                        2
+                    }, commandBuilder.Parameters);
             }
         }
 
@@ -181,20 +216,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new List<object> { 1, "Pickle" }, cancellationToken);
+                        await context.Database.ExecuteSqlCommandAsync(
+                            "<Some query>", new List<object>
+                            {
+                                1,
+                                "Pickle"
+                            }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new List<object> { 1, "Pickle" });
+                        await context.Database.ExecuteSqlCommandAsync(
+                            "<Some query>", new List<object>
+                            {
+                                1,
+                                "Pickle"
+                            });
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", new List<object> { 1, "Pickle" });
+                    context.Database.ExecuteSqlCommand(
+                        "<Some query>", new List<object>
+                        {
+                            1,
+                            "Pickle"
+                        });
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, "Pickle" }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object>
+                    {
+                        1,
+                        "Pickle"
+                    }, commandBuilder.Parameters);
             }
         }
 
@@ -226,7 +281,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1 }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object>
+                    {
+                        1
+                    }, commandBuilder.Parameters);
             }
         }
 
@@ -258,7 +317,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { "Branston" }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object>
+                    {
+                        "Branston"
+                    }, commandBuilder.Parameters);
             }
         }
 
@@ -274,7 +337,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [UsedImplicitly]
         private class TestRawSqlCommandBuilder : IRawSqlCommandBuilder
         {
             private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;

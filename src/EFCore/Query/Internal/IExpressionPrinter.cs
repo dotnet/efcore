@@ -16,12 +16,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        string Print([NotNull] Expression expression, bool removeFormatting = false, int? characterLimit = null);
+        string Print(
+            [NotNull] Expression expression,
+            bool removeFormatting = false,
+            int? characterLimit = null,
+            bool printConnections = true);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        string PrintDebug([NotNull] Expression expression, bool highlightNonreducibleNodes = true);
+        string PrintDebug(
+            [NotNull] Expression expression,
+            bool highlightNonreducibleNodes = true,
+            bool reduceBeforePrinting = true,
+            bool generateUniqueQsreIds = true,
+            bool printConnections = true);
     }
 }

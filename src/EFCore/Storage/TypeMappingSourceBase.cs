@@ -7,8 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#pragma warning disable 1574
-#pragma warning disable CS0419 // Ambiguous reference in cref attribute
+#pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -51,7 +50,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected abstract CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo);
+        protected virtual CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
+        {
+            foreach (var plugin in Dependencies.Plugins)
+            {
+                var typeMapping = plugin.FindMapping(mappingInfo);
+                if (typeMapping != null)
+                {
+                    return typeMapping;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Called after a mapping has been found so that it can be validated for the given property.
@@ -109,6 +120,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public abstract CoreTypeMapping FindMapping(MemberInfo member);
-
     }
 }

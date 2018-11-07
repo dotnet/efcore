@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             public override bool SupportsLargeStringComparisons => true;
 
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             public override bool SupportsBinaryKeys => true;
 
@@ -40,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
                     .AddOptions(builder)
                     .ConfigureWarnings(
                         c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                              .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
+                            .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
         }
     }
 }

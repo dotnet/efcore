@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         /// <remarks>
-        ///     This should only be called from <see cref="InternalDbSet{TEntity}"/> as it is created
+        ///     This should only be called from <see cref="InternalDbSet{TEntity}" /> as it is created
         ///     before the context is initialized
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

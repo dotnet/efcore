@@ -43,9 +43,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            // a ?? b == null <-> a == null && b == null
-            if (binaryExpression.NodeType == ExpressionType.Coalesce)
+            // a && b == null <-> a == null && b != false || a != false && b == null
+            // this transformation would produce a query that is too complex
+            // so we just wrap the whole expression into IsNullExpression instead.
+            if (binaryExpression.NodeType == ExpressionType.AndAlso
+                || binaryExpression.NodeType == ExpressionType.OrElse)
             {
+                AddToResult(new IsNullExpression(binaryExpression));
+            }
+            else
+            {
+                // a ?? b == null <-> a == null && b == null
+                // for other binary operators f(a, b) == null <=> a == null || b == null
+                var joinOperator = binaryExpression.NodeType == ExpressionType.Coalesce
+                    ? ExpressionType.AndAlso
+                    : ExpressionType.OrElse;
+
                 var current = ResultExpression;
                 ResultExpression = null;
                 Visit(binaryExpression.Left);
@@ -55,19 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 Visit(binaryExpression.Right);
                 var right = ResultExpression;
 
-                var coalesce = CombineExpressions(left, right, ExpressionType.AndAlso);
+                var result = CombineExpressions(left, right, joinOperator);
 
                 ResultExpression = current;
-                AddToResult(coalesce);
-            }
-
-            // a && b == null <-> a == null && b != false || a != false && b == null
-            // this transformation would produce a query that is too complex
-            // so we just wrap the whole expression into IsNullExpression instead.
-            if (binaryExpression.NodeType == ExpressionType.AndAlso
-                || binaryExpression.NodeType == ExpressionType.OrElse)
-            {
-                AddToResult(new IsNullExpression(binaryExpression));
+                AddToResult(result);
             }
 
             return binaryExpression;
@@ -79,16 +83,43 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is NullableExpression nullableExpression)
+            switch (extensionExpression)
             {
-                AddToResult(new IsNullExpression(nullableExpression.Operand));
+                case NullableExpression nullableExpression:
+                    AddToResult(new IsNullExpression(nullableExpression.Operand));
+                    return extensionExpression;
 
-                return extensionExpression;
+                case ExplicitCastExpression explicitCastExpression:
+                    return Visit(explicitCastExpression.Operand);
+
+                case SqlFunctionExpression sqlFunctionExpression:
+                    var current = ResultExpression;
+                    Expression result = null;
+                    foreach (var argument in sqlFunctionExpression.Arguments)
+                    {
+                        ResultExpression = null;
+                        Visit(argument);
+                        if (result == null)
+                        {
+                            result = ResultExpression;
+                        }
+                        else
+                        {
+                            result = CombineExpressions(result, ResultExpression, ExpressionType.OrElse);
+                        }
+                    }
+
+                    ResultExpression = current;
+                    AddToResult(result);
+
+                    return extensionExpression;
             }
 
             if (ContainsNullableColumnExpression(extensionExpression))
             {
                 AddToResult(new IsNullExpression(extensionExpression));
+
+                return extensionExpression;
             }
 
             return extensionExpression;
@@ -106,12 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return ContainsNullableColumnExpression(columnReferenceExpression.Expression);
             }
 
-            if (extensionExpression is AliasExpression aliasExpression)
-            {
-                return ContainsNullableColumnExpression(aliasExpression.Expression);
-            }
-
-            return false;
+            return extensionExpression is AliasExpression aliasExpression ? ContainsNullableColumnExpression(aliasExpression.Expression) : false;
         }
 
         /// <summary>
@@ -155,13 +181,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return null;
             }
 
-            if (left != null
-                && right != null)
-            {
-                return Expression.MakeBinary(expressionType, left, right);
-            }
-
-            return left ?? right;
+            return left != null
+                && right != null
+                ? Expression.MakeBinary(expressionType, left, right)
+                : left ?? right;
         }
 
         private void AddToResult(Expression expression)

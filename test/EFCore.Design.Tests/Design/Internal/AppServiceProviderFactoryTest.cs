@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class AppServiceProviderFactoryTest
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 reporter.Messages);
         }
 
-        private class ProgramWithThrowingBuildWebHost
+        private static class ProgramWithThrowingBuildWebHost
         {
             public static TestWebHost BuildWebHost(string[] args)
                 => throw new Exception("This is a test.");

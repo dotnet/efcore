@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async Task Use_of_query_throws_if_context_is_disposed()
+        public Task Use_of_query_throws_if_context_is_disposed()
         {
             DbQuery<Curious> query;
 
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             Assert.Throws<ObjectDisposedException>(() => query.ToList());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
+            return Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async Task Use_of_query_throws_if_obtained_from_disposed_context()
+        public Task Use_of_query_throws_if_obtained_from_disposed_context()
         {
             var context = new EarlyLearningCenter();
             context.Dispose();
@@ -102,9 +102,8 @@ namespace Microsoft.EntityFrameworkCore
             var query = context.Georges;
 
             Assert.Throws<ObjectDisposedException>(() => query.ToList());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
+            return Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
         }
-
 
         [Fact]
         public void Direct_use_of_Set_throws_if_context_disposed()
@@ -170,33 +169,33 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async Task Can_add_existing_entities_to_context_to_be_deleted()
+        public Task Can_add_existing_entities_to_context_to_be_deleted()
         {
-            await TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+            return TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
         }
 
         [Fact]
-        public async Task Can_add_new_entities_to_context_graph()
+        public Task Can_add_new_entities_to_context_graph()
         {
-            await TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+            return TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
-        public async Task Can_add_new_entities_to_context_graph_async()
+        public Task Can_add_new_entities_to_context_graph_async()
         {
-            await TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
+            return TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
         }
 
         [Fact]
-        public async Task Can_add_existing_entities_to_context_to_be_attached_graph()
+        public Task Can_add_existing_entities_to_context_to_be_attached_graph()
         {
-            await TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            return TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
         }
 
         [Fact]
-        public async Task Can_add_existing_entities_to_context_to_be_updated_graph()
+        public Task Can_add_existing_entities_to_context_to_be_updated_graph()
         {
-            await TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            return TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
         }
 
         private static Task TrackEntitiesTest(
@@ -213,10 +212,28 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var category1 = new Category
+                {
+                    Id = 1,
+                    Name = "Beverages"
+                };
+                var category2 = new Category
+                {
+                    Id = 2,
+                    Name = "Foods"
+                };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
                 var categoryEntry1 = await categoryAdder(context.Categories, category1);
                 var categoryEntry2 = await categoryAdder(context.Categories, category2);
@@ -246,45 +263,45 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async Task Can_add_multiple_new_entities_to_set()
+        public Task Can_add_multiple_new_entities_to_set()
         {
-            await TrackMultipleEntitiesTest(
+            return TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.AddRange(e[0], e[1]),
                 (c, e) => c.Products.AddRange(e[0], e[1]),
                 EntityState.Added);
         }
 
         [Fact]
-        public async Task Can_add_multiple_new_entities_to_set_async()
+        public Task Can_add_multiple_new_entities_to_set_async()
         {
-            await TrackMultipleEntitiesTest(
+            return TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.AddRangeAsync(e[0], e[1]),
                 (c, e) => c.Products.AddRangeAsync(e[0], e[1]),
                 EntityState.Added);
         }
 
         [Fact]
-        public async Task Can_add_multiple_existing_entities_to_set_to_be_attached()
+        public Task Can_add_multiple_existing_entities_to_set_to_be_attached()
         {
-            await TrackMultipleEntitiesTest(
+            return TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.AttachRange(e[0], e[1]),
                 (c, e) => c.Products.AttachRange(e[0], e[1]),
                 EntityState.Unchanged);
         }
 
         [Fact]
-        public async Task Can_add_multiple_existing_entities_to_set_to_be_updated()
+        public Task Can_add_multiple_existing_entities_to_set_to_be_updated()
         {
-            await TrackMultipleEntitiesTest(
+            return TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.UpdateRange(e[0], e[1]),
                 (c, e) => c.Products.UpdateRange(e[0], e[1]),
                 EntityState.Modified);
         }
 
         [Fact]
-        public async Task Can_add_multiple_existing_entities_to_set_to_be_deleted()
+        public Task Can_add_multiple_existing_entities_to_set_to_be_deleted()
         {
-            await TrackMultipleEntitiesTest(
+            return TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.RemoveRange(e[0], e[1]),
                 (c, e) => c.Products.RemoveRange(e[0], e[1]),
                 EntityState.Deleted);
@@ -295,15 +312,15 @@ namespace Microsoft.EntityFrameworkCore
             Action<EarlyLearningCenter, Product[]> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesTest(
                 (c, e) =>
-                    {
-                        categoryAdder(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    categoryAdder(c, e);
+                    return Task.FromResult(0);
+                },
                 (c, e) =>
-                    {
-                        productAdder(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    productAdder(c, e);
+                    return Task.FromResult(0);
+                },
                 expectedState);
 
         private static async Task TrackMultipleEntitiesTest(
@@ -312,10 +329,28 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var category1 = new Category
+                {
+                    Id = 1,
+                    Name = "Beverages"
+                };
+                var category2 = new Category
+                {
+                    Id = 2,
+                    Name = "Foods"
+                };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
                 await categoryAdder(context, new[] { category1, category2 });
                 await productAdder(context, new[] { product1, product2 });
@@ -383,45 +418,45 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async Task Can_add_multiple_existing_entities_to_set_to_be_deleted_Enumerable()
+        public Task Can_add_multiple_existing_entities_to_set_to_be_deleted_Enumerable()
         {
-            await TrackMultipleEntitiesTestEnumerable(
+            return TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.RemoveRange(e),
                 (c, e) => c.Products.RemoveRange(e),
                 EntityState.Deleted);
         }
 
         [Fact]
-        public async Task Can_add_multiple_new_entities_to_set_Enumerable_graph()
+        public Task Can_add_multiple_new_entities_to_set_Enumerable_graph()
         {
-            await TrackMultipleEntitiesTestEnumerable(
+            return TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.AddRange(e),
                 (c, e) => c.Products.AddRange(e),
                 EntityState.Added);
         }
 
         [Fact]
-        public async Task Can_add_multiple_new_entities_to_set_Enumerable_graph_async()
+        public Task Can_add_multiple_new_entities_to_set_Enumerable_graph_async()
         {
-            await TrackMultipleEntitiesTestEnumerable(
+            return TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.AddRangeAsync(e),
                 (c, e) => c.Products.AddRangeAsync(e),
                 EntityState.Added);
         }
 
         [Fact]
-        public async Task Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable_graph()
+        public Task Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable_graph()
         {
-            await TrackMultipleEntitiesTestEnumerable(
+            return TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.AttachRange(e),
                 (c, e) => c.Products.AttachRange(e),
                 EntityState.Unchanged);
         }
 
         [Fact]
-        public async Task Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable_graph()
+        public Task Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable_graph()
         {
-            await TrackMultipleEntitiesTestEnumerable(
+            return TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.UpdateRange(e),
                 (c, e) => c.Products.UpdateRange(e),
                 EntityState.Modified);
@@ -432,15 +467,15 @@ namespace Microsoft.EntityFrameworkCore
             Action<EarlyLearningCenter, IEnumerable<Product>> productAdder, EntityState expectedState)
             => TrackMultipleEntitiesTestEnumerable(
                 (c, e) =>
-                    {
-                        categoryAdder(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    categoryAdder(c, e);
+                    return Task.FromResult(0);
+                },
                 (c, e) =>
-                    {
-                        productAdder(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    productAdder(c, e);
+                    return Task.FromResult(0);
+                },
                 expectedState);
 
         private static async Task TrackMultipleEntitiesTestEnumerable(
@@ -449,13 +484,41 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var category1 = new Category
+                {
+                    Id = 1,
+                    Name = "Beverages"
+                };
+                var category2 = new Category
+                {
+                    Id = 2,
+                    Name = "Foods"
+                };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
-                await categoryAdder(context, new List<Category> { category1, category2 });
-                await productAdder(context, new List<Product> { product1, product2 });
+                await categoryAdder(
+                    context, new List<Category>
+                    {
+                        category1,
+                        category2
+                    });
+                await productAdder(
+                    context, new List<Product>
+                    {
+                        product1,
+                        product2
+                    });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(category2, context.Entry(category2).Entity);
@@ -577,10 +640,10 @@ namespace Microsoft.EntityFrameworkCore
             EntityState expectedState)
             => ChangeStateWithMethod(
                 (c, e) =>
-                    {
-                        action(c, e);
-                        return Task.FromResult(0);
-                    },
+                {
+                    action(c, e);
+                    return Task.FromResult(0);
+                },
                 initialState,
                 expectedState);
 
@@ -591,7 +654,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var entity = new Category { Id = 1, Name = "Beverages" };
+                var entity = new Category
+                {
+                    Id = 1,
+                    Name = "Beverages"
+                };
                 var entry = context.Entry(entity);
 
                 entry.State = initialState;
@@ -609,8 +676,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var gu1 = new TheGu { ShirtColor = "Red" };
-                var gu2 = new TheGu { ShirtColor = "Still Red" };
+                var gu1 = new TheGu
+                {
+                    ShirtColor = "Red"
+                };
+                var gu2 = new TheGu
+                {
+                    ShirtColor = "Still Red"
+                };
 
                 if (async)
                 {
@@ -683,7 +756,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class Curious
         {
-            public string George { get; set;}
+            public string George { get; set; }
         }
 
         private class Category

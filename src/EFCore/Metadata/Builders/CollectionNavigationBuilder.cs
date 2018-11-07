@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             CollectionProperty = navigationProperty;
-            CollectionName = navigationProperty?.Name;
+            CollectionName = navigationProperty?.GetSimpleMemberName();
             Builder = builder;
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     <para>
-        ///          Configures this as a one-to-many relationship.
+        ///         Configures this as a one-to-many relationship.
         ///     </para>
         ///     <para>
         ///         Note that calling this method with no parameters will explicitly configure this side
@@ -154,17 +154,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         foreignKey.DependentToPrincipal.Name));
             }
 
-            if (referenceName != null
-                && RelatedEntityType != foreignKey.DeclaringEntityType)
-            {
-                return reference.Property == null && CollectionProperty == null
+            return referenceName != null
+                   && RelatedEntityType != foreignKey.DeclaringEntityType
+                ? reference.Property == null && CollectionProperty == null
                     ? Builder.Navigations(reference.Name, CollectionName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
-                    : Builder.Navigations(reference.Property, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit);
-            }
-
-            return reference.Property == null
-                ? Builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
-                : Builder.DependentToPrincipal(reference.Property, ConfigurationSource.Explicit);
+                    : Builder.Navigations(reference.Property, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                : reference.Property == null
+                    ? Builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
+                    : Builder.DependentToPrincipal(reference.Property, ConfigurationSource.Explicit);
         }
 
         #region Hidden System.Object members

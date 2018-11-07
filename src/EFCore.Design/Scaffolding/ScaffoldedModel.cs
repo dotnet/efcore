@@ -12,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     public class ScaffoldedModel
     {
         /// <summary>
-        ///     Gets or sets the generated file containing the <see cref="DbContext"/>.
+        ///     Gets or sets the generated file containing the <see cref="DbContext" />.
         /// </summary>
-        /// <value> The generated file containing the <see cref="DbContext"/>. </value>
+        /// <value> The generated file containing the <see cref="DbContext" />. </value>
         public virtual ScaffoldedFile ContextFile { get; [param: NotNull] set; }
 
         /// <summary>

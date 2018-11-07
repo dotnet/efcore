@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="providerClrType"> The CLR type used when reading and writing from the database provider. </param>
         /// <param name="factory"> A factory to create the converter, if needed. </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public ValueConverterInfo(
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public Type ProviderClrType { get; }
 
         /// <summary>
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </summary>
         public ConverterMappingHints MappingHints { get; }

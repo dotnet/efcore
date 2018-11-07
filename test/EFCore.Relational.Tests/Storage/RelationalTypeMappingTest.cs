@@ -243,12 +243,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     unicode: unicide,
                     fixedLength: fixedLength);
             }
-
-            public override RelationalTypeMapping Clone(string storeType, int? size)
-                => throw new NotImplementedException();
-
-            public override CoreTypeMapping Clone(ValueConverter converter)
-                => new FakeTypeMapping(Parameters.WithComposedConverter(converter));
         }
 
         [Fact]
@@ -328,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Assert.Equal("Value", parameter.Value);
                 Assert.Equal(DbType.String, parameter.DbType);
                 Assert.False(parameter.IsNullable);
-                Assert.Equal(23, parameter.Size);
+                Assert.Equal(5, parameter.Size);
             }
         }
 
@@ -345,232 +339,188 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Assert.Equal("Value", parameter.Value);
                 Assert.Equal(DbType.String, parameter.DbType);
                 Assert.True(parameter.IsNullable);
-                Assert.Equal(23, parameter.Size);
+                Assert.Equal(5, parameter.Size);
             }
         }
 
-        [Fact]
-        public virtual void GenerateSqlLiteral_returns_bool_literal_when_true()
+        protected virtual void Test_GenerateSqlLiteral_helper(
+            RelationalTypeMapping typeMapping, object value, string literalValue)
         {
-            var literal = new BoolTypeMapping("bool").GenerateSqlLiteral(true);
-            Assert.Equal("1", literal);
+            Assert.Equal(literalValue, typeMapping.GenerateSqlLiteral(value));
         }
 
         [Fact]
-        public virtual void GenerateSqlLiteral_returns_bool_literal_when_false()
+        public virtual void Bool_literal_generated_correctly()
         {
-            var literal = new BoolTypeMapping("bool").GenerateSqlLiteral(false);
-            Assert.Equal("0", literal);
+            var typeMapping = new BoolTypeMapping("bool");
+
+            Test_GenerateSqlLiteral_helper(typeMapping, true, "1");
+            Test_GenerateSqlLiteral_helper(typeMapping, false, "0");
         }
 
         [Fact]
-        public virtual void GenerateSqlLiteral_returns_string_literal()
+        public virtual void ByteArray_literal_generated_correctly()
         {
-            var literal = new StringTypeMapping("string").GenerateSqlLiteral("Text");
-            Assert.Equal("'Text'", literal);
+            Test_GenerateSqlLiteral_helper(new ByteArrayTypeMapping("byte[]"), new byte[] { 0xDA, 0x7A }, "X'DA7A'");
         }
 
         [Fact]
-        public virtual void GenerateSqlLiteral_returns_char_literal()
-        {
-            var literal = new CharTypeMapping("char").GenerateSqlLiteral('A');
-            Assert.Equal("'A'", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_returns_ByteArray_literal()
-        {
-            var literal = new ByteArrayTypeMapping("byte[]").GenerateSqlLiteral(new byte[] { 0xDA, 0x7A });
-            Assert.Equal("X'DA7A'", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_returns_Guid_literal()
-        {
-            var value = new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292");
-            var literal = new GuidTypeMapping("guid").GenerateSqlLiteral(value);
-            Assert.Equal("'c6f43a9e-91e1-45ef-a320-832ea23b7292'", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_returns_DateTime_literal()
-        {
-            var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = new DateTimeTypeMapping("DateTime").GenerateSqlLiteral(value);
-            Assert.Equal("TIMESTAMP '2015-03-12 13:36:37.3710000'", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_returns_DateTimeOffset_literal()
-        {
-            var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = new DateTimeOffsetTypeMapping("DateTimeOffset").GenerateSqlLiteral(value);
-            Assert.Equal("TIMESTAMP '2015-03-12 13:36:37.3710000-07:00'", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_returns_NullableInt_literal_when_null()
-        {
-#pragma warning disable IDE0034 // Simplify 'default' expression - Causes inference of default(object) due to parameter being object type
-            var literal = new IntTypeMapping("int?", DbType.Int32).GenerateSqlLiteral(default(int?));
-#pragma warning restore IDE0034 // Simplify 'default' expression
-            Assert.Equal("NULL", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_returns_NullableInt_literal_when_not_null()
-        {
-            var literal = new IntTypeMapping("int?", DbType.Int32).GenerateSqlLiteral((int?)123);
-            Assert.Equal("123", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_Byte_works_for_range_limits()
+        public virtual void Byte_literal_generated_correctly()
         {
             var typeMapping = new ByteTypeMapping("byte", DbType.Byte);
-            var literal = typeMapping.GenerateSqlLiteral(byte.MinValue);
-            Assert.Equal("0", literal);
 
-            literal = typeMapping.GenerateSqlLiteral(byte.MaxValue);
-            Assert.Equal("255", literal);
+            Test_GenerateSqlLiteral_helper(typeMapping, byte.MinValue, "0");
+            Test_GenerateSqlLiteral_helper(typeMapping, byte.MaxValue, "255");
         }
 
         [Fact]
-        public virtual void GenerateSqlLiteral_for_SByte_works_for_range_limits()
+        public virtual void Char_literal_generated_correctly()
         {
-            var typeMapping = new SByteTypeMapping("sbyte", DbType.SByte);
-            var literal = typeMapping.GenerateSqlLiteral(sbyte.MinValue);
-            Assert.Equal("-128", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(sbyte.MaxValue);
-            Assert.Equal("127", literal);
+            Test_GenerateSqlLiteral_helper(new CharTypeMapping("char"), 'A', "'A'");
         }
 
         [Fact]
-        public virtual void GenerateSqlLiteral_for_Short_works_for_range_limits()
+        public virtual void DateTimeOffset_literal_generated_correctly()
         {
-            var typeMapping = new ShortTypeMapping("short", DbType.Int16);
-            var literal = typeMapping.GenerateSqlLiteral(short.MinValue);
-            Assert.Equal("-32768", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(short.MaxValue);
-            Assert.Equal("32767", literal);
+            Test_GenerateSqlLiteral_helper(
+                new DateTimeOffsetTypeMapping("DateTimeOffset"),
+                new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
+                "TIMESTAMP '2015-03-12 13:36:37.3710000-07:00'");
         }
 
         [Fact]
-        public virtual void GenerateSqlLiteral_for_UShort_works_for_range_limits()
+        public virtual void DateTime_literal_generated_correctly()
         {
-            var typeMapping = new UShortTypeMapping("ushort", DbType.UInt16);
-            var literal = typeMapping.GenerateSqlLiteral(ushort.MinValue);
-            Assert.Equal("0", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(ushort.MaxValue);
-            Assert.Equal("65535", literal);
+            Test_GenerateSqlLiteral_helper(
+                new DateTimeTypeMapping("DateTime"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "TIMESTAMP '2015-03-12 13:36:37.3710000'");
         }
 
         [Fact]
-        public virtual void GenerateSqlLiteral_for_Int_works_for_range_limits()
-        {
-            var typeMapping = new IntTypeMapping("int", DbType.Int32);
-            var literal = typeMapping.GenerateSqlLiteral(int.MinValue);
-            Assert.Equal("-2147483648", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(int.MaxValue);
-            Assert.Equal("2147483647", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_UInt_works_for_range_limits()
-        {
-            var typeMapping = new UIntTypeMapping("uint", DbType.UInt32);
-            var literal = typeMapping.GenerateSqlLiteral(uint.MinValue);
-            Assert.Equal("0", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(uint.MaxValue);
-            Assert.Equal("4294967295", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_Long_works_for_range_limits()
-        {
-            var typeMapping = new LongTypeMapping("long", DbType.Int64);
-            var literal = typeMapping.GenerateSqlLiteral(long.MinValue);
-            Assert.Equal("-9223372036854775808", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(long.MaxValue);
-            Assert.Equal("9223372036854775807", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_ULong_works_for_range_limits()
-        {
-            var typeMapping = new ULongTypeMapping("ulong", DbType.UInt64);
-            var literal = typeMapping.GenerateSqlLiteral(ulong.MinValue);
-            Assert.Equal("0", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(ulong.MaxValue);
-            Assert.Equal("18446744073709551615", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_Float_works_for_range_limits()
-        {
-            var typeMapping = new FloatTypeMapping("float", DbType.Single);
-            var literal = typeMapping.GenerateSqlLiteral(float.MinValue);
-            Assert.Equal("-3.40282347E+38", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(float.MaxValue);
-            Assert.Equal("3.40282347E+38", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_Float_works_for_special_values()
-        {
-            var typeMapping = new FloatTypeMapping("float", DbType.Single);
-            var literal = typeMapping.GenerateSqlLiteral(float.NaN);
-            Assert.Equal("NaN", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(float.PositiveInfinity);
-            Assert.Equal("Infinity", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(float.NegativeInfinity);
-            Assert.Equal("-Infinity", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_Double_works_for_range_limits()
-        {
-            var typeMapping = new DoubleTypeMapping("double", DbType.Double);
-            var literal = typeMapping.GenerateSqlLiteral(double.MinValue);
-            Assert.Equal("-1.7976931348623157E+308", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(double.MaxValue);
-            Assert.Equal("1.7976931348623157E+308", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_Double_works_for_special_values()
-        {
-            var typeMapping = new DoubleTypeMapping("double", DbType.Double);
-            var literal = typeMapping.GenerateSqlLiteral(double.NaN);
-            Assert.Equal("NaN", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(double.PositiveInfinity);
-            Assert.Equal("Infinity", literal);
-
-            literal = typeMapping.GenerateSqlLiteral(double.NegativeInfinity);
-            Assert.Equal("-Infinity", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteral_for_Decimal_works_for_range_limits()
+        public virtual void Decimal_literal_generated_correctly()
         {
             var typeMapping = new DecimalTypeMapping("decimal", DbType.Decimal);
-            var literal = typeMapping.GenerateSqlLiteral(decimal.MinValue);
-            Assert.Equal("-79228162514264337593543950335.0", literal);
 
-            literal = typeMapping.GenerateSqlLiteral(decimal.MaxValue);
-            Assert.Equal("79228162514264337593543950335.0", literal);
+            Test_GenerateSqlLiteral_helper(typeMapping, decimal.MinValue, "-79228162514264337593543950335.0");
+            Test_GenerateSqlLiteral_helper(typeMapping, decimal.MaxValue, "79228162514264337593543950335.0");
+        }
+
+        [Fact]
+        public virtual void Double_literal_generated_correctly()
+        {
+            var typeMapping = new DoubleTypeMapping("double", DbType.Double);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, double.NaN, "NaN");
+            Test_GenerateSqlLiteral_helper(typeMapping, double.PositiveInfinity, "Infinity");
+            Test_GenerateSqlLiteral_helper(typeMapping, double.NegativeInfinity, "-Infinity");
+            Test_GenerateSqlLiteral_helper(typeMapping, double.MinValue, "-1.7976931348623157E+308");
+            Test_GenerateSqlLiteral_helper(typeMapping, double.MaxValue, "1.7976931348623157E+308");
+        }
+
+        [Fact]
+        public virtual void Float_literal_generated_correctly()
+        {
+            var typeMapping = new FloatTypeMapping("float", DbType.Single);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, float.NaN, "NaN");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.PositiveInfinity, "Infinity");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.NegativeInfinity, "-Infinity");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.MinValue, "-3.40282347E+38");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "3.40282347E+38");
+        }
+
+        [Fact]
+        public virtual void Guid_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(
+                new GuidTypeMapping("guid"),
+                new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292"),
+                "'c6f43a9e-91e1-45ef-a320-832ea23b7292'");
+        }
+
+        [Fact]
+        public virtual void NullableInt_literal_generated_correctly()
+        {
+            var typeMapping = new IntTypeMapping("int?", DbType.Int32);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, default(int?), "NULL");
+            Test_GenerateSqlLiteral_helper(typeMapping, (int?)123, "123");
+        }
+
+        [Fact]
+        public virtual void Int_literal_generated_correctly()
+        {
+            var typeMapping = new IntTypeMapping("int", DbType.Int32);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, int.MinValue, "-2147483648");
+            Test_GenerateSqlLiteral_helper(typeMapping, int.MaxValue, "2147483647");
+        }
+
+        [Fact]
+        public virtual void Long_literal_generated_correctly()
+        {
+            var typeMapping = new LongTypeMapping("long", DbType.Int64);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, long.MinValue, "-9223372036854775808");
+            Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue, "9223372036854775807");
+        }
+
+        [Fact]
+        public virtual void SByte_literal_generated_correctly()
+        {
+            var typeMapping = new SByteTypeMapping("sbyte", DbType.SByte);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, sbyte.MinValue, "-128");
+            Test_GenerateSqlLiteral_helper(typeMapping, sbyte.MaxValue, "127");
+        }
+
+        [Fact]
+        public virtual void Short_literal_generated_correctly()
+        {
+            var typeMapping = new ShortTypeMapping("short", DbType.Int16);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, short.MinValue, "-32768");
+            Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "32767");
+        }
+
+        [Fact]
+        public virtual void String_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(new StringTypeMapping("string"), "Text", "'Text'");
+        }
+
+        [Fact]
+        public virtual void Timespan_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(new TimeSpanTypeMapping("time"), new TimeSpan(7, 14, 30), "'07:14:30'");
+        }
+
+        [Fact]
+        public virtual void UInt_literal_generated_correctly()
+        {
+            var typeMapping = new UIntTypeMapping("uint", DbType.UInt32);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, uint.MinValue, "0");
+            Test_GenerateSqlLiteral_helper(typeMapping, uint.MaxValue, "4294967295");
+        }
+
+        [Fact]
+        public virtual void ULong_literal_generated_correctly()
+        {
+            var typeMapping = new ULongTypeMapping("ulong", DbType.UInt64);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, ulong.MinValue, "0");
+            Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "18446744073709551615");
+        }
+
+        [Fact]
+        public virtual void UShort_literal_generated_correctly()
+        {
+            var typeMapping = new UShortTypeMapping("ushort", DbType.UInt16);
+
+            Test_GenerateSqlLiteral_helper(typeMapping, ushort.MinValue, "0");
+            Test_GenerateSqlLiteral_helper(typeMapping, ushort.MaxValue, "65535");
         }
 
         [Fact]
@@ -600,7 +550,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             using (var context = new MismatchedFruityContext(ContextOptions))
             {
-                Assert.Equal(typeof(short),
+                Assert.Equal(
+                    typeof(short),
                     context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").FindMapping().Converter.ProviderClrType);
                 Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").FindMapping().Converter);
             }

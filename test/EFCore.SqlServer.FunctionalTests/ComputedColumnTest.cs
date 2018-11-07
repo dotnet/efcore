@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new Context(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 var entity = context.Add(new Entity { P1 = 20, P2 = 30, P3 = 80 }).Entity;
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new Context(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 var entity = context.Add(new Entity { P1 = 20, P2 = 30 }).Entity;
 
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new NullableContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 var entity = context.EnumItems.Add(new EnumItem { FlagEnum = FlagEnum.AValue, OptionalFlagEnum = FlagEnum.BValue }).Entity;
                 context.SaveChanges();

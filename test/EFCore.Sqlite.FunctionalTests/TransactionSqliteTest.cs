@@ -18,8 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override DbContext CreateContextWithConnectionString()
         {
             var options = Fixture.AddOptions(
-                    new DbContextOptionsBuilder()
-                        .UseSqlite(TestStore.ConnectionString))
+                    new DbContextOptionsBuilder().UseSqlite(TestStore.ConnectionString))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);
@@ -43,9 +42,10 @@ namespace Microsoft.EntityFrameworkCore
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             {
                 return base.AddOptions(builder)
-                    .ConfigureWarnings(w
-                        => w.Log(RelationalEventId.QueryClientEvaluationWarning)
-                            .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
+                    .ConfigureWarnings(
+                        w
+                            => w.Log(RelationalEventId.QueryClientEvaluationWarning)
+                                .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
             }
         }
     }

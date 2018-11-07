@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore
@@ -9,22 +11,46 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override string StoreName { get; } = "F1Test";
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        protected override bool UsePooling => true;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder)
+                .UseModel(CreateModelExternal())
+                .ConfigureWarnings(
+                    w => w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
+
+        protected override bool ShouldLogCategory(string logCategory)
+            => logCategory == DbLoggerCategory.Update.Name;
+
+        private IModel CreateModelExternal()
         {
-            modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
+            // Doing this differently here from other tests to have regression coverage for
+            // building models externally from the context instance.
+            var builder = CreateModelBuilder();
+
+            BuildModelExternal(builder);
+
+            return builder.FinalizeModel();
+        }
+
+        public abstract ModelBuilder CreateModelBuilder();
+
+        protected virtual void BuildModelExternal(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Chassis>(b => b.HasKey(c => c.TeamId));
 
             modelBuilder.Entity<Engine>(
                 b =>
-                    {
-                        b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
-                        b.Property(e => e.Name).IsConcurrencyToken();
-                        b.OwnsOne(
-                            e => e.StorageLocation, lb =>
-                                {
-                                    lb.Property(l => l.Latitude).IsConcurrencyToken();
-                                    lb.Property(l => l.Longitude).IsConcurrencyToken();
-                                });
-                    });
+                {
+                    b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
+                    b.Property(e => e.Name).IsConcurrencyToken();
+                    b.OwnsOne(
+                        e => e.StorageLocation, lb =>
+                        {
+                            lb.Property(l => l.Latitude).IsConcurrencyToken();
+                            lb.Property(l => l.Longitude).IsConcurrencyToken();
+                        });
+                });
 
             modelBuilder.Entity<EngineSupplier>();
 
@@ -32,17 +58,17 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<Sponsor>(
                 b =>
-                    {
-                        b.Property<int?>(Sponsor.ClientTokenPropertyName)
-                            .IsConcurrencyToken();
-                    });
+                {
+                    b.Property<int?>(Sponsor.ClientTokenPropertyName)
+                        .IsConcurrencyToken();
+                });
 
             modelBuilder.Entity<Team>(
                 b =>
-                    {
-                        b.HasOne(e => e.Gearbox).WithOne().HasForeignKey<Team>(e => e.GearboxId);
-                        b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
-                    });
+                {
+                    b.HasOne(e => e.Gearbox).WithOne().HasForeignKey<Team>(e => e.GearboxId);
+                    b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
+                });
 
             modelBuilder.Entity<TestDriver>();
             modelBuilder.Entity<TitleSponsor>()

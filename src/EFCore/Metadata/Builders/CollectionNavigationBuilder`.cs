@@ -54,8 +54,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
+        ///     Configures this as a one-to-many relationship.
+        /// </summary>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on the other end of this relationship.
+        ///     If null, there is no navigation property on the other end of the relationship.
+        /// </param>
+        /// <returns> An object to further configure the relationship. </returns>
+        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
+            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+                DeclaringEntityType,
+                RelatedEntityType,
+                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))));
+
+        /// <summary>
         ///     <para>
-        ///          Configures this as a one-to-many relationship.
+        ///         Configures this as a one-to-many relationship.
         ///     </para>
         ///     <para>
         ///         Note that calling this method with no parameters will explicitly configure this side
@@ -75,19 +89,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(navigationExpression?.GetPropertyAccess()));
-
-        /// <summary>
-        ///     Configures this as a one-to-many relationship.
-        /// </summary>
-        /// <param name="navigationName">
-        ///     The name of the reference navigation property on the other end of this relationship.
-        ///     If null, there is no navigation property on the other end of the relationship.
-        /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
-            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
-                DeclaringEntityType,
-                RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))));
     }
 }

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object value)
-            => (value == null) || value.Equals(type.GetDefaultValue());
+            => (value?.Equals(type.GetDefaultValue()) != false);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -137,6 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     continue;
                 }
+
                 builder.Append(',');
                 if (!genericArguments[i + 1].IsGenericParameter)
                 {
@@ -152,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static FieldInfo GetFieldInfo([NotNull] this Type type, [NotNull] string fieldName)
-                => type.GetRuntimeFields().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
+            => type.GetRuntimeFields().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

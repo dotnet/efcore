@@ -44,7 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Change_tracking_strategy_can_be_changed()
         {
-            var model = new Model { ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications };
+            var model = new Model
+            {
+                ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications
+            };
             Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, model.ChangeTrackingStrategy);
 
             model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;

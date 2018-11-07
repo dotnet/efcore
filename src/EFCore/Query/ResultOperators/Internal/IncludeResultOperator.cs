@@ -35,7 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         public IncludeResultOperator(
             [NotNull] INavigation[] navigationPath, [NotNull] Expression pathFromQuerySource, bool implicitLoad = false)
         {
-            _navigationPaths = new List<INavigation[]> { navigationPath };
+            _navigationPaths = new List<INavigation[]>
+            {
+                navigationPath
+            };
             _navigationPropertyPaths = new List<string>();
             _pathFromQuerySource = pathFromQuerySource;
 
@@ -100,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public virtual Expression PathFromQuerySource
         {
-            get { return _pathFromQuerySource; }
-            [param: NotNull] set { _pathFromQuerySource = value; }
+            get => _pathFromQuerySource;
+            [param: NotNull] set => _pathFromQuerySource = value;
         }
 
         /// <summary>

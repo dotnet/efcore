@@ -47,9 +47,9 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.RecursiveOnConfiguring,
                     Assert.Throws<InvalidOperationException>(
                         () =>
-                            {
-                                var _ = context.Model; // Trigger context initialization
-                            }).Message);
+                        {
+                            var _ = context.Model; // Trigger context initialization
+                        }).Message);
             }
         }
 
@@ -95,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.RecursiveOnConfiguring,
                     Assert.Throws<InvalidOperationException>(
                         () =>
-                            {
-                                var _ = context.Model; // Trigger context initialization
-                            }).Message);
+                        {
+                            var _ = context.Model; // Trigger context initialization
+                        }).Message);
             }
         }
 

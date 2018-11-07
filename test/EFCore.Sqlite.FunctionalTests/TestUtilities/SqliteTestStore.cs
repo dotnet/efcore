@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -57,12 +58,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 return;
             }
+
             using (var context = createContext())
             {
                 if (!context.Database.EnsureCreated())
                 {
                     Clean(context);
                 }
+
                 seed(context);
             }
         }
@@ -73,6 +76,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override void OpenConnection()
         {
             Connection.Open();
+
+#if !Test21
+            ((SqliteConnection)Connection).EnableExtensions();
+            SpatialiteLoader.TryLoad(Connection);
+#endif
 
             using (var command = Connection.CreateCommand())
             {

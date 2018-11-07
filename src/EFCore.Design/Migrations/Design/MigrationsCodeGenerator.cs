@@ -140,8 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         {
                             yield return ns;
                         }
-
-                        continue;
                     }
                 }
             }
@@ -229,6 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
+                CoreAnnotationNames.StructuralValueComparer,
                 CoreAnnotationNames.ConstructorBinding,
                 CoreAnnotationNames.NavigationAccessModeAnnotation,
                 CoreAnnotationNames.OwnedTypesAnnotation,
@@ -244,11 +243,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.SequencePrefix
             };
 
-            return items.SelectMany(i => i.GetAnnotations())
-                .Where(a => a.Value != null
-                            && !ignoredAnnotations.Contains(a.Name)
-                            && !ignoredAnnotationTypes.Any(p => a.Name.StartsWith(p, StringComparison.Ordinal)))
-                .SelectMany(a => a.Value.GetType().GetNamespaces());
+            return items.SelectMany(
+                i => i.GetAnnotations().Select(
+                        a => new
+                        {
+                            Annotatable = i,
+                            Annotation = a
+                        })
+                    .Where(
+                        a => a.Annotation.Value != null
+                             && !ignoredAnnotations.Contains(a.Annotation.Name)
+                             && !ignoredAnnotationTypes.Any(p => a.Annotation.Name.StartsWith(p, StringComparison.Ordinal)))
+                    .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
         }
+
+        private static Type GetProviderType(IAnnotatable annotatable, Type valueType)
+            => annotatable is IProperty property
+               && valueType.UnwrapNullableType() == property.ClrType.UnwrapNullableType()
+                ? property.FindMapping()?.Converter?.ProviderClrType ?? valueType
+                : valueType;
     }
 }

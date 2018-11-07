@@ -12,6 +12,9 @@ using Xunit;
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToAutoProperty
+
+#pragma warning disable RCS1213 // Remove unused member declaration.
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class BackingFieldConventionTest
@@ -176,13 +179,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("m_onTheRun", property.GetFieldName());
         }
 
-#pragma warning disable 649
-#pragma warning disable 169
+#pragma warning disable RCS1222 // Merge preprocessor directives.
+#pragma warning disable 649, 169
 #pragma warning disable IDE0027 // Use expression body for accessors
 #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE0044 // Add readonly modifier
         private class TheDarkSideOfTheMoon
+#pragma warning restore RCS1222 // Merge preprocessor directives.
         {
-            private string m_SpeakToMe;
+            private readonly string m_SpeakToMe;
             private int _notSpeakToMe;
 
             public int SpeakToMe
@@ -199,12 +204,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public int ComfortablyNumb { get; set; }
 
-            private int IsThereAnybodyOutThere;
-            private int isThereAnybodyOutThere;
-            private int _isThereAnybodyOutThere;
-            private int _IsThereAnybodyOutThere;
-            private int m_isThereAnybodyOutThere;
-            private int m_IsThereAnybodyOutThere;
+            private readonly int IsThereAnybodyOutThere;
+            private readonly int isThereAnybodyOutThere;
+            private readonly int _isThereAnybodyOutThere;
+            private readonly int _IsThereAnybodyOutThere;
+            private readonly int m_isThereAnybodyOutThere;
+            private readonly int m_IsThereAnybodyOutThere;
 
             private int? breathe;
             private int? _breathe;
@@ -218,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 set { breathe = value; }
             }
 
-            private string onTheRun;
+            private readonly string onTheRun;
             private int? _onTheRun;
             private int? _OnTheRun;
             private int? m_onTheRun;
@@ -241,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 set { _time = value; }
             }
 
-            private string _theGreatGigInTheSky;
+            private readonly string _theGreatGigInTheSky;
             private int? _TheGreatGigInTheSky;
             private int? m_theGreatGigInTheSky;
             private int? m_TheGreatGigInTheSky;
@@ -262,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 set { _Money = value; }
             }
 
-            private string _UsAndThem;
+            private readonly string _UsAndThem;
             private int? m_usAndThem;
             private int? m_UsAndThem;
 
@@ -281,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 set { m_anyColourYouLike = value; }
             }
 
-            private string m_brainDamage;
+            private readonly string m_brainDamage;
             private int? m_BrainDamage;
 
             public int BrainDamage
@@ -301,14 +306,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private class TheDarkerSideOfTheMoon
         {
-            private string m_SpeakToMe;
+            private readonly string m_SpeakToMe;
 
-            private int IsThereAnybodyOutThere;
-            private int isThereAnybodyOutThere;
-            private int _isThereAnybodyOutThere;
-            private int _IsThereAnybodyOutThere;
-            private int m_isThereAnybodyOutThere;
-            private int m_IsThereAnybodyOutThere;
+            private readonly int IsThereAnybodyOutThere;
+            private readonly int isThereAnybodyOutThere;
+            private readonly int _isThereAnybodyOutThere;
+            private readonly int _IsThereAnybodyOutThere;
+            private readonly int m_isThereAnybodyOutThere;
+            private readonly int m_IsThereAnybodyOutThere;
 
             private int? breathe;
             private int? _breathe;
@@ -316,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private int? m_breathe;
             private int? m_Breathe;
 
-            private string onTheRun;
+            private readonly string onTheRun;
             private int? _onTheRun;
             private int? _OnTheRun;
             private int? m_onTheRun;
@@ -327,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private int? m_time;
             private int? m_Time;
 
-            private string _theGreatGigInTheSky;
+            private readonly string _theGreatGigInTheSky;
             private int? _TheGreatGigInTheSky;
             private int? m_theGreatGigInTheSky;
             private int? m_TheGreatGigInTheSky;
@@ -336,14 +341,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private int? m_money;
             private int? m_Money;
 
-            private string _UsAndThem;
+            private readonly string _UsAndThem;
             private int? m_usAndThem;
             private int? m_UsAndThem;
 
             private int? m_anyColourYouLike;
             private int? m_AnyColourYouLike;
 
-            private string m_brainDamage;
+            private readonly string m_brainDamage;
             private int? m_BrainDamage;
 
             private int? m_Eclipse;
@@ -380,9 +385,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public int Unrelated = 2;
         }
-#pragma warning restore 649
-#pragma warning restore 169
+#pragma warning disable RCS1222 // Merge preprocessor directives.
+#pragma warning restore 649, 169
 #pragma warning restore IDE0027 // Use expression body for accessors
 #pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE0044 // Add readonly modifier
     }
+#pragma warning restore RCS1222 // Merge preprocessor directives.
 }

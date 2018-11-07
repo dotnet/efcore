@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var customServices = new ServiceCollection()
                 .AddSingleton<IDbSetInitializer>(
-                new DbSetInitializer(setFinder, setSource, setSource));
+                    new DbSetInitializer(setFinder, setSource, setSource));
 
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(customServices);
 

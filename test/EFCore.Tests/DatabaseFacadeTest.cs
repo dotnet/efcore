@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false)]
         public async Task Methods_delegate_to_configured_store_creator(bool async)
         {
-            var creator = new FakeDatabaseCreator();
+            var creator = new FakeDatabaseCreatorWithCanConnect();
 
             var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton<IDatabaseCreator>(creator));
@@ -30,15 +31,43 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.True(await context.Database.EnsureCreatedAsync());
                 Assert.Equal(1, creator.EnsureCreatedAsyncCount);
+
                 Assert.True(await context.Database.EnsureDeletedAsync());
                 Assert.Equal(1, creator.EnsureDeletedAsyncCount);
+
+                Assert.True(await context.Database.CanConnectAsync());
+                Assert.Equal(1, creator.CanConnectAsyncCount);
             }
             else
             {
                 Assert.True(context.Database.EnsureCreated());
                 Assert.Equal(1, creator.EnsureCreatedCount);
+
                 Assert.True(context.Database.EnsureDeleted());
                 Assert.Equal(1, creator.EnsureDeletedCount);
+
+                Assert.True(context.Database.CanConnect());
+                Assert.Equal(1, creator.CanConnectCount);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task CanConnect_methods_throw_if_not_implemented(bool async)
+        {
+            var creator = new FakeDatabaseCreator();
+
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IDatabaseCreator>(creator));
+
+            if (async)
+            {
+                await Assert.ThrowsAsync<NotImplementedException>(() => context.Database.CanConnectAsync());
+            }
+            else
+            {
+                Assert.Throws<NotImplementedException>(() => context.Database.CanConnect());
             }
         }
 
@@ -70,6 +99,24 @@ namespace Microsoft.EntityFrameworkCore
             public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
             {
                 EnsureCreatedAsyncCount++;
+                return Task.FromResult(true);
+            }
+        }
+
+        private class FakeDatabaseCreatorWithCanConnect : FakeDatabaseCreator, IDatabaseCreatorWithCanConnect
+        {
+            public int CanConnectCount;
+            public int CanConnectAsyncCount;
+
+            public bool CanConnect()
+            {
+                CanConnectCount++;
+                return true;
+            }
+
+            public Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+            {
+                CanConnectAsyncCount++;
                 return Task.FromResult(true);
             }
         }
@@ -144,8 +191,8 @@ namespace Microsoft.EntityFrameworkCore
             public void CommitTransaction() => CommitCalls++;
             public void RollbackTransaction() => RollbackCalls++;
             public IDbContextTransaction CurrentTransaction => _transaction;
-            public System.Transactions.Transaction EnlistedTransaction { get; }
-            public void EnlistTransaction(System.Transactions.Transaction transaction) => throw new NotImplementedException();
+            public Transaction EnlistedTransaction { get; }
+            public void EnlistTransaction(Transaction transaction) => throw new NotImplementedException();
 
             public void ResetState() => throw new NotImplementedException();
         }

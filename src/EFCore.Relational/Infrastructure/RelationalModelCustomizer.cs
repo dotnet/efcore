@@ -74,11 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var contextType = context.GetType();
 
-            while(contextType != typeof(DbContext))
-            { 
-                var functions = contextType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance 
-                                                                | BindingFlags.Static | BindingFlags.DeclaredOnly)
-                                    .Where(mi => mi.GetCustomAttributes(typeof(DbFunctionAttribute)).Any());
+            while (contextType != typeof(DbContext))
+            {
+                var functions = contextType.GetMethods(
+                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+                        | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                    .Where(mi => mi.GetCustomAttributes(typeof(DbFunctionAttribute)).Any());
 
                 foreach (var function in functions)
                 {

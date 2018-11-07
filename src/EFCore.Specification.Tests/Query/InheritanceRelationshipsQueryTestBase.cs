@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(EntityState.Modified, entry.State);
                 Assert.Equal(originalValue, entry.Property(e => e.DerivedProperty).OriginalValue);
                 Assert.Equal(originalValue + 1, entry.Property(e => e.DerivedProperty).CurrentValue);
+
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             }
         }
 

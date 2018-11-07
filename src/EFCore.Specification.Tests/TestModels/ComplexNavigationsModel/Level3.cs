@@ -15,29 +15,29 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         public int Level2_Required_Id { get; set; }
         public int? Level2_Optional_Id { get; set; }
 
-        public Level4 OneToOne_Required_PK { get; set; }
-        public Level4 OneToOne_Optional_PK { get; set; }
+        public Level4 OneToOne_Required_PK3 { get; set; }
+        public Level4 OneToOne_Optional_PK3 { get; set; }
 
-        public Level4 OneToOne_Required_FK { get; set; }
-        public Level4 OneToOne_Optional_FK { get; set; }
+        public Level4 OneToOne_Required_FK3 { get; set; }
+        public Level4 OneToOne_Optional_FK3 { get; set; }
 
-        public ICollection<Level4> OneToMany_Required { get; set; }
-        public ICollection<Level4> OneToMany_Optional { get; set; }
+        public ICollection<Level4> OneToMany_Required3 { get; set; }
+        public ICollection<Level4> OneToMany_Optional3 { get; set; }
 
-        public Level2 OneToOne_Required_PK_Inverse { get; set; }
-        public Level2 OneToOne_Optional_PK_Inverse { get; set; }
-        public Level2 OneToOne_Required_FK_Inverse { get; set; }
-        public Level2 OneToOne_Optional_FK_Inverse { get; set; }
+        public Level2 OneToOne_Required_PK_Inverse3 { get; set; }
+        public Level2 OneToOne_Optional_PK_Inverse3 { get; set; }
+        public Level2 OneToOne_Required_FK_Inverse3 { get; set; }
+        public Level2 OneToOne_Optional_FK_Inverse3 { get; set; }
 
-        public Level2 OneToMany_Required_Inverse { get; set; }
-        public Level2 OneToMany_Optional_Inverse { get; set; }
+        public Level2 OneToMany_Required_Inverse3 { get; set; }
+        public Level2 OneToMany_Optional_Inverse3 { get; set; }
 
-        public Level3 OneToOne_Optional_Self { get; set; }
+        public Level3 OneToOne_Optional_Self3 { get; set; }
 
-        public ICollection<Level3> OneToMany_Required_Self { get; set; }
-        public ICollection<Level3> OneToMany_Optional_Self { get; set; }
-        public Level3 OneToMany_Required_Self_Inverse { get; set; }
-        public Level3 OneToMany_Optional_Self_Inverse { get; set; }
+        public ICollection<Level3> OneToMany_Required_Self3 { get; set; }
+        public ICollection<Level3> OneToMany_Optional_Self3 { get; set; }
+        public Level3 OneToMany_Required_Self_Inverse3 { get; set; }
+        public Level3 OneToMany_Optional_Self_Inverse3 { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -46,12 +46,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((Level3)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((Level3)obj);
         }
 
         protected bool Equals(Level3 other)
@@ -66,9 +61,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 var hashCode = Id;
                 hashCode = (hashCode * 397) ^ (Name?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ Level2_Required_Id;
-                hashCode = (hashCode * 397) ^ (Level2_Optional_Id?.GetHashCode() ?? 0);
-
-                return hashCode;
+                return (hashCode * 397) ^ (Level2_Optional_Id?.GetHashCode() ?? 0);
             }
         }
     }

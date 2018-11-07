@@ -171,9 +171,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         public override Expression Visit(Expression expression)
         {
-            if (expression == null || _targetSelectExpression == null)
+            if (expression == null)
             {
                 return expression;
+            }
+
+            // Skip over Include and Correlated Collection methods
+            // This is checked first because it should not call base when there is not _targetSelectExpression
+            if (expression is MethodCallExpression methodCallExpression
+                && (IncludeCompiler.IsIncludeMethod(methodCallExpression)
+                    || CorrelatedCollectionOptimizingVisitor.IsCorrelatedCollectionMethod(methodCallExpression)))
+            {
+                return expression;
+            }
+
+            if (_targetSelectExpression == null)
+            {
+                return base.Visit(expression);
             }
 
             switch (expression)
@@ -194,22 +208,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     return qsre;
 
-                // Skip over Include and Correlated Collection methods
-                case MethodCallExpression methodCallExpression
-                when IncludeCompiler.IsIncludeMethod(methodCallExpression)
-                    || CorrelatedCollectionOptimizingVisitor.IsCorrelatedCollectionMethod(methodCallExpression):
-                    return methodCallExpression;
-
                 // Group By key translation to cover composite key cases
                 case MemberExpression memberExpression
-                when memberExpression.Expression.TryGetReferencedQuerySource() == _querySource
-                    && _querySource.ItemType.IsGrouping()
-                    && memberExpression.Member.Name == nameof(IGrouping<int, int>.Key)
-                    && QueryModelVisitor.IsShapedQueryExpression(QueryModelVisitor.Expression):
+                    when memberExpression.Expression.TryGetReferencedQuerySource() == _querySource
+                         && _querySource.ItemType.IsGrouping()
+                         && memberExpression.Member.Name == nameof(IGrouping<int, int>.Key)
+                         && QueryModelVisitor.IsShapedQueryExpression(QueryModelVisitor.Expression):
 
                     var groupResultOperator
                         = (GroupResultOperator)((SubQueryExpression)((FromClauseBase)_querySource).FromExpression)
-                            .QueryModel.ResultOperators.Last();
+                        .QueryModel.ResultOperators.Last();
 
                     var sqlTranslation
                         = _sqlTranslatingExpressionVisitorFactory
@@ -239,6 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                         return translatedKey;
                     }
+
                     break;
             }
 
@@ -257,63 +266,62 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 return base.Visit(expression);
             }
-            else if (sqlExpression is ConstantExpression
+
+            if (sqlExpression is ConstantExpression
                 && QueryModelVisitor.ParentQueryModelVisitor == null)
             {
                 return base.Visit(expression);
             }
-            else
+
+            sqlExpression = sqlExpression.UnwrapNullableExpression();
+
+            // We bind with ValueBuffer in GroupByAggregate case straight away
+            // Since the expression can be some translation from [g].[Key] which won't bind with MemberAccessBindingEV
+            if (!_isGroupAggregate
+                && sqlExpression is ColumnExpression)
             {
-                sqlExpression = sqlExpression.UnwrapNullableExpression();
+                var index = _targetSelectExpression.AddToProjection(sqlExpression);
 
-                // We bind with ValueBuffer in GroupByAggregate case straight away
-                // Since the expression can be some translation from [g].[Key] which won't bind with MemberAccessBindingEV
-                if (!_isGroupAggregate
-                    && sqlExpression is ColumnExpression)
-                {
-                    var index = _targetSelectExpression.AddToProjection(sqlExpression);
-
-                    _sourceExpressionProjectionMapping[expression] = _targetSelectExpression.Projection[index];
-
-                    return expression;
-                }
-
-                var targetExpression
-                    = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
-                        .GetExpression(_querySource);
-
-                if (targetExpression.Type == typeof(ValueBuffer))
-                {
-                    var index = _targetSelectExpression.AddToProjection(sqlExpression);
-
-                    _sourceExpressionProjectionMapping[expression] = _targetSelectExpression.Projection[index];
-
-                    var readValueExpression
-                        = _entityMaterializerSource
-                            .CreateReadValueExpression(
-                                targetExpression,
-                                expression.Type.MakeNullable(),
-                                index,
-                                sqlExpression.FindProperty(expression.Type));
-
-                    var outputDataInfo
-                        = (expression as SubQueryExpression)?.QueryModel
-                        .GetOutputDataInfo();
-
-                    if (outputDataInfo is StreamedScalarValueInfo)
-                    {
-                        // Compensate for possible nulls
-                        readValueExpression
-                            = Expression.Coalesce(
-                                readValueExpression,
-                                Expression.Default(expression.Type));
-                    }
-
-                    return Expression.Convert(readValueExpression, expression.Type);
-                }
+                _sourceExpressionProjectionMapping[expression] = _targetSelectExpression.Projection[index];
 
                 return expression;
             }
+
+            var targetExpression
+                = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
+                    .GetExpression(_querySource);
+
+            if (targetExpression.Type == typeof(ValueBuffer))
+            {
+                var index = _targetSelectExpression.AddToProjection(sqlExpression);
+
+                _sourceExpressionProjectionMapping[expression] = _targetSelectExpression.Projection[index];
+
+                var readValueExpression
+                    = _entityMaterializerSource
+                        .CreateReadValueExpression(
+                            targetExpression,
+                            expression.Type.MakeNullable(),
+                            index,
+                            sqlExpression.FindProperty(expression.Type));
+
+                var outputDataInfo
+                    = (expression as SubQueryExpression)?.QueryModel
+                    .GetOutputDataInfo();
+
+                if (outputDataInfo is StreamedScalarValueInfo)
+                {
+                    // Compensate for possible nulls
+                    readValueExpression
+                        = Expression.Coalesce(
+                            readValueExpression,
+                            Expression.Default(expression.Type));
+                }
+
+                return Expression.Convert(readValueExpression, expression.Type);
+            }
+
+            return expression;
         }
 
         private class QuerySourceFindingExpressionVisitor : RelinqExpressionVisitor

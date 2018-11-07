@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
         public virtual Expression Translate(MemberExpression memberExpression)
             => memberExpression.Expression != null
                && memberExpression.Expression.Type == typeof(string)
-               && memberExpression.Member.Name == "Length"
+               && memberExpression.Member.Name == nameof(string.Length)
                 ? new SqlFunctionExpression("length", memberExpression.Type, new[] { memberExpression.Expression })
                 : null;
     }

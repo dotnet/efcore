@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets the <see cref="IServiceProperty"/> with a given name. Returns null if no property with the given name is defined.
+        ///         Gets the <see cref="IServiceProperty" /> with a given name. Returns null if no property with the given name is defined.
         ///     </para>
         ///     <para>
         ///         This API only finds service properties and does not find scalar or navigation properties.
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets all the <see cref="IServiceProperty"/> defined on this entity.
+        ///         Gets all the <see cref="IServiceProperty" /> defined on this entity.
         ///     </para>
         ///     <para>
         ///         This API only returns service properties and does not return scalar or navigation properties.

@@ -21,14 +21,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             using (var context = new UserContext())
             {
-                id = context.Add(new User { Name = "A", LongName = "B" }).Entity.Id;
+                id = context.Add(
+                    new User
+                    {
+                        Name = "A",
+                        LongName = "B"
+                    }).Entity.Id;
 
                 context.SaveChanges();
             }
 
             using (var context = new UserContext())
             {
-                var user = context.Attach(new User { Id = id, Name = "NewA", LongName = "NewB" }).Entity;
+                var user = context.Attach(
+                    new User
+                    {
+                        Id = id,
+                        Name = "NewA",
+                        LongName = "NewB"
+                    }).Entity;
 
                 context.Entry(user).Property(x => x.Name).IsModified = false;
                 context.Entry(user).Property(x => x.LongName).IsModified = true;
@@ -55,14 +66,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             using (var context = new UserContext())
             {
-                id = context.Add(new User { Name = "A", LongName = "B" }).Entity.Id;
+                id = context.Add(
+                    new User
+                    {
+                        Name = "A",
+                        LongName = "B"
+                    }).Entity.Id;
 
                 context.SaveChanges();
             }
 
             using (var context = new UserContext())
             {
-                var disconnectedEntity = new User { Id = id, LongName = "NewLongName" };
+                var disconnectedEntity = new User
+                {
+                    Id = id,
+                    LongName = "NewLongName"
+                };
                 var trackedEntity = context.Find<User>(id);
 
                 Assert.Equal("A", trackedEntity.Name);
@@ -120,10 +140,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 modelBuilder.Entity<User>(
                     b =>
-                        {
-                            b.Property(e => e.Name).IsRequired();
-                            b.Property(e => e.LongName).IsRequired();
-                        });
+                    {
+                        b.Property(e => e.Name).IsRequired();
+                        b.Property(e => e.LongName).IsRequired();
+                    });
             }
         }
 
@@ -133,14 +153,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Guid id;
             using (var context = new UserContext())
             {
-                id = context.Add(new User { Id = Guid.NewGuid(), Name = "A", LongName = "B" }).Entity.Id;
+                id = context.Add(
+                    new User
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "A",
+                        LongName = "B"
+                    }).Entity.Id;
 
                 context.SaveChanges();
             }
 
             using (var context = new UserContext())
             {
-                var user = context.Update(new User { Id = id }).Entity;
+                var user = context.Update(
+                    new User
+                    {
+                        Id = id
+                    }).Entity;
 
                 user.Name = "A2";
                 user.LongName = "B2";
@@ -166,7 +196,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new PrimateContext())
             {
                 var entry = context
-                    .Entry(new Wotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" })
+                    .Entry(
+                        new Wotty
+                        {
+                            Id = 1,
+                            Primate = "Monkey",
+                            RequiredPrimate = "Tarsier"
+                        })
                     .GetInfrastructure();
 
                 entry.SetEntityState(EntityState.Unchanged);
@@ -181,7 +217,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new PrimateContext())
             {
                 var entry = context
-                    .Entry(new Wotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" })
+                    .Entry(
+                        new Wotty
+                        {
+                            Id = 1,
+                            Primate = "Monkey",
+                            RequiredPrimate = "Tarsier"
+                        })
                     .GetInfrastructure();
 
                 entry.SetEntityState(EntityState.Unchanged);
@@ -196,7 +238,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
+                var entity = new Wotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -218,7 +265,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
+                var entity = new Wotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -240,7 +292,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
+                var entity = new Wotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -271,7 +328,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1 };
+                var entity = new Wotty
+                {
+                    Id = 1
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -302,7 +362,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
+                var entity = new Wotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -324,7 +389,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1 };
+                var entity = new Wotty
+                {
+                    Id = 1
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Modified);
 
@@ -367,7 +435,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1 };
+                var entity = new Wotty
+                {
+                    Id = 1
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(initialState);
 
@@ -401,7 +472,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1 };
+                var entity = new Wotty
+                {
+                    Id = 1
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(initialState);
 
@@ -433,7 +507,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty { Id = 1, Primate = "Monkey", Marmate = "Bovril", RequiredPrimate = "Tarsier" };
+                var entity = new Wotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    Marmate = "Bovril",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -513,7 +593,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new Wotty { Id = 1, Primate = "Monkey" });
+                new Wotty
+                {
+                    Id = 1,
+                    Primate = "Monkey"
+                });
 
             Assert.Equal("Primate", new PropertyEntry<Wotty, string>(entry, "Primate").Metadata.Name);
         }
@@ -524,7 +608,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new Wotty { Id = 1, Primate = "Monkey" });
+                new Wotty
+                {
+                    Id = 1,
+                    Primate = "Monkey"
+                });
 
             Assert.Equal("Monkey", new PropertyEntry<Wotty, string>(entry, "Primate").CurrentValue);
         }
@@ -532,7 +620,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_current_value_generic()
         {
-            var entity = new Wotty { Id = 1, Primate = "Monkey" };
+            var entity = new Wotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -547,7 +639,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_current_value_to_null_generic()
         {
-            var entity = new Wotty { Id = 1, Primate = "Monkey" };
+            var entity = new Wotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -562,7 +658,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_and_get_original_value_generic()
         {
-            var entity = new Wotty { Id = 1, Primate = "Monkey" };
+            var entity = new Wotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -583,7 +683,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new Wotty { Id = 1, Primate = "Monkey" });
+                new Wotty
+                {
+                    Id = 1,
+                    Primate = "Monkey"
+                });
 
             new PropertyEntry<Wotty, string>(entry, "Primate").OriginalValue = null;
 
@@ -593,7 +697,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_and_clear_modified_generic()
         {
-            var entity = new Wotty { Id = 1, Primate = "Monkey" };
+            var entity = new Wotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -614,7 +722,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_and_get_original_value_notifying_entities()
         {
-            var entity = new NotifyingWotty { Id = 1, Primate = "Monkey" };
+            var entity = new NotifyingWotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -635,7 +747,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new NotifyingWotty { Id = 1, Primate = "Monkey" });
+                new NotifyingWotty
+                {
+                    Id = 1,
+                    Primate = "Monkey"
+                });
 
             new PropertyEntry(entry, "Primate").OriginalValue = null;
 
@@ -645,7 +761,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_and_get_original_value_generic_notifying_entities()
         {
-            var entity = new NotifyingWotty { Id = 1, Primate = "Monkey" };
+            var entity = new NotifyingWotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -666,7 +786,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new NotifyingWotty { Id = 1, Primate = "Monkey" });
+                new NotifyingWotty
+                {
+                    Id = 1,
+                    Primate = "Monkey"
+                });
 
             new PropertyEntry<NotifyingWotty, string>(entry, "Primate").OriginalValue = null;
 
@@ -676,7 +800,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_and_get_concurrency_token_original_value_full_notification_entities()
         {
-            var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
+            var entity = new FullyNotifyingWotty
+            {
+                Id = 1,
+                ConcurrentPrimate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -697,7 +825,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" });
+                new FullyNotifyingWotty
+                {
+                    Id = 1,
+                    ConcurrentPrimate = "Monkey"
+                });
 
             new PropertyEntry(entry, "ConcurrentPrimate").OriginalValue = null;
 
@@ -707,7 +839,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_and_get_concurrency_token_original_value_generic_full_notification_entities()
         {
-            var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
+            var entity = new FullyNotifyingWotty
+            {
+                Id = 1,
+                ConcurrentPrimate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -728,7 +864,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" });
+                new FullyNotifyingWotty
+                {
+                    Id = 1,
+                    ConcurrentPrimate = "Monkey"
+                });
 
             new PropertyEntry<FullyNotifyingWotty, string>(entry, "ConcurrentPrimate").OriginalValue = null;
 
@@ -738,7 +878,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Cannot_set_or_get_original_value_when_not_tracked()
         {
-            var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
+            var entity = new FullyNotifyingWotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -759,7 +903,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Cannot_set_or_get_original_value_when_not_tracked_generic()
         {
-            var entity = new FullyNotifyingWotty { Id = 1, ConcurrentPrimate = "Monkey" };
+            var entity = new FullyNotifyingWotty
+            {
+                Id = 1,
+                ConcurrentPrimate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
@@ -780,7 +928,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_or_get_original_value_when_property_explicitly_marked_to_be_tracked()
         {
-            var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
+            var entity = new FullyNotifyingWotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues),
@@ -798,7 +950,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_set_or_get_original_value_when_property_explicitly_marked_to_be_tracked_generic()
         {
-            var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
+            var entity = new FullyNotifyingWotty
+            {
+                Id = 1,
+                Primate = "Monkey"
+            };
 
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues),
@@ -932,20 +1088,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             builder.Entity<Wotty>(
                 b =>
-                    {
-                        b.Property(e => e.RequiredPrimate).IsRequired();
-                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-                    });
+                {
+                    b.Property(e => e.RequiredPrimate).IsRequired();
+                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+                });
 
             builder.Entity<NotifyingWotty>(
-                b => { b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications); });
+                b => b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications));
 
             builder.Entity<FullyNotifyingWotty>(
                 b =>
-                    {
-                        b.HasChangeTrackingStrategy(fullNotificationStrategy);
-                        b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
-                    });
+                {
+                    b.HasChangeTrackingStrategy(fullNotificationStrategy);
+                    b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
+                });
 
             return builder.Model;
         }

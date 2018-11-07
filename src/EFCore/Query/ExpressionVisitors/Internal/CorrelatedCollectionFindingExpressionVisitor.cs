@@ -7,14 +7,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using JetBrains.Annotations;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var subQueryModel = expression.QueryModel;
 
             subQueryModel.SelectClause.TransformExpressions(Visit);
-            
+
             if (CorrelatedSubqueryOptimizationValidator.CanTryOptimizeCorrelatedSubquery(subQueryModel))
             {
                 // if the query passes validation it becomes a candidate for future optimization
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
 
-                        if (collectionNavigation != null)
+                        if (collectionNavigation != null && querySource != null)
                         {
                             _queryModelVisitor.QueryCompilationContext.RegisterCorrelatedSubqueryMetadata(
                                 subQueryModel.MainFromClause,

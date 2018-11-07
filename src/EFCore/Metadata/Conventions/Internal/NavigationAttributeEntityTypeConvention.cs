@@ -189,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -202,12 +203,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private Type FindCandidateNavigationWithAttributePropertyType([NotNull] PropertyInfo propertyInfo)
         {
             var targetClrType = _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
-            if (targetClrType == null
-                || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true))
-            {
-                return null;
-            }
-            return targetClrType;
+            return targetClrType == null
+                || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
+                ? null
+                : targetClrType;
         }
 
         /// <summary>

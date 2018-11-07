@@ -32,7 +32,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this IEntityType type)
-            => ((ITypeBase)type).DisplayName();
+        {
+            if (type.ClrType != null)
+            {
+                return type.ClrType.ShortDisplayName();
+            }
+
+            var plusIndex = type.Name.LastIndexOf("+", StringComparison.Ordinal);
+            var dotIndex = type.Name.LastIndexOf(".", StringComparison.Ordinal);
+            return plusIndex == -1
+                ? dotIndex == -1
+                    ? type.Name
+                    : type.Name.Substring(dotIndex + 1, type.Name.Length - dotIndex - 1)
+                : type.Name.Substring(plusIndex + 1, type.Name.Length - plusIndex - 1);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -42,11 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         // Issue#11266 This method is being used by provider code. Do not break.
         public static string DisplayName([NotNull] this IEntityType type)
         {
-            if (type.ClrType == null)
-            {
-                return type.Name;
-            }
-
             if (!type.HasDefiningNavigation())
             {
                 return ((ITypeBase)type).DisplayName();
@@ -62,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     break;
                 }
+
                 root = root.DefiningEntityType;
                 path.Push("#");
                 path.Push(definingNavigationName);
@@ -78,14 +87,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return builder.ToString();
         }
 
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         // Issue#11266 This method is being used by provider code. Do not break.
         public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
-            => new List<IEntityType>(GetAllBaseTypes(entityType)) { entityType };
+            => new List<IEntityType>(GetAllBaseTypes(entityType))
+            {
+                entityType
+            };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -167,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 return null;
             }
+
             var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
             return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
         }
@@ -191,6 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return root;
                 }
+
                 root = root.DefiningEntityType;
             }
 
@@ -217,6 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return root;
                 }
+
                 root = root.DefiningEntityType;
             }
 
@@ -235,23 +249,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
-            => FindInDefinitionPath(entityType, targetType) != null;
+            => entityType.FindInDefinitionPath(targetType) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] string targetTypeName)
-            => FindInDefinitionPath(entityType, targetTypeName) != null;
+            => entityType.FindInDefinitionPath(targetTypeName) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] IEntityType targetType)
-            => targetType.ClrType == null
-                ? FindInDefinitionPath(entityType, targetType.Name) != null
-                : FindInDefinitionPath(entityType, targetType.ClrType) != null;
+        public static IEntityType FindInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
+        {
+            var owner = entityType;
+            while (true)
+            {
+                var ownership = owner.FindOwnership();
+                if (ownership == null)
+                {
+                    return null;
+                }
+
+                owner = ownership.PrincipalEntityType;
+                if (owner.ClrType == targetType)
+                {
+                    return owner;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsInOwnershipPath([NotNull] this EntityType entityType, [NotNull] Type targetType)
+            => entityType.FindInOwnershipPath(targetType) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -499,6 +534,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static IEnumerable<Navigation> GetDerivedNavigations([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDerivedNavigations();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEnumerable<Navigation> GetDerivedNavigationsInclusive([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDerivedNavigationsInclusive();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         // Issue#11266 This method is being used by provider code. Do not break.
         public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().GetDeclaredProperties();
@@ -703,8 +752,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             name, entityType.DisplayName(),
                             nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
                 }
+
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, entityType.DisplayName()));
             }
+
             return property;
         }
 

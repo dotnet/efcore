@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
+        public virtual TResult ExecuteAsync<TResult>(Expression expression)
             => _queryCompiler.ExecuteAsync<TResult>(expression);
 
         /// <summary>

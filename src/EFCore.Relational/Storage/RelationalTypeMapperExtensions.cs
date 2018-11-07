@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -30,8 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 : new FallbackRelationalTypeMappingSource(
                         new TypeMappingSourceDependencies(
                             new ValueConverterSelector(
-                                new ValueConverterSelectorDependencies())),
-                        new RelationalTypeMappingSourceDependencies(),
+                                new ValueConverterSelectorDependencies()),
+                            Enumerable.Empty<ITypeMappingSourcePlugin>()),
+                        new RelationalTypeMappingSourceDependencies(
+                            Enumerable.Empty<IRelationalTypeMappingSourcePlugin>()),
                         typeMapper)
                     .GetMappingForValue(value);
 
@@ -48,8 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new FallbackRelationalTypeMappingSource(
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMappingSourceDependencies(),
+                            new ValueConverterSelectorDependencies()),
+                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
+                    new RelationalTypeMappingSourceDependencies(
+                        Enumerable.Empty<IRelationalTypeMappingSourcePlugin>()),
                     typeMapper)
                 .GetMapping(property);
 
@@ -66,8 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new FallbackRelationalTypeMappingSource(
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMappingSourceDependencies(),
+                            new ValueConverterSelectorDependencies()),
+                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
+                    new RelationalTypeMappingSourceDependencies(
+                        Enumerable.Empty<IRelationalTypeMappingSourcePlugin>()),
                     typeMapper)
                 .GetMapping(clrType);
 
@@ -89,8 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new FallbackRelationalTypeMappingSource(
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMappingSourceDependencies(),
+                            new ValueConverterSelectorDependencies()),
+                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
+                    new RelationalTypeMappingSourceDependencies(
+                        Enumerable.Empty<IRelationalTypeMappingSourcePlugin>()),
                     typeMapper)
                 .GetMapping(typeName);
     }

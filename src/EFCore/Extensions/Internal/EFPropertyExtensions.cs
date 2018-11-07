@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -35,10 +36,20 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
             => Equals(methodInfo, EF.PropertyMethod)
                // fallback to string comparison because MethodInfo.Equals is not
                // always true in .NET Native even if methods are the same
-               || methodInfo != null
-               && methodInfo.IsGenericMethod
+               || methodInfo?.IsGenericMethod == true
                && methodInfo.Name == nameof(EF.Property)
                && methodInfo.DeclaringType?.FullName == _efTypeName;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsEFIndexer(this MethodInfo methodInfo)
+            => !methodInfo.IsStatic
+               && "get_Item".Equals(methodInfo.Name, StringComparison.Ordinal)
+               && typeof(object) == methodInfo.ReturnType
+               && methodInfo.GetParameters()?.Count() == 1
+               && typeof(string) == methodInfo.GetParameters().First().ParameterType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -57,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
         public static Expression CreateEFPropertyExpression(
             [NotNull] this Expression target,
             [NotNull] MemberInfo memberInfo)
-            => CreateEFPropertyExpression(target, memberInfo.DeclaringType, memberInfo.GetMemberType(), memberInfo.Name, makeNullable: false);
+            => CreateEFPropertyExpression(target, memberInfo.DeclaringType, memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), makeNullable: false);
 
         private static Expression CreateEFPropertyExpression(
             Expression target,

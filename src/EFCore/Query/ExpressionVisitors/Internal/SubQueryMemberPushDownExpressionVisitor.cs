@@ -125,10 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return memberExpression.Update(newExpression);
         }
 
-        private bool IsFirstSingleLastOrDefault(ResultOperatorBase resultOperator)
+        private static bool IsFirstSingleLastOrDefault(ResultOperatorBase resultOperator)
             => (resultOperator is FirstResultOperator first && first.ReturnDefaultWhenEmpty)
-            || (resultOperator is SingleResultOperator single && single.ReturnDefaultWhenEmpty)
-            || (resultOperator is LastResultOperator last && last.ReturnDefaultWhenEmpty);
+               || (resultOperator is SingleResultOperator single && single.ReturnDefaultWhenEmpty)
+               || (resultOperator is LastResultOperator last && last.ReturnDefaultWhenEmpty);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -140,10 +140,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (methodCallExpression.Method.IsEFPropertyMethod())
             {
-                var subQueryExpression = newMethodCallExpression.Arguments[0] as SubQueryExpression;
-                if (subQueryExpression?.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression subSelector)
+                if (newMethodCallExpression.Arguments[0] is SubQueryExpression subQueryExpression
+                    && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression subSelector)
                 {
-                    var subQueryModel = subQueryExpression.QueryModel;
+                    var querySourceMapping = new QuerySourceMapping();
+                    var subQueryModel = subQueryExpression.QueryModel.Clone(querySourceMapping);
+                    _queryCompilationContext.UpdateMapping(querySourceMapping);
+                    var clonedSubSelector = querySourceMapping.GetExpression(subSelector.ReferencedQuerySource);
 
                     subQueryModel.SelectClause.Selector
                         = methodCallExpression
@@ -151,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 null,
                                 new[]
                                 {
-                                    subSelector,
+                                    clonedSubSelector,
                                     methodCallExpression.Arguments[1]
                                 });
 
@@ -175,16 +178,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 || unaryExpression.NodeType == ExpressionType.ConvertChecked)
             {
                 var newOperand = Visit(unaryExpression.Operand);
-                if (newOperand is UnaryExpression innerUnaryExpression
+                return newOperand is UnaryExpression innerUnaryExpression
                     && (innerUnaryExpression.NodeType == ExpressionType.Convert
                         || innerUnaryExpression.NodeType == ExpressionType.ConvertChecked)
                     && innerUnaryExpression.Operand.Type == unaryExpression.Type
-                    && innerUnaryExpression.Operand.Type != typeof(object))
-                {
-                    return innerUnaryExpression.Operand;
-                }
-
-                return unaryExpression.Update(newOperand);
+                    && innerUnaryExpression.Operand.Type != typeof(object)
+                    ? innerUnaryExpression.Operand
+                    : unaryExpression.Update(newOperand);
             }
 
             return base.VisitUnary(unaryExpression);

@@ -7,20 +7,21 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class CommandConfigurationTest : SharedStoreFixtureBase<DbContext>
+    public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationFixture>
     {
-        public CommandConfigurationTest()
+        public CommandConfigurationTest(CommandConfigurationFixture fixture)
         {
-            TestSqlLoggerFactory.Clear();
+            Fixture = fixture;
+            Fixture.TestSqlLoggerFactory.Clear();
         }
+
+        protected CommandConfigurationFixture Fixture { get; set; }
 
         [Fact]
         public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(51, 6)]
+        [InlineData(59, 6)]
         [InlineData(50, 5)]
         [InlineData(20, 2)]
         [InlineData(2, 1)]
@@ -49,8 +50,10 @@ namespace Microsoft.EntityFrameworkCore
                         context.SaveChanges();
                     });
 
-            Assert.Equal(expected, CountSqlLinesContaining(".NEXTVAL", TestSqlLoggerFactory.Sql));
+            Assert.Equal(expected, CountSqlLinesContaining(".NEXTVAL", Fixture.TestSqlLoggerFactory.Sql));
         }
+
+        private ChipsContext CreateContext() => (ChipsContext)Fixture.CreateContext();
 
         protected void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
@@ -69,12 +72,7 @@ namespace Microsoft.EntityFrameworkCore
             return matchQuery.Count();
         }
 
-        protected override string StoreName { get; } = "CommandConfiguration";
-        protected override Type ContextType { get; } = typeof(ChipsContext);
-        protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-
-        private class ChipsContext : DbContext
+        private class ChipsContext : PoolableDbContext
         {
             public ChipsContext(DbContextOptions options)
                 : base(options)
@@ -96,6 +94,14 @@ namespace Microsoft.EntityFrameworkCore
 
             public string Name { get; set; }
             public DateTime BestBuyDate { get; set; }
+        }
+
+        public class CommandConfigurationFixture : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = "CommandConfiguration";
+            protected override Type ContextType { get; } = typeof(ChipsContext);
+            protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
         }
     }
 }

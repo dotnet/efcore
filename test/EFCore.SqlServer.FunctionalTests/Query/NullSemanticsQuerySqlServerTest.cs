@@ -934,12 +934,12 @@ WHERE CASE
     END ELSE CAST(0 AS BIT)
 END = 1",
                 //
-                @"@__prm_0='True'
+                @"@__p_0='False'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE CASE
-    WHEN @__prm_0 = 0
+    WHEN @__p_0 = 1
     THEN CAST(1 AS BIT) ELSE CASE
         WHEN [e].[StringA] LIKE N'A' + N'%' AND (LEFT([e].[StringA], LEN(N'A')) = N'A')
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -1080,17 +1080,17 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
             base.Where_comparison_null_constant_and_null_parameter();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
+                @"@__p_0='True'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 IS NULL",
+WHERE @__p_0 = 1",
                 //
-                @"@__prm_0='' (Size = 4000)
+                @"@__p_0='False'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 IS NOT NULL");
+WHERE @__p_0 = 1");
         }
 
         public override void Where_comparison_null_constant_and_nonnull_parameter()
@@ -1098,17 +1098,17 @@ WHERE @__prm_0 IS NOT NULL");
             base.Where_comparison_null_constant_and_nonnull_parameter();
 
             AssertSql(
-                @"@__prm_0='Foo' (Size = 4000)
+                @"@__p_0='False'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 IS NULL",
+WHERE @__p_0 = 1",
                 //
-                @"@__prm_0='Foo' (Size = 4000)
+                @"@__p_0='True'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 IS NOT NULL");
+WHERE @__p_0 = 1");
         }
 
         public override void Where_comparison_nonnull_constant_and_null_parameter()
@@ -1116,12 +1116,17 @@ WHERE @__prm_0 IS NOT NULL");
             base.Where_comparison_nonnull_constant_and_null_parameter();
 
             AssertSql(
-                @"SELECT [e].[Id]
+                @"@__p_0='False'
+
+SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE 0 = 1",
+WHERE @__p_0 = 1",
                 //
-                @"SELECT [e].[Id]
-FROM [Entities1] AS [e]");
+                @"@__p_0='True'
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE @__p_0 = 1");
         }
 
         public override void Where_comparison_null_semantics_optimization_works_with_complex_predicates()
@@ -1153,15 +1158,17 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
             base.Switching_parameter_value_to_null_produces_different_cache_entry();
 
             AssertSql(
-                @"@__prm_0='Foo' (Size = 4000)
+                @"@__p_0='True'
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE @__prm_0 = N'Foo'",
+WHERE @__p_0 = 1",
                 //
-                @"SELECT [e].[Id]
+                @"@__p_0='False'
+
+SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE 0 = 1");
+WHERE @__p_0 = 1");
         }
 
         public override void From_sql_composed_with_relational_null_comparison()
@@ -1192,6 +1199,56 @@ FROM [Entities1] AS [e]");
             AssertSql(
                 @"SELECT [e].[Id], CAST(COALESCE([e].[NullableBoolA], COALESCE([e].[NullableBoolB], 0)) AS bit) AS [Coalesce]
 FROM [Entities1] AS [e]");
+        }
+
+        public override void Null_semantics_applied_when_comparing_function_with_nullable_argument_to_a_nullable_column()
+        {
+            base.Null_semantics_applied_when_comparing_function_with_nullable_argument_to_a_nullable_column();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) = [e].[NullableIntA]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableIntA] IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((CHARINDEX(N'ar', [e].[NullableStringA]) - 1) = [e].[NullableIntA]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableIntA] IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) <> [e].[NullableIntB]) OR ([e].[NullableStringA] IS NULL OR [e].[NullableIntB] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)");
+        }
+
+        public override void Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments()
+        {
+            base.Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) = (CHARINDEX(N'ar', [e].[NullableStringB]) - 1)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) <> (CHARINDEX(N'ar', [e].[NullableStringB]) - 1)) OR ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (((CHARINDEX(N'oo', [e].[NullableStringA]) - 1) <> (CHARINDEX(N'ar', [e].[NullableStringA]) - 1)) OR [e].[NullableStringA] IS NULL) AND [e].[NullableStringA] IS NOT NULL");
+        }
+
+        public override void Null_semantics_applied_when_comparing_two_functions_with_multiple_nullable_arguments()
+        {
+            base.Null_semantics_applied_when_comparing_two_functions_with_multiple_nullable_arguments();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) = [e].[NullableStringA]) OR ((([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) AND [e].[NullableStringA] IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) <> [e].[NullableStringA]) OR ((([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) OR [e].[NullableStringA] IS NULL)) AND ((([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL) AND [e].[NullableStringC] IS NOT NULL) OR [e].[NullableStringA] IS NOT NULL)");
         }
 
         private void AssertSql(params string[] expected)

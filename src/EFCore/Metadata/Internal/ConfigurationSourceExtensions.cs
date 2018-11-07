@@ -37,12 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
-            if (oldConfigurationSource == ConfigurationSource.DataAnnotation)
-            {
-                return false;
-            }
-
-            return true;
+            return oldConfigurationSource != ConfigurationSource.DataAnnotation;
         }
 
         /// <summary>
@@ -63,18 +58,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static bool OverridesStrictly(this ConfigurationSource? newConfigurationSource, ConfigurationSource? oldConfigurationSource)
+            => newConfigurationSource.HasValue && newConfigurationSource.Value.OverridesStrictly(oldConfigurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         [ContractAnnotation("left:notnull => notnull;right:notnull => notnull")]
         public static ConfigurationSource? Max(this ConfigurationSource? left, ConfigurationSource? right)
-        {
-            if (!right.HasValue
-                || (left.HasValue
-                    && left.Value.Overrides(right.Value)))
-            {
-                return left;
-            }
-
-            return right.Value;
-        }
+            => !right.HasValue
+               || (left.HasValue
+                   && left.Value.Overrides(right.Value))
+                ? left
+                : right.Value;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

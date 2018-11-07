@@ -67,8 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 CoreStrings.AmbiguousServiceProperty(nameof(BlogDuplicateService.ContextTwo), nameof(DbContext), nameof(BlogDuplicateService)),
-                Assert.Throws<InvalidOperationException>(() =>
-                    TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>().Apply(entityType.Model.Builder)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>().Apply(entityType.Model.Builder)).Message);
         }
 
         [Fact]

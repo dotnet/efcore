@@ -94,8 +94,14 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void AddVertex_adds_a_vertex()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
 
@@ -109,9 +115,18 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void AddVertices_add_verticies()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
 
@@ -125,11 +140,23 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void AddEdge_adds_an_edge()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo });
@@ -147,10 +174,19 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void AddEdge_throws_on_verticies_not_in_the_graph()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
 
-            var edgeOne = new Edge { Id = 1 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertex(vertexOne);
@@ -167,12 +203,27 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void AddEdges_adds_multiple_edges()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo });
@@ -187,10 +238,19 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void AddEdges_throws_on_verticies_not_in_the_graph()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
 
-            var edgeOne = new Edge { Id = 1 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertex(vertexOne);
@@ -207,13 +267,31 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void AddEdge_updates_incomming_and_outgoing_neighbours()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
@@ -231,9 +309,18 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void TopologicalSort_on_graph_with_no_edges_returns_all_verticies()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
@@ -246,12 +333,27 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void TopologicalSort_on_simple_graph_returns_all_verticies_in_order()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
@@ -269,13 +371,31 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void TopologicalSort_on_tree_graph_returns_all_verticies_in_order()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
@@ -294,9 +414,15 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void TopologicalSort_on_self_ref_can_break_cycle()
         {
-            var vertexOne = new Vertex { Id = 1 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
 
-            var edgeOne = new Edge { Id = 1 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertex(vertexOne);
@@ -308,21 +434,39 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new[] { vertexOne },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        (from == vertexOne) &&
-                        (to == vertexOne) &&
-                        (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
+                        (from == vertexOne)
+                        && (to == vertexOne)
+                        && (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
         }
 
         [Fact]
         public void TopologicalSort_can_break_simple_cycle()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
@@ -338,26 +482,59 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new[] { vertexOne, vertexTwo, vertexThree },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        (from == vertexThree) &&
-                        (to == vertexOne) &&
-                        (edges.Single() == edgeThree)).ToArray());
+                        (from == vertexThree)
+                        && (to == vertexOne)
+                        && (edges.Single() == edgeThree)).ToArray());
         }
 
         [Fact]
         public void TopologicalSort_can_break_two_cycles()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
-            var vertexFour = new Vertex { Id = 4 };
-            var vertexFive = new Vertex { Id = 5 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
+            var vertexFour = new Vertex
+            {
+                Id = 4
+            };
+            var vertexFive = new Vertex
+            {
+                Id = 5
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
-            var edgeFour = new Edge { Id = 4 };
-            var edgeFive = new Edge { Id = 5 };
-            var edgeSix = new Edge { Id = 6 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
+            var edgeFour = new Edge
+            {
+                Id = 4
+            };
+            var edgeFive = new Edge
+            {
+                Id = 5
+            };
+            var edgeSix = new Edge
+            {
+                Id = 6
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree, vertexFour, vertexFive });
@@ -378,22 +555,40 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new[] { vertexTwo, vertexThree, vertexOne, vertexFour, vertexFive },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        {
-                            var edge = edges.Single();
-                            return (edge == edgeOne) || (edge == edgeSix);
-                        }).ToArray());
+                    {
+                        var edge = edges.Single();
+                        return (edge == edgeOne) || (edge == edgeSix);
+                    }).ToArray());
         }
 
         [Fact]
         public void TopologicalSort_throws_with_default_message_when_cycle_cannot_be_broken()
         {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
@@ -415,13 +610,31 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
             const string message = "Formatted cycle";
 
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
@@ -462,13 +675,31 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
             const string message = "Formatted cycle";
 
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
@@ -509,15 +740,39 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
             const string message = "Formatted cycle";
 
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-            var vertexThree = new Vertex { Id = 3 };
-            var vertexFour = new Vertex { Id = 4 };
+            var vertexOne = new Vertex
+            {
+                Id = 1
+            };
+            var vertexTwo = new Vertex
+            {
+                Id = 2
+            };
+            var vertexThree = new Vertex
+            {
+                Id = 3
+            };
+            var vertexFour = new Vertex
+            {
+                Id = 4
+            };
 
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
-            var edgeFour = new Edge { Id = 4 };
+            var edgeOne = new Edge
+            {
+                Id = 1
+            };
+            var edgeTwo = new Edge
+            {
+                Id = 2
+            };
+            var edgeThree = new Edge
+            {
+                Id = 3
+            };
+            var edgeFour = new Edge
+            {
+                Id = 4
+            };
 
             var graph = new Multigraph<Vertex, Edge>();
             graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree, vertexFour });

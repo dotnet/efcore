@@ -1,17 +1,18 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             new SnapshotModelProcessor(reporter).Process(model);
 
-            Assert.Equal(DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
+            Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
 
             var actual = (string)model["Relational:DefaultSchema"];
@@ -96,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             new SnapshotModelProcessor(reporter).Process(model);
 
-            Assert.Equal(DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
+            Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
 
             var actual = (string)model["Relational:DefaultSchema"];
@@ -142,15 +143,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal("Value", (string)model["Unicorn:DefaultSchema"]);
         }
 
-        private class TestOperationReporter : IOperationReporter
+        [Fact]
+        public void Sets_owned_type_keys()
         {
-            public IList<string> Messages { get; } = new List<string>();
+            var builder = new ModelBuilder(new ConventionSet());
 
-            public void WriteWarning(string message) => Messages.Add(message);
+            var model = builder.Model;
+            ((Model)model).SetProductVersion("2.1.0");
 
-            public void WriteError(string message) => throw new NotImplementedException();
-            public void WriteInformation(string message) => throw new NotImplementedException();
-            public void WriteVerbose(string message) => throw new NotImplementedException();
+            builder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id);
+                b.HasKey(e => e.Id);
+
+                b.OwnsOne(e => e.Details, d => d.HasForeignKey(e => e.BlogId));
+            });
+
+            var reporter = new TestOperationReporter();
+            new SnapshotModelProcessor(reporter).Process(model);
+
+            Assert.Empty(reporter.Messages);
+            Assert.Equal(nameof(BlogDetails.BlogId),
+                model.FindEntityType(typeof(Blog)).FindNavigation(nameof(Blog.Details)).GetTargetType().FindPrimaryKey().Properties.Single().Name);
         }
 
         private void AddAnnotations(IMutableAnnotatable element)
@@ -182,12 +196,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public int Id { get; set; }
 
             public ICollection<Post> Posts { get; set; }
+            public BlogDetails Details { get; set; }
         }
 
         private class Post
         {
             public int BlogId { get; set; }
             public Blog Blog { get; set; }
+        }
+
+        private class BlogDetails
+        {
+            public int BlogId { get; set; }
+
+            public ICollection<Post> Posts { get; set; }
         }
     }
 }

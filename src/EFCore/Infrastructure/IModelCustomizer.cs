@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         When replacing this service consider deriving the implementation from <see cref="ModelCustomizer"/> or
+    ///         When replacing this service consider deriving the implementation from <see cref="ModelCustomizer" /> or
     ///         'RelationalModelCustomizer' to preserve the default behavior.
     ///     </para>
     /// </summary>

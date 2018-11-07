@@ -23,8 +23,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Name = "1" };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal.Child1 = dependent;
                 principal.Child2 = dependent;
 
@@ -54,8 +60,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext(false))
             {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Name = "1" };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal.Child1 = dependent;
                 principal.Child2 = dependent;
 
@@ -89,14 +101,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
                 if (graph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
-                var dependent = new ChildPN { Name = "1" };
+
+                var dependent = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal.Child1 = dependent;
-                var subDependent = new SubChildPN { Name = "1S" };
+                var subDependent = new SubChildPN
+                {
+                    Name = "1S"
+                };
                 dependent.SubChild = subDependent;
 
                 if (graph == null)
@@ -128,22 +150,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(entityState, context.Entry(principal).State);
+                    {
+                        Assert.Equal(entityState, context.Entry(principal).State);
 
-                            Assert.Same(dependent, principal.Child1);
-                            Assert.Null(principal.Child2);
-                            var dependentEntry = context.Entry(dependent);
-                            Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
-                            Assert.Equal(graph == null ? EntityState.Added : entityState, dependentEntry.State);
-                            Assert.Equal(nameof(ParentPN.Child1), dependentEntry.Metadata.DefiningNavigationName);
+                        Assert.Same(dependent, principal.Child1);
+                        Assert.Null(principal.Child2);
+                        var dependentEntry = context.Entry(dependent);
+                        Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
+                        Assert.Equal(graph == null ? EntityState.Added : entityState, dependentEntry.State);
+                        Assert.Equal(nameof(ParentPN.Child1), dependentEntry.Metadata.DefiningNavigationName);
 
-                            Assert.Same(subDependent, dependent.SubChild);
-                            var subDependentEntry = context.Entry(subDependent);
-                            Assert.Equal(principal.Id, subDependentEntry.Property("ChildId").CurrentValue);
-                            Assert.Equal(graph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                            Assert.Equal(nameof(ChildPN.SubChild), subDependentEntry.Metadata.DefiningNavigationName);
-                        });
+                        Assert.Same(subDependent, dependent.SubChild);
+                        var subDependentEntry = context.Entry(subDependent);
+                        Assert.Equal(principal.Id, subDependentEntry.Property("ChildId").CurrentValue);
+                        Assert.Equal(graph == null ? EntityState.Added : entityState, subDependentEntry.State);
+                        Assert.Equal(nameof(ChildPN.SubChild), subDependentEntry.Metadata.DefiningNavigationName);
+                    });
             }
         }
 
@@ -162,12 +184,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
+                var principal = new Parent
+                {
+                    Id = 77
+                };
                 if (graph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
-                var dependent = new Child { Name = "1", Parent = principal };
+
+                var dependent = new Child
+                {
+                    Name = "1",
+                    Parent = principal
+                };
                 principal.Child1 = dependent;
 
                 if (graph == null)
@@ -199,13 +229,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child1);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(graph == null ? EntityState.Added : entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child1);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(graph == null ? EntityState.Added : entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -224,12 +254,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
+                var principal = new Parent
+                {
+                    Id = 77
+                };
                 if (graph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
-                var dependent = new Child { Name = "1" };
+
+                var dependent = new Child
+                {
+                    Name = "1"
+                };
                 principal.Child1 = dependent;
 
                 if (graph == null)
@@ -261,13 +298,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child1);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(graph == null ? EntityState.Added : entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(dependent, principal.Child1);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(graph == null ? EntityState.Added : entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -276,8 +313,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Name = "1" };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal.Child1 = dependent;
 
                 await context.AddAsync(principal);
@@ -288,12 +331,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child1);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(dependent, principal.Child1);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -305,8 +348,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Name = "1" };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal.Child1 = dependent;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
@@ -338,8 +387,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent = new Child { Name = "1", Parent = principal };
+                var principal = new Parent
+                {
+                    Id = 77
+                };
+                var dependent = new Child
+                {
+                    Name = "1",
+                    Parent = principal
+                };
                 principal.Child2 = dependent;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
@@ -372,10 +428,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
-                var dependent1 = new ChildPN { Name = "1" };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var dependent1 = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal.Child1 = dependent1;
-                var dependent2 = new ChildPN { Name = "2" };
+                var dependent2 = new ChildPN
+                {
+                    Name = "2"
+                };
                 principal.Child2 = dependent2;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
@@ -394,14 +459,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(principal.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependent1Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Equal(entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                Assert.Equal(
+                    entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
                 var dependent2Entry = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
                 Assert.Equal(principal.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependent2Entry.State);
                 Assert.Equal(nameof(Parent.Child2), dependent2Entry.Metadata.DefiningNavigationName);
-                Assert.Equal(entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                Assert.Equal(
+                    entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
                 dependent1Entry.GetInfrastructure().AcceptChanges();
@@ -419,10 +486,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent { Id = 77 };
-                var dependent1 = new Child { Name = "1", Parent = principal };
+                var principal = new Parent
+                {
+                    Id = 77
+                };
+                var dependent1 = new Child
+                {
+                    Name = "1",
+                    Parent = principal
+                };
                 principal.Child1 = dependent1;
-                var dependent2 = new Child { Name = "2", Parent = principal };
+                var dependent2 = new Child
+                {
+                    Name = "2",
+                    Parent = principal
+                };
                 principal.Child2 = dependent2;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
@@ -443,14 +521,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(principal.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependent1Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Equal(entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                Assert.Equal(
+                    entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
                 var dependent2Entry = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
                 Assert.Equal(principal.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependent2Entry.State);
                 Assert.Equal(nameof(Parent.Child2), dependent2Entry.Metadata.DefiningNavigationName);
-                Assert.Equal(entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                Assert.Equal(
+                    entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
                 dependent1Entry.GetInfrastructure().AcceptChanges();
@@ -468,9 +548,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN { Id = 77 };
-                var principal2 = new ParentPN { Id = 78 };
-                var dependent = new ChildPN { Name = "1" };
+                var principal1 = new ParentPN
+                {
+                    Id = 77
+                };
+                var principal2 = new ParentPN
+                {
+                    Id = 78
+                };
+                var dependent = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal1.Child1 = dependent;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -515,9 +604,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent { Id = 77 };
-                var principal2 = new Parent { Id = 78 };
-                var dependent = new Child { Name = "1" };
+                var principal1 = new Parent
+                {
+                    Id = 77
+                };
+                var principal2 = new Parent
+                {
+                    Id = 78
+                };
+                var dependent = new Child
+                {
+                    Name = "1"
+                };
                 principal1.Child1 = dependent;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -563,11 +661,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN { Id = 77 };
-                var principal2 = new ParentPN { Id = 78 };
-                var dependent1 = new ChildPN { Name = "1" };
+                var principal1 = new ParentPN
+                {
+                    Id = 77
+                };
+                var principal2 = new ParentPN
+                {
+                    Id = 78
+                };
+                var dependent1 = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal1.Child1 = dependent1;
-                var dependent2 = new ChildPN { Name = "2" };
+                var dependent2 = new ChildPN
+                {
+                    Name = "2"
+                };
                 principal2.Child1 = dependent2;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -579,8 +689,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (entityState != EntityState.Added)
                 {
                     Assert.Equal(
-                        CoreStrings.KeyReadOnly("ParentId",
-                        context.Entry(principal1).Reference(p => p.Child1).Metadata.GetTargetType().DisplayName()),
+                        CoreStrings.KeyReadOnly(
+                            "ParentId",
+                            context.Entry(principal1).Reference(p => p.Child1).Metadata.GetTargetType().DisplayName()),
                         Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 }
                 else
@@ -614,11 +725,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent { Id = 77 };
-                var principal2 = new Parent { Id = 78 };
-                var dependent1 = new Child { Name = "1" };
+                var principal1 = new Parent
+                {
+                    Id = 77
+                };
+                var principal2 = new Parent
+                {
+                    Id = 78
+                };
+                var dependent1 = new Child
+                {
+                    Name = "1"
+                };
                 principal1.Child1 = dependent1;
-                var dependent2 = new Child { Name = "2" };
+                var dependent2 = new Child
+                {
+                    Name = "2"
+                };
                 principal2.Child1 = dependent2;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -630,7 +753,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (entityState != EntityState.Added)
                 {
                     Assert.Equal(
-                        CoreStrings.KeyReadOnly("ParentId",
+                        CoreStrings.KeyReadOnly(
+                            "ParentId",
                             context.Entry(principal1).Reference(p => p.Child1).Metadata.GetTargetType().DisplayName()),
                         Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 }
@@ -667,9 +791,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN { Id = 77 };
-                var principal2 = new ParentPN { Id = 78 };
-                var dependent = new ChildPN { Name = "1" };
+                var principal1 = new ParentPN
+                {
+                    Id = 77
+                };
+                var principal2 = new ParentPN
+                {
+                    Id = 78
+                };
+                var dependent = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal1.Child2 = dependent;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -705,9 +838,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent { Id = 77 };
-                var principal2 = new Parent { Id = 78 };
-                var dependent = new Child { Name = "1", Parent = principal1 };
+                var principal1 = new Parent
+                {
+                    Id = 77
+                };
+                var principal2 = new Parent
+                {
+                    Id = 78
+                };
+                var dependent = new Child
+                {
+                    Name = "1",
+                    Parent = principal1
+                };
                 principal1.Child2 = dependent;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -744,11 +887,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN { Id = 77 };
-                var principal2 = new ParentPN { Id = 78 };
-                var dependent1 = new ChildPN { Name = "1" };
+                var principal1 = new ParentPN
+                {
+                    Id = 77
+                };
+                var principal2 = new ParentPN
+                {
+                    Id = 78
+                };
+                var dependent1 = new ChildPN
+                {
+                    Name = "1"
+                };
                 principal1.Child2 = dependent1;
-                var dependent2 = new ChildPN { Name = "2" };
+                var dependent2 = new ChildPN
+                {
+                    Name = "2"
+                };
                 principal2.Child1 = dependent2;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -771,14 +926,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(EntityState.Added, dependent1Entry.State);
                 Assert.Equal(principal1.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(nameof(Parent.Child2), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Equal(entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                Assert.Equal(
+                    entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
                 var dependent2Entry = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
                 Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependent2Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent2Entry.Metadata.DefiningNavigationName);
-                Assert.Equal(entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                Assert.Equal(
+                    entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
                 dependent1Entry.GetInfrastructure().AcceptChanges();
@@ -796,16 +953,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent { Id = 77 };
-                var principal2 = new Parent { Id = 78 };
-                var dependent1 = new Child { Name = "1", Parent = principal1 };
+                var principal1 = new Parent
+                {
+                    Id = 77
+                };
+                var principal2 = new Parent
+                {
+                    Id = 78
+                };
+                var dependent1 = new Child
+                {
+                    Name = "1",
+                    Parent = principal1
+                };
                 principal1.Child2 = dependent1;
-                var dependent2 = new Child { Name = "2" };
+                var dependent2 = new Child
+                {
+                    Name = "2"
+                };
                 principal2.Child1 = dependent2;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
                 context.ChangeTracker.TrackGraph(principal2, e => e.Entry.State = entityState);
-
 
                 principal2.Child1 = dependent1;
                 principal1.Child2 = dependent2;
@@ -826,14 +995,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(EntityState.Added, dependent1Entry.State);
                 Assert.Equal(principal1.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(nameof(Parent.Child2), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Equal(entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                Assert.Equal(
+                    entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
                 var dependent2Entry = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
                 Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependent2Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent2Entry.Metadata.DefiningNavigationName);
-                Assert.Equal(entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                Assert.Equal(
+                    entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
                 dependent1Entry.GetInfrastructure().AcceptChanges();
@@ -977,59 +1148,59 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 modelBuilder.Entity<Parent>(
                     pb =>
-                        {
-                            pb.Property(p => p.Id).ValueGeneratedNever();
-                            pb.OwnsOne(
-                                p => p.Child1, cb =>
+                    {
+                        pb.Property(p => p.Id).ValueGeneratedNever();
+                        pb.OwnsOne(
+                            p => p.Child1, cb =>
+                            {
+                                cb.Property<int?>("ParentId");
+                                cb.HasForeignKey("ParentId");
+                                cb.HasOne(c => c.Parent)
+                                    .WithOne(p => p.Child1);
+                                cb.OwnsOne(
+                                    c => c.SubChild, scb =>
                                     {
-                                        cb.Property<int?>("ParentId");
-                                        cb.HasForeignKey("ParentId");
-                                        cb.HasOne(c => c.Parent)
-                                            .WithOne(p => p.Child1);
-                                        cb.OwnsOne(
-                                            c => c.SubChild, scb =>
-                                                {
-                                                    scb.HasForeignKey("ChildId");
-                                                    scb.HasOne(sc => sc.Child)
-                                                        .WithOne(c => c.SubChild);
-                                                });
+                                        scb.HasForeignKey("ChildId");
+                                        scb.HasOne(sc => sc.Child)
+                                            .WithOne(c => c.SubChild);
                                     });
-                            pb.OwnsOne(
-                                p => p.Child2, cb =>
+                            });
+                        pb.OwnsOne(
+                            p => p.Child2, cb =>
+                            {
+                                cb.Property<int?>("ParentId");
+                                cb.HasForeignKey("ParentId");
+                                cb.HasOne(c => c.Parent)
+                                    .WithOne(p => p.Child2);
+                                cb.OwnsOne(
+                                    c => c.SubChild, scb =>
                                     {
-                                        cb.Property<int?>("ParentId");
-                                        cb.HasForeignKey("ParentId");
-                                        cb.HasOne(c => c.Parent)
-                                            .WithOne(p => p.Child2);
-                                        cb.OwnsOne(
-                                            c => c.SubChild, scb =>
-                                                {
-                                                    scb.HasForeignKey("ChildId");
-                                                    scb.HasOne(sc => sc.Child)
-                                                        .WithOne(c => c.SubChild);
-                                                });
+                                        scb.HasForeignKey("ChildId");
+                                        scb.HasOne(sc => sc.Child)
+                                            .WithOne(c => c.SubChild);
                                     });
-                        });
+                            });
+                    });
 
                 modelBuilder.Entity<ParentPN>(
                     pb =>
-                        {
-                            pb.Property(p => p.Id).ValueGeneratedNever();
-                            pb.OwnsOne(
-                                p => p.Child1, cb =>
-                                    {
-                                        cb.Property<int?>("ParentId");
-                                        cb.HasForeignKey("ParentId");
-                                        cb.OwnsOne(c => c.SubChild, scb => { scb.HasForeignKey("ChildId"); });
-                                    });
-                            pb.OwnsOne(
-                                p => p.Child2, cb =>
-                                    {
-                                        cb.Property<int?>("ParentId");
-                                        cb.HasForeignKey("ParentId");
-                                        cb.OwnsOne(c => c.SubChild, scb => { scb.HasForeignKey("ChildId"); });
-                                    });
-                        });
+                    {
+                        pb.Property(p => p.Id).ValueGeneratedNever();
+                        pb.OwnsOne(
+                            p => p.Child1, cb =>
+                            {
+                                cb.Property<int?>("ParentId");
+                                cb.HasForeignKey("ParentId");
+                                cb.OwnsOne(c => c.SubChild, scb => scb.HasForeignKey("ChildId"));
+                            });
+                        pb.OwnsOne(
+                            p => p.Child2, cb =>
+                            {
+                                cb.Property<int?>("ParentId");
+                                cb.HasForeignKey("ParentId");
+                                cb.OwnsOne(c => c.SubChild, scb => scb.HasForeignKey("ChildId"));
+                            });
+                    });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

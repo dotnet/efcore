@@ -26,14 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class RequiresMaterializationExpressionVisitor : ExpressionVisitorBase
     {
         private static readonly ISet<Type> _aggregateResultOperators = new HashSet<Type>
-            {
-                typeof(AverageResultOperator),
-                typeof(CountResultOperator),
-                typeof(LongCountResultOperator),
-                typeof(MaxResultOperator),
-                typeof(MinResultOperator),
-                typeof(SumResultOperator)
-            };
+        {
+            typeof(AverageResultOperator),
+            typeof(CountResultOperator),
+            typeof(LongCountResultOperator),
+            typeof(MaxResultOperator),
+            typeof(MinResultOperator),
+            typeof(SumResultOperator)
+        };
 
         private readonly IModel _model;
         private readonly EntityQueryModelVisitor _queryModelVisitor;
@@ -143,12 +143,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     _queryModelVisitor.BindMemberExpression(
                         node, (property, querySource) =>
+                        {
+                            if (querySource != null)
                             {
-                                if (querySource != null)
-                                {
-                                    DemoteQuerySource(querySource);
-                                }
-                            });
+                                DemoteQuerySource(querySource);
+                            }
+                        });
                 }
             }
 
@@ -165,12 +165,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             _queryModelVisitor.BindMethodCallExpression(
                 node, (property, querySource) =>
+                {
+                    if (querySource != null)
                     {
-                        if (querySource != null)
-                        {
-                            DemoteQuerySource(querySource);
-                        }
-                    });
+                        DemoteQuerySource(querySource);
+                    }
+                });
 
             if (AnonymousObject.IsGetValueExpression(node, out var querySourceReferenceExpression))
             {
@@ -272,18 +272,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var groupResultOperator
                     = (GroupResultOperator)
-                        ((SubQueryExpression)
-                            ((FromClauseBase)queryModel.MainFromClause.FromExpression.TryGetReferencedQuerySource())
+                    ((SubQueryExpression)
+                        ((FromClauseBase)queryModel.MainFromClause.FromExpression.TryGetReferencedQuerySource())
                         .FromExpression)
-                        .QueryModel.ResultOperators.Last();
+                    .QueryModel.ResultOperators.Last();
 
-                var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                MemberAccessBindingExpressionVisitor.GetPropertyPath(
                     queryModel.SelectClause.Selector, _queryModelVisitor.QueryCompilationContext, out var qsre);
 
                 if (qsre != null
                     || queryModel.SelectClause.Selector.RemoveConvert() is ConstantExpression
-                    || groupResultOperator.ElementSelector is MemberInitExpression
-                    || groupResultOperator.ElementSelector is NewExpression)
+                    || groupResultOperator.ElementSelector.NodeType == ExpressionType.New
+                    || groupResultOperator.ElementSelector.NodeType == ExpressionType.MemberInit)
                 {
                     return true;
                 }
@@ -393,6 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             yield return querySource;
                         }
                     }
+
                     break;
 
                 case MemberInitExpression memberInitExpression:
@@ -406,6 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             }
                         }
                     }
+
                     break;
             }
         }
@@ -502,7 +504,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 // re-promoted later if necessary.
 
                 // For top-level Contains we cannot translate it since Item is not Expression
-                if (!isSubQuery && finalResultOperator is ContainsResultOperator containsResultOperator)
+                if (!isSubQuery
+                    && finalResultOperator is ContainsResultOperator containsResultOperator)
                 {
                     return;
                 }

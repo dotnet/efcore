@@ -31,5 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Throws<InvalidOperationException>(
                     () => base.Discriminator_with_cast_in_shadow_property()).Message);
         }
+
+        [Fact(Skip = "See issue#13857")]
+        public override void Can_query_all_animal_views()
+        {
+            base.Can_query_all_animal_views();
+        }
     }
 }

@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             string name,
             string scriptPath = null,
             bool shared = true)
-            : base(name, shared)
+            : base(name.Substring(0, Math.Min(name.Length, 30)), shared)
         {
             if (scriptPath != null)
             {
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 return ExecuteScalar<int>(
                            connection,
-                           $@"SELECT COUNT(*) FROM all_users WHERE username = '{name.ToUpperInvariant()}'") > 0;
+                           $"SELECT COUNT(*) FROM all_users WHERE username = '{name.ToUpperInvariant()}'") > 0;
             }
         }
 
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var oracleConnectionStringBuilder = new OracleConnectionStringBuilder
             {
-                DataSource = "//efci:1521/ef.redmond.corp.microsoft.com",
+                DataSource = "//localhost:1521/ef.localdomain",
                 UserID = user,
                 Password = user
             };

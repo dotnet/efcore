@@ -55,53 +55,52 @@ namespace Microsoft.EntityFrameworkCore
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options);
             var model = CreateModel();
-            var creator = new InMemoryDatabaseCreator(
-                contextServices.GetRequiredService<StateManagerDependencies>().With(model),
-                contextServices.GetRequiredService<IInMemoryDatabase>());
-            return creator;
+            return new InMemoryDatabaseCreator(
+                contextServices.GetRequiredService<StateManagerDependencies>().With(model));
         }
 
         [Fact]
-        public async Task EnsureDeleted_clears_all_in_memory_data_and_returns_true()
+        public Task EnsureDeleted_clears_all_in_memory_data_and_returns_true()
         {
-            await Delete_clears_all_in_memory_data_test(async: false);
+            return Delete_clears_all_in_memory_data_test(async: false);
         }
 
         [Fact]
-        public async Task EnsureDeletedAsync_clears_all_in_memory_data_and_returns_true()
+        public Task EnsureDeletedAsync_clears_all_in_memory_data_and_returns_true()
         {
-            await Delete_clears_all_in_memory_data_test(async: true);
+            return Delete_clears_all_in_memory_data_test(async: true);
         }
 
         private static async Task Delete_clears_all_in_memory_data_test(bool async)
         {
             using (var context = new FraggleContext())
             {
-                context.Fraggles.AddRange(new Fraggle
-                {
-                    Id = 1,
-                    Name = "Gobo"
-                }, new Fraggle
-                {
-                    Id = 2,
-                    Name = "Monkey"
-                }, new Fraggle
-                {
-                    Id = 3,
-                    Name = "Red"
-                }, new Fraggle
-                {
-                    Id = 4,
-                    Name = "Wembley"
-                }, new Fraggle
-                {
-                    Id = 5,
-                    Name = "Boober"
-                }, new Fraggle
-                {
-                    Id = 6,
-                    Name = "Uncle Traveling Matt"
-                });
+                context.Fraggles.AddRange(
+                    new Fraggle
+                    {
+                        Id = 1,
+                        Name = "Gobo"
+                    }, new Fraggle
+                    {
+                        Id = 2,
+                        Name = "Monkey"
+                    }, new Fraggle
+                    {
+                        Id = 3,
+                        Name = "Red"
+                    }, new Fraggle
+                    {
+                        Id = 4,
+                        Name = "Wembley"
+                    }, new Fraggle
+                    {
+                        Id = 5,
+                        Name = "Boober"
+                    }, new Fraggle
+                    {
+                        Id = 6,
+                        Name = "Uncle Traveling Matt"
+                    });
 
                 await context.SaveChangesAsync();
             }
@@ -160,6 +159,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     b.HasKey(c => c.Id);
                     b.Property(c => c.Name);
+
+                    b.HasData(new Test { Id = 1 });
                 });
 
             return modelBuilder.Model;

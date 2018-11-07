@@ -180,7 +180,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             command.AddEntry(entry);
 
             var connection = CreateConnection(
-                CreateFakeDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }));
+                CreateFakeDataReader(
+                    new[] { "Col1" }, new List<object[]>
+                    {
+                        new object[] { 42 }
+                    }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -202,7 +206,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             command.AddEntry(entry);
 
             var connection = CreateConnection(
-                CreateFakeDataReader(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } }));
+                CreateFakeDataReader(
+                    new[] { "Col1", "Col2" }, new List<object[]>
+                    {
+                        new object[] { 42, "FortyTwo" }
+                    }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -223,7 +231,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             command.AddEntry(entry);
 
             var connection = CreateConnection(
-                CreateFakeDataReader(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }));
+                CreateFakeDataReader(
+                    new[] { "Col2" }, new List<object[]>
+                    {
+                        new object[] { "FortyTwo" }
+                    }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -269,7 +281,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             command.AddEntry(entry);
 
             var connection = CreateConnection(
-                CreateFakeDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }));
+                CreateFakeDataReader(
+                    new[] { "Col1" }, new List<object[]>
+                    {
+                        new object[] { 42 }
+                    }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -527,12 +543,20 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null : "Test" });
+            return RelationalTestHelpers.Instance.CreateInternalEntry(
+                model, entityState, new T1
+                {
+                    Id = 1,
+                    Name = computeNonKeyValue ? null : "Test"
+                });
         }
 
         private static FakeDbDataReader CreateFakeDataReader(string[] columnNames = null, IList<object[]> results = null)
         {
-            results = results ?? new List<object[]> { new object[] { 1 } };
+            results = results ?? new List<object[]>
+            {
+                new object[] { 1 }
+            };
             columnNames = columnNames ?? new[] { "RowsAffected" };
 
             return new FakeDbDataReader(columnNames, results);
@@ -556,7 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new RelationalValueBufferFactoryDependencies(
                             new TestRelationalTypeMappingSource(
                                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))))
+                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                            new CoreSingletonOptions())))
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;

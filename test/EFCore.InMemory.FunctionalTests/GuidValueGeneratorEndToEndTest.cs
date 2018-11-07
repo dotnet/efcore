@@ -25,7 +25,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    guids.Add(context.Add(new Pegasus { Name = "Rainbow Dash " + i }).Entity.Id);
+                    guids.Add(
+                        context.Add(
+                            new Pegasus
+                            {
+                                Name = "Rainbow Dash " + i
+                            }).Entity.Id);
                     guidsHash.Add(guids.Last());
                 }
 

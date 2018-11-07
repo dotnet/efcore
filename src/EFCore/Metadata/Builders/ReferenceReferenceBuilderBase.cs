@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.
         /// </summary>
-        protected virtual InternalRelationshipBuilder Builder { get; [param:NotNull] set; }
+        protected virtual InternalRelationshipBuilder Builder { get; [param: NotNull] set; }
 
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.

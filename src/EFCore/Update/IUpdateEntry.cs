@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         TProperty GetOriginalValue<TProperty>([NotNull] IProperty property);
 
         /// <summary>
-        ///     Gets the value assigned to the property.
+        ///     Assign the given value to the property.
         /// </summary>
         /// <param name="propertyBase"> The property to set the value for. </param>
         /// <param name="value"> The value to set. </param>

@@ -55,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             for (; index < key.Properties.Count && key.Properties[index] != property; index++)
             {
             }
+
             return index == key.Properties.Count ? -1 : index;
         }
 

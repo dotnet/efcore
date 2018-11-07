@@ -18,9 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
         public class QueryFilterFuncletizationOracleFixture : QueryFilterFuncletizationRelationalFixture
         {
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;

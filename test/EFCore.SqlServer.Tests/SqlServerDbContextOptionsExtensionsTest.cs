@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDbContextOptionsExtensionsTest
@@ -96,5 +97,35 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(extension.RowNumberPaging.HasValue);
             Assert.True(extension.RowNumberPaging.Value);
         }
+
+        [Fact]
+        public void Can_add_extension_with_connection_stringbuilder_action_generic()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<SampleDbContext>();
+            optionsBuilder.UseSqlServer(csb =>
+            {
+                csb.DataSource = "Kilimanjaro";
+            });
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+            Assert.Equal("Data Source=Kilimanjaro;Initial Catalog=SampleDbContext;ConnectRetryCount=0", extension.ConnectionString);
+            Assert.Null(extension.Connection);
+        }
+
+        [Fact]
+        public void Can_add_extension_with_connection_stringbuilder_action()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(csb =>
+            {
+                csb.DataSource = "Kilimanjaro";
+            });
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+            Assert.Equal("Data Source=Kilimanjaro;ConnectRetryCount=0", extension.ConnectionString);
+            Assert.Null(extension.Connection);
+        }
+
+        private class SampleDbContext : DbContext { }
     }
 }

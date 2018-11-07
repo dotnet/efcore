@@ -67,6 +67,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     SqlServerAnnotationNames.Clustered,
                     isClustered.Value);
             }
+
+            var includeProperties = index.SqlServer().IncludeProperties;
+            if (includeProperties != null)
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.Include,
+                    includeProperties);
+            }
         }
 
         /// <summary>

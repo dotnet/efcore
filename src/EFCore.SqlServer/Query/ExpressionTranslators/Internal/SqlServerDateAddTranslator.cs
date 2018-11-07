@@ -48,16 +48,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             {
                 var amountToAdd = methodCallExpression.Arguments.First();
 
-                if (!datePart.Equals("year")
+                return !datePart.Equals("year")
                     && !datePart.Equals("month")
                     && amountToAdd is ConstantExpression constantExpression
                     && ((double)constantExpression.Value >= int.MaxValue
-                        || (double)constantExpression.Value <= int.MinValue))
-                {
-                    return null;
-                }
-
-                return new SqlFunctionExpression(
+                        || (double)constantExpression.Value <= int.MinValue)
+                    ? null
+                    : new SqlFunctionExpression(
                     functionName: "DATEADD",
                     returnType: methodCallExpression.Type,
                     arguments: new[]

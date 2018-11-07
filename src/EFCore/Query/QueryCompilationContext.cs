@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
@@ -115,8 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             correlatedSubqueryMetadata = null;
 
-            return _correlatedSubqueryMetadataMap != null
-                   && _correlatedSubqueryMetadataMap.TryGetValue(mainFromClause, out correlatedSubqueryMetadata);
+            return _correlatedSubqueryMetadataMap?.TryGetValue(mainFromClause, out correlatedSubqueryMetadata) == true;
         }
 
         /// <summary>
@@ -193,7 +193,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the entity type mapped to the given query source
         /// </summary>
         public virtual void AddOrUpdateMapping([NotNull] IQuerySource querySource, [NotNull] IEntityType entityType)
-            => _querySourceEntityTypeMapping[Check.NotNull(querySource, nameof(querySource))] = entityType;
+        {
+            if (entityType.ClrType.IsAssignableFrom(querySource.ItemType))
+            {
+                _querySourceEntityTypeMapping[Check.NotNull(querySource, nameof(querySource))] = entityType;
+            }
+        }
 
         /// <summary>
         ///     Updates the query source mappings to the new query sources
@@ -372,8 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var entityQueryable = (IQueryable)constantExpression.Value;
                     var entityType = _model.FindEntityType(entityQueryable.ElementType);
 
-                    if (entityType != null
-                        && !entityType.IsQueryType
+                    if (entityType?.IsQueryType == false
                         && (_referencedEntityTypes > 0
                             || entityType.GetDerivedTypesInclusive().Any(et => et.ShadowPropertyCount() > 0)))
                     {
@@ -460,12 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            if (_trackableIncludes == null)
-            {
-                return null;
-            }
-
-            return _trackableIncludes.TryGetValue(querySource, out var includes) ? includes : null;
+            return _trackableIncludes == null ? null : _trackableIncludes.TryGetValue(querySource, out var includes) ? includes : null;
         }
 
         /// <summary>

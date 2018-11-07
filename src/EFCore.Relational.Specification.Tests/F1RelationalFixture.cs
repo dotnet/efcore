@@ -1,20 +1,23 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class F1RelationalFixture : F1FixtureBase
     {
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w =>
+                w.Ignore(RelationalEventId.BatchSmallerThanMinBatchSize));
+
+        protected override void BuildModelExternal(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder, context);
+            base.BuildModelExternal(modelBuilder);
 
             modelBuilder.Entity<Chassis>().ToTable("Chassis");
             modelBuilder.Entity<Team>().ToTable("Teams").Property(e => e.Id).ValueGeneratedNever();

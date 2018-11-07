@@ -1,9 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
-using Xunit;
-
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ConvertToProviderTypesTestBase<TFixture> : BuiltInDataTypesTestBase<TFixture>
@@ -143,10 +140,10 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 modelBuilder.Entity<BinaryKeyDataType>(
-                    b => { b.Property(e => e.Id).HasConversion<string>(); });
+                    b => b.Property(e => e.Id).HasConversion<string>());
 
                 modelBuilder.Entity<StringKeyDataType>(
-                    b => { b.Property(e => e.Id).HasConversion<byte[]>(); });
+                    b => b.Property(e => e.Id).HasConversion<byte[]>());
 
                 modelBuilder.Entity<MaxLengthDataTypes>(
                     b =>
@@ -160,4 +157,3 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 }
-#endif

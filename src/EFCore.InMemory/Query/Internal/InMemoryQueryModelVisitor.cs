@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -37,14 +39,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(EntityQuery));
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static readonly MethodInfo OfTypeMethodInfo
-            = typeof(Enumerable).GetTypeInfo()
-                .GetDeclaredMethod(nameof(Enumerable.OfType));
-
         [UsedImplicitly]
         private static IEnumerable<TEntity> EntityQuery<TEntity>(
             QueryContext queryContext,
@@ -70,10 +64,31 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                             new MaterializationContext(
                                                 valueBuffer,
                                                 queryContext.Context),
-                                            c => materializer(t.EntityType, c)),
+                                            c => materializer(t.EntityType, SnapshotValueBuffer(t.EntityType, c))),
                                         queryStateManager,
                                         throwOnNullKey: false);
                             }));
+
+        private static MaterializationContext SnapshotValueBuffer(
+            IEntityType entityType,
+            MaterializationContext c)
+        {
+            var comparers = GetStructuralComparers(entityType.GetProperties());
+
+            var copy = new object[comparers.Count];
+            for (var index = 0; index < comparers.Count; index++)
+            {
+                copy[index] = SnapshotValue(comparers[index], c.ValueBuffer[index]);
+            }
+
+            return new MaterializationContext(new ValueBuffer(copy), c.Context);
+        }
+
+        private static object SnapshotValue(ValueComparer comparer, object value)
+            => comparer == null ? value : comparer.Snapshot(value);
+
+        private static List<ValueComparer> GetStructuralComparers(IEnumerable<IProperty> properties)
+            => properties.Select(p => p.GetStructuralValueComparer() ?? p.FindMapping()?.StructuralComparer).ToList();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

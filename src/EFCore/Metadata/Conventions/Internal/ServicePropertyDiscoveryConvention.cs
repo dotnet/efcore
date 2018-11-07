@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var propertyInfo in candidates)
             {
-                if (entityTypeBuilder.IsIgnored(propertyInfo.Name, ConfigurationSource.Convention)
+                if (entityTypeBuilder.IsIgnored(propertyInfo.GetSimpleMemberName(), ConfigurationSource.Convention)
                     || entityType.FindProperty(propertyInfo) != null
                     || entityType.FindNavigation(propertyInfo) != null
                     || !propertyInfo.IsCandidateProperty(publicOnly: false)
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                var factory = _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.Name);
+                var factory = _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName());
                 if (factory == null)
                 {
                     continue;
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 entityTypeBuilder.ServiceProperty(propertyInfo, ConfigurationSource.Convention)?.SetParameterBinding(
-                    (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.Name),
+                    (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()),
                     ConfigurationSource.Convention);
             }
 
@@ -141,9 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 var otherMember = duplicateServiceProperties.First();
-                var factory = _parameterBindingFactories.FindFactory(type, otherMember.Name);
+                var factory = _parameterBindingFactories.FindFactory(type, otherMember.GetSimpleMemberName());
                 entityType.Builder.ServiceProperty(otherMember, ConfigurationSource.Convention)?.SetParameterBinding(
-                    (ServiceParameterBinding)factory.Bind(entityType, type, otherMember.Name),
+                    (ServiceParameterBinding)factory.Bind(entityType, type, otherMember.GetSimpleMemberName()),
                     ConfigurationSource.Convention);
                 duplicateMap.Remove(type);
                 if (duplicateMap.Count == 0)
@@ -175,13 +175,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     foreach (var duplicateServiceProperty in duplicateServiceProperties)
                     {
-                        if (entityType.FindProperty(duplicateServiceProperty.Name) == null
-                            && entityType.FindNavigation(duplicateServiceProperty.Name) == null)
+                        if (entityType.FindProperty(duplicateServiceProperty.GetSimpleMemberName()) == null
+                            && entityType.FindNavigation(duplicateServiceProperty.GetSimpleMemberName()) == null)
                         {
-                            throw new InvalidOperationException(CoreStrings.AmbiguousServiceProperty(
-                                duplicateServiceProperty.Name,
-                                duplicateServiceProperty.GetMemberType().ShortDisplayName(),
-                                entityType.DisplayName()));
+                            throw new InvalidOperationException(
+                                CoreStrings.AmbiguousServiceProperty(
+                                    duplicateServiceProperty.Name,
+                                    duplicateServiceProperty.GetMemberType().ShortDisplayName(),
+                                    entityType.DisplayName()));
                         }
                     }
                 }

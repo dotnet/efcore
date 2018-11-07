@@ -2,19 +2,20 @@
 
   <PropertyGroup>
     <Description>Shared test suite for Entity Framework Core database providers.</Description>
-    <TargetFrameworks>netcoreapp2.0;net461;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net461;netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Specification.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <EnableApiCheck>false</EnableApiCheck>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">
-   <DefineConstants>$(DefineConstants);Test20</DefineConstants>
+
+  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
+   <DefineConstants>$(DefineConstants);Test21</DefineConstants>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore\EFCore.csproj" />
     <ProjectReference Include="..\EFCore.Proxies\EFCore.Proxies.csproj" />
@@ -26,8 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Using xunit.core and xunit.assert instead of 'xunit', which would force consumers to use xunit.analyzers. -->
-    <PackageReference Include="xunit.core" Version="$(XunitCorePackageVersion)" />
+    <PackageReference Include="NetTopologySuite.Core" Version="$(NetTopologySuiteCorePackageVersion)" />
+    <!-- Using xunit.extensibility.execution and xunit.assert instead of 'xunit', which would force consumers to use xunit.analyzers. -->
+    <PackageReference Include="xunit.extensibility.execution" Version="$(XunitExtensibilityExecutionPackageVersion)" />
     <PackageReference Include="xunit.assert" Version="$(XunitAssertPackageVersion)" />
   </ItemGroup>
 

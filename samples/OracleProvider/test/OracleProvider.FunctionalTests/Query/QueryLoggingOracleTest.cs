@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryLoggingOracleTest : IClassFixture<IncludeOracleFixture>
     {
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         public QueryLoggingOracleTest(IncludeOracleFixture fixture)
         {
@@ -33,16 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"    Compiling query model: " + EOL +
-                    @"'from Customer <generated>_0 in DbSet<Customer>" + EOL +
-                    @"select [<generated>_0]'" + EOL +
-                    @"    Optimized query model: " + EOL +
-                    @"'from Customer <generated>_0 in DbSet<Customer>",
-                    Fixture.TestSqlLoggerFactory.Log);
+                    "Compiling query model: " + _eol +
+                    "'from Customer <generated>_0 in DbSet<Customer>" + _eol +
+                    "select [<generated>_0]'" + _eol +
+                    "Optimized query model: " + _eol +
+                    "'from Customer <generated>_0 in DbSet<Customer>",
+                    string.Join(_eol, Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message)));
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #13029")]
         public virtual void Queryable_with_parameter_outputs_parameter_value_logging_warning()
         {
             using (var context = CreateContext())
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Contains(CoreStrings.LogSensitiveDataLoggingEnabled.GenerateMessage(), Fixture.TestSqlLoggerFactory.Log);
+                Assert.Contains(CoreStrings.LogSensitiveDataLoggingEnabled.GenerateMessage(), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log);
+                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
 
@@ -88,14 +88,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"    Compiling query model: " + EOL +
-                    @"'(from Customer c in DbSet<Customer>" + EOL +
-                    @"select [c]).Include(""Orders"")'" + EOL +
-                    @"    Including navigation: '[c].Orders'" + EOL +
-                    @"    Optimized query model: " + EOL +
-                    @"'from Customer c in DbSet<Customer>"
+                    "Compiling query model: " + _eol +
+                    "'(from Customer c in DbSet<Customer>" + _eol +
+                    @"select [c]).Include(""Orders"")'" + _eol +
+                    "Including navigation: '[c].Orders'" + _eol +
+                    "Optimized query model: " + _eol +
+                    "'from Customer c in DbSet<Customer>"
                     ,
-                    Fixture.TestSqlLoggerFactory.Log);
+                    string.Join(_eol, Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message)));
             }
         }
 

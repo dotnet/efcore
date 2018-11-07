@@ -60,6 +60,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IInMemoryStore GetStore(string name)
-            => _namedStores.GetOrAdd(name, n => new InMemoryStore(_tableFactory, _useNameMatching));
+            => _namedStores.GetOrAdd(name, _ => new InMemoryStore(_tableFactory, _useNameMatching));
     }
 }

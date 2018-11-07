@@ -9,12 +9,15 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable InconsistentNaming
@@ -302,12 +305,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilderSecond.Metadata.GetNavigations());
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
 
-            Assert.Equal(LogLevel.Debug, Log[0].Level);
-            Assert.Equal(CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
-                nameof(MultipleNavigationsSecond),
-                nameof(MultipleNavigationsFirst),
-                "{'MultipleNavigationsFirst'}" ,
-                "{'MultipleNavigationsSecond', 'MultipleNavigationsSeconds'}"), Log[0].Message);
+            var logEntry = ListLoggerFactory.Log[0];
+            Assert.Equal(LogLevel.Debug, logEntry.Level);
+            Assert.Equal(
+                CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
+                    nameof(MultipleNavigationsSecond),
+                    nameof(MultipleNavigationsFirst),
+                    "{'MultipleNavigationsFirst'}",
+                    "{'MultipleNavigationsSecond', 'MultipleNavigationsSeconds'}"), logEntry.Message);
         }
 
         [Fact]
@@ -838,9 +843,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetNavigations());
             Assert.Empty(entityBuilder.Metadata.GetProperties());
 
-            Assert.Equal(LogLevel.Debug, Log[0].Level);
-            Assert.Equal(CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
-                nameof(SelfRef), nameof(SelfRef), "{'SelfRef1'}", "{'SelfRef2', 'SelfRef3', 'SelfRef4'}"), Log[0].Message);
+            var logEntry = ListLoggerFactory.Log[0];
+            Assert.Equal(LogLevel.Debug, logEntry.Level);
+            Assert.Equal(
+                CoreStrings.LogMultipleNavigationProperties.GenerateMessage(
+                    nameof(SelfRef), nameof(SelfRef), "{'SelfRef1'}", "{'SelfRef2', 'SelfRef3', 'SelfRef4'}"), logEntry.Message);
         }
 
         [Fact]
@@ -900,8 +907,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetNavigations());
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
-        public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
-            = new List<(LogLevel, EventId, string)>();
+
+        public ListLoggerFactory ListLoggerFactory { get; }
+            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
 
         private static IMemberClassifier CreateMemberClassifier()
             => new MemberClassifier(
@@ -913,7 +921,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
             var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
-                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"));
             return modelLogger;
@@ -933,6 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 set { }
             }
 
+            // ReSharper disable once UnusedParameter.Local
             public OneToManyDependent this[int index]
             {
                 get => null;
@@ -1041,6 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 conventions.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
                 conventions.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
             }
+
             var modelBuilder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.DataAnnotation);
 

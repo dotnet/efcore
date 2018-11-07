@@ -168,10 +168,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.SetCategoryId(principal.Id);
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.SetCategory(principal);
                 }
+
                 if (setToDependent)
                 {
                     principal.AddProduct(dependent);
@@ -181,6 +183,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     context.Entry(principal).State = entityState;
                 }
+
                 context.Entry(dependent).State = entityState;
                 if (!principalFirst)
                 {
@@ -190,13 +193,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }, principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }, principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -259,12 +262,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
+                var principal = new CategoryPN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductPN
+                {
+                    Id = 78
+                };
                 if (setFk)
                 {
                     dependent.CategoryId = principal.Id;
                 }
+
                 if (setToDependent)
                 {
                     principal.Products.Add(dependent);
@@ -274,6 +284,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     context.Entry(principal).State = entityState;
                 }
+
                 context.Entry(dependent).State = entityState;
                 if (!principalFirst)
                 {
@@ -283,12 +294,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }, principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Equal(new[] { dependent }, principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -351,12 +362,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78 };
+                var principal = new CategoryDN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductDN
+                {
+                    Id = 78
+                };
                 if (setFk)
                 {
                     dependent.CategoryId = principal.Id;
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.Category = principal;
@@ -366,6 +384,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     context.Entry(principal).State = entityState;
                 }
+
                 context.Entry(dependent).State = entityState;
                 if (!principalFirst)
                 {
@@ -375,12 +394,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -392,8 +411,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryNN { Id = 77 };
-                var dependent = new ProductNN { Id = 78, CategoryId = principal.Id };
+                var principal = new CategoryNN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductNN
+                {
+                    Id = 78,
+                    CategoryId = principal.Id
+                };
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -401,11 +427,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -417,8 +443,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryNN { Id = 77 };
-                var dependent = new ProductNN { Id = 78, CategoryId = principal.Id };
+                var principal = new CategoryNN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductNN
+                {
+                    Id = 78,
+                    CategoryId = principal.Id
+                };
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -426,11 +459,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -585,10 +618,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.SetParentId(principal.Id);
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.SetParent(principal);
                 }
+
                 if (setToDependent)
                 {
                     principal.SetChild(dependent);
@@ -598,6 +633,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     context.Entry(principal).State = entityState;
                 }
+
                 context.Entry(dependent).State = entityState;
                 if (!principalFirst)
                 {
@@ -607,13 +643,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -676,13 +712,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildPN
+                {
+                    Id = 78
+                };
 
                 if (setFk)
                 {
                     dependent.ParentId = principal.Id;
                 }
+
                 if (setToDependent)
                 {
                     principal.Child = dependent;
@@ -703,12 +746,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -777,13 +820,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78 };
+                var principal = new ParentDN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildDN
+                {
+                    Id = 78
+                };
 
                 if (setFk)
                 {
                     dependent.ParentId = principal.Id;
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.Parent = principal;
@@ -804,12 +854,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -821,8 +871,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN { Id = 77 };
-                var dependent = new ChildNN { Id = 78, ParentId = principal.Id };
+                var principal = new ParentNN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildNN
+                {
+                    Id = 78,
+                    ParentId = principal.Id
+                };
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -830,11 +887,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -846,8 +903,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN { Id = 77 };
-                var dependent = new ChildNN { Id = 78, ParentId = principal.Id };
+                var principal = new ParentNN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildNN
+                {
+                    Id = 78,
+                    ParentId = principal.Id
+                };
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -855,11 +919,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -940,10 +1004,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.SetCategoryId(principal.Id);
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.SetCategory(principal);
                 }
+
                 if (setToDependent)
                 {
                     principal.AddProduct(dependent);
@@ -954,14 +1020,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(setToPrincipal || setFk ? principal.Id : 0, dependent.CategoryId);
-                            Assert.Same(setToPrincipal ? principal : null, dependent.Category);
-                            Assert.Equal(setToPrincipal || setToDependent ? new[] { dependent } : null, principal.Products);
-                            Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
-                            Assert.Equal(entityState == EntityState.Unchanged && (setToPrincipal || setFk) ? EntityState.Modified : entityState,
-                                context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(setToPrincipal || setFk ? principal.Id : 0, dependent.CategoryId);
+                        Assert.Same(setToPrincipal ? principal : null, dependent.Category);
+                        Assert.Equal(setToPrincipal || setToDependent ? new[] { dependent } : null, principal.Products);
+                        Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(
+                            entityState == EntityState.Unchanged && (setToPrincipal || setFk) ? EntityState.Modified : entityState,
+                            context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1042,10 +1109,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.SetCategoryId(principal.Id);
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.SetCategory(principal);
                 }
+
                 if (setToDependent)
                 {
                     principal.AddProduct(dependent);
@@ -1056,13 +1125,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(setToDependent || setFk ? principal.Id : 0, dependent.CategoryId);
-                            Assert.Same(setToDependent || setToPrincipal ? principal : null, dependent.Category);
-                            Assert.Equal(setToDependent ? new[] { dependent } : null, principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(setToDependent || setFk ? principal.Id : 0, dependent.CategoryId);
+                        Assert.Same(setToDependent || setToPrincipal ? principal : null, dependent.Category);
+                        Assert.Equal(setToDependent ? new[] { dependent } : null, principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1097,8 +1166,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
+                var principal = new CategoryPN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductPN
+                {
+                    Id = 78
+                };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1106,6 +1181,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.CategoryId = principal.Id;
                 }
+
                 if (setToDependent)
                 {
                     principal.Products.Add(dependent);
@@ -1116,13 +1192,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(setFk ? principal.Id : 0, dependent.CategoryId);
-                            Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
-                            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
-                            Assert.Equal(entityState == EntityState.Unchanged && setFk ? EntityState.Modified : entityState,
-                                context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(setFk ? principal.Id : 0, dependent.CategoryId);
+                        Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
+                        Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(
+                            entityState == EntityState.Unchanged && setFk ? EntityState.Modified : entityState,
+                            context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1157,8 +1234,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78 };
+                var principal = new CategoryPN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductPN
+                {
+                    Id = 78
+                };
 
                 context.Entry(principal).State = entityState;
 
@@ -1166,6 +1249,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.CategoryId = principal.Id;
                 }
+
                 if (setToDependent)
                 {
                     principal.Products.Add(dependent);
@@ -1176,12 +1260,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1216,8 +1300,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78 };
+                var principal = new CategoryDN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductDN
+                {
+                    Id = 78
+                };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1225,6 +1315,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.CategoryId = principal.Id;
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.Category = principal;
@@ -1235,13 +1326,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(setToPrincipal ? principal : null, dependent.Category);
-                            Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
-                            Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
-                                context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(setToPrincipal ? principal : null, dependent.Category);
+                        Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(
+                            entityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                            context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1276,8 +1368,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryDN { Id = 77 };
-                var dependent = new ProductDN { Id = 78 };
+                var principal = new CategoryDN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductDN
+                {
+                    Id = 78
+                };
 
                 context.Entry(principal).State = entityState;
 
@@ -1285,6 +1383,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.CategoryId = principal.Id;
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.Category = principal;
@@ -1295,12 +1394,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(setFk ? principal.Id : 0, dependent.CategoryId);
-                            Assert.Same(setToPrincipal ? principal : null, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(setFk ? principal.Id : 0, dependent.CategoryId);
+                        Assert.Same(setToPrincipal ? principal : null, dependent.Category);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1312,8 +1411,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryNN { Id = 77 };
-                var dependent = new ProductNN { Id = 78 };
+                var principal = new CategoryNN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductNN
+                {
+                    Id = 78
+                };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1324,11 +1429,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
-                            Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1340,8 +1445,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryNN { Id = 77 };
-                var dependent = new ProductNN { Id = 78 };
+                var principal = new CategoryNN
+                {
+                    Id = 77
+                };
+                var dependent = new ProductNN
+                {
+                    Id = 78
+                };
 
                 context.Entry(principal).State = entityState;
 
@@ -1352,11 +1463,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1437,10 +1548,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.SetParentId(principal.Id);
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.SetParent(principal);
                 }
+
                 if (setToDependent)
                 {
                     principal.SetChild(dependent);
@@ -1451,15 +1564,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(setToPrincipal || setFk ? principal.Id : 0, dependent.ParentId);
-                            Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
-                            Assert.Same(setToPrincipal || setToDependent ? dependent : null, principal.Child);
-                            Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
-                            Assert.Equal(entityState == EntityState.Unchanged && (setFk || setToPrincipal)
-                                ? EntityState.Modified : entityState,
-                                context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(setToPrincipal || setFk ? principal.Id : 0, dependent.ParentId);
+                        Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
+                        Assert.Same(setToPrincipal || setToDependent ? dependent : null, principal.Child);
+                        Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(
+                            entityState == EntityState.Unchanged && (setFk || setToPrincipal)
+                                ? EntityState.Modified
+                                : entityState,
+                            context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1547,10 +1662,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.SetParentId(principal.Id);
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.SetParent(principal);
                 }
+
                 if (setToDependent)
                 {
                     principal.SetChild(dependent);
@@ -1561,13 +1678,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(setToDependent || setFk ? principal.Id : 0, dependent.ParentId);
-                            Assert.Same(setToDependent || setToPrincipal ? principal : null, dependent.Parent);
-                            Assert.Same(setToDependent ? dependent : null, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(setToDependent || setFk ? principal.Id : 0, dependent.ParentId);
+                        Assert.Same(setToDependent || setToPrincipal ? principal : null, dependent.Parent);
+                        Assert.Same(setToDependent ? dependent : null, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1602,8 +1719,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildPN
+                {
+                    Id = 78
+                };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1611,6 +1734,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.ParentId = principal.Id;
                 }
+
                 if (setToDependent)
                 {
                     principal.Child = dependent;
@@ -1621,13 +1745,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(setFk ? principal.Id : 0, dependent.ParentId);
-                            Assert.Same(setToDependent ? dependent : null, principal.Child);
-                            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
-                            Assert.Equal(entityState == EntityState.Unchanged && setFk ? EntityState.Modified : entityState,
-                                context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(setFk ? principal.Id : 0, dependent.ParentId);
+                        Assert.Same(setToDependent ? dependent : null, principal.Child);
+                        Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(
+                            entityState == EntityState.Unchanged && setFk ? EntityState.Modified : entityState,
+                            context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1662,8 +1787,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78 };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildPN
+                {
+                    Id = 78
+                };
 
                 context.Entry(principal).State = entityState;
 
@@ -1671,6 +1802,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.ParentId = principal.Id;
                 }
+
                 if (setToDependent)
                 {
                     principal.Child = dependent;
@@ -1681,12 +1813,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(setToDependent ? dependent : null, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(setToDependent ? dependent : null, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1721,8 +1853,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78 };
+                var principal = new ParentDN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildDN
+                {
+                    Id = 78
+                };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1730,6 +1868,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.ParentId = principal.Id;
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.Parent = principal;
@@ -1740,12 +1879,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
-                            Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
-                            Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
+                        Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1780,8 +1919,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN { Id = 77 };
-                var dependent = new ChildDN { Id = 78 };
+                var principal = new ParentDN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildDN
+                {
+                    Id = 78
+                };
 
                 context.Entry(principal).State = entityState;
 
@@ -1789,6 +1934,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependent.ParentId = principal.Id;
                 }
+
                 if (setToPrincipal)
                 {
                     dependent.Parent = principal;
@@ -1799,12 +1945,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(setFk ? principal.Id : 0, dependent.ParentId);
-                            Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(setFk ? principal.Id : 0, dependent.ParentId);
+                        Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1816,8 +1962,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN { Id = 77 };
-                var dependent = new ChildNN { Id = 78 };
+                var principal = new ParentNN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildNN
+                {
+                    Id = 78
+                };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1828,11 +1980,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
-                            Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1844,8 +1996,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN { Id = 77 };
-                var dependent = new ChildNN { Id = 78 };
+                var principal = new ParentNN
+                {
+                    Id = 77
+                };
+                var dependent = new ChildNN
+                {
+                    Id = 78
+                };
 
                 context.Entry(principal).State = entityState;
 
@@ -1856,11 +2014,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1943,7 +2101,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Unchanged, EntityState.Modified)]
         public void Replace_dependent_one_to_one_FK_not_set_principal_nav_set(EntityState oldEntityState, EntityState newEntityState)
         {
-            Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: false, setToPrincipal: false, setToDependent: true,
+            Replace_dependent_one_to_one(
+                oldEntityState, newEntityState, setFk: false, setToPrincipal: false, setToDependent: true,
                 detectChanges: true);
         }
 
@@ -1978,6 +2137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     newDependent.SetParent(principal);
                 }
+
                 if (setToDependent)
                 {
                     principal.SetChild(newDependent);
@@ -1993,18 +2153,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, newDependent.ParentId);
-                            Assert.Same(principal, newDependent.Parent);
-                            Assert.Same(newDependent, principal.Child);
-                            Assert.Null(oldDependent.Parent);
-                            var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
-                            Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
-                            Assert.Equal(newEntityState, context.Entry(newDependent).State);
-                            Assert.Equal(oldEntityState, context.Entry(principal).State);
-                            Assert.Equal(oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
-                                context.Entry(oldDependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, newDependent.ParentId);
+                        Assert.Same(principal, newDependent.Parent);
+                        Assert.Same(newDependent, principal.Child);
+                        Assert.Null(oldDependent.Parent);
+                        var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
+                        Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
+                        Assert.Equal(newEntityState, context.Entry(newDependent).State);
+                        Assert.Equal(oldEntityState, context.Entry(principal).State);
+                        Assert.Equal(
+                            oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                            context.Entry(oldDependent).State);
+                    });
             }
         }
 
@@ -2053,14 +2214,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN { Id = 77 };
-                var oldDependent = new ChildPN { Id = 78, ParentId = principal.Id };
+                var principal = new ParentPN
+                {
+                    Id = 77
+                };
+                var oldDependent = new ChildPN
+                {
+                    Id = 78,
+                    ParentId = principal.Id
+                };
                 principal.Child = oldDependent;
 
                 context.Entry(principal).State = oldEntityState;
                 context.Entry(oldDependent).State = oldEntityState;
 
-                var newDependent = new ChildPN { Id = 88, ParentId = setFk ? principal.Id : 0 };
+                var newDependent = new ChildPN
+                {
+                    Id = 88,
+                    ParentId = setFk ? principal.Id : 0
+                };
                 if (setToDependent)
                 {
                     principal.Child = newDependent;
@@ -2076,16 +2248,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, newDependent.ParentId);
-                            Assert.Same(newDependent, principal.Child);
-                            var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
-                            Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
-                            Assert.Equal(newEntityState, context.Entry(newDependent).State);
-                            Assert.Equal(oldEntityState, context.Entry(principal).State);
-                            Assert.Equal(oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
-                                context.Entry(oldDependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, newDependent.ParentId);
+                        Assert.Same(newDependent, principal.Child);
+                        var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
+                        Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
+                        Assert.Equal(newEntityState, context.Entry(newDependent).State);
+                        Assert.Equal(oldEntityState, context.Entry(principal).State);
+                        Assert.Equal(
+                            oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                            context.Entry(oldDependent).State);
+                    });
             }
         }
 
@@ -2134,13 +2307,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN { Id = 77 };
-                var oldDependent = new ChildDN { Id = 78, ParentId = principal.Id, Parent = principal };
+                var principal = new ParentDN
+                {
+                    Id = 77
+                };
+                var oldDependent = new ChildDN
+                {
+                    Id = 78,
+                    ParentId = principal.Id,
+                    Parent = principal
+                };
 
                 context.Entry(principal).State = oldEntityState;
                 context.Entry(oldDependent).State = oldEntityState;
 
-                var newDependent = new ChildDN { Id = 88, ParentId = setFk ? principal.Id : 0 };
+                var newDependent = new ChildDN
+                {
+                    Id = 88,
+                    ParentId = setFk ? principal.Id : 0
+                };
                 if (setToPrincipal)
                 {
                     newDependent.Parent = principal;
@@ -2151,17 +2336,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, newDependent.ParentId);
-                            Assert.Same(principal, newDependent.Parent);
-                            Assert.Null(oldDependent.Parent);
-                            var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
-                            Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
-                            Assert.Equal(newEntityState, context.Entry(newDependent).State);
-                            Assert.Equal(oldEntityState, context.Entry(principal).State);
-                            Assert.Equal(oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
-                                context.Entry(oldDependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, newDependent.ParentId);
+                        Assert.Same(principal, newDependent.Parent);
+                        Assert.Null(oldDependent.Parent);
+                        var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
+                        Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
+                        Assert.Equal(newEntityState, context.Entry(newDependent).State);
+                        Assert.Equal(oldEntityState, context.Entry(principal).State);
+                        Assert.Equal(
+                            oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                            context.Entry(oldDependent).State);
+                    });
             }
         }
 
@@ -2178,28 +2364,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN { Id = 77 };
-                var oldDependent = new ChildNN { Id = 78, ParentId = principal.Id };
+                var principal = new ParentNN
+                {
+                    Id = 77
+                };
+                var oldDependent = new ChildNN
+                {
+                    Id = 78,
+                    ParentId = principal.Id
+                };
 
                 context.Entry(principal).State = oldEntityState;
                 context.Entry(oldDependent).State = oldEntityState;
 
-                var newDependent = new ChildNN { Id = 88, ParentId = principal.Id };
+                var newDependent = new ChildNN
+                {
+                    Id = 88,
+                    ParentId = principal.Id
+                };
 
                 context.Entry(newDependent).State = newEntityState;
 
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, newDependent.ParentId);
-                            var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
-                            Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
-                            Assert.Equal(newEntityState, context.Entry(newDependent).State);
-                            Assert.Equal(oldEntityState, context.Entry(principal).State);
-                            Assert.Equal(oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
-                                context.Entry(oldDependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, newDependent.ParentId);
+                        var oldDependentEntry = (PropertyEntry)context.Entry(oldDependent).Property(c => c.ParentId);
+                        Assert.True(oldDependentEntry.GetInfrastructure().IsConceptualNull(oldDependentEntry.Metadata));
+                        Assert.Equal(newEntityState, context.Entry(newDependent).State);
+                        Assert.Equal(oldEntityState, context.Entry(principal).State);
+                        Assert.Equal(
+                            oldEntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
+                            context.Entry(oldDependent).State);
+                    });
             }
         }
 
@@ -2458,7 +2656,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Parent
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-            private int _id;
+            private readonly int _id;
             private Child _child;
 
             public Parent(int id)
@@ -2478,7 +2676,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Child
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-            private int _id;
+            private readonly int _id;
             private int _parentId;
             private Parent _parent;
 
@@ -2585,7 +2783,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Category
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _id;
+#pragma warning restore IDE0044 // Add readonly modifier
             private ICollection<Product> _products;
 
             // ReSharper disable once UnusedMember.Local
@@ -2611,7 +2811,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Product
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _id;
+#pragma warning restore IDE0044 // Add readonly modifier
             private int _categoryId;
             private Category _category;
             private ICollection<SpecialOffer> _specialOffers;
@@ -2650,7 +2852,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class SpecialOffer
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _id;
+#pragma warning restore IDE0044 // Add readonly modifier
             private int _productId;
             private Product _product;
 
@@ -2689,7 +2893,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Product>(b =>
+                modelBuilder.Entity<Product>(
+                    b =>
                     {
                         b.HasKey(e => e.Id);
                         b.Property(e => e.CategoryId);
@@ -2697,14 +2902,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             .WithOne(e => e.Product);
                     });
 
-                modelBuilder.Entity<Category>(b =>
+                modelBuilder.Entity<Category>(
+                    b =>
                     {
                         b.HasKey(e => e.Id);
                         b.HasMany(e => e.Products)
                             .WithOne(e => e.Category);
                     });
 
-                modelBuilder.Entity<SpecialOffer>(b =>
+                modelBuilder.Entity<SpecialOffer>(
+                    b =>
                     {
                         b.HasKey(e => e.Id);
                         b.Property(e => e.ProductId);
@@ -2725,7 +2932,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .WithMany()
                     .HasForeignKey(e => e.CategoryId);
 
-                modelBuilder.Entity<Parent>(b =>
+                modelBuilder.Entity<Parent>(
+                    b =>
                     {
                         b.HasKey(e => e.Id);
                         b.HasOne(e => e.Child)
@@ -2733,7 +2941,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             .HasForeignKey<Child>(e => e.ParentId);
                     });
 
-                modelBuilder.Entity<Child>(b =>
+                modelBuilder.Entity<Child>(
+                    b =>
                     {
                         b.HasKey(e => e.Id);
                         b.Property(e => e.ParentId);
@@ -2775,9 +2984,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var db = new Context4853())
             {
-                var assembly = new TestAssembly { Name = "Assembly1" };
-                db.Classes.Add(new TestClass { Assembly = assembly, Name = "Class1" });
-                db.Classes.Add(new TestClass { Assembly = assembly, Name = "Class2" });
+                var assembly = new TestAssembly
+                {
+                    Name = "Assembly1"
+                };
+                db.Classes.Add(
+                    new TestClass
+                    {
+                        Assembly = assembly,
+                        Name = "Class1"
+                    });
+                db.Classes.Add(
+                    new TestClass
+                    {
+                        Assembly = assembly,
+                        Name = "Class2"
+                    });
                 db.SaveChanges();
             }
 
@@ -2821,12 +3043,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 modelBuilder.Entity<TestClass>(
                     x =>
-                        {
-                            x.Property<string>("AssemblyName");
-                            x.HasKey("AssemblyName", nameof(TestClass.Name));
-                            x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
-                                .HasForeignKey("AssemblyName");
-                        });
+                    {
+                        x.Property<string>("AssemblyName");
+                        x.HasKey("AssemblyName", nameof(TestClass.Name));
+                        x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
+                            .HasForeignKey("AssemblyName");
+                    });
             }
         }
     }

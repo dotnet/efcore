@@ -5,12 +5,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#else
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {

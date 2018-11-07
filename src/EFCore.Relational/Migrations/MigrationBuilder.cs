@@ -73,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string defaultValueSql,
             [CanBeNull] string computedColumnSql)
             => AddColumn<T>(name, table, type, unicode, maxLength, rowVersion, schema, nullable, defaultValue, defaultValueSql, computedColumnSql, null);
+
         /// <summary>
         ///     Builds an <see cref="AddColumnOperation" /> to add a new column to a table.
         /// </summary>
@@ -781,6 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     addColumnOperation.Name = property.Name;
                 }
+
                 columnMap.Add(property, addColumnOperation);
             }
 

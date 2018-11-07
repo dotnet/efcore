@@ -137,8 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || mode == PropertyAccessMode.FieldDuringConstruction)
             {
                 if (forConstruction
-                    && fieldInfo != null
-                    && !fieldInfo.IsInitOnly)
+                    && fieldInfo?.IsInitOnly == false)
                 {
                     memberInfo = fieldInfo;
                     return true;
@@ -169,6 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             errorMessage = GetNoFieldErrorMessage(propertyBase);
                             return false;
                         }
+
                         return true;
                     }
                 }
@@ -245,6 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
                         return false;
                     }
+
                     return true;
                 }
 
@@ -287,10 +288,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var constructorBinding = (ConstructorBinding)propertyBase.DeclaringType[CoreAnnotationNames.ConstructorBinding];
 
-            return constructorBinding != null
-                   && constructorBinding.ParameterBindings
+            return constructorBinding?.ParameterBindings
                        .OfType<ServiceParameterBinding>()
-                       .Any(b => b.ServiceType == typeof(ILazyLoader))
+                       .Any(b => b.ServiceType == typeof(ILazyLoader)) == true
                 ? CoreStrings.NoBackingFieldLazyLoading(
                     propertyBase.Name, propertyBase.DeclaringType.DisplayName())
                 : CoreStrings.NoBackingField(

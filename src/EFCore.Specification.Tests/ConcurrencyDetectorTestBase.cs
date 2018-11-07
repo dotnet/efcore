@@ -27,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyDetectorTest(
                 c =>
-                    {
-                        c.SaveChanges();
-                        return Task.FromResult(false);
-                    });
+                {
+                    c.SaveChanges();
+                    return Task.FromResult(false);
+                });
         }
 
         [Fact]
@@ -44,13 +44,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyDetectorTest(
                 c =>
-                    {
-                        c.Products.Find(1);
-                        return Task.FromResult(false);
-                    });
+                {
+                    c.Products.Find(1);
+                    return Task.FromResult(false);
+                });
         }
 
-        [Fact]
+        [Fact(Skip = "#12138")]
         public virtual Task Find_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.FindAsync(1));
@@ -61,13 +61,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyDetectorTest(
                 c =>
-                    {
-                        var result = c.Products.Count();
-                        return Task.FromResult(false);
-                    });
+                {
+                    var result = c.Products.Count();
+                    return Task.FromResult(false);
+                });
         }
 
-        [Fact]
+        [Fact(Skip = "#12138")]
         public virtual Task Count_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.CountAsync());
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "#12138")]
         public virtual Task First_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.FirstAsync());
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "#12138")]
         public virtual Task Last_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.LastAsync());
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "#12138")]
         public virtual Task Single_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.SingleAsync(p => p.ProductID == 1));
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "#12138")]
         public virtual Task Any_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.AnyAsync(p => p.ProductID < 10));
@@ -146,13 +146,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyDetectorTest(
                 c =>
-                    {
-                        var result = c.Products.ToList();
-                        return Task.FromResult(false);
-                    });
+                {
+                    var result = c.Products.ToList();
+                    return Task.FromResult(false);
+                });
         }
 
-        [Fact]
+        [Fact(Skip = "#12138")]
         public virtual Task ToList_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.ToListAsync());
@@ -164,11 +164,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Products.Add(new Product());
 
-                context.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                using (context.GetService<IConcurrencyDetector>().EnterCriticalSection())
+                {
+                    Exception ex = await Assert.ThrowsAsync<InvalidOperationException>(() => test(context));
 
-                Exception ex = await Assert.ThrowsAsync<InvalidOperationException>(() => test(context));
-
-                Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);
+                    Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);
+                }
             }
         }
 

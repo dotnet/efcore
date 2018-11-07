@@ -70,18 +70,18 @@ namespace Microsoft.EntityFrameworkCore.Design
                 () => Assembly.Load(new AssemblyName(startupTargetName)));
             var assembly = new LazyRef<Assembly>(
                 () =>
+                {
+                    try
                     {
-                        try
-                        {
-                            return Assembly.Load(new AssemblyName(targetName));
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new OperationException(
-                                DesignStrings.UnreferencedAssembly(targetName, startupTargetName),
-                                ex);
-                        }
-                    });
+                        return Assembly.Load(new AssemblyName(targetName));
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new OperationException(
+                            DesignStrings.UnreferencedAssembly(targetName, startupTargetName),
+                            ex);
+                    }
+                });
             _contextOperations = new LazyRef<DbContextOperations>(
                 () => new DbContextOperations(
                     reporter,
@@ -91,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     reporter,
+                    assembly.Value,
                     startupAssembly.Value,
                     _projectDir,
                     rootNamespace,

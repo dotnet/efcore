@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Abstractions;
 
@@ -15,10 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalFact(Skip = "See Issue#11377")]
-        public override void Order_by_entity_qsre_composite_key()
+#if !Test21
+        [ConditionalTheory(Skip = "issue #10513")]
+        public override Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(bool isAsync)
         {
-            base.Order_by_entity_qsre_composite_key();
+            return Task.CompletedTask;
         }
+#endif
     }
 }

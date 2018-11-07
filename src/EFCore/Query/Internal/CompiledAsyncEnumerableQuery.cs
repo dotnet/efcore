@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
@@ -93,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Func<QueryContext, AsyncEnumerable<TResult>> CreateCompiledQuery(
             IQueryCompiler queryCompiler, Expression expression)
         {
-            var compiledQuery = queryCompiler.CreateCompiledAsyncEnumerableQuery<TResult>(expression);
+            var compiledQuery = queryCompiler.CreateCompiledAsyncQuery<IAsyncEnumerable<TResult>>(expression);
 
             return qc => new AsyncEnumerable<TResult>(compiledQuery(qc));
         }

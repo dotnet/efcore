@@ -41,5 +41,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Connection?.Dispose();
             base.Dispose();
         }
+
+        public virtual RawSqlString NormalizeDelimeters(RawSqlString sql)
+            => NormalizeDelimeters(sql.Format);
+
+        public virtual FormattableString NormalizeDelimeters(FormattableString sql)
+            => new TestFormattableString(NormalizeDelimeters(sql.Format), sql.GetArguments());
+
+        private string NormalizeDelimeters(string sql)
+            => sql.Replace("[", OpenDelimeter).Replace("]", CloseDelimeter);
+
+        protected virtual string OpenDelimeter => "\"";
+
+        protected virtual string CloseDelimeter => "\"";
     }
 }

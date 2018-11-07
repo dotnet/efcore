@@ -100,15 +100,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var defaultMapping = keyOrIndex && KeyMapping != null ? KeyMapping : DefaultMapping;
 
-            if (size.HasValue
-                && size != defaultMapping.Size)
-            {
-                return size <= MaxBoundedLength
+            return size.HasValue
+                && size != defaultMapping.Size
+                ? size <= MaxBoundedLength
                     ? _boundedMappings.GetOrAdd(size.Value, CreateBoundedMapping)
-                    : UnboundedMapping;
-            }
-
-            return defaultMapping;
+                    : UnboundedMapping
+                : defaultMapping;
         }
     }
 }

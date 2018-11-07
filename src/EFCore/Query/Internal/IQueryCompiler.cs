@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IAsyncEnumerable<TResult> ExecuteAsync<TResult>([NotNull] Expression query);
+        TResult ExecuteAsync<TResult>([NotNull] Expression query);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -44,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Func<QueryContext, IAsyncEnumerable<TResult>> CreateCompiledAsyncEnumerableQuery<TResult>([NotNull] Expression query);
+        Func<QueryContext, TResult> CreateCompiledAsyncQuery<TResult>([NotNull] Expression query);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Func<QueryContext, Task<TResult>> CreateCompiledAsyncTaskQuery<TResult>([NotNull] Expression query);
+        Func<QueryContext, Task<TResult>> CreateCompiledAsyncSingletonQuery<TResult>([NotNull] Expression query);
     }
 }

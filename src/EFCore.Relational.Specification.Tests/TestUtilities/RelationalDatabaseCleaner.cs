@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -28,6 +29,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected virtual string BuildCustomSql(DatabaseModel databaseModel) => null;
 
         protected virtual string BuildCustomEndingSql(DatabaseModel databaseModel) => null;
+
+        protected virtual void OpenConnection(IRelationalConnection connection) => connection.Open();
 
         public virtual void Clean(DatabaseFacade facade)
         {
@@ -71,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     operations.Add(Drop(sequence));
                 }
 
-                connection.Open();
+                OpenConnection(connection);
 
                 try
                 {
@@ -81,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         sqlBuilder.Build(customSql).ExecuteNonQuery(connection);
                     }
 
-                    if (operations.Any())
+                    if (operations.Count > 0)
                     {
                         var commands = sqlGenerator.Generate(operations);
                         executor.ExecuteNonQuery(commands, connection);

@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
-                            .FromSql(@"select * from ""Customers""")
+                            .FromSql(NormalizeDelimeters("select * from [Customers]"))
                             .Where(c => c.IsLondon)
                             .ToList()).Message);
             }
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers
                     = context.Customers
-                        .FromSql(@"select * from ""Customers""")
+                        .FromSql(NormalizeDelimeters("select * from [Customers]"))
                         .ToList();
 
                 Assert.Equal(91, customers.Count);
@@ -187,21 +187,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.LogClientEvalWarning.GenerateMessage(
-#if Test20
-                            "join Int32 i in __p_0 on [e1].EmployeeID equals [i]"
-#else
                             "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
-#endif
-                            ),
+                        ),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
-#if Test20
-                             join i in new int[] { 1, 2, 3 } on e1.EmployeeID equals i
-#else
                              join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i
-#endif
                              select e1)
                             .ToList()).Message);
             }
@@ -216,23 +208,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
                         RelationalStrings.LogClientEvalWarning.GenerateMessage(
-#if Test20
-                            "join Int32 i in __p_0 on [e1].EmployeeID equals [i]"
-#else
                             "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
-#endif
-                            ),
+                        ),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
-#if Test20
-                             join i in new int[] { 1, 2, 3 } on e1.EmployeeID equals i into g
-#else
                              join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
-#endif
                              select e1)
-                                .ToList()).Message);
+                            .ToList()).Message);
             }
         }
 
@@ -312,6 +296,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => context.Customers.SingleOrDefault(c => c.IsLondon)).Message);
             }
         }
+
+        private RawSqlString NormalizeDelimeters(RawSqlString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
+
+        private FormattableString NormalizeDelimeters(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }

@@ -6,7 +6,6 @@ using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -26,22 +25,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerStringTypeMapping(
-            [NotNull] string storeType,
-            DbType? dbType,
+            [CanBeNull] string storeType = null,
             bool unicode = false,
             int? size = null,
-            bool fixedLength = false)
+            bool fixedLength = false,
+            StoreTypePostfix? storeTypePostfix = null)
             : this(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(string)),
-                    storeType,
-                    GetStoreTypePostfix(unicode, size),
-                    dbType,
+                    storeType ?? GetStoreName(unicode, fixedLength),
+                    storeTypePostfix ?? StoreTypePostfix.Size,
+                    GetDbType(unicode, fixedLength),
                     unicode,
                     size,
                     fixedLength))
         {
         }
+
+        private static string GetStoreName(bool unicode, bool fixedLength) => unicode
+            ? fixedLength ? "nchar" : "nvarchar"
+            : fixedLength
+                ? "char"
+                : "varchar";
+
+        private static DbType? GetDbType(bool unicode, bool fixedLength) => unicode
+            ? (fixedLength ? System.Data.DbType.String : (DbType?)null)
+            : System.Data.DbType.AnsiString;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -53,15 +62,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
         }
 
-        private static StoreTypePostfix GetStoreTypePostfix(bool unicode, int? size)
-            => unicode
-                ? size.HasValue && size <= UnicodeMax
-                    ? StoreTypePostfix.Size
-                    : StoreTypePostfix.None
-                : size.HasValue && size <= AnsiMax
-                    ? StoreTypePostfix.Size
-                    : StoreTypePostfix.None;
-
         private static int CalculateSize(bool unicode, int? size)
             => unicode
                 ? size.HasValue && size <= UnicodeMax
@@ -72,18 +72,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     : AnsiMax;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a copy of this mapping.
         /// </summary>
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerStringTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypePostfix(IsUnicode, size)));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerStringTypeMapping(Parameters.WithComposedConverter(converter));
+        /// <param name="parameters"> The parameters for this mapping. </param>
+        /// <returns> The newly created mapping. </returns>
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new SqlServerStringTypeMapping(parameters);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

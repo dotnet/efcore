@@ -144,30 +144,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             if (Property.ValueGenerated != ValueGenerated.OnAdd)
             {
                 var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTableRootPrimaryKeyProperty();
-                if (sharedTablePrincipalPrimaryKeyProperty != null
-                    && sharedTablePrincipalPrimaryKeyProperty.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
-                {
-                    return SqlServerValueGenerationStrategy.IdentityColumn;
-                }
-
-                return null;
+                return sharedTablePrincipalPrimaryKeyProperty?.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                    ? (SqlServerValueGenerationStrategy?)SqlServerValueGenerationStrategy.IdentityColumn
+                    : null;
             }
 
             var modelStrategy = Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy;
 
             if (modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
-                && IsCompatibleSequenceHiLo(Property))
+                && IsCompatible(Property))
             {
                 return SqlServerValueGenerationStrategy.SequenceHiLo;
             }
 
-            if (modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
-                && IsCompatibleIdentityColumn(Property))
-            {
-                return SqlServerValueGenerationStrategy.IdentityColumn;
-            }
-
-            return null;
+            return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && IsCompatible(Property)
+                ? (SqlServerValueGenerationStrategy?)SqlServerValueGenerationStrategy.IdentityColumn
+                : null;
         }
 
         /// <summary>
@@ -182,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var propertyType = Property.ClrType;
 
                 if (value == SqlServerValueGenerationStrategy.IdentityColumn
-                    && !IsCompatibleIdentityColumn(Property))
+                    && !IsCompatible(Property))
                 {
                     if (ShouldThrowOnInvalidConfiguration)
                     {
@@ -195,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
 
                 if (value == SqlServerValueGenerationStrategy.SequenceHiLo
-                    && !IsCompatibleSequenceHiLo(Property))
+                    && !IsCompatible(Property))
                 {
                     if (ShouldThrowOnInvalidConfiguration)
                     {
@@ -283,13 +276,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The default value, or <c>null</c> if none has been set. </returns>
         protected override object GetDefaultValue(bool fallback)
         {
-            if (fallback
-                && ValueGenerationStrategy != null)
-            {
-                return null;
-            }
-
-            return base.GetDefaultValue(fallback);
+            return fallback
+                && ValueGenerationStrategy != null
+                ? null
+                : base.GetDefaultValue(fallback);
         }
 
         /// <summary>
@@ -327,13 +317,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The default expression, or <c>null</c> if none has been set. </returns>
         protected override string GetDefaultValueSql(bool fallback)
         {
-            if (fallback
-                && ValueGenerationStrategy != null)
-            {
-                return null;
-            }
-
-            return base.GetDefaultValueSql(fallback);
+            return fallback
+                && ValueGenerationStrategy != null
+                ? null
+                : base.GetDefaultValueSql(fallback);
         }
 
         /// <summary>
@@ -371,13 +358,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The computed expression, or <c>null</c> if none has been set. </returns>
         protected override string GetComputedColumnSql(bool fallback)
         {
-            if (fallback
-                && ValueGenerationStrategy != null)
-            {
-                return null;
-            }
-
-            return base.GetComputedColumnSql(fallback);
+            return fallback
+                && ValueGenerationStrategy != null
+                ? null
+                : base.GetComputedColumnSql(fallback);
         }
 
         /// <summary>
@@ -414,15 +398,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             base.ClearAllServerGeneratedValues();
         }
 
-        private static bool IsCompatibleIdentityColumn(IProperty property)
+        private static bool IsCompatible(IProperty property)
         {
             var type = property.ClrType;
 
-            return (type.IsInteger() || type == typeof(decimal)) && !HasConverter(property);
+            return (type.IsInteger()
+                || type == typeof(decimal))
+                    && !HasConverter(property);
         }
-
-        private static bool IsCompatibleSequenceHiLo(IProperty property)
-            => property.ClrType.IsInteger() && !HasConverter(property);
 
         private static bool HasConverter(IProperty property)
             => (property.FindMapping()?.Converter

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntities(serviceProvider, TestStore.Name);
@@ -57,8 +57,16 @@ namespace Microsoft.EntityFrameworkCore
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    context.Add(
+                        new Pegasus
+                        {
+                            Name = "Rainbow Dash " + i
+                        });
+                    context.Add(
+                        new Pegasus
+                        {
+                            Name = "Fluttershy " + i
+                        });
                 }
 
                 context.SaveChanges();
@@ -74,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             await AddEntitiesAsync(serviceProvider, TestStore.Name);
@@ -106,8 +114,16 @@ namespace Microsoft.EntityFrameworkCore
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i });
-                    await context.AddAsync(new Pegasus { Name = "Fluttershy " + i });
+                    await context.AddAsync(
+                        new Pegasus
+                        {
+                            Name = "Rainbow Dash " + i
+                        });
+                    await context.AddAsync(
+                        new Pegasus
+                        {
+                            Name = "Fluttershy " + i
+                        });
                 }
 
                 await context.SaveChangesAsync();
@@ -124,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             const int threadCount = 50;
@@ -164,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntitiesWithIds(serviceProvider, 0, TestStore.Name);
@@ -201,8 +217,18 @@ namespace Microsoft.EntityFrameworkCore
             {
                 for (var i = 1; i < 11; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
+                    context.Add(
+                        new Pegasus
+                        {
+                            Name = "Rainbow Dash " + i,
+                            Identifier = i * 100 + idOffset
+                        });
+                    context.Add(
+                        new Pegasus
+                        {
+                            Name = "Fluttershy " + i,
+                            Identifier = i * 100 + idOffset + 1
+                        });
                 }
 
                 context.SaveChanges();
@@ -231,10 +257,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Pegasus>(
                     b =>
-                        {
-                            b.HasKey(e => e.Identifier);
-                            b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
-                        });
+                    {
+                        b.HasKey(e => e.Identifier);
+                        b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
+                    });
             }
         }
 
@@ -253,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, true))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntitiesNullable(serviceProvider, TestStore.Name, true);
@@ -281,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, false))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntitiesNullable(serviceProvider, TestStore.Name, false);
@@ -306,8 +332,16 @@ namespace Microsoft.EntityFrameworkCore
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    context.Add(new Unicon { Name = "Twilight Sparkle " + i });
-                    context.Add(new Unicon { Name = "Rarity " + i });
+                    context.Add(
+                        new Unicon
+                        {
+                            Name = "Twilight Sparkle " + i
+                        });
+                    context.Add(
+                        new Unicon
+                        {
+                            Name = "Rarity " + i
+                        });
                 }
 
                 context.SaveChanges();
@@ -338,17 +372,17 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Unicon>(
                     b =>
+                    {
+                        b.HasKey(e => e.Identifier);
+                        if (_useSequence)
                         {
-                            b.HasKey(e => e.Identifier);
-                            if (_useSequence)
-                            {
-                                b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
-                            }
-                            else
-                            {
-                                b.Property(e => e.Identifier).UseSqlServerIdentityColumn();
-                            }
-                        });
+                            b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
+                        }
+                        else
+                        {
+                            b.Property(e => e.Identifier).UseSqlServerIdentityColumn();
+                        }
+                    });
             }
         }
 

@@ -92,9 +92,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var maxLength = modelBuilder.Relational(ConfigurationSource.Convention).MaxIdentifierLength;
             var tables = new Dictionary<(string, string),
                 (Dictionary<string, Property> Columns,
-                    Dictionary<string, Key> Keys,
-                    Dictionary<string, ForeignKey> ForeignKeys,
-                    Dictionary<string, Index> Indexes)>();
+                Dictionary<string, Key> Keys,
+                Dictionary<string, ForeignKey> ForeignKeys,
+                Dictionary<string, Index> Indexes)>();
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 if (entityType.IsQueryType)
@@ -106,10 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var tableName = (annotations.Schema, annotations.TableName);
                 if (!tables.TryGetValue(tableName, out var tableObjects))
                 {
-                    tableObjects = (new Dictionary<string, Property>(),
-                        new Dictionary<string, Key>(),
-                        new Dictionary<string, ForeignKey>(),
-                        new Dictionary<string, Index>());
+                    tableObjects = (new Dictionary<string, Property>(StringComparer.Ordinal),
+                        new Dictionary<string, Key>(StringComparer.Ordinal),
+                        new Dictionary<string, ForeignKey>(StringComparer.Ordinal),
+                        new Dictionary<string, Index>(StringComparer.Ordinal));
                     tables[tableName] = tableObjects;
                 }
 

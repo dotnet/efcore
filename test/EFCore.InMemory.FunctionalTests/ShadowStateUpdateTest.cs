@@ -26,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInMemoryDatabase(nameof(ShadowStateUpdateTest))
                 .UseInternalServiceProvider(_fixture.ServiceProvider);
 
-            var customer = new Customer { Id = 42 };
+            var customer = new Customer
+            {
+                Id = 42
+            };
 
             using (var context = new DbContext(optionsBuilder.Options))
             {

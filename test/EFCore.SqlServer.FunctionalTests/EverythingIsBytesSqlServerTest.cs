@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,6 +12,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
@@ -139,6 +139,8 @@ BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable varbinar
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable varbinary] [MaxLength = 4]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable varbinary] [MaxLength = 8]
 BuiltInNullableDataTypesShadow.TestString ---> [nullable varbinary] [MaxLength = -1]
+EmailTemplate.Id ---> [varbinary] [MaxLength = 16]
+EmailTemplate.TemplateType ---> [varbinary] [MaxLength = 4]
 MaxLengthDataTypes.ByteArray5 ---> [nullable varbinary] [MaxLength = 5]
 MaxLengthDataTypes.ByteArray9000 ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [varbinary] [MaxLength = 4]
@@ -186,7 +188,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
         public class SqlServerBytesTestStoreFactory : SqlServerTestStoreFactory
         {
-            public new static SqlServerBytesTestStoreFactory Instance { get; } = new SqlServerBytesTestStoreFactory();
+            public static new SqlServerBytesTestStoreFactory Instance { get; } = new SqlServerBytesTestStoreFactory();
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(
@@ -195,6 +197,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
         public class SqlServerBytesTypeMappingSource : RelationalTypeMappingSource
         {
+#if Test21
             private readonly SqlServerByteArrayTypeMapping _rowversion
                 = new SqlServerByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
 
@@ -203,6 +206,16 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
             private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
                 = new SqlServerByteArrayTypeMapping("binary");
+#else
+            private readonly SqlServerByteArrayTypeMapping _rowversion
+                = new SqlServerByteArrayTypeMapping("rowversion", size: 8);
+
+            private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
+                = new SqlServerByteArrayTypeMapping();
+
+            private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
+                = new SqlServerByteArrayTypeMapping(fixedLength: true);
+#endif
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
@@ -252,16 +265,26 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                             return _rowversion;
                         }
 
+                        var isFixedLength = mappingInfo.IsFixedLength == true;
+
                         var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
                         if (size > 8000)
                         {
-                            size = null;
+                            size = isFixedLength ? 8000 : (int?)null;
                         }
 
+#if Test21
                         return new SqlServerByteArrayTypeMapping(
                             "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
                             DbType.Binary,
                             size);
+#else
+                        return new SqlServerByteArrayTypeMapping(
+                            "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
+                            size,
+                            isFixedLength,
+                            storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
+#endif
                     }
                 }
 
@@ -270,4 +293,3 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
         }
     }
 }
-#endif

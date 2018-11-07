@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual MigrationsSqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
-        ///     The <see cref="IUpdateSqlGenerator"/>.
+        ///     The <see cref="IUpdateSqlGenerator" />.
         /// </summary>
         protected virtual IUpdateSqlGenerator SqlGenerator
             => (IUpdateSqlGenerator)Dependencies.UpdateSqlGenerator;
@@ -477,12 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(ColumnList(operation.Columns))
                 .Append(")");
 
-            if (!string.IsNullOrEmpty(operation.Filter))
-            {
-                builder
-                    .Append(" WHERE ")
-                    .Append(operation.Filter);
-            }
+            IndexOptions(operation, model, builder);
 
             if (terminate)
             {
@@ -1259,7 +1254,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IAnnotatable annotatable,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-            => ColumnDefinition(schema, table, name, clrType, type, unicode, maxLength, null,
+            => ColumnDefinition(
+                schema, table, name, clrType, type, unicode, maxLength, null,
                 rowVersion, nullable, defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
         /// <summary>
@@ -1560,6 +1556,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Generates a SQL fragment for extras (filter, included columns, options) of an index from a <see cref="CreateIndexOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void IndexOptions(
+            [NotNull] CreateIndexOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            if (!string.IsNullOrEmpty(operation.Filter))
+            {
+                builder
+                    .Append(" WHERE ")
+                    .Append(operation.Filter);
+            }
+        }
+
+        /// <summary>
         ///     Generates a SQL fragment for the given referential action.
         /// </summary>
         /// <param name="referentialAction"> The referential action. </param>
@@ -1626,8 +1641,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName,
             [NotNull] string columnName
-        // Any property that maps to the column will work because model validator has
-        // checked that all properties result in the same column definition.
+            // Any property that maps to the column will work because model validator has
+            // checked that all properties result in the same column definition.
         )
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
                 .FirstOrDefault(p => p.Relational().ColumnName == columnName);
@@ -1670,7 +1685,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => TryGetVersion(model, out var version) && VersionComparer.Compare(version, "1.1.0") >= 0;
 
         /// <summary>
-        ///     Checks whether or not <see cref="RenameTableOperation"/> and <see cref="RenameSequenceOperation"/> use
+        ///     Checks whether or not <see cref="RenameTableOperation" /> and <see cref="RenameSequenceOperation" /> use
         ///     the legacy behavior of setting the new name and schema to null when unchanged.
         /// </summary>
         /// <param name="model"> The target model. </param>

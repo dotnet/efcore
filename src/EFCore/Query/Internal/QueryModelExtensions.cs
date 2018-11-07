@@ -60,8 +60,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string Print([NotNull] this QueryModel queryModel, bool removeFormatting = false, int? characterLimit = null)
+        public static string Print(
+            [NotNull] this QueryModel queryModel,
+            bool removeFormatting = false,
+            int? characterLimit = null)
             => new QueryModelPrinter().Print(queryModel, removeFormatting, characterLimit);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string PrintDebug(
+            [NotNull] this QueryModel queryModel,
+            bool removeFormatting = false, int?
+                characterLimit = null,
+            bool generateUniqueQsreIds = true)
+            => new QueryModelPrinter().PrintDebug(queryModel, removeFormatting, characterLimit, generateUniqueQsreIds);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

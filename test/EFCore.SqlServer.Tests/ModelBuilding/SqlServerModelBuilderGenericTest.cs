@@ -182,11 +182,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).OwnsOne(l => l.AnotherBookLabel).OwnsOne(s => s.SpecialBookLabel);
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).OwnsOne(l => l.SpecialBookLabel).OwnsOne(a => a.AnotherBookLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(l => l.AnotherBookLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(s => s.SpecialBookLabel)
+                    .Ignore(l => l.Book)
+                    .Ignore(l => l.BookLabel);
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).OwnsOne(l => l.AnotherBookLabel).OwnsOne(a => a.SpecialBookLabel);
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).OwnsOne(l => l.SpecialBookLabel).OwnsOne(s => s.AnotherBookLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(l => l.SpecialBookLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(a => a.AnotherBookLabel)
+                    .Ignore(l => l.Book);
+
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label)
+                    .OwnsOne(l => l.AnotherBookLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(a => a.SpecialBookLabel)
+                    .Ignore(l => l.Book)
+                    .Ignore(l => l.BookLabel);
+
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel)
+                    .OwnsOne(l => l.SpecialBookLabel)
+                    .Ignore(l => l.Book)
+                    .OwnsOne(s => s.AnotherBookLabel)
+                    .Ignore(l => l.Book);
 
                 modelBuilder.Validate();
 
@@ -244,43 +266,66 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Book>(bb =>
-                {
-                    bb.ToTable("BT", "BS");
-                    bb.OwnsOne(b => b.AlternateLabel, tb =>
+                modelBuilder.Entity<Book>(
+                    bb =>
                     {
-                        tb.ToTable("TT", "TS");
-                        tb.OwnsOne(l => l.AnotherBookLabel, ab =>
-                        {
-                            ab.ToTable("AT1", "AS1");
-                            ab.OwnsOne(s => s.SpecialBookLabel)
-                                .ToTable("ST11", "SS11");
-                            ((Navigation)ab.OwnedEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel))).AddAnnotation("Foo", "Bar");
-                        });
+                        bb.ToTable("BT", "BS");
+                        bb.OwnsOne(
+                            b => b.AlternateLabel, tb =>
+                            {
+                                tb.Ignore(l => l.Book);
+                                tb.HasConstraintName("AlternateLabelFK");
+                                tb.ToTable("TT", "TS");
+                                tb.ForSqlServerIsMemoryOptimized();
+                                tb.OwnsOne(
+                                    l => l.AnotherBookLabel, ab =>
+                                    {
+                                        ab.Ignore(l => l.Book);
+                                        ab.ToTable("AT1", "AS1");
+                                        ab.OwnsOne(s => s.SpecialBookLabel)
+                                            .ToTable("ST11", "SS11")
+                                            .Ignore(l => l.Book)
+                                            .Ignore(l => l.BookLabel);
+
+                                        ((Navigation)ab.OwnedEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel)))
+                                            .AddAnnotation("Foo", "Bar");
+                                    });
+                                tb.OwnsOne(
+                                    l => l.SpecialBookLabel, sb =>
+                                    {
+                                        sb.Ignore(l => l.Book);
+                                        sb.ToTable("ST2", "SS2");
+                                        sb.OwnsOne(s => s.AnotherBookLabel)
+                                            .ToTable("AT21", "AS21")
+                                            .Ignore(l => l.Book);
+                                    });
+                            });
+                        bb.OwnsOne(
+                            b => b.Label, lb =>
+                            {
+                                lb.Ignore(l => l.Book);
+                                lb.ToTable("LT", "LS");
+                                lb.OwnsOne(
+                                    l => l.SpecialBookLabel, sb =>
+                                    {
+                                        sb.Ignore(l => l.Book);
+                                        sb.ToTable("ST1", "SS1");
+                                        sb.OwnsOne(a => a.AnotherBookLabel)
+                                            .ToTable("AT11", "AS11")
+                                            .Ignore(l => l.Book);
+                                    });
+                                lb.OwnsOne(
+                                    l => l.AnotherBookLabel, ab =>
+                                    {
+                                        ab.Ignore(l => l.Book);
+                                        ab.ToTable("AT2", "AS2");
+                                        ab.OwnsOne(a => a.SpecialBookLabel)
+                                            .ToTable("ST21", "SS21")
+                                            .Ignore(l => l.BookLabel)
+                                            .Ignore(l => l.Book);
+                                    });
+                            });
                     });
-                    bb.OwnsOne(b => b.Label, lb =>
-                    {
-                        lb.ToTable("LT", "LS");
-                        lb.OwnsOne(l => l.SpecialBookLabel, sb =>
-                        {
-                            sb.ToTable("ST1", "SS1");
-                            sb.OwnsOne(a => a.AnotherBookLabel)
-                                .ToTable("AT11", "AS11");
-                        });
-                    });
-                    bb.OwnsOne(b => b.Label).OwnsOne(l => l.AnotherBookLabel, ab =>
-                    {
-                        ab.ToTable("AT2", "AS2");
-                        ab.OwnsOne(a => a.SpecialBookLabel)
-                            .ToTable("ST21", "SS21");
-                    });
-                    bb.OwnsOne(b => b.AlternateLabel).OwnsOne(l => l.SpecialBookLabel, sb =>
-                    {
-                        sb.ToTable("ST2", "SS2");
-                        sb.OwnsOne(s => s.AnotherBookLabel)
-                            .ToTable("AT21", "AS21");
-                    });
-                });
 
                 modelBuilder.Validate();
 
@@ -296,12 +341,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var bookLabel2Ownership11 = bookLabel2Ownership1.DeclaringEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel)).ForeignKey;
                 var bookLabel2Ownership21 = bookLabel2Ownership2.DeclaringEntityType.FindNavigation(nameof(BookLabel.AnotherBookLabel)).ForeignKey;
 
+                Assert.Equal("AlternateLabelFK", bookOwnership2.Relational().Name);
+
                 Assert.Equal("BS", book.SqlServer().Schema);
                 Assert.Equal("BT", book.SqlServer().TableName);
                 Assert.Equal("LS", bookOwnership1.DeclaringEntityType.SqlServer().Schema);
                 Assert.Equal("LT", bookOwnership1.DeclaringEntityType.SqlServer().TableName);
+                Assert.False(bookOwnership1.DeclaringEntityType.SqlServer().IsMemoryOptimized);
                 Assert.Equal("TS", bookOwnership2.DeclaringEntityType.SqlServer().Schema);
                 Assert.Equal("TT", bookOwnership2.DeclaringEntityType.SqlServer().TableName);
+                Assert.True(bookOwnership2.DeclaringEntityType.SqlServer().IsMemoryOptimized);
                 Assert.Equal("AS2", bookLabel1Ownership1.DeclaringEntityType.SqlServer().Schema);
                 Assert.Equal("AT2", bookLabel1Ownership1.DeclaringEntityType.SqlServer().TableName);
                 Assert.Equal("SS1", bookLabel1Ownership2.DeclaringEntityType.SqlServer().Schema);
@@ -319,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("AS21", bookLabel2Ownership21.DeclaringEntityType.SqlServer().Schema);
                 Assert.Equal("AT21", bookLabel2Ownership21.DeclaringEntityType.SqlServer().TableName);
 
-                Assert.Equal("Bar",  bookLabel2Ownership11.PrincipalToDependent["Foo"]);
+                Assert.Equal("Bar", bookLabel2Ownership11.PrincipalToDependent["Foo"]);
 
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
                 Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
@@ -341,6 +390,64 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
             }
 
+            [Fact]
+            public virtual void Owned_type_collections_can_be_mapped_to_different_tables()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().OwnsMany(
+                    c => c.Orders,
+                    r =>
+                    {
+                        r.HasKey(o => o.OrderId);
+                        r.ForSqlServerIsMemoryOptimized();
+                        r.Ignore(o => o.OrderCombination);
+                        r.Ignore(o => o.Details);
+                    });
+
+                modelBuilder.Validate();
+
+                var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
+                var owned = ownership.DeclaringEntityType;
+                Assert.True(ownership.IsOwnership);
+                Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
+                Assert.Equal("FK_Order_Customer_CustomerId", ownership.Relational().Name);
+
+                Assert.Equal(1, owned.GetForeignKeys().Count());
+                Assert.Equal(1, owned.GetIndexes().Count());
+                Assert.Equal(new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
+                    owned.GetProperties().Select(p => p.SqlServer().ColumnName));
+                Assert.Equal(nameof(Order), owned.SqlServer().TableName);
+                Assert.Null(owned.SqlServer().Schema);
+                Assert.True(owned.SqlServer().IsMemoryOptimized);
+
+                modelBuilder.Entity<Customer>().OwnsMany(
+                    c => c.Orders,
+                    r =>
+                    {
+                        r.HasConstraintName("Owned");
+                        r.ToTable("bar", "foo");
+                    });
+
+                Assert.Equal("bar", owned.SqlServer().TableName);
+                Assert.Equal("foo", owned.SqlServer().Schema);
+                Assert.Equal("Owned", ownership.Relational().Name);
+
+                modelBuilder.Entity<Customer>().OwnsMany(
+                    c => c.Orders,
+                    r => r.ToTable("blah"));
+
+                Assert.Equal("blah", owned.SqlServer().TableName);
+                Assert.Equal("foo", owned.SqlServer().Schema);
+            }
+
+            protected override TestModelBuilder CreateModelBuilder()
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+        }
+
+        public class SqlServerGenericQueryTypes : GenericQueryTypes
+        {
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }

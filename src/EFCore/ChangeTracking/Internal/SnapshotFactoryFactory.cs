@@ -26,12 +26,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual Func<ISnapshot> CreateEmpty([NotNull] IEntityType entityType)
         {
-            if (GetPropertyCount(entityType) == 0)
-            {
-                return () => Snapshot.Empty;
-            }
-
-            return Expression.Lambda<Func<ISnapshot>>(
+            return GetPropertyCount(entityType) == 0
+                ? (() => Snapshot.Empty)
+                : Expression.Lambda<Func<ISnapshot>>(
                     CreateConstructorExpression(entityType, null))
                 .Compile();
         }
@@ -85,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 constructorExpression = CreateSnapshotExpression(entityType.ClrType, parameter, types, propertyBases);
             }
+
             return constructorExpression;
         }
 
@@ -118,9 +116,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else
                 {
-                    var memberAccess = Expression.MakeMemberAccess(
+                    var memberAccess = (Expression)Expression.MakeMemberAccess(
                         entityVariable,
                         propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+
+                    if (memberAccess.Type != propertyBase.ClrType)
+                    {
+                        memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
+                    }
+
                     arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
                         ? Expression.Call(
                             null,
@@ -139,7 +143,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return UseEntityVariable
                    && entityVariable != null
                 ? (Expression)Expression.Block(
-                    new List<ParameterExpression> { entityVariable },
+                    new List<ParameterExpression>
+                    {
+                        entityVariable
+                    },
                     new List<Expression>
                     {
                         Expression.Assign(
@@ -152,23 +159,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : constructorExpression;
         }
 
-        private static Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)
+        private Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)
         {
             if (propertyBase is IProperty property)
             {
-                var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+                var comparer = GetValueComparer(property);
 
                 if (comparer != null)
                 {
-                    expression = ReplacingExpressionVisitor.Replace(
+                    var snapshotExpression = ReplacingExpressionVisitor.Replace(
                         comparer.SnapshotExpression.Parameters.Single(),
                         expression,
                         comparer.SnapshotExpression.Body);
+
+                    expression = propertyBase.ClrType.IsNullableType()
+                        ? Expression.Condition(
+                            Expression.Equal(expression, Expression.Constant(null, propertyBase.ClrType)),
+                            Expression.Constant(null, propertyBase.ClrType),
+                            snapshotExpression)
+                        : snapshotExpression;
                 }
             }
 
             return expression;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected abstract ValueComparer GetValueComparer([NotNull] IProperty property);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

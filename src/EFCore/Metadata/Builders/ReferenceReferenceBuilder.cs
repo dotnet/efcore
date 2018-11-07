@@ -83,25 +83,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         added to the principal entity type to serve as the reference key.
         ///     </para>
         /// </summary>
-        /// <param name="dependentEntityType">
-        ///     The entity type that is the dependent in this relationship (the type that has the foreign key
-        ///     properties).
+        /// <param name="dependentEntityTypeName">
+        ///     The name of the entity type that is the dependent in this relationship (the type that has the foreign
+        ///     key properties).
         /// </param>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder HasForeignKey(
-            [NotNull] Type dependentEntityType,
+            [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder(
                 HasForeignKeyBuilder(
-                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
-                    dependentEntityType.ShortDisplayName(),
+                    ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
+                    dependentEntityTypeName,
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
-                Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
-                foreignKeySet: foreignKeyPropertyNames.Any());
+                Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
+                foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
         ///     <para>
@@ -121,25 +121,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         added to the principal entity type to serve as the reference key.
         ///     </para>
         /// </summary>
-        /// <param name="dependentEntityTypeName">
-        ///     The name of the entity type that is the dependent in this relationship (the type that has the foreign
-        ///     key properties).
+        /// <param name="dependentEntityType">
+        ///     The entity type that is the dependent in this relationship (the type that has the foreign key
+        ///     properties).
         /// </param>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder HasForeignKey(
-            [NotNull] string dependentEntityTypeName,
+            [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder(
                 HasForeignKeyBuilder(
-                    ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
-                    dependentEntityTypeName,
+                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
+                    dependentEntityType.ShortDisplayName(),
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
-                Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
-                foreignKeySet: foreignKeyPropertyNames.Any());
+                Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
+                foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -200,35 +200,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     match the order that the primary key or unique constraint properties were configured on the principal
         ///     entity type.
         /// </remarks>
-        /// <param name="principalEntityType">
-        ///     The entity type that is the principal in this relationship (the type
-        ///     that has the reference key properties).
-        /// </param>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder HasPrincipalKey(
-            [NotNull] Type principalEntityType,
-            [NotNull] params string[] keyPropertyNames)
-            => new ReferenceReferenceBuilder(
-                HasPrincipalKeyBuilder(
-                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
-                    principalEntityType.ShortDisplayName(),
-                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
-                this,
-                inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
-                principalKeySet: keyPropertyNames.Any());
-
-        /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
-        /// </summary>
-        /// <remarks>
-        ///     If multiple principal key properties are specified, the order of principal key properties should
-        ///     match the order that the primary key or unique constraint properties were configured on the principal
-        ///     entity type.
-        /// </remarks>
         /// <param name="principalEntityTypeName">
         ///     The name of the entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
@@ -245,7 +216,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != ResolveEntityType(principalEntityTypeName).Name,
-                principalKeySet: keyPropertyNames.Any());
+                principalKeySet: keyPropertyNames.Length > 0);
+
+        /// <summary>
+        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
+        /// </summary>
+        /// <remarks>
+        ///     If multiple principal key properties are specified, the order of principal key properties should
+        ///     match the order that the primary key or unique constraint properties were configured on the principal
+        ///     entity type.
+        /// </remarks>
+        /// <param name="principalEntityType">
+        ///     The entity type that is the principal in this relationship (the type
+        ///     that has the reference key properties).
+        /// </param>
+        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual ReferenceReferenceBuilder HasPrincipalKey(
+            [NotNull] Type principalEntityType,
+            [NotNull] params string[] keyPropertyNames)
+            => new ReferenceReferenceBuilder(
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
+                    principalEntityType.ShortDisplayName(),
+                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                this,
+                inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
+                principalKeySet: keyPropertyNames.Length > 0);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -316,12 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return DeclaringEntityType;
             }
 
-            if (RelatedEntityType.DisplayName() == entityTypeName)
-            {
-                return RelatedEntityType;
-            }
-
-            return null;
+            return RelatedEntityType.DisplayName() == entityTypeName ? RelatedEntityType : null;
         }
 
         /// <summary>
@@ -335,12 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return DeclaringEntityType;
             }
 
-            if (RelatedEntityType.ClrType == entityType)
-            {
-                return RelatedEntityType;
-            }
-
-            return null;
+            return RelatedEntityType.ClrType == entityType ? RelatedEntityType : null;
         }
 
         private EntityType GetOtherEntityType(EntityType entityType)

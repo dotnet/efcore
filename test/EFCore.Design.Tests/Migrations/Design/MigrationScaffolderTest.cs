@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
@@ -49,7 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             var currentContext = new CurrentDbContext(new TContext());
             var idGenerator = new MigrationsIdGenerator();
-            var code = new CSharpHelper();
+            var code = new CSharpHelper(new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
             var reporter = new TestOperationReporter();
             var migrationAssembly
                 = new MigrationsAssembly(
@@ -69,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     new MigrationsModelDiffer(
                         new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()), 
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                         new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<StateManagerDependencies>(),
@@ -83,8 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 new CSharpMigrationsGeneratorDependencies(
                                     code,
                                     new CSharpMigrationOperationGenerator(
-                                        new CSharpMigrationOperationGeneratorDependencies(code)),
-                                    new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(code))))
+                                        new CSharpMigrationOperationGeneratorDependencies(
+                                            code)),
+                                    new CSharpSnapshotGenerator(
+                                        new CSharpSnapshotGeneratorDependencies(
+                                            code))))
                         }),
                     historyRepository,
                     reporter,

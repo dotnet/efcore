@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -13,12 +14,23 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DatabaseInMemoryTest
     {
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task CanConnect_returns_true(bool async)
+        {
+            using (var context = new SimpleContext())
+            {
+                Assert.True(async ? await context.Database.CanConnectAsync() : context.Database.CanConnect());
+            }
+        }
+
         [Fact]
         public async Task Can_add_update_delete_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
+                .AddSingleton<ILoggerFactory>(new ListLoggerFactory())
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
@@ -27,7 +39,11 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInMemoryDatabase(nameof(DatabaseInMemoryTest))
                 .Options;
 
-            var customer = new Customer { Id = 42, Name = "Theon" };
+            var customer = new Customer
+            {
+                Id = 42,
+                Name = "Theon"
+            };
 
             using (var context = new DbContext(options))
             {
@@ -102,7 +118,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var db = new SimpleContext())
             {
-                db.Artists.Add(new SimpleContext.Artist { ArtistId = "JDId", Name = "John Doe" });
+                db.Artists.Add(
+                    new SimpleContext.Artist
+                    {
+                        ArtistId = "JDId",
+                        Name = "John Doe"
+                    });
                 await db.SaveChangesAsync();
             }
 

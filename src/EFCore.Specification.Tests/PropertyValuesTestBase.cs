@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -1889,7 +1890,15 @@ namespace Microsoft.EntityFrameworkCore
                 var buildingValues = await getPropertyValues(context.Entry(building));
 
                 Assert.Equal(
-                    new List<string> { "BuildingId", "Name", "PrincipalMailRoomId", "Shadow1", "Shadow2", "Value" },
+                    new List<string>
+                    {
+                        "BuildingId",
+                        "Name",
+                        "PrincipalMailRoomId",
+                        "Shadow1",
+                        "Shadow2",
+                        "Value"
+                    },
                     buildingValues.Properties.Select(p => p.Name).ToList());
             }
         }
@@ -1951,15 +1960,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
+        public virtual Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         {
-            await GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
+        public virtual Task GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
         {
-            await GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+            return GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
         }
 
         private async Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
@@ -2283,7 +2292,7 @@ namespace Microsoft.EntityFrameworkCore
             return context;
         }
 
-        public abstract class PropertyValuesFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class PropertyValuesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "PropertyValues";
 
@@ -2291,15 +2300,15 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Employee>(
                     b =>
-                        {
-                            b.Property(e => e.EmployeeId).ValueGeneratedNever();
-                            b.Property<int>("Shadow1");
-                            b.Property<string>("Shadow2");
-                        });
+                    {
+                        b.Property(e => e.EmployeeId).ValueGeneratedNever();
+                        b.Property<int>("Shadow1");
+                        b.Property<string>("Shadow2");
+                    });
 
-                modelBuilder.Entity<CurrentEmployee>(b => { b.Property<int>("Shadow3"); });
+                modelBuilder.Entity<CurrentEmployee>(b => b.Property<int>("Shadow3"));
 
-                modelBuilder.Entity<PastEmployee>(b => { b.Property<string>("Shadow4"); });
+                modelBuilder.Entity<PastEmployee>(b => b.Property<string>("Shadow4"));
 
                 modelBuilder.Entity<Building>()
                     .HasOne<MailRoom>(nameof(Building.PrincipalMailRoom))
@@ -2311,27 +2320,32 @@ namespace Microsoft.EntityFrameworkCore
                     .WithMany(nameof(Building.MailRooms))
                     .HasForeignKey(m => m.BuildingId);
 
-                modelBuilder.Entity<Office>().HasKey(o => new { o.Number, o.BuildingId });
+                modelBuilder.Entity<Office>().HasKey(
+                    o => new
+                    {
+                        o.Number,
+                        o.BuildingId
+                    });
 
                 modelBuilder.Ignore<UnMappedOffice>();
 
                 modelBuilder.Entity<BuildingDetail>(
                     b =>
-                        {
-                            b.HasKey(d => d.BuildingId);
-                            b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
-                        });
+                    {
+                        b.HasKey(d => d.BuildingId);
+                        b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
+                    });
 
                 modelBuilder.Entity<Building>(
                     b =>
-                        {
-                            b.Ignore(e => e.NotInModel);
-                            b.Property<int>("Shadow1");
-                            b.Property<string>("Shadow2");
-                        });
+                    {
+                        b.Ignore(e => e.NotInModel);
+                        b.Property<int>("Shadow1");
+                        b.Property<string>("Shadow2");
+                    });
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 var buildings = new List<Building>
                 {

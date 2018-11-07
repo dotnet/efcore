@@ -16,14 +16,11 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price).HasColumnType("decimal(18,2)");
-
-#if !Test20
             modelBuilder.Entity<LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly>()
                 .Property(l => l.ProfileId3).HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Profile>()
-                    .Property(l => l.Id3).HasColumnType("decimal(18,2)");
-#endif
+                .Property(l => l.Id3).HasColumnType("decimal(18,2)");
         }
     }
 }

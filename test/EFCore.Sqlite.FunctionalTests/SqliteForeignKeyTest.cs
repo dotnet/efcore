@@ -28,14 +28,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new MyContext(builder.Options))
                 {
-                    context.Add(new Child { ParentId = 4 });
+                    context.Add(
+                        new Child
+                        {
+                            ParentId = 4
+                        });
                     if (suppress)
                     {
                         context.SaveChanges();
                     }
                     else
                     {
-                        var ex = Assert.Throws<DbUpdateException>(() => { context.SaveChanges(); });
+                        var ex = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                         // ReSharper disable once PossibleNullReferenceException
                         Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message, StringComparison.OrdinalIgnoreCase);
                     }
@@ -98,8 +102,16 @@ CREATE TABLE Comment (
                 long id;
                 using (var context = new BloggingContext(options))
                 {
-                    var entry = context.User.Add(new User { AltId = 1356524 });
-                    context.Comments.Add(new Comment { User = entry.Entity });
+                    var entry = context.User.Add(
+                        new User
+                        {
+                            AltId = 1356524
+                        });
+                    context.Comments.Add(
+                        new Comment
+                        {
+                            User = entry.Entity
+                        });
                     context.SaveChanges();
                     id = entry.Entity.Id;
                 }
@@ -123,16 +135,16 @@ CREATE TABLE Comment (
             {
                 modelBuilder.Entity<Comment>(
                     entity =>
-                        {
-                            entity.ToTable("Comment");
+                    {
+                        entity.ToTable("Comment");
 
-                            entity.HasOne(d => d.User)
-                                .WithMany(p => p.Comments)
-                                .HasPrincipalKey(p => p.AltId)
-                                .HasForeignKey(d => d.UserAltId);
-                        });
+                        entity.HasOne(d => d.User)
+                            .WithMany(p => p.Comments)
+                            .HasPrincipalKey(p => p.AltId)
+                            .HasForeignKey(d => d.UserAltId);
+                    });
 
-                modelBuilder.Entity<User>(entity => { entity.HasAlternateKey(e => e.AltId); });
+                modelBuilder.Entity<User>(entity => entity.HasAlternateKey(e => e.AltId));
             }
 
             public virtual DbSet<Comment> Comments { get; set; }

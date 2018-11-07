@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void Join_empty_input_returns_empty_string()
         {
-            Assert.Equal("", System.Array.Empty<object>().Join());
+            Assert.Equal("", Array.Empty<object>().Join());
         }
 
         [Fact]

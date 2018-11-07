@@ -133,24 +133,24 @@ namespace Microsoft.EntityFrameworkCore
                 switch (c)
                 {
                     case '_':
-                        {
-                            stringBuilder.Append(escaped ? '_' : '.');
-                            break;
-                        }
+                    {
+                        stringBuilder.Append(escaped ? '_' : '.');
+                        break;
+                    }
                     case '%':
-                        {
-                            stringBuilder.Append(escaped ? "%" : ".*");
-                            break;
-                        }
+                    {
+                        stringBuilder.Append(escaped ? "%" : ".*");
+                        break;
+                    }
                     default:
+                    {
+                        if (c != singleEscapeCharacter)
                         {
-                            if (c != singleEscapeCharacter)
-                            {
-                                stringBuilder.Append(c);
-                            }
-
-                            break;
+                            stringBuilder.Append(c);
                         }
+
+                        break;
+                    }
                 }
             }
 

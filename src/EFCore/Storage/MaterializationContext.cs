@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -19,7 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public readonly struct MaterializationContext
     {
-        internal static readonly MethodInfo GetValueBufferMethod
+        /// <summary>
+        ///     The <see cref="MethodInfo"/> for the <see cref="ValueBuffer"/> get method.
+        /// </summary>
+        public static readonly MethodInfo GetValueBufferMethod
             = typeof(MaterializationContext).GetProperty(nameof(ValueBuffer)).GetMethod;
 
         internal static readonly PropertyInfo ContextProperty
@@ -57,11 +61,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The <see cref="ValueBuffer" /> to use to materialize an entity.
         /// </summary>
-        public ValueBuffer ValueBuffer { get; }
+        public ValueBuffer ValueBuffer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        }
 
         /// <summary>
         ///     The current <see cref="DbContext" /> instance being used.
         /// </summary>
-        public DbContext Context { get; }
+        public DbContext Context
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        }
     }
 }

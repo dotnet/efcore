@@ -19,30 +19,42 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [InlineData(typeof(Dictionary<int, List<string>>), "System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<string>>")]
         [InlineData(typeof(List<List<string>>), "System.Collections.Generic.List<System.Collections.Generic.List<string>>")]
         // Classes inside NonGeneric class
-        [InlineData(typeof(A),
+        [InlineData(
+            typeof(A),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+A")]
-        [InlineData(typeof(B<int>),
+        [InlineData(
+            typeof(B<int>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+B<int>")]
-        [InlineData(typeof(C<int, string>),
+        [InlineData(
+            typeof(C<int, string>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+C<int, string>")]
-        [InlineData(typeof(B<B<string>>),
+        [InlineData(
+            typeof(B<B<string>>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+B<Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+B<string>>")]
-        [InlineData(typeof(C<int, B<string>>),
+        [InlineData(
+            typeof(C<int, B<string>>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+C<int, Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+B<string>>")]
         // Classes inside Generic class
-        [InlineData(typeof(Outer<int>.D),
+        [InlineData(
+            typeof(Outer<int>.D),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Outer<int>+D")]
-        [InlineData(typeof(Outer<int>.E<int>),
+        [InlineData(
+            typeof(Outer<int>.E<int>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Outer<int>+E<int>")]
-        [InlineData(typeof(Outer<int>.F<int, string>),
+        [InlineData(
+            typeof(Outer<int>.F<int, string>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Outer<int>+F<int, string>")]
-        [InlineData(typeof(Level1<int>.Level2<bool>.Level3<int>),
+        [InlineData(
+            typeof(Level1<int>.Level2<bool>.Level3<int>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Level1<int>+Level2<bool>+Level3<int>")]
-        [InlineData(typeof(Outer<int>.E<Outer<int>.E<string>>),
+        [InlineData(
+            typeof(Outer<int>.E<Outer<int>.E<string>>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Outer<int>+E<Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Outer<int>+E<string>>")]
-        [InlineData(typeof(Outer<int>.F<int, Outer<int>.E<string>>),
+        [InlineData(
+            typeof(Outer<int>.F<int, Outer<int>.E<string>>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Outer<int>+F<int, Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Outer<int>+E<string>>")]
-        [InlineData(typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>),
+        [InlineData(
+            typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+OuterGeneric<int>+InnerNonGeneric+InnerGeneric<int, string>+InnerGenericLeafNode<bool>")]
         public void Can_pretty_print_CLR_full_name(Type type, string expected)
         {
@@ -126,9 +138,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return new TheoryData<Type, bool, string>
             {
                 { typeof(List<>), false, "List<>" },
-                { typeof(Dictionary<,>), false , "Dictionary<,>" },
-                { typeof(List<>), true , "System.Collections.Generic.List<>" },
-                { typeof(Dictionary<,>), true , "System.Collections.Generic.Dictionary<,>" },
+                { typeof(Dictionary<,>), false, "Dictionary<,>" },
+                { typeof(List<>), true, "System.Collections.Generic.List<>" },
+                { typeof(Dictionary<,>), true, "System.Collections.Generic.Dictionary<,>" },
                 { typeof(Level1<>.Level2<>.Level3<>), true, "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Level1<>+Level2<>+Level3<>" },
                 {
                     typeof(PartiallyClosedGeneric<>).BaseType,
@@ -165,39 +177,57 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(expected, type.DisplayName(fullName));
         }
 
-        private class A { }
-
-        private class B<T> { }
-
-        private class C<T1, T2> { }
-
-        private class PartiallyClosedGeneric<T> : C<T, int> { }
-
-        private class Outer<T>
+        private class A
         {
-            public class D { }
-
-            public class E<T1> { }
-
-            public class F<T1, T2> { }
         }
 
-        private class OuterGeneric<T1>
+        private class B<T>
         {
-            public class InnerNonGeneric
-            {
-                public class InnerGeneric<T2, T3>
-                {
-                    public class InnerGenericLeafNode<T4> { }
+        }
 
-                    public class InnerLeafNode { }
+        private class C<T1, T2>
+        {
+        }
+
+        private class PartiallyClosedGeneric<T> : C<T, int>
+        {
+        }
+
+        private static class Outer<T>
+        {
+            public class D
+            {
+            }
+
+            public class E<T1>
+            {
+            }
+
+            public class F<T1, T2>
+            {
+            }
+        }
+
+        private static class OuterGeneric<T1>
+        {
+            public static class InnerNonGeneric
+            {
+                public static class InnerGeneric<T2, T3>
+                {
+                    public class InnerGenericLeafNode<T4>
+                    {
+                    }
+
+                    public class InnerLeafNode
+                    {
+                    }
                 }
             }
         }
 
-        private class Level1<T1>
+        private static class Level1<T1>
         {
-            public class Level2<T2>
+            public static class Level2<T2>
             {
                 public class Level3<T3>
                 {

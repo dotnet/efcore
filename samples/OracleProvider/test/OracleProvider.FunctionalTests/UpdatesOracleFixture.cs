@@ -16,12 +16,10 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price).HasColumnType("decimal(18,2)");
-#if !Test20
             modelBuilder.Entity<LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly>()
                 .Property(l => l.ProfileId9).HasConversion<long>();
 
             modelBuilder.Entity<Profile>().Property(l => l.Id9).HasConversion<long>();
-#endif
         }
     }
 }

@@ -46,12 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var candidateName = FindCandidateNavigationName(foreignKey.Properties);
 
-            if (!string.IsNullOrEmpty(candidateName))
-            {
-                return candidateName;
-            }
-
-            return foreignKey.PrincipalEntityType.ShortName();
+            return !string.IsNullOrEmpty(candidateName) ? candidateName : foreignKey.PrincipalEntityType.ShortName();
         }
 
         /// <summary>
@@ -70,14 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .GetReferencingForeignKeys()
                     .Where(fk => foreignKey.DeclaringEntityType == fk.DeclaringEntityType);
 
-            if (allForeignKeysBetweenDependentAndPrincipal != null
-                && allForeignKeysBetweenDependentAndPrincipal.Count() > 1)
-            {
-                return foreignKey.DeclaringEntityType.ShortName()
-                       + dependentEndNavigationPropertyName;
-            }
-
-            return foreignKey.DeclaringEntityType.ShortName();
+            return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1
+                ? foreignKey.DeclaringEntityType.ShortName()
+                       + dependentEndNavigationPropertyName
+                : foreignKey.DeclaringEntityType.ShortName();
         }
 
         private static string GenerateCandidateIdentifier(string originalIdentifier)
@@ -156,13 +147,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static string StripId(string commonPrefix)
         {
-            if (commonPrefix.Length > 2
-                && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase))
-            {
-                return commonPrefix.Substring(0, commonPrefix.Length - 2);
-            }
-
-            return commonPrefix;
+            return commonPrefix.Length > 2
+                && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase)
+                ? commonPrefix.Substring(0, commonPrefix.Length - 2)
+                : commonPrefix;
         }
     }
 }

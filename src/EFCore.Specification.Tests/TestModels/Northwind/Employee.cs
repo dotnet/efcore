@@ -7,11 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class Employee
     {
-#if Test20
-        public int EmployeeID { get; set; }
-#else
         public uint EmployeeID { get; set; }
-#endif
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string Title { get; set; }
@@ -27,11 +23,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public string Extension { get; set; }
         public byte[] Photo { get; set; }
         public string Notes { get; set; }
-#if Test20
-        public int? ReportsTo { get; set; }
-#else
         public uint? ReportsTo { get; set; }
-#endif
         public string PhotoPath { get; set; }
 
         public Employee Manager { get; set; }
@@ -44,12 +36,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             {
                 return false;
             }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
 
-            return obj.GetType() == GetType()
+            return ReferenceEquals(this, obj)
+                ? true
+                : obj.GetType() == GetType()
                    && Equals((Employee)obj);
         }
 

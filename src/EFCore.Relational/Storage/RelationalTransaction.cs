@@ -23,9 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTransaction>
     {
-        private readonly IRelationalConnection _relationalConnection;
         private readonly DbTransaction _dbTransaction;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> _logger;
         private readonly bool _transactionOwned;
 
         private bool _connectionClosed;
@@ -55,12 +53,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.TransactionAssociatedWithDifferentConnection);
             }
 
-            _relationalConnection = connection;
+            Connection = connection;
 
             _dbTransaction = transaction;
-            _logger = logger;
+            Logger = logger;
             _transactionOwned = transactionOwned;
         }
+
+        /// <summary>
+        ///     The connection.
+        /// </summary>
+        protected virtual IRelationalConnection Connection { get; }
+
+        /// <summary>
+        ///     The logger.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> Logger { get; }
 
         /// <summary>
         ///     A correlation ID that allows this transaction to be identified and
@@ -80,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _dbTransaction.Commit();
 
-                _logger.TransactionCommitted(
-                    _relationalConnection,
+                Logger.TransactionCommitted(
+                    Connection,
                     _dbTransaction,
                     TransactionId,
                     startTime,
@@ -89,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception e)
             {
-                _logger.TransactionError(
-                    _relationalConnection,
+                Logger.TransactionError(
+                    Connection,
                     _dbTransaction,
                     TransactionId,
                     "Commit",
@@ -115,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _dbTransaction.Rollback();
 
-                _logger.TransactionRolledBack(
-                    _relationalConnection,
+                Logger.TransactionRolledBack(
+                    Connection,
                     _dbTransaction,
                     TransactionId,
                     startTime,
@@ -124,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception e)
             {
-                _logger.TransactionError(
-                    _relationalConnection,
+                Logger.TransactionError(
+                    Connection,
                     _dbTransaction,
                     TransactionId,
                     "Rollback",
@@ -151,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     _dbTransaction.Dispose();
 
-                    _logger.TransactionDisposed(
-                        _relationalConnection,
+                    Logger.TransactionDisposed(
+                        Connection,
                         _dbTransaction,
                         TransactionId,
                         DateTimeOffset.UtcNow);
@@ -162,17 +170,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private void ClearTransaction()
+        /// <summary>
+        ///     Remove the underlying transaction from the connection
+        /// </summary>
+        protected virtual void ClearTransaction()
         {
-            Debug.Assert(_relationalConnection.CurrentTransaction == null || _relationalConnection.CurrentTransaction == this);
+            Debug.Assert(Connection.CurrentTransaction == null || Connection.CurrentTransaction == this);
 
-            _relationalConnection.UseTransaction(null);
+            Connection.UseTransaction(null);
 
             if (!_connectionClosed)
             {
                 _connectionClosed = true;
 
-                _relationalConnection.Close();
+                Connection.Close();
             }
         }
 

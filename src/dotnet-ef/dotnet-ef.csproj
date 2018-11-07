@@ -1,7 +1,4 @@
-﻿<Project>
-
-  <Sdk Name="Microsoft.NET.Sdk" />
-  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Entity Framework Core Tools for the .NET Command-Line Interface.
@@ -15,12 +12,15 @@ dotnet ef dbcontext scaffold
 dotnet ef database drop
 dotnet ef database update
     </Description>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
-    <GenerateToolShims>true</GenerateToolShims>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
+    <!-- Because this project uses a custom nuspec, this is necessary to ensure the generated shims are in the publish directory. -->
+    <PackagedShimOutputRootDirectory>$(OutDir)</PackagedShimOutputRootDirectory>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <EnableApiCheck>false</EnableApiCheck>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
@@ -76,7 +76,17 @@ dotnet ef database update
     </Compile>
   </ItemGroup>
 
-  <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
+  <ItemGroup>
+    <!-- Additional files to be code signed -->
+    <SignedPackageFile Include="$(TargetPath)" PackagePath="tools/$(TargetFramework)/any/dotnet-ef.dll" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="..\ef\bin\$(Configuration)\net461\ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net461/any/ef.exe" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="..\ef\bin\x86\$(Configuration)\net461\ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net461/win-x86/ef.exe" Certificate="$(AssemblySigningCertName)" />
+
+    <!-- Third-party assemblies should be signed with the 3rd party certificate -->
+    <SignedPackageFile Include="$(PublishDir)\Newtonsoft.Json.dll" PackagePath="tools/$(TargetFramework)/any/Newtonsoft.Json.dll" Certificate="$(AssemblySigning3rdPartyCertName)" />
+  </ItemGroup>
+
+  <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec">
 
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg. -->
@@ -100,7 +110,6 @@ dotnet ef database update
 
         SettingsFile=$(_ToolsSettingsFilePath);
         Output=$(PublishDir)**\*;
-        OutputShims=$(IntermediateOutputPath)shims\**\*;
         OutputBinary=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll;
         OutputRuntimeConfig=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json;
         OutputSymbol=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.pdb;

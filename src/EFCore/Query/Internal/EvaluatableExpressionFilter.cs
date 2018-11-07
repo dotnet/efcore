@@ -1,17 +1,13 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
+
     public class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
     {
         // This methods are non-deterministic and result varies based on time of running the query.
@@ -39,48 +35,41 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
 
         private static readonly MethodInfo _randomNextOneArg
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new Type[] { typeof(int) });
+            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });
 
         private static readonly MethodInfo _randomNextTwoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new Type[] { typeof(int), typeof(int) });
+            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
+        public override bool IsEvaluatableExpression(Expression expression)
         {
-            var method = methodCallExpression.Method;
-
-            if (Equals(method, _guidNewGuid)
-                || Equals(method, _randomNextNoArgs)
-                || Equals(method, _randomNextOneArg)
-                || Equals(method, _randomNextTwoArgs))
+            switch (expression)
             {
-                return false;
+                case MemberExpression memberExpression:
+                    var member = memberExpression.Member;
+                    if (Equals(member, _dateTimeNow)
+                        || Equals(member, _dateTimeUtcNow)
+                        || Equals(member, _dateTimeToday)
+                        || Equals(member, _dateTimeOffsetNow)
+                        || Equals(member, _dateTimeOffsetUtcNow))
+                    {
+                        return false;
+                    }
+                    break;
+
+                case MethodCallExpression methodCallExpression:
+                    var method = methodCallExpression.Method;
+
+                    if (Equals(method, _guidNewGuid)
+                        || Equals(method, _randomNextNoArgs)
+                        || Equals(method, _randomNextOneArg)
+                        || Equals(method, _randomNextTwoArgs))
+                    {
+                        return false;
+                    }
+                    break;
             }
 
-            return base.IsEvaluatableMethodCall(methodCallExpression);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override bool IsEvaluatableMember(MemberExpression memberExpression)
-        {
-            var member = memberExpression.Member;
-
-            if (Equals(member, _dateTimeNow)
-                || Equals(member, _dateTimeUtcNow)
-                || Equals(member, _dateTimeToday)
-                || Equals(member, _dateTimeOffsetNow)
-                || Equals(member, _dateTimeOffsetUtcNow))
-            {
-                return false;
-            }
-
-            return base.IsEvaluatableMember(memberExpression);
+            return base.IsEvaluatableExpression(expression);
         }
     }
 }

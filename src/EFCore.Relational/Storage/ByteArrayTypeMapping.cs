@@ -5,7 +5,6 @@ using System.Data;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="ByteArrayTypeMapping" /> class.
         /// </summary>
-        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping"/>. </param>
+        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping" />. </param>
         protected ByteArrayTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
         {
@@ -50,20 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="parameters"> The parameters for this mapping. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new ByteArrayTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-        /// <summary>
-        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
-        ///    added.
-        /// </summary>
-        /// <param name="converter"> The converter to use. </param>
-        /// <returns> A new type mapping </returns>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new ByteArrayTypeMapping(Parameters.WithComposedConverter(converter));
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new ByteArrayTypeMapping(parameters);
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.

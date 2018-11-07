@@ -16,15 +16,15 @@ namespace Microsoft.EntityFrameworkCore
     {
         // See aspnet/Data#135
         [Fact]
-        public async Task Can_use_an_existing_closed_connection()
+        public Task Can_use_an_existing_closed_connection()
         {
-            await Can_use_an_existing_closed_connection_test(openConnection: false);
+            return Can_use_an_existing_closed_connection_test(openConnection: false);
         }
 
         [Fact]
-        public async Task Can_use_an_existing_open_connection()
+        public Task Can_use_an_existing_open_connection()
         {
-            await Can_use_an_existing_closed_connection_test(openConnection: true);
+            return Can_use_an_existing_closed_connection_test(openConnection: true);
         }
 
         private static async Task Can_use_an_existing_closed_connection_test(bool openConnection)
@@ -49,17 +49,17 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     connection.StateChange += (_, a) =>
+                    {
+                        switch (a.CurrentState)
                         {
-                            switch (a.CurrentState)
-                            {
-                                case ConnectionState.Open:
-                                    openCount++;
-                                    break;
-                                case ConnectionState.Closed:
-                                    closeCount++;
-                                    break;
-                            }
-                        };
+                            case ConnectionState.Open:
+                                openCount++;
+                                break;
+                            case ConnectionState.Closed:
+                                closeCount++;
+                                break;
+                        }
+                    };
                     connection.Disposed += (_, __) => disposeCount++;
 
                     using (var context = new NorthwindContext(serviceProvider, connection))
@@ -107,10 +107,10 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Customer>(
                     b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                    {
+                        b.HasKey(c => c.CustomerID);
+                        b.ToTable("Customers");
+                    });
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local

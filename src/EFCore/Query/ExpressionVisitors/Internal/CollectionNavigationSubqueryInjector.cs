@@ -78,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 newMemberExpression = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     memberExpression,
                     (properties, querySource) =>
-                        {
-                            var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
+                    {
+                        var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
 
-                            return collectionNavigation != null
-                                ? InjectSubquery(memberExpression, collectionNavigation)
-                                : default;
-                        });
+                        return collectionNavigation != null
+                            ? InjectSubquery(memberExpression, collectionNavigation)
+                            : default;
+                    });
             }
 
             return newMemberExpression ?? base.VisitMember(memberExpression);
@@ -117,13 +117,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 newMethodCallExpression = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     methodCallExpression,
                     (properties, querySource) =>
-                        {
-                            var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
+                    {
+                        var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
 
-                            return collectionNavigation != null
-                                ? InjectSubquery(methodCallExpression, collectionNavigation)
-                                : default;
-                        });
+                        return collectionNavigation != null
+                            ? InjectSubquery(methodCallExpression, collectionNavigation)
+                            : default;
+                    });
             }
 
             try
@@ -136,11 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
-        private static Expression InjectSubquery(Expression expression, INavigation collectionNavigation)
+        private Expression InjectSubquery(Expression expression, INavigation collectionNavigation)
         {
             var targetType = collectionNavigation.GetTargetType().ClrType;
             var mainFromClause = new MainFromClause(targetType.Name.Substring(0, 1).ToLowerInvariant(), targetType, expression);
             var selector = new QuerySourceReferenceExpression(mainFromClause);
+            _queryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(mainFromClause, collectionNavigation.GetTargetType());
 
             var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selector));
             var subqueryExpression = new SubQueryExpression(subqueryModel);

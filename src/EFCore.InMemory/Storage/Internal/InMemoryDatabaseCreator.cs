@@ -14,30 +14,33 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class InMemoryDatabaseCreator : IDatabaseCreator
+    public class InMemoryDatabaseCreator : IDatabaseCreatorWithCanConnect
     {
         private readonly StateManagerDependencies _stateManagerDependencies;
-        private readonly IInMemoryDatabase _database;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public InMemoryDatabaseCreator([NotNull] StateManagerDependencies stateManagerDependencies, [NotNull] IInMemoryDatabase database)
+        public InMemoryDatabaseCreator([NotNull] StateManagerDependencies stateManagerDependencies)
         {
             Check.NotNull(stateManagerDependencies, nameof(stateManagerDependencies));
-            Check.NotNull(database, nameof(database));
 
             _stateManagerDependencies = stateManagerDependencies;
-            _database = database;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected virtual IInMemoryDatabase Database => (IInMemoryDatabase)_stateManagerDependencies.Database;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool EnsureDeleted()
-            => _database.Store.Clear();
+            => Database.Store.Clear();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -50,13 +53,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool EnsureCreated() => _database.EnsureDatabaseCreated(_stateManagerDependencies);
+        public virtual bool EnsureCreated() => Database.EnsureDatabaseCreated(_stateManagerDependencies);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
-            => Task.FromResult(_database.EnsureDatabaseCreated(_stateManagerDependencies));
+            => Task.FromResult(Database.EnsureDatabaseCreated(_stateManagerDependencies));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool CanConnect()
+            => true;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult(true);
     }
 }

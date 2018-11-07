@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 {
-    public class F1Context : DbContext
+    public class F1Context : PoolableDbContext
     {
         public F1Context(DbContextOptions options)
             : base(options)

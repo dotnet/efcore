@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts enum values to and from their underlying numeric representation.
     /// </summary>
     public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumber>
-        where TEnum : struct 
+        where TEnum : struct
         where TNumber : struct
     {
         // ReSharper disable once StaticMemberInGenericType
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter. This converter preserves order.
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public EnumToNumberConverter([CanBeNull] ConverterMappingHints mappingHints = null)
@@ -68,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 typeof(int), typeof(long), typeof(short), typeof(byte),
                 typeof(uint), typeof(ulong), typeof(ushort), typeof(sbyte),
                 typeof(double), typeof(float), typeof(decimal));
-
 
             var param = Expression.Parameter(typeof(TEnum), "value");
 

@@ -13,11 +13,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
         {
-            if (!((traitAttribute as IReflectionAttributeInfo)?.Attribute is SqlServerConditionAttribute sqlServerCondition))
-            {
-                return Enumerable.Empty<KeyValuePair<string, string>>();
-            }
-            return Enum.GetValues(typeof(SqlServerCondition)).Cast<SqlServerCondition>()
+            return !((traitAttribute as IReflectionAttributeInfo)?.Attribute is SqlServerConditionAttribute sqlServerCondition)
+                ? Enumerable.Empty<KeyValuePair<string, string>>()
+                : Enum.GetValues(typeof(SqlServerCondition)).Cast<SqlServerCondition>()
                 .Where(c => sqlServerCondition.Conditions.HasFlag(c))
                 .Select(c => new KeyValuePair<string, string>(nameof(SqlServerCondition), c.ToString()));
         }

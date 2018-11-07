@@ -431,7 +431,7 @@ function Script-Migration
     if (!$Output)
     {
         $intermediatePath = GetIntermediatePath $dteProject
-        if (!(Split-Path $intermediatePath -IsAbsolute))
+        if (![IO.Path]::IsPathRooted($intermediatePath))
         {
             $projectDir = GetProperty $dteProject.Properties 'FullPath'
             $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
@@ -440,7 +440,7 @@ function Script-Migration
         $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
         $Output = Join-Path $intermediatePath $scriptFileName
     }
-    elseif (!(Split-Path $Output -IsAbsolute))
+    elseif (![IO.Path]::IsPathRooted($Output))
     {
         $Output = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Output)
     }
@@ -608,7 +608,7 @@ function GetStartupProject($name, $fallbackProject)
         if ($startupProjectPaths.Length -eq 1)
         {
             $startupProjectPath = $startupProjectPaths[0]
-            if (!(Split-Path -IsAbsolute $startupProjectPath))
+            if (![IO.Path]::IsPathRooted($startupProjectPath))
             {
                 $solutionPath = Split-Path (GetProperty $DTE.Solution.Properties 'Path')
                 $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve | Convert-Path
@@ -756,7 +756,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
     $startupProjectDir = GetProperty $startupProject.Properties 'FullPath'
     $outputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'OutputPath'
-    $targetDir = Join-Path $startupProjectDir $outputPath -Resolve | Convert-Path
+    $targetDir = [IO.Path]::GetFullPath([IO.Path]::Combine($startupProjectDir, $outputPath))
     $startupTargetFileName = GetOutputFileName $startupProject
     $startupTargetPath = Join-Path $targetDir $startupTargetFileName
     $targetFrameworkMoniker = GetProperty $startupProject.Properties 'TargetFrameworkMoniker'
@@ -822,7 +822,8 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
             'runtime associated with this framework, and projects targeting it cannot be executed directly. To use ' +
             'the Entity Framework Core Package Manager Console Tools with this project, add an executable project ' +
             'targeting .NET Framework or .NET Core that references this project, and set it as the startup project; ' +
-            'or, update this project to cross-target .NET Framework or .NET Core.'
+            'or, update this project to cross-target .NET Framework or .NET Core. For more information on using the ' +
+            'EF Core Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034705'
     }
     else
     {
@@ -1076,7 +1077,7 @@ function GetProjectItem($project, $path)
 {
     $fullPath = GetProperty $project.Properties 'FullPath'
 
-    if (Split-Path $path -IsAbsolute)
+    if ([IO.Path]::IsPathRooted($path))
     {
         $path = $path.Substring($fullPath.Length)
     }

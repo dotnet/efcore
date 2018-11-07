@@ -128,8 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                             EntityQueryModelVisitor.QueryContextParameter,
                                             entityParameter,
                                             _includedParameter,
-                                            _cancellationTokenParameter),
-                                        _cancellationTokenParameter))
+                                            CancellationTokenParameter),
+                                        CancellationTokenParameter))
                             : Expression.Call(
                                 _includeMethodInfo.MakeGenericMethod(targetQuerySourceReferenceExpression.Type),
                                 EntityQueryModelVisitor.QueryContextParameter,

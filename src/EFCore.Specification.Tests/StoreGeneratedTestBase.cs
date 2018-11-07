@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-#if !Test20
         [Fact]
         public virtual void Value_generation_throws_for_common_cases()
         {
@@ -70,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(id, context.Set<TEntity>().Single(e => e.Id.Equals(id)).Id);
             }
         }
-#endif
 
         [Theory]
         [InlineData(nameof(Anais.NeverThrowBeforeUseAfter))]
@@ -123,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         id = entity.Id;
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -154,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         id = entity.Id;
                     },
-                context => { Assert.Equal("Pink", GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal("Pink", GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -185,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         id = entity.Id;
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -214,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         id = entity.Id;
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -243,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         id = entity.Id;
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -306,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.SaveChanges();
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -345,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.SaveChanges();
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -384,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.SaveChanges();
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -425,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.SaveChanges();
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         [Theory]
@@ -463,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.SaveChanges();
                     },
-                context => { Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)); });
+                context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
         private static Anais WithValue(string propertyName, int id = 0)
@@ -509,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Banana Joe", entry.Entity.Identity);
                         Assert.False(entry.Property(e => e.Identity).IsTemporary);
                     },
-                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity); });
+                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
         [Fact]
@@ -529,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Banana Joe", entry.Entity.Identity);
                         Assert.False(entry.Property(e => e.Identity).IsTemporary);
                     },
-                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity); });
+                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
         [Fact]
@@ -547,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Banana Joe", entity.Identity);
                     },
-                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity); });
+                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
         [Fact]
@@ -579,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Masami", entity.Identity);
                     },
-                context => { Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Identity); });
+                context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
         [Fact]
@@ -636,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Masami", gumball.Identity);
                     },
-                context => { Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Identity); });
+                context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
         [Fact]
@@ -668,7 +666,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Masami", gumball.Identity);
                     },
-                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity); });
+                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
         [Fact]
@@ -687,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Banana Joe", entry.Entity.AlwaysIdentity);
                     },
-                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity); });
+                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
         [Fact]
@@ -705,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Banana Joe", entity.AlwaysIdentity);
                     },
-                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity); });
+                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
         [Fact]
@@ -737,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Banana Joe", entity.AlwaysIdentity);
                     },
-                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity); });
+                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
         [Fact]
@@ -794,7 +792,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Masami", gumball.AlwaysIdentity);
                     },
-                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity); });
+                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
         [Fact]
@@ -825,7 +823,7 @@ namespace Microsoft.EntityFrameworkCore
                         context.SaveChanges();
 
                         Assert.Equal("Masami", gumball.AlwaysIdentity);
-                    }, context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity); });
+                    }, context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
         [Fact]
@@ -844,7 +842,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Alan", entry.Entity.Computed);
                     },
-                context => { Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed); });
+                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
         [Fact]
@@ -862,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Alan", entity.Computed);
                     },
-                context => { Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed); });
+                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
         [Fact]
@@ -894,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Masami", entity.Computed);
                     },
-                context => { Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Computed); });
+                context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
         [Fact]
@@ -951,7 +949,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Masami", gumball.Computed);
                     },
-                context => { Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Computed); });
+                context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
         [Fact]
@@ -983,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Alan", gumball.Computed);
                     },
-                context => { Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed); });
+                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
         [Fact]
@@ -1002,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Alan", entry.Entity.AlwaysComputed);
                     },
-                context => { Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed); });
+                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
         [Fact]
@@ -1020,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Alan", entity.AlwaysComputed);
                     },
-                context => { Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed); });
+                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
         [Fact]
@@ -1052,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Alan", entity.AlwaysComputed);
                     },
-                context => { Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed); });
+                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
         [Fact]
@@ -1109,7 +1107,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Alan", gumball.AlwaysComputed);
                     },
-                context => { Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed); });
+                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
         [Fact]
@@ -1141,7 +1139,27 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal("Alan", gumball.AlwaysComputed);
                     },
-                context => { Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed); });
+                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
+        }
+
+        [Fact]
+        public virtual void Fields_used_correctly_for_store_generated_values()
+        {
+            var id = 0;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Add(new WithBackingFields()).Entity;
+
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
+                context =>
+                {
+                    var entity = context.Set<WithBackingFields>().Single(e => e.Id.Equals(id));
+                    Assert.Equal(1, entity.NullableAsNonNullable);
+                    Assert.Equal(1, entity.NonNullableAsNullable);
+                });
         }
 
         protected class Darwin
@@ -1220,6 +1238,30 @@ namespace Microsoft.EntityFrameworkCore
             public string OnUpdateThrowBeforeThrowAfter { get; set; }
         }
 
+        protected class WithBackingFields
+        {
+            private int _id;
+            public int Id
+            {
+                get => _id;
+                set => _id = value;
+            }
+
+            private int? _nullableAsNonNullable = 0;
+            public int NullableAsNonNullable
+            {
+                get => (int)_nullableAsNonNullable;
+                set => _nullableAsNonNullable = value;
+            }
+
+            private int _nonNullableAsNullable;
+            public int? NonNullableAsNullable
+            {
+                get => _nonNullableAsNullable;
+                set => _nonNullableAsNullable = (int)value;
+            }
+        }
+
         protected class WithConverter<TKey>
         {
             public TKey Id { get; set; }
@@ -1255,18 +1297,16 @@ namespace Microsoft.EntityFrameworkCore
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class StoreGeneratedFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class StoreGeneratedFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "StoreGeneratedTest";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-#if !Test20
                 modelBuilder.Entity<IntToString>().Property(e => e.Id).HasConversion<string>();
                 modelBuilder.Entity<GuidToString>().Property(e => e.Id).HasConversion<string>();
                 modelBuilder.Entity<GuidToBytes>().Property(e => e.Id).HasConversion<byte[]>();
                 modelBuilder.Entity<ShortToBytes>().Property(e => e.Id).HasConversion<byte[]>();
-#endif
 
                 modelBuilder.Entity<Gumball>(
                     b =>
@@ -1490,6 +1530,13 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                 modelBuilder.Entity<Darwin>();
+
+                modelBuilder.Entity<WithBackingFields>(b =>
+                {
+                    b.Property(e => e.Id).HasField("_id");
+                    b.Property(e => e.NullableAsNonNullable).HasField("_nullableAsNonNullable").ValueGeneratedOnAddOrUpdate();
+                    b.Property(e => e.NonNullableAsNullable).HasField("_nonNullableAsNullable").ValueGeneratedOnAddOrUpdate();
+                });
             }
         }
     }

@@ -15,6 +15,9 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable NegativeEqualityExpression
+
+#pragma warning disable RCS1068 // Simplify logical negation.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class NullSemanticsQueryTestBase<TFixture> : IClassFixture<TFixture>
@@ -277,7 +280,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = from e1 in context.Entities1
                             join e2 in context.Entities2 on e1.NullableIntA equals e2.NullableIntB
-                            select new { Id1 = e1.Id, Id2 = e2.Id, e1.NullableIntA, e2.NullableIntB };
+                            select new
+                            {
+                                Id1 = e1.Id,
+                                Id2 = e2.Id,
+                                e1.NullableIntA,
+                                e2.NullableIntB
+                            };
 
                 query.ToList();
             }
@@ -681,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(useRelationalNulls: true))
             {
                 var actual = context.Entities1
-                    .FromSql(@"SELECT * FROM ""Entities1""")
+                    .FromSql(NormalizeDelimeters("SELECT * FROM [Entities1]"))
                     .Where(c => c.StringA == c.StringB)
                     .ToArray();
 
@@ -695,12 +704,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var expected = context.Entities1.ToList()
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? false
+                        });
 
                 ClearLog();
 
                 var query = context.Entities1
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? false
+                        });
 
                 var results = query.ToList();
                 Assert.Equal(expected.Count(), results.Count);
@@ -717,12 +736,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var expected = context.Entities1.ToList()
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false)
+                        });
 
                 ClearLog();
 
                 var query = context.Entities1
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false)
+                        });
 
                 var results = query.ToList();
                 Assert.Equal(expected.Count(), results.Count);
@@ -732,6 +761,70 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
         }
+
+        [Fact]
+        public virtual void Null_semantics_applied_when_comparing_function_with_nullable_argument_to_a_nullable_column()
+        {
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") == e.NullableIntA),
+                es => es.Where(e => (e.NullableStringA == null && e.NullableIntA == null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") == e.NullableIntA)),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("ar") == e.NullableIntA),
+                es => es.Where(e => (e.NullableStringA == null && e.NullableIntA == null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("ar") == e.NullableIntA)),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableIntB),
+                es => es.Where(e => (e.NullableStringA == null && e.NullableIntB != null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") != e.NullableIntB)),
+                useRelationalNulls: false);
+        }
+
+        [Fact]
+        public virtual void Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments()
+        {
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") == e.NullableStringB.IndexOf("ar")),
+                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) == MaybeScalar<int>(e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringB.IndexOf("ar")),
+                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) != MaybeScalar<int>(e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringA.IndexOf("ar")),
+                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) != MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("ar"))),
+                useRelationalNulls: false);
+        }
+
+        [Fact]
+        public virtual void Null_semantics_applied_when_comparing_two_functions_with_multiple_nullable_arguments()
+        {
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) == e.NullableStringA),
+                es => es.Where(e => (e.NullableStringA == null && (e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null)) || (e.NullableStringA != null && e.NullableStringB != null && e.NullableStringC != null && e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) == e.NullableStringA)),
+                useRelationalNulls: false);
+
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) != e.NullableStringA),
+                es => es.Where(e => ((e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null) && e.NullableStringA != null) || (e.NullableStringA != null && e.NullableStringB != null && e.NullableStringC != null && e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) != e.NullableStringA)),
+                useRelationalNulls: false);
+        }
+
+        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
+            where TResult : struct
+        {
+            return caller == null ? null : expression();
+        }
+
+        private RawSqlString NormalizeDelimeters(RawSqlString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
+
+        private FormattableString NormalizeDelimeters(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
 
         protected abstract NullSemanticsContext CreateContext(bool useRelationalNulls = false);
 

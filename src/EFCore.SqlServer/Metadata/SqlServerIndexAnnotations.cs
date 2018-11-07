@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -51,5 +52,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual bool SetIsClustered(bool? value) => Annotations.SetAnnotation(
             SqlServerAnnotationNames.Clustered,
             value);
+
+        /// <summary>
+        ///     Returns included property names, or <c>null</c> if they have not been specified.
+        /// </summary>
+        public virtual IReadOnlyList<string> IncludeProperties
+        {
+            get => (string[])Annotations.Metadata[SqlServerAnnotationNames.Include];
+            set => SetInclude(value);
+        }
+
+        /// <summary>
+        ///     Attempts to set included property names using the semantics of the <see cref="RelationalAnnotations" /> in use.
+        /// </summary>
+        /// <param name="properties"> The value to set. </param>
+        /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
+        protected virtual bool SetInclude([CanBeNull] IReadOnlyList<string> properties)
+            => Annotations.SetAnnotation(
+                SqlServerAnnotationNames.Include,
+                properties);
     }
 }

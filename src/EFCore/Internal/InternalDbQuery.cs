@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(typeof(TQuery).ShortDisplayName()));
                     }
+
                     throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TQuery).ShortDisplayName()));
                 }
 

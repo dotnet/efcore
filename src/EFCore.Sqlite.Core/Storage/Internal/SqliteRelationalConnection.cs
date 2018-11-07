@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -20,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationalConnection
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+        private readonly bool _loadSpatialite;
         private readonly bool _enforceForeignKeys = true;
 
         /// <summary>
@@ -38,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             var optionsExtension = dependencies.ContextOptions.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
             if (optionsExtension != null)
             {
+                _loadSpatialite = optionsExtension.LoadSpatialite;
                 _enforceForeignKeys = optionsExtension.EnforceForeignKeys;
             }
         }
@@ -62,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         {
             if (base.Open(errorsExpected))
             {
+                LoadSpatialite();
                 EnableForeignKeys();
                 return true;
             }
@@ -77,11 +81,25 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         {
             if (await base.OpenAsync(cancellationToken, errorsExpected))
             {
+                LoadSpatialite();
                 EnableForeignKeys();
                 return true;
             }
 
             return false;
+        }
+
+        private void LoadSpatialite()
+        {
+            if (!_loadSpatialite)
+            {
+                return;
+            }
+
+            var connection = (SqliteConnection)DbConnection;
+            connection.EnableExtensions();
+            SpatialiteLoader.Load(DbConnection);
+            connection.EnableExtensions(false);
         }
 
         private void EnableForeignKeys()

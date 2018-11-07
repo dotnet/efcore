@@ -1,12 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
@@ -36,11 +33,12 @@ namespace Microsoft.EntityFrameworkCore
             public override bool SupportsLargeStringComparisons => false;
 
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(
-                    c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
+                    c => c
+                        .Log(RelationalEventId.QueryClientEvaluationWarning)
                         .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
 
             public override bool SupportsBinaryKeys => true;
@@ -49,4 +47,3 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 }
-#endif

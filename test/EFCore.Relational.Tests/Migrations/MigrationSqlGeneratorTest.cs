@@ -290,8 +290,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void Generate_doesnt_batch_by_default()
         {
             Generate(
-                new SqlOperation { Sql = "SELECT 1;" },
-                new SqlOperation { Sql = "SELECT 2;" });
+                new SqlOperation
+                {
+                    Sql = "SELECT 1;"
+                },
+                new SqlOperation
+                {
+                    Sql = "SELECT 2;"
+                });
 
             Assert.Equal(
                 "SELECT 1;" + EOL +

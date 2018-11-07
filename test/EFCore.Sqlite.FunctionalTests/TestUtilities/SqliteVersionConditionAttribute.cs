@@ -37,11 +37,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             get
             {
                 var connection = new SqliteConnection("Data Source=:memory:;");
-                if (connection.ServerVersion != null)
-                {
-                    return new Version(connection.ServerVersion);
-                }
-                return null;
+                return connection.ServerVersion != null ? new Version(connection.ServerVersion) : null;
             }
         }
 
@@ -65,12 +61,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     return Current <= _max;
                 }
 
-                if (_max == null)
-                {
-                    return Current >= _min;
-                }
-
-                return Current <= _max && Current >= _min;
+                return _max == null ? Current >= _min : Current <= _max && Current >= _min;
             }
         }
 
@@ -80,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             set => _skipReason = value;
             get => _skipReason ??
-                       $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
-                       + (Skip == null ? "" : "and skipping on " + Skip);
+                   $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
+                   + (Skip == null ? "" : "and skipping on " + Skip);
         }
     }
 }

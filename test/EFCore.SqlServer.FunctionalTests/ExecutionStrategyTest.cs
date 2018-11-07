@@ -6,17 +6,14 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#else
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable MethodSupportsCancellation
 // ReSharper disable AccessToDisposedClosure
@@ -106,6 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
                 connection.CommitFailures.Enqueue(new bool?[] { realFailure });
+                Fixture.TestSqlLoggerFactory.Clear();
 
                 context.Products.Add(new Product());
                 execute(new TestSqlServerRetryingExecutionStrategy(context), context);
@@ -116,11 +114,13 @@ namespace Microsoft.EntityFrameworkCore
                     "System.Data.SqlClient.SqlException (0x80131904): Bang!";
                 if (realFailure)
                 {
-                    Assert.Contains(retryMessage, Fixture.TestSqlLoggerFactory.Log);
+                    var logEntry = Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == CoreEventId.ExecutionStrategyRetrying);
+                    Assert.Contains(retryMessage, logEntry.Message);
+                    Assert.Equal(LogLevel.Information, logEntry.Level);
                 }
                 else
                 {
-                    Assert.DoesNotContain(retryMessage, Fixture.TestSqlLoggerFactory.Log);
+                    Assert.Empty(Fixture.TestSqlLoggerFactory.Log.Where(l => l.Id == CoreEventId.ExecutionStrategyRetrying));
                 }
 
                 Assert.Equal(realFailure ? 3 : 2, connection.OpenCount);
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
             var cancellationToken = CancellationToken.None;
             await Test_commit_failure_async(
                 realFailure, (e, db) => e.ExecuteInTransactionAsync(
-                    async ct => { await db.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                    async ct => await db.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                     ct => db.Products.AsNoTracking().AnyAsync(),
                     cancellationToken));
 
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
             await Test_commit_failure_async(
                 realFailure, (e, db) => e.ExecuteInTransactionAsync(
                     db,
-                    async (c, ct) => { await c.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                    async (c, ct) => await c.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                     (c, ct) => c.Products.AsNoTracking().AnyAsync(),
                     cancellationToken));
 
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
 
             await Test_commit_failure_async(
                 realFailure, (e, db) => e.ExecuteInTransactionAsync(
-                    async ct => { await db.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                    async ct => await db.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                     ct => db.Products.AsNoTracking().AnyAsync(),
                     IsolationLevel.Serializable,
                     cancellationToken));
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
             await Test_commit_failure_async(
                 realFailure, (e, db) => e.ExecuteInTransactionAsync(
                     db,
-                    async (c, ct) => { await c.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
+                    async (c, ct) => await c.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                     (c, ct) => c.Products.AsNoTracking().AnyAsync(),
                     IsolationLevel.Serializable,
                     cancellationToken));
@@ -268,14 +268,14 @@ namespace Microsoft.EntityFrameworkCore
                     new TestSqlServerRetryingExecutionStrategy(context1).ExecuteInTransaction(
                         context1,
                         c1 =>
-                            {
-                                context2.Database.UseTransaction(null);
-                                context2.Database.UseTransaction(context1.Database.CurrentTransaction.GetDbTransaction());
+                        {
+                            context2.Database.UseTransaction(null);
+                            context2.Database.UseTransaction(context1.Database.CurrentTransaction.GetDbTransaction());
 
-                                c1.SaveChanges(acceptAllChangesOnSuccess: false);
+                            c1.SaveChanges(acceptAllChangesOnSuccess: false);
 
-                                return context2.SaveChanges(acceptAllChangesOnSuccess: false);
-                            },
+                            return context2.SaveChanges(acceptAllChangesOnSuccess: false);
+                        },
                         c => c.Products.AsNoTracking().Any());
 
                     context1.ChangeTracker.AcceptAllChanges();
@@ -333,11 +333,11 @@ namespace Microsoft.EntityFrameworkCore
                         context,
                         (c, _) => c.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                         (c, _) =>
-                            {
-                                // This shouldn't be called if SaveChanges failed
-                                Assert.True(false);
-                                return Task.FromResult(false);
-                            });
+                        {
+                            // This shouldn't be called if SaveChanges failed
+                            Assert.True(false);
+                            return Task.FromResult(false);
+                        });
                 }
                 else
                 {
@@ -345,12 +345,13 @@ namespace Microsoft.EntityFrameworkCore
                         context,
                         c => c.SaveChanges(acceptAllChangesOnSuccess: false),
                         c =>
-                            {
-                                // This shouldn't be called if SaveChanges failed
-                                Assert.True(false);
-                                return false;
-                            });
+                        {
+                            // This shouldn't be called if SaveChanges failed
+                            Assert.True(false);
+                            return false;
+                        });
                 }
+
                 context.ChangeTracker.AcceptAllChanges();
 
                 Assert.Equal(2, connection.OpenCount);
@@ -404,11 +405,11 @@ namespace Microsoft.EntityFrameworkCore
                         context,
                         (c, _) => context.Products.ToListAsync(),
                         (c, _) =>
-                            {
-                                // This shouldn't be called if query failed
-                                Assert.True(false);
-                                return Task.FromResult(false);
-                            });
+                        {
+                            // This shouldn't be called if query failed
+                            Assert.True(false);
+                            return Task.FromResult(false);
+                        });
 
                     Assert.Equal(2, list.Count);
                 }
@@ -418,14 +419,15 @@ namespace Microsoft.EntityFrameworkCore
                         context,
                         c => context.Products.ToList(),
                         c =>
-                            {
-                                // This shouldn't be called if query failed
-                                Assert.True(false);
-                                return false;
-                            });
+                        {
+                            // This shouldn't be called if query failed
+                            Assert.True(false);
+                            return false;
+                        });
 
                     Assert.Equal(2, list.Count);
                 }
+
                 Assert.Equal(2, connection.OpenCount);
                 Assert.Equal(2, connection.ExecutionCount);
 
@@ -568,9 +570,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ExecutionStrategyFixture : SharedStoreFixtureBase<DbContext>
         {
+            protected override bool UsePooling => false;
             protected override string StoreName { get; } = nameof(ExecutionStrategyTest);
             public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(ExecutionStrategyContext);
 
@@ -588,6 +591,9 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlServerDbContextOptionsBuilder(options).MaxBatchSize(1);
                 return options;
             }
+
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Infrastructure.Name;
         }
     }
 }

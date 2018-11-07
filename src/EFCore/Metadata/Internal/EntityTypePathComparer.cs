@@ -45,10 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return StringComparer.Ordinal.Compare(x.Name, y.Name);
                 }
+
                 if (xDefiningNavigationName == null)
                 {
                     return -1;
                 }
+
                 if (yDefiningNavigationName == null)
                 {
                     return 1;

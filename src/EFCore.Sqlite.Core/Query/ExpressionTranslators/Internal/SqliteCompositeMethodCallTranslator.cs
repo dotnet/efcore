@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
         private static readonly IMethodCallTranslator[] _sqliteTranslators =
         {
             new SqliteContainsOptimizedTranslator(),
+            new SqliteDateTimeAddTranslator(),
             new SqliteEndsWithOptimizedTranslator(),
             new SqliteMathTranslator(),
             new SqliteStartsWithOptimizedTranslator(),

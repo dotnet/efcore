@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -117,9 +118,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void Create_and_clone_UDT_mapping_with_converter()
         {
+            Func<object, Expression> literalGenerator = Expression.Constant;
+
             var mapping = new SqlServerUdtTypeMapping(
                 typeof(object),
                 "storeType",
+                literalGenerator,
                 StoreTypePostfix.None,
                 "udtType",
                 new FakeValueConverter(),
@@ -150,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Same(literalGenerator, clone.LiteralGenerator);
 
             var newConverter = new FakeValueConverter();
             clone = (SqlServerUdtTypeMapping)mapping.Clone(newConverter);
@@ -171,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Same(literalGenerator, clone.LiteralGenerator);
         }
 
         public static RelationalTypeMapping GetMapping(Type type)
@@ -179,53 +185,101 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
 
-        public override void GenerateSqlLiteral_returns_ByteArray_literal()
+        public override void ByteArray_literal_generated_correctly()
         {
-            var value = new byte[] { 0xDA, 0x7A };
-            var literal = GetMapping(typeof(byte[])).GenerateSqlLiteral(value);
-            Assert.Equal("0xDA7A", literal);
+            Test_GenerateSqlLiteral_helper(GetMapping(typeof(byte[])), new byte[] { 0xDA, 0x7A }, "0xDA7A");
         }
 
-        public override void GenerateSqlLiteral_returns_DateTime_literal()
+        public override void Byte_literal_generated_correctly()
         {
-            var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
+            var typeMapping = GetMapping(typeof(byte));
 
-            Assert.Equal("'2015-03-12T13:36:37.3710000'", literal);
+            Test_GenerateSqlLiteral_helper(typeMapping, byte.MinValue, "CAST(0 AS tinyint)");
+            Test_GenerateSqlLiteral_helper(typeMapping, byte.MaxValue, "CAST(255 AS tinyint)");
         }
 
-        public override void GenerateSqlLiteral_returns_DateTimeOffset_literal()
+        public override void DateTimeOffset_literal_generated_correctly()
         {
-            var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = GetMapping(typeof(DateTimeOffset)).GenerateSqlLiteral(value);
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(DateTimeOffset)),
+                new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
+                "'2015-03-12T13:36:37.371-07:00'");
+        }
 
-            Assert.Equal("'2015-03-12T13:36:37.371-07:00'", literal);
+        public override void DateTime_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(DateTime)),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12T13:36:37.3710000Z'");
+
+            Test_GenerateSqlLiteral_helper(
+                GetMapping("date"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12'");
+
+            Test_GenerateSqlLiteral_helper(
+                GetMapping("datetime"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12T13:36:37.371'");
+
+            Test_GenerateSqlLiteral_helper(
+                GetMapping("smalldatetime"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12T13:36:37.371'");
+
+            Test_GenerateSqlLiteral_helper(
+                GetMapping("datetime2"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12T13:36:37.3710000Z'");
+        }
+
+        public override void Float_literal_generated_correctly()
+        {
+            var typeMapping = GetMapping(typeof(float));
+
+            Test_GenerateSqlLiteral_helper(typeMapping, float.NaN, "CAST(NaN AS real)");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.PositiveInfinity, "CAST(Infinity AS real)");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.NegativeInfinity, "CAST(-Infinity AS real)");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.MinValue, "CAST(-3.40282347E+38 AS real)");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "CAST(3.40282347E+38 AS real)");
+        }
+
+        public override void Long_literal_generated_correctly()
+        {
+            var typeMapping = GetMapping(typeof(long));
+
+            Test_GenerateSqlLiteral_helper(typeMapping, long.MinValue, "CAST(-9223372036854775808 AS bigint)");
+            Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue, "CAST(9223372036854775807 AS bigint)");
+        }
+
+        public override void Short_literal_generated_correctly()
+        {
+            var typeMapping = GetMapping(typeof(short));
+
+            Test_GenerateSqlLiteral_helper(typeMapping, short.MinValue, "CAST(-32768 AS smallint)");
+            Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "CAST(32767 AS smallint)");
+        }
+
+        [Fact]
+        public virtual void SqlVariant_literal_generated_correctly()
+        {
+            var typeMapping = GetMapping("sql_variant");
+
+            Test_GenerateSqlLiteral_helper(typeMapping, 1, "1");
+        }
+
+        public override void String_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(GetMapping("nvarchar(max)"), "Text", "N'Text'");
+            Test_GenerateSqlLiteral_helper(GetMapping("varchar(max)"), "Text", "'Text'");
         }
 
         public static RelationalTypeMapping GetMapping(string type)
             => new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
-
-        [Fact]
-        public virtual void GenerateSqlLiteralValue_returns_Unicode_String_literal()
-        {
-            var mapping = GetMapping("nvarchar(max)");
-
-            var literal = mapping.GenerateSqlLiteral("A Unicode String");
-
-            Assert.Equal("N'A Unicode String'", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteralValue_returns_NonUnicode_String_literal()
-        {
-            var mapping = GetMapping("varchar(max)");
-
-            var literal = mapping.GenerateSqlLiteral("A Non-Unicode String");
-            Assert.Equal("'A Non-Unicode String'", literal);
-        }
 
         [Theory]
         [InlineData("Microsoft.SqlServer.Types.SqlHierarchyId", "hierarchyid")]

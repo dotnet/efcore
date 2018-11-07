@@ -126,13 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = entityQueryModelVisitor.Expression.Type
                     .GetSequenceType().GetTypeInfo();
 
-            if (castResultOperator.CastItemType.GetTypeInfo()
-                .IsAssignableFrom(resultItemTypeInfo))
-            {
-                return entityQueryModelVisitor.Expression;
-            }
-
-            return Expression.Call(
+            return castResultOperator.CastItemType.GetTypeInfo()
+                .IsAssignableFrom(resultItemTypeInfo)
+                ? entityQueryModelVisitor.Expression
+                : Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider
                     .Cast.MakeGenericMethod(castResultOperator.CastItemType),
                 entityQueryModelVisitor.Expression);
@@ -373,8 +370,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             ChoiceResultOperatorBase choiceResultOperator)
         {
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+                && (methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                    || methodCallExpression.Method
+                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Last down below Select
 
@@ -391,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         (choiceResultOperator.ReturnDefaultWhenEmpty
                                             ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
                                             : entityQueryModelVisitor.LinqOperatorProvider.Last)
-                                            .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
+                                        .MakeGenericMethod(methodCallExpression.Arguments[0].Type.GetSequenceType()),
                                         methodCallExpression.Arguments[0]))),
                             methodCallExpression.Arguments[1]
                         });
@@ -443,8 +442,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Visit(skipResultOperator.Count);
 
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+                && (methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                    || methodCallExpression.Method
+                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Skip down below Select
 
@@ -480,8 +481,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Visit(takeResultOperator.Count);
 
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select))
+                && (methodCallExpression.Method
+                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                    || methodCallExpression.Method
+                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Take down below Select
 
@@ -519,8 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression secondSource,
             MethodInfo setMethodInfo)
         {
-            var source2 = entityQueryModelVisitor
-                .ReplaceClauseReferences(secondSource);
+            var source2 = entityQueryModelVisitor.ReplaceClauseReferences(secondSource);
 
             var resultType = entityQueryModelVisitor.Expression.Type.GetSequenceType();
             var sourceType = source2.Type.GetSequenceType();
@@ -559,9 +561,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(methodInfo, nameof(methodInfo));
 
-            if (methodInfo.GetParameters().Last().ParameterType == typeof(CancellationToken))
-            {
-                return Expression.Call(
+            return methodInfo.GetParameters().Last().ParameterType == typeof(CancellationToken)
+                ? Expression.Call(
                     methodInfo,
                     arguments
                         .AsEnumerable()
@@ -571,10 +572,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Property(
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     _cancellationTokenProperty)
-                            }));
-            }
-
-            return Expression.Call(methodInfo, arguments);
+                            }))
+                : Expression.Call(methodInfo, arguments);
         }
     }
 }

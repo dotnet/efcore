@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] List<InternalPropertyBuilder> properties,
             [CanBeNull] List<InternalIndexBuilder> indexes,
             [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys,
-            [CanBeNull] List<(InternalRelationshipBuilder, EntityType.Snapshot)> relationships)
+            [CanBeNull] List<RelationshipSnapshot> relationships)
         {
             Properties = properties;
             Indexes = indexes;
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private List<InternalPropertyBuilder> Properties { [DebuggerStepThrough] get; }
-        private List<(InternalRelationshipBuilder, EntityType.Snapshot)> Relationships { [DebuggerStepThrough] get; set; }
+        private List<RelationshipSnapshot> Relationships { [DebuggerStepThrough] get; set; }
         private List<InternalIndexBuilder> Indexes { [DebuggerStepThrough] get; set; }
         private List<(InternalKeyBuilder, ConfigurationSource?)> Keys { [DebuggerStepThrough] get; set; }
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Add([NotNull] List<(InternalRelationshipBuilder, EntityType.Snapshot)> relationships)
+        public virtual void Add([NotNull] List<RelationshipSnapshot> relationships)
         {
             if (Relationships == null)
             {
@@ -119,18 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (Relationships != null)
             {
-                foreach (var detachedRelationshipTuple in Relationships.Where(r => r.Item2 != null))
+                foreach (var detachedRelationshipTuple in Relationships)
                 {
-                    var newRelationship = detachedRelationshipTuple.Item1.Attach(entityTypeBuilder);
-                    if (newRelationship != null)
-                    {
-                        detachedRelationshipTuple.Item2.Attach(
-                            newRelationship.Metadata.ResolveOtherEntityType(entityTypeBuilder.Metadata).Builder);
-                    }
-                }
-                foreach (var detachedRelationshipTuple in Relationships.Where(r => r.Item2 == null))
-                {
-                    detachedRelationshipTuple.Item1.Attach(entityTypeBuilder);
+                    detachedRelationshipTuple.Attach(entityTypeBuilder);
                 }
             }
         }

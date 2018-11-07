@@ -177,6 +177,9 @@
   <data name="UnknownLiteral" xml:space="preserve">
     <value>The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.</value>
   </data>
+  <data name="LiteralExpressionNotSupported" xml:space="preserve">
+    <value>The literal expression '{expression}' for '{type}' cannot be parsed. Only simple constructor calls and factory methods are supported.</value>
+  </data>
   <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
     <value>Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.</value>
   </data>
@@ -229,7 +232,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually reverse the changes it made. Error encountered while checking: {error}</value>
   </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
-    <value>Unable to create an object of type '{contextType}'. Add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.</value>
+    <value>Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
   </data>
   <data name="NotExistDatabase" xml:space="preserve">
     <value>Database '{name}' did not exist, no action was taken.</value>

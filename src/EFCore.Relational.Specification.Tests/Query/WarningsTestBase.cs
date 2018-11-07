@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -11,14 +12,21 @@ using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected WarningsTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            fixture.ListLoggerFactory.Clear();
+        }
 
-        protected WarningsTestBase(TFixture fixture) => Fixture = fixture;
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         [Fact]
         public virtual void Throws_when_warning_as_error()
@@ -52,6 +60,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = context.Customers.Skip(2).Take(3).ToList();
+                Assert.Equal(3, query.Count);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Paging_operation_without_orderby_issues_warning_async()
+        {
+            using (var context = CreateContext())
+            {
+                var query = await context.Customers.Skip(2).Take(3).ToListAsync();
                 Assert.Equal(3, query.Count);
             }
         }
@@ -150,8 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
-                            .Where(c => c.CustomerID == "ALFKI"
-                                       && c.Orders.OrderBy(o => o.OrderID).Last().OrderID > 1000).ToList()).Message);
+                            .Where(
+                                c => c.CustomerID == "ALFKI"
+                                     && c.Orders.OrderBy(o => o.OrderID).Last().OrderID > 1000).ToList()).Message);
             }
         }
 

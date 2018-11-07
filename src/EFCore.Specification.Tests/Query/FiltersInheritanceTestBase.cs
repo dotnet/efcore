@@ -105,7 +105,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var animals
                     = context.Set<Animal>()
                         .OfType<Bird>()
-                        .Select(b => new { b.EagleId })
+                        .Select(
+                            b => new
+                            {
+                                b.EagleId
+                            })
                         .ToList();
 
                 Assert.Equal(1, animals.Count);

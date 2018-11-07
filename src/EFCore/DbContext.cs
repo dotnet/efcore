@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore
         IDbQueryCache,
         IDbContextPoolable
     {
-        private readonly IDictionary<Type, object> _sets = new Dictionary<Type, object>();
+        private IDictionary<Type, object> _sets;
+        private IDictionary<Type, object> _queries;
         private readonly DbContextOptions _options;
 
         private IDbContextServices _contextServices;
@@ -200,6 +201,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
+            if (_sets == null)
+            {
+                _sets = new Dictionary<Type, object>();
+            }
+
             if (!_sets.TryGetValue(type, out var set))
             {
                 set = source.Create(this, type);
@@ -217,13 +223,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            if (!_sets.TryGetValue(type, out var set))
+            if (_queries == null)
             {
-                set = source.CreateQuery(this, type);
-                _sets[type] = set;
+                _queries = new Dictionary<Type, object>();
             }
 
-            return set;
+            if (!_queries.TryGetValue(type, out var query))
+            {
+                query = source.CreateQuery(this, type);
+                _queries[type] = query;
+            }
+
+            return query;
         }
 
         /// <summary>
@@ -253,6 +264,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(type.ShortDisplayName()));
                 }
+
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
             }
 
@@ -438,6 +450,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 return entitiesSaved;
             }
+            catch (DbUpdateConcurrencyException exception)
+            {
+                DbContextDependencies.UpdateLogger.OptimisticConcurrencyException(this, exception);
+
+                throw;
+            }
             catch (Exception exception)
             {
                 DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
@@ -533,6 +551,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 return entitiesSaved;
             }
+            catch (DbUpdateConcurrencyException exception)
+            {
+                DbContextDependencies.UpdateLogger.OptimisticConcurrencyException(this, exception);
+
+                throw;
+            }
             catch (Exception exception)
             {
                 DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
@@ -550,7 +574,8 @@ namespace Microsoft.EntityFrameworkCore
             => new DbContextPoolConfigurationSnapshot(
                 _changeTracker?.AutoDetectChangesEnabled,
                 _changeTracker?.QueryTrackingBehavior,
-                _database?.AutoTransactionsEnabled);
+                _database?.AutoTransactionsEnabled,
+                _changeTracker?.LazyLoadingEnabled);
 
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
@@ -558,17 +583,23 @@ namespace Microsoft.EntityFrameworkCore
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
+                Debug.Assert(configurationSnapshot.QueryTrackingBehavior.HasValue);
+                Debug.Assert(configurationSnapshot.LazyLoadingEnabled.HasValue);
+
                 ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
-            }
-
-            if (configurationSnapshot.QueryTrackingBehavior != null)
-            {
                 ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;
+                ChangeTracker.LazyLoadingEnabled = configurationSnapshot.LazyLoadingEnabled.Value;
+            }
+            else
+            {
+                ((IResettableService)_changeTracker)?.ResetState();
             }
 
-            if (configurationSnapshot.AutoTransactionsEnabled != null)
+            if (_database != null)
             {
-                Database.AutoTransactionsEnabled = configurationSnapshot.AutoTransactionsEnabled.Value;
+                _database.AutoTransactionsEnabled
+                    = configurationSnapshot.AutoTransactionsEnabled == null
+                      || configurationSnapshot.AutoTransactionsEnabled.Value;
             }
         }
 
@@ -583,6 +614,28 @@ namespace Microsoft.EntityFrameworkCore
                 foreach (var service in resettableServices)
                 {
                     service.ResetState();
+                }
+            }
+
+            if (_sets != null)
+            {
+                foreach (var set in _sets.Values)
+                {
+                    if (set is IResettableService resettable)
+                    {
+                        resettable.ResetState();
+                    }
+                }
+            }
+
+            if (_queries != null)
+            {
+                foreach (var query in _queries.Values)
+                {
+                    if (query is IResettableService resettable)
+                    {
+                        resettable.ResetState();
+                    }
                 }
             }
 
@@ -607,7 +660,6 @@ namespace Microsoft.EntityFrameworkCore
                 _dbContextDependencies = null;
                 _changeTracker = null;
                 _database = null;
-
             }
         }
 
@@ -704,7 +756,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         they will be inserted into the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
@@ -771,7 +823,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
@@ -808,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
@@ -841,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         This allows any cascading actions to be applied when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
@@ -893,10 +945,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
-        ///     </para>
-        ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
@@ -918,15 +967,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         be inserted into the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
         ///         This method is async only to allow special value generators, such as the one used by
         ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
         ///         to access the database asynchronously. For all other cases the non async method should be used.
-        ///     </para>
-        ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
@@ -965,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
@@ -1000,7 +1046,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>
@@ -1031,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         This allows any cascading actions to be applied when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         Use <see cref="EntityEntry.State"/> to set the state of only a single entity.
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </remarks>
         /// <param name="entity"> The entity to remove. </param>

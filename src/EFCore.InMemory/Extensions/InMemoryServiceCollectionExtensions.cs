@@ -68,9 +68,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IQueryContextFactory, InMemoryQueryContextFactory>()
                 .TryAdd<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>()
-                .TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>()
                 .TryAdd<IConventionSetBuilder, InMemoryConventionSetBuilder>()
                 .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
+                .TryAdd<ITypeMappingSource, InMemoryTypeMappingSource>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()

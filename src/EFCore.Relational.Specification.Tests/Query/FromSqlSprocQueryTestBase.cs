@@ -191,7 +191,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from b in context.Set<MostExpensiveProduct>()
                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
-                       select new { a, b })
+                       select new
+                       {
+                           a,
+                           b
+                       })
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);
@@ -206,9 +210,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual
                     = (from mep in context.Set<MostExpensiveProduct>()
                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                       from p in context.Set<Product>().FromSql("SELECT * FROM \"Products\"")
+                       from p in context.Set<Product>()
+                           .FromSql(NormalizeDelimeters("SELECT * FROM [Products]"))
                        where mep.TenMostExpensiveProducts == p.ProductName
-                       select new { mep, p })
+                       select new
+                       {
+                           mep,
+                           p
+                       })
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);
@@ -221,16 +230,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = (from p in context.Set<Product>().FromSql("SELECT * FROM \"Products\"")
+                    = (from p in context.Set<Product>().FromSql(NormalizeDelimeters("SELECT * FROM [Products]"))
                        from mep in context.Set<MostExpensiveProduct>()
                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where mep.TenMostExpensiveProducts == p.ProductName
-                       select new { mep, p })
+                       select new
+                       {
+                           mep,
+                           p
+                       })
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
         }
+
+        private RawSqlString NormalizeDelimeters(RawSqlString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
+
+        private FormattableString NormalizeDelimeters(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
 
         protected NorthwindContext CreateContext()
         {

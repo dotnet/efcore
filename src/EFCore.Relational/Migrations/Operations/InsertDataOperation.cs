@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <returns> The commands that correspond to this operation. </returns>
         public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
         {
-            Debug.Assert(Columns.Length == Values.GetLength(1),
+            Debug.Assert(
+                Columns.Length == Values.GetLength(1),
                 $"The number of values doesn't match the number of keys (${Columns.Length})");
 
             var properties = model != null
