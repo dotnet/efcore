@@ -69,7 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string connectionString,
             IEnumerable<string> tables,
             IEnumerable<string> schemas,
-            string @namespace,
+            string rootNamespace,
+            string modelNamespace,
+            string contextNamespace,
             string language,
             string contextDir,
             string contextName,
@@ -79,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tables, nameof(tables));
             Check.NotNull(schemas, nameof(schemas));
-            Check.NotEmpty(@namespace, nameof(@namespace));
+            Check.NotEmpty(modelNamespace, nameof(modelNamespace));
+            Check.NotEmpty(contextNamespace, nameof(contextNamespace));
             Check.NotNull(modelOptions, nameof(modelOptions));
             Check.NotNull(codeOptions, nameof(codeOptions));
 
@@ -120,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var codeGenerator = ModelCodeGeneratorSelector.Select(language);
 
-            return codeGenerator.GenerateModel(model, @namespace, contextDir ?? string.Empty, contextName, connectionString, codeOptions);
+            return codeGenerator.GenerateModel(model, rootNamespace, modelNamespace, contextNamespace, contextDir ?? string.Empty, contextName, connectionString, codeOptions);
         }
 
         /// <summary>
