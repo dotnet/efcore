@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <Description>Shared design-time components for Entity Framework Core tools.</Description>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(DeveloperBuild)' != 'True' AND '$(CoreOnly)' != 'True' AND '$(OS)' == 'Windows_NT' ">net461;$(TargetFrameworks)</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Design</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
