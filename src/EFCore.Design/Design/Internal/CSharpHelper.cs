@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Numerics;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -161,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 { typeof(TimeSpan), (c, v) => c.Literal((TimeSpan)v) },
                 { typeof(uint), (c, v) => c.Literal((uint)v) },
                 { typeof(ulong), (c, v) => c.Literal((ulong)v) },
-                { typeof(ushort), (c, v) => c.Literal((ushort)v) }
+                { typeof(ushort), (c, v) => c.Literal((ushort)v) },
+                { typeof(BigInteger), (c, v) => c.Literal((BigInteger)v) }
             };
 
         /// <summary>
@@ -496,6 +498,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Literal(ushort value) => "(ushort)" + value;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string Literal(BigInteger value) => $"BigInteger.Parse(\"{value.ToString(NumberFormatInfo.InvariantInfo)}\", NumberFormatInfo.InvariantInfo)";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
