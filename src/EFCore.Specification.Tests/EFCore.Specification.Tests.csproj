@@ -9,12 +9,14 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnableApiCheck>false</EnableApiCheck>
     <IsPackable>true</IsPackable>
+    <!-- xunit.core sets this to true even though this project isn't supposed to be a runnable test project. -->
+    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">
    <DefineConstants>$(DefineConstants);Test20</DefineConstants>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\EFCore\EFCore.csproj" />
     <ProjectReference Include="..\EFCore.Proxies\EFCore.Proxies.csproj" />

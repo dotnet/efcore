@@ -52,8 +52,8 @@ in the file are overridden by command line parameters.
 Example config file:
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/dev/tools/korebuild.schema.json",
-  "channel": "dev",
+  "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/master/tools/korebuild.schema.json",
+  "channel": "master",
   "toolsSource": "https://aspnetcore.blob.core.windows.net/buildtools"
 }
 ```
@@ -113,9 +113,9 @@ function Get-KoreBuild {
         try {
             $tmpfile = Join-Path ([IO.Path]::GetTempPath()) "KoreBuild-$([guid]::NewGuid()).zip"
             Get-RemoteFile $remotePath $tmpfile $ToolsSourceSuffix
-            if (Get-Command -Name 'Expand-Archive' -ErrorAction Ignore) {
+            if (Get-Command -Name 'Microsoft.PowerShell.Archive\Expand-Archive' -ErrorAction Ignore) {
                 # Use built-in commands where possible as they are cross-plat compatible
-                Expand-Archive -Path $tmpfile -DestinationPath $korebuildPath
+                Microsoft.PowerShell.Archive\Expand-Archive -Path $tmpfile -DestinationPath $korebuildPath
             }
             else {
                 # Fallback to old approach for old installations of PowerShell
@@ -179,19 +179,21 @@ if (Test-Path $ConfigFile) {
         }
     }
     catch {
-        Write-Warning "$ConfigFile could not be read. Its settings will be ignored."
-        Write-Warning $Error[0]
+        Write-Host -ForegroundColor Red $Error[0]
+        Write-Error "$ConfigFile contains invalid JSON."
+        exit 1
     }
 }
 
 if (!$DotNetHome) {
     $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
+        elseif ($CI) { Join-Path $PSScriptRoot '.dotnet' } `
         elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
         elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
         else { Join-Path $PSScriptRoot '.dotnet'}
 }
 
-if (!$Channel) { $Channel = 'dev' }
+if (!$Channel) { $Channel = 'master' }
 if (!$ToolsSource) { $ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools' }
 
 # Execute

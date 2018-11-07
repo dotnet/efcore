@@ -1,7 +1,4 @@
-﻿<Project>
-
-  <Sdk Name="Microsoft.NET.Sdk" />
-  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Entity Framework Core Tools for the .NET Command-Line Interface.
@@ -18,7 +15,9 @@ dotnet ef database update
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
-    <GenerateToolShims>true</GenerateToolShims>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
+    <!-- Because this project uses a custom nuspec, this is necessary to ensure the generated shims are a consistent directory. -->
+    <PackagedShimOutputRootDirectory>$(IntermediateOutputPath)</PackagedShimOutputRootDirectory>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
     <EnableApiCheck>false</EnableApiCheck>
@@ -76,6 +75,15 @@ dotnet ef database update
     </Compile>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Additional files to be code signed -->
+    <SignedPackageFile Include="$(TargetFileName)" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="ef.exe" Certificate="$(AssemblySigningCertName)" />
+
+    <!-- Third-party assemblies should be signed with the 3rd party certificate -->
+    <SignedPackageFile Include="Newtonsoft.Json.dll" Certificate="$(AssemblySigning3rdPartyCertName)" />
+  </ItemGroup>
+
   <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
 
     <PropertyGroup>
@@ -100,7 +108,7 @@ dotnet ef database update
 
         SettingsFile=$(_ToolsSettingsFilePath);
         Output=$(PublishDir)**\*;
-        OutputShims=$(IntermediateOutputPath)shims\**\*;
+        OutputShims=$(PackagedShimOutputRootDirectory)shims\$(TargetFramework)\**\*;
         OutputBinary=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll;
         OutputRuntimeConfig=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json;
         OutputSymbol=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.pdb;

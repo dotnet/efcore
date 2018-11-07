@@ -11,10 +11,9 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\Key.snk</AssemblyOriginatorKeyFile>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
-    <PublicSign Condition="'$(OS)' != 'Windows_NT'">True</PublicSign>
     <RepositoryType>git</RepositoryType>
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
-    <RepositoryUrl>https://github.com/aspnet/EntityFramework.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/aspnet/EntityFrameworkCore</RepositoryUrl>
     <SignAssembly>True</SignAssembly>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>7.2</LangVersion>
