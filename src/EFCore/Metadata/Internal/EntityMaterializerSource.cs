@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Concat(
                         entityType
                             .GetProperties()
-                            .Where(p => !p.IsShadowProperty || p.IsIndexedProperty)));
+                            .Where(p => !p.IsShadowProperty)));
 
             foreach (var consumedProperty in constructorBinding
                 .ParameterBindings

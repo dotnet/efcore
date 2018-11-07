@@ -1597,7 +1597,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
                 configurationSource,
                 typeConfigurationSource,
-                isIndexProperty: false);
+                isIndexedProperty: false);
         }
 
         /// <summary>
@@ -1628,7 +1628,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 memberInfo,
                 configurationSource,
                 configurationSource,
-                isIndexProperty: false);
+                isIndexedProperty: false);
         }
 
 
@@ -1646,13 +1646,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
 
+            var indexerProperty = this.EFIndexerProperty();
+            if (indexerProperty == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoIndexer(name, this.DisplayName()));
+            }
+
             return AddProperty(
                 name,
                 propertyType,
-                null,
+                indexerProperty,
                 configurationSource,
                 typeConfigurationSource,
-                isIndexProperty: true);
+                isIndexedProperty: true);
         }
 
         private Property AddProperty(
@@ -1661,7 +1667,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfo memberInfo,
             ConfigurationSource configurationSource,
             ConfigurationSource? typeConfigurationSource,
-            bool isIndexProperty)
+            bool isIndexedProperty)
         {
             var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
             if (conflictingMember != null)
@@ -1685,6 +1691,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 if (memberInfo != null
+                    && !isIndexedProperty
                     && propertyType != memberInfo.GetMemberType())
                 {
                     throw new InvalidOperationException(
@@ -1698,7 +1705,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var property = new Property(
                 name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this,
-                configurationSource, typeConfigurationSource, isIndexProperty);
+                configurationSource, typeConfigurationSource);
 
             _properties.Add(property.Name, property);
             PropertyMetadataChanged();

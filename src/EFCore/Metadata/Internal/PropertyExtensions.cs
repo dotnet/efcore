@@ -244,6 +244,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Shadow");
             }
 
+            if (property.IsIndexedProperty)
+            {
+                builder.Append(" Indexed");
+            }
+
             if (!property.IsNullable)
             {
                 builder.Append(" Required");
