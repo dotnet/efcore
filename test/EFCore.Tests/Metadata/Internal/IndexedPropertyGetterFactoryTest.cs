@@ -30,14 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(NonIndexedClass));
             var idProperty = entityType.AddProperty("Id", typeof(int));
-            var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
-            var propertyB = entityType.AddIndexedProperty("PropertyB", typeof(int));
-
-            var nonIndexedClass = new NonIndexedClass();
             Assert.Throws<InvalidOperationException>(
-                () => new IndexedPropertyGetterFactory().Create(propertyA).GetClrValue(nonIndexedClass));
+                () => entityType.AddIndexedProperty("PropA", typeof(string)));
             Assert.Throws<InvalidOperationException>(
-                () => new IndexedPropertyGetterFactory().Create(propertyB).GetClrValue(nonIndexedClass));
+                () => entityType.AddIndexedProperty("PropB", typeof(int)));
         }
 
         private class IndexedClass

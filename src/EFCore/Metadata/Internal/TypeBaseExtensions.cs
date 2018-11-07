@@ -52,11 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : type.ClrType.GetRuntimeProperties();
 
             // find the indexer with single argument of type string which returns an object
-            return (from p in runtimeProperties
-                    where p.PropertyType == typeof(object)
-                    let q = p.GetIndexParameters()
-                    where q.Length == 1 && q[0].ParameterType == typeof(string)
-                    select p).FirstOrDefault();
+            return runtimeProperties.FirstOrDefault(p => p.IsEFIndexerProperty());
         }
     }
 }
