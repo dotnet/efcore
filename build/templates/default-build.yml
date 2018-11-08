@@ -90,8 +90,7 @@ jobs:
       _SignType:
     ${{ if and(eq(parameters.codeSign, 'true'), eq(variables['System.TeamProject'], 'internal')) }}:
       TeamName: AspNetCore
-      # TODO: once real-signing is approved, change this to 'real'
-      _SignType: test
+      _SignType: real
     ${{ insert }}: ${{ parameters.variables }}
   steps:
   - checkout: self
