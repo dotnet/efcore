@@ -42,6 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             /* tables: */ Enumerable.Empty<string>(),
                             /* schemas: */ Enumerable.Empty<string>(),
                             "FakeNamespace",
+                            "FakeNamespace",
+                            "FakeNamespace",
                             /* language: */ "",
                             /* contextDir: */ null,
                             contextName,

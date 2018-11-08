@@ -1,0 +1,32 @@
+[
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator : Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+    "MemberId": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel GenerateModel(Microsoft.EntityFrameworkCore.Metadata.IModel model, System.String namespace, System.String contextDir, System.String contextName, System.String connectionString, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions options)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Scaffolding.IReverseEngineerScaffolder",
+    "MemberId": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel ScaffoldModel(System.String connectionString, System.Collections.Generic.IEnumerable<System.String> tables, System.Collections.Generic.IEnumerable<System.String> schemas, System.String namespace, System.String language, System.String contextDir, System.String contextName, Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions modelOptions, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions codeOptions)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator : Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator",
+    "MemberId": "public abstract Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel GenerateModel(Microsoft.EntityFrameworkCore.Metadata.IModel model, System.String namespace, System.String contextDir, System.String contextName, System.String connectionString, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions options)",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator : Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+    "MemberId": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel GenerateModel(Microsoft.EntityFrameworkCore.Metadata.IModel model, System.String rootNamespace, System.String modelNamespace, System.String contextNamespace, System.String contextDir, System.String contextName, System.String connectionString, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions options)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Scaffolding.IReverseEngineerScaffolder",
+    "MemberId": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel ScaffoldModel(System.String connectionString, System.Collections.Generic.IEnumerable<System.String> tables, System.Collections.Generic.IEnumerable<System.String> schemas, System.String rootNamespace, System.String modelNamespace, System.String contextNamespace, System.String language, System.String contextDir, System.String contextName, Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions modelOptions, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions codeOptions)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public abstract class Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator : Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator",
+    "MemberId": "public abstract Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel GenerateModel(Microsoft.EntityFrameworkCore.Metadata.IModel model, System.String rootNamespace, System.String modelNamespace, System.String contextNamespace, System.String contextDir, System.String contextName, System.String connectionString, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions options)",
+    "Kind": "Addition"
+  }
+]

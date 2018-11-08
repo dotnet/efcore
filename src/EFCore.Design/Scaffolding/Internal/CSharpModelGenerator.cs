@@ -58,14 +58,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public override ScaffoldedModel GenerateModel(
             IModel model,
-            string @namespace,
+            string rootNamespace,
+            string modelNamespace,
+            string contextNamespace,
             string contextDir,
             string contextName,
             string connectionString,
             ModelCodeGenerationOptions options)
         {
             Check.NotNull(model, nameof(model));
-            Check.NotEmpty(@namespace, nameof(@namespace));
+            Check.NotEmpty(modelNamespace, nameof(modelNamespace));
+            Check.NotEmpty(contextNamespace, nameof(contextNamespace));
             Check.NotNull(contextDir, nameof(contextDir));
             Check.NotEmpty(contextName, nameof(contextName));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -73,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var resultingFiles = new ScaffoldedModel();
 
-            var generatedCode = CSharpDbContextGenerator.WriteCode(model, @namespace, contextName, connectionString, options.UseDataAnnotations, options.SuppressConnectionStringWarning);
+            var generatedCode = CSharpDbContextGenerator.WriteCode(model, contextNamespace, contextName, connectionString, options.UseDataAnnotations, options.SuppressConnectionStringWarning);
 
             // output DbContext .cs file
             var dbContextFileName = contextName + FileExtension;
@@ -85,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, @namespace, options.UseDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, modelNamespace, options.UseDataAnnotations);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = ((ITypeBase)entityType).DisplayName() + FileExtension;

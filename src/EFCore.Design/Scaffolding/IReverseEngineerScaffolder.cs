@@ -17,7 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="connectionString"> A connection string to the database. </param>
         /// <param name="tables"> A list of tables to include. Empty to include all tables. </param>
         /// <param name="schemas"> A list of schemas to include. Empty to include all schemas. </param>
-        /// <param name="namespace"> The namespace of the model. </param>
+        /// <param name="rootNamespace"> The namespace of the project. </param>
+        /// <param name="modelNamespace"> The namespace for model classes. </param>
+        /// <param name="contextNamespace"> The namespace for context class. </param>
         /// <param name="language"> The programming language to scaffold for. </param>
         /// <param name="contextDir"> The DbContext output dirctory. </param>
         /// <param name="contextName"> The <see cref="DbContext" /> name. </param>
@@ -28,7 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             [NotNull] string connectionString,
             [NotNull] IEnumerable<string> tables,
             [NotNull] IEnumerable<string> schemas,
-            [NotNull] string @namespace,
+            [NotNull] string rootNamespace,
+            [NotNull] string modelNamespace,
+            [NotNull] string contextNamespace,
             [CanBeNull] string language,
             [CanBeNull] string contextDir,
             [CanBeNull] string contextName,

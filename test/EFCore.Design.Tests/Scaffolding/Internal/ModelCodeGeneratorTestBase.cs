@@ -61,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var scaffoldedModel = generator.GenerateModel(
                 model,
                 "TestNamespace",
+                "TestNamespace",
+                "TestNamespace",
                 /*contextDir:*/ string.Empty,
                 "TestDbContext",
                 "Initial Catalog=TestDatabase",

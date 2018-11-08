@@ -125,6 +125,8 @@ namespace TestNamespace
             var scaffoldedModel = generator.GenerateModel(
                 new Model(),
                 "TestNamespace",
+                "TestNamespace",
+                "TestNamespace",
                 contextDir: string.Empty,
                 "TestDbContext",
                 "Initial Catalog=TestDatabase",

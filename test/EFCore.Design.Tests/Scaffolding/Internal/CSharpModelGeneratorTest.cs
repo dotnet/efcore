@@ -32,7 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var result = generator.GenerateModel(
                 modelBuilder.Model,
+                "RootNamespace",
                 "TestNamespace",
+                "ContextNameSpace",
                 Path.Combine("..", "TestContextDir" + Path.DirectorySeparatorChar),
                 "TestContext",
                 "Data Source=Test",
