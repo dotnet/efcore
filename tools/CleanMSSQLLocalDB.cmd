@@ -5,4 +5,4 @@ del "DropAll.sql"
 sqllocaldb stop mssqllocaldb
 sqllocaldb delete mssqllocaldb
 
-ShrinkLocalDBModel.cmd
+%~dp0ShrinkLocalDBModel.cmd
