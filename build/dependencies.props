@@ -5,29 +5,29 @@
   <PropertyGroup Label="Package Versions">
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
-    <InternalAspNetCoreSdkPackageVersion>2.2.0-preview2-20181004.6</InternalAspNetCoreSdkPackageVersion>
-    <InternalWebHostBuilderFactorySourcesPackageVersion>2.2.0-preview3-35425</InternalWebHostBuilderFactorySourcesPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>2.2.0-preview2-20181105.3</InternalAspNetCoreSdkPackageVersion>
+    <InternalWebHostBuilderFactorySourcesPackageVersion>2.2.0-rtm-35661</InternalWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
-    <MicrosoftDataSqliteCorePackageVersion>2.2.0-preview3-35425</MicrosoftDataSqliteCorePackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0-preview3-35425</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.2.0-preview3-35425</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.2.0-preview3-35425</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>2.2.0-preview3-35425</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>2.2.0-preview3-35425</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>2.2.0-preview3-35425</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftDataSqliteCorePackageVersion>2.2.0-rtm-35661</MicrosoftDataSqliteCorePackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0-rtm-181106-13</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.2.0-rtm-181106-13</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.2.0-rtm-181106-13</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>2.2.0-rtm-181106-13</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>2.2.0-rtm-181106-13</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>2.2.0-rtm-181106-13</MicrosoftExtensionsDependencyInjectionPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>2.1.0</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>2.2.0-preview3-35425</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>2.2.0-rtm-181106-13</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftNETCoreApp11PackageVersion>1.1.9</MicrosoftNETCoreApp11PackageVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.9</MicrosoftNETCoreApp20PackageVersion>
-    <MicrosoftNETCoreApp22PackageVersion>2.2.0-preview3-27001-02</MicrosoftNETCoreApp22PackageVersion>
+    <MicrosoftNETCoreApp22PackageVersion>2.2.0-rtm-27105-02</MicrosoftNETCoreApp22PackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.6.1</MicrosoftNETTestSdkPackageVersion>
     <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
     <NETStandardLibrary20PackageVersion>2.0.3</NETStandardLibrary20PackageVersion>
     <NetTopologySuiteCorePackageVersion>1.15.1</NetTopologySuiteCorePackageVersion>
     <NetTopologySuiteIOSpatiaLitePackageVersion>1.15.0</NetTopologySuiteIOSpatiaLitePackageVersion>
-    <NetTopologySuiteIOSqlServerBytesPackageVersion>1.15.0-pre001</NetTopologySuiteIOSqlServerBytesPackageVersion>
+    <NetTopologySuiteIOSqlServerBytesPackageVersion>1.15.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
     <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
     <OracleManagedDataAccessPackageVersion>12.2.1100</OracleManagedDataAccessPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
@@ -37,11 +37,10 @@
     <StyleCopAnalyzersPackageVersion>1.0.0</StyleCopAnalyzersPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.5.0</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.5.0</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.6.0-preview3-27001-02</SystemDataSqlClientPackageVersion>
+    <SystemDataSqlClientPackageVersion>4.6.0-rtm-27105-02</SystemDataSqlClientPackageVersion>
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.5.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
-    <SystemInteractiveAsyncPackageVersion>3.1.1</SystemInteractiveAsyncPackageVersion>
     <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
-    <XunitAnalyzersPackageVersion>0.8.0</XunitAnalyzersPackageVersion>
+    <XunitAnalyzersPackageVersion>0.10.0</XunitAnalyzersPackageVersion>
     <XunitAssertPackageVersion>2.3.1</XunitAssertPackageVersion>
     <XunitCorePackageVersion>2.3.1</XunitCorePackageVersion>
     <XunitExtensibilityExecutionPackageVersion>2.3.1</XunitExtensibilityExecutionPackageVersion>
