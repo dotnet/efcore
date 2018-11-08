@@ -28,6 +28,20 @@ Update-Database
   </ItemGroup>
 
   <ItemGroup>
+    <!-- PowerShell files should be code signed -->
+    <SignedPackageFile Include="EntityFrameworkCore.PowerShell2.psd1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="EntityFrameworkCore.PowerShell2.psm1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="EntityFrameworkCore.psd1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="EntityFrameworkCore.psm1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="init.ps1" Certificate="$(PowerShellSigningCertName)" />
+    <SignedPackageFile Include="install.ps1" Certificate="$(PowerShellSigningCertName)" />
+
+    <!-- Additional assemblies to be code signed -->
+    <SignedPackageFile Include="ef.exe" Certificate="$(AssemblySigningCertName)" />
+    <SignedPackageFile Include="ef.dll" Certificate="$(AssemblySigningCertName)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <GeneratedContent Include="*.psd1.in">
       <Properties>VersionPrefix=$(VersionPrefix)</Properties>
     </GeneratedContent>

@@ -1,0 +1,37 @@
+#
+# See https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema for details
+#
+
+# Only run CI builds for these branches
+trigger:
+  branches:
+    include:
+    - 'master'
+    - 'release/*'
+# Run PR validation on all branches
+pr:
+  branches:
+    include:
+    - '*'
+
+name: $(Date:yyMMdd)-$(Rev:rr)
+
+jobs:
+- template: build/templates/default-build.yml
+  parameters:
+    agentOs: Windows
+    codeSign: true
+    configuration: Release
+    artifacts:
+      publish: true
+      path: 'artifacts/build/'
+
+- template: build/templates/default-build.yml
+  parameters:
+    agentOs: macOS
+    configuration: Release
+
+- template: build/templates/default-build.yml
+  parameters:
+    agentOs: Linux
+    configuration: Release

@@ -11,7 +11,6 @@ RED="\033[0;31m"
 YELLOW="\033[0;33m"
 MAGENTA="\033[0;95m"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-[ -z "${DOTNET_HOME:-}" ] && DOTNET_HOME="$HOME/.dotnet"
 verbose=false
 update=false
 reinstall=false
@@ -186,8 +185,11 @@ while [[ $# -gt 0 ]]; do
         --reinstall|-[Rr]einstall)
             reinstall=true
             ;;
-        --ci)
+        --ci|-[Cc][Ii])
             ci=true
+            if [[ -z "${DOTNET_HOME:-}" ]]; then
+                DOTNET_HOME="$DIR/.dotnet"
+            fi
             ;;
         --verbose|-Verbose)
             verbose=true
@@ -220,24 +222,36 @@ if [ -f "$config_file" ]; then
             config_channel="$(jq -r 'select(.channel!=null) | .channel' "$config_file")"
             config_tools_source="$(jq -r 'select(.toolsSource!=null) | .toolsSource' "$config_file")"
         else
-            __warn "$config_file is invalid JSON. Its settings will be ignored."
+            __error "$config_file contains invalid JSON."
+            exit 1
         fi
     elif __machine_has python ; then
         if python -c "import json,codecs;obj=json.load(codecs.open('$config_file', 'r', 'utf-8-sig'))" >/dev/null ; then
             config_channel="$(python -c "import json,codecs;obj=json.load(codecs.open('$config_file', 'r', 'utf-8-sig'));print(obj['channel'] if 'channel' in obj else '')")"
             config_tools_source="$(python -c "import json,codecs;obj=json.load(codecs.open('$config_file', 'r', 'utf-8-sig'));print(obj['toolsSource'] if 'toolsSource' in obj else '')")"
         else
-            __warn "$config_file is invalid JSON. Its settings will be ignored."
+            __error "$config_file contains invalid JSON."
+            exit 1
+        fi
+    elif __machine_has python3 ; then
+        if python3 -c "import json,codecs;obj=json.load(codecs.open('$config_file', 'r', 'utf-8-sig'))" >/dev/null ; then
+            config_channel="$(python3 -c "import json,codecs;obj=json.load(codecs.open('$config_file', 'r', 'utf-8-sig'));print(obj['channel'] if 'channel' in obj else '')")"
+            config_tools_source="$(python3 -c "import json,codecs;obj=json.load(codecs.open('$config_file', 'r', 'utf-8-sig'));print(obj['toolsSource'] if 'toolsSource' in obj else '')")"
+        else
+            __error "$config_file contains invalid JSON."
+            exit 1
         fi
     else
-        __warn 'Missing required command: jq or pyton. Could not parse the JSON file. Its settings will be ignored.'
+        __error 'Missing required command: jq or python. Could not parse the JSON file.'
+        exit 1
     fi
 
     [ ! -z "${config_channel:-}" ] && channel="$config_channel"
     [ ! -z "${config_tools_source:-}" ] && tools_source="$config_tools_source"
 fi
 
-[ -z "$channel" ] && channel='dev'
+[ -z "${DOTNET_HOME:-}" ] && DOTNET_HOME="$HOME/.dotnet"
+[ -z "$channel" ] && channel='master'
 [ -z "$tools_source" ] && tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 
 get_korebuild

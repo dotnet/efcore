@@ -9,7 +9,6 @@
     <PackageId>Microsoft.EntityFrameworkCore.Sqlite</PackageId>
     <PackageTags>$(PackageTags);SQLite</PackageTags>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <IncludeSource>false</IncludeSource>
     <IncludeSymbols>false</IncludeSymbols>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <EnableApiCheck>false</EnableApiCheck>
@@ -24,7 +23,7 @@
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  
+
   <ItemGroup>
     <None Include="lib\**\*">
       <Pack>True</Pack>
