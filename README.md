@@ -2,6 +2,8 @@
 
 Documentation on using EF Core is available at <https://docs.microsoft.com/ef/core/>.
 
+[![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/aspnet/EntityFrameworkCore/EntityFrameworkCore-ci)](https://dnceng.visualstudio.com/public/_build/latest?definitionId=51)
+
 ## EF Core here, EF6 elsewhere
 
 This project is for Entity Framework Core. Entity Framework 6 is still under active development at https://github.com/aspnet/EntityFramework6.
