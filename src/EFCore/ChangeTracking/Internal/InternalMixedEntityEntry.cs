@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override object ReadPropertyValue(IPropertyBase propertyBase)
-            => propertyBase.IsIndexedProperty || !propertyBase.IsShadowProperty
+            => !propertyBase.IsShadowProperty
                 ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[propertyBase.GetShadowIndex()];
 

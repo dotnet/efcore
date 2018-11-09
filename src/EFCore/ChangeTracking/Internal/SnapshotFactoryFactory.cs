@@ -114,6 +114,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         CreateReadShadowValueExpression(parameter, propertyBase),
                         propertyBase);
                 }
+                else if (propertyBase.IsIndexedProperty)
+                {
+                    var indexerAccessExpression = (Expression)Expression.MakeIndex(
+                        entityVariable,
+                        propertyBase.PropertyInfo,
+                        new List<Expression>() { Expression.Constant(propertyBase.Name) });
+                    if (propertyBase.PropertyInfo.PropertyType != propertyBase.ClrType)
+                    {
+                        indexerAccessExpression =
+                            Expression.Convert(indexerAccessExpression, propertyBase.ClrType);
+                    }
+
+                    arguments[i] =
+                        CreateSnapshotValueExpression(indexerAccessExpression, propertyBase);
+                }
                 else
                 {
                     var memberAccess = (Expression)Expression.MakeMemberAccess(

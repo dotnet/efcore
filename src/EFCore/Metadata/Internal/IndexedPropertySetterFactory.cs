@@ -24,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
             PropertyInfo propertyInfo, IPropertyBase propertyBase)
         {
+            Debug.Assert(propertyInfo != null);
             Debug.Assert(propertyBase != null);
 
-            var indexerPropertyInfo = propertyBase.DeclaringType.EFIndexerProperty();
-            if (indexerPropertyInfo == null)
+            if (!propertyInfo.IsEFIndexerProperty())
             {
                 throw new InvalidOperationException(
                     CoreStrings.NoIndexer(propertyBase.Name, propertyBase.DeclaringType.DisplayName()));
@@ -37,14 +37,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var valueParameter = Expression.Parameter(typeof(TValue), "value");
             var indexerParameterList = new List<Expression>() { Expression.Constant(propertyBase.Name) };
 
-            // the indexer expects the value to be an object, so cast it to that if necessary
+            // the indexer expects the value to be an object, but the indexed property
+            // can have been declared as a different type so cast it to that if necessary
             var propertyType = propertyBase.ClrType;
             var convertedParameter = propertyType == typeof(object)
                 ? (Expression)valueParameter
                 : Expression.TypeAs(valueParameter, typeof(object));
 
             Expression writeExpression = Expression.Assign(
-                Expression.MakeIndex(entityParameter, indexerPropertyInfo, indexerParameterList),
+                Expression.MakeIndex(entityParameter, propertyInfo, indexerParameterList),
                 convertedParameter);
 
             var setter = Expression.Lambda<Action<TEntity, TValue>>(

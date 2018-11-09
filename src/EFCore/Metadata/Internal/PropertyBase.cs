@@ -18,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private FieldInfo _fieldInfo;
         private ConfigurationSource? _fieldInfoConfigurationSource;
+        private bool _isIndexedProperty;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
         private IClrPropertySetter _setter;
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
-        private bool _isIndexedProperty;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -33,15 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected PropertyBase(
             [NotNull] string name,
             [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo,
-            bool isIndexProperty = false)
+            [CanBeNull] FieldInfo fieldInfo)
         {
             Check.NotEmpty(name, nameof(name));
 
             Name = name;
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;
-            _isIndexedProperty = isIndexProperty;
+            _isIndexedProperty = propertyInfo != null
+                && propertyInfo.IsEFIndexerProperty();
         }
 
         /// <summary>

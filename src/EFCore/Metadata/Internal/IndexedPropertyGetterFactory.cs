@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
             PropertyInfo propertyInfo, IPropertyBase propertyBase)
         {
+            Debug.Assert(propertyInfo != null);
             Debug.Assert(propertyBase != null);
 
-            var indexerPropertyInfo = propertyBase.DeclaringType.EFIndexerProperty();
-            if (indexerPropertyInfo == null)
+            if (!propertyInfo.IsEFIndexerProperty())
             {
                 throw new InvalidOperationException(
                     CoreStrings.NoIndexer(propertyBase.Name, propertyBase.DeclaringType.DisplayName()));
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var indexerParameterList = new List<Expression>() { Expression.Constant(propertyBase.Name) };
             Expression readExpression = Expression.MakeIndex(
-                entityParameter, indexerPropertyInfo, indexerParameterList);
+                entityParameter, propertyInfo, indexerParameterList);
 
             if (readExpression.Type != typeof(TValue))
             {
