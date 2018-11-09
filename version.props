@@ -1,18 +1,29 @@
 <Project>
   <PropertyGroup>
-    <VersionPrefix>3.0.0</VersionPrefix>
-    <VersionSuffix>alpha1</VersionSuffix>
-    <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' == 'rtm' ">$(VersionPrefix)</PackageVersion>
-    <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' != 'rtm' ">$(VersionPrefix)-$(VersionSuffix)-final</PackageVersion>
+    <MajorVersion>3</MajorVersion>
+    <MinorVersion>0</MinorVersion>
+    <PatchVersion>0</PatchVersion>
+    <PreReleaseLabel>preview</PreReleaseLabel>
     <BuildNumber Condition="'$(BuildNumber)' == ''">t000</BuildNumber>
-    <FeatureBranchVersionPrefix Condition="'$(FeatureBranchVersionPrefix)' == ''">a-</FeatureBranchVersionPrefix>
-    <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(FeatureBranchVersionSuffix)' != ''">$(FeatureBranchVersionPrefix)$(VersionSuffix)-$([System.Text.RegularExpressions.Regex]::Replace('$(FeatureBranchVersionSuffix)', '[^\w-]', '-'))</VersionSuffix>
-    <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
 
-    <ExperimentalVersionPrefix>0.3.0</ExperimentalVersionPrefix>
-    <ExperimentalVersionSuffix>alpha1</ExperimentalVersionSuffix>
-    <ExperimentalPackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ExperimentalVersionSuffix)' == 'rtm' ">$(ExperimentalVersionPrefix)</ExperimentalPackageVersion>
-    <ExperimentalPackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ExperimentalVersionSuffix)' != 'rtm' ">$(ExperimentalVersionPrefix)-$(ExperimentalVersionSuffix)-final</ExperimentalPackageVersion>
-    <ExperimentalVersionSuffix Condition="'$(ExperimentalVersionSuffix)' != '' And '$(BuildNumber)' != ''">$(ExperimentalVersionSuffix)-$(BuildNumber)</ExperimentalVersionSuffix>
+    <VersionPrefix>$(MajorVersion).$(MinorVersion).$(PatchVersion)</VersionPrefix>
+    <VersionSuffix>$(PreReleaseLabel)-$(BuildNumber)</VersionSuffix>
+
+    <!-- Run the build with /p:IsFinalBuild=true to produce the product with 'final' branding and versioning -->
+    <IsFinalBuild Condition=" '$(IsFinalBuild)' == '' ">false</IsFinalBuild>
+    <IncludePreReleaseLabelInPackageVersion>true</IncludePreReleaseLabelInPackageVersion>
+    <IncludePreReleaseLabelInPackageVersion Condition=" '$(IsFinalBuild)' == 'true' AND ('$(PreReleaseLabel)' == 'servicing' OR '$(PreReleaseLabel)' == 'rtm')">false</IncludePreReleaseLabelInPackageVersion>
+
+    <!-- The version in files -->
+    <PackageVersion>$(VersionPrefix)</PackageVersion>
+    <PackageVersion Condition=" '$(IncludePreReleaseLabelInPackageVersion)' == 'true' ">$(VersionPrefix)-$(VersionSuffix)</PackageVersion>
   </PropertyGroup>
+
+  <!-- Run 'dotnet msbuild version.props' to test changes to this file. -->
+  <Target Name="InspectVersionNumbers">
+    <Message Importance="High" Text="PackageVersion   = '$(PackageVersion)'" />
+    <Message Importance="High" Text="VersionPrefix    = '$(VersionPrefix)'" />
+    <Message Importance="High" Text="VersionSuffix    = '$(VersionSuffix)'" />
+  </Target>
+
 </Project>
