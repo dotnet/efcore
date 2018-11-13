@@ -42,6 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new bool IsQueryType { get; set; }
 
         /// <summary>
+        ///     Gets or sets whether this entity type can share its ClrType with other entities.
+        /// </summary>
+        /// <returns> true if the entity type can share its ClrType with other entities; otherwise false. </returns>
+        new bool IsSharedType { get; set; }
+
+        /// <summary>
         ///     Gets the LINQ query used as the default source for queries of this type.
         /// </summary>
         new LambdaExpression DefiningQuery { get; [param: CanBeNull] set; }

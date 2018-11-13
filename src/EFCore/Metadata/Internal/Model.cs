@@ -154,6 +154,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddEntityType(queryType);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType AddSharedTypeEntityType(
+            [NotNull] string name,
+            [NotNull] Type type,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(type, nameof(type));
+
+            var entityType = new EntityType(name, type, this, configurationSource)
+            {
+                IsSharedType = true
+            };
+
+            return AddEntityType(entityType);
+        }
+
         private EntityType AddEntityType(EntityType entityType)
         {
             var entityTypeName = entityType.Name;
@@ -186,6 +207,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var added = entityTypesWithSameType.Add(entityType);
                 Debug.Assert(added);
+            }
+            else if (entityType.IsSharedType)
+            {
+                if (_entityTypesWithDefiningNavigation.ContainsKey(entityTypeName))
+                {
+                    throw new InvalidOperationException(CoreStrings.ClashingWeakEntityType(entityType.DisplayName()));
+                }
+
+                if (_entityTypes.ContainsKey(entityTypeName))
+                {
+                    throw new InvalidOperationException(CoreStrings.ClashingSharedTypeEntityType(entityType.DisplayName()));
+                }
+
+                _entityTypes.Add(entityTypeName, entityType);
             }
             else
             {
@@ -663,6 +698,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name);
         IMutableEntityType IMutableModel.AddEntityType(Type type) => AddEntityType(type);
         IMutableEntityType IMutableModel.AddQueryType(Type type) => AddQueryType(type);
+        IMutableEntityType IMutableModel.AddSharedTypeEntityType(string name, Type type) => AddSharedTypeEntityType(name, type);
         IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
 
         IEntityType IModel.FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)

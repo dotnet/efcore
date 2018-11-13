@@ -16,5 +16,25 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IPropertyBase : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
       "MemberId": "System.Boolean get_IsIndexedProperty()",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
+      "MemberId": "System.Boolean get_IsSharedType()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+      "MemberId": "System.Boolean get_IsSharedType()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+      "MemberId": "System.Void set_IsSharedType(System.Boolean value)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType AddSharedTypeEntityType(System.String name, System.Type type)",
+      "Kind": "Addition"
     }
   ]

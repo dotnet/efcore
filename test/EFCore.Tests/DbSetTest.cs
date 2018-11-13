@@ -115,6 +115,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Direct_use_of_SharedTypeSet_throws_if_context_disposed()
+        {
+            var context = new EarlyLearningCenter();
+            context.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => context.SharedTypeSet<Dictionary<string, object>>("SharedTypeEntityTypeName"));
+        }
+
+        [Fact]
         public void Direct_use_of_Query_throws_if_context_disposed()
         {
             var context = new EarlyLearningCenter();

@@ -17,41 +17,56 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static readonly MethodInfo _genericCreateSet
             = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateSetFactory));
 
+        private static readonly MethodInfo _genericCreateSharedTypeSet
+            = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateSharedTypeSetFactory));
+
         private static readonly MethodInfo _genericCreateQuery
             = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateQueryFactory));
 
-        private readonly ConcurrentDictionary<Type, Func<DbContext, object>> _cache
-            = new ConcurrentDictionary<Type, Func<DbContext, object>>();
+        private readonly ConcurrentDictionary<string, Func<DbContext, string, object>> _cache
+            = new ConcurrentDictionary<string, Func<DbContext, string, object>>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object Create(DbContext context, Type type)
-            => CreateCore(context, type, _genericCreateSet);
+            => CreateCore(context, type.DisplayName(), type, _genericCreateSet);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual object CreateSharedTypeSet(DbContext context, string entityTypeName, Type type)
+            => CreateCore(context, entityTypeName, type, _genericCreateSharedTypeSet);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object CreateQuery(DbContext context, Type type)
-            => CreateCore(context, type, _genericCreateQuery);
+            => CreateCore(context, type.DisplayName(), type, _genericCreateQuery);
 
-        private object CreateCore(DbContext context, Type type, MethodInfo createMethod)
+        private object CreateCore(DbContext context, string entityTypeName, Type type, MethodInfo createMethod)
             => _cache.GetOrAdd(
-                type,
-                t => (Func<DbContext, object>)createMethod
-                    .MakeGenericMethod(t)
-                    .Invoke(null, null))(context);
+                entityTypeName,
+                name => (Func<DbContext, string, object>)createMethod
+                    .MakeGenericMethod(type)
+                    .Invoke(null, null))(context, entityTypeName);
 
         [UsedImplicitly]
-        private static Func<DbContext, object> CreateSetFactory<TEntity>()
+        private static Func<DbContext, string, object> CreateSetFactory<TEntity>()
             where TEntity : class
-            => c => new InternalDbSet<TEntity>(c);
+            => (ctx, _) => new InternalDbSet<TEntity>(ctx);
 
         [UsedImplicitly]
-        private static Func<DbContext, DbQuery<TQuery>> CreateQueryFactory<TQuery>()
+        private static Func<DbContext, string, object> CreateSharedTypeSetFactory<TEntity>()
+            where TEntity : class
+            => (ctx, entityTypeName) => new InternalSharedTypeDbSet<TEntity>(ctx, entityTypeName);
+
+        [UsedImplicitly]
+        private static Func<DbContext, string, DbQuery<TQuery>> CreateQueryFactory<TQuery>()
             where TQuery : class
-            => c => new InternalDbQuery<TQuery>(c);
+            => (ctx, _) => new InternalDbQuery<TQuery>(ctx);
     }
 }

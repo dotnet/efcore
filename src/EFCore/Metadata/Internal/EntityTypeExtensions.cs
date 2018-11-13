@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this IEntityType type)
         {
-            if (type.ClrType != null)
+            if (!type.IsSharedType && type.ClrType != null)
             {
                 return type.ClrType.ShortDisplayName();
             }

@@ -1138,4 +1138,10 @@
   <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
     <value>There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.</value>
   </data>
+  <data name="ClashingSharedTypeEntityType" xml:space="preserve">
+    <value>The shared-type entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
+  </data>
+  <data name="InvalidSharedTypeSet" xml:space="preserve">
+    <value>Cannot create a shared-type DbSet with name '{entityTypeName}' because no entity type with that name has been included in the model for this context.  Please define a shared-type entity type by calling 'modelBuilder.Model.AddSharedTypeEntityType()' in `OnModelCreating()`.</value>
+  </data>
 </root>

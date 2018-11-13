@@ -124,6 +124,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public EntityType([NotNull] string name,
+            [NotNull] Type clrType,
+            [NotNull] Model model,
+            ConfigurationSource configurationSource)
+            : base(name, clrType, model, configurationSource)
+        {
+            _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
+            Builder = new InternalEntityTypeBuilder(this, model.Builder);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityTypeBuilder Builder
         {
             [DebuggerStepThrough]
@@ -173,6 +187,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsQueryType { get; set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool IsSharedType { get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

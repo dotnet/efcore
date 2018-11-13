@@ -2828,6 +2828,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("ConflictingForeignKeyAttributes", nameof(propertyList), nameof(entityType)),
                 propertyList, entityType);
 
+        /// <summary>
+        ///     The shared-type entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.
+        /// </summary>
+        public static string ClashingSharedTypeEntityType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingSharedTypeEntityType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Cannot create a shared-type DbSet with name '{entityTypeName}' because no entity type with that name has been included in the model for this context.  Please define a shared-type entity type by calling 'modelBuilder.Model.AddSharedTypeEntityType()' in `OnModelCreating()`.
+        /// </summary>
+        public static string InvalidSharedTypeSet([CanBeNull] object entityTypeName)
+            => string.Format(
+                GetString("InvalidSharedTypeSet", nameof(entityTypeName)),
+                entityTypeName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

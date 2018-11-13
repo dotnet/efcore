@@ -62,9 +62,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Expression.Property(entryParameter, "Entity"),
                     entityClrType);
 
-                currentValueExpression = Expression.MakeMemberAccess(
-                    convertedExpression,
-                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                if (propertyBase.IsIndexedProperty)
+                {
+                    currentValueExpression = Expression.MakeIndex(
+                        convertedExpression,
+                        propertyBase.PropertyInfo,
+                        new [] { Expression.Constant(propertyBase.Name) });
+                }
+                else
+                {
+                    currentValueExpression = Expression.MakeMemberAccess(
+                        convertedExpression,
+                        propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                }
 
                 if (currentValueExpression.Type != typeof(TProperty))
                 {

@@ -102,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public LambdaExpression QueryFilter { get; }
             public LambdaExpression DefiningQuery { get; }
             public bool IsQueryType { get; }
+            public bool IsSharedType { get; }
             public IKey FindPrimaryKey() => throw new NotImplementedException();
             public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
             public IEnumerable<IKey> GetKeys() => throw new NotImplementedException();

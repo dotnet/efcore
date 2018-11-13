@@ -44,6 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsQueryType { get; }
 
         /// <summary>
+        ///     Gets whether this entity type can share its ClrType with other entities.
+        /// </summary>
+        /// <returns> true if the entity type can share its ClrType with other entities; otherwise false. </returns>
+        bool IsSharedType { get; }
+
+        /// <summary>
         ///     <para>
         ///         Gets primary key for this entity. Returns null if no primary key is defined.
         ///     </para>

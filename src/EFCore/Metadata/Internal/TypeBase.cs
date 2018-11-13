@@ -50,6 +50,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ClrType = clrType;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected TypeBase([NotNull] string name, [NotNull] Type clrType,
+            [NotNull] Model model, ConfigurationSource configurationSource)
+            : this(model, configurationSource)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(model, nameof(model));
+
+            Name = name;
+            ClrType = clrType;
+        }
+
         private TypeBase([NotNull] Model model, ConfigurationSource configurationSource)
         {
             Model = model;

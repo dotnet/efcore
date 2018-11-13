@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IModel _model;
         private readonly IDatabase _database;
         private readonly IConcurrencyDetector _concurrencyDetector;
+        private readonly ISharedTypeEntityFinder _sharedTypeEntityFinder;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -72,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             UpdateLogger = dependencies.UpdateLogger;
             _changeTrackingLogger = dependencies.ChangeTrackingLogger;
+            _sharedTypeEntityFinder = dependencies.SharedTypeEntityFinder;
         }
 
         /// <summary>
@@ -155,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _trackingQueryMode = TrackingQueryMode.Multiple;
 
-                var entityType = _model.FindRuntimeEntityType(entity.GetType());
+                var entityType = _sharedTypeEntityFinder.FindSharedTypeEntityType(entity)
+                    ?? _model.FindRuntimeEntityType(entity.GetType());
                 if (entityType == null)
                 {
                     if (_model.HasEntityTypeWithDefiningNavigation(entity.GetType()))

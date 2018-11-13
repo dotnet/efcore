@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
         where TEntity : class
     {
-        private readonly DbContext _context;
-        private IEntityType _entityType;
+        protected readonly DbContext _context;
+        protected IEntityType _entityType;
         private EntityQueryable<TEntity> _entityQueryable;
         private LocalView<TEntity> _localView;
 
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _context = context;
         }
 
-        private IEntityType EntityType
+        protected virtual IEntityType EntityType
         {
             get
             {

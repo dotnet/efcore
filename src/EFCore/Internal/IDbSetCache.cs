@@ -17,5 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         object GetOrAddSet([NotNull] IDbSetSource source, [NotNull] Type type);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        object GetOrAddSharedTypeSet([NotNull] IDbSetSource source, [NotNull] string entityTypeName, [NotNull] Type type);
     }
 }

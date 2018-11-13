@@ -106,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILocalViewListener), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(ISharedTypeEntityFinder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IStateManager), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(Func<IStateManager>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IConcurrencyDetector), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -232,6 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IKeyPropagator, KeyPropagator>();
             TryAdd<INavigationFixer, NavigationFixer>();
             TryAdd<ILocalViewListener, LocalViewListener>();
+            TryAdd<ISharedTypeEntityFinder, SelfDescribingIndexPropertyEntityFinder>();
             TryAdd<IStateManager, StateManager>();
             TryAdd<IConcurrencyDetector, ConcurrencyDetector>();
             TryAdd<IInternalEntityEntryNotifier, InternalEntityEntryNotifier>();

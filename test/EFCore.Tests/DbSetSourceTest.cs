@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -23,6 +24,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Can_create_new_generic_SharedTypeDbSet()
+        {
+            var context = InMemoryTestHelpers.Instance.CreateContext();
+
+            var factorySource = new DbSetSource();
+
+            var set = factorySource.CreateSharedTypeSet(context, "SharedTypeEntityType", typeof(Dictionary<string, object>));
+
+            Assert.IsType<InternalSharedTypeDbSet<Dictionary<string, object>>>(set);
+        }
+
+
+        [Fact]
         public void Always_creates_a_new_DbSet_instance()
         {
             var context = InMemoryTestHelpers.Instance.CreateContext();
@@ -30,6 +44,18 @@ namespace Microsoft.EntityFrameworkCore
             var factorySource = new DbSetSource();
 
             Assert.NotSame(factorySource.Create(context, typeof(Random)), factorySource.Create(context, typeof(Random)));
+        }
+
+        [Fact]
+        public void Always_creates_a_new_SharedTypeDbSet_instance()
+        {
+            var context = InMemoryTestHelpers.Instance.CreateContext();
+
+            var factorySource = new DbSetSource();
+
+            Assert.NotSame(
+                factorySource.CreateSharedTypeSet(context, "SharedTypeEntityType", typeof(Dictionary<string, object>)),
+                factorySource.CreateSharedTypeSet(context, "SharedTypeEntityType", typeof(Dictionary<string, object>)));
         }
     }
 }

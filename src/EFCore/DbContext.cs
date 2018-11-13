@@ -54,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         IDbContextPoolable
     {
         private IDictionary<Type, object> _sets;
+        private IDictionary<string, object> _sharedTypeSets;
         private IDictionary<Type, object> _queries;
         private readonly DbContextOptions _options;
 
@@ -219,6 +220,28 @@ namespace Microsoft.EntityFrameworkCore
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        object IDbSetCache.GetOrAddSharedTypeSet(IDbSetSource source, string entityTypeName, Type clrType)
+        {
+            CheckDisposed();
+
+            if (_sharedTypeSets == null)
+            {
+                _sharedTypeSets = new Dictionary<string, object>();
+            }
+
+            if (!_sharedTypeSets.TryGetValue(entityTypeName, out var set))
+            {
+                set = source.CreateSharedTypeSet(this, entityTypeName, clrType);
+                _sharedTypeSets[entityTypeName] = set;
+            }
+
+            return set;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         object IDbQueryCache.GetOrAddQuery(IDbQuerySource source, Type type)
         {
             CheckDisposed();
@@ -245,6 +268,16 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbSet<TEntity> Set<TEntity>()
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
+
+        /// <summary>
+        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
+        /// <param name="entityTypeName"> The name of the entity type as defined by <see cref="IMutableModel.AddSharedTypeEntityType"/>. </param>
+        /// <returns> A set for the given entity type. </returns>
+        public virtual DbSet<TEntity> SharedTypeSet<TEntity>(string entityTypeName)
+            where TEntity : class
+            => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSharedTypeSet(DbContextDependencies.SetSource, entityTypeName, typeof(TEntity));
 
         /// <summary>
         ///     Creates a <see cref="DbQuery{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
@@ -620,6 +653,17 @@ namespace Microsoft.EntityFrameworkCore
             if (_sets != null)
             {
                 foreach (var set in _sets.Values)
+                {
+                    if (set is IResettableService resettable)
+                    {
+                        resettable.ResetState();
+                    }
+                }
+            }
+
+            if (_sharedTypeSets != null)
+            {
+                foreach (var set in _sharedTypeSets.Values)
                 {
                     if (set is IResettableService resettable)
                     {

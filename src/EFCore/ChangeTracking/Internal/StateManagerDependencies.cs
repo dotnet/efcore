@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] ILoggingOptions loggingOptions,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger,
+            [NotNull] ISharedTypeEntityFinder sharedEntityTypeFinder)
         {
             InternalEntityEntryFactory = internalEntityEntryFactory;
             InternalEntityEntrySubscriber = internalEntityEntrySubscriber;
@@ -76,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
             ChangeTrackingLogger = changeTrackingLogger;
+            SharedTypeEntityFinder = sharedEntityTypeFinder;
         }
 
         /// <summary>
@@ -163,6 +165,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> ChangeTrackingLogger { get; }
 
         /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public ISharedTypeEntityFinder SharedTypeEntityFinder { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="internalEntityEntryFactory"> A replacement for the current dependency of this type. </param>
@@ -182,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -204,7 +213,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -226,7 +236,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -248,7 +259,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -270,7 +282,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -292,7 +305,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -314,7 +328,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -336,7 +351,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -358,7 +374,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -380,7 +397,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -402,7 +420,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -424,7 +443,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 loggingOptions,
                 UpdateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -446,7 +466,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 updateLogger,
-                ChangeTrackingLogger);
+                ChangeTrackingLogger,
+                SharedTypeEntityFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -468,6 +489,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityMaterializerSource,
                 LoggingOptions,
                 UpdateLogger,
-                changeTrackingLogger);
+                changeTrackingLogger,
+                SharedTypeEntityFinder);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sharedTypeEntityFinder"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public StateManagerDependencies With([NotNull] ISharedTypeEntityFinder sharedTypeEntityFinder)
+            => new StateManagerDependencies(
+                InternalEntityEntryFactory,
+                InternalEntityEntrySubscriber,
+                InternalEntityEntryNotifier,
+                ValueGenerationManager,
+                Model,
+                Database,
+                ConcurrencyDetector,
+                CurrentContext,
+                EntityFinderSource,
+                SetSource,
+                EntityMaterializerSource,
+                LoggingOptions,
+                UpdateLogger,
+                ChangeTrackingLogger,
+                sharedTypeEntityFinder);
+
     }
 }

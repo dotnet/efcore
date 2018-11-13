@@ -292,7 +292,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definingEntityType = entityType.DefiningEntityType;
             return definingEntityType == null
-                ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType)
+                ? entityType.IsSharedType
+                    ? (IQueryable)_setCache.GetOrAddSharedTypeSet(_setSource, entityType.Name, entityType.ClrType)
+                    : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType)
                 : BuildQueryRoot(definingEntityType, entityType);
         }
 
