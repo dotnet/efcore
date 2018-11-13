@@ -380,15 +380,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [Fact]
-        public void ExecuteAsync_Action_throws_for_an_ambient_transaction()
+        public async Task ExecuteAsync_Action_throws_for_an_ambient_transaction()
         {
-            ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
+            await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
         }
 
         [Fact]
-        public void ExecuteAsync_Func_throws_for_an_ambient_transaction()
+        public async Task ExecuteAsync_Func_throws_for_an_ambient_transaction()
         {
-            ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
+            await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
         }
 
         private async Task ExecuteAsync_throws_for_an_ambient_transaction(Func<ExecutionStrategy, Task> executeAsync)
@@ -405,15 +405,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [Fact]
-        public void ExecuteAsync_Action_throws_for_an_enlisted_transaction()
+        public async Task ExecuteAsync_Action_throws_for_an_enlisted_transaction()
         {
-            ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
+            await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
         }
 
         [Fact]
-        public void ExecuteAsync_Func_throws_for_an_enlisted_transaction()
+        public async Task ExecuteAsync_Func_throws_for_an_enlisted_transaction()
         {
-            ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
+            await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
         }
 
         private async Task ExecuteAsync_throws_for_an_enlisted_transaction(Func<ExecutionStrategy, Task> executeAsync)
