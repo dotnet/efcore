@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     Executes an action passing exceptions to the <see cref="IOperationResultHandler" />.
             /// </summary>
             /// <param name="action"> The action to execute. </param>
-            public virtual void Execute([NotNull] Action action)
+            protected virtual void Execute([NotNull] Action action)
             {
                 Check.NotNull(action, nameof(action));
 
@@ -549,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// </summary>
             /// <typeparam name="T"> The result type. </typeparam>
             /// <param name="action"> The action to execute. </param>
-            public virtual void Execute<T>([NotNull] Func<T> action)
+            protected virtual void Execute<T>([NotNull] Func<T> action)
             {
                 Check.NotNull(action, nameof(action));
 
@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// </summary>
             /// <typeparam name="T"> The type of results. </typeparam>
             /// <param name="action"> The action to execute. </param>
-            public virtual void Execute<T>([NotNull] Func<IEnumerable<T>> action)
+            protected virtual void Execute<T>([NotNull] Func<IEnumerable<T>> action)
             {
                 Check.NotNull(action, nameof(action));
 
