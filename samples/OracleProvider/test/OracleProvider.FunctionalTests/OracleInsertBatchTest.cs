@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async void Insert_batch_record_async()
+        public async Task Insert_batch_record_async()
         {
             using (var testDatabase = OracleTestStore.CreateInitialized(DatabaseName))
             {

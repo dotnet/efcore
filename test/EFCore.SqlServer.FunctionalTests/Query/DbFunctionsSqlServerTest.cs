@@ -55,7 +55,7 @@ WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void FreeText_literal()
+        public async Task FreeText_literal()
         {
             using (var context = CreateContext())
             {
@@ -214,7 +214,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void FreeText_throws_when_using_non_parameter_or_constant_for_freetext_string()
+        public async Task FreeText_throws_when_using_non_parameter_or_constant_for_freetext_string()
         {
             using (var context = CreateContext())
             {
@@ -234,7 +234,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void FreeText_throws_when_using_non_column_for_proeprty_reference()
+        public async Task FreeText_throws_when_using_non_column_for_proeprty_reference()
         {
             using (var context = CreateContext())
             {
@@ -267,7 +267,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void Contains_should_throw_when_using_non_parameter_or_constant_for_contains_string()
+        public async Task Contains_should_throw_when_using_non_parameter_or_constant_for_contains_string()
         {
             using (var context = CreateContext())
             {
@@ -298,7 +298,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void Contains_literal()
+        public async Task Contains_literal()
         {
             using (var context = CreateContext())
             {
@@ -334,7 +334,7 @@ WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void Contains_with_logical_operator()
+        public async Task Contains_with_logical_operator()
         {
             using (var context = CreateContext())
             {
@@ -354,7 +354,7 @@ WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void Contains_with_prefix_term_and_language_term()
+        public async Task Contains_with_prefix_term_and_language_term()
         {
             using (var context = CreateContext())
             {
@@ -372,7 +372,7 @@ WHERE CONTAINS([c].[Title], N'""Mana*""', LANGUAGE 1033)");
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void Contains_with_proximity_term_and_language_term()
+        public async Task Contains_with_proximity_term_and_language_term()
         {
             using (var context = CreateContext())
             {

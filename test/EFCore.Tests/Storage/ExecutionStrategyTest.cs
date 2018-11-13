@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
         }
 
-        private async void ExecuteAsync_throws_for_an_ambient_transaction(Func<ExecutionStrategy, Task> executeAsync)
+        private async Task ExecuteAsync_throws_for_an_ambient_transaction(Func<ExecutionStrategy, Task> executeAsync)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -416,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
         }
 
-        private async void ExecuteAsync_throws_for_an_enlisted_transaction(Func<ExecutionStrategy, Task> executeAsync)
+        private async Task ExecuteAsync_throws_for_an_enlisted_transaction(Func<ExecutionStrategy, Task> executeAsync)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
             using (var t = new CommittableTransaction())

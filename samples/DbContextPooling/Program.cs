@@ -101,7 +101,7 @@ namespace Samples
             }
         }
 
-        private static async void MonitorResults(TimeSpan duration, Stopwatch stopwatch)
+        private static async Task MonitorResults(TimeSpan duration, Stopwatch stopwatch)
         {
             var lastInstanceCount = 0L;
             var lastRequestCount = 0L;
