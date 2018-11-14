@@ -844,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async void It_throws_object_disposed_exception()
+        public async Task It_throws_object_disposed_exception()
         {
             var context = new DbContext(new DbContextOptions<DbContext>());
             context.Dispose();

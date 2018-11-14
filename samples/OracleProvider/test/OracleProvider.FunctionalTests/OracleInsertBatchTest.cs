@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public async void Insert_batch_record_async()
+        public async Task Insert_batch_record_async()
         {
             using (var testDatabase = OracleTestStore.CreateInitialized(DatabaseName))
             {
