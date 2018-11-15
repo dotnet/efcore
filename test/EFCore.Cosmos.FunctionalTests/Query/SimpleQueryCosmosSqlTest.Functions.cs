@@ -279,11 +279,9 @@ WHERE (c[""Discriminator""] = ""OrderDetail"")");
             await base.Where_math_abs_uncorrelated(isAsync);
 
             AssertSql(
-                @"@__Abs_0='10'
-
-SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (@__Abs_0 < c[""ProductID""]))");
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (10 < c[""ProductID""]))");
         }
 
         public override async Task Where_math_ceiling1(bool isAsync)

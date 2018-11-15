@@ -26,6 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        [Fact(Skip = "See issue#13857")]
+        public override void Auto_initialized_view_set()
+        {
+            base.Auto_initialized_view_set();
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public async virtual Task Simple_IQueryable(bool isAsync)
@@ -77,11 +83,11 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Local_dictionary(isAsync);
 
             AssertSql(
-                @"@__get_Item_0='ALFKI'
+                @"@__p_0='ALFKI'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__get_Item_0))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__p_0))");
         }
 
         public override void Method_with_constant_queryable_arg()
@@ -1952,7 +1958,10 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             await base.DateTime_parse_is_inlined(isAsync);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > ""1998-01-01T12:00:00""))");
         }
 
         public override async Task DateTime_parse_is_parameterized_when_from_closure(bool isAsync)
@@ -1971,14 +1980,28 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__Parse_0))")
         {
             await base.New_DateTime_is_inlined(isAsync);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > ""1998-01-01T12:00:00""))");
         }
 
         public override async Task New_DateTime_is_parameterized_when_from_closure(bool isAsync)
         {
             await base.New_DateTime_is_parameterized_when_from_closure(isAsync);
 
-            AssertSql(" ");
+            AssertSql(
+                @"@__p_0='1998-01-01T12:00:00'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__p_0))",
+                //
+                @"@__p_0='1998-01-01T11:00:00'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__p_0))");
         }
 
         public override void Random_next_is_not_funcletized_1()
