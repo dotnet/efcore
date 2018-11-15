@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data;
 using System.IO;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -53,6 +55,19 @@ namespace Microsoft.Data.Sqlite
         /// <returns>Object to access the BLOB.</returns>
         public SqliteBlob(SqliteConnection connection, string databaseName, string tableName, string columnName, long rowid, bool writable)
         {
+            if (connection?.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.SqlBlobRequiresOpenConnection);
+            }
+            if (string.IsNullOrEmpty(tableName))
+            {
+                throw new ArgumentNullException(nameof(tableName));
+            }
+            if (string.IsNullOrEmpty(columnName))
+            {
+                throw new ArgumentNullException(nameof(columnName));
+            }
+
             _db = connection.Handle;
             _writable = writable;
             var rc = raw.sqlite3_blob_open(_db, databaseName, tableName, columnName, rowid, writable ? 1 : 0, out _blob);
@@ -78,7 +93,7 @@ namespace Microsoft.Data.Sqlite
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
         /// <value>true if the stream supports seeking; otherwise, false.</value>
-        public override bool CanSeek { get; }
+        public override bool CanSeek => true;
 
         /// <summary>
         /// Gets or sets the position within the current stream.
@@ -87,7 +102,15 @@ namespace Microsoft.Data.Sqlite
         public override long Position
         {
             get => _position;
-            set => _position = (int)value;
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                _position = (int)value;
+            }
         }
 
         /// <summary>
@@ -117,17 +140,27 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
             }
-
-            if (_position + count > Length)
+            if (_disposed)
             {
-                count = (int)(Length - _position);
+                throw new ObjectDisposedException(null);
+            }
+
+            var position = _position;
+            if (position > _length)
+            {
+                position = (int)_length;
+            }
+
+            if (position + count > Length)
+            {
+                count = (int)(Length - position);
                 if (count == 0)
                 {
                     return 0;
                 }
             }
 
-            var rc = raw.sqlite3_blob_read(_blob, buffer, offset, count, _position);
+            var rc = raw.sqlite3_blob_read(_blob, buffer, offset, count, position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
             return count;
@@ -144,7 +177,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (!_writable)
             {
-                throw new InvalidOperationException("Blob is not openned as writable!");
+                throw new NotSupportedException("Blob is not openned as writable!");
             }
             if (buffer == null)
             {
@@ -162,8 +195,23 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
             }
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
 
-            var rc = raw.sqlite3_blob_write(_blob, buffer, count, _position);
+            var position = _position;
+            if (position > _length)
+            {
+                position = (int)_length;
+            }
+
+            if (position + count > _length)
+            {
+                throw new NotSupportedException("Blob cannot be resized.");
+            }
+
+            var rc = raw.sqlite3_blob_write(_blob, buffer, offset, count, position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
         }
@@ -176,22 +224,28 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The new position within the current stream.</returns>
         public override long Seek(long offset, SeekOrigin origin)
         {
+            int position;
             switch (origin)
             {
                 case SeekOrigin.Begin:
-                    _position = (int)offset;
+                    position = (int)offset;
                     break;
                 case SeekOrigin.Current:
-                    _position += (int)offset;
+                    position = _position + (int)offset;
                     break;
                 case SeekOrigin.End:
-                    _position = (int)(Length - offset);
+                    position = (int)(Length + offset);
                     break;
                 default:
                     throw new ArgumentException("Invalid value: " + origin, nameof(origin));
             }
 
-            return _position;
+            if (position < 0)
+            {
+                throw new IOException("An attempt was made to move the position before the beginning of the stream.");
+            }
+
+            return _position = position;
         }
 
         /// <summary>
@@ -204,7 +258,10 @@ namespace Microsoft.Data.Sqlite
         {
             if (!_disposed)
             {
-                raw.sqlite3_blob_close(_blob);
+                if (_blob != null)
+                {
+                    raw.sqlite3_blob_close(_blob);
+                }
                 _disposed = true;
                 base.Dispose(disposing);
             }
