@@ -66,6 +66,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.SqlServer.NTS", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Sqlite.NTS", "src\EFCore.Sqlite.NTS\EFCore.Sqlite.NTS.csproj", "{1747A095-A464-4445-9F39-A80531FB24FD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.Core", "src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj", "{BA650C8B-4FE8-4544-BF25-9A2A857E2A25}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite", "src\Microsoft.Data.Sqlite\Microsoft.Data.Sqlite.csproj", "{29523A33-A522-42F6-BE2B-56BAFC23A0CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -164,6 +168,14 @@ Global
 		{1747A095-A464-4445-9F39-A80531FB24FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1747A095-A464-4445-9F39-A80531FB24FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1747A095-A464-4445-9F39-A80531FB24FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA650C8B-4FE8-4544-BF25-9A2A857E2A25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA650C8B-4FE8-4544-BF25-9A2A857E2A25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA650C8B-4FE8-4544-BF25-9A2A857E2A25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA650C8B-4FE8-4544-BF25-9A2A857E2A25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29523A33-A522-42F6-BE2B-56BAFC23A0CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29523A33-A522-42F6-BE2B-56BAFC23A0CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29523A33-A522-42F6-BE2B-56BAFC23A0CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29523A33-A522-42F6-BE2B-56BAFC23A0CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -192,6 +204,8 @@ Global
 		{948D3EDA-ECF0-4367-B157-BF770F752A8B} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{F53EB45F-84D7-4520-B813-8916C0C756BB} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{1747A095-A464-4445-9F39-A80531FB24FD} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
+		{BA650C8B-4FE8-4544-BF25-9A2A857E2A25} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
+		{29523A33-A522-42F6-BE2B-56BAFC23A0CE} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EC8BCF1F-A206-4420-A292-3E3F2A4CDC54}
