@@ -1,11 +1,13 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query
 {
     public partial class SimpleQueryCosmosTest
     {
+        [Theory(Skip = "See issue#13857")]
         public override async Task QueryType_simple(bool isAsync)
         {
             await base.QueryType_simple(isAsync);
@@ -16,6 +18,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [Theory(Skip = "See issue#13857")]
         public override async Task QueryType_where_simple(bool isAsync)
         {
             await base.QueryType_where_simple(isAsync);
@@ -26,6 +29,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [Fact(Skip = "See issue#13857")]
         public override void Query_backed_by_database_view()
         {
             base.Query_backed_by_database_view();

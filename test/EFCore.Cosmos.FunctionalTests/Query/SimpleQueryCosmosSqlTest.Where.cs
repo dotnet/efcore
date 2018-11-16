@@ -470,11 +470,17 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))");
             await base.Where_method_call_nullable_type_closure_via_query_cache(isAsync);
 
             AssertSql(
-                @"@__city_Int_0='2'
+                @"@__p_0='2'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__city_Int_0))");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))",
+                //
+                @"@__p_0='5'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))");
         }
 
         public override async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool isAsync)
@@ -482,11 +488,17 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__city_Int
             await base.Where_method_call_nullable_type_reverse_closure_via_query_cache(isAsync);
 
             AssertSql(
-                @"@__city_NullableInt_0='1'
+                @"@__p_0='1'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > @__city_NullableInt_0))");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > @__p_0))",
+                //
+                @"@__p_0='5'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > @__p_0))");
         }
 
         public override async Task Where_method_call_closure_via_query_cache(bool isAsync)
@@ -577,7 +589,14 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Nested_I
         {
             await base.Where_new_instance_field_access_query_cache(isAsync);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))",
+                //
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""Seattle""))");
         }
 
         public override async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)
@@ -597,11 +616,23 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__InstanceField
             await base.Where_simple_closure_via_query_cache_nullable_type(isAsync);
 
             AssertSql(
-                @"@__reportsTo_0='2'
+                @"@__p_0='2'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__reportsTo_0))");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))",
+                //
+                @"@__p_0='5'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))",
+                //
+                @"@__p_0=null
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))");
         }
 
         public override async Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool isAsync)
@@ -609,11 +640,23 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__reportsT
             await base.Where_simple_closure_via_query_cache_nullable_type_reverse(isAsync);
 
             AssertSql(
-                @"@__reportsTo_0=null
+                @"@__p_0=null
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__reportsTo_0))");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))",
+                //
+                @"@__p_0='5'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))",
+                //
+                @"@__p_0='2'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))");
         }
 
         public override void Where_subquery_closure_via_query_cache()
@@ -1459,12 +1502,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((@__i_0 + c[""CustomerID""]) =
             await base.Where_concat_string_int_comparison3(isAsync);
 
             AssertSql(
-                @"@__i_0='10'
+                @"@__p_0='30'
 @__j_1='21'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (((((@__i_0 + 20) + c[""CustomerID""]) || @__j_1) || 42) = c[""CompanyName""]))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((((@__p_0 + c[""CustomerID""]) || @__j_1) || 42) = c[""CompanyName""]))");
         }
 
         public override async Task Where_ternary_boolean_condition_true(bool isAsync)
@@ -1762,7 +1805,12 @@ WHERE (c[""Discriminator""] = ""Order"")");
         {
             await base.TypeBinary_short_circuit(isAsync);
 
-            AssertSql(" ");
+            AssertSql(
+                @"@__p_0='False'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
         }
     }
 }

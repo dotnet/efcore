@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             {
                 var methodCallLine = Environment.StackTrace.Split(
                         new[] { _eol },
-                        StringSplitOptions.RemoveEmptyEntries)[4]
+                        StringSplitOptions.RemoveEmptyEntries)[3]
                     .Substring(6);
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
