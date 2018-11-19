@@ -1,6 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if NETCOREAPP3_0
+// workaround the overlap between System.Interactive.Async and System.Runtime
+extern alias reactive;
+#endif
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,7 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
             Assert.Equal(typeof(int), typeof(IEnumerable<int>).GetSequenceType());
             Assert.Equal(typeof(int), typeof(IQueryable<int>).GetSequenceType());
+#if NETCOREAPP3_0
+            Assert.Equal(typeof(int), typeof(reactive::System.Collections.Generic.IAsyncEnumerable<int>).GetSequenceType());
+#else
             Assert.Equal(typeof(int), typeof(IAsyncEnumerable<int>).GetSequenceType());
+#endif
             Assert.Equal(typeof(int), typeof(List<int>).GetSequenceType());
         }
 
