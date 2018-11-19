@@ -18,7 +18,7 @@ namespace Microsoft.Data.Sqlite
     /// </summary>
     public partial class SqliteConnection : DbConnection
     {
-        private const string MainDatabaseName = "main";
+        internal const string MainDatabaseName = "main";
 
         private readonly IList<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 

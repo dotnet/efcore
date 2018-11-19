@@ -10,50 +10,43 @@ using SQLitePCL;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Provides methods to access the contents of a BLOB.
+    /// Provides methods to access the contents of a blob.
     /// </summary>
     public class SqliteBlob : Stream
     {
-        private const string MainDatabaseName = "main";
-
-        private readonly sqlite3_blob _blob;
+        private sqlite3_blob _blob;
         private readonly sqlite3 _db;
-        private readonly bool _writable;
-        private readonly long _length;
-        private bool _disposed = false;
-        private int _position = 0;
-
-        /// <summary>
-        /// Gets the length of the BLOB in bytes.
-        /// </summary>
-        /// <value>Length of the BLOB in bytes.</value>
-        public override long Length => _length;
+        private long _position;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteBlob"/> class.
         /// </summary>
-        /// <param name="connection">Sqlite connection to be used.</param>
-        /// <param name="tableName">The table name.</param>
-        /// <param name="columnName">The column name.</param>
-        /// <param name="rowid">The row index.</param>
-        /// <param name="writable">Flag indicating whether the blob can be written to.</param>
-        /// <returns>Object to access the BLOB.</returns>
-        public SqliteBlob(SqliteConnection connection, string tableName, string columnName, long rowid, bool writable) :
-            this(connection, MainDatabaseName, tableName, columnName, rowid, writable)
+        /// <param name="connection">An open connection to the database.</param>
+        /// <param name="tableName">The name of table containing the blob.</param>
+        /// <param name="columnName">The name of the column containing the blob.</param>
+        /// <param name="rowid">The rowid of the row containing the blob.</param>
+        /// <param name="writable">A value indicating whether the blob can be written to.</param>
+        public SqliteBlob(SqliteConnection connection, string tableName, string columnName, long rowid, bool writable)
+            : this(connection, SqliteConnection.MainDatabaseName, tableName, columnName, rowid, writable)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteBlob"/> class.
         /// </summary>
-        /// <param name="connection">Sqlite connection to be used.</param>
-        /// <param name="databaseName">The name of the database ('main' is default table).</param>
-        /// <param name="tableName">The table name.</param>
-        /// <param name="columnName">The column name.</param>
-        /// <param name="rowid">The row index.</param>
-        /// <param name="writable">Flag indicating whether the blob can be written to.</param>
-        /// <returns>Object to access the BLOB.</returns>
-        public SqliteBlob(SqliteConnection connection, string databaseName, string tableName, string columnName, long rowid, bool writable)
+        /// <param name="connection">An open connection to the database.</param>
+        /// <param name="databaseName">The name of the attached database containing the blob.</param>
+        /// <param name="tableName">The name of table containing the blob.</param>
+        /// <param name="columnName">The name of the column containing the blob.</param>
+        /// <param name="rowid">The rowid of the row containing the blob.</param>
+        /// <param name="writable">A value indicating whether the blob can be written to.</param>
+        public SqliteBlob(
+            SqliteConnection connection,
+            string databaseName,
+            string tableName,
+            string columnName,
+            long rowid,
+            bool writable)
         {
             if (connection?.State != ConnectionState.Open)
             {
@@ -69,16 +62,22 @@ namespace Microsoft.Data.Sqlite
             }
 
             _db = connection.Handle;
-            _writable = writable;
-            var rc = raw.sqlite3_blob_open(_db, databaseName, tableName, columnName, rowid, writable ? 1 : 0, out _blob);
+            CanWrite = writable;
+            var rc = raw.sqlite3_blob_open(
+                _db,
+                databaseName,
+                tableName,
+                columnName,
+                rowid,
+                writable ? 1 : 0,
+                out _blob);
             SqliteException.ThrowExceptionForRC(rc, _db);
-            _length = raw.sqlite3_blob_bytes(_blob);
+            Length = raw.sqlite3_blob_bytes(_blob);
         }
-
-        private SqliteBlob() => throw new NotSupportedException();
 
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
+        /// Always true.
         /// </summary>
         /// <value>true if the stream supports reading; otherwise, false.</value>
         public override bool CanRead => true;
@@ -87,13 +86,20 @@ namespace Microsoft.Data.Sqlite
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
         /// <value>true if the stream supports writing; otherwise, false.</value>
-        public override bool CanWrite => _writable;
+        public override bool CanWrite { get; }
 
         /// <summary>
         /// Gets a value indicating whether the current stream supports seeking.
+        /// Always true.
         /// </summary>
         /// <value>true if the stream supports seeking; otherwise, false.</value>
         public override bool CanSeek => true;
+
+        /// <summary>
+        /// Gets the length in bytes of the stream.
+        /// </summary>
+        /// <value>A long value representing the length of the stream in bytes.</value>
+        public override long Length { get; }
 
         /// <summary>
         /// Gets or sets the position within the current stream.
@@ -106,7 +112,8 @@ namespace Microsoft.Data.Sqlite
             {
                 if (value < 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value));
+                    // NB: Message is provided by the framework
+                    throw new ArgumentOutOfRangeException(nameof(value), value, message: null);
                 }
 
                 _position = (int)value;
@@ -130,37 +137,34 @@ namespace Microsoft.Data.Sqlite
             }
             if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(offset), offset, message: null);
             }
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                throw new ArgumentOutOfRangeException(nameof(count), count, message: null);
             }
             if (offset + count > buffer.Length)
             {
-                throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+                throw new ArgumentException(Resources.InvalidOffsetAndCount);
             }
-            if (_disposed)
+            if (_blob == null)
             {
-                throw new ObjectDisposedException(null);
+                throw new ObjectDisposedException(objectName: null);
             }
 
             var position = _position;
-            if (position > _length)
+            if (position > Length)
             {
-                position = (int)_length;
+                position = Length;
             }
 
             if (position + count > Length)
             {
                 count = (int)(Length - position);
-                if (count == 0)
-                {
-                    return 0;
-                }
             }
 
-            var rc = raw.sqlite3_blob_read(_blob, buffer, offset, count, position);
+            var rc = raw.sqlite3_blob_read(_blob, buffer, offset, count, (int)position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
             return count;
@@ -175,9 +179,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="count">The number of bytes to be written to the current stream.</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (!_writable)
+            if (!CanWrite)
             {
-                throw new NotSupportedException("Blob is not openned as writable!");
+                throw new NotSupportedException(Resources.WriteNotSupported);
             }
             if (buffer == null)
             {
@@ -185,33 +189,34 @@ namespace Microsoft.Data.Sqlite
             }
             if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(offset), offset, message: null);
             }
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                throw new ArgumentOutOfRangeException(nameof(count), count, message: null);
             }
             if (offset + count > buffer.Length)
             {
-                throw new ArgumentException("The sum of offset and count is larger than the buffer length.");
+                throw new ArgumentException(Resources.InvalidOffsetAndCount);
             }
-            if (_disposed)
+            if (_blob == null)
             {
-                throw new ObjectDisposedException(null);
+                throw new ObjectDisposedException(objectName: null);
             }
 
             var position = _position;
-            if (position > _length)
+            if (position > Length)
             {
-                position = (int)_length;
+                position = Length;
             }
 
-            if (position + count > _length)
+            if (position + count > Length)
             {
-                throw new NotSupportedException("Blob cannot be resized.");
+                throw new NotSupportedException(Resources.ResizeNotSupported);
             }
 
-            var rc = raw.sqlite3_blob_write(_blob, buffer, offset, count, position);
+            var rc = raw.sqlite3_blob_write(_blob, buffer, offset, count, (int)position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
         }
@@ -224,67 +229,60 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The new position within the current stream.</returns>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            int position;
+            long position;
             switch (origin)
             {
                 case SeekOrigin.Begin:
-                    position = (int)offset;
+                    position = offset;
                     break;
                 case SeekOrigin.Current:
-                    position = _position + (int)offset;
+                    position = _position + offset;
                     break;
                 case SeekOrigin.End:
-                    position = (int)(Length + offset);
+                    position = Length + offset;
                     break;
                 default:
-                    throw new ArgumentException("Invalid value: " + origin, nameof(origin));
+                    throw new ArgumentException(Resources.InvalidEnumValue(typeof(SeekOrigin), origin), nameof(origin));
             }
 
             if (position < 0)
             {
-                throw new IOException("An attempt was made to move the position before the beginning of the stream.");
+                throw new IOException(Resources.SeekBeforeBegin);
             }
 
             return _position = position;
         }
 
         /// <summary>
-        ///     Releases any resources used by the BLOB and closes it.
+        ///     Releases any resources used by the blob and closes it.
         /// </summary>
         /// <param name="disposing">
         ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (_blob != null)
             {
-                if (_blob != null)
-                {
-                    raw.sqlite3_blob_close(_blob);
-                }
-                _disposed = true;
-                base.Dispose(disposing);
+                _blob.Dispose();
+                _blob = null;
             }
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="SqliteBlob"/> class.
+        /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device.
+        /// Does nothing.
         /// </summary>
-        ~SqliteBlob()
+        public override void Flush()
         {
-            Dispose(false);
         }
 
         /// <summary>
-        /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device.
-        /// Is a noop in this case.
-        /// </summary>
-        public override void Flush() { }
-
-        /// <summary>
         /// Sets the length of the current stream. This is not supported by sqlite blobs.
+        /// Not supported.
         /// </summary>
         /// <param name="value">The desired length of the current stream in bytes.</param>
-        public override void SetLength(long value) => throw new NotSupportedException("Blob cannot be resized.");
+        /// <exception cref="NotSupportedException">Always.</exception>
+        public override void SetLength(long value)
+            => throw new NotSupportedException(Resources.ResizeNotSupported);
     }
 }

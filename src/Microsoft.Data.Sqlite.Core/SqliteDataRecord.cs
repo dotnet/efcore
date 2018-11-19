@@ -204,7 +204,7 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
             }
-            
+
             var blobDatabaseName = raw.sqlite3_column_database_name(_stmt, ordinal);
             var blobTableName = raw.sqlite3_column_table_name(_stmt, ordinal);
 
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (writable)
                 {
-                    throw new InvalidOperationException("Record cannot be opened as writable!");
+                    throw new InvalidOperationException(Resources.WritableStreamNotSupported);
                 }
 
                 return new MemoryStream(GetCachedBlob(ordinal), false);

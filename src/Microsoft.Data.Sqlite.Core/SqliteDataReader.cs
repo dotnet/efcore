@@ -407,15 +407,19 @@ namespace Microsoft.Data.Sqlite
             => _record.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
 
         /// <summary>
-        ///     Retrieves data as a Stream.
+        ///     Retrieves data as a Stream. If the reader includes rowid (or any of its aliases), a
+        ///     <see cref="SqliteBlob"/> is returned. Otherwise, the all of the data is read into memory and a
+        ///     <see cref="MemoryStream"/> is returned.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The returned object.</returns>
         public override Stream GetStream(int ordinal)
-            => GetStream(ordinal, false);
+            => GetStream(ordinal, writable: false);
 
         /// <summary>
-        ///     Retrieves data as a Stream.
+        ///     Retrieves data as a Stream. If the reader includes rowid (or any of its aliases), a
+        ///     <see cref="SqliteBlob"/> is returned. Otherwise, the all of the data is read into memory and a
+        ///     <see cref="MemoryStream"/> is returned.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <param name="writable">Flag indicating, whether the stream can be written to.</param>

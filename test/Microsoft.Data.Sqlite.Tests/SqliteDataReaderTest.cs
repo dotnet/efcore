@@ -109,7 +109,7 @@ namespace Microsoft.Data.Sqlite
                     long bytesRead = reader.GetBytes(0, 1, buffer, 0, 3);
 
                     // Expecting to return the length of the field in bytes,
-                    // which can be simply be blob length minus the offset. 
+                    // which can be simply be blob length minus the offset.
                     Assert.Equal(3, bytesRead);
                 }
             }
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal(3, bytesRead);
 
                     var correctBytes = new byte[3] { 0x7E, 0x57, 0x43 };
-                    for(int i = 0; i < bytesRead; i++)
+                    for (int i = 0; i < bytesRead; i++)
                     {
                         Assert.Equal(correctBytes[i], hugeBuffer[i]);
                     }
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal(3, charsRead);
 
                     var correctBytes = new char[3] { 'e', 's', 't' };
-                    for(int i = 0; i < charsRead; i++)
+                    for (int i = 0; i < charsRead; i++)
                     {
                         Assert.Equal(correctBytes[i], hugeBuffer[i]);
                     }
@@ -210,6 +210,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.True(hasData);
 
                     var stream = reader.GetStream(0);
+                    Assert.IsType<MemoryStream>(stream);
                     Assert.Equal(0x42, stream.ReadByte());
                     var stream2 = reader.GetStream(0);
                     Assert.Equal(0x42, stream2.ReadByte());
@@ -230,7 +231,8 @@ namespace Microsoft.Data.Sqlite
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    Assert.Throws<InvalidOperationException>(() => reader.GetStream(0, true));
+                    var ex = Assert.Throws<InvalidOperationException>(() => reader.GetStream(0, true));
+                    Assert.Equal(Resources.WritableStreamNotSupported, ex.Message);
                 }
             }
         }
@@ -241,7 +243,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                
+
                 using (var reader = connection.ExecuteReader("SELECT 'abcdefghi';"))
                 {
                     var hasData = reader.Read();
@@ -262,7 +264,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                
+
                 using (var reader = connection.ExecuteReader("SELECT 12;"))
                 {
                     var hasData = reader.Read();
@@ -329,7 +331,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.True(reader.Read());
                     using (var destinationStream = reader.GetStream(1, writable: true))
                     {
-                        Assert.True(destinationStream is SqliteBlob);
+                        Assert.IsType<SqliteBlob>(destinationStream);
                         var sourceStream = new MemoryStream(writeBuffer);
                         sourceStream.CopyTo(destinationStream);
                     }

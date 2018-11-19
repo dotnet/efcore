@@ -105,6 +105,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(
                     () => stream.Position = -1);
                 Assert.Equal("value", ex.ParamName);
+                Assert.Equal(-1L, ex.ActualValue);
             }
         }
 
@@ -155,7 +156,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<ArgumentNullException>(
                     () => stream.Read(null, 0, 1));
 
-                Assert.Equal(ex.ParamName, "buffer");
+                Assert.Equal("buffer", ex.ParamName);
             }
         }
 
@@ -168,7 +169,8 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(
                     () => stream.Read(buffer, -1, 1));
-                Assert.Equal(ex.ParamName, "offset");
+                Assert.Equal("offset", ex.ParamName);
+                Assert.Equal(-1, ex.ActualValue);
             }
         }
 
@@ -182,7 +184,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<ArgumentException>(
                     () => stream.Read(buffer, 1, 1));
                 Assert.Null(ex.ParamName);
-                Assert.Equal("The sum of offset and count is larger than the buffer length.", ex.Message);
+                Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
             }
         }
 
@@ -195,7 +197,8 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(
                     () => stream.Read(buffer, 0, -1));
-                Assert.Equal(ex.ParamName, "count");
+                Assert.Equal("count", ex.ParamName);
+                Assert.Equal(-1, ex.ActualValue);
             }
         }
 
@@ -210,7 +213,7 @@ namespace Microsoft.Data.Sqlite
                     () => stream.Read(buffer, 0, 2));
 
                 Assert.Null(ex.ParamName);
-                Assert.Equal("The sum of offset and count is larger than the buffer length.", ex.Message);
+                Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
             }
         }
 
@@ -271,7 +274,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<IOException>(
                     () => stream.Seek(offset, origin));
-                Assert.Equal("An attempt was made to move the position before the beginning of the stream.", ex.Message);
+                Assert.Equal(Resources.SeekBeforeBegin, ex.Message);
             }
         }
 
@@ -283,7 +286,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<ArgumentException>(
                     () => stream.Seek(0, (SeekOrigin)(-1)));
                 Assert.Equal("origin", ex.ParamName);
-                Assert.Contains("Invalid value: -1", ex.Message);
+                Assert.Contains(Resources.InvalidEnumValue(typeof(SeekOrigin), -1), ex.Message);
             }
         }
 
@@ -294,7 +297,7 @@ namespace Microsoft.Data.Sqlite
             {
                 var ex = Assert.Throws<NotSupportedException>(
                     () => stream.SetLength(1));
-                Assert.Equal("Blob cannot be resized.", ex.Message);
+                Assert.Equal(Resources.ResizeNotSupported, ex.Message);
             }
         }
 
@@ -347,7 +350,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<ArgumentException>(
                     () => stream.Write(new byte[] { 3 }, 0, 2));
                 Assert.Null(ex.ParamName);
-                Assert.Equal("The sum of offset and count is larger than the buffer length.", ex.Message);
+                Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
             }
         }
 
@@ -359,6 +362,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(
                     () => stream.Write(Array.Empty<byte>(), 0, -1));
                 Assert.Equal("count", ex.ParamName);
+                Assert.Equal(-1, ex.ActualValue);
             }
         }
 
@@ -370,7 +374,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<ArgumentException>(
                     () => stream.Write(new byte[] { 3 }, 1, 1));
                 Assert.Null(ex.ParamName);
-                Assert.Equal("The sum of offset and count is larger than the buffer length.", ex.Message);
+                Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
             }
         }
 
@@ -393,7 +397,7 @@ namespace Microsoft.Data.Sqlite
                 stream.Position = 2;
                 var ex = Assert.Throws<NotSupportedException>(
                     () => stream.Write(new byte[] { 3 }, 0, 1));
-                Assert.Equal("Blob cannot be resized.", ex.Message);
+                Assert.Equal(Resources.ResizeNotSupported, ex.Message);
             }
         }
 
@@ -405,7 +409,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<NotSupportedException>(
                     () => stream.Write(new byte[] { 1 }, 0, 1));
 
-                Assert.Equal("Blob is not openned as writable!", ex.Message);
+                Assert.Equal(Resources.WriteNotSupported, ex.Message);
             }
         }
 

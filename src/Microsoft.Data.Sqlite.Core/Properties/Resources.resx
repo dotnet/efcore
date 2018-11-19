@@ -213,4 +213,19 @@
   <data name="SqlBlobRequiresOpenConnection" xml:space="preserve">
     <value>SqliteBlob can only be used when the connection is open.</value>
   </data>
+  <data name="InvalidOffsetAndCount" xml:space="preserve">
+    <value>Offset and count were out of bounds for the buffer.</value>
+  </data>
+  <data name="ResizeNotSupported" xml:space="preserve">
+    <value>The size of a blob may not be changed by the SqliteBlob API. Use an UPDATE command instead.</value>
+  </data>
+  <data name="SeekBeforeBegin" xml:space="preserve">
+    <value>An attempt was made to move the position before the beginning of the stream.</value>
+  </data>
+  <data name="WritableStreamNotSupported" xml:space="preserve">
+    <value>Cannot create a writable stream. The reader must include rowid (or any of its aliases) to support writing.</value>
+  </data>
+  <data name="WriteNotSupported" xml:space="preserve">
+    <value>Stream does not support writing.</value>
+  </data>
 </root>
