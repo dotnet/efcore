@@ -5327,6 +5327,89 @@ FROM [InventoryPools] AS [p]");
         }
 
         #endregion
+        
+        #region Bug13897
+
+        [Fact]
+        public virtual void Dynamically_constructed_Where_truncates_DateTimeOffset_values_to_3_decimal_places()
+        {
+            var ticks = 636503616001234567;
+
+            var sampleDateTime = new DateTime(ticks);
+            var sampleDateTimeOffset = new DateTimeOffset(ticks, TimeSpan.FromHours(1));
+
+            using (CreateDatabase13897(sampleDateTime, sampleDateTimeOffset))
+            {
+                using (var context = new MyContext13897(_options))
+                {
+                    // Static Where
+                    Assert.Equal(1, context.Rows
+                        .Where(i => i.DTO == sampleDateTimeOffset)
+                        .Count());
+
+                    AssertSql(
+                        @"@__sampleDateTimeOffset_0='2018-01-01T00:00:00.1234567+01:00'
+
+SELECT COUNT(*)
+FROM [Rows] AS [i]
+WHERE [i].[DTO] = @__sampleDateTimeOffset_0");
+                    
+                    ClearLog();
+                    
+                    // Dynamic Where
+                    var p = Expression.Parameter(typeof(Row13897), "i");
+                    var dynamicWhere = Expression.Lambda<Func<Row13897, bool>>(
+                        Expression.Equal(
+                            Expression.Property(p, "DTO"),
+                            Expression.Constant(sampleDateTimeOffset)
+                        ), p);
+                    Assert.Equal(1, context.Rows.Where(dynamicWhere).Count());
+
+                    AssertSql(
+                        @"SELECT COUNT(*)
+FROM [Rows] AS [i]
+WHERE [i].[DTO] = '2018-01-01T00:00:00.1234567+01:00'");
+                    
+                    ClearLog();
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase13897(DateTime sampleDateTime, DateTimeOffset sampleDateTimeOffset)
+        {
+            return CreateTestStore(
+                () => new MyContext13897(_options),
+                context => {
+                    context.Rows.Add(new Row13897
+                    {
+                        DT = sampleDateTime,
+                        DTO = sampleDateTimeOffset
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext13897 : DbContext
+        {
+            public virtual DbSet<Row13897> Rows { get; set; }
+
+            public MyContext13897(DbContextOptions options)
+               : base(options)
+            {
+            }
+        }
+
+        public class Row13897
+        {
+            public int ID { get; set; }
+            public DateTime DT { get; set; }
+            public DateTimeOffset DTO { get; set; }
+        }
+
+        #endregion
 
         private DbContextOptions _options;
 

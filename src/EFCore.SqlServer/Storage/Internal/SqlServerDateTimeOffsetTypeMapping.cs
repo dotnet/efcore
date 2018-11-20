@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
     {
-        private const string DateTimeOffsetFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffzzz}";
+        private const string DateTimeOffsetFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffffffzzz}";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
