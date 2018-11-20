@@ -236,6 +236,12 @@ namespace Microsoft.Data.Sqlite.Properties
                 GetString("UDFCalledWithNull", nameof(function), nameof(ordinal)),
                 function, ordinal);
 
+        /// <summary>
+        /// SqliteBlob can only be used when the connection is open.
+        /// </summary>
+        public static string SqlBlobRequiresOpenConnection
+            => GetString("SqlBlobRequiresOpenConnection");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

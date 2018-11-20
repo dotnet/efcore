@@ -210,4 +210,7 @@
   <data name="UDFCalledWithNull" xml:space="preserve">
     <value>The SQL function '{function}' was called with a NULL argument at ordinal {ordinal}. Create the function using a Nullable parameter or rewrite your query to avoid passing NULL.</value>
   </data>
+  <data name="SqlBlobRequiresOpenConnection" xml:space="preserve">
+    <value>SqliteBlob can only be used when the connection is open.</value>
+  </data>
 </root>
