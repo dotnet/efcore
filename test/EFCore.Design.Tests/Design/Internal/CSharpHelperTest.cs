@@ -415,12 +415,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
                 v => Expression.Call(
-                    typeof(SimpleTestType).GetMethod(
-                        nameof(SimpleTestType.Create),
+                    typeof(SimpleTestTypeFactory).GetMethod(
+                        nameof(SimpleTestTypeFactory.StaticCreate),
                         new Type[0])));
 
             Assert.Equal(
-                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.Create()",
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory.StaticCreate()",
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
         }
 
@@ -429,13 +429,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
                 v => Expression.Call(
-                    typeof(SimpleTestType).GetMethod(
-                        nameof(SimpleTestType.Create),
+                    typeof(SimpleTestTypeFactory).GetMethod(
+                        nameof(SimpleTestTypeFactory.StaticCreate),
                         new[] { typeof(string) }),
                     Expression.Constant(v.Arg1, typeof(string))));
 
             Assert.Equal(
-                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.Create(\"Jerry\")",
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory.StaticCreate(\"Jerry\")",
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry")));
         }
 
@@ -444,14 +444,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
                 v => Expression.Call(
-                    typeof(SimpleTestType).GetMethod(
-                        nameof(SimpleTestType.Create),
+                    typeof(SimpleTestTypeFactory).GetMethod(
+                        nameof(SimpleTestTypeFactory.StaticCreate),
                         new[] { typeof(string), typeof(int?) }),
                     Expression.Constant(v.Arg1, typeof(string)),
                     Expression.Constant(v.Arg2, typeof(int?))));
 
             Assert.Equal(
-                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.Create(\"Jerry\", 77)",
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestTypeFactory.StaticCreate(\"Jerry\", 77)",
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 v => Expression.Call(
                     Expression.New(typeof(SimpleTestTypeFactory)),
                     typeof(SimpleTestTypeFactory).GetMethod(
-                        nameof(SimpleTestType.Create),
+                        nameof(SimpleTestTypeFactory.Create),
                         new Type[0])));
 
             Assert.Equal(
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     Expression.Call(
                         Expression.New(typeof(SimpleTestTypeFactory)),
                         typeof(SimpleTestTypeFactory).GetMethod(
-                            nameof(SimpleTestType.Create),
+                            nameof(SimpleTestTypeFactory.Create),
                             new[] { typeof(string) }),
                         Expression.Constant(v.Arg1, typeof(string))),
                     typeof(SimpleTestType)));
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                             typeof(SimpleTestTypeFactory).GetConstructor(new[] { typeof(string) }),
                             Expression.Constant("4096", typeof(string))),
                         typeof(SimpleTestTypeFactory).GetMethod(
-                            nameof(SimpleTestType.Create),
+                            nameof(SimpleTestTypeFactory.Create),
                             new[] { typeof(string), typeof(int?) }),
                         Expression.Constant(v.Arg1, typeof(string)),
                         Expression.Constant(v.Arg2, typeof(int?))),
@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                             typeof(SimpleTestTypeFactory).GetConstructor(new[] { typeof(string) }),
                             Expression.Constant("4096", typeof(string))),
                         typeof(SimpleTestTypeFactory).GetMethod(
-                            nameof(SimpleTestType.Create),
+                            nameof(SimpleTestTypeFactory.Create),
                             new[] { typeof(string), typeof(int?) }),
                         Expression.Constant(v.Arg1, typeof(string)),
                         Expression.Convert(
@@ -664,15 +664,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         public string Arg1 { get; }
         public int? Arg2 { get; }
-
-        public static SimpleTestType Create()
-            => new SimpleTestType();
-
-        public static SimpleTestType Create(string arg1)
-            => new SimpleTestType(arg1);
-
-        public static SimpleTestType Create(string arg1, int? arg2)
-            => new SimpleTestType(arg1, arg2);
     }
 
     internal class SimpleTestTypeFactory
@@ -695,6 +686,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => new SimpleTestType(arg1);
 
         public object Create(string arg1, int? arg2)
+            => new SimpleTestType(arg1, arg2);
+
+        public static SimpleTestType StaticCreate()
+            => new SimpleTestType();
+
+        public static object StaticCreate(string arg1)
+            => new SimpleTestType(arg1);
+
+        public static object StaticCreate(string arg1, int? arg2)
             => new SimpleTestType(arg1, arg2);
     }
 

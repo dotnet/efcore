@@ -764,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (callExpression.Method.IsStatic)
                     {
                         builder
-                            .Append(Reference(expression.Type, useFullName: true));
+                            .Append(Reference(callExpression.Method.DeclaringType, useFullName: true));
                     }
                     else
                     {
