@@ -5327,7 +5327,7 @@ FROM [InventoryPools] AS [p]");
         }
 
         #endregion
-        
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
