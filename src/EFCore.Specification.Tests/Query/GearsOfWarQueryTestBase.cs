@@ -2853,6 +2853,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ms => from m in ms
                       select m.Timeline.AddMilliseconds(300));
         }
+        
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_milliseconds_parameter_and_constant()
+        {
+            using (var ctx = CreateContext())
+            {
+                var dateTimeOffset =  new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0));
+
+                // Parameter where clause
+                Assert.Equal(1, ctx.Missions.Where(m => m.Timeline == dateTimeOffset).Count());
+
+                // Literal where clause 
+                var p = System.Linq.Expressions.Expression.Parameter(typeof(Mission), "i");
+                var dynamicWhere = System.Linq.Expressions.Expression.Lambda<Func<Mission, bool>>(
+                    System.Linq.Expressions.Expression.Equal(
+                        System.Linq.Expressions.Expression.Property(p, "Timeline"),
+                        System.Linq.Expressions.Expression.Constant(dateTimeOffset)
+                    ), p);
+
+                Assert.Equal(1, ctx.Missions.Where(dynamicWhere).Count());
+            }
+        }
 
         [ConditionalTheory]
         [InlineData(false)]

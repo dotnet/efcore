@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Id = 1,
                     CodeName = "Lightmass Offensive",
                     Rating = 2.1,
-                    Timeline = new DateTimeOffset(2, 1, 2, 10, 0, 0, new TimeSpan(1, 30, 0))
+                    Timeline = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0))
                 },
                 new Mission
                 {
