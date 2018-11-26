@@ -1079,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="name"> The name of the table to be renamed.</param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
         /// <param name="newName"> The new table name or <c>null</c> if only the schema has changed. </param>
-        /// <param name="newSchema"> The new schema name or <c>null</c> if only the name has changed. </param>
+        /// <param name="newSchema"> The new schema name, or <c>null</c> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<RenameTableOperation> RenameTable(
             [NotNull] string name,
