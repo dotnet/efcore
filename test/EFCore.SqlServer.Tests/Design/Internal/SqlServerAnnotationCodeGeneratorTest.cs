@@ -102,5 +102,31 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(1, result.Arguments.Count);
             Assert.Equal(false, result.Arguments[0]);
         }
+
+        [Fact]
+        public void GenerateFluentApi_IIndex_works_with_includes()
+        {
+            var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
+            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            modelBuilder.Entity(
+                "Post",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("FirstName");
+                    x.Property<string>("LastName");
+                    x.HasIndex("LastName").ForSqlServerInclude("FirstName");
+                });
+            var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+            var annotation = index.FindAnnotation(SqlServerAnnotationNames.Include);
+
+            var result = generator.GenerateFluentApi(index, annotation);
+
+            Assert.Equal("ForSqlServerInclude", result.Method);
+
+            Assert.Equal(1, result.Arguments.Count);
+            var properties = Assert.IsType<string[]>(result.Arguments[0]);
+            Assert.Equal(new[] { "FirstName" }, properties.AsEnumerable());
+        }
     }
 }
