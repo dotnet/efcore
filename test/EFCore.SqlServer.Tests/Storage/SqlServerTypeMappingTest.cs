@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(DateTimeOffset)),
                 new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
-                "'2015-03-12T13:36:37.371-07:00'");
+                "'2015-03-12T13:36:37.3710000-07:00'");
         }
 
         public override void DateTime_literal_generated_correctly()
