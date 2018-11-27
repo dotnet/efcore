@@ -1,0 +1,7 @@
+  [
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.ISqlServerIndexAnnotations : Microsoft.EntityFrameworkCore.Metadata.IRelationalIndexAnnotations",
+      "MemberId": "System.Nullable<System.Boolean> get_IsOnline()",
+      "Kind": "Addition"
+    }
+  ]

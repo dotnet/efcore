@@ -236,6 +236,42 @@ namespace Microsoft.Data.Sqlite.Properties
                 GetString("UDFCalledWithNull", nameof(function), nameof(ordinal)),
                 function, ordinal);
 
+        /// <summary>
+        /// SqliteBlob can only be used when the connection is open.
+        /// </summary>
+        public static string SqlBlobRequiresOpenConnection
+            => GetString("SqlBlobRequiresOpenConnection");
+
+        /// <summary>
+        /// Offset and count were out of bounds for the buffer.
+        /// </summary>
+        public static string InvalidOffsetAndCount
+            => GetString("InvalidOffsetAndCount");
+
+        /// <summary>
+        /// The size of a blob may not be changed by the SqliteBlob API. Use an UPDATE command instead.
+        /// </summary>
+        public static string ResizeNotSupported
+            => GetString("ResizeNotSupported");
+
+        /// <summary>
+        /// An attempt was made to move the position before the beginning of the stream.
+        /// </summary>
+        public static string SeekBeforeBegin
+            => GetString("SeekBeforeBegin");
+
+        /// <summary>
+        /// Cannot create a writable stream. The reader must include rowid (or any of its aliases) to support writing.
+        /// </summary>
+        public static string WritableStreamNotSupported
+            => GetString("WritableStreamNotSupported");
+
+        /// <summary>
+        /// Stream does not support writing.
+        /// </summary>
+        public static string WriteNotSupported
+            => GetString("WriteNotSupported");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

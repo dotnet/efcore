@@ -60,6 +60,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResultMetadataSample", "sam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScalarFunctionSample", "samples\ScalarFunctionSample\ScalarFunctionSample.csproj", "{4A78B130-96DB-408F-A601-AFDA94347F06}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamingSample", "samples\StreamingSample\StreamingSample.csproj", "{62DE9566-0419-4E60-9254-2F455ECEB7E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,10 @@ Global
 		{4A78B130-96DB-408F-A601-AFDA94347F06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A78B130-96DB-408F-A601-AFDA94347F06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A78B130-96DB-408F-A601-AFDA94347F06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62DE9566-0419-4E60-9254-2F455ECEB7E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62DE9566-0419-4E60-9254-2F455ECEB7E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62DE9566-0419-4E60-9254-2F455ECEB7E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62DE9566-0419-4E60-9254-2F455ECEB7E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,6 +157,7 @@ Global
 		{C228450F-7EE3-463D-AA64-8AA3CAEDE4CA} = {D30CC1C7-D46C-4640-8CE6-EC9ED34DEDA5}
 		{6A153ED3-5C47-4CFF-8ED5-1B73E8E9667E} = {D30CC1C7-D46C-4640-8CE6-EC9ED34DEDA5}
 		{4A78B130-96DB-408F-A601-AFDA94347F06} = {D30CC1C7-D46C-4640-8CE6-EC9ED34DEDA5}
+		{62DE9566-0419-4E60-9254-2F455ECEB7E4} = {D30CC1C7-D46C-4640-8CE6-EC9ED34DEDA5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DF78D8CC-5604-4059-9EFB-291E2629523E}

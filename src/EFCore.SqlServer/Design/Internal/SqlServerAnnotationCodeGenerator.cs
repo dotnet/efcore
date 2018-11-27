@@ -63,11 +63,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         /// </summary>
         public override MethodCallCodeFragment GenerateFluentApi(IIndex index, IAnnotation annotation)
         {
-            return annotation.Name == SqlServerAnnotationNames.Clustered
-                ? (bool)annotation.Value == false
+            if (annotation.Name == SqlServerAnnotationNames.Clustered)
+            {
+                return (bool)annotation.Value == false
                     ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered), false)
-                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered))
-                : null;
+                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered));
+            }
+
+            if (annotation.Name == SqlServerAnnotationNames.Include)
+            {
+                return new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerInclude), annotation.Value);
+            }
+
+            return null;
         }
     }
 }

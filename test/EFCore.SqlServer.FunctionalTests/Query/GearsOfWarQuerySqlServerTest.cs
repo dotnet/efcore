@@ -3207,6 +3207,21 @@ FROM [Missions] AS [m]");
                 @"SELECT DATEADD(millisecond, 300.0E0, [m].[Timeline])
 FROM [Missions] AS [m]");
         }
+        
+        public override void Where_datetimeoffset_milliseconds_parameter_and_constant()
+        {
+            base.Where_datetimeoffset_milliseconds_parameter_and_constant();
+
+            AssertSql(
+                @"@__dateTimeOffset_0='1902-01-02T10:00:00.1234567+01:30'
+
+SELECT COUNT(*)
+FROM [Missions] AS [m]
+WHERE [m].[Timeline] = @__dateTimeOffset_0",
+                @"SELECT COUNT(*)
+FROM [Missions] AS [i]
+WHERE [i].[Timeline] = '1902-01-02T10:00:00.1234567+01:30'");
+        }
 
         public override async Task Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used(bool isAsync)
         {

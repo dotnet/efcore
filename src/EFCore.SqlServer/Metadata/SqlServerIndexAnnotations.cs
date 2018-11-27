@@ -71,5 +71,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => Annotations.SetAnnotation(
                 SqlServerAnnotationNames.Include,
                 properties);
+
+        /// <summary>
+        ///     Indicates whether or not the index is online, or <c>null</c> if online option has not
+        ///     been specified.
+        /// </summary>
+        public virtual bool? IsOnline
+        {
+            get => (bool?)Annotations.Metadata[SqlServerAnnotationNames.Online];
+            set => SetIsOnline(value);
+        }
+
+        /// <summary>
+        ///     Attempts to set online option using the semantics of the <see cref="RelationalAnnotations" /> in use.
+        /// </summary>
+        /// <param name="value"> The value to set. </param>
+        /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
+        protected virtual bool SetIsOnline(bool? value) => Annotations.SetAnnotation(
+            SqlServerAnnotationNames.Online,
+            value);
     }
 }

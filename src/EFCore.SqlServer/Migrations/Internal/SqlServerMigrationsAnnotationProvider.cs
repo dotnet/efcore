@@ -75,6 +75,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     SqlServerAnnotationNames.Include,
                     includeProperties);
             }
+
+            var isOnline = index.SqlServer().IsOnline;
+            if (isOnline.HasValue)
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.Online,
+                    isOnline.Value);
+            }
         }
 
         /// <summary>

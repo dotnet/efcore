@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _migrations = new LazyRef<IReadOnlyDictionary<string, TypeInfo>>(
                 () =>
                 {
-                    var result = new Dictionary<string, TypeInfo>();
+                    var result = new SortedList<string, TypeInfo>();
                     var items =
                         from t in Assembly.GetConstructibleTypes()
                         where t.IsSubclassOf(typeof(Migration))
