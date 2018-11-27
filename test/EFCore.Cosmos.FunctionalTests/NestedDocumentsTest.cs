@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
@@ -94,6 +96,56 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator.Name);
                     Assert.Equal(firstEngine.Description,
                         context.Set<PoweredVehicle>().OrderBy(o => o.Engine.VehicleName).First().Engine.Description);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Can_add_collection_dependent_to_owner()
+        {
+            using (CreateTestStore(OnModelCreating))
+            {
+                Address existingAddress;
+                Address addedAddress1;
+                Address addedAddress2;
+                using (var context = CreateContext())
+                {
+                    context.Add(new Person { Id = 1 });
+                    existingAddress = new Address { Street = "Second", City = "Village" };
+                    context.Add(new Person { Id = 2, Addresses = new[] { existingAddress } });
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var people = context.Set<Person>().ToList();
+                    addedAddress1 = new Address { Street = "First", City = "Town" };
+                    people[0].Addresses.Add(addedAddress1);
+
+                    addedAddress2 = new Address { Street = "Another", City = "Village" };
+                    people[1].Addresses.Add(addedAddress2);
+
+                    // Remove when issues #13578 or #13579 is fixed
+                    context.Attach(people[1].Addresses.First()).State = EntityState.Unchanged;
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var addresses = context.Set<Person>().OrderBy(o => o.Id).First().Addresses.ToList();
+                    Assert.Equal(addedAddress1.Street, addresses.Single().Street);
+                    Assert.Equal(addedAddress1.City, addresses.Single().City);
+
+                    addresses = context.Set<Person>().OrderBy(o => o.Id).Last().Addresses.ToList();
+                    Assert.Equal(2, addresses.Count);
+
+                    Assert.Equal(existingAddress.Street, addresses.First().Street);
+                    Assert.Equal(existingAddress.City, addresses.First().City);
+
+                    Assert.Equal(addedAddress2.Street, addresses.Last().Street);
+                    Assert.Equal(addedAddress2.City, addresses.Last().City);
                 }
             }
         }
@@ -375,6 +427,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             modelBuilder.Entity<PoweredVehicle>(
                 eb => eb.OwnsOne(v => v.Engine));
+
+            modelBuilder.Entity<Person>(
+                eb => eb.OwnsMany(v => v.Addresses).HasKey(v => new { v.Street, v.City }));
         }
 
         private static void RemoveNesting(ModelBuilder modelBuilder)
@@ -418,6 +473,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             var options = AddOptions(TestStore.AddProviderOptions(new DbContextOptionsBuilder()))
                 .UseInternalServiceProvider(ServiceProvider).Options;
             return new TransportationContext(options);
+        }
+
+        private class Person
+        {
+            public int Id { get; set; }
+            public ICollection<Address> Addresses { get; set; }
+        }
+
+        public class Address
+        {
+            public string Street { get; set; }
+            public string City { get; set; }
         }
     }
 }

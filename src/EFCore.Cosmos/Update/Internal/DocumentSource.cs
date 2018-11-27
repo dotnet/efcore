@@ -112,6 +112,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 else if (fk.IsUnique)
                 {
                     var nestedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(nestedValue, fk.DeclaringEntityType);
+                    if (nestedEntry == null)
+                    {
+                        return document;
+                    }
+
                     var nestedDocument = (JObject)document[ownedNavigation.Name];
                     if (nestedDocument != null)
                     {
@@ -130,6 +135,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     foreach (var dependent in (IEnumerable)nestedValue)
                     {
                         var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+                        if (dependentEntry == null)
+                        {
+                            continue;
+                        }
+
                         array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry));
                     }
 

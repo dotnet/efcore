@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entityState = (EntityState)node.NodeState;
 
             await internalEntityEntry.SetEntityStateAsync(
-                internalEntityEntry.IsKeySet || internalEntityEntry.EntityType.IsOwned()
+                internalEntityEntry.IsKeySet
                     ? entityState
                     : EntityState.Added,
                 acceptChanges: true,
