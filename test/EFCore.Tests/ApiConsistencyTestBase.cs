@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore
                    from method in type.GetMethods(PublicInstance | BindingFlags.Static)
                    where method.ReturnType == typeof(void)
                    select type.Name + "." + method.Name)
-                .Except(new[] { "SqlServerDbContextOptionsBuilder.UseRowNumberForPaging" }) // TODO: #10808
                 .ToList();
 
             Assert.False(
