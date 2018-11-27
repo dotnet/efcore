@@ -291,8 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var nestedNavigation = nestedEntityInfo.Navigation;
                 if (nestedNavigation.ForeignKey.IsUnique)
                 {
-                    var nestedJObject = (JObject)jObject[nestedEntityInfo.Navigation.Name];
-                    if (nestedJObject == null)
+                    if (!(jObject[nestedEntityInfo.Navigation.Name] is JObject nestedJObject))
                     {
                         continue;
                     }
@@ -307,12 +306,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
-                    var jArray = (JArray)jObject[nestedEntityInfo.Navigation.Name];
                     var nestedEntities = new List<object>();
-                    if (jArray != null
+                    if (jObject[nestedEntityInfo.Navigation.Name] is JArray jArray
                         && jArray.Count != 0)
                     {
-                        foreach(JObject nestedJObject in jArray)
+                        foreach (JObject nestedJObject in jArray)
                         {
                             nestedEntities.Add(Shape(
                                 nestedJObject,
