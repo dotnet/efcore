@@ -440,10 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             property.Metadata.AddAnnotations(
                 column.GetAnnotations().Where(
-#pragma warning disable CS0618 // Type or member is obsolete
-                    a => a.Name != ScaffoldingAnnotationNames.UnderlyingStoreType
-#pragma warning restore CS0618 // Type or member is obsolete
-                         && a.Name != ScaffoldingAnnotationNames.ConcurrencyToken));
+                    a => a.Name != ScaffoldingAnnotationNames.ConcurrencyToken));
 
             return property;
         }
@@ -861,28 +858,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return null;
             }
 
-            var typeScaffoldingInfo = _scaffoldingTypeMapper.FindMapping(
-#pragma warning disable CS0618 // Type or member is obsolete
-                column.GetUnderlyingStoreType() ?? column.StoreType,
-#pragma warning restore CS0618 // Type or member is obsolete
+            return _scaffoldingTypeMapper.FindMapping(
+                column.StoreType,
                 column.IsKeyOrIndex(),
                 column.IsRowVersion());
-
-            if (typeScaffoldingInfo == null)
-            {
-                return null;
-            }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            return column.GetUnderlyingStoreType() != null
-#pragma warning restore CS0618 // Type or member is obsolete
-                ? new TypeScaffoldingInfo(
-                    typeScaffoldingInfo.ClrType,
-                    inferred: false,
-                    scaffoldUnicode: typeScaffoldingInfo.ScaffoldUnicode,
-                    scaffoldMaxLength: typeScaffoldingInfo.ScaffoldMaxLength,
-                    scaffoldFixedLength: typeScaffoldingInfo.ScaffoldFixedLength)
-                : typeScaffoldingInfo;
         }
 
         private static void AssignOnDeleteAction(

@@ -313,19 +313,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData("nvarchar(450)", null, null)]
-        [InlineData("alias for string", "nvarchar(450)", "alias for string")]
-        public void Column_type_annotation(string StoreType, string underlyingType, string expectedColumnType)
+        [InlineData("nvarchar(450)", null)]
+        [InlineData("datetime2(4)", "datetime2(4)")]
+        public void Column_type_annotation(string StoreType, string expectedColumnType)
         {
             var column = new DatabaseColumn
             {
                 Name = "Col",
                 StoreType = StoreType
             };
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            column.SetUnderlyingStoreType(underlyingType);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             var info = new DatabaseModel
             {
@@ -1771,17 +1767,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Unmapped_column_with_underlying_store_type_is_ignored()
+        public void Unmapped_column_is_ignored()
         {
             var columnWithUnknownType = new DatabaseColumn
             {
                 Name = "ColumnWithUnknownStoreType",
-                StoreType = "unknown_type_alias"
+                StoreType = "unknown_type"
             };
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            columnWithUnknownType.SetUnderlyingStoreType("unknown_type");
-#pragma warning restore CS0618 // Type or member is obsolete
 
             var dbModel = new DatabaseModel
             {

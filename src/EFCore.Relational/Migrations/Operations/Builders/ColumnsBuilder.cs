@@ -43,37 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual OperationBuilder<AddColumnOperation> Column<T>(
-            [CanBeNull] string type,
-            bool? unicode,
-            int? maxLength,
-            bool rowVersion,
-            [CanBeNull] string name,
-            bool nullable,
-            [CanBeNull] object defaultValue,
-            [CanBeNull] string defaultValueSql,
-            [CanBeNull] string computedColumnSql)
-            => Column<T>(type, unicode, maxLength, rowVersion, name, nullable, defaultValue, defaultValueSql, computedColumnSql, null);
-
-        /// <summary>
-        ///     <para>
-        ///         Adds a <see cref="AddColumnOperation" /> to the <see cref="CreateTableOperation" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that for nullable parameters a <c>null</c> value means not-specified.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="T"> The CLR type of the column. </typeparam>
-        /// <param name="type"> The database type of the column. </param>
-        /// <param name="unicode"> Indicates whether or not the column will store Unicode data. </param>
-        /// <param name="maxLength"> The maximum length for data in the column. </param>
-        /// <param name="rowVersion"> Indicates whether or not the column will act as a rowversion/timestamp concurrency token. </param>
-        /// <param name="name"> The column name. </param>
-        /// <param name="nullable"> Indicates whether or not th column can store <c>NULL</c> values. </param>
-        /// <param name="defaultValue"> The default value for the column. </param>
-        /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
-        /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddColumnOperation> Column<T>(
@@ -86,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
-            // ReSharper disable once MethodOverloadWithOptionalParameter (Avoiding binary break)
             bool? fixedLength = null)
         {
             var operation = new AddColumnOperation

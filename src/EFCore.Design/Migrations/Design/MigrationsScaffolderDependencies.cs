@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -121,13 +120,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     The migrations ID generator.
         /// </summary>
         public IMigrationsIdGenerator MigrationsIdGenerator { get; }
-
-        /// <summary>
-        ///     The migrations code generator.
-        /// </summary>
-        [Obsolete("Use MigrationsCodeGeneratorSelector instead.")]
-        public IMigrationsCodeGenerator MigrationCodeGenerator
-            => MigrationsCodeGeneratorSelector.Select(language: null);
 
         /// <summary>
         ///     The migrations code generator selector.
@@ -253,22 +245,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 DatabaseProvider,
                 SnapshotModelProcessor,
                 Migrator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="migrationCodeGenerator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        [Obsolete("Use an MigrationCodeGeneratorSelector instead.")]
-        public MigrationsScaffolderDependencies With([NotNull] IMigrationsCodeGenerator migrationCodeGenerator)
-        {
-            if (MigrationsCodeGeneratorSelector is MigrationsCodeGeneratorSelector overridableSelector)
-            {
-                overridableSelector.Override = migrationCodeGenerator;
-            }
-
-            return this;
-        }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.

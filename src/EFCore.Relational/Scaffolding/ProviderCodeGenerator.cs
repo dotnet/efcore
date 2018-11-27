@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -52,24 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     the <see cref="DbContext.OnConfiguring" /> method of the generated DbContext.
         /// </summary>
         /// <param name="connectionString"> The connection string to include in the code fragment. </param>
-        /// <returns> The code fragment. </returns>
-        [Obsolete("Use the overload that takes provider options instead.")]
-        public virtual MethodCallCodeFragment GenerateUseProvider(string connectionString)
-            => throw new NotImplementedException();
-
-        /// <summary>
-        ///     Generates a code fragment like <c>.UseSqlServer("Database=Foo")</c> which can be used in
-        ///     the <see cref="DbContext.OnConfiguring" /> method of the generated DbContext.
-        /// </summary>
-        /// <param name="connectionString"> The connection string to include in the code fragment. </param>
         /// <param name="providerOptions"> The method chain used to configure provider options. </param>
         /// <returns> The code fragment. </returns>
-        public virtual MethodCallCodeFragment GenerateUseProvider(
+        public abstract MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
-            MethodCallCodeFragment providerOptions)
-#pragma warning disable CS0618 // Type or member is obsolete
-            => GenerateUseProvider(connectionString);
-#pragma warning restore CS0618 // Type or member is obsolete
+            MethodCallCodeFragment providerOptions);
 
         /// <summary>
         ///     Generates a method chain to configure additional context options.

@@ -730,6 +730,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] DropIndexOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        /// <summary>
+        ///     <para>
+        ///         Can be overridden by database providers to build commands for the given <see cref="DropIndexOperation" />
+        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         must override if they are to support this kind of operation.
+        ///     </para>
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected virtual void Generate(
+            [NotNull] DropIndexOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             throw new NotImplementedException();
         }
@@ -1180,14 +1201,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Generates a SQL fragment for a column definition in an <see cref="AddColumnOperation" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not call the overload of ColumnDefinition that takes fixedLength because doing so
-        ///         would be a breaking change for providers that have overridden the method without fixedLength.
-        ///         Therefore, providers must explicitly override this method to get fixedLength functionality.
-        ///     </para>
+        ///     Generates a SQL fragment for a column definition in an <see cref="AddColumnOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
@@ -1204,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operation.ColumnType,
                 operation.IsUnicode,
                 operation.MaxLength,
-                // operation.FixedLength not included--see comment above.
+                operation.IsFixedLength,
                 operation.IsRowVersion,
                 operation.IsNullable,
                 operation.DefaultValue,
@@ -1213,50 +1227,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operation,
                 model,
                 builder);
-
-        /// <summary>
-        ///     Generates a SQL fragment for a column definition for the given column metadata.
-        /// </summary>
-        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
-        /// <param name="table"> The table that contains the column. </param>
-        /// <param name="name"> The column name. </param>
-        /// <param name="clrType"> The CLR <see cref="Type" /> that the column is mapped to. </param>
-        /// <param name="type"> The database/store type for the column, or <c>null</c> if none has been specified. </param>
-        /// <param name="unicode">
-        ///     Indicates whether or not the column can contain Unicode data, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="maxLength">
-        ///     The maximum amount of data that the column can contain, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="rowVersion">
-        ///     Indicates whether or not this column is an automatic concurrency token, such as a SQL Server timestamp/rowversion.
-        /// </param>
-        /// <param name="nullable"> Indicates whether or not the column can store <c>NULL</c> values. </param>
-        /// <param name="defaultValue"> The default value for the column. </param>
-        /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
-        /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <param name="annotatable"> The <see cref="MigrationOperation" /> to use to find any custom annotations. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
-        protected virtual void ColumnDefinition(
-            [CanBeNull] string schema,
-            [NotNull] string table,
-            [NotNull] string name,
-            [NotNull] Type clrType,
-            [CanBeNull] string type,
-            bool? unicode,
-            int? maxLength,
-            bool rowVersion,
-            bool nullable,
-            [CanBeNull] object defaultValue,
-            [CanBeNull] string defaultValueSql,
-            [CanBeNull] string computedColumnSql,
-            [NotNull] IAnnotatable annotatable,
-            [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-            => ColumnDefinition(
-                schema, table, name, clrType, type, unicode, maxLength, null,
-                rowVersion, nullable, defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
         /// <summary>
         ///     Generates a SQL fragment for a column definition for the given column metadata.
@@ -1315,35 +1285,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             DefaultValue(defaultValue, defaultValueSql, builder);
         }
-
-        /// <summary>
-        ///     Gets the store/database type of a column given the provided metadata.
-        /// </summary>
-        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
-        /// <param name="table"> The table that contains the column. </param>
-        /// <param name="name"> The column name. </param>
-        /// <param name="clrType"> The CLR <see cref="Type" /> that the column is mapped to. </param>
-        /// <param name="unicode">
-        ///     Indicates whether or not the column can contain Unicode data, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="maxLength">
-        ///     The maximum amount of data that the column can contain, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="rowVersion">
-        ///     Indicates whether or not this column is an automatic concurrency token, such as a SQL Server timestamp/rowversion.
-        /// </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
-        /// <returns> The database/store type for the column. </returns>
-        protected virtual string GetColumnType(
-            [CanBeNull] string schema,
-            [NotNull] string table,
-            [NotNull] string name,
-            [NotNull] Type clrType,
-            bool? unicode,
-            int? maxLength,
-            bool rowVersion,
-            [CanBeNull] IModel model)
-            => GetColumnType(schema, table, name, clrType, unicode, maxLength, null, rowVersion, model);
 
         /// <summary>
         ///     Gets the store/database type of a column given the provided metadata.
@@ -1641,8 +1582,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName,
             [NotNull] string columnName
-            // Any property that maps to the column will work because model validator has
-            // checked that all properties result in the same column definition.
+        // Any property that maps to the column will work because model validator has
+        // checked that all properties result in the same column definition.
         )
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
                 .FirstOrDefault(p => p.Relational().ColumnName == columnName);
