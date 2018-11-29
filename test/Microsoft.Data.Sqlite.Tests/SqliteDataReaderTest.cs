@@ -220,24 +220,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void GetStream_throws_blob_cannot_be_opened_as_writeable()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-
-                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
-                {
-                    var hasData = reader.Read();
-                    Assert.True(hasData);
-
-                    var ex = Assert.Throws<InvalidOperationException>(() => reader.GetStream(0, true));
-                    Assert.Equal(Resources.WritableStreamNotSupported, ex.Message);
-                }
-            }
-        }
-
-        [Fact]
         public void GetStream_works_with_text()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -303,9 +285,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData("CREATE TABLE DataTable (Id INTEGER, Data BLOB);", "SELECT rowid, Data FROM DataTable WHERE Id = 7")]
-        [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);", "SELECT rowid, Data FROM DataTable WHERE Id = 7")]
-        [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);", "SELECT Id, Data FROM DataTable WHERE Id = 7")]
+        [InlineData("CREATE TABLE DataTable (Id INTEGER, Data BLOB);", "SELECT rowid, Data FROM DataTable WHERE Id = 5")]
+        [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);", "SELECT rowid, Data FROM DataTable WHERE Id = 5")]
+        [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);", "SELECT Id, Data FROM DataTable WHERE Id = 5")]
         public void GetStream_Blob_works(string createTableCmd, string selectCmd)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -315,35 +297,19 @@ namespace Microsoft.Data.Sqlite
                 connection.ExecuteNonQuery(
                     createTableCmd + "INSERT INTO DataTable VALUES (5, X'01020304');");
 
-                var command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO DataTable VALUES (@Id, zeroblob(@BlobSize));";
-                command.Parameters.AddWithValue("@Id", 7);
-                command.Parameters.AddWithValue("@BlobSize", 5);
-                command.ExecuteNonQuery();
-
-                var writeBuffer = new byte[5] { 0x10, 0x20, 0x30, 0x40, 0x50 };
-                var testBuffer = new byte[6] { writeBuffer[0], writeBuffer[1], writeBuffer[2], writeBuffer[3], writeBuffer[4], 0x00 };
-
                 var selectCommand = connection.CreateCommand();
                 selectCommand.CommandText = selectCmd;
                 using (var reader = selectCommand.ExecuteReader())
                 {
                     Assert.True(reader.Read());
-                    using (var destinationStream = reader.GetStream(1, writable: true))
+                    using (var sourceStream = reader.GetStream(1))
                     {
-                        Assert.IsType<SqliteBlob>(destinationStream);
-                        var sourceStream = new MemoryStream(writeBuffer);
-                        sourceStream.CopyTo(destinationStream);
+                        Assert.IsType<SqliteBlob>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
                     }
-                }
-
-                using (var reader = selectCommand.ExecuteReader())
-                {
-                    Assert.True(reader.Read());
-                    var buffer = new byte[6];
-                    var bytesRead = reader.GetBytes(1, 0, buffer, 0, buffer.Length);
-                    Assert.Equal(5, bytesRead);
-                    Assert.Equal(testBuffer, buffer);
                 }
             }
         }

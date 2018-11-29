@@ -25,9 +25,14 @@ namespace Microsoft.Data.Sqlite
         /// <param name="tableName">The name of table containing the blob.</param>
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
-        /// <param name="writable">A value indicating whether the blob can be written to.</param>
-        public SqliteBlob(SqliteConnection connection, string tableName, string columnName, long rowid, bool writable)
-            : this(connection, SqliteConnection.MainDatabaseName, tableName, columnName, rowid, writable)
+        /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        public SqliteBlob(
+            SqliteConnection connection,
+            string tableName,
+            string columnName,
+            long rowid,
+            bool readOnly = false)
+            : this(connection, SqliteConnection.MainDatabaseName, tableName, columnName, rowid, readOnly)
         {
         }
 
@@ -39,14 +44,14 @@ namespace Microsoft.Data.Sqlite
         /// <param name="tableName">The name of table containing the blob.</param>
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
-        /// <param name="writable">A value indicating whether the blob can be written to.</param>
+        /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
         public SqliteBlob(
             SqliteConnection connection,
             string databaseName,
             string tableName,
             string columnName,
             long rowid,
-            bool writable)
+            bool readOnly = false)
         {
             if (connection?.State != ConnectionState.Open)
             {
@@ -62,14 +67,14 @@ namespace Microsoft.Data.Sqlite
             }
 
             _db = connection.Handle;
-            CanWrite = writable;
+            CanWrite = !readOnly;
             var rc = raw.sqlite3_blob_open(
                 _db,
                 databaseName,
                 tableName,
                 columnName,
                 rowid,
-                writable ? 1 : 0,
+                readOnly ? 0 : 1,
                 out _blob);
             SqliteException.ThrowExceptionForRC(rc, _db);
             Length = raw.sqlite3_blob_bytes(_blob);

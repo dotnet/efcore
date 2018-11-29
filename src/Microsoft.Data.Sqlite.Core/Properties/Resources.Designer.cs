@@ -261,12 +261,6 @@ namespace Microsoft.Data.Sqlite.Properties
             => GetString("SeekBeforeBegin");
 
         /// <summary>
-        /// Cannot create a writable stream. The reader must include rowid (or any of its aliases) to support writing.
-        /// </summary>
-        public static string WritableStreamNotSupported
-            => GetString("WritableStreamNotSupported");
-
-        /// <summary>
         /// Stream does not support writing.
         /// </summary>
         public static string WriteNotSupported

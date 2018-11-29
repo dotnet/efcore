@@ -222,9 +222,6 @@
   <data name="SeekBeforeBegin" xml:space="preserve">
     <value>An attempt was made to move the position before the beginning of the stream.</value>
   </data>
-  <data name="WritableStreamNotSupported" xml:space="preserve">
-    <value>Cannot create a writable stream. The reader must include rowid (or any of its aliases) to support writing.</value>
-  </data>
   <data name="WriteNotSupported" xml:space="preserve">
     <value>Stream does not support writing.</value>
   </data>

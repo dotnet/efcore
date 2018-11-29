@@ -43,7 +43,7 @@ namespace StreamingSample
                 var rowid = (long)insertCommand.ExecuteScalar();
 
                 // After inserting the row, open a stream to write the large object
-                using (var writeStream = new SqliteBlob(connection, "data", "value", rowid, writable: true))
+                using (var writeStream = new SqliteBlob(connection, "data", "value", rowid))
                 {
                     Console.WriteLine("Writing the large object...");
 

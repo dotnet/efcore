@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -198,7 +197,7 @@ namespace Microsoft.Data.Sqlite
             return charsToRead;
         }
 
-        public virtual Stream GetStream(int ordinal, bool writable)
+        public virtual Stream GetStream(int ordinal)
         {
             if (ordinal < 0 || ordinal >= FieldCount)
             {
@@ -255,18 +254,13 @@ namespace Microsoft.Data.Sqlite
 
             if (rowidOrdinal < 0)
             {
-                if (writable)
-                {
-                    throw new InvalidOperationException(Resources.WritableStreamNotSupported);
-                }
-
                 return new MemoryStream(GetCachedBlob(ordinal), false);
             }
 
             var blobColumnName = raw.sqlite3_column_origin_name(_stmt, ordinal);
             var rowid = GetInt32(rowidOrdinal);
 
-            return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, writable);
+            return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, readOnly: true);
         }
 
         internal void Clear()

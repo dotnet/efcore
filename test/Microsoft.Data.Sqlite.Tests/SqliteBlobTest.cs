@@ -31,7 +31,7 @@ namespace Microsoft.Data.Sqlite
             var connection = new SqliteConnection();
 
             var ex = Assert.Throws<InvalidOperationException>(
-                () => new SqliteBlob(connection, Table, Column, Rowid, writable: false));
+                () => new SqliteBlob(connection, Table, Column, Rowid));
             Assert.Equal(Resources.SqlBlobRequiresOpenConnection, ex.Message);
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Sqlite
         public void Ctor_throws_when_error()
         {
             var ex = Assert.Throws<SqliteException>(
-                () => new SqliteBlob(_connection, "UnknownTable", Column, Rowid, writable: false));
+                () => new SqliteBlob(_connection, "UnknownTable", Column, Rowid));
             Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
         }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Sqlite
         public void Ctor_throws_when_table_null()
         {
             var ex = Assert.Throws<ArgumentNullException>(
-                () => new SqliteBlob(_connection, null, Column, Rowid, writable: false));
+                () => new SqliteBlob(_connection, null, Column, Rowid));
             Assert.Equal("tableName", ex.ParamName);
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Sqlite
         public void Ctor_throws_when_column_null()
         {
             var ex = Assert.Throws<ArgumentNullException>(
-                () => new SqliteBlob(_connection, Table, null, Rowid, writable: false));
+                () => new SqliteBlob(_connection, Table, null, Rowid));
             Assert.Equal("columnName", ex.ParamName);
         }
 
@@ -80,11 +80,11 @@ namespace Microsoft.Data.Sqlite
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void CanWrite_works(bool writable)
+        public void CanWrite_works(bool readOnly)
         {
-            using (var stream = CreateStream(writable))
+            using (var stream = CreateStream(readOnly))
             {
-                Assert.Equal(writable, stream.CanWrite);
+                Assert.Equal(!readOnly, stream.CanWrite);
             }
         }
 
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void SetLength_throws()
         {
-            using (var stream = CreateStream(writable: true))
+            using (var stream = CreateStream(readOnly: false))
             {
                 var ex = Assert.Throws<NotSupportedException>(
                     () => stream.SetLength(1));
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Sqlite
             int offset,
             int count)
         {
-            using (var stream = CreateStream(writable: true))
+            using (var stream = CreateStream(readOnly: false))
             {
                 stream.Position = initialPosition;
                 stream.Write(buffer, offset, count);
@@ -334,7 +334,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_buffer_null()
         {
-            using (var stream = CreateStream(writable: true))
+            using (var stream = CreateStream(readOnly: false))
             {
                 var ex = Assert.Throws<ArgumentNullException>(
                     () => stream.Write(null, 0, 0));
@@ -345,7 +345,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_count_out_of_range()
         {
-            using (var stream = CreateStream(writable: true))
+            using (var stream = CreateStream(readOnly: false))
             {
                 var ex = Assert.Throws<ArgumentException>(
                     () => stream.Write(new byte[] { 3 }, 0, 2));
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_count_negative()
         {
-            using (var stream = CreateStream(writable: true))
+            using (var stream = CreateStream(readOnly: false))
             {
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(
                     () => stream.Write(Array.Empty<byte>(), 0, -1));
@@ -369,7 +369,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_offset_out_of_range()
         {
-            using (var stream = CreateStream(writable: true))
+            using (var stream = CreateStream(readOnly: false))
             {
                 var ex = Assert.Throws<ArgumentException>(
                     () => stream.Write(new byte[] { 3 }, 1, 1));
@@ -381,7 +381,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_offset_negative()
         {
-            using (var stream = CreateStream(writable: true))
+            using (var stream = CreateStream(readOnly: false))
             {
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(
                     () => stream.Write(new byte[] { 3, 4 }, -1, 2));
@@ -392,7 +392,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_position_at_end_of_stream()
         {
-            using (var stream = CreateStream(writable: true))
+            using (var stream = CreateStream(readOnly: false))
             {
                 stream.Position = 2;
                 var ex = Assert.Throws<NotSupportedException>(
@@ -402,9 +402,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Write_throws_when_not_writable()
+        public void Write_throws_when_readOnly()
         {
-            using (var stream = CreateStream(writable: false))
+            using (var stream = CreateStream(readOnly: true))
             {
                 var ex = Assert.Throws<NotSupportedException>(
                     () => stream.Write(new byte[] { 1 }, 0, 1));
@@ -416,15 +416,15 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_disposed()
         {
-            var stream = CreateStream(writable: true);
+            var stream = CreateStream(readOnly: false);
             stream.Dispose();
 
             var ex = Assert.Throws<ObjectDisposedException>(
                 () => stream.Write(new byte[] { 3 }, 0, 1));
         }
 
-        protected Stream CreateStream(bool writable = false)
-            => new SqliteBlob(_connection, Table, Column, Rowid, writable);
+        protected Stream CreateStream(bool readOnly = false)
+            => new SqliteBlob(_connection, Table, Column, Rowid, readOnly);
 
         public void Dispose()
             => _connection.Dispose();
