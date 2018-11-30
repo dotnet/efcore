@@ -8,7 +8,7 @@
     They are used to automatically flow new dependencies in a ProdCon build.
   -->
   <PropertyGroup Label="Package Versions">
-    <InternalAspNetCoreSdkPackageVersion>2.2.0-preview2-20181105.3</InternalAspNetCoreSdkPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>2.2.1-build-20181130.1</InternalAspNetCoreSdkPackageVersion>
     <MicrosoftNETCoreAppPackageVersion>2.2.0</MicrosoftNETCoreAppPackageVersion>
     <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.5.0</SystemCollectionsImmutablePackageVersion>
