@@ -35,6 +35,8 @@
     <IncludePreReleaseLabelInPackageVersion>true</IncludePreReleaseLabelInPackageVersion>
     <IncludePreReleaseLabelInPackageVersion Condition=" '$(IsFinalBuild)' == 'true' AND ('$(PreReleaseLabel)' == 'servicing' OR '$(PreReleaseLabel)' == 'rtm')">false</IncludePreReleaseLabelInPackageVersion>
 
+    <IsServicingBuild Condition=" '$(PreReleaseLabel)' == 'servicing' ">true</IsServicingBuild>
+
     <!-- The version in files -->
     <PackageVersion>$(VersionPrefix)</PackageVersion>
     <PackageVersion Condition=" '$(IncludePreReleaseLabelInPackageVersion)' == 'true' ">$(VersionPrefix)-$(VersionSuffix)</PackageVersion>
