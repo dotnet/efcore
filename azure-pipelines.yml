@@ -8,13 +8,14 @@ trigger:
     include:
     - 'master'
     - 'release/*'
+    - 'internal/release/*'
 # Run PR validation on all branches
 pr:
   branches:
     include:
     - '*'
 
-name: $(Date:yyMMdd)-$(Rev:rr)
+name: $(Date:yyyyMMdd).$(Rev:rr)
 
 jobs:
 - template: build/templates/default-build.yml
@@ -24,6 +25,7 @@ jobs:
     configuration: Release
     artifacts:
       publish: true
+      name: packages
       path: 'artifacts/build/'
 
 - template: build/templates/default-build.yml
