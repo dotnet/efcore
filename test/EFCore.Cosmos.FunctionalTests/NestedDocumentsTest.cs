@@ -26,20 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         // #13579
-        // [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual void Can_update_dependents(bool useNesting)
+        // [Fact]
+        public virtual void Can_update_dependents()
         {
-            using (CreateTestStore(modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-
-                    if (!useNesting)
-                    {
-                        RemoveNesting(modelBuilder);
-                    }
-                }))
+            using (CreateTestStore(OnModelCreating))
             {
                 Operator firstOperator;
                 Engine firstEngine;
@@ -63,20 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual void Can_update_owner_with_dependents(bool useNesting)
+        [Fact]
+        public virtual void Can_update_owner_with_dependents()
         {
-            using (CreateTestStore(modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-
-                    if (!useNesting)
-                    {
-                        RemoveNesting(modelBuilder);
-                    }
-                }))
+            using (CreateTestStore(OnModelCreating))
             {
                 Operator firstOperator;
                 Engine firstEngine;
@@ -151,20 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         // #13559
-        //[Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual void Can_update_just_dependents(bool useNesting)
+        //[Fact]
+        public virtual void Can_update_just_dependents()
         {
-            using (CreateTestStore(modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-
-                    if (!useNesting)
-                    {
-                        RemoveNesting(modelBuilder);
-                    }
-                }))
+            using (CreateTestStore(OnModelCreating))
             {
                 Operator firstOperator;
                 Engine firstEngine;
@@ -430,18 +400,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             modelBuilder.Entity<Person>(
                 eb => eb.OwnsMany(v => v.Addresses).HasKey(v => new { v.Street, v.City }));
-        }
-
-        private static void RemoveNesting(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Vehicle>(
-                eb => eb.OwnsOne(v => v.Operator).ToContainer(nameof(TransportationContext)));
-
-            modelBuilder.Entity<CombustionEngine>(
-                eb => eb.OwnsOne(v => v.FuelTank).ToContainer(nameof(TransportationContext)));
-
-            modelBuilder.Entity<PoweredVehicle>(
-                eb => eb.OwnsOne(v => v.Engine).ToContainer(nameof(TransportationContext)));
         }
 
         protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating)
