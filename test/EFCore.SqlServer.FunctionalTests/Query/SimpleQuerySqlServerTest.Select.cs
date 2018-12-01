@@ -136,8 +136,7 @@ FROM [Customers] AS [c]");
                 @"@__boolean_0='False'
 
 SELECT @__boolean_0
-FROM [Customers] AS [c]
-ORDER BY (SELECT 1)");
+FROM [Customers] AS [c]");
         }
 
         public override async Task Select_scalar(bool isAsync)

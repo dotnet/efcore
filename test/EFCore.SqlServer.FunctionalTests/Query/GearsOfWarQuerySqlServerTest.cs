@@ -7699,7 +7699,7 @@ ORDER BY [t].[Name], [c.StationedGears].[Nickname] DESC");
                 @"SELECT [g].[Nickname], [g].[FullName]
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY (SELECT 1) DESC, [g].[Nickname], [g].[SquadId], [g].[FullName]",
+ORDER BY [g].[Nickname], [g].[SquadId], [g].[FullName]",
                 //
                 @"SELECT [t].[c], [t].[Nickname], [t].[SquadId], [t].[FullName], [g.Weapons].[Name], [g.Weapons].[OwnerFullName]
 FROM [Weapons] AS [g.Weapons]

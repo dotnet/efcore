@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 // Filter out constant and parameter expressions (SELECT 1) if there is no skip or take #10410
                 if (selectExpression.Limit == null && selectExpression.Offset == null)
                 { 
-                    orderByList.RemoveAll(e => e.Expression is ConstantExpression || e.Expression is ParameterExpression);
+                    orderByList.RemoveAll(o => IsOrderByExpressionConstant(ApplyOptimizations(o.Expression, searchCondition: false)));
                 }
 
                 if (orderByList.Count > 0)
@@ -623,6 +623,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                && constantExpression.Type.UnwrapNullableType() == typeof(bool)
                 ? (bool?)constantExpression.Value
                 : null;
+        
+        private bool IsOrderByExpressionConstant([NotNull] Expression processedExpression)
+        { 
+            return processedExpression.RemoveConvert() is ConstantExpression
+                || processedExpression.RemoveConvert() is ParameterExpression;
+        }
 
         /// <summary>
         ///     Generates the ORDER BY SQL.
@@ -652,8 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             else
             {
                 var processedExpression = ApplyOptimizations(orderingExpression, searchCondition: false);
-                if (processedExpression.RemoveConvert() is ConstantExpression
-                    || processedExpression.RemoveConvert() is ParameterExpression)
+                if (IsOrderByExpressionConstant(processedExpression))
                 {
                     _relationalCommandBuilder.Append("(SELECT 1");
                     GeneratePseudoFromClause();
