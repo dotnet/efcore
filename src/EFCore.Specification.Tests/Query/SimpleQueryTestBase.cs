@@ -631,6 +631,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     /* non-deterministic */
                 });
         }
+        
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_orderby_const(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => true).Skip(5),
+                entryCount: 86,
+                elementAsserter: (_, __) =>
+                {
+                    /* non-deterministic */
+                });
+        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

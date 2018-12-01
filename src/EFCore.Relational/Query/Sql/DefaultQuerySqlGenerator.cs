@@ -312,9 +312,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (selectExpression.OrderBy.Count > 0)
             {
-                _relationalCommandBuilder.AppendLine();
+                var orderByList = new List<Ordering>(selectExpression.OrderBy);
 
-                GenerateOrderBy(selectExpression.OrderBy);
+                // Filter out constant and parameter expressions (SELECT 1) if there is no skip or take #10410
+                if (selectExpression.Limit == null && selectExpression.Offset == null)
+                { 
+                    orderByList.RemoveAll(e => e.Expression is ConstantExpression || e.Expression is ParameterExpression);
+                }
+
+                if (orderByList.Count > 0)
+                { 
+                    _relationalCommandBuilder.AppendLine();
+                    
+                    GenerateOrderBy(orderByList);
+                }
             }
 
             GenerateLimitOffset(selectExpression);
@@ -640,9 +651,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
             else
             {
-                var processedExperssion = ApplyOptimizations(orderingExpression, searchCondition: false);
-                if (processedExperssion.RemoveConvert() is ConstantExpression
-                    || processedExperssion.RemoveConvert() is ParameterExpression)
+                var processedExpression = ApplyOptimizations(orderingExpression, searchCondition: false);
+                if (processedExpression.RemoveConvert() is ConstantExpression
+                    || processedExpression.RemoveConvert() is ParameterExpression)
                 {
                     _relationalCommandBuilder.Append("(SELECT 1");
                     GeneratePseudoFromClause();
@@ -650,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 }
                 else
                 {
-                    Visit(processedExperssion);
+                    Visit(processedExpression);
                 }
             }
 

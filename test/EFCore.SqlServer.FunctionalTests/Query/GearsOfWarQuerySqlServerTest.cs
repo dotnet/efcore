@@ -6499,8 +6499,7 @@ LEFT JOIN (
     SELECT [g].*
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t0] ON @_outer_FullName1 = [t0].[FullName]
-ORDER BY (SELECT 1)",
+) AS [t0] ON @_outer_FullName1 = [t0].[FullName]",
                 //
                 @"@_outer_FullName1='Marcus Fenix' (Size = 450)
 
@@ -6510,8 +6509,7 @@ LEFT JOIN (
     SELECT [g].*
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t0] ON @_outer_FullName1 = [t0].[FullName]
-ORDER BY (SELECT 1)");
+) AS [t0] ON @_outer_FullName1 = [t0].[FullName]");
         }
 
         public override async Task Outer_parameter_in_group_join_with_DefaultIfEmpty(bool isAsync)
@@ -7036,7 +7034,7 @@ WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)
             AssertSql(
                 @"SELECT [s].[Id], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
-ORDER BY (SELECT 1), [s].[Id]",
+ORDER BY [s].[Id]",
                 //
                 @"SELECT [s.Members].[Nickname], [s.Members].[SquadId], [s.Members].[AssignedCityName], [s.Members].[CityOrBirthName], [s.Members].[Discriminator], [s.Members].[FullName], [s.Members].[HasSoulPatch], [s.Members].[LeaderNickname], [s.Members].[LeaderSquadId], [s.Members].[Rank]
 FROM [Gears] AS [s.Members]
@@ -7055,7 +7053,7 @@ ORDER BY [t].[c], [t].[Id]");
             AssertSql(
                 @"SELECT [s].[Id], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
-ORDER BY (SELECT 1), [s].[Id]",
+ORDER BY [s].[Id]",
                 //
                 @"SELECT [s.Members].[Nickname], [s.Members].[SquadId], [s.Members].[AssignedCityName], [s.Members].[CityOrBirthName], [s.Members].[Discriminator], [s.Members].[FullName], [s.Members].[HasSoulPatch], [s.Members].[LeaderNickname], [s.Members].[LeaderSquadId], [s.Members].[Rank]
 FROM [Gears] AS [s.Members]
@@ -7075,7 +7073,7 @@ ORDER BY [t].[c], [t].[Id]");
                 @"SELECT [s].[Nickname], [s].[FullName]
 FROM [Gears] AS [s]
 WHERE [s].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY (SELECT 1) DESC, [s].[Nickname], [s].[SquadId], [s].[FullName]",
+ORDER BY [s].[Nickname], [s].[SquadId], [s].[FullName]",
                 //
                 @"SELECT [t].[c], [t].[Nickname], [t].[SquadId], [t].[FullName], [s.Weapons].[Name], [s.Weapons].[OwnerFullName]
 FROM [Weapons] AS [s.Weapons]
@@ -7193,7 +7191,7 @@ WHERE @_outer_FullName = [w].[OwnerFullName]");
                 @"SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOrBirthName], [o].[Discriminator], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank]
 FROM [Gears] AS [o]
 WHERE [o].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [o].[Rank], (SELECT 1), [o].[Nickname], [o].[FullName]",
+ORDER BY [o].[Rank], [o].[Nickname], [o].[FullName]",
                 //
                 @"SELECT [o.Weapons].[Id], [o.Weapons].[AmmunitionType], [o.Weapons].[IsAutomatic], [o.Weapons].[Name], [o.Weapons].[OwnerFullName], [o.Weapons].[SynergyWithId]
 FROM [Weapons] AS [o.Weapons]
