@@ -168,7 +168,7 @@ namespace Microsoft.Data.Sqlite
                 command.CommandText = "CREATE TABLE Data (Value); SELECT * FROM Data;";
                 var ex = Assert.Throws<SqliteException>(() => command.Prepare());
 
-                Assert.Equal(1, ex.SqliteErrorCode);
+                Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "no such table: Data"), ex.Message);
             }
         }
 
