@@ -2431,8 +2431,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var foreignKey = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource: null);
                 foreignKey.UpdateConfigurationSource(configurationSource);
-                if (isRequired.HasValue
-                    && foreignKey.IsRequired == isRequired.Value)
+
+                if ((AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue14010", out var isEnabled) && isEnabled))
+                {
+                    if (isRequired.HasValue)
+                    {
+                        foreignKey.UpdateIsRequiredConfigurationSource(configurationSource);
+                    }
+                }
+                else if (isRequired.HasValue
+                  && foreignKey.IsRequired == isRequired.Value)
                 {
                     foreignKey.SetIsRequired(isRequired.Value, configurationSource);
                 }
