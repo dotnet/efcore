@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             public virtual IMutableModel Model => ModelBuilder.Model;
-            protected ModelBuilder ModelBuilder { get; }
+            public ModelBuilder ModelBuilder { get; }
             public ListLoggerFactory ValidationLoggerFactory { get; }
             public ListLoggerFactory ModelLoggerFactory { get; }
 

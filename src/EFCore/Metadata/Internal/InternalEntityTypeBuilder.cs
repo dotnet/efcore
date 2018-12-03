@@ -2431,9 +2431,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var foreignKey = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource: null);
                 foreignKey.UpdateConfigurationSource(configurationSource);
-                if (isRequired.HasValue)
+                if (isRequired.HasValue
+                    && foreignKey.IsRequired == isRequired.Value)
                 {
-                    foreignKey.UpdateIsRequiredConfigurationSource(configurationSource);
+                    foreignKey.SetIsRequired(isRequired.Value, configurationSource);
                 }
 
                 principalType.UpdateConfigurationSource(configurationSource);
