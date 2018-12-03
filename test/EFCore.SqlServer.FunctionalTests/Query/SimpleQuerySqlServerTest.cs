@@ -881,6 +881,20 @@ FROM [Customers] AS [c]
 ORDER BY (SELECT 1)
 OFFSET @__p_0 ROWS");
         }
+        
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override async Task Skip_orderby_const(bool isAsync)
+        {
+            await base.Skip_orderby_const(isAsync);
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY (SELECT 1)
+OFFSET @__p_0 ROWS");
+        }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_Take(bool isAsync)
@@ -2076,8 +2090,7 @@ ORDER BY [c].[CustomerID]");
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-ORDER BY (SELECT 1)");
+FROM [Customers] AS [c]");
         }
 
         public override async Task OrderBy_integer(bool isAsync)
@@ -2086,8 +2099,7 @@ ORDER BY (SELECT 1)");
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-ORDER BY (SELECT 1)");
+FROM [Customers] AS [c]");
         }
 
         public override async Task OrderBy_parameter(bool isAsync)
@@ -2096,8 +2108,7 @@ ORDER BY (SELECT 1)");
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-ORDER BY (SELECT 1)");
+FROM [Customers] AS [c]");
         }
 
         public override async Task OrderBy_anon(bool isAsync)
@@ -4622,8 +4633,7 @@ FROM (
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-ORDER BY (SELECT 1)");
+FROM [Customers] AS [c]");
         }
 
         public override async Task OrderBy_empty_list_does_not_contains(bool isAsync)
@@ -4632,8 +4642,7 @@ ORDER BY (SELECT 1)");
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-ORDER BY (SELECT 1)");
+FROM [Customers] AS [c]");
         }
 
         public override void Manual_expression_tree_typed_null_equality()
