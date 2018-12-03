@@ -17,27 +17,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
 #if NET461
             BuildReference.ByName("mscorlib"),
-            BuildReference.ByName("netstandard", true),
+            BuildReference.ByName("netstandard"),
             BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("System.Collections", true),
-            BuildReference.ByName("System.Collections.Concurrent", true),
-            BuildReference.ByName("System.ComponentModel", true),
+            BuildReference.ByName("System.Collections.Immutable", true),
             BuildReference.ByName("System.ComponentModel.Annotations", true),
             BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
             BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("System.Data.Common", true),
             BuildReference.ByName("System.Data.SqlClient", true),
-            BuildReference.ByName("System.Globalization", true),
-            BuildReference.ByName("System.Linq", true),
-            BuildReference.ByName("System.Reflection", true),
-            BuildReference.ByName("System.Reflection.Extensions", true),
-            BuildReference.ByName("System.Runtime", true),
-            BuildReference.ByName("System.Runtime.Extensions", true),
-            BuildReference.ByName("System.Threading", true),
-            BuildReference.ByName("System.Threading.Tasks", true),
+            BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
             BuildReference.ByName("System.ValueTuple", true)
-#elif NETCOREAPP2_0 || NETCOREAPP3_0
+#elif NETCOREAPP3_0
             BuildReference.ByName("netstandard"),
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.ComponentModel.Annotations"),
@@ -45,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             BuildReference.ByName("System.Data.SqlClient"),
             BuildReference.ByName("System.Linq.Expressions"),
             BuildReference.ByName("System.Runtime"),
+            BuildReference.ByName("System.Runtime.Extensions"),
             BuildReference.ByName("System.Text.RegularExpressions")
 #else
 #error target frameworks need to be updated.

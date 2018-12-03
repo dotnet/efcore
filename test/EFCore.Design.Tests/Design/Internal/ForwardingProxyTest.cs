@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
     }
 }
-#elif NETCOREAPP2_0 || NETCOREAPP3_0
+#elif NETCOREAPP3_0
 #else
 #error target frameworks need to be updated.
 #endif

@@ -4,15 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using Xunit;
-
-#if !NETCOREAPP2_0
-using System.Data.Common;
-#endif
 
 namespace Microsoft.Data.Sqlite
 {
@@ -985,7 +982,6 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-#if !NETCOREAPP2_0
         [Fact]
         public void DbProviderFactory_works()
         {
@@ -995,6 +991,5 @@ namespace Microsoft.Data.Sqlite
 
             Assert.Same(SqliteFactory.Instance, result);
         }
-#endif
     }
 }

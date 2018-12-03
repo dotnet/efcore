@@ -1,39 +1,62 @@
-#
-# See https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema for details
-#
+variables:
+  - name: _BuildConfig
+    value: Release
+  - name: _TeamName
+    value: AspNetCore
 
-# Only run CI builds for these branches
+resources:
+  containers:
+    - container: LinuxContainer
+      image: microsoft/dotnet-buildtools-prereqs:ubuntu-14.04-cross-0cd4667-20170319080304
+
 trigger:
-  branches:
-    include:
-    - 'master'
-    - 'release/*'
-    - 'internal/release/*'
-# Run PR validation on all branches
-pr:
-  branches:
-    include:
-    - '*'
+  - master
+  - release/*
+  - internal/release/*
 
-name: $(Date:yyyyMMdd).$(Rev:rr)
+pr: ['*']
 
 jobs:
-- template: build/templates/default-build.yml
-  parameters:
-    agentOs: Windows
-    codeSign: true
-    configuration: Release
-    artifacts:
-      publish: true
-      name: packages
-      path: 'artifacts/build/'
+  - template: eng/common/templates/jobs/jobs.yml
+    parameters:
+      enableMicrobuild: true
+      enablePublishBuildArtifacts: true
+      enablePublishBuildAssets: true
+      enablePublishTestResults: true
+      enableTelemetry: true
+      helixRepo: aspnet/EntityFrameworkCore
+      jobs:
+        - job: Windows
+          pool:
+            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+              name: dotnet-internal-temp
+            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+              name: dotnet-external-temp
+          variables:
+            - _InternalBuildArgs: ''
+            - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+              - group: DotNet-Blob-Feed
+              - _SignType: real
+              - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
+              - _DotNetPublishToBlobFeed: true
+              - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+          steps:
+            - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
+              name: Build
 
-- template: build/templates/default-build.yml
-  parameters:
-    agentOs: macOS
-    configuration: Release
+        - job: macOS
+          pool:
+            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+              name: Hosted Mac Internal
+            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+              name: Hosted macOS
+          steps:
+            - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
+              name: Build
 
-- template: build/templates/default-build.yml
-  parameters:
-    agentOs: Linux
-    configuration: Release
+        - job: Linux
+          pool: Hosted Ubuntu 1604
+          container: LinuxContainer
+          steps:
+            - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
+              name: Build

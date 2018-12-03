@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
         {
             var skipReason = testMethod.EvaluateSkipConditions();
             return skipReason != null
-                ? new[] { new SkippedTestCase(skipReason, DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod) }
+                ? new[] { new SkippedTestCase(skipReason, DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod) }
                 : base.CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
         }
 

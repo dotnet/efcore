@@ -5,7 +5,6 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Oracle</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Oracle</RootNamespace>
     <TargetFrameworks>net461</TargetFrameworks>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <CodeAnalysisRuleSet>..\..\..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

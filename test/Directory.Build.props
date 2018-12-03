@@ -2,23 +2,7 @@
   <Import Project="..\Directory.Build.props" />
 
   <PropertyGroup>
-    <DeveloperBuildTestTfms>netcoreapp3.0</DeveloperBuildTestTfms>
-    <StandardTestTfms>$(DeveloperBuildTestTfms)</StandardTestTfms>
-    <StandardTestTfms Condition=" '$(DeveloperBuild)' != 'True' ">$(StandardTestTfms);netcoreapp2.0</StandardTestTfms>
-    <StandardTestTfms Condition=" '$(DeveloperBuild)' != 'True' AND '$(CoreOnly)' != 'True' AND '$(OS)' == 'Windows_NT' ">net461;$(StandardTestTfms)</StandardTestTfms>
+    <StandardTestTfms>netcoreapp3.0</StandardTestTfms>
+    <StandardTestTfms Condition="'$(DeveloperBuild)' != 'True'">net461;$(StandardTestTfms)</StandardTestTfms>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);xUnit1004</NoWarn>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Internal.AspNetCore.Sdk" PrivateAssets="All" Version="$(InternalAspNetCoreSdkPackageVersion)" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNETTestSdkPackageVersion)" />
-    <!-- Using xunit.core and .assert instead of the main package because compilation fails due to warnings triggered by xunit.analyzers. -->
-    <!-- <PackageReference Include="xunit" Version="$(XunitPackageVersion)" /> -->
-    <PackageReference Include="xunit.core" Version="$(XunitCorePackageVersion)" />
-    <PackageReference Include="xunit.assert" Version="$(XunitAssertPackageVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioPackageVersion)" />
-  </ItemGroup>
 </Project>

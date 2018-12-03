@@ -3135,7 +3135,6 @@ namespace RootNamespace
 ";
         protected virtual ICollection<BuildReference> GetReferences() => new List<BuildReference>
         {
-            BuildReference.ByName("System.Runtime.Extensions"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),

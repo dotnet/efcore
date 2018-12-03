@@ -11,7 +11,6 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSource>false</IncludeSource>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
-    <EnableApiCheck>false</EnableApiCheck>
     <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
 
 Enables these commonly used commands:
@@ -29,26 +28,10 @@ Update-Database
   </ItemGroup>
 
   <ItemGroup>
-    <!-- PowerShell files should be code signed -->
-    <SignedPackageFile Include="EntityFrameworkCore.PowerShell2.psd1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="EntityFrameworkCore.PowerShell2.psm1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="EntityFrameworkCore.psd1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="EntityFrameworkCore.psm1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="init.ps1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="install.ps1" Certificate="$(PowerShellSigningCertName)" />
-
-    <!-- Additional assemblies to be code signed -->
-    <SignedPackageFile Include="ef.exe" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="ef.dll" Certificate="$(AssemblySigningCertName)" />
+    <GeneratedContent Include="*.psd1.in" />
   </ItemGroup>
 
-  <ItemGroup>
-    <GeneratedContent Include="*.psd1.in">
-      <Properties>VersionPrefix=$(VersionPrefix)</Properties>
-    </GeneratedContent>
-  </ItemGroup>
-
-  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="ResolveCommitHash">
+  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg -->
       <IncludeSymbols>true</IncludeSymbols>
@@ -77,7 +60,8 @@ Update-Database
   <Target Name="Compile"
     Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
     Outputs="@(GeneratedContent->'$(TargetDir)%(FileName)'">
-    <Sdk_GenerateFileFromTemplate TemplateFile="%(GeneratedContent.Identity)" OutputPath="$(TargetDir)%(FileName)" Properties="%(Properties)" />
+    <!-- TODO: Use dotnet/arcade#204 when available -->
+    <WriteLinesToFile Lines="$([System.IO.File]::ReadAllText('%(GeneratedContent.Identity)').Replace('${VersionPrefix}', $(VersionPrefix)))" File="$(TargetDir)%(FileName)" />
   </Target>
 
   <Target Name="CopyFilesToOutputDirectory" />

@@ -1,0 +1,10 @@
+<Project>
+  <Import Project="..\Directory.Build.targets" />
+  
+  <ItemGroup>
+    <!-- Using xunit.core and .assert instead of the main package because compilation fails due to warnings triggered by xunit.analyzers. -->
+    <PackageReference Remove="xunit" />
+    <PackageReference Include="xunit.core" Version="$(XUnitVersion)" />
+    <PackageReference Include="xunit.assert" Version="$(XUnitVersion)" />
+  </ItemGroup>
+</Project>

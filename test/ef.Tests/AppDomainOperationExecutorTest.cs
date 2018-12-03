@@ -56,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = targetDir,
                     References =
                     {
-                        BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
                         BuildReference.ByName("System.Interactive.Async", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions", true),
@@ -258,7 +257,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = targetDir,
                     References =
                     {
-                        BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
                         BuildReference.ByName("System.Interactive.Async", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions", true),
@@ -383,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
     }
 }
-#elif NETCOREAPP2_0 || NETCOREAPP3_0
+#elif NETCOREAPP3_0
 #else
 #error target frameworks need to be updated.
 #endif

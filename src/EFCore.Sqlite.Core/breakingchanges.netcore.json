@@ -1,7 +1,0 @@
-  [
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
-      "MemberId": "protected override System.Void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder)",
-      "Kind": "Removal"
-    }
-  ]

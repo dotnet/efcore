@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source="${BASH_SOURCE[0]}"
 
-# Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
-chmod +x "$DIR/run.sh"; sync
-"$DIR/run.sh" default-build "$@"
+# resolve $SOURCE until the file is no longer a symlink
+while [[ -h $source ]]; do
+  scriptroot="$( cd -P "$( dirname "$source" )" && pwd )"
+  source="$(readlink "$source")"
+
+  # if $source was a relative symlink, we need to resolve it relative to the path where the
+  # symlink file was located
+  [[ $source != /* ]] && source="$scriptroot/$source"
+done
+
+scriptroot="$( cd -P "$( dirname "$source" )" && pwd )"
+"$scriptroot/eng/common/build.sh" --build --restore $@

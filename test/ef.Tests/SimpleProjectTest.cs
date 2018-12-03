@@ -197,10 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = TargetDir,
                     References =
                     {
-                        BuildReference.ByName("System.Collections.Immutable", true),
-                        BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
                         BuildReference.ByName("System.Interactive.Async", true),
-                        BuildReference.ByName("System.Data.SqlClient", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
@@ -271,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
     }
 }
-#elif NETCOREAPP2_0 || NETCOREAPP3_0
+#elif NETCOREAPP3_0
 #else
 #error target frameworks need to be updated.
 #endif

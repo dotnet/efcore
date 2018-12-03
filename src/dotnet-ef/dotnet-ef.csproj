@@ -21,7 +21,6 @@ dotnet ef database update
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
-    <EnableApiCheck>false</EnableApiCheck>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
     <!--
       This keeps ef.exe targeting the default version of .NET Core for netcoreapp3.0,
@@ -81,15 +80,6 @@ dotnet ef database update
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Additional files to be code signed -->
-    <SignedPackageFile Include="$(TargetFileName)" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="ef.exe" Certificate="$(AssemblySigningCertName)" />
-
-    <!-- Third-party assemblies should be signed with the 3rd party certificate -->
-    <SignedPackageFile Include="Newtonsoft.Json.dll" Certificate="$(AssemblySigning3rdPartyCertName)" />
-  </ItemGroup>
-
   <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec">
 
     <PropertyGroup>
@@ -114,13 +104,13 @@ dotnet ef database update
 
         SettingsFile=$(_ToolsSettingsFilePath);
         Output=$(PublishDir)**\*;
-        OutputBinary=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.dll;
-        OutputRuntimeConfig=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json;
-        OutputSymbol=..\ef\bin\$(Configuration)\netcoreapp2.0\ef.pdb;
-        OutputExe=..\ef\bin\$(Configuration)\net461\ef.exe;
-        OutputExeSymbol=..\ef\bin\$(Configuration)\net461\ef.pdb;
-        OutputX86Exe=..\ef\bin\x86\$(Configuration)\net461\ef.exe;
-        OutputX86ExeSymbol=..\ef\bin\x86\$(Configuration)\net461\ef.pdb;
+        OutputBinary=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.dll;
+        OutputRuntimeConfig=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json;
+        OutputSymbol=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.pdb;
+        OutputExe=..\..\artifacts\bin\ef\$(Configuration)\net461\ef.exe;
+        OutputExeSymbol=..\..\artifacts\bin\ef\$(Configuration)\net461\ef.pdb;
+        OutputX86Exe=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.exe;
+        OutputX86ExeSymbol=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.pdb;
       </NuspecProperties>
     </PropertyGroup>
   </Target>

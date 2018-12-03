@@ -1,7 +1,12 @@
-﻿<Project>
-  <Import Project="..\Directory.Build.props" />
+<Project>
+  <PropertyGroup>
+    <IsUnitTestProject>false</IsUnitTestProject>
+  </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Internal.AspNetCore.Sdk" PrivateAssets="All" Version="$(InternalAspNetCoreSdkPackageVersion)" />
-  </ItemGroup>
+  <Import Project="..\Directory.Build.props" />
+  
+  <PropertyGroup>
+    <IsPackable>True</IsPackable>
+    <IncludeSymbols>True</IncludeSymbols>
+  </PropertyGroup>
 </Project>

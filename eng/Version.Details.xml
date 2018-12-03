@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Dependencies>
+  <ProductDependencies>
+    <Dependency Name="Internal.WebHostBuilderFactory.Sources" Version="3.0.0-preview.18617.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview.18619.1">
+      <Uri>https://github.com/dotnet/corefx</Uri>
+      <Sha>5641ae5e157177f30eec8cbb63c5dc8e2e5863bc</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview.18617.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="3.0.0-preview.18617.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0-preview.18617.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="3.0.0-preview.18617.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="3.0.0-preview.18617.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview.18617.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview-27218-01">
+      <Uri>https://github.com/dotnet/core-setup</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.Logging" Version="3.0.0-preview.18617.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>0000000000000000000000000000000000000000</Sha>
+    </Dependency>
+    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview.18619.1">
+      <Uri>https://github.com/dotnet/corefx</Uri>
+      <Sha>5641ae5e157177f30eec8cbb63c5dc8e2e5863bc</Sha>
+    </Dependency>
+    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview.18619.1">
+      <Uri>https://github.com/dotnet/corefx</Uri>
+      <Sha>5641ae5e157177f30eec8cbb63c5dc8e2e5863bc</Sha>
+    </Dependency>
+    <Dependency Name="System.Data.SqlClient" Version="4.7.0-preview.18619.1">
+      <Uri>https://github.com/dotnet/corefx</Uri>
+      <Sha>5641ae5e157177f30eec8cbb63c5dc8e2e5863bc</Sha>
+    </Dependency>
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview.18619.1">
+      <Uri>https://github.com/dotnet/corefx</Uri>
+      <Sha>5641ae5e157177f30eec8cbb63c5dc8e2e5863bc</Sha>
+    </Dependency>
+  </ProductDependencies>
+  <ToolsetDependencies>
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="1.0.0-beta.18619.2">
+      <Uri>https://github.com/dotnet/arcade</Uri>
+      <Sha>80d6a84b09315c1b29ff49c2e46784704e04d587</Sha>
+    </Dependency>
+  </ToolsetDependencies>
+</Dependencies>
