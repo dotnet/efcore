@@ -15,11 +15,5 @@
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Runtime.sln" />
     <ExcludeSolutions Include="$(RepositoryRoot)Microsoft.Data.Sqlite.sln" />
   </ItemGroup>
-  <PropertyGroup>
-    <!-- These properties are use by the automation that updates dependencies.props -->
-    <LineupPackageId>Internal.AspNetCore.Universe.Lineup</LineupPackageId>
-    <LineupPackageVersion>2.1.6-*</LineupPackageVersion>
-    <LineupPackageRestoreSource>https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json</LineupPackageRestoreSource>
-  </PropertyGroup>
 
 </Project>
