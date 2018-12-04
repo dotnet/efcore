@@ -3,8 +3,6 @@
 
   <PropertyGroup>
     <CoreOnly Condition="'$(CoreOnly)' == ''">False</CoreOnly>
-    <!-- TODO: Remove when dotnet/arcade#1362 is fixed -->
-    <DisableSignCheckStrongName>true</DisableSignCheckStrongName>
   </PropertyGroup>
 
   <ItemGroup>
