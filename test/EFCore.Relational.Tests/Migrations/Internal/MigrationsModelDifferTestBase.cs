@@ -107,8 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         protected abstract TestHelpers TestHelpers { get; }
-        protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.CreateConventionBuilder();
-        protected virtual IModelValidator CreateModelValidator() => TestHelpers.CreateContextServices().GetRequiredService<IModelValidator>();
+        protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.CreateConventionBuilder(skipValidation: true);
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(IModel model)
         {

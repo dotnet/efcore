@@ -140,20 +140,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     options,
                     new DiagnosticListener("Fake"));
 
-                var contextServices = testHelpers.CreateContextServices();
-
-                var conventionSet = new CompositeConventionSetBuilder(
-                        contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
-                    .AddConventions(
-                        new CoreConventionSetBuilder(
-                                contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
-                            .CreateConventionSet());
-
-                conventionSet.ModelBuiltConventions.Add(
-                    new ValidatingConvention(
-                        new ModelValidator(new ModelValidatorDependencies(validationLogger, modelLogger))));
-
-                ModelBuilder = new ModelBuilder(conventionSet);
+                ModelBuilder = testHelpers.CreateConventionBuilder(modelLogger, validationLogger);
             }
 
             public virtual IMutableModel Model => ModelBuilder.Model;

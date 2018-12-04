@@ -1,15 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -47,15 +44,13 @@ namespace Microsoft.EntityFrameworkCore
 
         public override void Detects_incompatible_shared_columns_with_shared_table()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
-            modelBuilder.Entity<A>().Property(a => a.P0).HasColumnType("someInt");
+            modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
             modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().Property(a => a.P0).HasColumnName(nameof(A.P0));
             modelBuilder.Entity<B>().ToTable("Table");
-
-            GenerateMapping(modelBuilder.Entity<A>().Property(b => b.P0).Metadata);
-            GenerateMapping(modelBuilder.Entity<B>().Property(d => d.P0).Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -194,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Detects_byte_identity_column()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property<byte>("Bite").UseSqlServerIdentityColumn();
 
             VerifyWarning(SqlServerStrings.LogByteIdentityColumn.GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
@@ -203,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Detects_nullable_byte_identity_column()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseSqlServerIdentityColumn();
 
             VerifyWarning(SqlServerStrings.LogByteIdentityColumn.GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
@@ -212,7 +209,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Passes_for_non_key_identity()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
 
             Validate(modelBuilder.Model);
@@ -221,7 +219,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_multiple_identity_properties()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
             modelBuilder.Entity<Dog>().Property<int?>("Tag").UseSqlServerIdentityColumn();
 
@@ -261,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_missing_include_properties()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), "Tag");
 
@@ -271,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_duplicate_include_properties()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), nameof(Dog.Type));
 
@@ -281,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_indexed_include_properties()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Name));
 
@@ -312,18 +311,6 @@ namespace Microsoft.EntityFrameworkCore
             public string Name { get; set; }
         }
 
-        protected override IModelValidator CreateModelValidator()
-            => new SqlServerModelValidator(
-                new ModelValidatorDependencies(ValidationLogger, ModelLogger),
-                new RelationalModelValidatorDependencies(
-#pragma warning disable 618
-                    TestServiceFactory.Instance.Create<ObsoleteRelationalTypeMapper>(),
-#pragma warning restore 618
-                    new SqlServerTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
-
-        protected override ModelBuilder CreateConventionalModelBuilder()
-            => SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
     }
 }

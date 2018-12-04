@@ -442,6 +442,58 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("foo", owned.SqlServer().Schema);
             }
 
+            [Fact]
+            public override void Can_configure_owned_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                var entityBuilder = modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasPrincipalKey(c => c.AlternateKey)
+                    .ToTable("CustomerDetails");
+                entityBuilder.Property(d => d.CustomerId);
+                entityBuilder.HasIndex(d => d.CustomerId);
+
+                modelBuilder.Validate();
+
+                var owner = model.FindEntityType(typeof(Customer));
+                Assert.Equal(typeof(Customer).FullName, owner.Name);
+                var ownership = owner.FindNavigation(nameof(Customer.Details)).ForeignKey;
+                Assert.True(ownership.IsOwnership);
+                Assert.Equal(DeleteBehavior.SetNull, ownership.DeleteBehavior);
+                Assert.Equal(nameof(Customer.Details), ownership.PrincipalToDependent.Name);
+                Assert.Equal("CustomerAlternateKey", ownership.Properties.Single().Name);
+                Assert.Equal(nameof(Customer.AlternateKey), ownership.PrincipalKey.Properties.Single().Name);
+                var owned = ownership.DeclaringEntityType;
+                Assert.Same(entityBuilder.OwnedEntityType, owned);
+                Assert.Equal(1, owned.GetForeignKeys().Count());
+                Assert.Equal(nameof(CustomerDetails.CustomerId), owned.GetIndexes().Single().Properties.Single().Name);
+                Assert.Equal(new[] { "CustomerAlternateKey", nameof(CustomerDetails.CustomerId), nameof(CustomerDetails.Id) },
+                    owned.GetProperties().Select(p => p.Name));
+                Assert.NotNull(model.FindEntityType(typeof(CustomerDetails)));
+                Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
+            }
+
+            [Fact]
+            public override void Can_configure_owned_type_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
+                    .ToTable("Details")
+                    .HasKey(c => c.Id);
+
+                modelBuilder.Validate();
+
+                var owner = model.FindEntityType(typeof(Customer));
+                var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
+                Assert.Equal(new[] { nameof(CustomerDetails.Id), nameof(CustomerDetails.CustomerId) },
+                    owned.GetProperties().Select(p => p.Name).ToArray());
+                Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey().Properties.Single().Name);
+            }
+
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }

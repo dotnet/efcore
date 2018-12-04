@@ -520,7 +520,7 @@ namespace MyNamespace
         {
             var generator = CreateMigrationsCodeGenerator();
 
-            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder(skipValidation: true);
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
             modelBuilder.Entity<EntityWithConstructorBinding>(
                 x =>

@@ -8,10 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -24,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_filter_on_derived_type()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityTypeA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityTypeA);
             var entityTypeD = model.AddEntityType(typeof(D));
-            entityTypeD.HasBaseType(entityTypeA);
+            SetBaseType(entityTypeD, entityTypeA);
 
             entityTypeD.QueryFilter = (Expression<Func<D, bool>>)(_ => true);
 
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_shadow_entities()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             model.AddEntityType("A");
 
             VerifyError(CoreStrings.ShadowEntity("A"), model);
@@ -47,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_on_shadow_key_created_explicitly()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityType);
             var keyProperty = entityType.AddProperty("Key", typeof(int));
@@ -59,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_on_shadow_primary_key_created_by_convention_in_dependent_type()
         {
-            var model = new Model();
+            var model = (Model)CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(A));
             var keyProperty = entityType.AddProperty("Key", typeof(int), ConfigurationSource.Convention);
             entityType.SetPrimaryKey(keyProperty);
@@ -70,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_shadow_key_referenced_by_foreign_key_by_convention()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var dependentEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             dependentEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             dependentEntityBuilder.PrimaryKey(
@@ -110,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_a_null_primary_key()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             model.AddEntityType(typeof(A));
 
             VerifyError(CoreStrings.EntityRequiresKey(nameof(A)), model);
@@ -119,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_key_property_with_value_generated_on_update()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityTypeA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityTypeA);
             entityTypeA.FindPrimaryKey().Properties.Single().ValueGenerated = ValueGenerated.OnUpdate;
@@ -130,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_key_property_with_value_generated_on_add_or_update()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityTypeA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityTypeA);
             entityTypeA.FindPrimaryKey().Properties.Single().ValueGenerated = ValueGenerated.OnAddOrUpdate;
@@ -141,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_relationship_cycle()
         {
-            var modelBuilder = CreateConventionalModelBuilder();
+            var modelBuilder = base.CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>();
             modelBuilder.Entity<B>();
@@ -158,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_on_redundant_foreign_key()
         {
-            var modelBuilder = CreateConventionalModelBuilder();
+            var modelBuilder = base.CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<A>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
 
@@ -168,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_on_escapable_foreign_key_cycles()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
@@ -188,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_on_escapable_foreign_key_cycles_not_starting_at_hub()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
@@ -208,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_on_foreign_key_cycle_with_one_GenerateOnAdd()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var keyA = CreateKey(entityA);
@@ -227,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Pases_on_double_reference_to_root_principal_property()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
@@ -246,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Pases_on_diamond_path_to_root_principal_property()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
@@ -270,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Pases_on_correct_inheritance()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityD = model.AddEntityType(typeof(D));
@@ -282,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_skipped_base_type()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityD = model.AddEntityType(typeof(D));
@@ -296,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_abstract_leaf_type()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityAbstract = model.AddEntityType(typeof(Abstract));
@@ -308,11 +305,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_generic_leaf_type()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<>));
-            entityGeneric.HasBaseType(entityAbstract);
+            SetBaseType(entityGeneric, entityAbstract);
 
             VerifyError(CoreStrings.AbstractLeafEntityType(entityGeneric.DisplayName()), model);
         }
@@ -320,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Pases_on_valid_owned_entity_types()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
             var ownershipBuilder = entityTypeBuilder.Owns(
@@ -334,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_weak_entity_type_without_defining_navigation()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
 
@@ -364,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_entity_type_with_multiple_ownerships()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
             var ownershipBuilder = entityTypeBuilder.Owns(
@@ -383,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_weak_entity_type_with_non_defining_ownership()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
 
@@ -415,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_weak_entity_type_without_ownership()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
             var ownershipBuilder = entityTypeBuilder.Owns(
@@ -442,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_principal_owned_entity_type()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
             var ownershipBuilder = entityTypeBuilder.Owns(
@@ -466,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_non_owner_navigation_to_owned_entity_type()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
             var ownershipBuilder = entityTypeBuilder.Owns(
@@ -487,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_derived_owned_entity_type()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(B), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(B.Id) }, ConfigurationSource.Convention);
             var ownershipBuilder = entityTypeBuilder.Owns(typeof(D), nameof(B.A), ConfigurationSource.Convention);
@@ -503,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_owned_entity_type_without_ownership()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
             modelBuilder.Owned(typeof(A), ConfigurationSource.Convention);
 
@@ -513,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_ForeignKey_on_inherited_generated_key_property()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Abstract>().Property(e => e.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>(e => e.Id);
             modelBuilder.Entity<Generic<string>>();
@@ -529,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_ForeignKey_on_inherited_generated_key_property_abstract_base()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Abstract>().Property(e => e.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>(e => e.Id);
 
@@ -539,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_ToQuery_on_derived_query_types()
         {
-            var modelBuilder = CreateConventionalModelBuilder();
+            var modelBuilder = base.CreateConventionalModelBuilder();
             var context = new DbContext(new DbContextOptions<DbContext>());
             modelBuilder.Query<Abstract>().ToQuery(() => context.Set<Abstract>());
             modelBuilder.Query<Generic<int>>().ToQuery(() => context.Set<Generic<int>>());
@@ -552,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_keys_on_query_types()
         {
-            var modelBuilder = CreateConventionalModelBuilder();
+            var modelBuilder = base.CreateConventionalModelBuilder();
             var context = new DbContext(new DbContextOptions<DbContext>());
             var queryType = modelBuilder.Query<A>().Metadata;
 
@@ -572,12 +569,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
         public virtual void Detects_non_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(NonNotifyingEntity));
-            var id = entityType.AddProperty("Id");
+            var id = entityType.AddProperty("Id", null);
             entityType.SetPrimaryKey(id);
 
-            model.ChangeTrackingStrategy = changeTrackingStrategy;
+            model.SetChangeTrackingStrategy(changeTrackingStrategy);
 
             VerifyError(
                 CoreStrings.ChangeTrackingInterfaceMissing("NonNotifyingEntity", changeTrackingStrategy, "INotifyPropertyChanged"),
@@ -589,12 +586,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
         public virtual void Detects_changed_only_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
-            var id = entityType.AddProperty("Id");
+            var id = entityType.AddProperty("Id", null);
             entityType.SetPrimaryKey(id);
 
-            model.ChangeTrackingStrategy = changeTrackingStrategy;
+            model.SetChangeTrackingStrategy(changeTrackingStrategy);
 
             VerifyError(
                 CoreStrings.ChangeTrackingInterfaceMissing("ChangedOnlyEntity", changeTrackingStrategy, "INotifyPropertyChanging"),
@@ -608,12 +605,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
         public virtual void Passes_for_fully_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(FullNotificationEntity));
-            var id = entityType.AddProperty("Id");
+            var id = entityType.AddProperty("Id", null);
             entityType.SetPrimaryKey(id);
 
-            model.ChangeTrackingStrategy = changeTrackingStrategy;
+            model.SetChangeTrackingStrategy(changeTrackingStrategy);
 
             Validate(model);
         }
@@ -623,12 +620,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         public virtual void Passes_for_changed_only_entities_with_snapshot_or_changed_only_tracking(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
-            var id = entityType.AddProperty("Id");
+            var id = entityType.AddProperty("Id", null);
             entityType.SetPrimaryKey(id);
 
-            model.ChangeTrackingStrategy = changeTrackingStrategy;
+            model.SetChangeTrackingStrategy(changeTrackingStrategy);
 
             Validate(model);
         }
@@ -636,12 +633,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_for_non_notifying_entities_with_snapshot_tracking()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(NonNotifyingEntity));
-            var id = entityType.AddProperty("Id");
+            var id = entityType.AddProperty("Id", null);
             entityType.SetPrimaryKey(id);
 
-            model.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
 
             Validate(model);
         }
@@ -649,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_for_valid_seeds()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<A>().HasData(
                 new A
                 {
@@ -668,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_for_ignored_invalid_properties()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<EntityWithInvalidProperties>(eb =>
             {
                 eb.Ignore(e => e.NotImplemented);
@@ -700,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_derived_seeds()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
 
             Assert.Equal(
                 CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
@@ -716,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_derived_seeds_for_owned_types()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
 
             Assert.Equal(
                 CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
@@ -735,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_missing_required_values_in_seeds()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<A>(
                 e =>
                 {
@@ -756,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_key_values_in_seeds()
         {
             var entity = new NonSignedIntegerKeyEntity();
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<NonSignedIntegerKeyEntity>(e => e.HasData(entity));
 
             VerifyError(
@@ -767,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Detects_missing_signed_integer_key_values_in_seeds()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<A>(e => e.HasData(new A()));
 
             VerifyError(
@@ -780,8 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_duplicate_seeds(bool sensitiveDataLoggingEnabled)
         {
-            ValidationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
             modelBuilder.Entity<A>().HasData(
                 new A
                 {
@@ -805,8 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_incompatible_values(bool sensitiveDataLoggingEnabled)
         {
-            ValidationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
             modelBuilder.Entity<A>(
                 e =>
                 {
@@ -830,8 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_reference_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
         {
-            ValidationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
             modelBuilder.Entity<SampleEntity>(
                 e =>
                 {
@@ -867,8 +861,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_collection_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
         {
-            ValidationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
             modelBuilder.Entity<SampleEntity>(
                 e =>
                 {
@@ -903,10 +896,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        private ModelBuilder CreateModelBuilder()
-            => new ModelBuilder(
-                InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet());
-
         // INotify interfaces not really implemented; just marking the classes to test metadata construction
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {
@@ -932,9 +921,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             public int Id { get; set; }
         }
-
-        protected override IModelValidator CreateModelValidator()
-            => new ModelValidator(new ModelValidatorDependencies(ValidationLogger, ModelLogger));
 
         private class NonSignedIntegerKeyEntity
         {

@@ -289,55 +289,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var clrType = type.Type;
+            if (clrType == null)
+            {
+                Metadata.Unignore(type.Name);
+
+                Metadata.MarkAsOwnedType(type.Name);
+            }
+            else
+            {
+                Metadata.Unignore(type.Name);
+
+                Metadata.MarkAsOwnedType(clrType);
+            }
+
             var entityType = clrType == null
                 ? Metadata.FindEntityType(type.Name)
                 : Metadata.FindEntityType(clrType);
 
-            using (Metadata.ConventionDispatcher.StartBatch())
+            if (entityType?.GetForeignKeys().Any(fk => fk.IsOwnership) == false)
             {
-                if (entityType?.GetForeignKeys().Any(fk => fk.IsOwnership) == false)
+                if (!configurationSource.Overrides(entityType.GetConfigurationSource()))
                 {
-                    if (!configurationSource.Overrides(entityType.GetConfigurationSource()))
+                    return false;
+                }
+
+                if (entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
+                }
+
+                var ownershipCandidate = entityType.GetForeignKeys().FirstOrDefault(
+                    fk => fk.PrincipalToDependent != null
+                          && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
+                          && !fk.PrincipalEntityType.IsInDefinitionPath(clrType));
+                if (ownershipCandidate != null)
+                {
+                    if (ownershipCandidate.Builder.IsOwnership(true, configurationSource) == null)
                     {
                         return false;
                     }
-
-                    if (entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
-                    }
-
-                    var ownershipCandidate = entityType.GetForeignKeys().FirstOrDefault(
-                        fk => fk.PrincipalToDependent != null
-                              && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
-                              && !fk.PrincipalEntityType.IsInDefinitionPath(clrType));
-                    if (ownershipCandidate != null)
-                    {
-                        if (ownershipCandidate.Builder.IsOwnership(true, configurationSource) == null)
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        if (!entityType.Builder.RemoveNonOwnershipRelationships(null, configurationSource))
-                        {
-                            return false;
-                        }
-                    }
-                }
-
-                if (clrType == null)
-                {
-                    Metadata.Unignore(type.Name);
-
-                    Metadata.MarkAsOwnedType(type.Name);
                 }
                 else
                 {
-                    Metadata.Unignore(type.Name);
-
-                    Metadata.MarkAsOwnedType(clrType);
+                    if (!entityType.Builder.RemoveNonOwnershipRelationships(null, configurationSource))
+                    {
+                        return false;
+                    }
                 }
             }
 

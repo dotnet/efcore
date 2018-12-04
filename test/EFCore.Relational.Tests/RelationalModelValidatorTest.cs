@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Ignores_bool_with_default_value_false()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(E));
             SetPrimaryKey(entityType);
             entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValue = false;
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_bool_with_default_value_not_false()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(E));
             SetPrimaryKey(entityType);
             entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValue = true;
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_bool_with_default_expression()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(E));
             SetPrimaryKey(entityType);
             entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValueSql = "TRUE";
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_primary_key_with_default_value()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             entityA.FindProperty("Id").Relational().DefaultValue = 1;
@@ -84,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_alternate_key_with_default_value()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
 
@@ -99,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_table_names_without_identifying_relationship()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
@@ -118,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_duplicate_table_names_in_different_schema()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
@@ -134,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_duplicate_table_names_for_inherited_entities()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
@@ -162,11 +161,12 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_incompatible_primary_key_columns_with_shared_table()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
-            modelBuilder.Entity<A>().Property(a => a.Id).HasColumnName("Key");
+            modelBuilder.Entity<A>().Property(a => a.Id).ValueGeneratedNever().HasColumnName("Key");
             modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().Property(a => a.Id).ValueGeneratedNever().HasColumnName(nameof(B.Id));
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(
@@ -182,11 +182,8 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
             modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().Property(a => a.P0).HasColumnName(nameof(A.P0));
+            modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0));
             modelBuilder.Entity<B>().ToTable("Table");
-
-            GenerateMapping(modelBuilder.Entity<A>().Property(b => b.P0).Metadata);
-            GenerateMapping(modelBuilder.Entity<B>().Property(d => d.P0).Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -896,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_non_hierarchical_model()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
 
@@ -906,11 +903,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_missing_discriminator_property()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
-            entityC.HasBaseType(entityA);
+            entityC.BaseType = entityA;
 
             VerifyError(RelationalStrings.NoDiscriminatorProperty(entityA.DisplayName()), model);
         }
@@ -918,14 +915,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_missing_discriminator_value_on_base()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
-            entityC.HasBaseType(entityA);
+            SetBaseType(entityC, entityA);
 
-            var discriminatorProperty = entityA.AddProperty("D", typeof(int));
-            entityA.Relational().DiscriminatorProperty = discriminatorProperty;
+            entityA.Relational().DiscriminatorProperty = entityA.AddProperty("D", typeof(int));
             entityC.Relational().DiscriminatorValue = 1;
 
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityA.DisplayName()), model);
@@ -934,14 +930,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_missing_discriminator_value_on_leaf()
         {
-            var model = new Model();
+            var model = CreateConventionlessModelBuilder().Model;
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<string>));
-            entityGeneric.HasBaseType(entityAbstract);
+            SetBaseType(entityGeneric, entityAbstract);
 
-            var discriminatorProperty = entityAbstract.AddProperty("D", typeof(int));
-            entityAbstract.Relational().DiscriminatorProperty = discriminatorProperty;
+            entityAbstract.Relational().DiscriminatorProperty = entityAbstract.AddProperty("D", typeof(int));
             entityAbstract.Relational().DiscriminatorValue = 0;
 
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
@@ -1061,12 +1056,11 @@ namespace Microsoft.EntityFrameworkCore
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                     .FindMapping(property);
 
-        protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)
+        protected override void SetBaseType(IMutableEntityType entityType, IMutableEntityType baseEntityType)
         {
             base.SetBaseType(entityType, baseEntityType);
 
-            var discriminatorProperty = baseEntityType.GetOrAddProperty("Discriminator", typeof(string));
-            baseEntityType.Relational().DiscriminatorProperty = discriminatorProperty;
+            baseEntityType.Relational().DiscriminatorProperty = baseEntityType.GetOrAddProperty("Discriminator", typeof(string));
             baseEntityType.Relational().DiscriminatorValue = baseEntityType.Name;
             entityType.Relational().DiscriminatorValue = entityType.Name;
         }
@@ -1110,18 +1104,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override IModelValidator CreateModelValidator()
-            => new RelationalModelValidator(
-                new ModelValidatorDependencies(ValidationLogger, ModelLogger),
-                new RelationalModelValidatorDependencies(
-#pragma warning disable 618
-                    new ObsoleteRelationalTypeMapper(),
-#pragma warning restore 618
-                    new TestRelationalTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
-
-        protected override ModelBuilder CreateConventionalModelBuilder()
-            => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
     }
 }
