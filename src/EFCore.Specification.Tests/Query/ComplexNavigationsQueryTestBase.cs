@@ -5430,5 +5430,54 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(result.Any(r => r.OneToMany_Optional2.Count > 0));
             }
         }
+
+        public readonly struct TransparentIdentifier<TOuter, TInner>
+        {
+            public static TransparentIdentifier<TOuter, TInner> CreateTransparentIdentifier(TOuter outer, TInner inner)
+                => new TransparentIdentifier<TOuter, TInner>(outer, inner);
+
+            public TransparentIdentifier(TOuter outer, TInner inner)
+            {
+                Outer = outer;
+                Inner = inner;
+            }
+
+            public readonly TOuter Outer;
+
+            public readonly TInner Inner;
+        }
+
+        [ConditionalFact]
+        public virtual void Nav1()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.LevelOne.Where(l1 => l1.OneToOne_Optional_FK1.Name != "Foo").Where(l1 => l1.Id != 1);//.Select(l1 => l1.Id);
+
+                //var query = from l1 in ctx.LevelOne
+                //            join l2 in ctx.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
+                //            from l2 in grouping.DefaultIfEmpty()
+                //            where l2.Name != "Foo"
+                //            select l1.Id;
+
+
+                //var query = ctx.LevelOne.Where(l1 => l1.OneToOne_Optional_FK1.OneToOne_Required_PK2.Name != "Foo").Where(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_PK2.OneToOne_Optional_PK3.Id > 0 );
+
+                //var query = ctx.LevelOne.Join(ctx.LevelTwo, l1 => (int?)l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2) => TransparentIdentifier<Level1, Level2>.CreateTransparentIdentifier(l1, l2))
+                //    .Join(ctx.LevelThree, t => (int?)t.Inner.Id, l3 => l3.Level2_Optional_Id, (t, l3) => TransparentIdentifier<TransparentIdentifier<Level1, Level2>, Level3>.CreateTransparentIdentifier(t, l3));
+
+                //var query = ctx.LevelOne.Join(ctx.LevelTwo, l1 => (int?)l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2) => new TransparentIdentifier<Level1, Level2>(l1, l2))
+                //    .Join(ctx.LevelThree, t => (int?)t.Inner.Id, l3 => l3.Level2_Optional_Id, (t, l3) => new TransparentIdentifier<TransparentIdentifier<Level1, Level2>, Level3>(t, l3));
+
+
+                //var query = from l1 in ctx.LevelOne
+                //            join l2 in ctx.LevelTwo on (int?)l1.Id equals EF.Property<int?>(l2, "Level1_Optional_Id")
+                //            join l3 in ctx.LevelThree on (int?)l2.Id equals EF.Property<int?>(l3, "Level2_Optional_Id")
+                //            where l3.Name != "Foo"
+                //            select l1;
+
+                var result = query.ToList();
+            }
+        }
     }
 }

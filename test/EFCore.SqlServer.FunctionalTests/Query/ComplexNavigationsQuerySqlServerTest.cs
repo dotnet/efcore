@@ -4039,6 +4039,14 @@ INNER JOIN (
 ORDER BY [t0].[Id]");
         }
 
+        public override void Nav1()
+        {
+            base.Nav1();
+
+            AssertSql(
+                @"");
+        }
+
         private void AssertSql(params string[] expected)
         {
             Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
