@@ -2077,6 +2077,22 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
             AssertSql(
                 "");
         }
+        
+        public override async Task Join_with_order_by_without_skip_or_take(bool isAsync)
+        {
+            await base.Join_with_order_by_without_skip_or_take(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[Name], [g].[FullName]
+FROM [Gears] AS [g]
+INNER JOIN (
+    SELECT [ww].*
+    FROM [Weapons] AS [ww]
+    ORDER BY [ww].[Name]
+    OFFSET 0 ROWS
+) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
 
         public override async Task Collection_with_inheritance_and_join_include_joined(bool isAsync)
         {
@@ -3544,25 +3560,22 @@ WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
 ORDER BY [g].[Nickname], [g].[Rank]");
         }
 
-        public override async Task Subquery_is_not_lifted_from_additional_from_clause(bool isAsync)
+        public override async Task Subquery_is_lifted_from_additional_from_clause(bool isAsync)
         {
-            await base.Subquery_is_not_lifted_from_additional_from_clause(isAsync);
+            await base.Subquery_is_lifted_from_additional_from_clause(isAsync);
 
             AssertSql(
-                @"SELECT [g1].[FullName] AS [Name1]
+                @"SELECT [g1].[FullName] AS [Name1], [t].[FullName] AS [Name2]
 FROM [Gears] AS [g1]
-WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND ([g1].[HasSoulPatch] = 1)
-ORDER BY [Name1]",
-                //
-                @"SELECT [g0].[HasSoulPatch], [g0].[FullName]
-FROM [Gears] AS [g0]
-WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g0].[Rank]",
-                //
-                @"SELECT [g0].[HasSoulPatch], [g0].[FullName]
-FROM [Gears] AS [g0]
-WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g0].[Rank]");
+CROSS JOIN (
+    SELECT [g].*
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+    ORDER BY [g].[Rank]
+    OFFSET 0 ROWS
+) AS [t]
+WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND (([g1].[HasSoulPatch] = 1) AND ([t].[HasSoulPatch] = 0))
+ORDER BY [Name1]");
         }
 
         public override async Task Subquery_with_result_operator_is_not_lifted(bool isAsync)
