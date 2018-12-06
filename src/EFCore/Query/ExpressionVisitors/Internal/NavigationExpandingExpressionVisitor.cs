@@ -29,15 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 && methodCallExpression.Method.Name == nameof(EntityFrameworkQueryableExtensions.Include);
     }
 
-    // temporary hack
-    public static class ParameterNamingExtensions
-    {
-        private static int Count = 1;
-
-        public static string GenerateParameterName(this Type type)
-            => type.Name.Substring(0, 1).ToLower() + Count++;
-    }
-
     public readonly struct TransparentIdentifier<TOuter, TInner>
     {
         [UsedImplicitly]
@@ -199,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     m => m.from.Count == navigationPathNames.Count
                         && m.from.Zip(navigationPathNames, (o, i) => o == i).All(r => r)).SingleOrDefault().to;
 
-                var outerParameter = Expression.Parameter(sourceType, sourceType.GenerateParameterName());
+                var outerParameter = Expression.Parameter(sourceType, parameterExpression.Name);
                 var outerKeySelectorParameter = outerParameter;
                 var transparentIdentifierAccessorExpression = BuildTransparentIdentifierAccessorExpression(outerParameter, transparentIdentifierAccessorPath);
 
@@ -208,13 +199,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     navigation.IsDependentToPrincipal()
                         ? navigation.ForeignKey.Properties
                         : navigation.ForeignKey.PrincipalKey.Properties,
-                    // TODO: do this on parent navigation instead?
-                    addNullCheck: navigationPath.OptionalNavigationInChain(sourceType));
+                    addNullCheck: navigationPath.Optional);
 
                 var innerKeySelectorParameterType = navigationTargetEntityType.ClrType;
                 var innerKeySelectorParameter = Expression.Parameter(
                     innerKeySelectorParameterType,
-                    parameterExpression.Name + "." + string.Join(".", navigationPath.GeneratePath()));
+                    parameterExpression.Name + "." + navigationPath.Navigation.Name);
 
                 var innerKeySelectorBody = CreateKeyAccessExpression(
                     innerKeySelectorParameter,
@@ -222,7 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         ? navigation.ForeignKey.PrincipalKey.Properties
                         : navigation.ForeignKey.Properties);
 
-                // compensate for nullability difference
                 if (outerKeySelectorBody.Type.IsNullableType()
                     && !innerKeySelectorBody.Type.IsNullableType())
                 {
@@ -242,9 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     innerKeySelectorBody,
                     innerKeySelectorParameter);
 
-                // source is wrong here, we need to keep track of the navigation root, not the current source!
-                var needsGroupJoin = navigationPath.OptionalNavigationInChain(sourceType);
-                if (needsGroupJoin)
+                if (navigationPath.Optional)
                 {
                     var groupingType = typeof(IEnumerable<>).MakeGenericType(navigationTargetEntityType.ClrType);
                     var groupJoinResultType = typeof(TransparentIdentifier<,>).MakeGenericType(sourceType, groupingType);
@@ -258,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     var resultSelectorOuterParameterName = outerParameter.Name;
                     var resultSelectorOuterParameter = Expression.Parameter(sourceType, resultSelectorOuterParameterName);
 
-                    var resultSelectorInnerParameterName = "grouping";
+                    var resultSelectorInnerParameterName = innerKeySelectorParameter.Name;
                     var resultSelectorInnerParameter = Expression.Parameter(groupingType, resultSelectorInnerParameterName);
 
                     var groupJoinResultTransparentIdentifierCtorInfo
@@ -312,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     sourceType = selectManyResultSelector.ReturnType;
                     sourceExpression = selectManyMethodCall;
 
-                    var transparentIdentifierParameterName = resultSelectorOuterParameterName + resultSelectorInnerParameterName;
+                    var transparentIdentifierParameterName = resultSelectorInnerParameterName;
                     var transparentIdentifierParameter = Expression.Parameter(selectManyResultSelector.ReturnType, transparentIdentifierParameterName);
                     parameterExpression = transparentIdentifierParameter;
                 }
@@ -349,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     sourceType = resultSelector.ReturnType;
                     sourceExpression = joinMethodCall;
 
-                    var transparentIdentifierParameterName = resultSelectorOuterParameterName + resultSelectorInnerParameterName;
+                    var transparentIdentifierParameterName = /*resultSelectorOuterParameterName + */resultSelectorInnerParameterName;
                     var transparentIdentifierParameter = Expression.Parameter(resultSelector.ReturnType, transparentIdentifierParameterName);
                     parameterExpression = transparentIdentifierParameter;
                 }
@@ -365,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     // in case of GroupJoin (optional navigation) source is hidden deeps since we also project the grouping
                     // we could remove the grouping in the future, but for nowe we need the grouping to properly recognize the LOJ pattern
-                    if (needsGroupJoin)
+                    if (navigationPath.Optional)
                     {
                         transparentIdentifierAccessorMappingElement.to.Insert(0, nameof(TransparentIdentifier<object, object>.Outer));
                     }
@@ -375,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 transparentIdentifierAccessorMapping.Add((from: navigationPathNames.ToList(), to: new List<string> { nameof(TransparentIdentifier<object, object>.Inner) }));
 
                 finalProjectionPath.Add("Outer");
-                if (needsGroupJoin)
+                if (navigationPath.Optional)
                 {
                     finalProjectionPath.Add("Outer");
                 }
@@ -419,6 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class NavigationPathNode
     {
         public INavigation Navigation { get; set; }
+        public bool Optional { get; set; }
         public NavigationPathNode Parent { get; set; }
         public List<NavigationPathNode> Children { get; set; }
 
@@ -437,20 +425,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
-        public static NavigationPathNode Create(IEnumerable<INavigation> expansionPath)
+        public static NavigationPathNode Create(IEnumerable<INavigation> expansionPath, bool optional)
         {
             if (expansionPath.Count() == 0)
             {
                 return null;
             }
 
+            var navigation = expansionPath.First();
+            optional = optional || !navigation.ForeignKey.IsRequired || !navigation.IsDependentToPrincipal();
             var result = new NavigationPathNode
             {
-                Navigation = expansionPath.First(),
+                Navigation = navigation,
+                Optional = optional,
                 Children = new List<NavigationPathNode>(),
             };
 
-            var child = Create(expansionPath.Skip(1));
+            var child = Create(expansionPath.Skip(1), optional);
             if (child != null)
             {
                 result.Children.Add(child);
@@ -497,26 +488,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             return true;
         }
-
-        // TODO: store this when we generate navigation tree?
-        public bool OptionalNavigationInChain(Type rootType)
-        {
-            if (!Navigation.ForeignKey.IsRequired
-                || !Navigation.IsDependentToPrincipal())
-            {
-                return true;
-            }
-
-            if (Parent == null)
-            {
-                return Navigation.DeclaringEntityType.ClrType != rootType
-                    && Navigation.DeclaringEntityType.GetAllBaseTypes().Any(t => t.ClrType == rootType);
-            }
-            else
-            {
-                return Parent.OptionalNavigationInChain(rootType);
-            }
-        }
     }
 
     public class NavigationFindingExpressionVisitor : ExpressionVisitor
@@ -543,8 +514,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (parameterExpression == _sourceParameter
                 && navigations.Any())
             {
-                // TODO: optimize this
-                var navigationPath = NavigationPathNode.Create(navigations);
+                var inheritanceRoot = navigations[0].ClrType != parameterExpression.Type
+                    && navigations[0].DeclaringEntityType.GetAllBaseTypes().Any(t => t.ClrType == parameterExpression.Type);
+
+                var navigationPath = NavigationPathNode.Create(navigations, inheritanceRoot);
                 if (!FoundNavigationPaths.Any(p => p.Contains(navigationPath)))
                 {
                     var success = false;

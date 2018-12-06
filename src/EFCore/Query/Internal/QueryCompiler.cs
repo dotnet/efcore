@@ -13,11 +13,12 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -125,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return CompileQueryCore<TResult>(query, _queryModelGenerator, _database, _logger, _contextType);
         }
 
-        private class TransparentIdentifierRemovingExpressionVisitor : ExpressionVisitorBase
+        private class TransparentIdentifierRemovingExpressionVisitor : RelinqExpressionVisitor
         {
             private static Expression ExtractFromTransparentIdentifier(MemberExpression memberExpression, Stack<string> extractionPath)
             {
@@ -163,7 +164,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return memberExpression;
             }
 
-
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
                 if (memberExpression.Member.Name == "Outer"
@@ -175,6 +175,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     return base.VisitMember(memberExpression);
                 }
+            }
+
+            protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+            {
+                subQueryExpression.QueryModel.TransformExpressions(Visit);
+
+                return base.VisitSubQuery(subQueryExpression);
             }
         }
 
