@@ -866,13 +866,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var subSelectExpression = subQueryModelVisitor.Queries.First();
 
-                if ((subSelectExpression.OrderBy.Count == 0
-                     || subSelectExpression.Limit != null
-                     || subSelectExpression.Offset != null)
-                    && (QueryCompilationContext.IsLateralJoinSupported
-                        || !subSelectExpression.IsCorrelated()
-                        || !(querySource is AdditionalFromClause)))
+                if (QueryCompilationContext.IsLateralJoinSupported
+                    || !subSelectExpression.IsCorrelated()
+                    || !(querySource is AdditionalFromClause))
                 {
+                    if (subSelectExpression.OrderBy.Count > 0
+                        && subSelectExpression.Limit == null
+                        && subSelectExpression.Offset == null)
+                    {
+                        subSelectExpression.Offset = Expression.Constant(0);
+                    }
+
                     var groupByNotRequiringPushdown = subSelectExpression.GroupBy.Count > 0
                                                       && subQueryModel.ResultOperators.LastOrDefault() is GroupResultOperator;
 

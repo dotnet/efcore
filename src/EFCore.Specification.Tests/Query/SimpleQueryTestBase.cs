@@ -631,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     /* non-deterministic */
                 });
         }
-        
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Skip_orderby_const(bool isAsync)
@@ -2957,7 +2957,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         c.CustomerID,
                         o.OrderID
                     },
-                assertOrder: true);
+                assertOrder: false);
         }
 
         [ConditionalTheory]

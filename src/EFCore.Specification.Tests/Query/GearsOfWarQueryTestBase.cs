@@ -1971,6 +1971,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                     },
                 elementSorter: e => e.FullName);
         }
+        
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_order_by_without_skip_or_take(bool isAsync)
+        {
+            return AssertQuery<Gear, Weapon>(
+                isAsync,
+                (gs, ws) =>
+                    from g in gs
+                    join w in ws.OrderBy(ww => ww.Name) on g.FullName equals w.OwnerFullName
+                    select new { w.Name, g.FullName },
+                elementSorter: w => w.Name);
+        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -3357,7 +3370,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Subquery_is_not_lifted_from_additional_from_clause(bool isAsync)
+        public virtual Task Subquery_is_lifted_from_additional_from_clause(bool isAsync)
         {
             return AssertQuery<Gear>(
                 isAsync,
