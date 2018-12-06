@@ -438,7 +438,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test21
         [Fact]
         public virtual void AlterColumnOperation_with_index_included_column()
         {
@@ -519,7 +518,6 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void AlterColumnOperation_with_index_no_oldColumn()
@@ -949,7 +947,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test21
         [Fact]
         public virtual void CreateIndexOperation_with_include()
         {
@@ -1060,7 +1057,6 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique_bound_null()
@@ -1277,7 +1273,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if  !Test21
         [Fact]
         public virtual void MoveSequenceOperation_into_default()
         {
@@ -1295,7 +1290,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void MoveTableOperation_legacy()
@@ -1331,7 +1325,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test21
         [Fact]
         public virtual void MoveTableOperation_into_default()
         {
@@ -1349,7 +1342,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void RenameColumnOperation()

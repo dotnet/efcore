@@ -17,20 +17,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
-   <DefineConstants>$(DefineConstants);Test21</DefineConstants>
-  </PropertyGroup>
 
-  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' == '0.0.0'">
-    <ProjectReference Include="..\..\src\EFCore.Sqlite.NTS\EFCore.Sqlite.NTS.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' != '0.0.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(FunctionalTests_PackageVersion)" />
-  </ItemGroup>
-  
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.Sqlite.NTS\EFCore.Sqlite.NTS.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
   </ItemGroup>
 

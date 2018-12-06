@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-#if !Test21
     public class SpatialQuerySqlServerGeometryFixture : SpatialQuerySqlServerFixture
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
@@ -50,5 +49,4 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : base.FindMapping(mappingInfo);
         }
     }
-#endif
 }

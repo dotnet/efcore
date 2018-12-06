@@ -9,7 +9,6 @@ using NetTopologySuite;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-#if !Test21
     public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialContext>, IQueryFixtureBase
     {
         private IGeometryFactory _geometryFactory;
@@ -59,5 +58,4 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(SpatialContext context)
             => SpatialContext.Seed(context, GeometryFactory);
     }
-#endif
 }

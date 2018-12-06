@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test21
     [SpatialiteRequired]
     public class SpatialSqliteTest : SpatialTestBase<SpatialSqliteFixture>
     {
@@ -19,5 +18,4 @@ namespace Microsoft.EntityFrameworkCore
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
     }
-#endif
 }

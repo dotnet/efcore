@@ -8,10 +8,6 @@
     <CodeAnalysisRuleSet>..\..\..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
-    <DefineConstants>$(DefineConstants);Test21</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Remove="config.json" />
   </ItemGroup>

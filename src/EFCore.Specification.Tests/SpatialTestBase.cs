@@ -14,7 +14,6 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test21
     public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : SpatialFixtureBase, new()
     {
@@ -150,5 +149,4 @@ namespace Microsoft.EntityFrameworkCore
 
         protected SpatialContext CreateContext() => Fixture.CreateContext();
     }
-#endif
 }

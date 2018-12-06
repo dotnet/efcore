@@ -13,23 +13,12 @@
     </None>
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
-   <DefineConstants>$(DefineConstants);Test21</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' == '0.0.0'">
-    <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' != '0.0.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(FunctionalTests_PackageVersion)" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <Reference Include="System.Transactions" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
   </ItemGroup>
 

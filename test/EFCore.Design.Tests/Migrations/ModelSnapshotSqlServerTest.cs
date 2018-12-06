@@ -2649,7 +2649,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         #endregion
 
         #region SeedData
-#if !Test21
         [Fact]
         public virtual void SeedData_annotations_are_stored_in_snapshot()
         {
@@ -3126,7 +3125,6 @@ namespace RootNamespace
                         Assert.Equal((short)-128, seed["EnumS8"]);
                     }));
         }
-#endif
 
         #endregion
 
@@ -3141,10 +3139,8 @@ namespace RootNamespace
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),
-#if !Test21
             BuildReference.ByName("GeoAPI"),
             BuildReference.ByName("NetTopologySuite"),
-#endif
         };
 
         protected virtual string AddBoilerPlate(string code, bool usingSystem = false)

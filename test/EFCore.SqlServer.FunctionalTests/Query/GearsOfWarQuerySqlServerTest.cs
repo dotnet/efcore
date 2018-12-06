@@ -3223,7 +3223,7 @@ FROM [Missions] AS [m]");
                 @"SELECT DATEADD(millisecond, 300.0E0, [m].[Timeline])
 FROM [Missions] AS [m]");
         }
-        
+
         public override void Where_datetimeoffset_milliseconds_parameter_and_constant()
         {
             base.Where_datetimeoffset_milliseconds_parameter_and_constant();
@@ -5908,7 +5908,6 @@ WHERE [g.Squad.Members.Weapons].[IsAutomatic] = 1
 ORDER BY [t7].[Note], [t7].[Nickname] DESC, [t7].[SquadId], [t7].[Id], [t7].[Nickname0], [t7].[SquadId0], [t7].[FullName]");
         }
 
-#if !Test21
         public override async Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join(bool isAsync)
         {
             await base.Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join(isAsync);
@@ -5959,7 +5958,6 @@ INNER JOIN (
 WHERE [w.Owner.Squad.Members.Weapons].[IsAutomatic] = 0
 ORDER BY [t4].[Name], [t4].[Id], [t4].[Id0], [t4].[FullName] DESC, [t4].[Nickname], [t4].[SquadId], [w.Owner.Squad.Members.Weapons].[Id]");
         }
-#endif
 
         public override async Task Correlated_collections_complex_scenario1(bool isAsync)
         {
@@ -7336,7 +7334,6 @@ WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[Has
 ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
 
-#if !Test21
         public override async Task Correlated_collection_with_very_complex_order_by(bool isAsync)
         {
             await base.Correlated_collection_with_very_complex_order_by(isAsync);
@@ -7388,7 +7385,6 @@ INNER JOIN (
 WHERE [o.Reports].[Discriminator] IN (N'Officer', N'Gear') AND ([o.Reports].[HasSoulPatch] = 0)
 ORDER BY [t].[c], [t].[Nickname], [t].[SquadId]");
         }
-#endif
 
         public override async Task Cast_to_derived_type_after_OfType_works(bool isAsync)
         {
@@ -7703,7 +7699,6 @@ WHERE [c.StationedGears].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [t].[Name], [c.StationedGears].[Nickname] DESC");
         }
 
-#if !Test21
         public override async Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(bool isAsync)
         {
             await base.Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(isAsync);
@@ -7723,7 +7718,6 @@ INNER JOIN (
 ) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
 ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
         }
-#endif
 
         public override async Task Double_order_by_on_nullable_bool_coming_from_optional_navigation(bool isAsync)
         {

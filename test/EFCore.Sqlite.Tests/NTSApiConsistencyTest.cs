@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test21
     public class NTSApiConsistencyTest : ApiConsistencyTestBase
     {
         private static readonly Type[] _fluentApiTypes =
@@ -28,5 +27,4 @@ namespace Microsoft.EntityFrameworkCore
         protected override Assembly TargetAssembly
             => typeof(SqliteNetTopologySuiteServiceCollectionExtensions).GetTypeInfo().Assembly;
     }
-#endif
 }

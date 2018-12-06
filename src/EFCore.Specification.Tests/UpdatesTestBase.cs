@@ -186,7 +186,6 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("MegaChips", context.ProductWithBytes.Find(productId).Name));
         }
 
-#if !Test21
         [Fact]
         public virtual void Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
@@ -221,7 +220,6 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context => Assert.Equal("GigaChips", context.ProductWithBytes.Find(productId).Name));
         }
-#endif
 
         [Fact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
@@ -259,7 +257,6 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("MegaChips", context.ProductWithBytes.Find(productId).Name));
         }
 
-#if !Test21
         [Fact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
@@ -294,7 +291,6 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context => Assert.Null(context.ProductWithBytes.Find(productId)));
         }
-#endif
 
         [Fact]
         public virtual void Can_remove_partial()

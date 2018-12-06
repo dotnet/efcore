@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test21
     public class SpatialSqlServerFixture : SpatialFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
@@ -43,5 +42,4 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<GeoPointEntity>().Property(e => e.Location).HasColumnType("geometry");
         }
     }
-#endif
 }

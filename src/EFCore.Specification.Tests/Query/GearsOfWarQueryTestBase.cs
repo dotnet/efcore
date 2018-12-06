@@ -2866,7 +2866,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ms => from m in ms
                       select m.Timeline.AddMilliseconds(300));
         }
-        
+
         [ConditionalFact]
         public virtual void Where_datetimeoffset_milliseconds_parameter_and_constant()
         {
@@ -2877,7 +2877,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // Parameter where clause
                 Assert.Equal(1, ctx.Missions.Where(m => m.Timeline == dateTimeOffset).Count());
 
-                // Literal where clause 
+                // Literal where clause
                 var p = System.Linq.Expressions.Expression.Parameter(typeof(Mission), "i");
                 var dynamicWhere = System.Linq.Expressions.Expression.Lambda<Func<Mission, bool>>(
                     System.Linq.Expressions.Expression.Equal(
@@ -5240,7 +5240,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         elementAsserter: (ee, aa) => CollectionAsserter<Weapon>(eee => eee.Id, (eee, aaa) => Assert.Equal(eee.Id, aaa.Id))));
         }
 
-#if !Test21
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join(bool isAsync)
@@ -5270,7 +5269,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         })(e, a);
                 });
         }
-#endif
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -6507,7 +6505,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
         }
 
-#if !Test21
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_with_very_complex_order_by(bool isAsync)
@@ -6520,7 +6517,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
         }
-#endif
 
         [ConditionalFact]
         public virtual void Cast_to_derived_type_causes_client_eval()
@@ -6710,7 +6706,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
-#if !Test21
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(bool isAsync)
@@ -6728,7 +6723,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CollectionAsserter<string>(ee => ee)(e.Weapons, a.Weapons);
                 });
         }
-#endif
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

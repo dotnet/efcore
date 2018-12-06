@@ -3,7 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-#if !Test21
     public class SpatialQueryInMemoryTest : SpatialQueryTestBase<SpatialQueryInMemoryFixture>
     {
         public SpatialQueryInMemoryTest(SpatialQueryInMemoryFixture fixture)
@@ -11,5 +10,4 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
     }
-#endif
 }

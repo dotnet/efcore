@@ -12,7 +12,6 @@ using NetTopologySuite;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-#if !Test21
     public class SpatialQuerySqlServerGeographyFixture : SpatialQuerySqlServerFixture
     {
         private IGeometryServices _geometryServices;
@@ -58,5 +57,4 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : base.FindMapping(mappingInfo);
         }
     }
-#endif
 }

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-#if !Test21
     public abstract class SpatialQueryRelationalFixture : SpatialQueryFixtureBase
     {
         public new RelationalTestStore TestStore
@@ -19,5 +18,4 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Query.Name;
     }
-#endif
 }

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test21
     public class SpatialSqlServerTest : SpatialTestBase<SpatialSqlServerFixture>
     {
         public SpatialSqlServerTest(SpatialSqlServerFixture fixture)
@@ -17,5 +16,4 @@ namespace Microsoft.EntityFrameworkCore
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
     }
-#endif
 }

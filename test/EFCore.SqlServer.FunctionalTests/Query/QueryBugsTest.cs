@@ -3453,7 +3453,6 @@ ORDER BY [t].[Id]");
 
         #region Bug10168
 
-#if !Test21
         [Fact]
         public void Row_number_paging_with_owned_type()
         {
@@ -3499,7 +3498,6 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
             }
         }
-#endif
 
         public class MyContext10168 : DbContext
         {
@@ -4893,7 +4891,6 @@ FROM [Prices] AS [e]");
 
         #region Bug13118
 
-#if !Test21
         [Fact]
         public virtual void DateTime_Contains_with_smalldatetime_generates_correct_literal()
         {
@@ -4915,7 +4912,6 @@ WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
                 }
             }
         }
-#endif
 
         private SqlServerTestStore CreateDatabase13118()
         {

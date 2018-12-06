@@ -846,7 +846,6 @@ DROP TYPE dbo.TestTypeAlias;
 DROP TYPE db2.TestTypeAlias;");
         }
 
-#if !Test21
         [Fact]
         public void Column_with_sysname_assigns_underlying_store_type_and_nullability()
         {
@@ -869,7 +868,6 @@ CREATE TABLE TypeAlias (
                 @"
 DROP TABLE TypeAlias;");
         }
-#endif
 
         [Fact]
         public void Decimal_numeric_types_have_precision_scale()

@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test21
     public class SpatialSqliteFixture : SpatialFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
@@ -25,5 +24,4 @@ namespace Microsoft.EntityFrameworkCore
             return optionsBuilder;
         }
     }
-#endif
 }

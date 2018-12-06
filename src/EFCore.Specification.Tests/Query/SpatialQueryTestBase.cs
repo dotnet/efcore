@@ -12,7 +12,6 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-#if !Test21
     public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : SpatialQueryFixtureBase, new()
     {
@@ -1360,5 +1359,4 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
     }
-#endif
 }

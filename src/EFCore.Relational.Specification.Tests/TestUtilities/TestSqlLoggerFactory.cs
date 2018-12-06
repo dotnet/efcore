@@ -37,13 +37,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
-#if Test21
-            if (expected != null)
-            {
-                return;
-            }
-#endif
-
             if (_proceduralQueryGeneration)
             {
                 return;
