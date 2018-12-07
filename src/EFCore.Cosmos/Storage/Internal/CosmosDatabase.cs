@@ -87,6 +87,51 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return rowsAffected;
         }
 
+        public override async Task<int> SaveChangesAsync(
+            IReadOnlyList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
+        {
+            var rowsAffected = 0;
+            var entriesSaved = new HashSet<IUpdateEntry>();
+            var rootEntriesToSave = new HashSet<IUpdateEntry>();
+
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                var entityType = entry.EntityType;
+
+                Debug.Assert(!entityType.IsAbstract());
+                if (!entityType.IsDocumentRoot())
+                {
+                    var root = GetRootDocument((InternalEntityEntry)entry);
+                    if (!entriesSaved.Contains(root)
+                        && rootEntriesToSave.Add(root)
+                        && root.EntityState == EntityState.Unchanged)
+                    {
+                        ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
+                    }
+                    continue;
+                }
+
+                entriesSaved.Add(entry);
+                if (await SaveAsync(entry, cancellationToken))
+                {
+                    rowsAffected++;
+                }
+            }
+
+            foreach (var rootEntry in rootEntriesToSave)
+            {
+                if (!entriesSaved.Contains(rootEntry)
+                    && await SaveAsync(rootEntry, cancellationToken))
+                {
+                    rowsAffected++;
+                }
+            }
+
+            return rowsAffected;
+        }
+
         private bool Save(IUpdateEntry entry)
         {
             var entityType = entry.EntityType;
@@ -118,11 +163,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         : null;
                     if (document != null)
                     {
-                        documentSource.UpdateDocument(document, entry);
+                        if (documentSource.UpdateDocument(document, entry) == null)
+                        {
+                            return false;
+                        }
                     }
                     else
                     {
                         document = documentSource.CreateDocument(entry);
+
+                        document[entityType.Cosmos().DiscriminatorProperty.Cosmos().PropertyName] =
+                            JToken.FromObject(entityType.Cosmos().DiscriminatorValue);
                     }
 
                     return _cosmosClient.ReplaceDocument(
@@ -132,49 +183,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 default:
                     return false;
             }
-        }
-
-        public override async Task<int> SaveChangesAsync(
-            IReadOnlyList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
-        {
-            var rowsAffected = 0;
-            var entriesSaved = new HashSet<IUpdateEntry>();
-            var rootEntriesToSave = new HashSet<IUpdateEntry>();
-
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (var i = 0; i < entries.Count; i++)
-            {
-                var entry = entries[i];
-                var entityType = entry.EntityType;
-
-                Debug.Assert(!entityType.IsAbstract());
-                if (!entityType.IsDocumentRoot())
-                {
-                    var root = GetRootDocument((InternalEntityEntry)entry);
-                    if (!entriesSaved.Contains(root))
-                    {
-                        rootEntriesToSave.Add(root);
-                    }
-                    continue;
-                }
-
-                entriesSaved.Add(entry);
-                if (await SaveAsync(entry, cancellationToken))
-                {
-                    rowsAffected++;
-                }
-            }
-
-            foreach (var rootEntry in rootEntriesToSave)
-            {
-                if (!entriesSaved.Contains(rootEntry)
-                    && await SaveAsync(rootEntry, cancellationToken))
-                {
-                    rowsAffected++;
-                }
-            }
-
-            return rowsAffected;
         }
 
         private Task<bool> SaveAsync(IUpdateEntry entry, CancellationToken cancellationToken)
@@ -208,14 +216,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         : null;
                     if (document != null)
                     {
-                        documentSource.UpdateDocument(document, entry);
+                        if (documentSource.UpdateDocument(document, entry) == null)
+                        {
+                            return Task.FromResult(false);
+                        }
                     }
                     else
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        // Set Discriminator Property for updates
-                        document[entityType.Cosmos().DiscriminatorProperty.Name] =
+                        document[entityType.Cosmos().DiscriminatorProperty.Cosmos().PropertyName] =
                             JToken.FromObject(entityType.Cosmos().DiscriminatorValue);
                     }
 

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
@@ -178,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                     var entry = context.Entry(customer);
                     entry.Property<string>("id").CurrentValue = storeId;
+
                     entry.State = EntityState.Modified;
 
                     await context.SaveChangesAsync();
@@ -248,6 +250,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     var entry = context.Entry(customerFromStore);
                     Assert.Equal("theon.g@winterfell.com", entry.Property<string>("EMail").CurrentValue);
 
+                    var json = entry.Property<JObject>("__jObject").CurrentValue;
+                    Assert.Equal("theon.g@winterfell.com", json["e-mail"]);
+
                     context.Remove(customerFromStore);
 
                     context.SaveChanges();
@@ -265,7 +270,53 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.HasDefaultContainerName(nameof(CustomerContext));
-                modelBuilder.Entity<Customer>().Property<string>("EMail");
+                modelBuilder.Entity<Customer>().Property<string>("EMail").ToProperty("e-mail");
+            }
+        }
+
+        [ConditionalFact]
+        public void Can_use_non_persisted_properties()
+        {
+            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            {
+                var options = Fixture.CreateOptions(testDatabase);
+
+                var customer = new Customer { Id = 42, Name = "Theon" };
+
+                using (var context = new UnmpappedCustomerContext(options))
+                {
+                    context.Database.EnsureCreated();
+
+                    var entry = context.Add(customer);
+
+                    context.SaveChanges();
+                    Assert.Equal("Theon", customer.Name);
+                }
+
+                using (var context = new UnmpappedCustomerContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Null(customerFromStore.Name);
+
+                    customerFromStore.Name = "Theon Greyjoy";
+
+                    Assert.Equal(0, context.SaveChanges());
+                }
+            }
+        }
+
+        public class UnmpappedCustomerContext : CustomerContext
+        {
+            public UnmpappedCustomerContext(DbContextOptions dbContextOptions)
+                : base(dbContextOptions)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Customer>().Property(c => c.Name).ToProperty("");
             }
         }
 
@@ -339,6 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 using (var context = new ConflictingIdContext(options))
                 {
                     entity.Name = "Theon Greyjoy";
+
                     context.Update(entity);
 
                     await context.SaveChangesAsync();

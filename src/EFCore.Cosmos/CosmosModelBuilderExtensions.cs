@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     Cosmos-specific extension methods for <see cref="ModelBuilder" />.
+    /// </summary>
     public static class CosmosModelBuilderExtensions
     {
         /// <summary>

@@ -42,5 +42,21 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The Cosmos-specific metadata for the entity type. </returns>
         public static CosmosEntityTypeAnnotations Cosmos(this IMutableEntityType entityType)
             => (CosmosEntityTypeAnnotations)Cosmos((IEntityType)entityType);
+
+        /// <summary>
+        ///     Gets the Cosmos-specific metadata for a property.
+        /// </summary>
+        /// <param name="property"> The property to get metadata for. </param>
+        /// <returns> The Cosmos-specific metadata for the property. </returns>
+        public static ICosmosPropertyAnnotations Cosmos(this IProperty property)
+            => new CosmosPropertyAnnotations(property);
+
+        /// <summary>
+        ///     Gets the Cosmos-specific metadata for a property.
+        /// </summary>
+        /// <param name="property"> The property to get metadata for. </param>
+        /// <returns> The Cosmos-specific metadata for the property. </returns>
+        public static CosmosPropertyAnnotations Cosmos(this IMutableProperty property)
+            => (CosmosPropertyAnnotations)Cosmos((IProperty)property);
     }
 }

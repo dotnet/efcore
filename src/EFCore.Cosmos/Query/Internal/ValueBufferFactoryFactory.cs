@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
@@ -34,18 +35,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private static Expression CreateGetValueExpression(
             Expression jObjectExpression,
-            IPropertyBase property)
+            IProperty property)
         {
             if (property.Name == StoreKeyConvention.JObjectPropertyName)
             {
                 return jObjectExpression;
             }
 
+            var storeName = property.Cosmos().PropertyName;
+            if (storeName.Length == 0)
+            {
+                var type = property.FindMapping()?.ClrType
+                    ?? property.GetValueConverter()?.ProviderClrType
+                    ?? property.ClrType;
+
+                return Expression.Default(type);
+            }
+
             var expression = Expression.Convert(
                 Expression.Call(
                     jObjectExpression,
                     _getItemMethodInfo,
-                    Expression.Constant(property.Name)),
+                    Expression.Constant(storeName)),
                 property.ClrType);
 
             return property.ClrType.IsValueType

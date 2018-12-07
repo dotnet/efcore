@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
                 entityTypeBuilder.HasKey(new[] { idProperty.Metadata }, ConfigurationSource.Convention);
 
                 var jObjectProperty = entityTypeBuilder.Property(JObjectPropertyName, typeof(JObject), ConfigurationSource.Convention);
+                jObjectProperty.Cosmos(ConfigurationSource.Convention).ToProperty("");
             }
             else
             {

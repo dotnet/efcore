@@ -36,10 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
             {
-                if (property.Name != StoreKeyConvention.JObjectPropertyName)
+                var storeName = property.Cosmos().PropertyName;
+                if (storeName != "")
                 {
                     var value = entry.GetCurrentValue(property);
-                    document[property.Name] = value != null ? JToken.FromObject(value) : null;
+                    document[storeName] = value != null ? JToken.FromObject(value) : null;
                 }
             }
 
@@ -81,15 +82,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
         public JObject UpdateDocument(JObject document, IUpdateEntry entry)
         {
+            var anyPropertyUpdated = false;
             foreach (var property in entry.EntityType.GetProperties())
             {
-                if (property.Name != StoreKeyConvention.JObjectPropertyName
-                    && property.Name != StoreKeyConvention.IdPropertyName
-                    && (entry.EntityState == EntityState.Added
-                        || entry.IsModified(property)))
+                if (entry.EntityState == EntityState.Added
+                    || entry.IsModified(property))
                 {
-                    var value = entry.GetCurrentValue(property);
-                    document[property.Name] = value != null ? JToken.FromObject(value) : null;
+                    var storeName = property.Cosmos().PropertyName;
+                    if (storeName != "")
+                    {
+                        var value = entry.GetCurrentValue(property);
+                        document[storeName] = value != null ? JToken.FromObject(value) : null;
+                        anyPropertyUpdated = true;
+                    }
                 }
             }
 
@@ -107,7 +112,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 var nestedValue = entry.GetCurrentValue(ownedNavigation);
                 if (nestedValue == null)
                 {
-                    document[ownedNavigation.Name] = null;
+                    if (document[ownedNavigation.Name] != null)
+                    {
+                        document[ownedNavigation.Name] = null;
+                        anyPropertyUpdated = true;
+                    }
                 }
                 else if (fk.IsUnique)
                 {
@@ -117,17 +126,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         return document;
                     }
 
-                    var nestedDocument = (JObject)document[ownedNavigation.Name];
-                    if (nestedDocument != null)
+                    if (document[ownedNavigation.Name] is JObject nestedDocument)
                     {
-                        nestedDocumentSource.UpdateDocument(nestedDocument, nestedEntry);
+                        nestedDocument = nestedDocumentSource.UpdateDocument(nestedDocument, nestedEntry);
                     }
                     else
                     {
                         nestedDocument = nestedDocumentSource.CreateDocument(nestedEntry);
                     }
 
-                    document[ownedNavigation.Name] = nestedDocument;
+                    if (nestedDocument != null)
+                    {
+                        document[ownedNavigation.Name] = nestedDocument;
+                        anyPropertyUpdated = true;
+                    }
                 }
                 else
                 {
@@ -144,10 +156,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     }
 
                     document[ownedNavigation.Name] = array;
+                    anyPropertyUpdated = true;
                 }
             }
 
-            return document;
+            return anyPropertyUpdated ? document : null;
         }
     }
 }

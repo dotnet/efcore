@@ -162,13 +162,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
         private static Expression CreateGetValueExpression(
             Expression jObjectExpression,
             IPropertyBase property)
-        {
-            return Expression.Convert(
+            => Expression.Convert(
                 Expression.Call(
                     jObjectExpression,
                     _getItemMethodInfo,
-                    Expression.Constant(property.Name)),
+                    Expression.Constant((property as IProperty)?.Cosmos().PropertyName ?? property.Name)),
                 property.ClrType);
-        }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Cosmos specific extension methods for <see cref="EntityTypeBuilder" />.
+    ///     Cosmos-specific extension methods for <see cref="EntityTypeBuilder" />.
     /// </summary>
     public static class CosmosEntityTypeBuilderExtensions
     {

@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
     {
         public const string Prefix = "Cosmos:";
         public const string ContainerName = Prefix + "ContainerName";
+        public const string PropertyName = Prefix + "PropertyName";
         public const string DiscriminatorProperty = Prefix + "DiscriminatorProperty";
         public const string DiscriminatorValue = Prefix + "DiscriminatorValue";
     }
