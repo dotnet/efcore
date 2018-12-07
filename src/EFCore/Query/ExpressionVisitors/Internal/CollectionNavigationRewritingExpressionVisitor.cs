@@ -68,7 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            var properties = Binder.GetPropertyPath(memberExpression, _model, out var parameterExpression);
+            var properties = Binder.GetPropertyPath(
+                memberExpression,
+                _model,
+                selectorMapping: new List<(List<string> from, List<INavigation> to)>(),
+                out var parameterExpression);
+
             if (properties.Any()
                 && properties.All(p => p is INavigation)
                 && properties.Last() is INavigation navigation

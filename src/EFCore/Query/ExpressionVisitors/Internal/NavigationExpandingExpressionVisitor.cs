@@ -64,14 +64,151 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return newExpression;
         }
 
+        private Expression ProcessSelect(MethodCallExpression methodCallExpression)
+        {
+            var source = Visit(methodCallExpression.Arguments[0]);
+            var selector = Visit(methodCallExpression.Arguments[1]);
+            var parameter = (selector.UnwrapQuote() as LambdaExpression).Parameters[0];
+            var transparentIdentifierAccessorMapping = new List<(List<string> from, List<string> to)>();
+            var selectorMapping = new List<(List<string> from, List<INavigation> to)>();
+            var foundNavigations = new List<NavigationPathNode>();
+            var finalProjectionPath = new List<string>();
+            var newParameter = parameter;
+
+            if (source is NavigationExpansionExpression navigationExpansionExpression)
+            {
+                source = navigationExpansionExpression.Operand;
+                newParameter = navigationExpansionExpression.ParameterExpression;
+                transparentIdentifierAccessorMapping = navigationExpansionExpression.TransparentIdentifierAccessorMapping;
+                selectorMapping = navigationExpansionExpression.SelectorMapping;
+                foundNavigations = navigationExpansionExpression.FoundNavigations;
+                finalProjectionPath = navigationExpansionExpression.FinalProjectionPath;
+            }
+
+            var nfev = new NavigationFindingExpressionVisitor(_model, parameter, selectorMapping, foundNavigations);
+            nfev.Visit(selector);
+
+            var result = (source, parameter: newParameter);
+
+            if (nfev.FoundNavigationPaths.Any())
+            {
+                foreach (var navigationPath in nfev.FoundNavigationPaths)
+                {
+                    result = AddNavigationJoin(
+                        result.source,
+                        result.parameter,
+                        navigationPath,
+                        /*navigationPathNames*/ new List<string>(),
+                        finalProjectionPath,
+                        transparentIdentifierAccessorMapping);
+                }
+            }
+
+            var foo = new Foo(_model, parameter, selectorMapping);
+            foo.Visit(selector);
+
+            selectorMapping = foo.NewSelectorMapping;
+
+            var newSource = result.source;
+            var nrev = new NavigationReplacingExpressionVisitor(
+                _model,
+                parameter,
+                result.parameter,
+                transparentIdentifierAccessorMapping,
+                selectorMapping);
+
+            var newSelector = nrev.Visit(selector);
+
+            var newMethodInfo = QueryableSelectMethodInfo.MakeGenericMethod(
+                result.parameter.Type,
+                (selector.UnwrapQuote() as LambdaExpression).Body.Type);
+
+            var rewritten = Expression.Call(newMethodInfo, newSource, newSelector);
+            finalProjectionPath.Clear();
+            transparentIdentifierAccessorMapping.Clear(); // is this correct?
+
+            return new NavigationExpansionExpression(
+                rewritten,
+                result.parameter,
+                transparentIdentifierAccessorMapping,
+                selectorMapping,
+                foundNavigations,
+                finalProjectionPath,
+                methodCallExpression.Type);
+        }
+
+        private class Foo : ExpressionVisitor
+        {
+            private IModel _model;
+            private ParameterExpression _lambdaParameter;
+            private List<(List<string> from, List<INavigation> to)> _selectorMapping;
+            private List<string> _currentPath = new List<string>();
+
+            public List<(List<string> from, List<INavigation> to)> NewSelectorMapping { get; }
+                = new List<(List<string> from, List<INavigation> to)>();
+
+            public Foo(
+                IModel model,
+                ParameterExpression lambdaParameter,
+                List<(List<string> from, List<INavigation> to)> selectorMapping)
+            {
+                _model = model;
+                _lambdaParameter = lambdaParameter;
+                _selectorMapping = selectorMapping;
+            }
+
+            protected override Expression VisitNew(NewExpression newExpression)
+            {
+                for (var i = 0; i < newExpression.Arguments.Count; i++)
+                {
+                    _currentPath.Add(newExpression.Members[i].Name);
+                    var argument = Visit(newExpression.Arguments[i]);
+
+                    var properties = Binder.GetPropertyPath(
+                        newExpression.Arguments[i],
+                        _model,
+                        _selectorMapping,
+                        out var parameterExpression);
+
+                    if (parameterExpression == _lambdaParameter
+                        && properties.Any()
+                        && properties.All(p => p is INavigation))
+                    {
+                        var to = properties.Cast<INavigation>().ToList();
+                        NewSelectorMapping.Add((from: _currentPath.ToList(), to));
+                    }
+
+                    _currentPath.RemoveAt(_currentPath.Count - 1);
+                }
+
+                return newExpression;
+            }
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            if (methodCallExpression.Method.MethodIsClosedFormOf(QueryableSelectMethodInfo))
+            {
+                var result = ProcessSelect(methodCallExpression);
+
+                return result;
+            }
+
+
+
+
+
+
+
+
+
             if (methodCallExpression.Method.MethodIsClosedFormOf(QueryableWhereMethodInfo))
             {
                 var source = Visit(methodCallExpression.Arguments[0]);
                 var predicate = Visit(methodCallExpression.Arguments[1]);
                 var parameter = (predicate.UnwrapQuote() as LambdaExpression).Parameters[0];
                 var transparentIdentifierAccessorMapping = new List<(List<string> from, List<string> to)>();
+                var selectorMapping = new List<(List<string> from, List<INavigation> to)>();
                 var foundNavigations = new List<NavigationPathNode>();
                 var finalProjectionPath = new List<string>();
                 var newParameter = parameter;
@@ -81,11 +218,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     source = navigationExpansionExpression.Operand;
                     newParameter = navigationExpansionExpression.ParameterExpression;
                     transparentIdentifierAccessorMapping = navigationExpansionExpression.TransparentIdentifierAccessorMapping;
+                    selectorMapping = navigationExpansionExpression.SelectorMapping;
                     foundNavigations = navigationExpansionExpression.FoundNavigations;
                     finalProjectionPath = navigationExpansionExpression.FinalProjectionPath;
                 }
 
-                var nfev = new NavigationFindingExpressionVisitor(_model, parameter, foundNavigations);
+                var nfev = new NavigationFindingExpressionVisitor(_model, parameter, selectorMapping, foundNavigations);
                 nfev.Visit(predicate);
 
                 var result = (source, parameter: newParameter);
@@ -105,7 +243,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 var newSource = result.source;
-                var nrev = new NavigationReplacingExpressionVisitor(_model, parameter, result.parameter, transparentIdentifierAccessorMapping);
+                var nrev = new NavigationReplacingExpressionVisitor(
+                    _model,
+                    parameter,
+                    result.parameter,
+                    transparentIdentifierAccessorMapping,
+                    selectorMapping);
+
                 var newPredicate = nrev.Visit(predicate);
 
                 var newMethodInfo = QueryableWhereMethodInfo.MakeGenericMethod(result.parameter.Type);
@@ -116,6 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     rewritten,
                     result.parameter,
                     transparentIdentifierAccessorMapping,
+                    selectorMapping,
                     foundNavigations,
                     finalProjectionPath,
                     methodCallExpression.Type);
@@ -494,19 +639,29 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private IModel _model;
         private ParameterExpression _sourceParameter;
+        private List<(List<string> from, List<INavigation> to)> _selectorMapping;
 
         public List<NavigationPathNode> FoundNavigationPaths { get; }
 
-        public NavigationFindingExpressionVisitor(IModel model, ParameterExpression sourceParameter, List<NavigationPathNode> foundNavigationPaths)
+        public NavigationFindingExpressionVisitor(
+            IModel model,
+            ParameterExpression sourceParameter,
+            List<(List<string> from, List<INavigation> to)> selectorMapping,
+            List<NavigationPathNode> foundNavigationPaths)
         {
             _model = model;
             _sourceParameter = sourceParameter;
+            _selectorMapping = selectorMapping;
             FoundNavigationPaths = foundNavigationPaths;
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var properties = Binder.GetPropertyPath(memberExpression, _model, out var parameterExpression);
+            var properties = Binder.GetPropertyPath(
+                memberExpression,
+                _model,
+                _selectorMapping,
+                out var parameterExpression);
 
             // there should be no collection navigations at this point
             // TODO: what about owned collections?
@@ -546,22 +701,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private ParameterExpression _sourceParameter;
         private ParameterExpression _transparentIdentifierParameter;
         private List<(List<string> from, List<string> to)> _transparentIdentifierAccessorMapping;
+        private List<(List<string> from, List<INavigation> to)> _selectorMapping;
 
         public NavigationReplacingExpressionVisitor(
             IModel model,
             ParameterExpression sourceParameter,
             ParameterExpression transparentIdentifierParameter,
-            List<(List<string> from, List<string> to)> transparentIdentifierAccessorMapping)
+            List<(List<string> from, List<string> to)> transparentIdentifierAccessorMapping,
+            List<(List<string> from, List<INavigation> to)> selectorMapping)
         {
             _model = model;
             _sourceParameter = sourceParameter;
             _transparentIdentifierParameter = transparentIdentifierParameter;
             _transparentIdentifierAccessorMapping = transparentIdentifierAccessorMapping;
+            _selectorMapping = selectorMapping;
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var properties = Binder.GetPropertyPath(memberExpression, _model, out var parameterExpression);
+            var properties = Binder.GetPropertyPath(memberExpression, _model, _selectorMapping, out var parameterExpression);
             if (parameterExpression == _sourceParameter
                 && properties.Any())
             {
@@ -640,11 +798,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public static List<IPropertyBase> GetPropertyPath(
             [NotNull] Expression expression,
             [NotNull] IModel model,
-            out ParameterExpression sourceExpression)
+            [NotNull] List<(List<string> from, List<INavigation> to)> selectorMapping,
+            out ParameterExpression sourceParameter)
         {
             Check.NotNull(expression, nameof(expression));
             Check.NotNull(model, nameof(model));
+            Check.NotNull(selectorMapping, nameof(selectorMapping));
 
+            var result = GetPropertPathInternal(expression, model, selectorMapping, out var sourceExpression);
+            sourceParameter = (ParameterExpression)sourceExpression;
+
+            return result;
+        }
+
+        private static List<IPropertyBase> GetPropertPathInternal(
+            Expression expression,
+            IModel model,
+            List<(List<string> from, List<INavigation> to)> selectorMapping,
+            out Expression sourceExpression)
+        {
             expression = expression.RemoveNullConditional();
             var memberExpression = expression as MemberExpression;
             var methodCallExpression = expression as MethodCallExpression;
@@ -688,7 +860,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 entityType = model.FindEntityType(innerExpression.Type);
             }
 
-            var innerProperties = GetPropertyPath(innerExpression, model, out var innerQsre);
+
+            //var fubarson = TryGetPropertyPathFromSelectorMappings(innerExpression, selectorMapping, out var innerQsre2);
+
+            var innerProperties = GetPropertPathInternal(innerExpression, model, selectorMapping, out var innerQsre);
+            if (innerQsre == null
+                && innerProperties.Count == 0
+                && selectorMapping.Any())
+            {
+                var navigations = TryGetPropertyPathFromSelectorMappings(innerExpression, selectorMapping, out innerQsre);
+                if (navigations != null && navigations.Any())
+                {
+                    innerProperties = navigations.OfType<IPropertyBase>().ToList();
+                }
+            }
 
             if (entityType == null)
             {
@@ -735,6 +920,42 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             sourceExpression = innerQsre;
 
             return innerProperties;
+        }
+
+        private static List<INavigation> TryGetPropertyPathFromSelectorMappings(
+            Expression expression,
+            List<(List<string> from, List<INavigation> to)> selectorMapping,
+            out Expression sourceExpression)
+        {
+            foreach (var selectorMappingElement in selectorMapping)
+            {
+                var currentExpression = expression;
+
+                var matchFound = true;
+                for (var i = selectorMappingElement.from.Count - 1; i >= 0; i--)
+                {
+                    if (currentExpression is MemberExpression memberExpression
+                        && selectorMappingElement.from[i] == memberExpression.Member.Name)
+                    {
+                        currentExpression = memberExpression.Expression;
+                    }
+                    else
+                    {
+                        matchFound = false;
+                        break;
+                    }
+                }
+
+                if (matchFound && currentExpression is ParameterExpression)
+                {
+                    sourceExpression = currentExpression;
+                    return selectorMappingElement.to.ToList();
+                }
+            }
+
+            sourceExpression = null;
+
+            return null;
         }
     }
 }

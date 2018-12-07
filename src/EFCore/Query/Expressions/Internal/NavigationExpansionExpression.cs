@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -42,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         public ParameterExpression ParameterExpression { get; }
 
         public List<(List<string> from, List<string> to)> TransparentIdentifierAccessorMapping { get; }
+        public List<(List<string> from, List<INavigation> to)> SelectorMapping { get; }
 
         public List<NavigationPathNode> FoundNavigations { get; }
 
@@ -51,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             Expression operand,
             ParameterExpression parameterExpression,
             List<(List<string> from, List<string> to)> transparentIdentifierAccessorMapping,
+            List<(List<string> from, List<INavigation> to)> selectorMapping,
             List<NavigationPathNode> foundNavigations,
             List<string> finalProjectionPath,
             Type returnType)
@@ -58,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             Operand = operand;
             ParameterExpression = parameterExpression;
             TransparentIdentifierAccessorMapping = transparentIdentifierAccessorMapping;
+            SelectorMapping = selectorMapping;
             FoundNavigations = foundNavigations;
             FinalProjectionPath = finalProjectionPath;
             _returnType = returnType;

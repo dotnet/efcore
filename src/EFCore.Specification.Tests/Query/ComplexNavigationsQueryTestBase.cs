@@ -5461,7 +5461,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 //            select l1.Id;
 
 
-                var query = ctx.LevelOne.Where(l1 => l1.OneToOne_Optional_FK1.OneToOne_Required_PK2.Name != "Foo").Where(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_PK2.OneToOne_Optional_PK3.Id > 0 );
+                var query = ctx.LevelOne.Select(c => new { Foo = new { Bar = c.OneToOne_Optional_PK1 } }).Where(r => r.Foo.Bar.OneToOne_Required_FK2.Name == "Foo");
+
+
+                //var query = ctx.LevelOne.Where(l1 => l1.OneToOne_Optional_FK1.OneToOne_Required_PK2.Name != "Foo").Where(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_PK2.OneToOne_Optional_PK3.Id > 0 );
 
                 //var query = ctx.LevelOne.Join(ctx.LevelTwo, l1 => (int?)l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2) => TransparentIdentifier<Level1, Level2>.CreateTransparentIdentifier(l1, l2))
                 //    .Join(ctx.LevelThree, t => (int?)t.Inner.Id, l3 => l3.Level2_Optional_Id, (t, l3) => TransparentIdentifier<TransparentIdentifier<Level1, Level2>, Level3>.CreateTransparentIdentifier(t, l3));
