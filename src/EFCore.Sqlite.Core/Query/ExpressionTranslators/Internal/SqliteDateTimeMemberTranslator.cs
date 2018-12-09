@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
@@ -109,8 +110,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                     break;
 
                 case nameof(DateTime.Date):
+
                     sqlArguments.Add(Expression.Constant(datetimeFormat));
-                    sqlArguments.Add(memberExpression.Expression);
+
+                    // If the inner call is another strftime then shortcut a double call
+                    if (memberExpression.Expression is SqlFunctionExpression rtrimFunction
+                        && rtrimFunction.FunctionName == "rtrim"
+                        && rtrimFunction.Arguments.Count == 2
+                        && rtrimFunction.Arguments[0] is SqlFunctionExpression rtrimFunction2
+                        && rtrimFunction2.FunctionName == "rtrim"
+                        && rtrimFunction2.Arguments.Count == 2
+                        && rtrimFunction2.Arguments[0] is SqlFunctionExpression strftimeFunction
+                        && strftimeFunction.FunctionName == "strftime"
+                        && strftimeFunction.Arguments.Count > 1)
+                    {
+                        // Use its timestring parameter directly in place of ours
+                        sqlArguments.Add(strftimeFunction.Arguments[1]);
+
+                        // Prepend its modifier arguments (if any) to the current call
+                        sqlArguments.AddRange(strftimeFunction.Arguments.Skip(2));
+                    }
+                    else
+                    {
+                        sqlArguments.Add(memberExpression.Expression);
+                    }
+
                     sqlArguments.Add(Expression.Constant("start of day"));
                     break;
 
