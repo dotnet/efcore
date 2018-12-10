@@ -695,9 +695,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem1 : class
             => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
+        // NB: Using Nullable<> instead of ? to work around dotnet/roslyn#31676
         public override async Task AssertQueryScalar<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult?>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TResult?>> expectedQuery,
+            Func<IQueryable<TItem1>, IQueryable<Nullable<TResult>>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<Nullable<TResult>>> expectedQuery,
             bool assertOrder,
             bool isAsync,
             string testMethodName)
@@ -747,9 +748,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem2 : class
             => AssertQueryScalar<TItem1, TItem2, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
 
+        // NB: Using Nullable<> instead of ? to work around dotnet/roslyn#31676
         public override async Task AssertQueryScalar<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> expectedQuery,
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<Nullable<TResult>>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<Nullable<TResult>>> expectedQuery,
             bool assertOrder,
             bool isAsync,
             string testMethodName)
