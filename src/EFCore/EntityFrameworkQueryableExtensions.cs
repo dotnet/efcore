@@ -2513,7 +2513,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         If the entity instances are modified, this will not be detected by the change tracker and
         ///         <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database. This is
         ///         not the same as a detached entity, and entity tracking conflicts can occur when attempting to 
-        ///         attach a separate tracked instance <see cref="DbContext.Entry<TEntity>(TEntity Entity)" />.  
+        ///         attach a separate tracked instance <see cref="DbContext.Entry{TEntity}(TEntity)" />.  
         ///     </para>
         ///     <para>
         ///         Disabling change tracking is useful for read-only scenarios because it avoids the overhead of setting
