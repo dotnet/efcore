@@ -2839,6 +2839,42 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Can_specify_shadow_identifying_fk()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Nob>(eb =>
+                {
+                    eb.Ignore(e => e.Hobs);
+                    eb.Ignore(e => e.Hob);
+
+                    eb.Property<Guid>("Id");
+                    eb.HasKey("Id");
+                });
+
+                modelBuilder.Entity<Hob>(eb =>
+                {
+                    eb.Ignore(e => e.Nobs);
+
+                    eb.HasOne(c => c.Nob)
+                        .WithOne()
+                        .HasForeignKey<Hob>("NobId");
+
+                    eb.HasKey("NobId");
+
+                    eb.HasOne(c => c.Nob)
+                        .WithOne()
+                        .HasForeignKey<Hob>("NobId")
+                        .IsRequired();
+                });
+
+                modelBuilder.Validate();
+
+                var dependent = modelBuilder.Model.FindEntityType(typeof(Hob));
+                var fk = dependent.GetForeignKeys().Single();
+                Assert.Equal(typeof(Guid), fk.Properties.Single().ClrType);
+            }
+
+            [Fact]
             public virtual void Throws_if_specified_FK_types_do_not_match()
             {
                 var modelBuilder = CreateModelBuilder();

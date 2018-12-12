@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     if (fkProperty.GetTypeConfigurationSource() == null
                         && (fkProperty.IsShadowProperty
-                            || fkProperty.PropertyInfo == null && fkProperty.GetFieldInfoConfigurationSource() == ConfigurationSource.Convention)
+                            || (fkProperty.PropertyInfo == null && fkProperty.GetFieldInfoConfigurationSource() == ConfigurationSource.Convention))
                         && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired)
                     {
                         fkProperty.DeclaringEntityType.Builder.Property(
