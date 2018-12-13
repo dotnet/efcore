@@ -249,7 +249,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && !property.GetContainingForeignKeys().Any(fk => fk.IsRequired))
                     {
                         // TODO: This should be handled by reference tracking, see #214
-                        property.Builder?.IsRequired(null, configurationSource);
+                        if ((AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue14126", out var isEnabled) && isEnabled))
+                        {
+                            property.Builder?.IsRequired(false, configurationSource);
+                        }
+                        else
+                        {
+                            property.Builder?.IsRequired(null, configurationSource);
+                        }
                     }
                 }
             }
