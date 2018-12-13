@@ -71,8 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         null,
                         keyOrIndex,
                         rowVersion: rowVersion,
-                        size: mapping.Size,
-                        fixedLength: true);
+                        size: mapping.Size);
 
                     scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength ? (bool?)byteArrayMapping.IsFixedLength : null;
 
@@ -107,7 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         typeof(string),
                         null,
                         keyOrIndex,
-                        unicode: true,
                         size: mapping.Size,
                         fixedLength: mapping.IsFixedLength);
 
@@ -119,8 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         null,
                         keyOrIndex,
                         unicode: mapping.IsUnicode,
-                        size: mapping.Size,
-                        fixedLength: true);
+                        size: mapping.Size);
 
                     scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength ? (bool?)stringMapping.IsFixedLength : null;
 

@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _coreTypeMappingInfo = new TypeMappingInfo();
             StoreTypeName = storeTypeName;
             StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
-            IsFixedLength = _parsedSize != null;
+            IsFixedLength = false;
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _isMax = false;
             }
 
-            IsFixedLength = _parsedSize != null;
+            IsFixedLength = false;
         }
 
         /// <summary>
