@@ -29,91 +29,161 @@ namespace Microsoft.EntityFrameworkCore.Tools
         [Fact]
         public void AddMigration()
         {
-            var artifacts = _project.Executor.AddMigration("EmptyMigration", "CustomFolder", "SimpleContext");
-            Assert.NotNull(artifacts);
-            Assert.NotNull(artifacts["MigrationFile"]);
-            Assert.NotNull(artifacts["MetadataFile"]);
-            Assert.NotNull(artifacts["SnapshotFile"]);
-            Assert.True(Directory.Exists(Path.Combine(_project.TargetDir, "CustomFolder")));
-            Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
+            try
+            {
+                var artifacts = _project.Executor.AddMigration("EmptyMigration", "CustomFolder", "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.NotNull(artifacts["MigrationFile"]);
+                Assert.NotNull(artifacts["MetadataFile"]);
+                Assert.NotNull(artifacts["SnapshotFile"]);
+                Assert.True(Directory.Exists(Path.Combine(_project.TargetDir, "CustomFolder")));
+                Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void AddMigration_output_dir_relative_to_projectdir()
         {
-            var artifacts = _project.Executor.AddMigration("EmptyMigration1", "./CustomFolder", "SimpleContext");
-            Assert.NotNull(artifacts);
-            Assert.StartsWith(Path.Combine(_project.TargetDir, "CustomFolder"), artifacts["MigrationFile"] as string);
-            Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
+            try
+            {
+                var artifacts = _project.Executor.AddMigration("EmptyMigration1", "./CustomFolder", "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.StartsWith(Path.Combine(_project.TargetDir, "CustomFolder"), artifacts["MigrationFile"] as string);
+                Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void AddMigration_output_dir_relative_out_of_to_projectdir()
         {
-            var artifacts = _project.Executor.AddMigration("EmptyMigration1", "../CustomFolder", "SimpleContext");
-            Assert.NotNull(artifacts);
-            Assert.StartsWith(Path.GetFullPath(Path.Combine(_project.TargetDir, "../CustomFolder")), artifacts["MigrationFile"] as string);
-            AssertDefaultMigrationName(artifacts);
+            try
+            {
+                var artifacts = _project.Executor.AddMigration("EmptyMigration1", "../CustomFolder", "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.StartsWith(Path.GetFullPath(Path.Combine(_project.TargetDir, "../CustomFolder")), artifacts["MigrationFile"] as string);
+                AssertDefaultMigrationName(artifacts);
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void AddMigration_output_dir_absolute_path_in_project()
         {
-            var outputDir = Path.Combine(_project.TargetDir, "A", "B", "C");
-            var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
-            Assert.NotNull(artifacts);
-            Assert.Equal(Path.Combine(outputDir, Path.GetFileName(artifacts["MigrationFile"] as string)), artifacts["MigrationFile"]);
-            Assert.Contains("namespace SimpleProject.A.B.C", File.ReadAllText(artifacts["MigrationFile"] as string));
+            try
+            {
+                var outputDir = Path.Combine(_project.TargetDir, "A", "B", "C");
+                var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.Equal(Path.Combine(outputDir, Path.GetFileName(artifacts["MigrationFile"] as string)), artifacts["MigrationFile"]);
+                Assert.Contains("namespace SimpleProject.A.B.C", File.ReadAllText(artifacts["MigrationFile"] as string));
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void AddMigration_output_dir_absolute_path_outside_project()
         {
-            var outputDir = Path.GetTempPath();
-            var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
-            Assert.NotNull(artifacts);
-            Assert.StartsWith(outputDir, artifacts["MigrationFile"] as string);
-            AssertDefaultMigrationName(artifacts);
+            try
+            {
+                var outputDir = Path.GetTempPath();
+                var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.StartsWith(outputDir, artifacts["MigrationFile"] as string);
+                AssertDefaultMigrationName(artifacts);
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void AddMigration_handles_empty_output_dir()
         {
-            var artifacts = _project.Executor.AddMigration("EmptyMigration2", /*outputDir: */ null, "SimpleContext");
-            Assert.NotNull(artifacts);
-            Assert.StartsWith(Path.Combine(_project.TargetDir, "Migrations"), artifacts["MigrationFile"] as string);
-            AssertDefaultMigrationName(artifacts);
+            try
+            {
+                var artifacts = _project.Executor.AddMigration("EmptyMigration2", /*outputDir: */ null, "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.StartsWith(Path.Combine(_project.TargetDir, "Migrations"), artifacts["MigrationFile"] as string);
+                AssertDefaultMigrationName(artifacts);
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void ScriptMigration()
         {
-            var sql = _project.Executor.ScriptMigration(null, "InitialCreate", false, "SimpleContext");
-            Assert.NotEmpty(sql);
+            try
+            {
+                var sql = _project.Executor.ScriptMigration(null, "InitialCreate", false, "SimpleContext");
+                Assert.NotEmpty(sql);
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void GetContextTypes()
         {
-            var contextTypes = _project.Executor.GetContextTypes();
-            Assert.Single(contextTypes);
+            try
+            {
+                var contextTypes = _project.Executor.GetContextTypes();
+                Assert.Single(contextTypes);
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void GetMigrations()
         {
-            var migrations = _project.Executor.GetMigrations("SimpleContext");
-            Assert.Single(migrations);
+            try
+            {
+                var migrations = _project.Executor.GetMigrations("SimpleContext");
+                Assert.Single(migrations);
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         [Fact]
         public void GetContextInfo_returns_connection_string()
         {
-            var info = _project.Executor.GetContextInfo("SimpleContext");
-            Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info["ProviderName"]);
-            Assert.Equal(@"(localdb)\MSSQLLocalDB", info["DataSource"]);
-            Assert.Equal("SimpleProject.SimpleContext", info["DatabaseName"]);
-            Assert.Equal("None", info["Options"]);
+            try
+            {
+                var info = _project.Executor.GetContextInfo("SimpleContext");
+                Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info["ProviderName"]);
+                Assert.Equal(@"(localdb)\MSSQLLocalDB", info["DataSource"]);
+                Assert.Equal("SimpleProject.SimpleContext", info["DatabaseName"]);
+                Assert.Equal("None", info["Options"]);
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
         }
 
         public class SimpleProject : IDisposable

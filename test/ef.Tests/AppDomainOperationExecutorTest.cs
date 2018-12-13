@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Tools.TestUtilities;
 using Xunit;
+using Xunit.Sdk;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -127,9 +128,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 var build = source.Build();
                 using (var executor = CreateExecutorFromBuildResult(build, "MyProject", "C#"))
                 {
-                    var migrations = executor.GetMigrations("Context1");
+                    try
+                    {
+                        var migrations = executor.GetMigrations("Context1");
 
-                    Assert.Single(migrations);
+                        Assert.Single(migrations);
+                    }
+                    catch (WrappedException ex)
+                    {
+                        throw new WrappedXunitException(ex);
+                    }
                 }
             }
         }
@@ -225,9 +233,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 var build = migrationsSource.Build();
                 using (var executor = CreateExecutorFromBuildResult(build, "MyProject", "C#"))
                 {
-                    var contextTypes = executor.GetContextTypes();
+                    try
+                    {
+                        var contextTypes = executor.GetContextTypes();
 
-                    Assert.Equal(3, contextTypes.Count());
+                        Assert.Equal(3, contextTypes.Count());
+                    }
+                    catch (WrappedException ex)
+                    {
+                        throw new WrappedXunitException(ex);
+                    }
                 }
             }
         }
@@ -303,8 +318,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 var build = source.Build();
                 using (var executor = CreateExecutorFromBuildResult(build, "MyProject", "C#"))
                 {
-                    var artifacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
-                    Assert.Equal(3, artifacts.Keys.Count);
+                    try
+                    {
+                        var artifacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
+                        Assert.Equal(3, artifacts.Keys.Count);
+                    }
+                    catch (WrappedException ex)
+                    {
+                        throw new WrappedXunitException(ex);
+                    }
+
                     Assert.True(Directory.Exists(Path.Combine(targetDir, @"Migrations\MySecond")));
                 }
             }
