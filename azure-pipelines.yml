@@ -35,3 +35,14 @@ jobs:
   parameters:
     agentOs: Linux
     configuration: Release
+
+- job: Helix
+  pool:
+    name: Hosted VS2017
+    vmImage: vs2017-win2016
+  steps:
+  - checkout: self
+    clean: true
+  - script: .\build.cmd -ci /t:Helix /p:Configuration=Debug /p:HelixAccessToken=$(BotAccount-dotnet-github-anon-kaonashi-bot-helix-token)
+    displayName: Run build.cmd helix target
+

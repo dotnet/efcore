@@ -12,4 +12,21 @@
 
     <Error Text="Could not find test projects to run" Condition="@(ProjectsToTest->Count()) == 0" />
   </Target>
+
+<!-- will move into korebuild -->
+  <PropertyGroup>
+    <DefaultHelixTestTimeout>00:30:00</DefaultHelixTestTimeout>
+  </PropertyGroup>
+
+  <Target Name="Helix" DependsOnTargets="GetTestAssemblies;Restore">
+    <PropertyGroup>
+      <HelixTestProjects>@(ProjectsToTest)</HelixTestProjects>
+    </PropertyGroup>
+    <Message Text="Projects=$(HelixTestProjects)" />
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\helix.proj"
+             Targets="Test"
+             Properties="ProjectsToTest=$(HelixTestProjects)"
+             BuildInParallel="false" />
+  </Target>
+
 </Project>
