@@ -66,37 +66,37 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
                 builder.Append("\"");
 
-                var pendingBackslashs = 0;
+                var pendingBackslashes = 0;
                 for (var j = 0; j < args[i].Length; j++)
                 {
                     switch (args[i][j])
                     {
                         case '\"':
-                            if (pendingBackslashs != 0)
+                            if (pendingBackslashes != 0)
                             {
-                                builder.Append('\\', pendingBackslashs * 2);
-                                pendingBackslashs = 0;
+                                builder.Append('\\', pendingBackslashes * 2);
+                                pendingBackslashes = 0;
                             }
                             builder.Append("\\\"");
                             break;
 
                         case '\\':
-                            pendingBackslashs++;
+                            pendingBackslashes++;
                             break;
 
                         default:
-                            if (pendingBackslashs != 0)
+                            if (pendingBackslashes != 0)
                             {
-                                if (pendingBackslashs == 1)
+                                if (pendingBackslashes == 1)
                                 {
                                     builder.Append("\\");
                                 }
                                 else
                                 {
-                                    builder.Append('\\', pendingBackslashs * 2);
+                                    builder.Append('\\', pendingBackslashes * 2);
                                 }
 
-                                pendingBackslashs = 0;
+                                pendingBackslashes = 0;
                             }
 
                             builder.Append(args[i][j]);
@@ -104,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     }
                 }
 
-                if (pendingBackslashs != 0)
+                if (pendingBackslashes != 0)
                 {
-                    builder.Append('\\', pendingBackslashs * 2);
+                    builder.Append('\\', pendingBackslashes * 2);
                 }
 
                 builder.Append("\"");
