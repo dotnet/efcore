@@ -24,7 +24,7 @@
   <PropertyGroup>
     <!-- TODO: Follow up with helix SDK -->
     <SkipInvalidConfigurations>true</SkipInvalidConfigurations>
-    <HelixSource>pr/aspnet/extensions</HelixSource>
+    <HelixSource>pr/aspnet/efcore</HelixSource>
     <HelixType>ci</HelixType>
     <HelixBuild>private-$(USERNAME)</HelixBuild>
     <HelixBuild Condition=" '$(CI)' == 'true' ">$(BUILD_BUILDNUMBER)</HelixBuild>
@@ -40,7 +40,7 @@
         test-results.xml
         test_results.xml
     -->
-    <EnableXUnitReporter>false</EnableXUnitReporter>
+    <EnableXUnitReporter>true</EnableXUnitReporter>
 
   </PropertyGroup>
 </Project>
