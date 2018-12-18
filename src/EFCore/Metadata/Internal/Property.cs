@@ -193,6 +193,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var dispatcher = DeclaringEntityType.Model.ConventionDispatcher;
             foreach (var affectedForeignKey in affectedForeignKeys)
             {
+                if (!nullable
+                    && affectedForeignKey.Properties.Any(p => p.IsNullable))
+                {
+                    continue;
+                }
+
                 if (affectedForeignKey.IsRequired == !nullable)
                 {
                     dispatcher.OnForeignKeyRequirednessChanged(affectedForeignKey.Builder);

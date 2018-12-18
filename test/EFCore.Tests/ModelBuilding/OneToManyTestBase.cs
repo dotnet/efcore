@@ -1934,6 +1934,43 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Creates_overlapping_foreign_keys_with_different_nullability()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Order>(eb =>
+                {
+                    eb.HasKey(
+                    c => new
+                    {
+                        c.OrderId,
+                        c.CustomerId
+                    });
+                });
+
+                modelBuilder.Entity<ProductCategory>(eb =>
+                {
+                    eb.HasKey(c => new { c.Id, c.Name });
+                });
+
+                modelBuilder.Entity<Product>(eb =>
+                {
+                    eb.HasOne(p => p.Order).WithMany(o => o.Products).HasForeignKey("CommonId", "OrderId");
+                    eb.HasOne<ProductCategory>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
+                });
+
+                var dependentType = model.FindEntityType(typeof(Product));
+
+                var optionalFk = dependentType.GetNavigations().Single().ForeignKey;
+                Assert.False(optionalFk.IsRequired);
+                Assert.True(optionalFk.Properties.Last().IsNullable);
+
+                var requiredFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != optionalFk);
+                Assert.True(requiredFk.IsRequired);
+                Assert.False(requiredFk.Properties.Last().IsNullable);
+            }
+
+            [Fact]
             public virtual void Throws_on_existing_one_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();
