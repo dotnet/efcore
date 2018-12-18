@@ -753,12 +753,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
+        public virtual void Passes_on_missing_required_store_generated_values_in_seeds()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<A>(
+                e =>
+                {
+                    e.Property(a => a.P0).IsRequired().ValueGeneratedOnAddOrUpdate();
+                    e.HasData(
+                        new A
+                        {
+                            Id = 1
+                        });
+                });
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
         public virtual void Detects_missing_key_values_in_seeds()
         {
             var entity = new NonSignedIntegerKeyEntity();
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<NonSignedIntegerKeyEntity>(e => e.HasData(entity));
 
+            Assert.Equal(ValueGenerated.OnAdd,
+                modelBuilder.Model.FindEntityType(typeof(NonSignedIntegerKeyEntity)).FindProperty(nameof(NonSignedIntegerKeyEntity.Id)).ValueGenerated);
             VerifyError(
                 CoreStrings.SeedDatumDefaultValue(nameof(NonSignedIntegerKeyEntity), nameof(NonSignedIntegerKeyEntity.Id), entity.Id),
                 modelBuilder.Model);
