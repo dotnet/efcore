@@ -194,7 +194,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var affectedForeignKey in affectedForeignKeys)
             {
                 if (!nullable
-                    && affectedForeignKey.Properties.Any(p => p.IsNullable))
+                    && affectedForeignKey.Properties.Any(p => p.IsNullable)
+                    && (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue14157", out var isEnabled)
+                    || !isEnabled))
                 {
                     continue;
                 }
