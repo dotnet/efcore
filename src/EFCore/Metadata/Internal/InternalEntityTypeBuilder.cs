@@ -104,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             .GetReferencingForeignKeys()
                             .Where(fk => fk.GetPrincipalKeyConfigurationSource() == null)
                             .ToList();
+
                         foreach (var referencingForeignKey in referencingForeignKeys)
                         {
                             DetachRelationship(referencingForeignKey).Attach();
@@ -197,11 +198,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 using (Metadata.Model.ConventionDispatcher.StartBatch())
                 {
-                    foreach (var foreignKey in containingForeignKeys
-                        // let it throw for explicit
-                        .Where(fk => fk.GetForeignKeyPropertiesConfigurationSource() != ConfigurationSource.Explicit)
-                        .ToList())
+                    foreach (var foreignKey in containingForeignKeys)
                     {
+                        if (foreignKey.GetForeignKeyPropertiesConfigurationSource() == ConfigurationSource.Explicit)
+                        {
+                            // let it throw for explicit
+                            continue;
+                        }
+
                         foreignKey.Builder.HasForeignKey(null, configurationSource);
                     }
 
@@ -2501,7 +2505,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Metadata,
                             shouldThrow: false))
                         {
-                            if (dependentProperties.All(p => p.GetTypeConfigurationSource() == null))
+                            if (dependentProperties.All(p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
+                                    && p.IsShadowProperty))
                             {
                                 var detachedProperties = DetachProperties(dependentProperties);
                                 GetOrCreateProperties(dependentProperties.Select(p => p.Name).ToList(), configurationSource, principalKey.Properties, isRequired ?? false);
@@ -2753,7 +2758,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         // TODO: Log that a shadow property is created
                         propertyBuilder = Property(
-                            propertyName, required ? type : type.MakeNullable(), configurationSource.Value, typeConfigurationSource: null);
+                            propertyName,
+                            required
+                                ? type
+                                : type.MakeNullable(),
+                            configurationSource.Value,
+                            typeConfigurationSource: ConfigurationSource.Convention);
                     }
                     else
                     {
@@ -2825,10 +2835,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ? property.Builder
                     : Property(
                         property.Name,
-                        typeConfigurationSource.HasValue ? property.ClrType : null,
+                        typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? property.ClrType : null,
                         property.GetIdentifyingMemberInfo(),
                         configurationSource,
-                        typeConfigurationSource);
+                        typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null);
                 if (builder == null)
                 {
                     return null;

@@ -1592,7 +1592,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 if (Metadata.GetForeignKeyPropertiesConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
-                    && Metadata.Properties.All(p => p.GetTypeConfigurationSource() == null))
+                    && Metadata.Properties.All(p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
+                                                    && p.IsShadowProperty))
                 {
                     oldNameDependentProperties = Metadata.Properties;
                 }

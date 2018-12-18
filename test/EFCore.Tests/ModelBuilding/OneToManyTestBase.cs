@@ -1176,6 +1176,56 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Can_have_FK_semi_specified_with_explicit_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Entity<Customer>();
+                modelBuilder.Entity<Order>();
+
+                var dependentType = model.FindEntityType(typeof(Order));
+                var principalType = model.FindEntityType(typeof(Customer));
+                var expectedPrincipalProperties = principalType.GetProperties().ToList();
+                var expectedDependentProperties = dependentType.GetProperties().ToList();
+
+                modelBuilder
+                    .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+                    .HasForeignKey("CustomerAlternateKey")
+                    .IsRequired();
+
+                modelBuilder
+                    .Entity<Customer>()
+                    .HasKey(o => o.AlternateKey);
+
+                modelBuilder.Validate();
+
+                var fk = dependentType.GetForeignKeys().Single();
+                Assert.Equal("AlternateKey", fk.PrincipalKey.Properties.Single().Name);
+
+                Assert.Equal("Customer", dependentType.GetNavigations().Single().Name);
+                Assert.Equal("Orders", principalType.GetNavigations().Single().Name);
+                Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
+                Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
+                Assert.Empty(principalType.GetForeignKeys());
+
+                var principalKey = principalType.GetKeys().Single();
+                Assert.Same(principalKey, fk.PrincipalKey);
+
+                Assert.Equal(1, dependentType.GetKeys().Count());
+                Assert.Same(dependentType.GetKeys().Single(), dependentType.FindPrimaryKey());
+
+                expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
+                AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
+                expectedDependentProperties.Add(fk.Properties.Single());
+                AssertEqual(expectedDependentProperties, dependentType.GetProperties());
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.Empty(principalType.GetIndexes());
+            }
+
+            [Fact]
             public virtual void Can_have_principal_key_by_convention_specified_with_explicit_PK()
             {
                 var modelBuilder = CreateModelBuilder();

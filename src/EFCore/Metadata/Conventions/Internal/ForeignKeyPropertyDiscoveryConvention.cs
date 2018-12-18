@@ -98,15 +98,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         foreach (var fkProperty in foreignKey.Properties)
                         {
-                            if (fkProperty.GetTypeConfigurationSource() == null
+                            if (ConfigurationSource.Convention.Overrides(fkProperty.GetTypeConfigurationSource())
                                 && fkProperty.IsShadowProperty
-                                && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired)
+                                && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired
+                                && fkProperty.GetContainingForeignKeys().All(otherFk => otherFk.IsRequired == foreignKey.IsRequired))
                             {
-                                fkProperty.DeclaringEntityType.Builder.Property(
-                                    fkProperty.Name,
-                                    fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired),
-                                    fkProperty.GetConfigurationSource(),
-                                    ConfigurationSource.Convention);
+                                var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired);
+                                if (fkProperty.ClrType != newType)
+                                {
+                                    fkProperty.DeclaringEntityType.Builder.Property(
+                                        fkProperty.Name,
+                                        fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired),
+                                        fkProperty.GetConfigurationSource(),
+                                        ConfigurationSource.Convention);
+                                }
                             }
                         }
 
