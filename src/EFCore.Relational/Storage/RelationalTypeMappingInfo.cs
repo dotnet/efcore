@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _coreTypeMappingInfo = new TypeMappingInfo(principals);
 
             string storeTypeName = null;
-            var fixedLength = false;
+            bool? fixedLength = null;
             for (var i = 0; i < principals.Count; i++)
             {
                 var principal = principals[i];
@@ -57,13 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     }
                 }
 
-                if (!fixedLength)
+                if (fixedLength == null)
                 {
-                    var isFixedLength = principal.Relational().IsFixedLength;
-                    if (isFixedLength)
-                    {
-                        fixedLength = true;
-                    }
+                    fixedLength = principal.Relational().IsFixedLength;
                 }
             }
 
@@ -81,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _coreTypeMappingInfo = new TypeMappingInfo(type);
             StoreTypeName = null;
             StoreTypeNameBase = null;
-            IsFixedLength = false;
+            IsFixedLength = null;
             _parsedSize = null;
             _parsedPrecision = null;
             _parsedScale = null;
@@ -100,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _coreTypeMappingInfo = new TypeMappingInfo();
             StoreTypeName = storeTypeName;
             StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
-            IsFixedLength = _parsedSize != null;
+            IsFixedLength = null;
         }
 
         /// <summary>
@@ -130,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _isMax = false;
             }
 
-            IsFixedLength = _parsedSize != null;
+            IsFixedLength = null;
         }
 
         /// <summary>

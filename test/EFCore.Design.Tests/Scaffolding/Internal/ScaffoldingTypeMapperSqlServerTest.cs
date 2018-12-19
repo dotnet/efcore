@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("nchar(max)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: true);
+            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
         }
 
         [Fact]
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var mapping = CreateMapper().FindMapping("char(max)", keyOrIndex: true, rowVersion: false);
 
-            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: true);
+            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
         }
 
         [Fact]
@@ -352,6 +352,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(inferred, mapping.IsInferred);
             Assert.Equal(maxLength, mapping.ScaffoldMaxLength);
             Assert.Equal(unicode, mapping.ScaffoldUnicode);
+            Assert.Equal(fixedLength, mapping.ScaffoldFixedLength);
         }
 
         private static ScaffoldingTypeMapper CreateMapper()
