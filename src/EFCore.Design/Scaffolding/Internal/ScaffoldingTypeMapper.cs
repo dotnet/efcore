@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         keyOrIndex,
                         rowVersion: rowVersion,
                         size: mapping.Size,
-                        fixedLength: true);
+                        fixedLength: false);
 
                     scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength ? (bool?)byteArrayMapping.IsFixedLength : null;
 
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         keyOrIndex,
                         unicode: mapping.IsUnicode,
                         size: mapping.Size,
-                        fixedLength: true);
+                        fixedLength: false);
 
                     scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength ? (bool?)stringMapping.IsFixedLength : null;
 
