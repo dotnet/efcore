@@ -48,9 +48,9 @@ jobs:
               condition: eq(variables['system.pullrequest.isfork'], false)
               inputs:
                 pathtoPublish: 'artifacts/packages/'
-                  artifactName: packages
-                  artifactType: Container
-                  parallel: true
+                artifactName: packages
+                artifactType: Container
+                parallel: true
 
         - job: macOS
           pool:
