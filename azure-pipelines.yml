@@ -43,6 +43,14 @@ jobs:
           steps:
             - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
               name: Build
+            - task: PublishBuildArtifacts@1
+              displayName: Upload artifacts
+              condition: eq(variables['system.pullrequest.isfork'], false)
+              inputs:
+                pathtoPublish: 'artifacts/packages/'
+                  artifactName: packages
+                  artifactType: Container
+                  parallel: true
 
         - job: macOS
           pool:
