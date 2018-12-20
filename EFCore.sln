@@ -1,19 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28418.106
 MinimumVisualStudioVersion = 15.0.26730.03
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{C41FD56B-38CD-40E3-89E6-071A6C58E36C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OracleProvider", "OracleProvider", "{EA847C1D-EC25-442B-A940-460969577CD5}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2EBC4218-8437-4FCF-8B82-28AE27DD3676}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleProvider", "samples\OracleProvider\src\OracleProvider\OracleProvider.csproj", "{9511216F-EC10-480D-AA8D-F72312C96962}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A424E48C-C5D9-41C5-8493-E3BDFD17A959}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleProvider.FunctionalTests", "samples\OracleProvider\test\OracleProvider.FunctionalTests\OracleProvider.FunctionalTests.csproj", "{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9E4CC99-199C-4E3B-9EC5-D1FDFCD6C27B}"
 	ProjectSection(SolutionItems) = preProject
@@ -101,11 +91,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.SqlServer.NTS", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Sqlite.NTS", "src\EFCore.Sqlite.NTS\EFCore.Sqlite.NTS.csproj", "{1747A095-A464-4445-9F39-A80531FB24FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite.Core", "src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj", "{775A9A2B-2EDB-4E2E-8E74-E46E8E8E1236}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.Core", "src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj", "{775A9A2B-2EDB-4E2E-8E74-E46E8E8E1236}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite", "src\Microsoft.Data.Sqlite\Microsoft.Data.Sqlite.csproj", "{D766273B-DA6A-4C6C-A9CD-AB57EF1E4F22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite", "src\Microsoft.Data.Sqlite\Microsoft.Data.Sqlite.csproj", "{D766273B-DA6A-4C6C-A9CD-AB57EF1E4F22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.Tests.csproj", "{51DAD0D5-5564-4FB7-B34C-98814C900DF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.Tests.csproj", "{51DAD0D5-5564-4FB7-B34C-98814C900DF9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AggregateFunctionSample", "samples\AggregateFunctionSample\AggregateFunctionSample.csproj", "{EF003077-32BC-441A-99FC-B4B280A060E3}"
 EndProject
@@ -141,14 +131,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9511216F-EC10-480D-AA8D-F72312C96962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9511216F-EC10-480D-AA8D-F72312C96962}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9511216F-EC10-480D-AA8D-F72312C96962}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9511216F-EC10-480D-AA8D-F72312C96962}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D66A1DA-D102-4DD9-960B-7D863BBB53DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D66A1DA-D102-4DD9-960B-7D863BBB53DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D66A1DA-D102-4DD9-960B-7D863BBB53DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -358,11 +340,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{EA847C1D-EC25-442B-A940-460969577CD5} = {C41FD56B-38CD-40E3-89E6-071A6C58E36C}
-		{2EBC4218-8437-4FCF-8B82-28AE27DD3676} = {EA847C1D-EC25-442B-A940-460969577CD5}
-		{9511216F-EC10-480D-AA8D-F72312C96962} = {2EBC4218-8437-4FCF-8B82-28AE27DD3676}
-		{A424E48C-C5D9-41C5-8493-E3BDFD17A959} = {EA847C1D-EC25-442B-A940-460969577CD5}
-		{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105} = {A424E48C-C5D9-41C5-8493-E3BDFD17A959}
 		{2D66A1DA-D102-4DD9-960B-7D863BBB53DE} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{4F7C93F3-A30F-4061-804C-32293DC256A1} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 		{715C38E9-B2F5-4DB2-8025-0C6492DEBDD4} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}

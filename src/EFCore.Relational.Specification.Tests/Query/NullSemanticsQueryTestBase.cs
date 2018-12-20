@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class NullSemanticsQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NullSemanticsQueryRelationalFixture, new()
     {
-        private readonly NullSemanticsData _oracleData = new NullSemanticsData();
+        private readonly NullSemanticsData _clientData = new NullSemanticsData();
 
         protected NullSemanticsQueryTestBase(TFixture fixture) => Fixture = fixture;
 
@@ -838,7 +838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var expectedIds = new List<int>();
 
             expectedIds.AddRange(
-                l2oQuery(_oracleData.Set<TItem>().ToList().AsQueryable())
+                l2oQuery(_clientData.Set<TItem>().ToList().AsQueryable())
                     .Select(e => e.Id)
                     .OrderBy(k => k));
 
