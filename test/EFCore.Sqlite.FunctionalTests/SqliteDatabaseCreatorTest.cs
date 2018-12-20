@@ -58,40 +58,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
         }
-
-        [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public async Task Create_database_with_custom_DataDirectory_path(bool async, bool useCanConnect)
-        {
-            string testDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string dataSubDirectory = Path.Combine(testDirectory, "DataFolder");
-
-            if (!Directory.Exists(dataSubDirectory))
-                Directory.CreateDirectory(dataSubDirectory);
-
-            AppDomain.CurrentDomain.SetData("DataDirectory", dataSubDirectory);
-
-            using (var testStore = SqliteTestStore.GetOrCreateInitialized("|DataDirectory|Empty"))
-            {
-                var context = CreateContext(testStore.ConnectionString);
-
-                if (useCanConnect)
-                {
-                    Assert.True(async ? await context.Database.CanConnectAsync() : context.Database.CanConnect());
-                }
-                else
-                {
-                    var creator = context.GetService<IRelationalDatabaseCreator>();
-                    Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
-                }
-            }
-
-            Assert.True(File.Exists(Path.Combine(dataSubDirectory, "Empty.db")));
-        }
-
+        
         private DbContext CreateContext(string connectionString)
             => new DbContext(
                     new DbContextOptionsBuilder()
