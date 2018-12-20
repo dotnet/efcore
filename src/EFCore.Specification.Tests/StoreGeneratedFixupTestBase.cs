@@ -4326,7 +4326,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<Product>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
-                modelBuilder.Entity<Level>(eb => eb.HasKey(l => new { l.GameId, l.Id }));
+                modelBuilder.Entity<Level>(eb =>
+                {
+                    eb.Property(g => g.Id).ValueGeneratedNever();
+                    eb.HasKey(l => new { l.GameId, l.Id });
+                });
 
                 modelBuilder.Entity<GameEntity>();
 

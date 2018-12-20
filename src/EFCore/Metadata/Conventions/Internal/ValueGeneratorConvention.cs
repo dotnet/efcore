@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -40,7 +41,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var property in foreignKey.Properties)
             {
-                property.Builder?.ValueGenerated(GetValueGenerated(property), ConfigurationSource.Convention);
+                var pk = property.PrimaryKey;
+                if (pk == null)
+                {
+                    property.Builder?.ValueGenerated(GetValueGenerated(property), ConfigurationSource.Convention);
+                }
+                else
+                {
+                    foreach (Property keyProperty in pk.Properties)
+                    {
+                        keyProperty.Builder.ValueGenerated(GetValueGenerated(property), ConfigurationSource.Convention);
+                    }
+                }
             }
         }
 
@@ -89,7 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ValueGenerated? GetValueGenerated([NotNull] Property property)
-            => !property.IsForeignKey() && property.PrimaryKey?.Properties.Count == 1 && CanBeGenerated(property)
+            => !property.IsForeignKey()
+                    && property.PrimaryKey?.Properties.Count(p => !p.IsForeignKey()) == 1
+                    && CanBeGenerated(property)
                 ? ValueGenerated.OnAdd
                 : (ValueGenerated?)null;
 

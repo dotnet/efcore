@@ -918,6 +918,9 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Level>(
                     eb =>
                     {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedNever();
+
                         eb.HasKey(
                             l => new
                             {
@@ -929,12 +932,16 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Actor>(
                     eb =>
                     {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedNever();
+
                         eb.HasKey(
                             a => new
                             {
                                 a.GameId,
                                 a.Id
                             });
+
                         eb.HasOne(a => a.Level)
                             .WithMany(l => l.Actors)
                             .HasForeignKey(nameof(Actor.GameId), "LevelId")
@@ -956,6 +963,9 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Item>(
                     eb =>
                     {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedNever();
+
                         eb.HasKey(
                             l => new
                             {

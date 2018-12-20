@@ -272,7 +272,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _beforeSaveBehavior = beforeSaveBehavior;
             }
 
-            UpdateBeforeSaveBehaviorConfigurationSource(configurationSource);
+            if (beforeSaveBehavior == null)
+            {
+                _beforeSaveBehaviorConfigurationSource = null;
+            }
+            else
+            {
+                UpdateBeforeSaveBehaviorConfigurationSource(configurationSource);
+            }
         }
 
         private PropertySaveBehavior DefaultBeforeSaveBehavior
@@ -321,7 +328,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _afterSaveBehavior = afterSaveBehavior;
             }
 
-            UpdateAfterSaveBehaviorConfigurationSource(configurationSource);
+            if (afterSaveBehavior == null)
+            {
+                _afterSaveBehaviorConfigurationSource = null;
+            }
+            else
+            {
+                UpdateAfterSaveBehaviorConfigurationSource(configurationSource);
+            }
         }
 
         private PropertySaveBehavior DefaultAfterSaveBehavior

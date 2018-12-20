@@ -969,6 +969,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         newRelationshipBuilder = batch.Run(newRelationshipBuilder);
                     }
 
+                    if(newRelationshipBuilder == null
+                        && Metadata.PrincipalEntityType.Builder != null)
+                    {
+                        newRelationshipBuilder = Metadata.PrincipalEntityType.FindNavigation(Metadata.PrincipalToDependent.Name)
+                            ?.ForeignKey.Builder;
+                    }
+
                     using (var batch = ModelBuilder.Metadata.ConventionDispatcher.StartBatch())
                     {
                         foreach (var invertedOwnership in invertedOwnerships)
@@ -976,16 +983,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             invertedOwnership.DeclaringEntityType.Builder.RemoveForeignKey(invertedOwnership, configurationSource);
                         }
 
-                        newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
-
-                        if (!newRelationshipBuilder.Metadata.DeclaringEntityType.Builder
-                                .RemoveNonOwnershipRelationships(newRelationshipBuilder.Metadata, configurationSource))
+                        if (newRelationshipBuilder != null)
                         {
-                            return null;
-                        }
+                            newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
 
-                        return batch.Run(newRelationshipBuilder);
+                            if (!newRelationshipBuilder.Metadata.DeclaringEntityType.Builder
+                                    .RemoveNonOwnershipRelationships(newRelationshipBuilder.Metadata, configurationSource))
+                            {
+                                return null;
+                            }
+
+                            return batch.Run(newRelationshipBuilder);
+                        }
                     }
+
+                    return null;
                 }
             }
             else

@@ -346,6 +346,8 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<RequiredComposite1>(
                     eb =>
                     {
+                        eb.Property(e => e.Id).ValueGeneratedNever();
+
                         eb.HasKey(
                             e => new
                             {
@@ -372,6 +374,8 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<OptionalOverlaping2>(
                     eb =>
                     {
+                        eb.Property(e => e.Id).ValueGeneratedNever();
+
                         eb.HasKey(
                             e => new
                             {

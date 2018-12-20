@@ -218,7 +218,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owned = ownership.DeclaringEntityType;
                 var chainedOwnership = owned.FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var chainedOwned = chainedOwnership.DeclaringEntityType;
-                Assert.Null(chainedOwned.FindPrimaryKey());
+                Assert.Equal(new[] { nameof(Order.CustomerId), nameof(Order.OrderId) },
+                    chainedOwned.FindPrimaryKey().Properties.Select(p => p.Name));
 
                 entityBuilder.HasKey(o => o.OrderId);
 
@@ -448,6 +449,93 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("OrderId",
                     chainedOwned.GetIndexes().Single().Properties.Single().Name);
                 Assert.Equal(nameof(Product.Order), chainedOwnership.DependentToPrincipal.Name);
+
+                Assert.Equal(4, model.GetEntityTypes().Count());
+            }
+
+            [Fact]
+            public virtual void Can_configure_owned_type_collection_without_explicit_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().OwnsMany(
+                    c => c.Orders,
+                    r =>
+                    {
+                        r.Ignore(o => o.OrderCombination);
+                        r.Ignore(o => o.Details);
+                        r.OwnsMany(o => o.Products);
+                    });
+
+                modelBuilder.Validate();
+
+                var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
+                var owned = ownership.DeclaringEntityType;
+                Assert.True(ownership.IsOwnership);
+                Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
+                Assert.Equal(nameof(Order.CustomerId), ownership.Properties.Single().Name);
+                Assert.Equal(1, owned.GetForeignKeys().Count());
+                var pk = owned.FindPrimaryKey();
+                Assert.Equal(new[] { nameof(Order.CustomerId), nameof(Order.OrderId) }, pk.Properties.Select(p => p.Name));
+                Assert.Equal(ValueGenerated.OnAdd, pk.Properties.Last().ValueGenerated);
+                Assert.Equal(0, owned.GetIndexes().Count());
+
+                var chainedOwnership = owned.FindNavigation(nameof(Order.Products)).ForeignKey;
+                var chainedOwned = chainedOwnership.DeclaringEntityType;
+                Assert.True(chainedOwnership.IsOwnership);
+                Assert.False(chainedOwnership.IsUnique);
+                Assert.Equal(nameof(Product.Order), chainedOwnership.DependentToPrincipal.Name);
+                Assert.Equal(new[] { "OrderCustomerId", "OrderId" }, chainedOwnership.Properties.Select(p => p.Name));
+                var chainedPk = chainedOwned.FindPrimaryKey();
+                Assert.Equal(new[] { "OrderCustomerId", "OrderId", nameof(Product.Id) }, chainedPk.Properties.Select(p => p.Name));
+                Assert.Equal(ValueGenerated.OnAdd, chainedPk.Properties.Last().ValueGenerated);
+                Assert.Equal(0, chainedOwned.GetIndexes().Count());
+
+                Assert.Equal(4, model.GetEntityTypes().Count());
+            }
+
+            [Fact]
+            public virtual void Can_configure_owned_type_collection_without_explicit_key_or_candidate()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().OwnsMany(
+                    c => c.Orders,
+                    r =>
+                    {
+                        r.Ignore(o => o.OrderCombination);
+                        r.Ignore(o => o.Details);
+                        r.Ignore(o => o.OrderId);
+                        r.OwnsMany(o => o.Products)
+                            .Ignore(p => p.Id);
+                    });
+
+                modelBuilder.Validate();
+
+                var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
+                var owned = ownership.DeclaringEntityType;
+                Assert.True(ownership.IsOwnership);
+                Assert.False(ownership.IsUnique);
+                Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
+                Assert.Equal(nameof(Order.CustomerId), ownership.Properties.Single().Name);
+                Assert.Equal(1, owned.GetForeignKeys().Count());
+                var pk = owned.FindPrimaryKey();
+                Assert.Equal(new[] { nameof(Order.CustomerId), "Id" }, pk.Properties.Select(p => p.Name));
+                Assert.Equal(ValueGenerated.OnAdd, pk.Properties.Last().ValueGenerated);
+                Assert.Equal(0, owned.GetIndexes().Count());
+
+                var chainedOwnership = owned.FindNavigation(nameof(Order.Products)).ForeignKey;
+                var chainedOwned = chainedOwnership.DeclaringEntityType;
+                Assert.True(chainedOwnership.IsOwnership);
+                Assert.False(chainedOwnership.IsUnique);
+                Assert.Equal(nameof(Product.Order), chainedOwnership.DependentToPrincipal.Name);
+                Assert.Equal(new[] { "OrderCustomerId", "OrderId" }, chainedOwnership.Properties.Select(p => p.Name));
+                var chainedPk = chainedOwned.FindPrimaryKey();
+                Assert.Equal(new[] { "OrderCustomerId", "OrderId", "Id1" }, chainedPk.Properties.Select(p => p.Name));
+                Assert.Equal(ValueGenerated.OnAdd, chainedPk.Properties.Last().ValueGenerated);
+                Assert.Equal(0, chainedOwned.GetIndexes().Count());
 
                 Assert.Equal(4, model.GetEntityTypes().Count());
             }
