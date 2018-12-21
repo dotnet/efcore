@@ -27,6 +27,9 @@ jobs:
       helixRepo: aspnet/EntityFrameworkCore
       jobs:
         - job: Windows
+          # HACK: Work around dotnet/arcade#1175
+          ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+            timeoutInMinutes: 0
           pool:
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
               name: dotnet-internal-temp
