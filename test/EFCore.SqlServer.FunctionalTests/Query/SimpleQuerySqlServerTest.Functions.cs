@@ -459,6 +459,90 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactTitle] = N'Owner' AND [c].[Country] <> N'USA'");
         }
 
+        public override async Task DateTime_Compare_to_simple_zero(bool isAsync, bool compareTo)
+        {
+            await base.DateTime_Compare_to_simple_zero(isAsync, compareTo);
+
+            AssertSql(
+                @"@__myDatetime_0='1998-05-04T00:00:00'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderDate] = @__myDatetime_0",
+                //
+                @"@__myDatetime_0='1998-05-04T00:00:00'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderDate] <> @__myDatetime_0",
+                //
+                @"@__myDatetime_0='1998-05-04T00:00:00'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderDate] > @__myDatetime_0",
+                //
+                @"@__myDatetime_0='1998-05-04T00:00:00'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderDate] <= @__myDatetime_0",
+                //
+                @"@__myDatetime_0='1998-05-04T00:00:00'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderDate] > @__myDatetime_0",
+                //
+                @"@__myDatetime_0='1998-05-04T00:00:00'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderDate] <= @__myDatetime_0");
+        }
+
+        public override async Task Int_Compare_to_simple_zero(bool isAsync)
+        {
+            await base.Int_Compare_to_simple_zero(isAsync);
+
+            AssertSql(
+                @"@__orderId_0='10250'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderID] = @__orderId_0",
+                //
+                @"@__orderId_0='10250'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderID] <> @__orderId_0",
+                //
+                @"@__orderId_0='10250'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderID] > @__orderId_0",
+                //
+                @"@__orderId_0='10250'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderID] <= @__orderId_0",
+                //
+                @"@__orderId_0='10250'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderID] > @__orderId_0",
+                //
+                @"@__orderId_0='10250'
+
+SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
+FROM [Orders] AS [c]
+WHERE [c].[OrderID] <= @__orderId_0");
+        }
+
         public override async Task Where_math_abs1(bool isAsync)
         {
             await base.Where_math_abs1(isAsync);

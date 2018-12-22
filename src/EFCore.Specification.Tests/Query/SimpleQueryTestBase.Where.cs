@@ -937,43 +937,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Datetime_Compare_to_simple_zero(bool isAsync)
-        {
-            var myDatetime = new DateTime(1998, 5, 4);
-
-            await AssertQuery<Order>(
-                isAsync,
-                cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) == 0),
-                entryCount: 3);
-
-            await AssertQuery<Order>(
-                isAsync,
-                cs => cs.Where(c => 0 != c.OrderDate.Value.CompareTo(myDatetime)),
-                entryCount: 827);
-
-            await AssertQuery<Order>(
-                isAsync,
-                cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) > 0),
-                entryCount: 8);
-
-            await AssertQuery<Order>(
-                isAsync,
-                cs => cs.Where(c => 0 >= c.OrderDate.Value.CompareTo(myDatetime)),
-                entryCount: 822);
-
-            await AssertQuery<Order>(
-                isAsync,
-                cs => cs.Where(c => 0 < c.OrderDate.Value.CompareTo(myDatetime)),
-                entryCount: 8);
-
-            await AssertQuery<Order>(
-                isAsync,
-                cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) <= 0),
-                entryCount: 822);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_date_add_year_constant_component(bool isAsync)
         {
             return AssertQuery<Order>(

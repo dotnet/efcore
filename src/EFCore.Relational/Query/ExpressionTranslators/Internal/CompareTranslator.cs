@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class StringCompareTranslator : IExpressionFragmentTranslator
+    public class CompareTranslator : IExpressionFragmentTranslator
     {
         private static readonly Dictionary<ExpressionType, ExpressionType> _operatorMap = new Dictionary<ExpressionType, ExpressionType>
         {
@@ -26,13 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             { ExpressionType.Equal, ExpressionType.Equal },
             { ExpressionType.NotEqual, ExpressionType.NotEqual }
         };
-
-        private static readonly MethodInfo _compareMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) });
-
-        private static readonly MethodInfo _compareToMethodInfo
-            = typeof(string).GetRuntimeMethod(nameof(string.CompareTo), new[] { typeof(string) });
-
+        
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -81,25 +75,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 && constant.Type == typeof(int))
             {
                 var constantValue = (int)constant.Value;
-                Expression leftString = null, rightString = null;
+                Expression left = null, right = null;
 
-                if (methodCall.Method.Equals(_compareMethodInfo))
+                if (methodCall.Method.Name == "Compare")
                 {
-                    leftString = methodCall.Arguments[0];
-                    rightString = methodCall.Arguments[1];
+                    left = methodCall.Arguments[0];
+                    right = methodCall.Arguments[1];
                 }
-                else if (methodCall.Method.Equals(_compareToMethodInfo))
+                else if (methodCall.Method.Name == "CompareTo")
                 {
-                    leftString = methodCall.Object;
-                    rightString = methodCall.Arguments[0];
+                    left = methodCall.Object;
+                    right = methodCall.Arguments[0];
                 }
 
-                if (leftString != null)
+                if (left != null)
                 {
                     if (constantValue == 0)
                     {
                         // Compare(strA, strB) > 0 => strA > strB
-                        return new StringCompareExpression(opFunc(op), leftString, rightString);
+                        return new CompareExpression(opFunc(op), left, right);
                     }
 
                     if (constantValue == 1)
@@ -107,13 +101,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         if (op == ExpressionType.Equal)
                         {
                             // Compare(strA, strB) == 1 => strA > strB
-                            return new StringCompareExpression(ExpressionType.GreaterThan, leftString, rightString);
+                            return new CompareExpression(ExpressionType.GreaterThan, left, right);
                         }
 
                         if (op == opFunc(ExpressionType.LessThan))
                         {
                             // Compare(strA, strB) < 1 => strA <= strB
-                            return new StringCompareExpression(ExpressionType.LessThanOrEqual, leftString, rightString);
+                            return new CompareExpression(ExpressionType.LessThanOrEqual, left, right);
                         }
                     }
 
@@ -122,13 +116,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         if (op == ExpressionType.Equal)
                         {
                             // Compare(strA, strB) == -1 => strA < strB
-                            return new StringCompareExpression(ExpressionType.LessThan, leftString, rightString);
+                            return new CompareExpression(ExpressionType.LessThan, left, right);
                         }
 
                         if (op == opFunc(ExpressionType.GreaterThan))
                         {
                             // Compare(strA, strB) > -1 => strA >= strB
-                            return new StringCompareExpression(ExpressionType.GreaterThanOrEqual, leftString, rightString);
+                            return new CompareExpression(ExpressionType.GreaterThanOrEqual, left, right);
                         }
                     }
                 }

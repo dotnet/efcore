@@ -495,6 +495,193 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 15);
         }
 
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task DateTime_Compare_to_simple_zero(bool isAsync, bool compareTo)
+        {
+            var myDatetime = new DateTime(1998, 5, 4);
+
+            if (compareTo)
+            {
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) == 0),
+                    entryCount: 3);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 != c.OrderDate.Value.CompareTo(myDatetime)),
+                    entryCount: 827);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) > 0),
+                    entryCount: 8);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 >= c.OrderDate.Value.CompareTo(myDatetime)),
+                    entryCount: 822);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 < c.OrderDate.Value.CompareTo(myDatetime)),
+                    entryCount: 8);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) <= 0),
+                    entryCount: 822);
+            }
+            else
+            {
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => DateTime.Compare(c.OrderDate.Value, myDatetime) == 0),
+                    entryCount: 3);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 != DateTime.Compare(c.OrderDate.Value, myDatetime)),
+                    entryCount: 827);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => DateTime.Compare(c.OrderDate.Value, myDatetime) > 0),
+                    entryCount: 8);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 >= DateTime.Compare(c.OrderDate.Value, myDatetime)),
+                    entryCount: 822);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 < DateTime.Compare(c.OrderDate.Value, myDatetime)),
+                    entryCount: 8);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => DateTime.Compare(c.OrderDate.Value, myDatetime) <= 0),
+                    entryCount: 822);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task TimeSpan_Compare_to_simple_zero(bool isAsync, bool compareTo)
+        {
+            var myDatetime = new DateTime(1998, 5, 4);
+
+            if (compareTo)
+            {
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) == 0),
+                    entryCount: 3);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 != c.OrderDate.Value.CompareTo(myDatetime)),
+                    entryCount: 827);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) > 0),
+                    entryCount: 8);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 >= c.OrderDate.Value.CompareTo(myDatetime)),
+                    entryCount: 822);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 < c.OrderDate.Value.CompareTo(myDatetime)),
+                    entryCount: 8);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => c.OrderDate.Value.CompareTo(myDatetime) <= 0),
+                    entryCount: 822);
+            }
+            else
+            {
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => DateTime.Compare(c.OrderDate.Value, myDatetime) == 0),
+                    entryCount: 3);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 != DateTime.Compare(c.OrderDate.Value, myDatetime)),
+                    entryCount: 827);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => DateTime.Compare(c.OrderDate.Value, myDatetime) > 0),
+                    entryCount: 8);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 >= DateTime.Compare(c.OrderDate.Value, myDatetime)),
+                    entryCount: 822);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => 0 < DateTime.Compare(c.OrderDate.Value, myDatetime)),
+                    entryCount: 8);
+
+                await AssertQuery<Order>(
+                    isAsync,
+                    cs => cs.Where(c => DateTime.Compare(c.OrderDate.Value, myDatetime) <= 0),
+                    entryCount: 822);
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Int_Compare_to_simple_zero(bool isAsync)
+        {
+            var orderId = 10250;
+            
+            await AssertQuery<Order>(
+                isAsync,
+                cs => cs.Where(c => c.OrderID.CompareTo(orderId) == 0),
+                entryCount: 1);
+
+            await AssertQuery<Order>(
+                isAsync,
+                cs => cs.Where(c => 0 != c.OrderID.CompareTo(orderId)),
+                entryCount: 829);
+
+            await AssertQuery<Order>(
+                isAsync,
+                cs => cs.Where(c => c.OrderID.CompareTo(orderId) > 0),
+                entryCount: 827);
+
+            await AssertQuery<Order>(
+                isAsync,
+                cs => cs.Where(c => 0 >= c.OrderID.CompareTo(orderId)),
+                entryCount: 3);
+
+            await AssertQuery<Order>(
+                isAsync,
+                cs => cs.Where(c => 0 < c.OrderID.CompareTo(orderId)),
+                entryCount: 827);
+
+            await AssertQuery<Order>(
+                isAsync,
+                cs => cs.Where(c => c.OrderID.CompareTo(orderId) <= 0),
+                entryCount: 3);
+        }
+
         protected static string LocalMethod1()
         {
             return "M";

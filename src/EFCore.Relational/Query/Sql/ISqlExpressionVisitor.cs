@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     An Expression.
         /// </returns>
-        Expression VisitStringCompare([NotNull] StringCompareExpression stringCompareExpression);
+        Expression VisitCompare([NotNull] CompareExpression stringCompareExpression);
 
         /// <summary>
         ///     Visit an ExplicitCastExpression.

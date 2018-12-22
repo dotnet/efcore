@@ -814,48 +814,6 @@ FROM [Orders] AS [o]
 WHERE CONVERT(date, [o].[OrderDate]) = @__myDatetime_0");
         }
 
-        public override async Task Datetime_Compare_to_simple_zero(bool isAsync)
-        {
-            await base.Datetime_Compare_to_simple_zero(isAsync);
-
-            AssertSql(
-                @"@__myDatetime_0='1998-05-04T00:00:00'
-
-SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
-FROM [Orders] AS [c]
-WHERE [c].[OrderDate] = @__myDatetime_0",
-                //
-                @"@__myDatetime_0='1998-05-04T00:00:00'
-
-SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
-FROM [Orders] AS [c]
-WHERE [c].[OrderDate] <> @__myDatetime_0",
-                //
-                @"@__myDatetime_0='1998-05-04T00:00:00'
-
-SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
-FROM [Orders] AS [c]
-WHERE [c].[OrderDate] > @__myDatetime_0",
-                //
-                @"@__myDatetime_0='1998-05-04T00:00:00'
-
-SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
-FROM [Orders] AS [c]
-WHERE [c].[OrderDate] <= @__myDatetime_0",
-                //
-                @"@__myDatetime_0='1998-05-04T00:00:00'
-
-SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
-FROM [Orders] AS [c]
-WHERE [c].[OrderDate] > @__myDatetime_0",
-                //
-                @"@__myDatetime_0='1998-05-04T00:00:00'
-
-SELECT [c].[OrderID], [c].[CustomerID], [c].[EmployeeID], [c].[OrderDate]
-FROM [Orders] AS [c]
-WHERE [c].[OrderDate] <= @__myDatetime_0");
-        }
-
         public override async Task Where_date_add_year_constant_component(bool isAsync)
         {
             await base.Where_date_add_year_constant_component(isAsync);

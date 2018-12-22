@@ -1017,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     An Expression.
         /// </returns>
-        public virtual Expression VisitStringCompare(StringCompareExpression stringCompareExpression)
+        public virtual Expression VisitCompare(CompareExpression stringCompareExpression)
         {
             Visit(stringCompareExpression.Left);
 
@@ -1952,7 +1952,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             switch (expression)
             {
-                case StringCompareExpression stringCompareExpression:
+                case CompareExpression stringCompareExpression:
                     return _operatorMap[stringCompareExpression.Operator];
 
                 default:
@@ -2231,7 +2231,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                        || expression is InExpression
                        || expression is IsNullExpression
                        || expression is LikeExpression
-                       || expression is StringCompareExpression;
+                       || expression is CompareExpression;
             }
 
             private static Expression BuildCompareToExpression(Expression expression, bool compareTo)
