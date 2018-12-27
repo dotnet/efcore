@@ -164,11 +164,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (generatedValue != null)
             {
-                entry[property] = generatedValue;
-
                 if (isTemporary)
                 {
-                    entry.MarkAsTemporary(property);
+                    entry.SetTemporaryValue(property, generatedValue);
+                }
+                else
+                {
+                    entry[property] = generatedValue;
                 }
             }
         }

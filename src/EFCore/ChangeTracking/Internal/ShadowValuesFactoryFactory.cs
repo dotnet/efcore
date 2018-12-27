@@ -46,12 +46,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression CreateReadShadowValueExpression(ParameterExpression parameter, IPropertyBase property)
+        protected override Expression CreateReadShadowValueExpression(
+            ParameterExpression parameter, IPropertyBase property)
             => Expression.Convert(
                 Expression.Call(
                     parameter,
                     ValueBuffer.GetValueMethod,
                     Expression.Constant(property.GetIndex())),
                 property.ClrType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression CreateReadValueExpression(
+            ParameterExpression parameter, IPropertyBase property)
+            => CreateReadShadowValueExpression(parameter, property);
     }
 }

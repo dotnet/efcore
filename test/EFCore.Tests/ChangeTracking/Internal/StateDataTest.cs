@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 PropertyManipulation(
                     i,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Modified,
                     InternalEntityEntry.PropertyFlag.Null,
                     InternalEntityEntry.PropertyFlag.Unknown,
                     InternalEntityEntry.PropertyFlag.IsLoaded);
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 PropertyManipulation(
                     i,
                     InternalEntityEntry.PropertyFlag.Null,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Modified,
                     InternalEntityEntry.PropertyFlag.Unknown,
                     InternalEntityEntry.PropertyFlag.IsLoaded);
             }
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 PropertyManipulation(
                     i,
                     InternalEntityEntry.PropertyFlag.Unknown,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Modified,
                     InternalEntityEntry.PropertyFlag.Null,
                     InternalEntityEntry.PropertyFlag.IsLoaded);
             }
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 PropertyManipulation(
                     i,
                     InternalEntityEntry.PropertyFlag.IsLoaded,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Modified,
                     InternalEntityEntry.PropertyFlag.Null,
                     InternalEntityEntry.PropertyFlag.Unknown);
             }
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             data.EntityState = EntityState.Deleted;
             Assert.Equal(EntityState.Deleted, data.EntityState);
 
-            data.FlagAllProperties(70, InternalEntityEntry.PropertyFlag.TemporaryOrModified, flagged: true);
+            data.FlagAllProperties(70, InternalEntityEntry.PropertyFlag.Modified, flagged: true);
 
             Assert.Equal(EntityState.Deleted, data.EntityState);
 

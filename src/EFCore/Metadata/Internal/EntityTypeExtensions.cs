@@ -422,6 +422,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigation.SetIndexes(indexes);
             }
 
+            foreach (var serviceProperty in entityType.GetDeclaredServiceProperties())
+            {
+                var indexes = new PropertyIndexes(
+                    index: -1,
+                    originalValueIndex: -1,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
+
+                serviceProperty.SetIndexes(indexes);
+            }
+
             return new PropertyCounts(
                 index,
                 navigationIndex,

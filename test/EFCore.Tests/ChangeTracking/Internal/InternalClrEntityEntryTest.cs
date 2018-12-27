@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entity = (SomeEntity)entry.Entity;
 
             entry.SetEntityState(EntityState.Added);
-            entry.MarkAsTemporary(keyProperty);
+            entry.SetTemporaryValue(keyProperty, -1);
 
             Assert.True(entry.HasTemporaryValue(keyProperty));
 

@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TCustomer
                 {
                     Name = "Sue Pandy",
-                    HusbandId = customer0.CustomerId
+                    HusbandId = Entry(customer0).Property(e => e.CustomerId).CurrentValue
                 }).Entity;
 
             var product1 = Add(
@@ -466,34 +466,34 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TBarcode
                 {
                     Code = new byte[] { 1, 2, 3, 4 },
-                    ProductId = product1.ProductId,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Text = "Barcode 1 2 3 4"
                 }).Entity;
             var barcode2 = Add(
                 new TBarcode
                 {
                     Code = new byte[] { 2, 2, 3, 4 },
-                    ProductId = product2.ProductId,
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
                     Text = "Barcode 2 2 3 4"
                 }).Entity;
             var barcode3 = Add(
                 new TBarcode
                 {
                     Code = new byte[] { 3, 2, 3, 4 },
-                    ProductId = product3.ProductId,
+                    ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
                     Text = "Barcode 3 2 3 4"
                 }).Entity;
 
             var barcodeDetails1 = Add(
                 new TBarcodeDetail
                 {
-                    Code = barcode1.Code,
+                    Code = Entry(barcode1).Property(e => e.Code).CurrentValue,
                     RegisteredTo = "Eeky Bear"
                 }).Entity;
             var barcodeDetails2 = Add(
                 new TBarcodeDetail
                 {
-                    Code = barcode2.Code,
+                    Code = Entry(barcode2).Property(e => e.Code).CurrentValue,
                     RegisteredTo = "Trent"
                 }).Entity;
 
@@ -502,8 +502,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
                     Details = "Treats not Donuts",
-                    ActualCode = barcode3.Code,
-                    ExpectedCode = barcode2.Code
+                    ActualCode = Entry(barcode3).Property(e => e.Code).CurrentValue,
+                    ExpectedCode = Entry(barcode2).Property(e => e.Code).CurrentValue
                 }).Entity;
 
             var incorrectScan2 = Add(
@@ -511,14 +511,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
                     Details = "Wot no waffles?",
-                    ActualCode = barcode2.Code,
-                    ExpectedCode = barcode1.Code
+                    ActualCode = Entry(barcode2).Property(e => e.Code).CurrentValue,
+                    ExpectedCode = Entry(barcode1).Property(e => e.Code).CurrentValue
                 }).Entity;
 
             var complaint1 = Add(
                 new TComplaint
                 {
-                    CustomerId = customer2.CustomerId,
+                    CustomerId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
                     AlternateId = 88,
                     Details = "Don't give coffee to Eeky!",
                     Logged = new DateTime(2014, 5, 27, 19, 22, 26)
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var complaint2 = Add(
                 new TComplaint
                 {
-                    CustomerId = customer2.CustomerId,
+                    CustomerId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
                     AlternateId = 89,
                     Details = "Really! Don't give coffee to Eeky!",
                     Logged = new DateTime(2014, 5, 28, 19, 22, 26)
@@ -536,28 +536,28 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var resolution = Add(
                 new TResolution
                 {
-                    ResolutionId = complaint2.AlternateId,
+                    ResolutionId = Entry(complaint2).Property(e => e.AlternateId).CurrentValue,
                     Details = "Destroyed all coffee in Redmond area."
                 }).Entity;
 
             var login1 = Add(
                 new TLogin
                 {
-                    CustomerId = customer1.CustomerId,
+                    CustomerId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
                     Username = "MrsKoalie73",
                     AlternateUsername = "Sheila"
                 }).Entity;
             var login2 = Add(
                 new TLogin
                 {
-                    CustomerId = customer2.CustomerId,
+                    CustomerId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
                     Username = "MrsBossyPants",
                     AlternateUsername = "Sue"
                 }).Entity;
             var login3 = Add(
                 new TLogin
                 {
-                    CustomerId = customer3.CustomerId,
+                    CustomerId = Entry(customer3).Property(e => e.CustomerId).CurrentValue,
                     Username = "TheStripedMenace",
                     AlternateUsername = "Tarquin"
                 }).Entity;
@@ -566,19 +566,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TSuspiciousActivity
                 {
                     Activity = "Pig prints on keyboard",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity2 = Add(
                 new TSuspiciousActivity
                 {
                     Activity = "Crumbs in the cupboard",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
                 {
                     Activity = "Donuts gone missing",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var rsaToken1 = Add(
@@ -586,29 +586,29 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     Issued = DateTime.Now,
                     Serial = "1234",
-                    Username = login1.Username
+                    Username = Entry(login1).Property(e => e.Username).CurrentValue
                 }).Entity;
             var rsaToken2 = Add(
                 new TRsaToken
                 {
                     Issued = DateTime.Now,
                     Serial = "2234",
-                    Username = login2.Username
+                    Username = Entry(login2).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var smartCard1 = Add(
                 new TSmartCard
                 {
-                    Username = login1.Username,
-                    CardSerial = rsaToken1.Serial,
-                    Issued = rsaToken1.Issued
+                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
+                    CardSerial = Entry(rsaToken1).Property(e => e.Serial).CurrentValue,
+                    Issued = Entry(rsaToken1).Property(e => e.Issued).CurrentValue
                 }).Entity;
             var smartCard2 = Add(
                 new TSmartCard
                 {
-                    Username = login2.Username,
-                    CardSerial = rsaToken2.Serial,
-                    Issued = rsaToken2.Issued
+                    Username = Entry(login2).Property(e => e.Username).CurrentValue,
+                    CardSerial = Entry(rsaToken2).Property(e => e.Serial).CurrentValue,
+                    Issued = Entry(rsaToken2).Property(e => e.Issued).CurrentValue
                 }).Entity;
 
             var reset1 = Add(
@@ -617,28 +617,28 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     EmailedTo = "trent@example.com",
                     ResetNo = 1,
                     TempPassword = "Rent-A-Mole",
-                    Username = login3.AlternateUsername
+                    Username = Entry(login3).Property(e => e.AlternateUsername).CurrentValue
                 }).Entity;
 
             var pageView1 = Add(
                 new TPageView
                 {
                     PageUrl = "somePage1",
-                    Username = login1.Username,
+                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
                     Viewed = DateTime.Now
                 }).Entity;
             var pageView2 = Add(
                 new TPageView
                 {
                     PageUrl = "somePage2",
-                    Username = login1.Username,
+                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
                     Viewed = DateTime.Now
                 }).Entity;
             var pageView3 = Add(
                 new TPageView
                 {
                     PageUrl = "somePage3",
-                    Username = login1.Username,
+                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
                     Viewed = DateTime.Now
                 }).Entity;
 
@@ -647,8 +647,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
                     LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
-                    Username = login1.Username,
-                    SmartcardUsername = smartCard1.Username
+                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
+                    SmartcardUsername = Entry(smartCard1).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var lastLogin2 = Add(
@@ -656,8 +656,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
                     LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
-                    Username = login2.Username,
-                    SmartcardUsername = smartCard2.Username
+                    Username = Entry(login2).Property(e => e.Username).CurrentValue,
+                    SmartcardUsername = Entry(smartCard2).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var message1 = Add(
@@ -665,8 +665,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     Subject = "Tea?",
                     Body = "Fancy a cup of tea?",
-                    FromUsername = login1.Username,
-                    ToUsername = login2.Username,
+                    FromUsername = Entry(login1).Property(e => e.Username).CurrentValue,
+                    ToUsername = Entry(login2).Property(e => e.Username).CurrentValue,
                     Sent = DateTime.Now
                 }).Entity;
 
@@ -675,8 +675,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     Subject = "Re: Tea?",
                     Body = "Love one!",
-                    FromUsername = login2.Username,
-                    ToUsername = login1.Username,
+                    FromUsername = Entry(login2).Property(e => e.Username).CurrentValue,
+                    ToUsername = Entry(login1).Property(e => e.Username).CurrentValue,
                     Sent = DateTime.Now
                 }).Entity;
 
@@ -685,30 +685,30 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     Subject = "Re: Tea?",
                     Body = "I'll put the kettle on.",
-                    FromUsername = login1.Username,
-                    ToUsername = login2.Username,
+                    FromUsername = Entry(login1).Property(e => e.Username).CurrentValue,
+                    ToUsername = Entry(login2).Property(e => e.Username).CurrentValue,
                     Sent = DateTime.Now
                 }).Entity;
 
             var order1 = Add(
                 new TAnOrder
                 {
-                    CustomerId = customer1.CustomerId,
-                    Username = login1.Username,
+                    CustomerId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
+                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
                     AlternateId = 77
                 }).Entity;
             var order2 = Add(
                 new TAnOrder
                 {
-                    CustomerId = customer2.CustomerId,
-                    Username = login2.Username,
+                    CustomerId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
+                    Username = Entry(login2).Property(e => e.Username).CurrentValue,
                     AlternateId = 78
                 }).Entity;
             var order3 = Add(
                 new TAnOrder
                 {
-                    CustomerId = customer3.CustomerId,
-                    Username = login3.Username,
+                    CustomerId = Entry(customer3).Property(e => e.CustomerId).CurrentValue,
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue,
                     AlternateId = 79
                 }).Entity;
 
@@ -716,39 +716,39 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TOrderNote
                 {
                     Note = "Must have tea!",
-                    OrderId = order1.AlternateId
+                    OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue
                 }).Entity;
             var orderNote2 = Add(
                 new TOrderNote
                 {
                     Note = "And donuts!",
-                    OrderId = order1.AlternateId
+                    OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue
                 }).Entity;
             var orderNote3 = Add(
                 new TOrderNote
                 {
                     Note = "But no coffee. :-(",
-                    OrderId = order1.AlternateId
+                    OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue
                 }).Entity;
 
             var orderQualityCheck1 = Add(
                 new TOrderQualityCheck
                 {
-                    OrderId = order1.AlternateId,
+                    OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue,
                     CheckedBy = "Eeky Bear",
                     CheckedDateTime = DateTime.Now
                 }).Entity;
             var orderQualityCheck2 = Add(
                 new TOrderQualityCheck
                 {
-                    OrderId = order2.AlternateId,
+                    OrderId = Entry(order2).Property(e => e.AlternateId).CurrentValue,
                     CheckedBy = "Eeky Bear",
                     CheckedDateTime = DateTime.Now
                 }).Entity;
             var orderQualityCheck3 = Add(
                 new TOrderQualityCheck
                 {
-                    OrderId = order3.AlternateId,
+                    OrderId = Entry(order3).Property(e => e.AlternateId).CurrentValue,
                     CheckedBy = "Eeky Bear",
                     CheckedDateTime = DateTime.Now
                 }).Entity;
@@ -756,43 +756,43 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var orderLine1 = Add(
                 new TOrderLine
                 {
-                    OrderId = order1.AnOrderId,
-                    ProductId = product1.ProductId,
+                    OrderId = Entry(order1).Property(e => e.AnOrderId).CurrentValue,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Quantity = 7
                 }).Entity;
             var orderLine2 = Add(
                 new TOrderLine
                 {
-                    OrderId = order1.AnOrderId,
-                    ProductId = product2.ProductId,
+                    OrderId = Entry(order1).Property(e => e.AnOrderId).CurrentValue,
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
                     Quantity = 1
                 }).Entity;
             var orderLine3 = Add(
                 new TOrderLine
                 {
-                    OrderId = order2.AnOrderId,
-                    ProductId = product3.ProductId,
+                    OrderId = Entry(order2).Property(e => e.AnOrderId).CurrentValue,
+                    ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
                     Quantity = 2
                 }).Entity;
             var orderLine4 = Add(
                 new TOrderLine
                 {
-                    OrderId = order2.AnOrderId,
-                    ProductId = product2.ProductId,
+                    OrderId = Entry(order2).Property(e => e.AnOrderId).CurrentValue,
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
                     Quantity = 3
                 }).Entity;
             var orderLine5 = Add(
                 new TOrderLine
                 {
-                    OrderId = order2.AnOrderId,
-                    ProductId = product1.ProductId,
+                    OrderId = Entry(order2).Property(e => e.AnOrderId).CurrentValue,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Quantity = 4
                 }).Entity;
             var orderLine6 = Add(
                 new TOrderLine
                 {
-                    OrderId = order3.AnOrderId,
-                    ProductId = product2.ProductId,
+                    OrderId = Entry(order3).Property(e => e.AnOrderId).CurrentValue,
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
                     Quantity = 5
                 }).Entity;
 
@@ -800,50 +800,50 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TProductDetail
                 {
                     Details = "A Waffle Cart specialty!",
-                    ProductId = product1.ProductId
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue
                 }).Entity;
             var productDetail2 = Add(
                 new TProductDetail
                 {
                     Details = "Eeky Bear's favorite!",
-                    ProductId = product2.ProductId
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
                 }).Entity;
 
             var productReview1 = Add(
                 new TProductReview
                 {
-                    ProductId = product1.ProductId,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Review = "Better than Tarqies!"
                 }).Entity;
             var productReview2 = Add(
                 new TProductReview
                 {
-                    ProductId = product1.ProductId,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Review = "Good with maple syrup."
                 }).Entity;
             var productReview3 = Add(
                 new TProductReview
                 {
-                    ProductId = product2.ProductId,
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
                     Review = "Eeky says yes!"
                 }).Entity;
 
             var productPhoto1 = Add(
                 new TProductPhoto
                 {
-                    ProductId = product1.ProductId,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Photo = new byte[] { 101, 102 }
                 }).Entity;
             var productPhoto2 = Add(
                 new TProductPhoto
                 {
-                    ProductId = product1.ProductId,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Photo = new byte[] { 103, 104 }
                 }).Entity;
             var productPhoto3 = Add(
                 new TProductPhoto
                 {
-                    ProductId = product3.ProductId,
+                    ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
                     Photo = new byte[] { 105, 106 }
                 }).Entity;
 
@@ -851,17 +851,17 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TProductWebFeature
                 {
                     Heading = "Waffle Style",
-                    PhotoId = productPhoto1.PhotoId,
-                    ProductId = product1.ProductId,
-                    ReviewId = productReview1.ReviewId
+                    PhotoId = Entry(productPhoto1).Property(e => e.PhotoId).CurrentValue,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
+                    ReviewId = Entry(productReview1).Property(e => e.ReviewId).CurrentValue
                 }).Entity;
 
             var productWebFeature2 = Add(
                 new TProductWebFeature
                 {
                     Heading = "What does the waffle say?",
-                    ProductId = product2.ProductId,
-                    ReviewId = productReview3.ReviewId
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
+                    ReviewId = Entry(productReview3).Property(e => e.ReviewId).CurrentValue
                 }).Entity;
 
             var supplier1 = Add(
@@ -878,39 +878,39 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var supplierLogo1 = Add(
                 new TSupplierLogo
                 {
-                    SupplierId = supplier1.SupplierId,
+                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
                     Logo = new byte[] { 201, 202 }
                 }).Entity;
 
             var supplierInfo1 = Add(
                 new TSupplierInfo
                 {
-                    SupplierId = supplier1.SupplierId,
+                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
                     Information = "Seems a bit dodgy."
                 }).Entity;
             var supplierInfo2 = Add(
                 new TSupplierInfo
                 {
-                    SupplierId = supplier1.SupplierId,
+                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
                     Information = "Orange fur?"
                 }).Entity;
             var supplierInfo3 = Add(
                 new TSupplierInfo
                 {
-                    SupplierId = supplier2.SupplierId,
+                    SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue,
                     Information = "Very expensive!"
                 }).Entity;
 
             var customerInfo1 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = customer1.CustomerId,
+                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
                     Information = "Really likes tea."
                 }).Entity;
             var customerInfo2 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = customer2.CustomerId,
+                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
                     Information = "Mrs Bossy Pants!"
                 }).Entity;
 
@@ -928,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var computerDetail1 = Add(
                 new TComputerDetail
                 {
-                    ComputerDetailId = computer1.ComputerId,
+                    ComputerDetailId = Entry(computer1).Property(e => e.ComputerId).CurrentValue,
                     Manufacturer = "Dell",
                     Model = "420",
                     PurchaseDate = new DateTime(2008, 4, 1),
@@ -939,7 +939,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var computerDetail2 = Add(
                 new TComputerDetail
                 {
-                    ComputerDetailId = computer2.ComputerId,
+                    ComputerDetailId = Entry(computer2).Property(e => e.ComputerId).CurrentValue,
                     Manufacturer = "Not A Dell",
                     Model = "Not 420",
                     PurchaseDate = new DateTime(2012, 4, 1),
@@ -963,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var license1 = Add(
                 new TLicense
                 {
-                    Name = driver1.Name,
+                    Name = Entry(driver1).Property(e => e.Name).CurrentValue,
                     LicenseClass = "C",
                     LicenseNumber = "10",
                     Restrictions = "None",
@@ -974,7 +974,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var license2 = Add(
                 new TLicense
                 {
-                    Name = driver2.Name,
+                    Name = Entry(driver2).Property(e => e.Name).CurrentValue,
                     LicenseClass = "A",
                     LicenseNumber = "11",
                     Restrictions = "None",
@@ -1193,19 +1193,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TSuspiciousActivity
                 {
                     Activity = "Pig prints on keyboard",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity2 = Add(
                 new TSuspiciousActivity
                 {
                     Activity = "Crumbs in the cupboard",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
                 {
                     Activity = "Donuts gone missing",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var rsaToken1 = Add(
@@ -1227,15 +1227,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TSmartCard
                 {
                     Login = login1,
-                    CardSerial = rsaToken1.Serial,
-                    Issued = rsaToken1.Issued
+                    CardSerial = Entry(rsaToken1).Property(e => e.Serial).CurrentValue,
+                    Issued = Entry(rsaToken1).Property(e => e.Issued).CurrentValue
                 }).Entity;
             var smartCard2 = Add(
                 new TSmartCard
                 {
                     Login = login2,
-                    CardSerial = rsaToken2.Serial,
-                    Issued = rsaToken2.Issued
+                    CardSerial = Entry(rsaToken2).Property(e => e.Serial).CurrentValue,
+                    Issued = Entry(rsaToken2).Property(e => e.Issued).CurrentValue
                 }).Entity;
 
             var reset1 = Add(
@@ -1275,7 +1275,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
                     LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
                     Login = login1,
-                    SmartcardUsername = smartCard1.Username
+                    SmartcardUsername = Entry(smartCard1).Property(e => e.Username).CurrentValue
                 }).Entity;
             if (principalNavs)
             {
@@ -1289,7 +1289,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
                     LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
                     Login = login2,
-                    SmartcardUsername = smartCard2.Username
+                    SmartcardUsername = Entry(smartCard2).Property(e => e.Username).CurrentValue
                 }).Entity;
             if (principalNavs)
             {
@@ -1302,7 +1302,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     Subject = "Tea?",
                     Body = "Fancy a cup of tea?",
-                    FromUsername = login1.Username,
+                    FromUsername = Entry(login1).Property(e => e.Username).CurrentValue,
                     Sender = login1,
                     Recipient = dependentNavs ? login2 : null,
                     Sent = DateTime.Now
@@ -1320,7 +1320,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     Subject = "Re: Tea?",
                     Body = "Love one!",
-                    FromUsername = login2.Username,
+                    FromUsername = Entry(login2).Property(e => e.Username).CurrentValue,
                     Sender = login2,
                     Recipient = dependentNavs ? login1 : null,
                     Sent = DateTime.Now
@@ -1336,7 +1336,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     Subject = "Re: Tea?",
                     Body = "I'll put the kettle on.",
-                    FromUsername = login1.Username,
+                    FromUsername = Entry(login1).Property(e => e.Username).CurrentValue,
                     Sender = login1,
                     Recipient = dependentNavs ? login2 : null,
                     Sent = DateTime.Now
@@ -1527,19 +1527,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var productPhoto1 = Add(
                 new TProductPhoto
                 {
-                    ProductId = product1.ProductId,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Photo = new byte[] { 101, 102 }
                 }).Entity;
             var productPhoto2 = Add(
                 new TProductPhoto
                 {
-                    ProductId = product1.ProductId,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Photo = new byte[] { 103, 104 }
                 }).Entity;
             var productPhoto3 = Add(
                 new TProductPhoto
                 {
-                    ProductId = product3.ProductId,
+                    ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
                     Photo = new byte[] { 105, 106 }
                 }).Entity;
             if (principalNavs)
@@ -1554,7 +1554,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 {
                     Heading = "Waffle Style",
                     Photo = dependentNavs ? productPhoto1 : null,
-                    ProductId = product1.ProductId,
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                     Review = dependentNavs ? productReview1 : null
                 }).Entity;
             if (principalNavs)
@@ -1569,7 +1569,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TProductWebFeature
                 {
                     Heading = "What does the waffle say?",
-                    ProductId = product2.ProductId,
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
                     Review = dependentNavs ? productReview3 : null
                 }).Entity;
             if (principalNavs)
@@ -1592,7 +1592,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var supplierLogo1 = Add(
                 new TSupplierLogo
                 {
-                    SupplierId = !principalNavs ? supplier1.SupplierId : 0,
+                    SupplierId = !principalNavs ? Entry(supplier1).Property(e => e.SupplierId).CurrentValue : 0,
                     Logo = new byte[] { 201, 202 }
                 }).Entity;
             if (principalNavs)
@@ -1622,13 +1622,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var customerInfo1 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = customer1.CustomerId,
+                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
                     Information = "Really likes tea."
                 }).Entity;
             var customerInfo2 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = customer2.CustomerId,
+                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
                     Information = "Mrs Bossy Pants!"
                 }).Entity;
             if (principalNavs)
@@ -1908,19 +1908,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TSuspiciousActivity
                 {
                     Activity = "Pig prints on keyboard",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
             var suspiciousActivity2 = toAdd[2].AddEx(
                 new TSuspiciousActivity
                 {
                     Activity = "Crumbs in the cupboard",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
             var suspiciousActivity3 = toAdd[2].AddEx(
                 new TSuspiciousActivity
                 {
                     Activity = "Donuts gone missing",
-                    Username = login3.Username
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
 
             var rsaToken1 = toAdd[2].AddEx(
@@ -1942,15 +1942,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TSmartCard
                 {
                     Login = login1,
-                    CardSerial = rsaToken1.Serial,
-                    Issued = rsaToken1.Issued
+                    CardSerial = Entry(rsaToken1).Property(e => e.Serial).CurrentValue,
+                    Issued = Entry(rsaToken1).Property(e => e.Issued).CurrentValue
                 });
             var smartCard2 = toAdd[2].AddEx(
                 new TSmartCard
                 {
                     Login = login2,
-                    CardSerial = rsaToken2.Serial,
-                    Issued = rsaToken2.Issued
+                    CardSerial = Entry(rsaToken2).Property(e => e.Serial).CurrentValue,
+                    Issued = Entry(rsaToken2).Property(e => e.Issued).CurrentValue
                 });
 
             var reset1 = toAdd[2].AddEx(
@@ -2010,7 +2010,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Subject = "Tea?",
                     Body = "Fancy a cup of tea?",
                     Sent = DateTime.Now,
-                    FromUsername = login1.Username
+                    FromUsername = Entry(login1).Property(e => e.Username).CurrentValue
                 });
 
             login1.InitializeCollections();
@@ -2024,7 +2024,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Subject = "Re: Tea?",
                     Body = "Love one!",
                     Sent = DateTime.Now,
-                    FromUsername = login2.Username
+                    FromUsername = Entry(login2).Property(e => e.Username).CurrentValue
                 });
 
             login2.SentMessages.Add(message2);
@@ -2036,7 +2036,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Subject = "Re: Tea?",
                     Body = "I'll put the kettle on.",
                     Sent = DateTime.Now,
-                    FromUsername = login1.Username
+                    FromUsername = Entry(login1).Property(e => e.Username).CurrentValue
                 });
 
             login1.SentMessages.Add(message3);
@@ -2199,19 +2199,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var productPhoto1 = toAdd[0].AddEx(
                 new TProductPhoto
                 {
-                    ProductId = product1.ProductId,
                     Photo = new byte[] { 101, 102 }
                 });
             var productPhoto2 = toAdd[0].AddEx(
                 new TProductPhoto
                 {
-                    ProductId = product1.ProductId,
                     Photo = new byte[] { 103, 104 }
                 });
             var productPhoto3 = toAdd[0].AddEx(
                 new TProductPhoto
                 {
-                    ProductId = product3.ProductId,
                     Photo = new byte[] { 105, 106 }
                 });
 
@@ -2223,7 +2220,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TProductWebFeature
                 {
                     Heading = "Waffle Style",
-                    ProductId = product1.ProductId
                 });
 
             productPhoto1.InitializeCollections();
@@ -2235,7 +2231,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 new TProductWebFeature
                 {
                     Heading = "What does the waffle say?",
-                    ProductId = product2.ProductId
                 });
 
             productReview3.InitializeCollections();

@@ -42,6 +42,14 @@ namespace Microsoft.EntityFrameworkCore
             entry.Property("Id1").IsTemporary = true;
             entry.Property("Id2").IsTemporary = true;
 
+            foreach (var property in entry.Properties)
+            {
+                if (property.Metadata.IsForeignKey())
+                {
+                    property.IsTemporary = true;
+                }
+            }
+
             entry = context.Entry(principal);
             entry.Property("Id1").IsTemporary = true;
             entry.Property("Id2").IsTemporary = true;

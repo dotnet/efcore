@@ -86,11 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         TProperty GetOriginalValue<TProperty>([NotNull] IProperty property);
 
         /// <summary>
-        ///     Assign the given value to the property.
+        ///     Assign a store-generated value to the property.
         /// </summary>
-        /// <param name="propertyBase"> The property to set the value for. </param>
+        /// <param name="property"> The property to set the value for. </param>
         /// <param name="value"> The value to set. </param>
-        void SetCurrentValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value);
+        void SetStoreGeneratedValue([NotNull] IProperty property, [CanBeNull] object value);
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry" /> for the entity being saved. <see cref="EntityEntry" /> is an API optimized for

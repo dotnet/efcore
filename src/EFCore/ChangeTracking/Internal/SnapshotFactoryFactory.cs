@@ -107,19 +107,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     arguments[i] = Expression.Constant(null);
                     types[i] = typeof(object);
+                    continue;
                 }
-                else if (propertyBase.IsShadowProperty)
+
+                if (propertyBase is IProperty property)
+                {
+                    var storeGeneratedIndex = property.GetStoreGeneratedIndex();
+                    if (storeGeneratedIndex != -1)
+                    {
+                        arguments[i] = CreateReadValueExpression(parameter, property);
+                        continue;
+                    }
+                }
+
+                if (propertyBase.IsShadowProperty)
                 {
                     arguments[i] = CreateSnapshotValueExpression(
                         CreateReadShadowValueExpression(parameter, propertyBase),
                         propertyBase);
+                    continue;
                 }
-                else if (propertyBase.IsIndexedProperty)
+
+                if (propertyBase.IsIndexedProperty)
                 {
                     var indexerAccessExpression = (Expression)Expression.MakeIndex(
                         entityVariable,
                         propertyBase.PropertyInfo,
-                        new List<Expression>() { Expression.Constant(propertyBase.Name) });
+                        new List<Expression>
+                        {
+                            Expression.Constant(propertyBase.Name)
+                        });
                     if (propertyBase.PropertyInfo.PropertyType != propertyBase.ClrType)
                     {
                         indexerAccessExpression =
@@ -128,25 +145,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     arguments[i] =
                         CreateSnapshotValueExpression(indexerAccessExpression, propertyBase);
+                    continue;
                 }
-                else
+
+                var memberAccess = (Expression)Expression.MakeMemberAccess(
+                    entityVariable,
+                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+
+                if (memberAccess.Type != propertyBase.ClrType)
                 {
-                    var memberAccess = (Expression)Expression.MakeMemberAccess(
-                        entityVariable,
-                        propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
-
-                    if (memberAccess.Type != propertyBase.ClrType)
-                    {
-                        memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
-                    }
-
-                    arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
-                        ? Expression.Call(
-                            null,
-                            _snapshotCollectionMethod,
-                            memberAccess)
-                        : CreateSnapshotValueExpression(memberAccess, propertyBase);
+                    memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
                 }
+
+                arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
+                    ? Expression.Call(
+                        null,
+                        _snapshotCollectionMethod,
+                        memberAccess)
+                    : CreateSnapshotValueExpression(memberAccess, propertyBase);
+
             }
 
             var constructorExpression = Expression.Convert(
@@ -215,6 +232,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 parameter,
                 InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
                 Expression.Constant(property.GetShadowIndex()));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual Expression CreateReadValueExpression(
+            [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
+            => Expression.Call(
+                parameter,
+                InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(property.ClrType),
+                Expression.Constant(property, typeof(IProperty)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

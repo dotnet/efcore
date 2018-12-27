@@ -149,6 +149,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entityType1.BaseType = someSimpleEntityType;
             var property3 = entityType1.AddProperty("Name", typeof(string));
             property3.IsConcurrencyToken = false;
+            property3.ValueGenerated = ValueGenerated.OnAdd;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
             entityType2.BaseType = someCompositeEntityType;

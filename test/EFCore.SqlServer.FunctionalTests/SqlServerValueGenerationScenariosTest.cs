@@ -144,8 +144,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(77, blogs[0].Id);
-                    Assert.Equal(78, blogs[1].Id);
+                    Assert.Equal(0, blogs[0].Id);
+                    Assert.Equal(1, blogs[1].Id);
                 }
 
                 using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name))
@@ -166,10 +166,10 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(77, blogs[0].Id);
-                    Assert.Equal(78, blogs[1].Id);
-                    Assert.Equal(79, blogs[2].Id);
-                    Assert.Equal(80, blogs[3].Id);
+                    Assert.Equal(0, blogs[0].Id);
+                    Assert.Equal(1, blogs[1].Id);
+                    Assert.Equal(2, blogs[2].Id);
+                    Assert.Equal(3, blogs[3].Id);
                 }
             }
         }
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder
                     .HasSequence("MySequence")
-                    .StartsAt(77);
+                    .StartsAt(0);
 
                 modelBuilder
                     .Entity<Blog>()
@@ -877,7 +877,7 @@ END");
                     var beforeSave = blog.Id;
                     var beforeSaveNotId = blog.NotId;
 
-                    Assert.NotEqual(default, beforeSave);
+                    Assert.Equal(default, beforeSave);
                     Assert.Equal(default, beforeSaveNotId);
 
                     context.SaveChanges();

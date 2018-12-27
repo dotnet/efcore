@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         internal enum PropertyFlag
         {
-            TemporaryOrModified = 0,
+            Modified = 0,
             Null = 1,
             Unknown = 2,
             IsLoaded = 3

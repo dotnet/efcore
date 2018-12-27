@@ -73,14 +73,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
-            if (useStoreGeneratedValues
-                && storeGeneratedIndex >= 0)
+            if (storeGeneratedIndex >= 0)
             {
-                currentValueExpression = Expression.Call(
-                    entryParameter,
-                    InternalEntityEntry.ReadStoreGeneratedValueMethod.MakeGenericMethod(typeof(TProperty)),
-                    currentValueExpression,
-                    Expression.Constant(storeGeneratedIndex));
+                if (useStoreGeneratedValues)
+                {
+                    currentValueExpression = Expression.Condition(
+                        Expression.Equal(
+                            currentValueExpression,
+                            Expression.Constant(default(TProperty), typeof(TProperty))),
+                        Expression.Call(
+                            entryParameter,
+                            InternalEntityEntry.ReadStoreGeneratedValueMethod.MakeGenericMethod(typeof(TProperty)),
+                            Expression.Constant(storeGeneratedIndex)),
+                        currentValueExpression);
+                }
+
+                currentValueExpression = Expression.Condition(
+                    Expression.Equal(
+                        currentValueExpression,
+                        Expression.Constant(default(TProperty), typeof(TProperty))),
+                    Expression.Call(
+                        entryParameter,
+                        InternalEntityEntry.ReadTemporaryValueMethod.MakeGenericMethod(typeof(TProperty)),
+                        Expression.Constant(storeGeneratedIndex)),
+                    currentValueExpression);
             }
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(

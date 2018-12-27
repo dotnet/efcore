@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, fkEntry.CurrentValue);
                 Assert.Equal(1, fkEntry.OriginalValue);
                 Assert.Equal(1, pkEntry.CurrentValue);
-                Assert.Equal(1, pkEntry.CurrentValue);
+                Assert.Equal(1, pkEntry.OriginalValue);
 
                 context.SaveChanges();
             }
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, fkEntry.CurrentValue);
                 Assert.Equal(1, fkEntry.OriginalValue);
                 Assert.Equal(1, pkEntry.CurrentValue);
-                Assert.Equal(1, pkEntry.CurrentValue);
+                Assert.Equal(1, pkEntry.OriginalValue);
             }
         }
 

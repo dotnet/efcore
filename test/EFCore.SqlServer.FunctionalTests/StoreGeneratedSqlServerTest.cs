@@ -25,49 +25,72 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Exception_in_SaveChanges_causes_store_values_to_be_reverted()
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            var entities = new List<Darwin>();
+            for (var i = 0; i < 100; i++)
+            {
+                entities.Add(new Darwin());
+            }
+
+            entities.Add(
+                new Darwin
                 {
-                    var entities = new List<Darwin>();
-                    for (var i = 0; i < 1000; i++)
-                    {
-                        entities.Add(new Darwin());
-                    }
-
-                    entities.Add(
-                        new Darwin
-                        {
-                            Id = 1777
-                        });
-
-                    context.AddRange(entities);
-
-                    var identityMap = entities.ToDictionary(e => e.Id, e => e);
-
-                    var stateManager = context.GetService<IStateManager>();
-                    var key = context.Model.FindEntityType(typeof(Darwin)).FindPrimaryKey();
-
-                    foreach (var entity in entities)
-                    {
-                        Assert.Same(
-                            entity,
-                            stateManager.TryGetEntry(key, new object[] { entity.Id }).Entity);
-                    }
-
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-
-                    foreach (var entity in entities)
-                    {
-                        Assert.Same(entity, identityMap[entity.Id]);
-                    }
-
-                    foreach (var entity in entities)
-                    {
-                        Assert.Same(
-                            entity,
-                            stateManager.TryGetEntry(key, new object[] { entity.Id }).Entity);
-                    }
+                    Id = 1777
                 });
+
+            for (var i = 0; i < 2; i++)
+            {
+                ExecuteWithStrategyInTransaction(
+                    context =>
+                    {
+                        context.AddRange(entities);
+
+                        foreach (var entity in entities.Take(100))
+                        {
+                            Assert.Equal(0, entity.Id);
+                        }
+                        Assert.Equal(1777, entities[100].Id);
+
+                        var tempValueIdentityMap = entities.ToDictionary(
+                            e => context.Entry(e).Property(p => p.Id).CurrentValue,
+                            e => e);
+
+                        var stateManager = context.GetService<IStateManager>();
+                        var key = context.Model.FindEntityType(typeof(Darwin)).FindPrimaryKey();
+
+                        foreach (var entity in entities)
+                        {
+                            Assert.Same(
+                                entity,
+                                stateManager.TryGetEntry(
+                                    key,
+                                    new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue }).Entity);
+                        }
+
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+
+                        foreach (var entity in entities.Take(100))
+                        {
+                            Assert.Equal(0, entity.Id);
+                        }
+                        Assert.Equal(1777, entities[100].Id);
+
+                        foreach (var entity in entities)
+                        {
+                            Assert.Same(
+                                entity,
+                                tempValueIdentityMap[context.Entry(entity).Property(p => p.Id).CurrentValue]);
+                        }
+
+                        foreach (var entity in entities)
+                        {
+                            Assert.Same(
+                                entity,
+                                stateManager.TryGetEntry(
+                                    key,
+                                    new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue }).Entity);
+                        }
+                    });
+            }
         }
 
         public class StoreGeneratedSqlServerFixture : StoreGeneratedFixtureBase

@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry.PrepareToSave();
 
             Assert.Equal(
-                CoreStrings.DatabaseGeneratedNull("Id", keyProperty.DeclaringEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => entry.SetCurrentValue(keyProperty, null)).Message);
+                CoreStrings.ValueCannotBeNull("Id", keyProperty.DeclaringEntityType.DisplayName(), typeof(int).DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entry.SetStoreGeneratedValue(keyProperty, null)).Message);
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
             entry.SetEntityState(EntityState.Added);
-            entry.MarkAsTemporary(keyProperty);
+            entry.SetTemporaryValue(keyProperty, -1);
 
             entry[nonKeyProperty] = "Jillybean";
 
@@ -264,15 +264,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.IsModified(keyProperty));
             Assert.False(entry.IsModified(nonKeyProperty));
 
-            entry.MarkAsTemporary(keyProperty);
+            entry.SetTemporaryValue(keyProperty, 1);
 
             Assert.True(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
             Assert.False(entry.IsModified(keyProperty));
             Assert.False(entry.IsModified(nonKeyProperty));
 
-            entry.MarkAsTemporary(nonKeyProperty);
-            entry.MarkAsTemporary(keyProperty, isTemporary: false);
+            entry.SetTemporaryValue(nonKeyProperty, "Temp");
+            entry[keyProperty] = 1;
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.True(entry.HasTemporaryValue(nonKeyProperty));
@@ -288,18 +288,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.IsModified(keyProperty));
             Assert.False(entry.IsModified(nonKeyProperty));
 
-            entry.MarkAsTemporary(keyProperty);
-            entry.MarkAsTemporary(nonKeyProperty);
+            // Can't change the key...
+            Assert.Throws<InvalidOperationException>(() => entry.SetTemporaryValue(keyProperty, -1));
+            entry.SetTemporaryValue(nonKeyProperty, "Temp");
 
-            Assert.False(entry.HasTemporaryValue(keyProperty));
-            Assert.False(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.True(entry.HasTemporaryValue(keyProperty));
+            Assert.True(entry.HasTemporaryValue(nonKeyProperty));
             Assert.False(entry.IsModified(keyProperty));
-            Assert.False(entry.IsModified(nonKeyProperty));
+            Assert.True(entry.IsModified(nonKeyProperty));
 
             entry.SetEntityState(EntityState.Added);
 
-            Assert.False(entry.HasTemporaryValue(keyProperty));
-            Assert.False(entry.HasTemporaryValue(nonKeyProperty));
+            Assert.True(entry.HasTemporaryValue(keyProperty));
+            Assert.True(entry.HasTemporaryValue(nonKeyProperty));
             Assert.False(entry.IsModified(keyProperty));
             Assert.False(entry.IsModified(nonKeyProperty));
         }
@@ -318,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
             entry.SetEntityState(EntityState.Added);
-            entry.MarkAsTemporary(keyProperty);
+            entry.SetTemporaryValue(keyProperty, -1);
 
             Assert.Equal(
                 CoreStrings.TempValuePersists("Id", entityType.DisplayName(), targetState.ToString()),
@@ -337,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry[keyProperty] = 1;
 
             entry.SetEntityState(EntityState.Added);
-            entry.MarkAsTemporary(keyProperty);
+            entry.SetTemporaryValue(keyProperty, -1);
 
             Assert.True(entry.HasTemporaryValue(keyProperty));
 
@@ -362,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
             entry.SetEntityState(EntityState.Added);
-            entry.MarkAsTemporary(keyProperty);
+            entry.SetTemporaryValue(keyProperty, -1);
 
             Assert.True(entry.HasTemporaryValue(keyProperty));
 
@@ -426,24 +427,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [Fact]
-        public virtual void Temporary_values_are_reset_when_entity_is_detached()
+        public virtual void Temporary_values_are_npt_reset_when_entity_is_detached()
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
-            var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
+            var entity = new SomeEntity();
+            var entry = CreateInternalEntry(configuration, entityType, entity);
 
             entry.SetEntityState(EntityState.Added);
-            entry.MarkAsTemporary(keyProperty);
+            entry.SetTemporaryValue(keyProperty, -1);
 
             Assert.NotNull(entry[keyProperty]);
-            Assert.NotEqual(0, entry[keyProperty]);
+            Assert.Equal(0, entity.Id);
+            Assert.Equal(-1, entry[keyProperty]);
 
             entry.SetEntityState(EntityState.Detached);
 
-            Assert.Equal(0, entry[keyProperty]);
+            Assert.Equal(0, entity.Id);
+            Assert.Equal(-1, entry[keyProperty]);
+
+            entry.SetEntityState(EntityState.Added);
+
+            Assert.Equal(0, entity.Id);
+            Assert.Equal(-1, entry[keyProperty]);
         }
 
         [Fact]
@@ -1555,6 +1564,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entityType1.BaseType = someSimpleEntityType;
             var property3 = entityType1.AddProperty("Name", typeof(string));
             property3.IsConcurrencyToken = true;
+            property3.ValueGenerated = ValueGenerated.OnAdd;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
             entityType2.BaseType = someCompositeEntityType;
