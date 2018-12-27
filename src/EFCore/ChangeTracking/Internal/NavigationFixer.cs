@@ -822,7 +822,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     || (dependentEntry.IsConceptualNull(dependentProperty)
                         && principalValue != null))
                 {
-                    dependentEntry.SetProperty(dependentProperty, principalValue, setModified);
+                    if (principalEntry.HasTemporaryValue(principalProperty))
+                    {
+                        dependentEntry.SetTemporaryValue(dependentProperty, principalValue, setModified);
+                    }
+                    else
+                    {
+                        dependentEntry.SetProperty(dependentProperty, principalValue, setModified);
+                    }
                     dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
                     dependentEntry.SetRelationshipSnapshotValue(dependentProperty, principalValue);
                 }

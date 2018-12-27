@@ -277,13 +277,13 @@ namespace Microsoft.EntityFrameworkCore
 
                     if ((changeMechanism & ChangeMechanism.Fk) != 0)
                     {
-                        new2a.ParentId = existing.Id;
-                        new2b.ParentId = existing.Id;
-                        new2d.ParentId = new1d.Id;
-                        new2dd.ParentId = new1dd.Id;
-                        new1.ParentId = root.Id;
-                        new1d.ParentId = root.Id;
-                        new1dd.ParentId = root.Id;
+                        new2a.ParentId = context.Entry(existing).Property(e => e.Id).CurrentValue;
+                        new2b.ParentId = context.Entry(existing).Property(e => e.Id).CurrentValue;
+                        new2d.ParentId = context.Entry(new1d).Property(e => e.Id).CurrentValue;
+                        new2dd.ParentId = context.Entry(new1dd).Property(e => e.Id).CurrentValue;
+                        new1.ParentId = context.Entry(root).Property(e => e.Id).CurrentValue;
+                        new1d.ParentId = context.Entry(root).Property(e => e.Id).CurrentValue;
+                        new1dd.ParentId = context.Entry(root).Property(e => e.Id).CurrentValue;
                     }
 
                     Assert.True(context.ChangeTracker.HasChanges());
@@ -431,13 +431,13 @@ namespace Microsoft.EntityFrameworkCore
 
                     if ((changeMechanism & ChangeMechanism.Fk) != 0)
                     {
-                        new2a.ParentId = existing.Id;
-                        new2b.ParentId = existing.Id;
-                        new2d.ParentId = new1d.Id;
-                        new2dd.ParentId = new1dd.Id;
-                        new1.ParentId = root.Id;
-                        new1d.ParentId = root.Id;
-                        new1dd.ParentId = root.Id;
+                        new2a.ParentId = context.Entry(existing).Property(e => e.Id).CurrentValue;
+                        new2b.ParentId = context.Entry(existing).Property(e => e.Id).CurrentValue;
+                        new2d.ParentId = context.Entry(new1d).Property(e => e.Id).CurrentValue;
+                        new2dd.ParentId = context.Entry(new1dd).Property(e => e.Id).CurrentValue;
+                        new1.ParentId = context.Entry(root).Property(e => e.Id).CurrentValue;
+                        new1d.ParentId = context.Entry(root).Property(e => e.Id).CurrentValue;
+                        new1dd.ParentId = context.Entry(root).Property(e => e.Id).CurrentValue;
                     }
 
                     Assert.True(context.ChangeTracker.HasChanges());
@@ -1331,7 +1331,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     if ((changeMechanism & ChangeMechanism.Fk) != 0)
                     {
-                        old1.RootId = newRoot.Id;
+                        old1.RootId = context.Entry(newRoot).Property(e => e.Id).CurrentValue;
                     }
 
                     Assert.True(context.ChangeTracker.HasChanges());
@@ -1478,7 +1478,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     if ((changeMechanism & ChangeMechanism.Fk) != 0)
                     {
-                        old1.RootId = newRoot.Id;
+                        old1.RootId = context.Entry(newRoot).Property(e => e.Id).CurrentValue;
                     }
 
                     Assert.True(context.ChangeTracker.HasChanges());

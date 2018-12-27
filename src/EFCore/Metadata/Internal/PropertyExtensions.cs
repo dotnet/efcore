@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return currentProperty;
                 }
 
-                foreach (var foreignKey in currentProperty.DeclaringEntityType.GetForeignKeys())
+                foreach (var foreignKey in currentProperty.GetContainingForeignKeys())
                 {
                     for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
                     {

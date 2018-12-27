@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -56,7 +57,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual bool IsTemporary
         {
             get => InternalEntry.HasTemporaryValue(Metadata);
-            set => InternalEntry.MarkAsTemporary(Metadata, value);
+            set
+            {
+                if (value)
+                {
+                    InternalEntry.SetTemporaryValue(Metadata, CurrentValue);
+                }
+                else
+                {
+                    InternalEntry[Metadata] = CurrentValue;
+                }
+            }
         }
 
         /// <summary>

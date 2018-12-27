@@ -79,12 +79,10 @@ namespace Microsoft.EntityFrameworkCore
                         Name = "Rarity"
                     }).Entity;
 
-                Assert.True(added.Id1 != 0);
-                Assert.NotEqual(Guid.Empty, added.Id3);
-
                 await context.SaveChangesAsync();
 
                 Assert.True(added.Id1 > 0);
+                Assert.NotEqual(Guid.Empty, added.Id3);
 
                 id1 = added.Id1;
                 id3 = added.Id3;
