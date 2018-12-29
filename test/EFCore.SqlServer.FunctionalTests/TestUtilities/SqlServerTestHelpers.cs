@@ -31,9 +31,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => new SqlServerModelValidator(
                 new ModelValidatorDependencies(validationLogger, modelLogger),
                 new RelationalModelValidatorDependencies(
-#pragma warning disable 618
-                    TestServiceFactory.Instance.Create<ObsoleteRelationalTypeMapper>(),
-#pragma warning restore 618
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));

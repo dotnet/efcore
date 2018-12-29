@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
@@ -243,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = context.Add(new Chunky()).Entity;
-                var entry = context.ChangeTracker.GetInfrastructure().GetOrCreateEntry(entity);
+                var entry = context.GetService<IStateManager>().GetOrCreateEntry(entity);
 
                 Assert.Same(entry, context.Entry(entity).GetInfrastructure());
                 Assert.Same(entry, context.Entry((object)entity).GetInfrastructure());

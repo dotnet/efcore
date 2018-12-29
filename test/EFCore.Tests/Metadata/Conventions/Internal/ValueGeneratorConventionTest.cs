@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -497,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventions.EntityTypeAddedConventions.Add(
                 new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<FallbackTypeMappingSource>()));
+                    TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>()));
             conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(new TestLogger<DbLoggerCategory.Model>()));
 
             var keyConvention = new ValueGeneratorConvention();

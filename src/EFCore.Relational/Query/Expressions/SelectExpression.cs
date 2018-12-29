@@ -706,16 +706,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>
         ///     The types of the expressions in <see cref="Projection" />.
         /// </returns>
-        [Obsolete("Use GetMappedProjectionTypes().")]
-        public virtual IEnumerable<Type> GetProjectionTypes()
-            => GetMappedProjectionTypes().Select(t => t.ProviderClrType);
-
-        /// <summary>
-        ///     Gets the types of the expressions in <see cref="Projection" />.
-        /// </summary>
-        /// <returns>
-        ///     The types of the expressions in <see cref="Projection" />.
-        /// </returns>
         public virtual IEnumerable<TypeMaterializationInfo> GetMappedProjectionTypes()
         {
             if (IsProjectStar)
@@ -1134,19 +1124,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             {
                 AddToOrderBy(ordering);
             }
-        }
-
-        /// <summary>
-        ///     Replaces current ordering with expressions passed as parameter
-        /// </summary>
-        /// <param name="orderings"> The orderings expressions. </param>
-        [Obsolete("If you need to override this method then raise an issue at https://github.com/aspnet/EntityFrameworkCore")]
-        public virtual void ReplaceOrderBy([NotNull] IEnumerable<Ordering> orderings)
-        {
-            Check.NotNull(orderings, nameof(orderings));
-
-            _orderBy.Clear();
-            _orderBy.AddRange(orderings);
         }
 
         /// <summary>

@@ -28,26 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Initializes a new instance of the <see cref="EntityLoadInfo" /> struct.
         /// </summary>
-        /// <param name="valueBuffer"> The row of data that represents this entity. </param>
-        /// <param name="materializer"> The method to materialize the data into an entity instance. </param>
-        /// <param name="typeIndexMap"> Dictionary containing mapping from property indexes to values in ValueBuffer. </param>
-        [Obsolete("Use the constructor that also takes a MaterializationContext.")]
-        public EntityLoadInfo(
-            ValueBuffer valueBuffer,
-            [NotNull] Func<ValueBuffer, object> materializer,
-            [CanBeNull] Dictionary<Type, int[]> typeIndexMap = null)
-        {
-            // hot path
-            Debug.Assert(materializer != null);
-
-            _materializationContext = new MaterializationContext(valueBuffer);
-            _materializer = c => materializer(c.ValueBuffer);
-            _typeIndexMap = typeIndexMap;
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityLoadInfo" /> struct.
-        /// </summary>
         /// <param name="materializationContext"> The current <see cref="MaterializationContext" /> for creating the entity. </param>
         /// <param name="materializer"> The method to materialize the data into an entity instance. </param>
         /// <param name="typeIndexMap"> Dictionary containing mapping from property indexes to values in ValueBuffer. </param>

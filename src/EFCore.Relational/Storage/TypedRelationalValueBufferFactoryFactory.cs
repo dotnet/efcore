@@ -91,33 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
         /// </summary>
-        /// <param name="valueTypes">
-        ///     The types of values to be returned from the value buffer.
-        /// </param>
-        /// <param name="indexMap">
-        ///     An ordered list of zero-based indexes to be read from the underlying result set (i.e. the first number in this
-        ///     list is the index of the underlying result set that will be returned when value 0 is requested from the
-        ///     value buffer).
-        /// </param>
-        /// <returns>
-        ///     The newly created <see cref="IRelationalValueBufferFactoryFactory" />.
-        /// </returns>
-        [Obsolete("Use Create(IReadOnlyList<TypeMaterializationInfo>).")]
-        public virtual IRelationalValueBufferFactory Create(
-            IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
-        {
-            Check.NotNull(valueTypes, nameof(valueTypes));
-
-            var mappingSource = Dependencies.TypeMappingSource;
-
-            return Create(
-                valueTypes.Select(
-                    (t, i) => new TypeMaterializationInfo(t, null, mappingSource, indexMap?[i] ?? -1)).ToList());
-        }
-
-        /// <summary>
-        ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
-        /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
         /// <returns> The newly created <see cref="IRelationalValueBufferFactoryFactory" />. </returns>
         public virtual IRelationalValueBufferFactory Create(IReadOnlyList<TypeMaterializationInfo> types)

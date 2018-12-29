@@ -18,11 +18,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     Instances of this class are typically obtained from <see cref="DbContext.ChangeTracker" /> and it is not designed
     ///     to be directly constructed in your application code.
     /// </summary>
-    public class ChangeTracker : IInfrastructure<IStateManager>, IResettableService
+    public class ChangeTracker : IResettableService
     {
         private readonly IModel _model;
         private QueryTrackingBehavior _queryTrackingBehavior;
-        private QueryTrackingBehavior _defaultQueryTrackingBehavior;
+        private readonly QueryTrackingBehavior _defaultQueryTrackingBehavior;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -166,18 +166,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             return StateManager.ChangedCount > 0;
         }
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the internal state manager being used to store information about tracked entities.
-        ///     </para>
-        ///     <para>
-        ///         This property is intended for use by extension methods. It is not intended to be used in
-        ///         application code.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        IStateManager IInfrastructure<IStateManager>.Instance => StateManager;
 
         /// <summary>
         ///     Gets the context this change tracker belongs to.

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -541,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static ITypeMappingSource CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<FallbackTypeMappingSource>();
+            => TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
 
         private class A
         {

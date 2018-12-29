@@ -316,14 +316,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 // Filter out constant and parameter expressions (SELECT 1) if there is no skip or take #10410
                 if (selectExpression.Limit == null && selectExpression.Offset == null)
-                { 
+                {
                     orderByList.RemoveAll(o => IsOrderByExpressionConstant(ApplyOptimizations(o.Expression, searchCondition: false)));
                 }
 
                 if (orderByList.Count > 0)
-                { 
+                {
                     _relationalCommandBuilder.AppendLine();
-                    
+
                     GenerateOrderBy(orderByList);
                 }
             }
@@ -623,9 +623,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                && constantExpression.Type.UnwrapNullableType() == typeof(bool)
                 ? (bool?)constantExpression.Value
                 : null;
-        
+
         private bool IsOrderByExpressionConstant([NotNull] Expression processedExpression)
-        { 
+        {
             return processedExpression.RemoveConvert() is ConstantExpression
                 || processedExpression.RemoveConvert() is ParameterExpression;
         }
@@ -1049,21 +1049,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
-        ///     Visit a negated InExpression.
-        /// </summary>
-        /// <param name="inExpression"> The in expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        [Obsolete("Override GenerateIn method instead.")]
-        protected virtual Expression GenerateNotIn([NotNull] InExpression inExpression)
-        {
-            GenerateIn(inExpression, negated: true);
-
-            return inExpression;
-        }
-
-        /// <summary>
         ///     Generates SQL for an InExpression.
         /// </summary>
         /// <param name="inExpression"> The in expression. </param>
@@ -1093,51 +1078,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _typeMapping = parentTypeMapping;
         }
 
-        /// <summary>
-        ///     Process the InExpression values.
-        /// </summary>
-        /// <param name="inExpressionValues"> The in expression values. </param>
-        /// <returns>
-        ///     A list of expressions.
-        /// </returns>
-        [Obsolete("If you need to override this method then raise an issue at https://github.com/aspnet/EntityFrameworkCore")]
-        protected virtual IReadOnlyList<Expression> ProcessInExpressionValues(
-            [NotNull] IEnumerable<Expression> inExpressionValues)
-        {
-            Check.NotNull(inExpressionValues, nameof(inExpressionValues));
-
-            var inConstants = new List<Expression>();
-
-            foreach (var inValue in inExpressionValues)
-            {
-                switch (inValue)
-                {
-                    case ConstantExpression inConstant:
-                        AddInExpressionValues(inConstant.Value, inConstants, inConstant);
-                        break;
-                    case ParameterExpression inParameter:
-                        if (_parametersValues.TryGetValue(inParameter.Name, out var parameterValue))
-                        {
-                            AddInExpressionValues(parameterValue, inConstants, inParameter);
-
-                            IsCacheable = false;
-                        }
-
-                        break;
-                    case ListInitExpression inListInit:
-                        inConstants.AddRange(
-                            ProcessInExpressionValues(
-                                inListInit.Initializers.SelectMany(i => i.Arguments)));
-                        break;
-                    case NewArrayExpression newArray:
-                        inConstants.AddRange(ProcessInExpressionValues(newArray.Expressions));
-                        break;
-                }
-            }
-
-            return inConstants;
-        }
-
         private static void AddInExpressionValues(
             object value, List<Expression> inConstants, Expression expression)
         {
@@ -1151,45 +1091,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 inConstants.Add(expression);
             }
-        }
-
-        /// <summary>
-        ///     Extracts the non null expression values from a list of expressions.
-        /// </summary>
-        /// <param name="inExpressionValues"> The list of expressions. </param>
-        /// <returns>
-        ///     The extracted non null expression values.
-        /// </returns>
-        [Obsolete("If you need to override this method then raise an issue at https://github.com/aspnet/EntityFrameworkCore")]
-        protected virtual IReadOnlyList<Expression> ExtractNonNullExpressionValues(
-            [NotNull] IReadOnlyList<Expression> inExpressionValues)
-        {
-            var inValuesNotNull = new List<Expression>();
-
-            foreach (var inValue in inExpressionValues)
-            {
-                var inConstant = inValue as ConstantExpression;
-
-                if (inConstant?.Value != null)
-                {
-                    inValuesNotNull.Add(inValue);
-
-                    continue;
-                }
-
-                if (inValue is ParameterExpression inParameter)
-                {
-                    if (_parametersValues.TryGetValue(inParameter.Name, out var parameterValue))
-                    {
-                        if (parameterValue != null)
-                        {
-                            inValuesNotNull.Add(inValue);
-                        }
-                    }
-                }
-            }
-
-            return inValuesNotNull;
         }
 
         /// <summary>
@@ -1637,41 +1538,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
-        ///     Generates a SQL function call.
-        /// </summary>
-        /// <param name="functionName">The function name</param>
-        /// <param name="arguments">The function arguments</param>
-        /// <param name="schema">The function schema</param>
-        [Obsolete("Override VisitSqlFunction method instead.")]
-        protected virtual void GenerateFunctionCall(
-            [NotNull] string functionName,
-            [NotNull] IReadOnlyList<Expression> arguments,
-            [CanBeNull] string schema = null)
-        {
-            Check.NotEmpty(functionName, nameof(functionName));
-            Check.NotNull(arguments, nameof(arguments));
-
-            if (!string.IsNullOrWhiteSpace(schema))
-            {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(schema))
-                    .Append(".");
-            }
-
-            var parentTypeMapping = _typeMapping;
-            _typeMapping = null;
-
-            _relationalCommandBuilder.Append(functionName);
-            _relationalCommandBuilder.Append("(");
-
-            GenerateList(arguments);
-
-            _relationalCommandBuilder.Append(")");
-
-            _typeMapping = parentTypeMapping;
-        }
-
-        /// <summary>
         ///     Visit a SQL ExplicitCastExpression.
         /// </summary>
         /// <param name="explicitCastExpression"> The explicit cast expression. </param>
@@ -1918,28 +1784,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         protected virtual RelationalTypeMapping InferTypeMappingFromColumn([NotNull] Expression expression)
             => expression.FindProperty(expression.Type)?.FindRelationalMapping();
-
-        /// <summary>
-        ///     Attempts to generate binary operator for a given expression type.
-        /// </summary>
-        /// <param name="op"> The operation. </param>
-        /// <param name="result"> [out] The SQL binary operator. </param>
-        /// <returns>
-        ///     true if it succeeds, false if it fails.
-        /// </returns>
-        [Obsolete("Override GenerateOperator method instead.")]
-        protected virtual bool TryGenerateBinaryOperator(ExpressionType op, [NotNull] out string result)
-            => _operatorMap.TryGetValue(op, out result);
-
-        /// <summary>
-        ///     Generates SQL for a given binary operation type.
-        /// </summary>
-        /// <param name="op"> The operation. </param>
-        /// <returns>
-        ///     The binary operator.
-        /// </returns>
-        [Obsolete("Override GenerateOperator method instead.")]
-        protected virtual string GenerateBinaryOperator(ExpressionType op) => _operatorMap[op];
 
         /// <summary>
         ///     Generates an SQL operator for a given expression.

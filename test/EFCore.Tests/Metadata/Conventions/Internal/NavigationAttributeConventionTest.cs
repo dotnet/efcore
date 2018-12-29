@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -819,7 +820,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             => new MemberClassifier(CreateTypeMapper(), TestServiceFactory.Instance.Create<IParameterBindingFactories>());
 
         private static ITypeMappingSource CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<FallbackTypeMappingSource>();
+            => TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
 
         private ModelBuilder CreateModelBuilder()
         {

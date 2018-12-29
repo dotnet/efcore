@@ -234,20 +234,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     QueryContextParameter);
 
         /// <summary>
-        ///     Rewrites collection navigation projections so that they can be handled by the Include pipeline.
-        /// </summary>
-        /// <param name="queryModel"> The query. </param>
-        [Obsolete("This is now handled by correlated collection optimization.")]
-        protected virtual void RewriteProjectedCollectionNavigationsToIncludes([NotNull] QueryModel queryModel)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            var collectionNavigationIncludeRewriter = new CollectionNavigationIncludeExpressionRewriter(this);
-            queryModel.SelectClause.Selector = collectionNavigationIncludeRewriter.Visit(queryModel.SelectClause.Selector);
-            _queryCompilationContext.AddAnnotations(collectionNavigationIncludeRewriter.CollectionNavigationIncludeResultOperators);
-        }
-
-        /// <summary>
         ///     Populates <see cref="Query.QueryCompilationContext.QueryAnnotations" /> based on annotations found in the query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>

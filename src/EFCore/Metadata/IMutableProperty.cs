@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -67,24 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         new PropertySaveBehavior AfterSaveBehavior { get; set; }
-
-        /// <summary>
-        ///     This property is obsolete. Use <see cref="BeforeSaveBehavior" /> instead.
-        /// </summary>
-        [Obsolete("Use BeforeSaveBehavior instead.")]
-        new bool IsReadOnlyBeforeSave { get; set; }
-
-        /// <summary>
-        ///     This property is obsolete. Use <see cref="BeforeSaveBehavior" /> instead.
-        /// </summary>
-        [Obsolete("Use AfterSaveBehavior instead.")]
-        new bool IsReadOnlyAfterSave { get; set; }
-
-        /// <summary>
-        ///     This property is obsolete. Use <see cref="BeforeSaveBehavior" /> or <see cref="AfterSaveBehavior" /> instead.
-        /// </summary>
-        [Obsolete("Use BeforeSaveBehavior or AfterSaveBehavior instead.")]
-        new bool IsStoreGeneratedAlways { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this property is used as a concurrency token. When a property is configured

@@ -65,38 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void GenerateParameterNamePlaceholder([NotNull] StringBuilder builder, [NotNull] string name);
 
         /// <summary>
-        ///     Generates the escaped SQL representation of a literal value.
-        /// </summary>
-        /// <param name="literal"> The value to be escaped. </param>
-        /// <returns> The generated string. </returns>
-        [Obsolete("Use IRelationalTypeMappingSource.GetMapping(typeof(string)).GenerateSqlLiteral() instead.")]
-        string EscapeLiteral([NotNull] string literal);
-
-        /// <summary>
-        ///     Writes the escaped SQL representation of a literal value.
-        /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
-        /// <param name="literal"> The value to be escaped. </param>
-        [Obsolete("Use IRelationalTypeMappingSource.GetMapping(typeof(string)).GenerateSqlLiteral() instead.")]
-        void EscapeLiteral([NotNull] StringBuilder builder, [NotNull] string literal);
-
-        /// <summary>
-        ///     Generates the escaped SQL representation of an identifier (column name, table name, etc.).
-        /// </summary>
-        /// <param name="identifier"> The identifier to be escaped. </param>
-        /// <returns> The generated string. </returns>
-        [Obsolete("Use DelimitIdentifier() instead.")]
-        string EscapeIdentifier([NotNull] string identifier);
-
-        /// <summary>
-        ///     Writes the escaped SQL representation of an identifier (column name, table name, etc.).
-        /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
-        /// <param name="identifier"> The identifier to be escaped. </param>
-        [Obsolete("Use DelimitIdentifier() instead.")]
-        void EscapeIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier);
-
-        /// <summary>
         ///     Generates the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
         /// <param name="identifier"> The identifier to delimit. </param>

@@ -37,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosEntityQueryableExpressionVisitorFactory>()
                 .TryAdd<IMemberAccessBindingExpressionVisitorFactory, CosmosMemberAccessBindingExpressionVisitorFactory>()
                 .TryAdd<INavigationRewritingExpressionVisitorFactory, CosmosNavigationRewritingExpressionVisitorFactory>()
+                .TryAdd<ITypeMappingSource, CosmosTypeMappingSource>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddScoped<CosmosClient, CosmosClient>()

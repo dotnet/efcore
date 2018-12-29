@@ -66,41 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Obsolete("Use other constructor for testing.")]
-        protected RelationalDataReader([NotNull] DbDataReader reader)
-        {
-            // For testing
-            Check.NotNull(reader, nameof(reader));
-
-            _reader = reader;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Obsolete("Use other constructor for testing, passing in a fake connection.")]
-        protected RelationalDataReader(
-            [NotNull] DbCommand command,
-            [NotNull] DbDataReader reader,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-        {
-            // For testing
-            Check.NotNull(command, nameof(command));
-            Check.NotNull(reader, nameof(reader));
-            Check.NotNull(logger, nameof(logger));
-
-            _command = command;
-            _reader = reader;
-            _logger = logger;
-            _startTime = DateTimeOffset.UtcNow;
-            _stopwatch = Stopwatch.StartNew();
-        }
-
-        /// <summary>
         ///     Gets the underlying reader for the result set.
         /// </summary>
         public virtual DbDataReader DbDataReader => _reader;
