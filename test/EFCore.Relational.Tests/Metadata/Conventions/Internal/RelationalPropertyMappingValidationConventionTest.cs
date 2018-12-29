@@ -41,10 +41,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         protected override PropertyMappingValidationConvention CreateConvention()
-            => new PropertyMappingValidationConvention(
-                new TestRelationalTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                TestServiceFactory.Instance.Create<IMemberClassifier>());
+        {
+            var typeMappingSource = new TestRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
+            return new PropertyMappingValidationConvention(
+                typeMappingSource,
+                TestServiceFactory.Instance.Create<IMemberClassifier>(
+                    (typeof(ITypeMappingSource), typeMappingSource)));
+        }
     }
 }

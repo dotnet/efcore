@@ -41,13 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 // NOTE: You may need to update AddEntityFrameworkDesignTimeServices() too
                 var services = new ServiceCollection()
                     .AddSingleton<TypeMappingSourceDependencies>()
-                    .AddSingleton<RelationalTypeMapperDependencies>()
                     .AddSingleton<RelationalTypeMappingSourceDependencies>()
                     .AddSingleton<ValueConverterSelectorDependencies>()
                     .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                     .AddSingleton<ILoggingOptions, LoggingOptions>()
                     .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
-                    .AddSingleton<IRelationalTypeMappingSource, FallbackRelationalTypeMappingSource>()
                     .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                     .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory);
                 new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
@@ -75,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             Test(
                 @"
-CREATE TABLE Everest ( id int );  
+CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
                 new[] { "Everest" },
                 Enumerable.Empty<string>(),
@@ -96,7 +94,7 @@ DROP TABLE Denali;");
         {
             Test(
                 @"
-CREATE TABLE Everest ( id int );  
+CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
                 new[] { "eVeReSt" },
                 Enumerable.Empty<string>(),
@@ -121,7 +119,7 @@ DROP TABLE Denali;");
         {
             Test(
                 @"
-CREATE TABLE Everest ( id int );  
+CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -188,9 +186,9 @@ CREATE TABLE MountainsColumns (
         {
             Test(
                 @"
-CREATE TABLE Place ( 
-    Id int PRIMARY KEY, 
-    Name int UNIQUE, 
+CREATE TABLE Place (
+    Id int PRIMARY KEY,
+    Name int UNIQUE,
     Location int
 );
 

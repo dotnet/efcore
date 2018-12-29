@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
@@ -396,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var stateManager = context.ChangeTracker.GetInfrastructure();
+                    var stateManager = context.GetService<IStateManager>();
 
                     var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
                     var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
@@ -450,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var stateManager = context.ChangeTracker.GetInfrastructure();
+                    var stateManager = context.GetService<IStateManager>();
 
                     var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
                     var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
@@ -506,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
-                    var stateManager = context.ChangeTracker.GetInfrastructure();
+                    var stateManager = context.GetService<IStateManager>();
 
                     var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
                     var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
@@ -560,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore
             return ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
-                    var stateManager = context.ChangeTracker.GetInfrastructure();
+                    var stateManager = context.GetService<IStateManager>();
 
                     var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
                     var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");

@@ -3,8 +3,10 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -58,7 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_find_duplicate_service_properties()
         {
-            var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>();
+            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
+            var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
+                (typeof(ITypeMappingSource), typeMappingSource));
+
             var entityType = new Model().AddEntityType(typeof(BlogDuplicateService));
 
             convention.Apply(entityType.Builder);
@@ -75,7 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Finds_service_property_duplicate_ignored()
         {
-            var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>();
+            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
+            var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
+                (typeof(ITypeMappingSource), typeMappingSource));
+
             var entityType = new Model().AddEntityType(typeof(BlogDuplicateService));
 
             convention.Apply(entityType.Builder);
@@ -98,7 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             entityType.AddProperty(nameof(Blog.Id), typeof(int));
 
-            TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>().Apply(entityType.Builder);
+            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
+            TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
+                    (typeof(ITypeMappingSource), typeMappingSource))
+                .Apply(entityType.Builder);
 
             return entityType;
         }

@@ -721,24 +721,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Always_identity_property_on_Added_entity_gets_store_value_even_when_set_explicitly()
-        {
-            var id = 0;
-
-            ExecuteWithStrategyInTransaction(
-                context =>
-                    {
-                        var entity = context.Add(new Gumball { AlwaysIdentity = "Masami" }).Entity;
-
-                        context.SaveChanges();
-                        id = entity.Id;
-
-                        Assert.Equal("Banana Joe", entity.AlwaysIdentity);
-                    },
-                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
-        }
-
-        [Fact]
         public virtual void Always_identity_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
             var id = 0;
@@ -764,35 +746,6 @@ namespace Microsoft.EntityFrameworkCore
                             CoreStrings.PropertyReadOnlyAfterSave("AlwaysIdentityReadOnlyAfterSave", "Gumball"),
                             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                     });
-        }
-
-        [Fact]
-        public virtual void Always_identity_property_on_Modified_entity_is_not_included_in_update_when_modified()
-        {
-            var id = 0;
-
-            ExecuteWithStrategyInTransaction(
-                context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
-
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
-                context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
-
-                        Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
-
-                        gumball.AlwaysIdentity = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
-
-                        context.SaveChanges();
-
-                        Assert.Equal("Masami", gumball.AlwaysIdentity);
-                    },
-                context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
         [Fact]
@@ -1036,24 +989,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Always_computed_property_on_Added_entity_cannot_have_value_set_explicitly()
-        {
-            var id = 0;
-
-            ExecuteWithStrategyInTransaction(
-                context =>
-                    {
-                        var entity = context.Add(new Gumball { AlwaysComputed = "Masami" }).Entity;
-
-                        context.SaveChanges();
-                        id = entity.Id;
-
-                        Assert.Equal("Alan", entity.AlwaysComputed);
-                    },
-                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
-        }
-
-        [Fact]
         public virtual void Always_computed_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
             var id = 0;
@@ -1079,35 +1014,6 @@ namespace Microsoft.EntityFrameworkCore
                             CoreStrings.PropertyReadOnlyAfterSave("AlwaysComputedReadOnlyAfterSave", "Gumball"),
                             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                     });
-        }
-
-        [Fact]
-        public virtual void Always_computed_property_on_Modified_entity_is_not_included_in_update_even_when_modified()
-        {
-            var id = 0;
-
-            ExecuteWithStrategyInTransaction(
-                context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
-
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
-                context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
-
-                        Assert.Equal("Alan", gumball.AlwaysComputed);
-
-                        gumball.AlwaysComputed = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
-
-                        context.SaveChanges();
-
-                        Assert.Equal("Alan", gumball.AlwaysComputed);
-                    },
-                context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
         [Fact]
@@ -1312,65 +1218,56 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                         {
                             var property = b.Property(e => e.Id).ValueGeneratedOnAdd().Metadata;
-#pragma warning disable 618
-                            property.IsReadOnlyAfterSave = true;
-                            property.IsReadOnlyBeforeSave = true;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
                             property = b.Property(e => e.Identity).ValueGeneratedOnAdd().Metadata;
-                            property.IsReadOnlyAfterSave = false;
-                            property.IsReadOnlyBeforeSave = false;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
                             property = b.Property(e => e.IdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
-                            property.IsReadOnlyAfterSave = false;
-                            property.IsReadOnlyBeforeSave = true;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
                             property = b.Property(e => e.IdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
-                            property.IsReadOnlyAfterSave = true;
-                            property.IsReadOnlyBeforeSave = false;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
                             property = b.Property(e => e.AlwaysIdentity).ValueGeneratedOnAdd().Metadata;
-                            property.IsStoreGeneratedAlways = true;
-                            property.IsReadOnlyAfterSave = false;
-                            property.IsReadOnlyBeforeSave = false;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
                             property = b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
-                            property.IsStoreGeneratedAlways = true;
-                            property.IsReadOnlyAfterSave = false;
-                            property.IsReadOnlyBeforeSave = true;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
                             property = b.Property(e => e.AlwaysIdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
-                            property.IsStoreGeneratedAlways = true;
-                            property.IsReadOnlyAfterSave = true;
-                            property.IsReadOnlyBeforeSave = false;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
                             property = b.Property(e => e.Computed).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.IsStoreGeneratedAlways = false;
-                            property.IsReadOnlyAfterSave = false;
-                            property.IsReadOnlyBeforeSave = false;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
                             property = b.Property(e => e.ComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.IsReadOnlyAfterSave = false;
-                            property.IsReadOnlyBeforeSave = true;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
                             property = b.Property(e => e.ComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.IsReadOnlyAfterSave = true;
-                            property.IsReadOnlyBeforeSave = false;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
                             property = b.Property(e => e.AlwaysComputed).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.IsStoreGeneratedAlways = true;
-                            property.IsReadOnlyAfterSave = false;
-                            property.IsReadOnlyBeforeSave = false;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
                             property = b.Property(e => e.AlwaysComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.IsStoreGeneratedAlways = true;
-                            property.IsReadOnlyAfterSave = false;
-                            property.IsReadOnlyBeforeSave = true;
+                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
                             property = b.Property(e => e.AlwaysComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.IsStoreGeneratedAlways = true;
-                            property.IsReadOnlyAfterSave = true;
-                            property.IsReadOnlyBeforeSave = false;
-#pragma warning restore 618
+                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
                         });
 
                 modelBuilder.Entity<Anais>(

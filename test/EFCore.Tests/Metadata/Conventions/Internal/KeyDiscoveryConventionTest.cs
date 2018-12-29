@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -154,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
             new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<FallbackTypeMappingSource>())
+                    TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>())
                 .Apply(entityBuilder);
 
             return entityBuilder;

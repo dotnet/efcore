@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
                 context.SaveChanges();
                 var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
-                context.ChangeTracker.GetInfrastructure().StopTracking(entry);
+                context.GetService<IStateManager>().StopTracking(entry);
 
                 var ex = await Assert.ThrowsAnyAsync<Exception>(() => test(context));
                 while (ex.InnerException != null)

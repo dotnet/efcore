@@ -57,48 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         directly from your code. This API may change or be removed in future releases.
         ///     </para>
         /// </summary>
-        [Obsolete("Use the constructor with most parameters")]
-        public CoreConventionSetBuilderDependencies([NotNull] ITypeMapper typeMapper)
-            : this(
-                new FallbackTypeMappingSource(
-                    new TypeMappingSourceDependencies(
-                        new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies()),
-                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
-                    typeMapper),
-                null,
-                null,
-                null,
-                null)
-        {
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="CoreConventionSetBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Do not call this constructor directly from either provider or application code as it may change
-        ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
-        ///         will be created and injected automatically by the dependency injection container. To create
-        ///         an instance with some dependent services replaced, first resolve the object from the dependency
-        ///         injection container, then replace selected services using the 'With...' methods. Do not call
-        ///         the constructor at any point in this process.
-        ///     </para>
-        ///     <para>
-        ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///         directly from your code. This API may change or be removed in future releases.
-        ///     </para>
-        /// </summary>
         public CoreConventionSetBuilderDependencies(
                 [NotNull] ITypeMappingSource typeMappingSource,
                 [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
                 [CanBeNull] IParameterBindingFactories parameterBindingFactories,
                 [CanBeNull] IMemberClassifier memberClassifier,
-                [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
-#pragma warning disable 618
-                [CanBeNull] ITypeMapper _ = null) // Only needed for D.I. to resolve this constructor
-#pragma warning restore 618
+                [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
@@ -164,25 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        [Obsolete("Use TypeMappingSource.")]
-        public CoreConventionSetBuilderDependencies With([NotNull] ITypeMapper typeMapper)
-            => new CoreConventionSetBuilderDependencies(
-                new FallbackTypeMappingSource(
-                    new TypeMappingSourceDependencies(
-                        new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies()),
-                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
-                    typeMapper),
-                ConstructorBindingFactory,
-                ParameterBindingFactories,
-                MemberClassifier,
-                Logger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.

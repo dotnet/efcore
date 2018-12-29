@@ -2489,7 +2489,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var productType = context.Model.FindEntityType(typeof(Product));
                 var offerType = context.Model.FindEntityType(typeof(SpecialOffer));
 
-                var stateManager = context.ChangeTracker.GetInfrastructure();
+                var stateManager = context.GetService<IStateManager>();
 
                 stateManager.BeginTrackingQuery();
 

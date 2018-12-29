@@ -75,32 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => GenerateParameterName(builder,name);
 
         /// <summary>
-        ///     Generates the escaped SQL representation of a literal value.
-        /// </summary>
-        /// <param name="literal">The value to be escaped.</param>
-        /// <returns>
-        ///     The generated string.
-        /// </returns>
-        [Obsolete("Use IRelationalTypeMappingSource.GetMapping(typeof(string)).GenerateSqlLiteral() instead.")]
-        public virtual string EscapeLiteral(string literal)
-            => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
-
-        /// <summary>
-        ///     Writes the escaped SQL representation of a literal value.
-        /// </summary>
-        /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
-        /// <param name="literal">The value to be escaped.</param>
-        [Obsolete("Use IRelationalTypeMappingSource.GetMapping(typeof(string)).GenerateSqlLiteral() instead.")]
-        public virtual void EscapeLiteral(StringBuilder builder, string literal)
-        {
-            Check.NotNull(literal, nameof(literal));
-
-            var initialLength = builder.Length;
-            builder.Append(literal);
-            builder.Replace("'", "''", initialLength, literal.Length);
-        }
-
-        /// <summary>
         ///     Generates the escaped SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
         /// <param name="identifier">The identifier to be escaped.</param>

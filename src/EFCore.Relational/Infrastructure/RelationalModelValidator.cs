@@ -39,12 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual RelationalModelValidatorDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     Gets the type mapper.
-        /// </summary>
-        [Obsolete("Use IRelationalTypeMappingSource.")]
-        protected virtual IRelationalTypeMapper TypeMapper => RelationalDependencies.TypeMapper;
-
-        /// <summary>
         ///     Validates a model, throwing an exception if any errors are found.
         /// </summary>
         /// <param name="model"> The model to validate. </param>
@@ -54,9 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             ValidateSharedTableCompatibility(model);
             ValidateInheritanceMapping(model);
-#pragma warning disable 618
-            ValidateDataTypes(model);
-#pragma warning restore 618
             ValidateDefaultValuesOnKeys(model);
             ValidateBoolsWithDefaults(model);
             ValidateDbFunctions(model);
@@ -126,15 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private static bool IsNotNullAndFalse(object value)
             => value != null
                && (!(value is bool asBool) || asBool);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Obsolete("Now happens as a part of FindTypeMapping.")]
-        protected virtual void ValidateDataTypes([NotNull] IModel model)
-        {
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

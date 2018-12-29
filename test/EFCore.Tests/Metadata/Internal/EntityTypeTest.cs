@@ -464,43 +464,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Key_properties_are_always_read_only_after_save()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
-            var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
-            nameProperty.IsNullable = false;
-
-#pragma warning disable 618
-            Assert.False(((IProperty)idProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
-            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
-
-            entityType.GetOrAddKey(new[] { idProperty, nameProperty });
-
-            Assert.True(((IProperty)idProperty).IsReadOnlyAfterSave);
-            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
-            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
-
-            nameProperty.AfterSaveBehavior = PropertySaveBehavior.Throw;
-
-            Assert.Equal(
-                CoreStrings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() => nameProperty.AfterSaveBehavior = PropertySaveBehavior.Save).Message);
-
-            nameProperty.IsReadOnlyBeforeSave = true;
-
-            Assert.True(((IProperty)idProperty).IsReadOnlyAfterSave);
-            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
-            Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
-#pragma warning restore 618
-        }
-
-        [Fact]
         public void Store_computed_values_are_ignored_before_and_after_save_by_default()
         {
             var model = new Model();
@@ -550,35 +513,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(PropertySaveBehavior.Throw, nameProperty.BeforeSaveBehavior);
             Assert.Equal(PropertySaveBehavior.Throw, nameProperty.AfterSaveBehavior);
-        }
-
-        [Fact]
-        public void Store_always_computed_values_are_not_read_only_before_and_after_save_by_default()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-            var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
-
-#pragma warning disable 618
-            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
-
-            nameProperty.ValueGenerated = ValueGenerated.OnAddOrUpdate;
-            nameProperty.IsStoreGeneratedAlways = true;
-
-            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
-
-            nameProperty.IsReadOnlyBeforeSave = true;
-
-            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
-
-            nameProperty.IsReadOnlyAfterSave = true;
-
-            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
-            Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
-#pragma warning restore 618
         }
 
         [Fact]

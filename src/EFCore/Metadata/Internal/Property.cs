@@ -344,40 +344,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Obsolete("Use BeforeSaveBehavior instead.")]
-        public virtual bool IsReadOnlyBeforeSave
-        {
-            get => BeforeSaveBehavior == PropertySaveBehavior.Throw;
-            set
-            {
-                if (value)
-                {
-                    BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Obsolete("Use AfterSaveBehavior instead.")]
-        public virtual bool IsReadOnlyAfterSave
-        {
-            get => AfterSaveBehavior == PropertySaveBehavior.Throw;
-            set
-            {
-                if (value)
-                {
-                    AfterSaveBehavior = PropertySaveBehavior.Throw;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual bool IsConcurrencyToken
         {
             get => _isConcurrencyToken ?? DefaultIsConcurrencyToken;
@@ -410,29 +376,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void UpdateIsConcurrencyTokenConfigurationSource(ConfigurationSource configurationSource)
             => _isConcurrencyTokenConfigurationSource = configurationSource.Max(_isConcurrencyTokenConfigurationSource);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Obsolete("Use BeforeSaveBehavior or AfterSaveBehavior instead.")]
-        public virtual bool IsStoreGeneratedAlways
-        {
-            get => AfterSaveBehavior == PropertySaveBehavior.Ignore || BeforeSaveBehavior == PropertySaveBehavior.Ignore;
-            set
-            {
-                if (value)
-                {
-                    BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                    AfterSaveBehavior = PropertySaveBehavior.Ignore;
-                }
-                else
-                {
-                    BeforeSaveBehavior = PropertySaveBehavior.Save;
-                    AfterSaveBehavior = PropertySaveBehavior.Save;
-                }
-            }
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

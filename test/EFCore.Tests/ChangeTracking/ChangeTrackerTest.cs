@@ -1058,17 +1058,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [Fact]
-        public void Can_get_state_manager()
-        {
-            using (var context = new EarlyLearningCenter())
-            {
-                var stateManger = context.GetService<IStateManager>();
-
-                Assert.Same(stateManger, context.ChangeTracker.GetInfrastructure());
-            }
-        }
-
-        [Fact]
         public void Can_get_Context()
         {
             using (var context = new EarlyLearningCenter())
