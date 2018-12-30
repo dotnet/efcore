@@ -17,12 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
-        public virtual void Entity_added_to_state_manager()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Entity_added_to_state_manager(bool useParam)
         {
             using (var context = CreateContext())
             {
-                var customers = context.Set<Customer>().AsTracking().ToList();
+                var customers = useParam
+                    ? context.Set<Customer>().AsTracking(QueryTrackingBehavior.TrackAll).ToList()
+                    : context.Set<Customer>().AsTracking().ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(91, context.ChangeTracker.Entries().Count());
