@@ -19,12 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [ConditionalFact]
-        public virtual void Entity_not_added_to_state_manager()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Entity_not_added_to_state_manager(bool useParam)
         {
             using (var context = CreateContext())
             {
-                var customers = context.Set<Customer>().AsNoTracking().ToList();
+                var customers = useParam
+                    ? context.Set<Customer>().AsTracking(QueryTrackingBehavior.NoTracking).ToList()
+                    : context.Set<Customer>().AsNoTracking().ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
