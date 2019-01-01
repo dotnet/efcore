@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = CreateProperty<ReadOnlyAutoProp>(field);
             Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), Property);
+            MemberInfoTest(property, null, field, field, Property);
+            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, field, Property);
             MemberInfoTest(property, PropertyAccessMode.Property, NoSetter<ReadOnlyAutoProp>(), NoSetter<ReadOnlyAutoProp>(), Property);
         }
 
@@ -86,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = CreateProperty<ReadOnlyFieldProp>(field);
             Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), Property);
+            MemberInfoTest(property, null, field, field, Property);
+            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, field, Property);
             MemberInfoTest(property, PropertyAccessMode.Property, NoSetter<ReadOnlyFieldProp>(), NoSetter<ReadOnlyFieldProp>(), Property);
         }
 
@@ -138,9 +138,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = CreateProperty<ReadOnlyFieldOnly>(field);
             Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, ReadonlyField<ReadOnlyFieldOnly>(field), ReadonlyField<ReadOnlyFieldOnly>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.Field, ReadonlyField<ReadOnlyFieldOnly>(field), ReadonlyField<ReadOnlyFieldOnly>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyFieldOnly>(field), ReadonlyField<ReadOnlyFieldOnly>(field), field);
+            MemberInfoTest(property, null, field, field, field);
+            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Property, NoProperty<ReadOnlyFieldOnly>(field), NoProperty<ReadOnlyFieldOnly>(field), NoProperty<ReadOnlyFieldOnly>(field));
         }
 
@@ -248,9 +248,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             const string field = "<Reference>k__BackingField";
             var navigation = CreateReferenceNavigation<ReadOnlyAutoProp>(field);
 
-            MemberInfoTest(navigation, null, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), Reference);
+            MemberInfoTest(navigation, null, field, field, Reference);
+            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, field, Reference);
             MemberInfoTest(navigation, PropertyAccessMode.Property, NoSetterRef<ReadOnlyAutoProp>(), NoSetterRef<ReadOnlyAutoProp>(), Reference);
         }
 
@@ -260,9 +260,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             const string field = "_reference";
             var navigation = CreateReferenceNavigation<ReadOnlyFieldProp>(field);
 
-            MemberInfoTest(navigation, null, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), Reference);
+            MemberInfoTest(navigation, null, field, field, Reference);
+            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, field, Reference);
             MemberInfoTest(navigation, PropertyAccessMode.Property, NoSetterRef<ReadOnlyFieldProp>(), NoSetterRef<ReadOnlyFieldProp>(), Reference);
         }
 
@@ -377,9 +377,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             const string field = "<Collection>k__BackingField";
             var navigation = CreateCollectionNavigation<ReadOnlyAutoProp>(field);
 
-            MemberInfoTest(navigation, null, null, null, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, null, null, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, null, null, Collection);
+            MemberInfoTest(navigation, null, field, field, Collection);
+            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, field, Collection);
             MemberInfoTest(navigation, PropertyAccessMode.Property, null, null, Collection);
         }
 
@@ -389,9 +389,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             const string field = "_collection";
             var navigation = CreateCollectionNavigation<ReadOnlyFieldProp>(field);
 
-            MemberInfoTest(navigation, null, null, null, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, null, null, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, null, null, Collection);
+            MemberInfoTest(navigation, null, field, field, Collection);
+            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, field, Collection);
             MemberInfoTest(navigation, PropertyAccessMode.Property, null, null, Collection);
         }
 
@@ -481,9 +481,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static string NoGetter<TEntity>()
             => CoreStrings.NoGetter(Property, typeof(TEntity).Name, nameof(PropertyAccessMode));
-
-        private static string ReadonlyField<TEntity>(string fieldName)
-            => CoreStrings.ReadonlyField(fieldName, typeof(TEntity).Name);
 
         private static string NoFieldRef<TEntity>()
             => CoreStrings.NoBackingField(Reference, typeof(TEntity).Name, nameof(PropertyAccessMode));
@@ -753,11 +750,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class ReadOnlyProp
         {
-#pragma warning disable IDE0044 // Add readonly modifier
-            private int _foo;
-            private ReadOnlyProp _reference;
-            private IEnumerable<ReadOnlyProp> _collection;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly int _foo;
+            private readonly ReadOnlyProp _reference;
+            private readonly IEnumerable<ReadOnlyProp> _collection;
 
             public int Id { get; set; }
 
@@ -833,9 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FieldOnly
         {
-#pragma warning disable IDE0044 // Add readonly modifier
-            private int _foo;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly int _foo;
 
             public FieldOnly(int id)
             {

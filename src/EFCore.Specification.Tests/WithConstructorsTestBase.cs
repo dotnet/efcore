@@ -818,9 +818,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Blog
         {
-#pragma warning disable IDE0044 // Add readonly modifier
-            private int _blogId;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly int _blogId;
 
             private Blog(
                 int blogId,
@@ -864,9 +862,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Post
         {
-#pragma warning disable IDE0044 // Add readonly modifier
-            private int _id;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly int _id;
 
             private Post(
                 int id,

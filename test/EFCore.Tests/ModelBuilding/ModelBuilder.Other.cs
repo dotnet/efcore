@@ -118,9 +118,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class User13300
         {
             public Guid Id { get; set; }
-#pragma warning disable IDE0044 // Add readonly modifier
-            private string _email = string.Empty;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly string _email = string.Empty;
             private readonly List<Profile13300> _profiles = new List<Profile13300>();
         }
 
@@ -163,9 +161,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class User13694
         {
             public Guid Id { get; set; }
-#pragma warning disable IDE0044 // Add readonly modifier
-            private string _email = string.Empty;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly string _email = string.Empty;
             private readonly List<Profile13694> _profiles = new List<Profile13694>();
         }
 
