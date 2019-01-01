@@ -137,17 +137,27 @@ namespace Microsoft.Data.Sqlite
 
             AppDomain.CurrentDomain.SetData("DataDirectory", dataSubDirectory);
 
-            using (var connection = new SqliteConnection("Data Source=|DataDirectory|local.db"))
-            {
-                connection.Open();
+            try
+            { 
+                using (var connection = new SqliteConnection("Data Source=|DataDirectory|local.db"))
+                {
+                    connection.Open();
 
-                Assert.Equal(Path.Combine(dataSubDirectory, "local.db"), connection.DataSource);
+                    Assert.Equal(Path.Combine(dataSubDirectory, "local.db"), connection.DataSource);
+                }
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.SetData("DataDirectory", null);
             }
         }
 
         [Fact]
         public void Open_adjusts_relative_path()
         {
+            // Ensure there isn't a data directory context that can affect the pathing
+            AppDomain.CurrentDomain.SetData("DataDirectory", null);
+
             using (var connection = new SqliteConnection("Data Source=local.db"))
             {
                 connection.Open();
