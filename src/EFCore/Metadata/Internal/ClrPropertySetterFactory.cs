@@ -41,9 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Expression writeExpression;
             if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
             {
-                writeExpression = Expression.Assign(
-                    Expression.MakeMemberAccess(entityParameter, memberInfo),
-                    convertedParameter);
+                writeExpression = Expression.MakeMemberAccess(entityParameter, memberInfo)
+                    .Assign(convertedParameter);
             }
             else
             {
@@ -59,9 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.TypeAs(entityParameter, memberInfo.DeclaringType)),
                         Expression.IfThen(
                             Expression.ReferenceNotEqual(converted, Expression.Constant(null)),
-                            Expression.Assign(
-                                Expression.MakeMemberAccess(converted, memberInfo),
-                                convertedParameter))
+                            Expression.MakeMemberAccess(converted, memberInfo)
+                                .Assign(convertedParameter))
                     });
             }
 

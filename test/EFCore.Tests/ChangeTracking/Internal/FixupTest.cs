@@ -2783,9 +2783,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Category
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-#pragma warning disable IDE0044 // Add readonly modifier
-            private int _id;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly int _id;
             private ICollection<Product> _products;
 
             // ReSharper disable once UnusedMember.Local
@@ -2811,9 +2809,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Product
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-#pragma warning disable IDE0044 // Add readonly modifier
-            private int _id;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly int _id;
             private int _categoryId;
             private Category _category;
             private ICollection<SpecialOffer> _specialOffers;
@@ -2852,9 +2848,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class SpecialOffer
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-#pragma warning disable IDE0044 // Add readonly modifier
-            private int _id;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly int _id;
             private int _productId;
             private Product _product;
 

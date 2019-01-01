@@ -136,29 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (mode == null
                 || mode == PropertyAccessMode.FieldDuringConstruction)
             {
-                if (forConstruction
-                    && fieldInfo?.IsInitOnly == false)
-                {
-                    memberInfo = fieldInfo;
-                    return true;
-                }
-
                 if (forConstruction)
                 {
                     if (fieldInfo != null)
                     {
-                        if (!fieldInfo.IsInitOnly)
-                        {
-                            memberInfo = fieldInfo;
-                            return true;
-                        }
-
-                        if (mode == PropertyAccessMode.FieldDuringConstruction
-                            && !isCollectionNav)
-                        {
-                            errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
-                            return false;
-                        }
+                        memberInfo = fieldInfo;
+                        return true;
                     }
 
                     if (mode == PropertyAccessMode.FieldDuringConstruction)
@@ -184,17 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (fieldInfo != null)
                     {
-                        if (!fieldInfo.IsInitOnly)
-                        {
-                            memberInfo = fieldInfo;
-                            return true;
-                        }
-
-                        if (!isCollectionNav)
-                        {
-                            errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
-                            return false;
-                        }
+                        memberInfo = fieldInfo;
+                        return true;
                     }
 
                     if (!isCollectionNav)
@@ -231,18 +205,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         || !isCollectionNav)
                     {
                         errorMessage = GetNoFieldErrorMessage(propertyBase);
-                        return false;
-                    }
-
-                    return true;
-                }
-
-                if (forSet
-                    && fieldInfo.IsInitOnly)
-                {
-                    if (!isCollectionNav)
-                    {
-                        errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
                         return false;
                     }
 

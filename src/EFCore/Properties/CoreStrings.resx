@@ -232,9 +232,6 @@
   <data name="NoFieldOrGetter" xml:space="preserve">
     <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a getter.</value>
   </data>
-  <data name="ReadonlyField" xml:space="preserve">
-    <value>Field '{field}' of entity type '{entity}' is readonly and so cannot be set.</value>
-  </data>
   <data name="NoProperty" xml:space="preserve">
     <value>No property was associated with field '{field}' of entity type '{entity}'. Either configure a property or use a different '{pam}'.</value>
   </data>

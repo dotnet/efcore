@@ -317,14 +317,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entity);
 
         /// <summary>
-        ///     Field '{field}' of entity type '{entity}' is readonly and so cannot be set.
-        /// </summary>
-        public static string ReadonlyField([CanBeNull] object field, [CanBeNull] object entity)
-            => string.Format(
-                GetString("ReadonlyField", nameof(field), nameof(entity)),
-                field, entity);
-
-        /// <summary>
         ///     No property was associated with field '{field}' of entity type '{entity}'. Either configure a property or use a different '{pam}'.
         /// </summary>
         public static string NoProperty([CanBeNull] object field, [CanBeNull] object entity, [CanBeNull] object pam)

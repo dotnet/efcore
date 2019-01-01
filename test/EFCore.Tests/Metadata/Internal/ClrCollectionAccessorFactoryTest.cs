@@ -355,21 +355,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Initialization_for_read_only_auto_prop_navigation()
         {
-            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("ReadOnlyAutoProp"));
-
-            Assert.Equal(
-                CoreStrings.NavigationNoSetter("ReadOnlyAutoProp", typeof(MyEntity).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+            AccessorTest("ReadOnlyAutoProp", e => e.ReadOnlyAutoProp, initializeCollections: false);
         }
 
         [Fact]
         public void Initialization_for_read_only_navigation_backed_by_readonly_field()
         {
-            var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("ReadOnlyFieldProp"));
-
-            Assert.Equal(
-                CoreStrings.NavigationNoSetter("ReadOnlyFieldProp", typeof(MyEntity).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+            AccessorTest("ReadOnlyFieldProp", e => e.ReadOnlyFieldProp, initializeCollections: false);
         }
 
         [Fact]
@@ -420,7 +412,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigation;
         }
 
-#pragma warning disable IDE0044 // Add readonly modifier
         private class MyEntity
         {
             private ICollection<MyOtherEntity> _asICollection;
@@ -429,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             private List<MyOtherEntity> _asList;
             private MyCollection _myCollection;
             private readonly ICollection<MyOtherEntity> _withNoBackingFieldFound;
-            private ICollection<MyOtherEntity> _withNoSetter;
+            private readonly ICollection<MyOtherEntity> _withNoSetter;
             private ICollection<MyOtherEntity> _withNoGetter;
             private IEnumerable<MyOtherEntity> _enumerable;
             private IEnumerable<MyOtherEntity> _enumerableNotCollection;
@@ -437,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             private MyPrivateCollection _privateCollection;
             private MyInternalCollection _internalCollection;
             private MyUnavailableCollection _unavailableCollection;
-            private IEnumerable<MyOtherEntity> _readOnlyProp;
+            private readonly IEnumerable<MyOtherEntity> _readOnlyProp;
             private readonly IEnumerable<MyOtherEntity> _readOnlyFieldProp;
             private IEnumerable<MyOtherEntity> _writeOnlyProp;
             private IEnumerable<MyOtherEntity> _fullPropNoFieldNotFound;
@@ -635,6 +626,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
-#pragma warning restore IDE0044 // Add readonly modifier
     }
 }

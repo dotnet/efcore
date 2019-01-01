@@ -1911,9 +1911,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FirstName
         {
-#pragma warning disable IDE0044 // Add readonly modifier
-            private string _value;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly string _value;
 
             protected FirstName()
             {
@@ -1932,9 +1930,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class LastName
         {
-#pragma warning disable IDE0044 // Add readonly modifier
-            private string _value;
-#pragma warning restore IDE0044 // Add readonly modifier
+            private readonly string _value;
 
             protected LastName()
             {
