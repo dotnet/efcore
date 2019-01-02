@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Ansi");
             }
 
-            if (property.GetPropertyAccessMode() != null)
+            if (property.GetPropertyAccessMode() != PropertyAccessMode.PreferField)
             {
                 builder.Append(" PropertyAccessMode.").Append(property.GetPropertyAccessMode());
             }
