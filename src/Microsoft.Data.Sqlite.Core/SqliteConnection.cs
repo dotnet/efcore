@@ -19,7 +19,8 @@ namespace Microsoft.Data.Sqlite
     public partial class SqliteConnection : DbConnection
     {
         internal const string MainDatabaseName = "main";
-        internal const string DataDirectoryToken = "|DataDirectory|";
+
+        private const string DataDirectoryMacro = "|DataDirectory|";
 
         private readonly IList<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
@@ -218,9 +219,9 @@ namespace Microsoft.Data.Sqlite
                 && (flags & raw.SQLITE_OPEN_URI) == 0
                 && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase))
             {
-                if (filename.StartsWith(DataDirectoryToken, StringComparison.InvariantCultureIgnoreCase))
+                if (filename.StartsWith(DataDirectoryMacro, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    filename = Path.Combine(dataDirectory, filename.Substring(DataDirectoryToken.Length));
+                    filename = Path.Combine(dataDirectory, filename.Substring(DataDirectoryMacro.Length));
                 }
                 else if (!Path.IsPathRooted(filename))
                 {
