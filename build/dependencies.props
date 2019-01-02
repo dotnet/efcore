@@ -50,9 +50,9 @@
     <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
     <OracleManagedDataAccessPackageVersion>12.2.1100</OracleManagedDataAccessPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
-    <SQLitePCLRawBundleGreenPackageVersion>1.1.11</SQLitePCLRawBundleGreenPackageVersion>
-    <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.11</SQLitePCLRawBundleSqlcipherPackageVersion>
-    <SQLitePCLRawCorePackageVersion>1.1.11</SQLitePCLRawCorePackageVersion>
+    <SQLitePCLRawBundleGreenPackageVersion>1.1.12</SQLitePCLRawBundleGreenPackageVersion>
+    <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.12</SQLitePCLRawBundleSqlcipherPackageVersion>
+    <SQLitePCLRawCorePackageVersion>1.1.12</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.0.0</StyleCopAnalyzersPackageVersion>
     <!-- This package is System.*, but it's not from corefx. -->
     <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
