@@ -2758,6 +2758,8 @@ namespace Microsoft.EntityFrameworkCore
             private int? _childAsAParentId;
             private ChildAsAParent _childAsAParent;
 
+            public bool Filler { get; set; }
+
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
             {
@@ -2782,6 +2784,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _id;
             private ParentAsAChild _parentAsAChild;
+
+            public bool Filler { get; set; }
 
             public int Id
             {
