@@ -125,6 +125,31 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Open_adjusts_data_directory_path()
+        {
+            string dataSubDirectory = Path.Combine(AppContext.BaseDirectory, "DataFolder");
+
+            if (!Directory.Exists(dataSubDirectory))
+                Directory.CreateDirectory(dataSubDirectory);
+
+            AppDomain.CurrentDomain.SetData("DataDirectory", dataSubDirectory);
+
+            try
+            { 
+                using (var connection = new SqliteConnection("Data Source=|DataDirectory|local.db"))
+                {
+                    connection.Open();
+
+                    Assert.Equal(Path.Combine(dataSubDirectory, "local.db"), connection.DataSource);
+                }
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.SetData("DataDirectory", null);
+            }
+        }
+
+        [Fact]
         public void Open_adjusts_relative_path()
         {
             using (var connection = new SqliteConnection("Data Source=local.db"))

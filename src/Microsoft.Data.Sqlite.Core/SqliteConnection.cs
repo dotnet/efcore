@@ -20,6 +20,8 @@ namespace Microsoft.Data.Sqlite
     {
         internal const string MainDatabaseName = "main";
 
+        private const string DataDirectoryMacro = "|DataDirectory|";
+
         private readonly IList<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
         private string _connectionString;
@@ -215,10 +217,17 @@ namespace Microsoft.Data.Sqlite
             var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string;
             if (!string.IsNullOrEmpty(dataDirectory)
                 && (flags & raw.SQLITE_OPEN_URI) == 0
-                && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase)
-                && !Path.IsPathRooted(filename))
+                && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase))
             {
-                filename = Path.Combine(dataDirectory, filename);
+                if (filename.StartsWith(DataDirectoryMacro, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    filename = Path.Combine(dataDirectory, filename.Substring(DataDirectoryMacro.Length));
+                }
+                else if (!Path.IsPathRooted(filename))
+                {
+                    filename = Path.Combine(dataDirectory, filename);
+                }
+
             }
 
             var rc = raw.sqlite3_open_v2(filename, out _db, flags, vfs: null);
