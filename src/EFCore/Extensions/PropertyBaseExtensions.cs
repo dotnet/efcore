@@ -31,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="propertyBase"> The property for which to get the access mode. </param>
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
-        public static PropertyAccessMode? GetPropertyAccessMode(
+        public static PropertyAccessMode GetPropertyAccessMode(
             [NotNull] this IPropertyBase propertyBase)
-            => (PropertyAccessMode?)Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
-               ?? (propertyBase is INavigation
-                   ? propertyBase.DeclaringType.GetNavigationAccessMode()
-                   : propertyBase.DeclaringType.GetPropertyAccessMode());
+            => (PropertyAccessMode)(Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
+                                    ?? (propertyBase is INavigation
+                                        ? propertyBase.DeclaringType.GetNavigationAccessMode()
+                                        : propertyBase.DeclaringType.GetPropertyAccessMode()));
     }
 }
