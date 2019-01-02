@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextOptionsExtensionWithDebugInfo
+    public class SqlServerOptionsExtension : RelationalOptionsExtension
     {
         private long? _serviceProviderHash;
         private bool? _rowNumberPaging;
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {
             debugInfo["SqlServer:" + nameof(SqlServerDbContextOptionsBuilder.UseRowNumberForPaging)]
                 = (_rowNumberPaging?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);

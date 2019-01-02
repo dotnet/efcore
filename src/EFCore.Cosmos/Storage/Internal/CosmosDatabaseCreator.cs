@@ -83,5 +83,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
             => _cosmosClient.DeleteDatabaseAsync(cancellationToken);
+
+        public virtual bool CanConnect()
+            => throw new NotImplementedException();
+
+        public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
     }
 }

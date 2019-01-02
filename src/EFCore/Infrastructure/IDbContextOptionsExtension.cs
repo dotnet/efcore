@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -48,5 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     any useful non-default options that have been configured.
         /// </summary>
         string LogFragment { get; }
+
+        /// <summary>
+        ///     Populates a dictionary of information that may change between uses of the
+        ///     extension such that it can be compared to a previous configuration for
+        ///     this option and differences can be logged. The dictionary key should be prefixed by the
+        ///     extension name. For example, <c>"SqlServer:"</c>.
+        /// </summary>
+        /// <param name="debugInfo"> The dictionary to populate. </param>
+        void PopulateDebugInfo([NotNull] IDictionary<string, string> debugInfo);
     }
 }

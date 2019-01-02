@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -31,6 +32,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             AddEntityFrameworkRelationalDatabase(services);
 
             return true;
+        }
+
+        public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        {
         }
 
         public static IServiceCollection AddEntityFrameworkRelationalDatabase(IServiceCollection serviceCollection)

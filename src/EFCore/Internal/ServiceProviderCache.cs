@@ -66,15 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     var debugInfo = new Dictionary<string, string>();
                     foreach (var optionsExtension in options.Extensions)
                     {
-                        if (optionsExtension is IDbContextOptionsExtensionWithDebugInfo extended)
-                        {
-                            extended.PopulateDebugInfo(debugInfo);
-                        }
-                        else
-                        {
-                            debugInfo[optionsExtension.GetType().DisplayName()]
-                                = optionsExtension.GetServiceProviderHashCode().ToString(CultureInfo.InvariantCulture);
-                        }
+                        optionsExtension.PopulateDebugInfo(debugInfo);
                     }
 
                     debugInfo = debugInfo.OrderBy(v => debugInfo.Keys).ToDictionary(d => d.Key, v => v.Value);

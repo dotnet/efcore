@@ -118,9 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
         public virtual bool CanConnect()
-            => DatabaseCreator is IDatabaseCreatorWithCanConnect withCanConnect
-                ? withCanConnect.CanConnect()
-                : throw new NotImplementedException(CoreStrings.CanConnectNotImplemented);
+            => DatabaseCreator.CanConnect();
 
         /// <summary>
         ///     <para>
@@ -134,9 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
-            => DatabaseCreator is IDatabaseCreatorWithCanConnect withCanConnect
-                ? withCanConnect.CanConnectAsync(cancellationToken)
-                : throw new NotImplementedException(CoreStrings.CanConnectNotImplemented);
+            => DatabaseCreator.CanConnectAsync(cancellationToken);
 
         /// <summary>
         ///     Starts a new transaction.

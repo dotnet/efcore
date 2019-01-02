@@ -60,5 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
                 }
             }
         }
+
+        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        {
+            debugInfo["NetTopologySuite"] = "1";
+        }
     }
 }

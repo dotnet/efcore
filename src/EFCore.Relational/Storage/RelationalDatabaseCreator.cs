@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator, IDatabaseCreatorWithCanConnect
+    public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.

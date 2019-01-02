@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -101,6 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
         public void Validate(IDbContextOptions options)
         {
+        }
+
+        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        {
+            debugInfo["Cosmos"] = "1";
         }
 
         public string LogFragment
