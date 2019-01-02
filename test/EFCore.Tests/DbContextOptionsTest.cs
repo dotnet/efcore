@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -130,6 +131,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual string LogFragment => "";
+
+            public void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            {
+            }
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
@@ -143,6 +148,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual string LogFragment => "";
+
+            public void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            {
+            }
         }
 
         [Fact]

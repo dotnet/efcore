@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false)]
         public async Task Methods_delegate_to_configured_store_creator(bool async)
         {
-            var creator = new FakeDatabaseCreatorWithCanConnect();
+            var creator = new FakeDatabaseCreator();
 
             var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton<IDatabaseCreator>(creator));
@@ -51,28 +51,10 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task CanConnect_methods_throw_if_not_implemented(bool async)
-        {
-            var creator = new FakeDatabaseCreator();
-
-            var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton<IDatabaseCreator>(creator));
-
-            if (async)
-            {
-                await Assert.ThrowsAsync<NotImplementedException>(() => context.Database.CanConnectAsync());
-            }
-            else
-            {
-                Assert.Throws<NotImplementedException>(() => context.Database.CanConnect());
-            }
-        }
-
         private class FakeDatabaseCreator : IDatabaseCreator
         {
+            public int CanConnectCount;
+            public int CanConnectAsyncCount;
             public int EnsureDeletedCount;
             public int EnsureDeletedAsyncCount;
             public int EnsureCreatedCount;
@@ -101,12 +83,6 @@ namespace Microsoft.EntityFrameworkCore
                 EnsureCreatedAsyncCount++;
                 return Task.FromResult(true);
             }
-        }
-
-        private class FakeDatabaseCreatorWithCanConnect : FakeDatabaseCreator, IDatabaseCreatorWithCanConnect
-        {
-            public int CanConnectCount;
-            public int CanConnectAsyncCount;
 
             public bool CanConnect()
             {

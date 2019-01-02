@@ -66,5 +66,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     false if it already existed.
         /// </returns>
         Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     <para>
+        ///         Determines whether or not the database is available and can be connected to.
+        ///     </para>
+        ///     <para>
+        ///         Note that being able to connect to the database does not mean that it is
+        ///         up-to-date with regard to schema creation, etc.
+        ///     </para>
+        /// </summary>
+        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        bool CanConnect();
+
+        /// <summary>
+        ///     <para>
+        ///         Determines whether or not the database is available and can be connected to.
+        ///     </para>
+        ///     <para>
+        ///         Note that being able to connect to the database does not mean that it is
+        ///         up-to-date with regard to schema creation, etc.
+        ///     </para>
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        Task<bool> CanConnectAsync(CancellationToken cancellationToken = default);
     }
 }

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqliteOptionsExtension : RelationalOptionsExtension, IDbContextOptionsExtensionWithDebugInfo
+    public class SqliteOptionsExtension : RelationalOptionsExtension
     {
         private bool _enforceForeignKeys = true;
         private bool _loadSpatialite;
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {
             debugInfo["Sqlite"] = "1";
         }

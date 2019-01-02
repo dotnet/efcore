@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class InMemoryOptionsExtension : IDbContextOptionsExtensionWithDebugInfo
+    public class InMemoryOptionsExtension : IDbContextOptionsExtension
     {
         private string _storeName;
         private InMemoryDatabaseRoot _databaseRoot;
