@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
@@ -48,14 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                     Expression.Convert(
                         Expression.Multiply(
                             new ExplicitCastExpression(
-                                new SqlFunctionExpression(
-                                    "strftime",
+                                SqliteExpression.Strftime(
                                     typeof(string),
-                                    new[]
-                                    {
-                                        Expression.Constant("%f"),
-                                        memberExpression.Expression
-                                    }),
+                                    "%f",
+                                    memberExpression.Expression),
                                 typeof(double)),
                             Expression.Convert(
                                 Expression.Constant(1000),
@@ -83,78 +78,55 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             if (_datePartMapping.TryGetValue(memberName, out var datePart))
             {
                 return new ExplicitCastExpression(
-                    new SqlFunctionExpression(
-                        "strftime",
+                    SqliteExpression.Strftime(
                         typeof(string),
-                        new[]
-                        {
-                            Expression.Constant(datePart),
-                            memberExpression.Expression
-                        }),
+                        datePart,
+                        memberExpression.Expression),
                     memberExpression.Type);
             }
 
-            var sqlArguments = new List<Expression>();
+            string format = null;
+            Expression timestring = null;
+            var modifiers = new List<Expression>();
+
             var datetimeFormat = "%Y-%m-%d %H:%M:%f";
             switch (memberName)
             {
                 case nameof(DateTime.Now):
-                    sqlArguments.Add(Expression.Constant(datetimeFormat));
-                    sqlArguments.Add(Expression.Constant("now"));
-                    sqlArguments.Add(Expression.Constant("localtime"));
+                    format = datetimeFormat;
+                    timestring = Expression.Constant("now");
+                    modifiers.Add(Expression.Constant("localtime"));
                     break;
 
                 case nameof(DateTime.UtcNow):
-                    sqlArguments.Add(Expression.Constant(datetimeFormat));
-                    sqlArguments.Add(Expression.Constant("now"));
+                    format = datetimeFormat;
+                    timestring = Expression.Constant("now");
                     break;
 
                 case nameof(DateTime.Date):
-
-                    sqlArguments.Add(Expression.Constant(datetimeFormat));
-
-                    // If the inner call is another strftime then shortcut a double call
-                    if (memberExpression.Expression is SqlFunctionExpression rtrimFunction
-                        && rtrimFunction.FunctionName == "rtrim"
-                        && rtrimFunction.Arguments.Count == 2
-                        && rtrimFunction.Arguments[0] is SqlFunctionExpression rtrimFunction2
-                        && rtrimFunction2.FunctionName == "rtrim"
-                        && rtrimFunction2.Arguments.Count == 2
-                        && rtrimFunction2.Arguments[0] is SqlFunctionExpression strftimeFunction
-                        && strftimeFunction.FunctionName == "strftime"
-                        && strftimeFunction.Arguments.Count > 1)
-                    {
-                        // Use its timestring parameter directly in place of ours
-                        sqlArguments.Add(strftimeFunction.Arguments[1]);
-
-                        // Prepend its modifier arguments (if any) to the current call
-                        sqlArguments.AddRange(strftimeFunction.Arguments.Skip(2));
-                    }
-                    else
-                    {
-                        sqlArguments.Add(memberExpression.Expression);
-                    }
-
-                    sqlArguments.Add(Expression.Constant("start of day"));
+                    format = datetimeFormat;
+                    timestring = memberExpression.Expression;
+                    modifiers.Add(Expression.Constant("start of day"));
                     break;
 
                 case nameof(DateTime.Today):
-                    sqlArguments.Add(Expression.Constant(datetimeFormat));
-                    sqlArguments.Add(Expression.Constant("now"));
-                    sqlArguments.Add(Expression.Constant("localtime"));
-                    sqlArguments.Add(Expression.Constant("start of day"));
+                    format = datetimeFormat;
+                    timestring = Expression.Constant("now");
+                    modifiers.Add(Expression.Constant("localtime"));
+                    modifiers.Add(Expression.Constant("start of day"));
                     break;
 
                 case nameof(DateTime.TimeOfDay):
-                    sqlArguments.Add(Expression.Constant("%H:%M:%f"));
-                    sqlArguments.Add(memberExpression.Expression);
+                    format = "%H:%M:%f";
+                    timestring = memberExpression.Expression;
                     break;
 
                 default:
                     return null;
             }
 
-            Debug.Assert(sqlArguments.Count != 0);
+            Debug.Assert(format != null);
+            Debug.Assert(timestring != null);
 
             return new SqlFunctionExpression(
                 "rtrim",
@@ -166,10 +138,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                         memberExpression.Type,
                         new Expression[]
                         {
-                            new SqlFunctionExpression(
-                                "strftime",
+                            SqliteExpression.Strftime(
                                 memberExpression.Type,
-                                sqlArguments),
+                                format,
+                                timestring,
+                                modifiers),
                             Expression.Constant("0")
                         }),
                     Expression.Constant(".")
