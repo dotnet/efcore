@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private static readonly string _sharedLibraryExtension;
         private static readonly string _pathVariableName;
 
-        private static string _extension;
+        private static bool _looked;
 
         static SpatialiteLoader()
         {
@@ -77,20 +77,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(connection, nameof(connection));
 
-            var extension = FindExtension();
+            FindExtension();
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT load_extension('" + extension + "');";
+                command.CommandText = "SELECT load_extension('mod_spatialite');";
                 command.ExecuteNonQuery();
             }
         }
 
-        private static string FindExtension()
+        private static void FindExtension()
         {
-            if (_extension != null)
+            if (_looked)
             {
-                return _extension;
+                return;
             }
 
             bool hasDependencyContext;
@@ -165,15 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
 
-            var extension = "mod_spatialite";
-
-            // Workaround ericsink/SQLitePCL.raw#225
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                extension += _sharedLibraryExtension;
-            }
-
-            return _extension = extension;
+            _looked = true;
         }
     }
 }
