@@ -424,11 +424,12 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 var command = connection.CreateCommand();
-                command.CommandText = "SELECT @Parameter;";
+                command.CommandText = "SELECT @Parameter, @Parameter2;";
+                command.Parameters.AddWithValue("@Parameter", 1);
                 connection.Open();
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
-                Assert.Equal(Resources.MissingParameters("@Parameter"), ex.Message);
+                Assert.Equal(Resources.MissingParameters("@Parameter2"), ex.Message);
             }
         }
 

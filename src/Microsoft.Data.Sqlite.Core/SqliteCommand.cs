@@ -344,7 +344,7 @@ namespace Microsoft.Data.Sqlite
                             var name = raw.sqlite3_bind_parameter_name(stmt, i);
 
                             if (_parameters.IsValueCreated
-                                || !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                                && !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
                             {
                                 unboundParams.Add(name);
                             }
