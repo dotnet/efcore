@@ -202,6 +202,7 @@ namespace Microsoft.Data.Sqlite
         protected override void Dispose(bool disposing)
         {
             DisposePreparedStatements(disposing);
+            _connection?.RemoveCommand(this);
 
             base.Dispose(disposing);
         }

@@ -76,6 +76,8 @@ namespace Microsoft.Data.Sqlite
 
         internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
+        internal int CommandsCount => _commands.Count;
+
         /// <summary>
         ///     Gets the name of the current database. Always 'main'.
         /// </summary>
@@ -249,8 +251,10 @@ namespace Microsoft.Data.Sqlite
 
             Transaction?.Dispose();
 
-            foreach (var reference in _commands)
+            // command.Dispose() removes itself from _commands
+            for (var i = _commands.Count - 1; i >= 0; i--)
             {
+                var reference = _commands[i];
                 if (reference.TryGetTarget(out var command))
                 {
                     command.Dispose();
