@@ -659,7 +659,8 @@ namespace Microsoft.Data.Sqlite
                 var tableName = sqlite3_column_table_name(_record.Handle, i).utf8_to_string();
                 schemaRow[BaseTableName] = tableName;
                 schemaRow[DataType] = GetFieldType(i);
-                schemaRow[DataTypeName] = GetDataTypeName(i);
+                var dataTypeName = GetDataTypeName(i);
+                schemaRow[DataTypeName] = dataTypeName;
                 schemaRow[IsAliased] = columnName != GetName(i);
                 schemaRow[IsExpression] = columnName == null;
                 schemaRow[IsLong] = DBNull.Value;
@@ -691,7 +692,11 @@ namespace Microsoft.Data.Sqlite
                             .AppendLine("LIMIT 1;").ToString();
 
                         var type = (string)command.ExecuteScalar();
-                        schemaRow[DataType] = SqliteDataRecord.GetFieldType(type);
+                        schemaRow[DataType] =
+                            (type != null)
+                            ? SqliteDataRecord.GetFieldType(type)
+                            : SqliteDataRecord.GetFieldTypeFromSqliteType(
+                            SqliteDataRecord.Sqlite3AffinityType(dataTypeName));
                     }
 
                     if (!string.IsNullOrEmpty(databaseName))

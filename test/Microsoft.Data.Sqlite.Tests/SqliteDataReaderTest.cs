@@ -781,6 +781,56 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Theory]
+        [InlineData("TEXT", typeof(string))]
+        [InlineData("CHARACTER(20)", typeof(string))]
+        [InlineData("NVARCHAR(100)", typeof(string))]
+        [InlineData("CLOB", typeof(string))]
+        [InlineData("INTEGER", typeof(long))]
+        [InlineData("BIGINT", typeof(long))]
+        [InlineData("UNSIGNED BIG INT", typeof(long))]
+        [InlineData("REAL", typeof(double))]
+        [InlineData("DOUBLE", typeof(double))]
+        [InlineData("FLOAT", typeof(double))]
+        [InlineData("BLOB", typeof(byte[]))]
+        [InlineData("", typeof(byte[]))]
+        [InlineData("NUMERIC", typeof(string))]
+        [InlineData("DATETIME", typeof(string))]
+        public void GetFieldType_works_on_NULL(string type, Type expected)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery($"CREATE TABLE Test(Value {type});");
+
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    Assert.Equal(expected, reader.GetFieldType(0));
+                }
+            }
+        }
+
+        [Fact]
+        public void GetFieldType_works_on_NULL_cached()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value FOOBAR);");
+                connection.ExecuteNonQuery("INSERT INTO Test (Value) VALUES ('test'), (NULL);");
+
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal(typeof(string), reader.GetFieldType(0));
+                    Assert.Equal("test", reader.GetValue(0));
+                    Assert.True(reader.Read());
+                    Assert.Equal(typeof(string), reader.GetFieldType(0));
+                    Assert.Equal(DBNull.Value, reader.GetValue(0));
+                }
+            }
+        }
+
         [Fact]
         public void GetFieldType_throws_when_ordinal_out_of_range()
         {
@@ -1656,6 +1706,37 @@ namespace Microsoft.Data.Sqlite
                     var schema = reader.GetSchemaTable();
                     Assert.True(schema.Columns.Contains("DataType"));
                     Assert.Equal(expectedType, schema.Rows[0]["DataType"]);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData("TEXT", typeof(string))]
+        [InlineData("CHARACTER(20)", typeof(string))]
+        [InlineData("NVARCHAR(100)", typeof(string))]
+        [InlineData("CLOB", typeof(string))]
+        [InlineData("INTEGER", typeof(long))]
+        [InlineData("BIGINT", typeof(long))]
+        [InlineData("UNSIGNED BIG INT", typeof(long))]
+        [InlineData("REAL", typeof(double))]
+        [InlineData("DOUBLE", typeof(double))]
+        [InlineData("FLOAT", typeof(double))]
+        [InlineData("BLOB", typeof(byte[]))]
+        [InlineData("", typeof(byte[]))]
+        [InlineData("NUMERIC", typeof(string))]
+        [InlineData("DATETIME", typeof(string))]
+        public void GetSchemaTable_DataType_works_on_empty_table(string type, Type expected)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery($"CREATE TABLE Test(Value {type});");
+
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    var schema = reader.GetSchemaTable();
+                    Assert.True(schema.Columns.Contains("DataType"));
+                    Assert.Equal(expected, schema.Rows[0]["DataType"]);
                 }
             }
         }
