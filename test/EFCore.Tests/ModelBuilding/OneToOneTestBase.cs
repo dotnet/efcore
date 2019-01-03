@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fkProperty = dependentType.FindProperty(nameof(OrderDetails.OrderId));
 
                 modelBuilder.Entity<OrderDetails>().HasKey(d => d.OrderId);
-                modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
+                var fkBuilder = modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
 
                 modelBuilder.Validate();
 
@@ -304,6 +304,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
                 Assert.Empty(dependentType.GetIndexes());
                 Assert.Empty(principalType.GetIndexes());
+                Assert.True(fk.IsRequired);
+
+                fkBuilder.HasForeignKey<OrderDetails>("fk");
+
+                fk = dependentType.GetForeignKeys().Single();
+                Assert.False(fk.IsRequired);
             }
 
             [Fact]
