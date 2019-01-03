@@ -1363,7 +1363,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     propertyNames,
                     configurationSource,
                     Metadata.PrincipalKey.Properties,
-                    Metadata.GetIsRequiredConfigurationSource() == null ? false : Metadata.IsRequired,
+                    Metadata.GetIsRequiredConfigurationSource() == null
+                        && !(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue14269", out var isEnabled) && isEnabled)
+                        ? false
+                        : Metadata.IsRequired,
                     useDefaultType: true),
                 dependentEntityType,
                 configurationSource);
@@ -1846,7 +1849,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentProperties?.Count > 0 ? dependentProperties : null,
                     oldNameDependentProperties,
                     principalProperties?.Count > 0 ? principalProperties : null,
-                    isRequired,
+                    (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue14269", out var isEnabled) && isEnabled)
+                        ? isRequired ?? Metadata.IsRequired
+                        : isRequired,
                     removeCurrent,
                     principalEndConfigurationSource,
                     configurationSource,
