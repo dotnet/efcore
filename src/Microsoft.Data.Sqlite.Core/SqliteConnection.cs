@@ -76,8 +76,6 @@ namespace Microsoft.Data.Sqlite
 
         internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
-        internal int CommandsCount => _commands.Count;
-
         /// <summary>
         ///     Gets the name of the current database. Always 'main'.
         /// </summary>
@@ -261,7 +259,7 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            _commands.Clear();
+            Debug.Assert(_commands.Count == 0);
 
             _db.Dispose2();
             _db = null;

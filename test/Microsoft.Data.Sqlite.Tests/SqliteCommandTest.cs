@@ -879,19 +879,5 @@ namespace Microsoft.Data.Sqlite
                 Assert.NotNull(result);
             }
         }
-
-        [Fact]
-        public void Commands_are_disposed_with_cleanup_of_connection()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                using (var cmd = new SqliteCommand("SELECT 1", connection))
-                {
-                }
-
-                Assert.Equal(0, connection.CommandsCount);
-            }
-        }
     }
 }
