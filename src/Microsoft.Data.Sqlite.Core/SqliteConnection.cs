@@ -249,15 +249,17 @@ namespace Microsoft.Data.Sqlite
 
             Transaction?.Dispose();
 
-            foreach (var reference in _commands)
+            // command.Dispose() removes itself from _commands
+            for (var i = _commands.Count - 1; i >= 0; i--)
             {
+                var reference = _commands[i];
                 if (reference.TryGetTarget(out var command))
                 {
                     command.Dispose();
                 }
             }
 
-            _commands.Clear();
+            Debug.Assert(_commands.Count == 0);
 
             _db.Dispose2();
             _db = null;
