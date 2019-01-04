@@ -61,11 +61,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.InMemory.Tests", "te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Proxies.Tests", "test\EFCore.Proxies.Tests\EFCore.Proxies.Tests.csproj", "{007D03D8-D4A2-4398-A39C-F84A90027161}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Relational.Specification.Tests", "src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj", "{07FA2B15-A6A5-4292-A096-7771FB32EEDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Relational.Specification.Tests", "test\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj", "{07FA2B15-A6A5-4292-A096-7771FB32EEDA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Relational.Tests", "test\EFCore.Relational.Tests\EFCore.Relational.Tests.csproj", "{1A884122-DC9E-42B1-8821-E43340F954D1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Specification.Tests", "src\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj", "{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Specification.Tests", "test\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj", "{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Sqlite.FunctionalTests", "test\EFCore.Sqlite.FunctionalTests\EFCore.Sqlite.FunctionalTests.csproj", "{7BB7D051-56D7-4A40-A29E-3801F5C19239}"
 EndProject

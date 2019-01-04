@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Abstractions", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers", "src\EFCore.Analyzers\EFCore.Analyzers.csproj", "{11D34E4A-1E58-4C7D-BBF5-52388592CD9F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Specification.Tests", "src\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj", "{5AA1208E-855B-4077-9F2D-14D4BB21636F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Specification.Tests", "test\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj", "{5AA1208E-855B-4077-9F2D-14D4BB21636F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Proxies", "src\EFCore.Proxies\EFCore.Proxies.csproj", "{CA1670F6-3E85-4405-B815-4211394F4B0E}"
 EndProject

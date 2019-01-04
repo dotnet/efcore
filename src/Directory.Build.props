@@ -1,8 +1,4 @@
 <Project>
-  <PropertyGroup>
-    <IsUnitTestProject>false</IsUnitTestProject>
-  </PropertyGroup>
-
   <Import Project="..\Directory.Build.props" />
   
   <PropertyGroup>

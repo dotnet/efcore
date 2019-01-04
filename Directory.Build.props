@@ -2,6 +2,7 @@
   <!-- HACK: Our test projects don't match Arcade's conventions -->
   <PropertyGroup Condition="'$(IsUnitTestProject)' == ''">
     <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('.FunctionalTests'))">True</IsUnitTestProject>
+    <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('.Specification.Tests'))">False</IsUnitTestProject>
   </PropertyGroup>
 
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />

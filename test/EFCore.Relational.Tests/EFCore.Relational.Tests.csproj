@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
+    <ProjectReference Include="..\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
     <ProjectReference Include="..\EFCore.Tests\EFCore.Tests.csproj" />
   </ItemGroup>
 
