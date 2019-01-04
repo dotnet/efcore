@@ -1098,7 +1098,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             switch (expression)
             {
-                case CompareExpression compare:
+                case ComparisonExpression compare:
                     var newLeft = Visit(compare.Left);
                     var newRight = Visit(compare.Right);
                     if (newLeft == null
@@ -1109,7 +1109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     return newLeft != compare.Left
                            || newRight != compare.Right
-                        ? new CompareExpression(compare.Operator, newLeft, newRight)
+                        ? new ComparisonExpression(compare.Operator, newLeft, newRight)
                         : expression;
 
                 case ExplicitCastExpression explicitCast:

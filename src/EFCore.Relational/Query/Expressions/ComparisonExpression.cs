@@ -13,15 +13,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// <summary>
     ///     Represents a SQL comparison expression.
     /// </summary>
-    public class CompareExpression : Expression
+    public class ComparisonExpression : Expression
     {
         /// <summary>
-        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.CompareExpression class.
+        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.ComparisonExpression class.
         /// </summary>
         /// <param name="op"> The comparison operation. </param>
         /// <param name="left"> The left operand. </param>
         /// <param name="right"> The right operand. </param>
-        public CompareExpression(ExpressionType op, [NotNull] Expression left, [NotNull] Expression right)
+        public ComparisonExpression(ExpressionType op, [NotNull] Expression left, [NotNull] Expression right)
         {
             Operator = op;
             Left = left;
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newRight = visitor.Visit(Right);
 
             return newLeft != Left || newRight != Right
-                ? new CompareExpression(Operator, newLeft, newRight)
+                ? new ComparisonExpression(Operator, newLeft, newRight)
                 : this;
         }
 
@@ -113,10 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((CompareExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((ComparisonExpression)obj);
         }
 
-        private bool Equals(CompareExpression other)
+        private bool Equals(ComparisonExpression other)
             => Operator == other.Operator
                && ExpressionEqualityComparer.Instance.Equals(Left, other.Left)
                && ExpressionEqualityComparer.Instance.Equals(Right, other.Right);

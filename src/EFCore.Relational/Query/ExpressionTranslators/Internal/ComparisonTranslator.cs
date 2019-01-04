@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CompareTranslator : IExpressionFragmentTranslator
+    public class ComparisonTranslator : IExpressionFragmentTranslator
     {
         private static readonly Dictionary<ExpressionType, ExpressionType> _operatorMap = new Dictionary<ExpressionType, ExpressionType>
         {
@@ -77,12 +77,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 var constantValue = (int)constant.Value;
                 Expression left = null, right = null;
 
-                if (methodCall.Method.Name == "Compare")
+                if (methodCall.Method.Name == "Compare"
+                    && methodCall.Arguments.Count == 2
+                    && methodCall.Arguments[0].Type == methodCall.Arguments[1].Type)
                 {
                     left = methodCall.Arguments[0];
                     right = methodCall.Arguments[1];
                 }
-                else if (methodCall.Method.Name == "CompareTo")
+                else if (methodCall.Method.Name == "CompareTo"
+                    && methodCall.Arguments.Count == 1
+                    && methodCall.Object != null
+                    && methodCall.Object.Type == methodCall.Arguments[0].Type)
                 {
                     left = methodCall.Object;
                     right = methodCall.Arguments[0];
@@ -93,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     if (constantValue == 0)
                     {
                         // Compare(strA, strB) > 0 => strA > strB
-                        return new CompareExpression(opFunc(op), left, right);
+                        return new ComparisonExpression(opFunc(op), left, right);
                     }
 
                     if (constantValue == 1)
@@ -101,13 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         if (op == ExpressionType.Equal)
                         {
                             // Compare(strA, strB) == 1 => strA > strB
-                            return new CompareExpression(ExpressionType.GreaterThan, left, right);
+                            return new ComparisonExpression(ExpressionType.GreaterThan, left, right);
                         }
 
                         if (op == opFunc(ExpressionType.LessThan))
                         {
                             // Compare(strA, strB) < 1 => strA <= strB
-                            return new CompareExpression(ExpressionType.LessThanOrEqual, left, right);
+                            return new ComparisonExpression(ExpressionType.LessThanOrEqual, left, right);
                         }
                     }
 
@@ -116,13 +121,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         if (op == ExpressionType.Equal)
                         {
                             // Compare(strA, strB) == -1 => strA < strB
-                            return new CompareExpression(ExpressionType.LessThan, left, right);
+                            return new ComparisonExpression(ExpressionType.LessThan, left, right);
                         }
 
                         if (op == opFunc(ExpressionType.GreaterThan))
                         {
                             // Compare(strA, strB) > -1 => strA >= strB
-                            return new CompareExpression(ExpressionType.GreaterThanOrEqual, left, right);
+                            return new ComparisonExpression(ExpressionType.GreaterThanOrEqual, left, right);
                         }
                     }
                 }

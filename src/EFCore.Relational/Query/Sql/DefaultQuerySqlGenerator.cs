@@ -1011,21 +1011,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
-        ///     Visit a StringCompareExpression.
+        ///     Visit a ComparisonExpression.
         /// </summary>
-        /// <param name="stringCompareExpression"> The string compare expression. </param>
+        /// <param name="comparisonExpression"> The comparison expression. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        public virtual Expression VisitCompare(CompareExpression stringCompareExpression)
+        public virtual Expression VisitCompare(ComparisonExpression comparisonExpression)
         {
-            Visit(stringCompareExpression.Left);
+            Visit(comparisonExpression.Left);
 
-            _relationalCommandBuilder.Append(GenerateOperator(stringCompareExpression));
+            _relationalCommandBuilder.Append(GenerateOperator(comparisonExpression));
 
-            Visit(stringCompareExpression.Right);
+            Visit(comparisonExpression.Right);
 
-            return stringCompareExpression;
+            return comparisonExpression;
         }
 
         /// <summary>
@@ -1796,8 +1796,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             switch (expression)
             {
-                case CompareExpression stringCompareExpression:
-                    return _operatorMap[stringCompareExpression.Operator];
+                case ComparisonExpression comparisonExpression:
+                    return _operatorMap[comparisonExpression.Operator];
 
                 default:
                     return _operatorMap[expression.NodeType];
@@ -2075,7 +2075,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                        || expression is InExpression
                        || expression is IsNullExpression
                        || expression is LikeExpression
-                       || expression is CompareExpression;
+                       || expression is ComparisonExpression;
             }
 
             private static Expression BuildCompareToExpression(Expression expression, bool compareTo)
